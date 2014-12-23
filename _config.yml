@@ -1,0 +1,9 @@
+# Site settings
+title: Red Pitaya Notes
+description: My notes on the Red Pitaya Open Source Instrument
+baseurl: /red-pitaya-notes
+url: http://pavel-demin.github.io
+
+# Build settings
+markdown: kramdown
+highlighter: pygments
