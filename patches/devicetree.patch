@@ -1,0 +1,31 @@
+--- led_blinker.dts.old	2014-12-10 22:27:35.576535000 +0100
++++ led_blinker.dts	2014-12-10 22:20:59.268535000 +0100
+@@ -23,3 +23,28 @@
+ 		reg = <0x0 0x20000000>;
+ 	} ;
+ };
++
++&ps7_ethernet_0 {
++	phy-handle = <&phy0>;
++	mdio {
++		phy0: phy@1 {
++			compatible = "lantiq,phy11g";
++			device_type = "ethernet-phy";
++			reg = <1>;
++		};
++	};
++};
++
++&ps7_i2c_0 {
++	#address-cells = <1>;
++	#size-cells = <0>;
++	eep@50 {
++		compatible = "24c64";
++		reg = <0x50>;
++	};
++	eep@51 {
++		compatible = "24c64";
++		reg = <0x51>;
++	};
++};
++
