@@ -3,6 +3,10 @@ layout: page
 title: LED blinker
 permalink: /led-blinker/
 ---
+
+Introduction
+-----
+
 For my experiments with the [Red Pitaya](http://wiki.redpitaya.com), I'd like to have the following development environment:
 
  - recent version of the [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado)
