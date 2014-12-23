@@ -11,10 +11,17 @@
 <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
 </head>
 <body>
-<div class="header">
-<a href="{{ site.baseurl }}/"><h2 id="project_title">{{ site.title }}</h2></a>
+<div id="header">
+<div id="logo">
+<a href="{{ site.baseurl }}/">{{ site.title }}</a>
 </div>
-<div class="content">
+<div id="menu">
+<a href="https://github.com/pavel-demin/red-pitaya-notes">Source</a>
+<a href="https://github.com/pavel-demin/red-pitaya-notes/issues">Issues</a>
+</div>
+</div>
+</div>
+<div id="content">
 {{ content }}
 </div>
 </body>
