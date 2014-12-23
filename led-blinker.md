@@ -71,12 +71,12 @@ Building `u-boot.elf`, `boot.bin` and `devicetree.dtb`:
 make NAME=led_blinker all
 {% endhighlight %}
 
-Building Debian Wheezy root file system:
+Building a Debian Wheezy root file system:
 {% highlight bash %}
 sudo source scripts/rootfs.sh
 {% endhighlight %}
 
-Creating SD card:
+Building a bootable SD card:
 {% highlight bash %}
 sudo source scripts/sdcard.sh
 {% endhighlight %}
