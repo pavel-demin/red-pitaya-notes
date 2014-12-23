@@ -1,4 +1,4 @@
-ethaddr=00:26:32:F0:05:EC
+ethaddr=00:26:33:14:50:00
 
 kernel_image=uImage
 devicetree_image=devicetree.dtb
