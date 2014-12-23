@@ -9,7 +9,7 @@ For my experiments with the [Red Pitaya](http://wiki.redpitaya.com), I'd like to
  - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2014.3)
  - recent version of the [Ubuntu distribution](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) on the development machine
  - recent version of the [Debian distribution](http://www.debian.org/releases/stable) on the Red Pitaya
- - base project with all the [Red Pitaya](http://wiki.redpitaya.com) peripherals connected
+ - basic project with all the [Red Pitaya](http://wiki.redpitaya.com) peripherals connected
  - mostly command-line tools
  - shallow directory structure
 
@@ -34,7 +34,23 @@ sudo apt-get --no-install-recommends install \
   gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
   qemu-user-static debootstrap binfmt-support
 {% endhighlight %}
- 
+
+Source code
+-----
+
+The source code is available at
+
+<https://github.com/pavel-demin/red-pitaya-notes>
+
+This repository contains the following components:
+
+ - `Makefile` that builds everything (almost)
+ - `cfg` directory with constraints and board definition files
+ - `led_blinker` directory with two Verilog files for a basic project
+ - `scripts` directory with
+   - Tcl scripts for Vivado and SDK
+   - shell scripts that bootstrap a Debian root file system and build a bootable SD card
+
 Getting started
 -----
 
