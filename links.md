@@ -5,6 +5,8 @@ permalink: /links/
 ---
  - [Red Pitaya Wiki](http://wiki.redpitaya.com)
 
+ - [Red Pitaya Forum](http://forum.redpitaya.com)
+
  - [Xilinx Wiki](http://www.wiki.xilinx.com)
 
  - [Xilinx University Program - Vivado-Based Workshops](http://www.xilinx.com/support/university/vivado/vivado-workshops.html)
@@ -15,7 +17,7 @@ permalink: /links/
 
  - [Digilent Embedded Linux Hands-on Tutorial for ZYBO](http://www.digilentinc.com/Data/Products/ZYBO/ZYBO-Embedded_Linux_Hands-on_Tutorial.pdf)
 
- - [Installing Debian On Xilinx ZC702](https://wiki.debian.org/InstallingDebianOn/Xilinx/ZC702/wheezy)
+ - [Installing Debian On Xilinx ZC702](http://wiki.debian.org/InstallingDebianOn/Xilinx/ZC702/wheezy)
 
  - [Technik-Blog der Fakultät Technik der DHBW Mannheim](http://blog.fakultaet-technik.de/category/fpga)
 
@@ -24,4 +26,3 @@ permalink: /links/
  - [FPGA CPU News](http://fpgacpu.wordpress.com/category/arm-soc-fpgas)
 
  - [FPGA Developer](http://www.fpgadeveloper.com/tag/zynq)
-
