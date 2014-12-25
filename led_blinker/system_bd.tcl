@@ -163,7 +163,7 @@ proc create_root_design { parentCell } {
 
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
-  set_property -dict [ list CONFIG.PCW_IMPORT_BOARD_PRESET {Z:/RedPitaya/red-pitaya-notes/cfg/red_pitaya.xml}  ] $processing_system7_0
+  set_property -dict [ list CONFIG.PCW_IMPORT_BOARD_PRESET {cfg/red_pitaya.xml}  ] $processing_system7_0
 
   # Create instance: xlslice_0, and set properties
   set xlslice_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_0 ]
