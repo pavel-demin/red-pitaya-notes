@@ -22,13 +22,16 @@ module axis_packetizer_v1_0 #
   output wire                        m_axis_tlast,
   input  wire                        m_axis_tready
 );
+
+  `include "axis_infrastructure_v1_1_axis_infrastructure.vh"
+
   localparam integer CNTR_WIDTH = f_clogb2(PACKET_SIZE);
 
   reg  [CNTR_WIDTH-1:0]   int_cntr_reg, int_cntr_next;
   wire [CNTR_WIDTH-1:0]   int_cntr_wire;
   wire                    int_comp_wire;
 
-  assign int_comp_wire = (int_cntr_next == (PACKET_SIZE - 1));
+  assign int_comp_wire = (int_cntr_reg == (PACKET_SIZE - 1));
 
   always @(posedge aclk)
   begin
