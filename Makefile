@@ -82,7 +82,7 @@ u-boot.elf: $(UBOOT_DIR)
 
 # rootfs.tar.gz: fw_printenv
 rootfs.tar.gz:
-	su -c 'sudo sh scripts/rootfs.sh'
+	su -c 'sh scripts/rootfs.sh'
 
 boot.bin: $(NAME).elf $(NAME).bit u-boot.elf
 	echo "img:{[bootloader] $^}" > boot.bif
