@@ -6,11 +6,13 @@ if {[catch {
 
   create_project -part $part_name $project_name
 
+  set_property ip_repo_paths lib [current_project]
+
   set bd_path "$project_name.srcs/sources_1/bd/system"
 
   create_bd_design system
 
-  source cfg/system_bd.tcl
+  source $project_name/system_bd.tcl
 
   generate_target all [get_files $bd_path/system.bd]
   make_wrapper -files [get_files $bd_path/system.bd] -top
