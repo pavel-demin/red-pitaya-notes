@@ -4,7 +4,7 @@
 # You need to set NAME, PART, PROC and REPO for your project.
 # NAME is the base name for most of the generated files.
 
-NAME = red_pitaya
+NAME = led_blinker
 PART = xc7z010clg400-1
 PROC = ps7_cortexa9_0
 
