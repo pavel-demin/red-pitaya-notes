@@ -19,10 +19,15 @@ if {[catch {
 
   add_files -norecurse $bd_path/hdl/system_wrapper.v
 
-  add_files -norecurse [glob $project_name/*.v]
-  add_files -norecurse -fileset constrs_1 [glob cfg/*.xdc]
+  set files [glob -nocomplain $project_name/*.v]
+  if {[llength $files] > 0} {
+    add_files -norecurse $files
+  }
 
-  set_property VERILOG_DEFINE {TOOL_VIVADO} [current_fileset]
+  set files [glob -nocomplain cfg/*.xdc]
+  if {[llength $files] > 0} {
+    add_files -norecurse -fileset constrs_1 $files
+  }
 
   set_property STRATEGY Flow_PerfOptimized_High [get_runs synth_1]
   set_property STRATEGY Performance_NetDelay_high [get_runs impl_1]
