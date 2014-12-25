@@ -25,7 +25,9 @@ if {[catch {
   close_hw_design [current_hw_design]
 
   file copy -force tmp/dt/system.dts $project_name.dts
-  file copy -force tmp/dt/ps.dtsi ps.dtsi
+  foreach file [glob -nocomplain tmp/dt/*.dtsi] {
+    file copy -force $file .
+  }
 
 } result]} {
   puts "** ERROR: $result"
