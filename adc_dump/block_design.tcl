@@ -4,8 +4,8 @@ source led_blinker/block_design.tcl
 set_property -dict [list CONFIG.PCW_USE_S_AXI_HP0 {1}] [get_bd_cells ps_0]
 
 # Enable interrupts
-set_property -dict [list CONFIG.PCW_IRQ_F2P_INTR {1}] [get_bd_cells ps_0]
 set_property -dict [list CONFIG.PCW_USE_FABRIC_INTERRUPT {1}] [get_bd_cells ps_0]
+set_property -dict [list CONFIG.PCW_IRQ_F2P_INTR {1}] [get_bd_cells ps_0]
 
 # Create axis_clock_converter
 create_bd_cell -type ip -vlnv xilinx.com:ip:axis_clock_converter:1.1 fifo_0
