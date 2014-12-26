@@ -12,7 +12,7 @@ if {[catch {
 
   create_bd_design system
 
-  source $project_name/system_bd.tcl
+  source $project_name/block_design.tcl
 
   generate_target all [get_files $bd_path/system.bd]
   make_wrapper -files [get_files $bd_path/system.bd] -top
