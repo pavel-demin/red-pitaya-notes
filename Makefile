@@ -91,6 +91,9 @@ boot.bin: $(NAME).elf $(NAME).bit u-boot.elf
 devicetree.dtb: uImage $(NAME).dts
 	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb -o devicetree.dtb $(NAME).dts
 
+cores:
+	$(VIVADO) -source scripts/core.tcl -tclargs axis_red_pitaya_adc_v1_0 $(PART)
+
 %.xpr: %
 	$(RM) $@ $*.cache $*.srcs $*.runs
 	$(VIVADO) -source scripts/project.tcl -tclargs $* $(PART)

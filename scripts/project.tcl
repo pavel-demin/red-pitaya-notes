@@ -6,7 +6,7 @@ if {[catch {
 
   create_project -part $part_name $project_name
 
-  set_property ip_repo_paths lib [current_project]
+  set_property ip_repo_paths cores [current_project]
 
   set bd_path "$project_name.srcs/sources_1/bd/system"
 
