@@ -113,7 +113,7 @@ clean:
 	$(RM) $(LINUX_DIR) $(LINUX_TAR)
 	$(RM) $(DTREE_DIR) $(DTREE_TAR)
 	$(RM) uImage u-boot.elf fw_printenv boot.bif boot.bin devicetree.dtb
-	$(RM) ps.dtsi $(NAME).dts $(NAME).elf
+	$(RM) *.dtsi $(NAME).dts $(NAME).elf
 	$(RM) $(NAME).bit $(NAME).hwdef $(NAME).xpr
 	$(RM) $(NAME).cache $(NAME).srcs $(NAME).runs tmp .Xil
 	$(RM) usage_statistics_webtalk.html usage_statistics_webtalk.xml
