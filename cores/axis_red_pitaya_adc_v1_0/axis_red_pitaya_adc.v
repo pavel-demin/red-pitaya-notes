@@ -11,11 +11,11 @@ module axis_red_pitaya_adc #
   output wire                        adc_clk,
 
   // ADC signals
+  output wire                        adc_csn,
   input  wire                        adc_clk_p,
   input  wire                        adc_clk_n,
-  output wire                        adc_csn,
-  input  wire [ADC_DATA_WIDTH-1:0]   adc_data_a,
-  input  wire [ADC_DATA_WIDTH-1:0]   adc_data_b,
+  input  wire [ADC_DATA_WIDTH-1:0]   adc_dat_a,
+  input  wire [ADC_DATA_WIDTH-1:0]   adc_dat_b,
 
   // Master side
   output wire                        m_axis_tvalid,
@@ -23,26 +23,26 @@ module axis_red_pitaya_adc #
 );
   localparam ZERO_WIDTH = AXIS_TDATA_WIDTH/2 - ADC_DATA_WIDTH;
 
-  reg  [ADC_DATA_WIDTH-1:0] int_data_a;
-  reg  [ADC_DATA_WIDTH-1:0] int_data_b;
-  wire                      int_adc_clk;
+  reg  [ADC_DATA_WIDTH-1:0] int_dat_a;
+  reg  [ADC_DATA_WIDTH-1:0] int_dat_b;
+  wire                      int_clk;
 
-  IBUFGDS adc_clk_inst (.I(adc_clk_p), .IB(adc_clk_n), .O(int_adc_clk));
+  IBUFGDS adc_clk_inst (.I(adc_clk_p), .IB(adc_clk_n), .O(int_clk));
 
-  always @(posedge int_adc_clk)
+  always @(posedge int_clk)
   begin
-    int_data_a <= adc_data_a;
-    int_data_b <= adc_data_b;
+    int_dat_a <= adc_dat_a;
+    int_dat_b <= adc_dat_b;
   end
 
-  assign adc_clk = int_adc_clk;
+  assign adc_clk = int_clk;
 
   assign adc_csn = 1'b1;
 
   assign m_axis_tvalid = 1'b1;
 
   assign m_axis_tdata = {
-    {(ZERO_WIDTH){1'b0}}, ~int_data_b[ADC_DATA_WIDTH-1], int_data_b[ADC_DATA_WIDTH-2:0],
-    {(ZERO_WIDTH){1'b0}}, ~int_data_a[ADC_DATA_WIDTH-1], int_data_a[ADC_DATA_WIDTH-2:0]};
+    {(ZERO_WIDTH){1'b0}}, ~int_dat_b[ADC_DATA_WIDTH-1], int_dat_b[ADC_DATA_WIDTH-2:0],
+    {(ZERO_WIDTH){1'b0}}, ~int_dat_a[ADC_DATA_WIDTH-1], int_dat_a[ADC_DATA_WIDTH-2:0]};
 
 endmodule

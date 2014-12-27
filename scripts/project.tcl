@@ -12,6 +12,8 @@ if {[catch {
 
   create_bd_design system
 
+  source cfg/ports.tcl
+
   source $project_name/block_design.tcl
 
   generate_target all [get_files $bd_path/system.bd]
