@@ -6,6 +6,10 @@ permalink: /links/
  - [Red Pitaya Wiki](http://wiki.redpitaya.com)
 
  - [Red Pitaya Forum](http://forum.redpitaya.com)
+ 
+ - [LTC2145-14, dual 14-bit ADC](http://www.linear.com/product/LTC2145-14)
+
+ - [DAC1401D125, dual 14-bit DAC](http://www.nxp.com/documents/data_sheet/DAC1401D125.pdf)
 
  - [Xilinx Wiki](http://www.wiki.xilinx.com)
 
