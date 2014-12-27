@@ -8,7 +8,7 @@ if {[catch {
 
   set_property ip_repo_paths tmp/cores [current_project]
 
-  set bd_path "tmp/$project_name.srcs/sources_1/bd/system"
+  set bd_path tmp/$project_name.srcs/sources_1/bd/system
 
   create_bd_design system
 
