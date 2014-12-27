@@ -1,11 +1,11 @@
 source led_blinker/block_design.tcl
 
 # Enable HP0
-set_property -dict [list CONFIG.PCW_USE_S_AXI_HP0 {1}] [get_bd_cells ps_0]
+set_property CONFIG.PCW_USE_S_AXI_HP0 1 [get_bd_cells ps_0]
 
 # Enable interrupts
-set_property -dict [list CONFIG.PCW_USE_FABRIC_INTERRUPT {1}] [get_bd_cells ps_0]
-set_property -dict [list CONFIG.PCW_IRQ_F2P_INTR {1}] [get_bd_cells ps_0]
+set_property CONFIG.PCW_USE_FABRIC_INTERRUPT 1 [get_bd_cells ps_0]
+set_property CONFIG.PCW_IRQ_F2P_INTR 1 [get_bd_cells ps_0]
 
 # Create axis_clock_converter
 create_bd_cell -vlnv xilinx.com:ip:axis_clock_converter:1.1 fifo_0
@@ -28,7 +28,7 @@ connect_bd_intf_net [get_bd_intf_pins pktzr_0/M_AXIS] [get_bd_intf_pins dma_0/S_
 
 # Create axi_interconnect for GP0
 create_bd_cell -vlnv xilinx.com:ip:axi_interconnect:2.1 gp_0
-set_property -dict [list CONFIG.NUM_MI {1}] [get_bd_cells gp_0]
+set_property CONFIG.NUM_MI 1 [get_bd_cells gp_0]
 
 # Connect processing_system7 to axi_interconnect
 connect_bd_intf_net [get_bd_intf_pins ps_0/M_AXI_GP0] [get_bd_intf_pins gp_0/S00_AXI]
@@ -38,7 +38,8 @@ connect_bd_intf_net [get_bd_intf_pins gp_0/M00_AXI] [get_bd_intf_pins dma_0/S_AX
 
 # Create axi_interconnect for HP0
 create_bd_cell -vlnv xilinx.com:ip:axi_interconnect:2.1 hp_0
-set_property -dict [list CONFIG.NUM_MI {1} CONFIG.NUM_SI {3}]  [get_bd_cells hp_0]
+set_property CONFIG.NUM_MI 1 [get_bd_cells hp_0]
+set_property CONFIG.NUM_SI 3 [get_bd_cells hp_0]
 
 # Connect axi_dma to axi_interconnect
 connect_bd_intf_net [get_bd_intf_pins dma_0/M_AXI_MM2S] [get_bd_intf_pins hp_0/S01_AXI]
