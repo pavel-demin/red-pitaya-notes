@@ -93,6 +93,7 @@ devicetree.dtb: uImage $(NAME).dts
 
 cores:
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_red_pitaya_adc_v1_0 $(PART)
+	$(VIVADO) -source scripts/core.tcl -tclargs axis_packetizer_v1_0 $(PART)
 
 %.xpr: %
 	$(RM) $@ $*.cache $*.srcs $*.runs
