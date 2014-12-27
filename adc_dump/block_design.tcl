@@ -71,14 +71,14 @@ connect_bd_net [get_bd_pins rst_0/peripheral_aresetn] [get_bd_pins dma_0/axi_res
 # Connect FCLK_CLK0 to all other cells
 connect_bd_net [get_bd_pins ps_0/FCLK_CLK0] [get_bd_pins dma_0/m_axi_mm2s_aclk] [get_bd_pins dma_0/m_axi_s2mm_aclk] [get_bd_pins dma_0/m_axi_sg_aclk] [get_bd_pins dma_0/s_axi_lite_aclk] [get_bd_pins fifo_0/m_axis_aclk] [get_bd_pins gp_0/ACLK] [get_bd_pins gp_0/M00_ACLK] [get_bd_pins gp_0/S00_ACLK] [get_bd_pins hp_0/ACLK] [get_bd_pins hp_0/M00_ACLK] [get_bd_pins hp_0/S00_ACLK] [get_bd_pins hp_0/S01_ACLK] [get_bd_pins hp_0/S02_ACLK] [get_bd_pins pktzr_0/aclk] [get_bd_pins ps_0/S_AXI_HP0_ACLK] [get_bd_pins rst_0/slowest_sync_clk]
 
-# Create hierarchical module
-create_bd_cell -type hier hpdma_0
-
-# Move dma_0, gp_0, hp_0, concat_0 and rst_0 to hpdma_0
-move_bd_cells hpdma_0 [get_bd_cells dma_0] [get_bd_cells gp_0] [get_bd_cells hp_0] [get_bd_cells concat_0] [get_bd_cells rst_0]
-
 # Configure addresses
 create_bd_addr_seg -range 0x20000000 -offset 0x0 [get_bd_addr_spaces dma_0/Data_SG] [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_ps_0_HP0_DDR_LOWOCM
 create_bd_addr_seg -range 0x20000000 -offset 0x0 [get_bd_addr_spaces dma_0/Data_MM2S] [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_ps_0_HP0_DDR_LOWOCM
 create_bd_addr_seg -range 0x20000000 -offset 0x0 [get_bd_addr_spaces dma_0/Data_S2MM] [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_ps_0_HP0_DDR_LOWOCM
 create_bd_addr_seg -range 0x10000 -offset 0x40400000 [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs dma_0/S_AXI_LITE/Reg] SEG_axi_dma_0_Reg
+
+# Create hierarchical module
+create_bd_cell -type hier hpdma_0
+
+# Move dma_0, gp_0, hp_0, concat_0 and rst_0 to hpdma_0
+move_bd_cells hpdma_0 [get_bd_cells dma_0] [get_bd_cells gp_0] [get_bd_cells hp_0] [get_bd_cells concat_0] [get_bd_cells rst_0]
