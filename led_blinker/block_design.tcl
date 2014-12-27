@@ -32,4 +32,4 @@ connect_bd_net [get_bd_ports led_o] [get_bd_pins slice_0/Dout]
 create_bd_cell -type hier blinker_0
 
 # Move cntr_0 and slice_0 to blinker_0
-move_bd_cells blinker_0 [get_bd_cells cntr_0] [get_bd_cells slice_0]
+move_bd_cells [get_bd_cells blinker_0] [get_bd_cells cntr_0] [get_bd_cells slice_0]
