@@ -74,6 +74,7 @@ set_property DRIVE 8 [get_ports adc_csn_o]
 set_property IOSTANDARD LVCMOS33 [get_ports {dac_dat_o[*]}]
 set_property SLEW SLOW [get_ports {dac_dat_o[*]}]
 set_property DRIVE 4 [get_ports {dac_dat_o[*]}]
+# set_property IOB TRUE [get_ports {dac_dat_o[*]}]
 
 set_property PACKAGE_PIN M19 [get_ports {dac_dat_o[0]}]
 set_property PACKAGE_PIN M20 [get_ports {dac_dat_o[1]}]
@@ -95,6 +96,7 @@ set_property PACKAGE_PIN D19 [get_ports {dac_dat_o[13]}]
 set_property IOSTANDARD LVCMOS33 [get_ports dac_*_o]
 set_property SLEW FAST [get_ports dac_*_o]
 set_property DRIVE 8 [get_ports dac_*_o]
+# set_property IOB TRUE [get_ports {dac_*_o}]
 
 set_property PACKAGE_PIN M17 [get_ports dac_wrt_o]
 set_property PACKAGE_PIN N16 [get_ports dac_sel_o]
@@ -106,7 +108,7 @@ set_property PACKAGE_PIN N15 [get_ports dac_rst_o]
 set_property IOSTANDARD LVCMOS18 [get_ports {dac_pwm_o[*]}]
 set_property SLEW FAST [get_ports {dac_pwm_o[*]}]
 set_property DRIVE 12 [get_ports {dac_pwm_o[*]}]
-set_property IOB TRUE [get_ports {dac_pwm_o[*]}]
+# set_property IOB TRUE [get_ports {dac_pwm_o[*]}]
 
 set_property PACKAGE_PIN T10 [get_ports {dac_pwm_o[0]}]
 set_property PACKAGE_PIN T11 [get_ports {dac_pwm_o[1]}]
@@ -117,7 +119,7 @@ set_property PACKAGE_PIN U13 [get_ports {dac_pwm_o[3]}]
 
 set_property IOSTANDARD LVCMOS33 [get_ports {vin_p_i[*]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {vin_n_i[*]}]
-set_property LOC XADC_X0Y0 [get_cells i_ams/XADC_inst]
+# set_property LOC XADC_X0Y0 [get_cells xadc_0]
 
 # AD0
 
