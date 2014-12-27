@@ -18,8 +18,8 @@ module axis_red_pitaya_adc #
   input  wire [ADC_DATA_WIDTH-1:0]   adc_data_b,
 
   // Master side
-  output wire                        M_AXIS_TVALID,
-  output wire [AXIS_TDATA_WIDTH-1:0] M_AXIS_TDATA
+  output wire                        m_axis_tvalid,
+  output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata
 );
   localparam ZERO_WIDTH = AXIS_TDATA_WIDTH/2 - ADC_DATA_WIDTH;
 
@@ -39,11 +39,10 @@ module axis_red_pitaya_adc #
 
   assign adc_csn = 1'b1;
 
-  assign M_AXIS_TVALID = 1'b1;
+  assign m_axis_tvalid = 1'b1;
 
-  assign M_AXIS_TDATA = {
+  assign m_axis_tdata = {
     {(ZERO_WIDTH){1'b0}}, ~int_data_b[ADC_DATA_WIDTH-1], int_data_b[ADC_DATA_WIDTH-2:0],
     {(ZERO_WIDTH){1'b0}}, ~int_data_a[ADC_DATA_WIDTH-1], int_data_a[ADC_DATA_WIDTH-2:0]};
 
 endmodule
-
