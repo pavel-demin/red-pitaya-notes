@@ -120,34 +120,29 @@ set_property PACKAGE_PIN U13 [get_ports {dac_pwm_o[3]}]
 
 ### XADC
 
-set_property IOSTANDARD LVCMOS33 [get_ports {vin_p_i[*]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {vin_n_i[*]}]
-# set_property LOC XADC_X0Y0 [get_cells xadc_0]
+set_property LOC XADC_X0Y0 [get_cells xadc_0]
 
-# AD0
+set_property IOSTANDARD LVCMOS33 [get_ports Vp_Vn_v_p]
+set_property IOSTANDARD LVCMOS33 [get_ports Vp_Vn_v_n]
+set_property IOSTANDARD LVCMOS33 [get_ports Vaux0_v_p]
+set_property IOSTANDARD LVCMOS33 [get_ports Vaux0_v_n]
+set_property IOSTANDARD LVCMOS33 [get_ports Vaux1_v_p]
+set_property IOSTANDARD LVCMOS33 [get_ports Vaux1_v_n]
+set_property IOSTANDARD LVCMOS33 [get_ports Vaux8_v_p]
+set_property IOSTANDARD LVCMOS33 [get_ports Vaux8_v_n]
+set_property IOSTANDARD LVCMOS33 [get_ports Vaux9_v_p]
+set_property IOSTANDARD LVCMOS33 [get_ports Vaux9_v_n]
 
-set_property PACKAGE_PIN C20 [get_ports {vin_p_i[0]}]
-set_property PACKAGE_PIN B20 [get_ports {vin_n_i[0]}]
-
-# AD1
-
-set_property PACKAGE_PIN E17 [get_ports {vin_p_i[1]}]
-set_property PACKAGE_PIN D18 [get_ports {vin_n_i[1]}]
-
-# AD8
-
-set_property PACKAGE_PIN B19 [get_ports {vin_p_i[2]}]
-set_property PACKAGE_PIN A20 [get_ports {vin_n_i[2]}]
-
-# AD9
-
-set_property PACKAGE_PIN E18 [get_ports {vin_p_i[3]}]
-set_property PACKAGE_PIN E19 [get_ports {vin_n_i[3]}]
-
-# V_0
-
-set_property PACKAGE_PIN K9  [get_ports {vin_p_i[4]}]
-set_property PACKAGE_PIN L10 [get_ports {vin_n_i[4]}]
+set_property PACKAGE_PIN K9  [get_ports Vp_Vn_v_p]
+set_property PACKAGE_PIN L10 [get_ports Vp_Vn_v_n]
+set_property PACKAGE_PIN C20 [get_ports Vaux0_v_p]
+set_property PACKAGE_PIN B20 [get_ports Vaux0_v_n]
+set_property PACKAGE_PIN E17 [get_ports Vaux1_v_p]
+set_property PACKAGE_PIN D18 [get_ports Vaux1_v_n]
+set_property PACKAGE_PIN B19 [get_ports Vaux8_v_p]
+set_property PACKAGE_PIN A20 [get_ports Vaux8_v_n]
+set_property PACKAGE_PIN E18 [get_ports Vaux9_v_p]
+set_property PACKAGE_PIN E19 [get_ports Vaux9_v_n]
 
 ### Expansion connector
 
