@@ -4,20 +4,21 @@ if {[catch {
 
   set proc_name [lindex $argv 1]
 
-  file mkdir tmp/hw
-  file copy -force $project_name.hwdef tmp/hw/$project_name.hdf
+  set hard_path tmp/$project_name.hard
+  set fsbl_path tmp/$project_name.fsbl
 
-  open_hw_design tmp/hw/$project_name.hdf
+  file mkdir $hard_path
+  file copy -force tmp/$project_name.hwdef $hard_path/$project_name.hdf
+
+  open_hw_design $hard_path/$project_name.hdf
   create_sw_design -proc $proc_name -os standalone fsbl
 
   add_library xilffs
   add_library xilrsa
 
-  generate_app -proc $proc_name -app zynq_fsbl -dir tmp/sw -compile
+  generate_app -proc $proc_name -app zynq_fsbl -dir $fsbl_path -compile
 
   close_hw_design [current_hw_design]
-
-  file copy -force tmp/sw/executable.elf $project_name.elf
 
 } result]} {
   puts "** ERROR: $result"

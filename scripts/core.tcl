@@ -8,11 +8,11 @@ if {[catch {
   set project_name [join [lrange $elements 0 end-2] _]
   set version [string trimleft [join [lrange $elements end-1 end] .] v]
 
-  create_project -part $part_name -in_memory $project_name
+  create_project -part $part_name $project_name tmp/cores
 
   add_files -norecurse [glob cores/$core_name/*.v]
 
-  ipx::package_project -root_dir cores/$core_name
+  ipx::package_project -import_files -root_dir tmp/cores/$core_name
 
   set core [ipx::current_core]
 

@@ -4,11 +4,11 @@ if {[catch {
 
   set part_name [lindex $argv 1]
 
-  create_project -part $part_name $project_name
+  create_project -part $part_name $project_name tmp
 
-  set_property ip_repo_paths cores [current_project]
+  set_property ip_repo_paths tmp/cores [current_project]
 
-  set bd_path "$project_name.srcs/sources_1/bd/system"
+  set bd_path "tmp/$project_name.srcs/sources_1/bd/system"
 
   create_bd_design system
 

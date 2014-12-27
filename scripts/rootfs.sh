@@ -1,6 +1,6 @@
 mirror=http://ftp.belnet.be/debian
 distro=wheezy
-rootfs=rootfs
+rootfs=tmp/rootfs
 passwd=changeme
 locale=en_US.UTF-8
 timezone=Europe/Brussels
@@ -81,5 +81,5 @@ EOF_CHROOT
 rm $rootfs/etc/resolv.conf
 rm $rootfs/usr/bin/qemu-arm-static
 
-tar zpcf rootfs.tar.gz rootfs
+tar zpcf rootfs.tar.gz $rootfs
 

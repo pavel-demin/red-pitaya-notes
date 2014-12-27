@@ -8,26 +8,24 @@ if {[catch {
 
   set boot_args {console=ttyPS0,115200 root=/dev/mmcblk0p2 ro rootfstype=ext4 earlyprintk rootwait}
 
-  file mkdir tmp/hw
-  file copy -force $project_name.hwdef tmp/hw/$project_name.hdf
+  set hard_path tmp/$project_name.hard
+  set tree_path tmp/$project_name.tree
+
+  file mkdir $hard_path
+  file copy -force tmp/$project_name.hwdef $hard_path/$project_name.hdf
 
   set_repo_path $repo_path
 
-  open_hw_design tmp/hw/$project_name.hdf
+  open_hw_design $hard_path/$project_name.hdf
   create_sw_design -proc $proc_name -os device_tree devicetree
 
   set_property CONFIG.kernel_version {2014.3} [get_os]
   set_property CONFIG.bootargs $boot_args [get_os]
 
-  generate_bsp -dir tmp/dt
+  generate_bsp -dir $tree_path
 
   close_sw_design [current_sw_design]
   close_hw_design [current_hw_design]
-
-  file copy -force tmp/dt/system.dts $project_name.dts
-  foreach file [glob -nocomplain tmp/dt/*.dtsi] {
-    file copy -force $file .
-  }
 
 } result]} {
   puts "** ERROR: $result"

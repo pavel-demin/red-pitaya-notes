@@ -12,7 +12,7 @@ mount /dev/mmcblk0p1 /tmp/BOOT
 mount /dev/mmcblk0p2 /tmp/ROOT
 
 cp boot.bin devicetree.dtb uEnv.txt uImage /tmp/BOOT
-tar zxpf rootfs.tar.gz --strip-components=1 --directory=/tmp/ROOT
+tar zxpf rootfs.tar.gz --strip-components=2 --directory=/tmp/ROOT
 
 umount /tmp/BOOT
 umount /tmp/ROOT
