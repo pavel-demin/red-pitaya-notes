@@ -1,4 +1,13 @@
 
+set_property CFGBVS VCCO [current_design]
+set_property CONFIG_VOLTAGE 3.3 [current_design]
+
+set_property IOSTANDARD LVCMOS33 [get_ports -filter {IOBANK == 500}]
+set_property IOSTANDARD LVCMOS25 [get_ports -filter {IOBANK == 501}]
+
+set_property IOSTANDARD LVCMOS18 [get_ports -filter {IOBANK == 34}]
+set_property IOSTANDARD LVCMOS33 [get_ports -filter {IOBANK == 35}]
+
 ### ADC
 
 # data
