@@ -38,6 +38,8 @@ if {[catch {
 
   source cores/$core_name/core_config.tcl
 
+  rename core_parameter {}
+
   ipx::create_xgui_files $core
   ipx::update_checksums $core
   ipx::save_core $core
