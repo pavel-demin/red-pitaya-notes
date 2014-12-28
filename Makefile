@@ -8,8 +8,8 @@ NAME = base_system
 PART = xc7z010clg400-1
 PROC = ps7_cortexa9_0
 
-VIVADO = vivado -nolog -nojournal -mode tcl
-HSI = hsi -nolog -nojournal -mode tcl
+VIVADO = vivado -nolog -nojournal -mode batch
+HSI = hsi -nolog -nojournal -mode batch
 RM = rm -rf
 
 UBOOT_TAG = xilinx-v2014.3
