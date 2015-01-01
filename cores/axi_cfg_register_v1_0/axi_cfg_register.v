@@ -23,9 +23,9 @@ module axi_cfg_register #
   input  wire [(AXI_DATA_WIDTH/8)-1:0] s_axi_wstrb,   // AXI4-Lite slave: Write strobe
   input  wire                          s_axi_wvalid,  // AXI4-Lite slave: Write data valid
   output wire                          s_axi_wready,  // AXI4-Lite slave: Write data ready
-  output wire [1:0]                    s_axi_bresp,   // AXI4-Lite slave: Response
-  output wire                          s_axi_bvalid,  // AXI4-Lite slave: Response valid
-  input  wire                          s_axi_bready,  // AXI4-Lite slave: Response ready
+  output wire [1:0]                    s_axi_bresp,   // AXI4-Lite slave: Write response
+  output wire                          s_axi_bvalid,  // AXI4-Lite slave: Write response valid
+  input  wire                          s_axi_bready,  // AXI4-Lite slave: Write response ready
   input  wire [AXI_ADDR_WIDTH-1:0]     s_axi_araddr,  // AXI4-Lite slave: Read address
   input  wire                          s_axi_arvalid, // AXI4-Lite slave: Read address valid
   output wire                          s_axi_arready, // AXI4-Lite slave: Read address ready
