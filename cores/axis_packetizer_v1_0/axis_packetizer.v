@@ -23,17 +23,17 @@ module axis_packetizer #
   input  wire                        m_axis_tready
 );
 
-  function integer f_clogb2 (input integer value);
-    for(f_clogb2 = 1; value > 1; f_clogb2 = f_clogb2 + 1) value = value >> 1;
+  function integer clogb2 (input integer value);
+    for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
   endfunction
 
-  localparam integer CNTR_WIDTH = f_clogb2(PACKET_SIZE);
+  localparam integer CNTR_WIDTH = clogb2(PACKET_SIZE-1);
 
   reg  [CNTR_WIDTH-1:0]   int_cntr_reg, int_cntr_next;
   wire [CNTR_WIDTH-1:0]   int_cntr_wire;
   wire                    int_comp_wire;
 
-  assign int_comp_wire = (int_cntr_reg == (PACKET_SIZE - 1));
+  assign int_comp_wire = (int_cntr_reg == (PACKET_SIZE-1));
 
   always @(posedge aclk)
   begin
