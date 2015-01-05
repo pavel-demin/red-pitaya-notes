@@ -49,7 +49,8 @@ module axi_cfg_register #
   reg int_rvalid_reg, int_rvalid_next;
 
   reg int_wren_reg, int_wren_next;
-  reg [1:0] int_case_reg, int_case_next;
+  reg int_wstate_reg, int_wstate_next;
+  reg int_rstate_reg, int_rstate_next;
 
   wire [AXI_DATA_WIDTH-1:0] int_data_mux [CFG_SIZE-1:0];
   wire [CFG_DATA_WIDTH-1:0] int_data_wire;
@@ -95,7 +96,8 @@ module axi_cfg_register #
       int_rvalid_reg <= 1'b0;
       int_rdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
       int_wren_reg <= 1'b0;
-      int_case_reg <= 2'd0;
+      int_wstate_reg <= 1'b0;
+      int_rstate_reg <= 1'b0;
     end
     else
     begin
@@ -108,7 +110,8 @@ module axi_cfg_register #
       int_rvalid_reg <= int_rvalid_next;
       int_rdata_reg <= int_rdata_next;
       int_wren_reg <= int_wren_next;
-      int_case_reg <= int_case_next;
+      int_wstate_reg <= int_wstate_next;
+      int_rstate_reg <= int_rstate_next;
     end
   end
 
@@ -118,29 +121,52 @@ module axi_cfg_register #
     int_awaddr_next = int_awaddr_reg;
     int_wready_next = int_wready_reg;
     int_bvalid_next = int_bvalid_reg;
+    int_wren_next = int_wren_reg;
+    int_wstate_next = int_wstate_reg;
+
+    case(int_wstate_reg)
+      0:
+      begin
+        if(s_axi_awvalid & s_axi_wvalid)
+        begin
+          int_awready_next = 1'b1;
+          int_awaddr_next = s_axi_awaddr;
+          int_wready_next = 1'b1;
+          int_wren_next = 1'b1;
+          int_wstate_next = 1'b1;
+        end
+      end
+      1:
+      begin
+        int_awready_next = 1'b0;
+        int_wready_next = 1'b0;
+        int_wren_next = 1'b0;
+        int_bvalid_next = 1'b1;
+        if(s_axi_bready & int_bvalid_reg)
+        begin
+          int_bvalid_next = 1'b0;
+          int_wstate_next = 1'b0;
+        end
+      end
+    endcase
+  end
+
+  always @*
+  begin
     int_arready_next = int_arready_reg;
     int_araddr_next = int_araddr_reg;
     int_rvalid_next = int_rvalid_reg;
     int_rdata_next = int_rdata_reg;
-    int_wren_next = int_wren_reg;
-    int_case_next = int_case_reg;
+    int_rstate_next = int_rstate_reg;
 
-    case(int_case_reg)
+    case(int_rstate_reg)
       0:
       begin
         if(s_axi_arvalid)
         begin
           int_arready_next = 1'b1;
           int_araddr_next = s_axi_araddr;
-          int_case_next = 2'd1;
-        end
-        else if(s_axi_awvalid & s_axi_wvalid)
-        begin
-          int_awready_next = 1'b1;
-          int_awaddr_next = s_axi_awaddr;
-          int_wready_next = 1'b1;
-          int_wren_next = 1'b1;
-          int_case_next = 2'd2;
+          int_rstate_next = 1'b1;
         end
       end
       1:
@@ -148,27 +174,10 @@ module axi_cfg_register #
         int_arready_next = 1'b0;
         int_rvalid_next = 1'b1;
         int_rdata_next = int_data_mux[int_araddr_reg[ADDR_LSB+ADDR_BITS-1:ADDR_LSB]];
-        int_case_next = 2'd3;
-      end
-      2:
-      begin
-        int_awready_next = 1'b0;
-        int_wready_next = 1'b0;
-        int_bvalid_next = 1'b1;
-        int_wren_next = 1'b0;
-        int_case_next = 2'd3;
-      end
-      3:
-      begin
         if(s_axi_rready & int_rvalid_reg)
         begin
           int_rvalid_next = 1'b0;
-          int_case_next = 2'd0;
-        end
-        else if(s_axi_bready & int_bvalid_reg)
-        begin
-          int_bvalid_next = 1'b0;
-          int_case_next = 2'd0;
+          int_rstate_next = 1'b0;
         end
       end
     endcase
