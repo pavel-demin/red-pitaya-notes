@@ -54,7 +54,8 @@ module axi_cfg_register #
 
   wire [AXI_DATA_WIDTH-1:0] int_data_mux [CFG_SIZE-1:0];
   wire [CFG_DATA_WIDTH-1:0] int_data_wire;
-  wire word_wren_wire, byte_wren_wire;
+  wire [CFG_SIZE-1:0] word_wren_wire;
+  wire [CFG_DATA_WIDTH/8-1:0] byte_wren_wire;
 
   integer i;
   genvar j, k, l;
@@ -63,10 +64,10 @@ module axi_cfg_register #
     for (j = 0; j < CFG_SIZE; j = j + 1)
     begin : WORDS
       assign int_data_mux[j] = int_data_wire[j*CFG_SIZE+31:j*CFG_SIZE];
-      assign word_wren_wire = int_wren_reg & (int_awaddr_reg[ADDR_LSB+ADDR_BITS-1:ADDR_LSB] == j);
+      assign word_wren_wire[j] = int_wren_reg & (int_awaddr_reg[ADDR_LSB+ADDR_BITS-1:ADDR_LSB] == j);
       for (k = 0; k < AXI_DATA_WIDTH/8; k = k + 1)
       begin : BYTES
-        assign byte_wren_wire = word_wren_wire & s_axi_wstrb[k];
+        assign byte_wren_wire[j*AXI_DATA_WIDTH/8 + k] = word_wren_wire[j] & s_axi_wstrb[k];
         for (l = 0; l < 8; l = l + 1)
         begin : BITS
           FDRE #(
