@@ -37,8 +37,12 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins cfg_0/S_AXI]
 
+set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
+
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
+  DOUT_WIDTH 7
   DIN_FROM 0
   DIN_TO 6
 } {
