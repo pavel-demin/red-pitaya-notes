@@ -1,5 +1,29 @@
 source base_system/block_design.tcl
 
+# Create axis_red_pitaya_adc
+cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
+  adc_clk_p adc_clk_p_i
+  adc_clk_n adc_clk_n_i
+  adc_dat_a adc_dat_a_i
+  adc_dat_b adc_dat_b_i
+  adc_csn   adc_csn_o
+}
+
+# Create c_counter_binary
+cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
+  Output_Width 32
+} {
+  CLK adc_0/adc_clk
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_0 {
+  DIN_FROM 26
+  DIN_TO 26
+} {
+  Din cntr_0/Q
+}
+
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
   CFG_DATA_WIDTH 32
@@ -11,13 +35,22 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Master /ps_0/M_AXI_GP0
   Clk Auto
-} [get_bd_intf_pins cfg_0/s_axi_lite]
+} [get_bd_intf_pins cfg_0/S_AXI]
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
+cell xilinx.com:ip:xlslice:1.0 slice_1 {
   DIN_FROM 0
-  DIN_TO 7
+  DIN_TO 6
 } {
   Din cfg_0/cfg_data
-  Dout led_o
 }
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+  IN1_WIDTH 7
+} {
+  In0 slice_0/Dout
+  In1 slice_1/Dout
+  dout led_o
+}
+
