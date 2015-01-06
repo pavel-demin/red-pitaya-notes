@@ -69,10 +69,11 @@ uImage: $(LINUX_DIR)
 	  CROSS_COMPILE=arm-linux-gnueabihf- UIMAGE_LOADADDR=0x8000 uImage
 	cp $</arch/arm/boot/uImage $@
 
-$(UBOOT_DIR)/u-boot: $(UBOOT_DIR)
+tmp/u-boot.elf: $(UBOOT_DIR)
 	make -C $< arch=ARM zynq_red_pitaya_config
 	make -C $< arch=ARM CFLAGS=$(UBOOT_CFLAGS) \
 	  CROSS_COMPILE=arm-linux-gnueabihf- all
+	cp $</u-boot $@
 
 # fw_printenv: $(UBOOT_DIR) u-boot.elf
 #	make -C $< arch=ARM CFLAGS=$(UBOOT_CFLAGS) \
@@ -83,7 +84,7 @@ $(UBOOT_DIR)/u-boot: $(UBOOT_DIR)
 rootfs.tar.gz:
 	su -c 'sh scripts/rootfs.sh'
 
-boot.bin: tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit $(UBOOT_DIR)/u-boot
+boot.bin: tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit tmp/u-boot.elf
 	echo "img:{[bootloader] $^}" > tmp/boot.bif
 	bootgen -image tmp/boot.bif -w -o i $@
 
