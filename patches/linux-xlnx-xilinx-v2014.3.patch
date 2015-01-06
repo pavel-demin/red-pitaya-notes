@@ -1,6 +1,6 @@
 diff -rupN old/linux-xlnx-xilinx-v2014.3/arch/arm/configs/xilinx_zynq_defconfig linux-xlnx-xilinx-v2014.3/arch/arm/configs/xilinx_zynq_defconfig
 --- old/linux-xlnx-xilinx-v2014.3/arch/arm/configs/xilinx_zynq_defconfig	2014-10-09 14:58:01.000000000 +0200
-+++ linux-xlnx-xilinx-v2014.3/arch/arm/configs/xilinx_zynq_defconfig	2014-11-28 22:19:47.796535000 +0100
++++ linux-xlnx-xilinx-v2014.3/arch/arm/configs/xilinx_zynq_defconfig	2015-01-07 00:25:55.303231000 +0100
 @@ -142,6 +142,7 @@ CONFIG_XILINX_AXI_EMAC=y
  CONFIG_XILINX_PS_EMAC=y
  CONFIG_MARVELL_PHY=y
@@ -11,7 +11,7 @@ diff -rupN old/linux-xlnx-xilinx-v2014.3/arch/arm/configs/xilinx_zynq_defconfig 
  CONFIG_INPUT_EVDEV=y
 diff -rupN old/linux-xlnx-xilinx-v2014.3/drivers/misc/eeprom/at24.c linux-xlnx-xilinx-v2014.3/drivers/misc/eeprom/at24.c
 --- old/linux-xlnx-xilinx-v2014.3/drivers/misc/eeprom/at24.c	2014-10-09 14:58:01.000000000 +0200
-+++ linux-xlnx-xilinx-v2014.3/drivers/misc/eeprom/at24.c	2014-11-28 22:19:10.220535000 +0100
++++ linux-xlnx-xilinx-v2014.3/drivers/misc/eeprom/at24.c	2015-01-07 00:25:55.307231000 +0100
 @@ -508,6 +508,9 @@ static int at24_probe(struct i2c_client
  		 * is recommended anyhow.
  		 */
@@ -24,7 +24,7 @@ diff -rupN old/linux-xlnx-xilinx-v2014.3/drivers/misc/eeprom/at24.c linux-xlnx-x
  		at24_get_ofdata(client, &chip);
 diff -rupN old/linux-xlnx-xilinx-v2014.3/drivers/net/phy/Kconfig linux-xlnx-xilinx-v2014.3/drivers/net/phy/Kconfig
 --- old/linux-xlnx-xilinx-v2014.3/drivers/net/phy/Kconfig	2014-10-09 14:58:01.000000000 +0200
-+++ linux-xlnx-xilinx-v2014.3/drivers/net/phy/Kconfig	2014-11-28 22:19:10.220535000 +0100
++++ linux-xlnx-xilinx-v2014.3/drivers/net/phy/Kconfig	2015-01-07 00:25:55.307231000 +0100
 @@ -112,6 +112,11 @@ config MICREL_PHY
  	---help---
  	  Supports the KSZ9021, VSC8201, KS8001 PHYs.
@@ -39,7 +39,7 @@ diff -rupN old/linux-xlnx-xilinx-v2014.3/drivers/net/phy/Kconfig linux-xlnx-xili
  	depends on PHYLIB=y
 diff -rupN old/linux-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile linux-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile
 --- old/linux-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile	2014-10-09 14:58:01.000000000 +0200
-+++ linux-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile	2014-11-28 22:19:10.220535000 +0100
++++ linux-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile	2015-01-07 00:25:55.307231000 +0100
 @@ -24,6 +24,7 @@ obj-$(CONFIG_NATIONAL_PHY)	+= national.o
  obj-$(CONFIG_DP83640_PHY)	+= dp83640.o
  obj-$(CONFIG_STE10XP)		+= ste10Xp.o
@@ -48,3 +48,15 @@ diff -rupN old/linux-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile linux-xlnx-xil
  obj-$(CONFIG_MDIO_OCTEON)	+= mdio-octeon.o
  obj-$(CONFIG_MICREL_KS8995MA)	+= spi_ks8995.o
  obj-$(CONFIG_AT803X_PHY)	+= at803x.o
+diff -rupN old/linux-xlnx-xilinx-v2014.3/drivers/uio/uio_pdrv_genirq.c linux-xlnx-xilinx-v2014.3/drivers/uio/uio_pdrv_genirq.c
+--- old/linux-xlnx-xilinx-v2014.3/drivers/uio/uio_pdrv_genirq.c	2014-10-09 14:58:01.000000000 +0200
++++ linux-xlnx-xilinx-v2014.3/drivers/uio/uio_pdrv_genirq.c	2015-01-07 00:27:59.603231000 +0100
+@@ -148,7 +148,7 @@ static int uio_pdrv_genirq_probe(struct
+ 	if (!uioinfo->irq) {
+ 		ret = platform_get_irq(pdev, 0);
+ 		uioinfo->irq = ret;
+-		if (ret == -ENXIO && pdev->dev.of_node)
++		if (ret == -EINVAL && pdev->dev.of_node)
+ 			uioinfo->irq = UIO_IRQ_NONE;
+ 		else if (ret < 0) {
+ 			dev_err(&pdev->dev, "failed to get IRQ\n");
