@@ -41,6 +41,7 @@ module axi_cfg_register #
 
   reg [AXI_ADDR_WIDTH-1:0] int_awaddr_reg, int_awaddr_next;
   reg [AXI_ADDR_WIDTH-1:0] int_araddr_reg, int_araddr_next;
+  reg [AXI_DATA_WIDTH-1:0] int_wdata_reg, int_wdata_next;
   reg [AXI_DATA_WIDTH-1:0] int_rdata_reg, int_rdata_next;
   reg int_awready_reg, int_awready_next;
   reg int_wready_reg, int_wready_next;
@@ -63,8 +64,8 @@ module axi_cfg_register #
   generate
     for (j = 0; j < CFG_SIZE; j = j + 1)
     begin : WORDS
-      assign int_data_mux[j] = int_data_wire[j*CFG_SIZE+31:j*CFG_SIZE];
-      assign word_wren_wire[j] = int_wren_reg & (int_awaddr_reg[ADDR_LSB+ADDR_BITS-1:ADDR_LSB] == j);
+      assign int_data_mux[j] = int_data_wire[j*CFG_SIZE+AXI_DATA_WIDTH-1:j*CFG_SIZE];
+      assign word_wren_wire[j] = int_wren_reg & (int_awaddr_reg[AXI_ADDR_WIDTH-1:ADDR_LSB] == j);
       for (k = 0; k < AXI_DATA_WIDTH/8; k = k + 1)
       begin : BYTES
         assign byte_wren_wire[j*AXI_DATA_WIDTH/8 + k] = word_wren_wire[j] & s_axi_wstrb[k];
@@ -75,8 +76,8 @@ module axi_cfg_register #
           ) FDRE_inst (
             .CE(byte_wren_wire),
             .C(aclk),
-            .R(aresetn),
-            .D(s_axi_wdata[k*8 + l]),
+            .R(~aresetn),
+            .D(int_wdata_reg[k*8 + l]),
             .Q(int_data_wire[j*AXI_DATA_WIDTH + k*8 + l])
           );
         end
@@ -91,6 +92,7 @@ module axi_cfg_register #
       int_awready_reg <= 1'b0;
       int_awaddr_reg <= {(AXI_ADDR_WIDTH){1'b0}};
       int_wready_reg <= 1'b0;
+      int_wdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
       int_bvalid_reg <= 1'b0;
       int_arready_reg <= 1'b0;
       int_araddr_reg <= {(AXI_ADDR_WIDTH){1'b0}};
@@ -105,6 +107,7 @@ module axi_cfg_register #
       int_awready_reg <= int_awready_next;
       int_awaddr_reg <= int_awaddr_next;
       int_wready_reg <= int_wready_next;
+      int_wdata_reg <= int_wdata_next;
       int_bvalid_reg <= int_bvalid_next;
       int_arready_reg <= int_arready_next;
       int_araddr_reg <= int_araddr_next;
@@ -121,6 +124,7 @@ module axi_cfg_register #
     int_awready_next = int_awready_reg;
     int_awaddr_next = int_awaddr_reg;
     int_wready_next = int_wready_reg;
+    int_wdata_next = int_wdata_reg;
     int_bvalid_next = int_bvalid_reg;
     int_wren_next = int_wren_reg;
     int_wstate_next = int_wstate_reg;
@@ -133,6 +137,7 @@ module axi_cfg_register #
           int_awready_next = 1'b1;
           int_awaddr_next = s_axi_awaddr;
           int_wready_next = 1'b1;
+          int_wdata_next = s_axi_wdata;
           int_wren_next = 1'b1;
           int_wstate_next = 1'b1;
         end
@@ -186,8 +191,8 @@ module axi_cfg_register #
 
   assign cfg_data = int_data_wire;
 
-  assign s_axi_bresp = 2'b0;
-  assign s_axi_rresp = 2'b0;
+  assign s_axi_bresp = 2'd0;
+  assign s_axi_rresp = 2'd0;
 
   assign s_axi_awready = int_awready_reg;
   assign s_axi_wready = int_wready_reg;
