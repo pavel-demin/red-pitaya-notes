@@ -15,8 +15,12 @@ source cfg/ports.tcl
 
 proc cell {cell_vlnv cell_name {cell_props {}} {cell_ports {}}} {
   set cell [create_bd_cell -type ip -vlnv $cell_vlnv $cell_name]
+  set prop_list {}
   foreach {prop_name prop_value} $cell_props {
-    set_property CONFIG.$prop_name $prop_value $cell
+    lappend prop_list CONFIG.$prop_name $prop_value
+  }
+  if {[llength $prop_list] > 1} {
+    set_property -dict $prop_list $cell
   }
   foreach {local_name remote_name} $cell_ports {
     set local_port [get_bd_pins $cell_name/$local_name]
