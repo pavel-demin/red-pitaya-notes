@@ -95,6 +95,7 @@ devicetree.dtb: uImage tmp/$(NAME).tree/system.dts
 tmp/cores:
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_red_pitaya_adc_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_packetizer_v1_0 $(PART)
+	$(VIVADO) -source scripts/core.tcl -tclargs axis_ram_writer_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axi_cfg_register_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axi_sts_register_v1_0 $(PART)
 
