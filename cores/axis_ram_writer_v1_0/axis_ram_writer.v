@@ -49,7 +49,7 @@ module axis_ram_writer #
 
   reg [ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
 
-  always @(posedge clock)
+  always @(posedge aclk)
   begin
     if(~aresetn)
     begin
