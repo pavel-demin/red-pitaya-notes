@@ -1,5 +1,8 @@
 source base_system/block_design.tcl
 
+# Create proc_sys_reset
+cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
+
 # Create axis_red_pitaya_adc
 cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
   adc_clk_p adc_clk_p_i
