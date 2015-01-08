@@ -19,7 +19,7 @@ module axis_ram_writer #
   output wire [AXI_ID_WIDTH-1:0]     m_axi_awid,    // AXI master: Write address ID
   output wire [AXI_ADDR_WIDTH-1:0]   m_axi_awaddr,  // AXI master: Write address
   output wire [3:0]                  m_axi_awlen,   // AXI master: Write burst length
-  output wire [1:0]                  m_axi_awsize,  // AXI master: Write burst size
+  output wire [2:0]                  m_axi_awsize,  // AXI master: Write burst size
   output wire [1:0]                  m_axi_awburst, // AXI master: Write burst type
   output wire [1:0]                  m_axi_awlock,  // AXI master: Write lock type
   output wire [3:0]                  m_axi_awcache, // AXI master: Write memory type
@@ -66,7 +66,7 @@ module axis_ram_writer #
     int_addr_next = int_addr_reg + 1'b1;
   end
 
-  assign m_axi_awid = {(AXI_ID_WIDTH/8){1'b0}};
+  assign m_axi_awid = {(AXI_ID_WIDTH){1'b0}};
   assign m_axi_awaddr = ADDR_BASE + {int_addr_reg};
   assign m_axi_awlen = 4'd15;
   assign m_axi_awsize = clogb2((AXI_DATA_WIDTH/8)-1);
