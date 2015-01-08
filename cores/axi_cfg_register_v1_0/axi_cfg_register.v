@@ -16,32 +16,33 @@ module axi_cfg_register #
   output wire [CFG_DATA_WIDTH-1:0]     cfg_data,
 
   // Slave side
-  input  wire [AXI_ADDR_WIDTH-1:0]     s_axi_awaddr,  // AXI4-Lite slave: Write address
-  input  wire                          s_axi_awvalid, // AXI4-Lite slave: Write address valid
-  output wire                          s_axi_awready, // AXI4-Lite slave: Write address ready
-  input  wire [AXI_DATA_WIDTH-1:0]     s_axi_wdata,   // AXI4-Lite slave: Write data
-  input  wire [(AXI_DATA_WIDTH/8)-1:0] s_axi_wstrb,   // AXI4-Lite slave: Write strobe
-  input  wire                          s_axi_wvalid,  // AXI4-Lite slave: Write data valid
-  output wire                          s_axi_wready,  // AXI4-Lite slave: Write data ready
-  output wire [1:0]                    s_axi_bresp,   // AXI4-Lite slave: Write response
-  output wire                          s_axi_bvalid,  // AXI4-Lite slave: Write response valid
-  input  wire                          s_axi_bready,  // AXI4-Lite slave: Write response ready
-  input  wire [AXI_ADDR_WIDTH-1:0]     s_axi_araddr,  // AXI4-Lite slave: Read address
-  input  wire                          s_axi_arvalid, // AXI4-Lite slave: Read address valid
-  output wire                          s_axi_arready, // AXI4-Lite slave: Read address ready
-  output wire [AXI_DATA_WIDTH-1:0]     s_axi_rdata,   // AXI4-Lite slave: Read data
-  output wire [1:0]                    s_axi_rresp,   // AXI4-Lite slave: Read data response
-  output wire                          s_axi_rvalid,  // AXI4-Lite slave: Read data valid
-  input  wire                          s_axi_rready   // AXI4-Lite slave: Read data ready
+  input  wire [AXI_ADDR_WIDTH-1:0]   s_axi_awaddr,  // AXI4-Lite slave: Write address
+  input  wire                        s_axi_awvalid, // AXI4-Lite slave: Write address valid
+  output wire                        s_axi_awready, // AXI4-Lite slave: Write address ready
+  input  wire [AXI_DATA_WIDTH-1:0]   s_axi_wdata,   // AXI4-Lite slave: Write data
+  input  wire [AXI_DATA_WIDTH/8-1:0] s_axi_wstrb,   // AXI4-Lite slave: Write strobe
+  input  wire                        s_axi_wvalid,  // AXI4-Lite slave: Write data valid
+  output wire                        s_axi_wready,  // AXI4-Lite slave: Write data ready
+  output wire [1:0]                  s_axi_bresp,   // AXI4-Lite slave: Write response
+  output wire                        s_axi_bvalid,  // AXI4-Lite slave: Write response valid
+  input  wire                        s_axi_bready,  // AXI4-Lite slave: Write response ready
+  input  wire [AXI_ADDR_WIDTH-1:0]   s_axi_araddr,  // AXI4-Lite slave: Read address
+  input  wire                        s_axi_arvalid, // AXI4-Lite slave: Read address valid
+  output wire                        s_axi_arready, // AXI4-Lite slave: Read address ready
+  output wire [AXI_DATA_WIDTH-1:0]   s_axi_rdata,   // AXI4-Lite slave: Read data
+  output wire [1:0]                  s_axi_rresp,   // AXI4-Lite slave: Read data response
+  output wire                        s_axi_rvalid,  // AXI4-Lite slave: Read data valid
+  input  wire                        s_axi_rready   // AXI4-Lite slave: Read data ready
 );
 
-  localparam integer ADDR_LSB = (AXI_DATA_WIDTH/32) + 1;
-  localparam integer ADDR_BITS = AXI_ADDR_WIDTH - ADDR_LSB;
-  localparam integer CFG_SIZE = CFG_DATA_WIDTH/AXI_DATA_WIDTH;
+  function integer clogb2 (input integer value);
+    for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
+  endfunction
 
-  reg [AXI_ADDR_WIDTH-1:0] int_awaddr_reg, int_awaddr_next;
-  reg [AXI_ADDR_WIDTH-1:0] int_araddr_reg, int_araddr_next;
-  reg [AXI_DATA_WIDTH-1:0] int_wdata_reg, int_wdata_next;
+  localparam integer ADDR_LSB = AXI_DATA_WIDTH/32 + 1;
+  localparam integer CFG_SIZE = CFG_DATA_WIDTH/AXI_DATA_WIDTH;
+  localparam integer CFG_WIDTH = CFG_SIZE ? 1 : clogb2(CFG_SIZE-1);
+
   reg [AXI_DATA_WIDTH-1:0] int_rdata_reg, int_rdata_next;
   reg int_awready_reg, int_awready_next;
   reg int_wready_reg, int_wready_next;
@@ -49,38 +50,34 @@ module axi_cfg_register #
   reg int_bvalid_reg, int_bvalid_next;
   reg int_rvalid_reg, int_rvalid_next;
 
-  reg int_wren_reg, int_wren_next;
   reg int_wstate_reg, int_wstate_next;
   reg int_rstate_reg, int_rstate_next;
 
   wire [AXI_DATA_WIDTH-1:0] int_data_mux [CFG_SIZE-1:0];
   wire [CFG_DATA_WIDTH-1:0] int_data_wire;
-  wire [CFG_SIZE-1:0] word_wren_wire;
-  wire [CFG_DATA_WIDTH/8-1:0] byte_wren_wire;
+  wire [CFG_SIZE-1:0] int_ce_wire;
+  wire int_wvalid_wire;
 
-  integer i;
-  genvar j, k, l;
+  genvar j, k;
+
+  assign int_wvalid_wire = s_axi_awvalid & s_axi_wvalid;
 
   generate
-    for (j = 0; j < CFG_SIZE; j = j + 1)
+    for(j = 0; j < CFG_SIZE; j = j + 1)
     begin : WORDS
-      assign int_data_mux[j] = int_data_wire[j*CFG_SIZE+AXI_DATA_WIDTH-1:j*CFG_SIZE];
-      assign word_wren_wire[j] = int_wren_reg & (int_awaddr_reg[AXI_ADDR_WIDTH-1:ADDR_LSB] == j);
-      for (k = 0; k < AXI_DATA_WIDTH/8; k = k + 1)
-      begin : BYTES
-        assign byte_wren_wire[j*AXI_DATA_WIDTH/8 + k] = word_wren_wire[j] & s_axi_wstrb[k];
-        for (l = 0; l < 8; l = l + 1)
-        begin : BITS
-          FDRE #(
-            .INIT(1'b0)
-          ) FDRE_inst (
-            .CE(byte_wren_wire),
-            .C(aclk),
-            .R(~aresetn),
-            .D(int_wdata_reg[k*8 + l]),
-            .Q(int_data_wire[j*AXI_DATA_WIDTH + k*8 + l])
-          );
-        end
+      assign int_data_mux[j] = int_data_wire[j*AXI_DATA_WIDTH+AXI_DATA_WIDTH-1:j*AXI_DATA_WIDTH];
+      assign int_ce_wire[j] = int_wvalid_wire & (s_axi_awaddr[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB] == j);
+      for(k = 0; k < AXI_DATA_WIDTH; k = k + 1)
+      begin : BITS
+        FDRE #(
+          .INIT(1'b0)
+        ) FDRE_inst (
+          .CE(int_ce_wire[j] & s_axi_wstrb[k/8]),
+          .C(aclk),
+          .R(~aresetn),
+          .D(s_axi_wdata[k]),
+          .Q(int_data_wire[j*AXI_DATA_WIDTH + k])
+        );
       end
     end
   endgenerate
@@ -90,30 +87,22 @@ module axi_cfg_register #
     if(~aresetn)
     begin
       int_awready_reg <= 1'b0;
-      int_awaddr_reg <= {(AXI_ADDR_WIDTH){1'b0}};
       int_wready_reg <= 1'b0;
-      int_wdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
       int_bvalid_reg <= 1'b0;
       int_arready_reg <= 1'b0;
-      int_araddr_reg <= {(AXI_ADDR_WIDTH){1'b0}};
       int_rvalid_reg <= 1'b0;
       int_rdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
-      int_wren_reg <= 1'b0;
       int_wstate_reg <= 1'b0;
       int_rstate_reg <= 1'b0;
     end
     else
     begin
       int_awready_reg <= int_awready_next;
-      int_awaddr_reg <= int_awaddr_next;
       int_wready_reg <= int_wready_next;
-      int_wdata_reg <= int_wdata_next;
       int_bvalid_reg <= int_bvalid_next;
       int_arready_reg <= int_arready_next;
-      int_araddr_reg <= int_araddr_next;
       int_rvalid_reg <= int_rvalid_next;
       int_rdata_reg <= int_rdata_next;
-      int_wren_reg <= int_wren_next;
       int_wstate_reg <= int_wstate_next;
       int_rstate_reg <= int_rstate_next;
     end
@@ -122,23 +111,17 @@ module axi_cfg_register #
   always @*
   begin
     int_awready_next = int_awready_reg;
-    int_awaddr_next = int_awaddr_reg;
     int_wready_next = int_wready_reg;
-    int_wdata_next = int_wdata_reg;
     int_bvalid_next = int_bvalid_reg;
-    int_wren_next = int_wren_reg;
     int_wstate_next = int_wstate_reg;
 
     case(int_wstate_reg)
       0:
       begin
-        if(s_axi_awvalid & s_axi_wvalid)
+        if(int_wvalid_wire)
         begin
           int_awready_next = 1'b1;
-          int_awaddr_next = s_axi_awaddr;
           int_wready_next = 1'b1;
-          int_wdata_next = s_axi_wdata;
-          int_wren_next = 1'b1;
           int_wstate_next = 1'b1;
         end
       end
@@ -146,7 +129,6 @@ module axi_cfg_register #
       begin
         int_awready_next = 1'b0;
         int_wready_next = 1'b0;
-        int_wren_next = 1'b0;
         int_bvalid_next = 1'b1;
         if(s_axi_bready & int_bvalid_reg)
         begin
@@ -160,7 +142,6 @@ module axi_cfg_register #
   always @*
   begin
     int_arready_next = int_arready_reg;
-    int_araddr_next = int_araddr_reg;
     int_rvalid_next = int_rvalid_reg;
     int_rdata_next = int_rdata_reg;
     int_rstate_next = int_rstate_reg;
@@ -171,15 +152,14 @@ module axi_cfg_register #
         if(s_axi_arvalid)
         begin
           int_arready_next = 1'b1;
-          int_araddr_next = s_axi_araddr;
+          int_rdata_next = int_data_mux[s_axi_araddr[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB]];
+          int_rvalid_next = 1'b1;
           int_rstate_next = 1'b1;
         end
       end
       1:
       begin
         int_arready_next = 1'b0;
-        int_rvalid_next = 1'b1;
-        int_rdata_next = int_data_mux[int_araddr_reg[ADDR_LSB+ADDR_BITS-1:ADDR_LSB]];
         if(s_axi_rready & int_rvalid_reg)
         begin
           int_rvalid_next = 1'b0;
