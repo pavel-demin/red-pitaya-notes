@@ -9,11 +9,11 @@ module axi_cfg_register #
 )
 (
   // System signals
-  input  wire                          aclk,
-  input  wire                          aresetn,
+  input  wire                        aclk,
+  input  wire                        aresetn,
 
   // Configuration bits
-  output wire [CFG_DATA_WIDTH-1:0]     cfg_data,
+  output wire [CFG_DATA_WIDTH-1:0]   cfg_data,
 
   // Slave side
   input  wire [AXI_ADDR_WIDTH-1:0]   s_axi_awaddr,  // AXI4-Lite slave: Write address
@@ -43,15 +43,13 @@ module axi_cfg_register #
   localparam integer CFG_SIZE = CFG_DATA_WIDTH/AXI_DATA_WIDTH;
   localparam integer CFG_WIDTH = CFG_SIZE ? 1 : clogb2(CFG_SIZE-1);
 
-  reg [AXI_DATA_WIDTH-1:0] int_rdata_reg, int_rdata_next;
   reg int_awready_reg, int_awready_next;
   reg int_wready_reg, int_wready_next;
-  reg int_arready_reg, int_arready_next;
   reg int_bvalid_reg, int_bvalid_next;
-  reg int_rvalid_reg, int_rvalid_next;
 
-  reg int_wstate_reg, int_wstate_next;
-  reg int_rstate_reg, int_rstate_next;
+  reg int_arready_reg, int_arready_next;
+  reg int_rvalid_reg, int_rvalid_next;
+  reg [AXI_DATA_WIDTH-1:0] int_rdata_reg, int_rdata_next;
 
   wire [AXI_DATA_WIDTH-1:0] int_data_mux [CFG_SIZE-1:0];
   wire [CFG_DATA_WIDTH-1:0] int_data_wire;
@@ -92,8 +90,6 @@ module axi_cfg_register #
       int_arready_reg <= 1'b0;
       int_rvalid_reg <= 1'b0;
       int_rdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
-      int_wstate_reg <= 1'b0;
-      int_rstate_reg <= 1'b0;
     end
     else
     begin
@@ -103,8 +99,6 @@ module axi_cfg_register #
       int_arready_reg <= int_arready_next;
       int_rvalid_reg <= int_rvalid_next;
       int_rdata_reg <= int_rdata_next;
-      int_wstate_reg <= int_wstate_next;
-      int_rstate_reg <= int_rstate_next;
     end
   end
 
@@ -113,30 +107,24 @@ module axi_cfg_register #
     int_awready_next = int_awready_reg;
     int_wready_next = int_wready_reg;
     int_bvalid_next = int_bvalid_reg;
-    int_wstate_next = int_wstate_reg;
 
-    case(int_wstate_reg)
-      0:
-      begin
-        if(int_wvalid_wire)
-        begin
-          int_awready_next = 1'b1;
-          int_wready_next = 1'b1;
-          int_wstate_next = 1'b1;
-        end
-      end
-      1:
-      begin
-        int_awready_next = 1'b0;
-        int_wready_next = 1'b0;
-        int_bvalid_next = 1'b1;
-        if(s_axi_bready & int_bvalid_reg)
-        begin
-          int_bvalid_next = 1'b0;
-          int_wstate_next = 1'b0;
-        end
-      end
-    endcase
+    if(int_wvalid_wire & ~int_awready_reg)
+    begin
+      int_awready_next = 1'b1;
+      int_wready_next = 1'b1;
+    end
+
+    if(int_awready_reg)
+    begin
+      int_awready_next = 1'b0;
+      int_wready_next = 1'b0;
+      int_bvalid_next = 1'b1;
+    end
+
+    if(s_axi_bready & int_bvalid_reg)
+    begin
+      int_bvalid_next = 1'b0;
+    end
   end
 
   always @*
@@ -144,29 +132,23 @@ module axi_cfg_register #
     int_arready_next = int_arready_reg;
     int_rvalid_next = int_rvalid_reg;
     int_rdata_next = int_rdata_reg;
-    int_rstate_next = int_rstate_reg;
 
-    case(int_rstate_reg)
-      0:
-      begin
-        if(s_axi_arvalid)
-        begin
-          int_arready_next = 1'b1;
-          int_rdata_next = int_data_mux[s_axi_araddr[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB]];
-          int_rvalid_next = 1'b1;
-          int_rstate_next = 1'b1;
-        end
-      end
-      1:
-      begin
-        int_arready_next = 1'b0;
-        if(s_axi_rready & int_rvalid_reg)
-        begin
-          int_rvalid_next = 1'b0;
-          int_rstate_next = 1'b0;
-        end
-      end
-    endcase
+    if(s_axi_arvalid)
+    begin
+      int_arready_next = 1'b1;
+      int_rvalid_next = 1'b1;
+      int_rdata_next = int_data_mux[s_axi_araddr[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB]];
+    end
+
+    if(int_arready_reg)
+    begin
+      int_arready_next = 1'b0;
+    end
+
+    if(s_axi_rready & int_rvalid_reg)
+    begin
+      int_rvalid_next = 1'b0;
+    end
   end
 
   assign cfg_data = int_data_wire;
@@ -182,3 +164,4 @@ module axi_cfg_register #
   assign s_axi_rvalid = int_rvalid_reg;
 
 endmodule
+
