@@ -42,14 +42,14 @@ module axis_ram_writer #
     for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
   endfunction
 
+  localparam integer ADDR_SIZE = clogb2((AXI_DATA_WIDTH/8)-1)
+
   reg int_awvalid_reg, int_awvalid_next;
   reg int_wvalid_reg, int_wvalid_next;
   reg [ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
   reg [AXI_ID_WIDTH-1:0] int_wid_reg, int_wid_next;
 
-  wire int_wlast_wire;
-
-  assign int_wlast_wire = &int_addr_reg[3:0];
+  wire int_wlast_wire = &int_addr_reg[3:0];
 
   always @(posedge aclk)
   begin
@@ -100,9 +100,9 @@ module axis_ram_writer #
   end
 
   assign m_axi_awid = int_wid_reg;
-  assign m_axi_awaddr = ADDR_BASE + {int_addr_reg, 3'd0};
+  assign m_axi_awaddr = ADDR_BASE + {int_addr_reg, {(ADDR_SIZE){1'b0}}};
   assign m_axi_awlen = 4'd15;
-  assign m_axi_awsize = clogb2((AXI_DATA_WIDTH/8)-1);
+  assign m_axi_awsize = ADDR_SIZE;
   assign m_axi_awburst = 2'b01;
   assign m_axi_awcache = 4'b0011;
   assign m_axi_awvalid = int_awvalid_reg;
@@ -114,4 +114,3 @@ module axis_ram_writer #
   assign m_axi_bready = 1'b1;
 
 endmodule
-
