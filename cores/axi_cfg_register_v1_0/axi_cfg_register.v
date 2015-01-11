@@ -5,7 +5,7 @@ module axi_cfg_register #
 (
   parameter integer CFG_DATA_WIDTH = 1024,
   parameter integer AXI_DATA_WIDTH = 32,
-  parameter integer AXI_ADDR_WIDTH = 7
+  parameter integer AXI_ADDR_WIDTH = 32
 )
 (
   // System signals
@@ -39,9 +39,9 @@ module axi_cfg_register #
     for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
   endfunction
 
-  localparam integer ADDR_LSB = AXI_DATA_WIDTH/32 + 1;
+  localparam integer ADDR_LSB = clogb2(AXI_DATA_WIDTH/8 - 1);
   localparam integer CFG_SIZE = CFG_DATA_WIDTH/AXI_DATA_WIDTH;
-  localparam integer CFG_WIDTH = CFG_SIZE ? 1 : clogb2(CFG_SIZE-1);
+  localparam integer CFG_WIDTH = CFG_SIZE > 1 ? clogb2(CFG_SIZE-1) : 1;
 
   reg int_awready_reg, int_awready_next;
   reg int_wready_reg, int_wready_next;
