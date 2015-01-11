@@ -42,8 +42,10 @@ module axis_ram_writer #
     for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
   endfunction
 
-  localparam integer ADDR_SIZE = clogb2((AXI_DATA_WIDTH/8)-1)
+  localparam integer ADDR_SIZE = clogb2((AXI_DATA_WIDTH/8)-1);
 
+  reg [AXIS_TDATA_WIDTH-1:0] int_data_reg, int_data_next;
+  reg int_wren_reg, int_wren_next;
   reg int_awvalid_reg, int_awvalid_next;
   reg int_wvalid_reg, int_wvalid_next;
   reg [ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
@@ -51,6 +53,7 @@ module axis_ram_writer #
 
   wire int_full_wire, int_empty_wire, int_rden_wire;
   wire int_wlast_wire, int_tready_wire;
+  wire [71:0] int_wdata_wire;
 
   assign int_tready_wire = ~int_full_wire;
   assign int_wlast_wire = &int_addr_reg[3:0];
@@ -59,19 +62,18 @@ module axis_ram_writer #
   FIFO36E1 #(
     .FIRST_WORD_FALL_THROUGH("TRUE"),
     .ALMOST_EMPTY_OFFSET(13'd14),
-    .DATA_WIDTH(AXI_DATA_WIDTH),
-    .EN_SYN("TRUE"),
-    .DO_REG(0)
+    .DATA_WIDTH(72),
+    .FIFO_MODE("FIFO36_72")
   ) fifo_0 (
     .FULL(int_full_wire),
     .ALMOSTEMPTY(int_empty_wire),
-    .RST(RST),
+    .RST(~aresetn),
     .WRCLK(aclk),
     .WREN(int_tready_wire & s_axis_tvalid & int_wren_reg),
-    .DI({s_axis_tdata, int_data_reg}),
+    .DI({{(72-AXI_DATA_WIDTH-1){1'b0}}, s_axis_tdata, int_data_reg}),
     .RDCLK(aclk),
     .RDEN(m_axi_wready & int_wvalid_reg),
-    .DO(m_axi_wdata)
+    .DO(int_wdata_wire)
   );
 
   always @(posedge aclk)
@@ -94,10 +96,6 @@ module axis_ram_writer #
       int_addr_reg <= int_addr_next;
       int_wid_reg <= int_wid_next;
     end
-  end
-
-  always @*
-  begin
   end
 
   always @*
@@ -153,6 +151,7 @@ module axis_ram_writer #
   assign m_axi_awcache = 4'b0011;
   assign m_axi_awvalid = int_awvalid_reg;
   assign m_axi_wid = int_wid_reg;
+  assign m_axi_wdata = int_wdata_wire[AXI_DATA_WIDTH-1:0];
   assign m_axi_wstrb = {(AXI_DATA_WIDTH/8){1'b1}};
   assign m_axi_wlast = int_wlast_wire;
   assign m_axi_wvalid = int_wvalid_reg;
