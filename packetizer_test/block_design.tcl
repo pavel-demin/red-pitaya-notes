@@ -16,7 +16,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_3 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 1024 DIN_FROM 51 DIN_TO 32 DOUT_WIDTH 20
+  DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
