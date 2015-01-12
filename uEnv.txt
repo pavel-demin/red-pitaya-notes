@@ -1,5 +1,7 @@
 ethaddr=00:26:33:14:50:00
 
+fdt_high=0x1E000000
+
 kernel_image=uImage
 devicetree_image=devicetree.dtb
 
