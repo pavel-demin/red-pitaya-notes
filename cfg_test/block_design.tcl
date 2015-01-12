@@ -29,7 +29,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 32
+  CFG_DATA_WIDTH 1024
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -45,8 +45,7 @@ set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_FROM 6
-  DOUT_WIDTH 7
+  DIN_WIDTH 1024 DIN_FROM 134 DIN_TO 128 DOUT_WIDTH 7
 } {
   Din cfg_0/cfg_data
 }
