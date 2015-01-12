@@ -164,4 +164,3 @@ module axi_cfg_register #
   assign s_axi_rvalid = int_rvalid_reg;
 
 endmodule
-
