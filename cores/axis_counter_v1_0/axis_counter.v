@@ -51,4 +51,3 @@ module axis_counter #
   assign m_axis_tdata = {{(AXIS_TDATA_WIDTH-CNTR_WIDTH){1'b0}}, int_cntr_reg};
 
 endmodule
-
