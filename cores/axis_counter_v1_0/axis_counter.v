@@ -14,8 +14,8 @@ module axis_counter #
   input  wire [CNTR_WIDTH-1:0]       cfg_data,
 
   // Master side
-  output wire                        m_axis_tvalid,
-  output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata
+  output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata,
+  output wire                        m_axis_tvalid
 );
 
   reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
