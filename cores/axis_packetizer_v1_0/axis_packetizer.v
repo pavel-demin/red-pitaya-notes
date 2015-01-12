@@ -1,9 +1,9 @@
 
 `timescale 1 ns / 1 ps
 
-module axis_packetizer #
+module axis_counter #
 (
-  parameter integer PACKET_SIZE = 65536,
+  parameter integer CNTR_WIDTH = 20,
   parameter integer AXIS_TDATA_WIDTH = 32
 )
 (
@@ -11,55 +11,52 @@ module axis_packetizer #
   input  wire                        aclk,
   input  wire                        aresetn,
 
+  input  wire [CNTR_WIDTH-1:0]       cfg_data,
+
   // Slave side
-  output wire                        s_axis_tready,
   input  wire [AXIS_TDATA_WIDTH-1:0] s_axis_tdata,
   input  wire                        s_axis_tvalid,
 
   // Master side
-  output wire                        m_axis_tvalid,
   output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata,
-  output wire                        m_axis_tlast,
-  input  wire                        m_axis_tready
+  output wire                        m_axis_tvalid
 );
 
-  function integer clogb2 (input integer value);
-    for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
-  endfunction
-
-  localparam integer CNTR_WIDTH = clogb2(PACKET_SIZE-1);
-
-  reg  [CNTR_WIDTH-1:0]   int_cntr_reg, int_cntr_next;
-  wire [CNTR_WIDTH-1:0]   int_cntr_wire;
-  wire                    int_comp_wire;
-
-  assign int_comp_wire = (int_cntr_reg == (PACKET_SIZE-1));
+  reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
+  reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg, int_tdata_next;
+  reg int_tvalid_reg, int_tvalid_next;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
+      int_tdata_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
+      int_tvalid_reg <= 1'b0;
     end
     else
     begin
       int_cntr_reg <= int_cntr_next;
+      int_tdata_reg <= int_tdata_next;
+      int_tvalid_reg <= int_tvalid_next;
     end
   end
 
   always @*
   begin
     int_cntr_next = int_cntr_reg;
-    if(s_axis_tvalid & m_axis_tready)
+
+    int_tdata_next = s_axis_tdata;
+
+    int_tvalid_next = s_axis_tvalid & (int_cntr_reg < cfg_data);
+
+    if(int_tvalid_reg)
     begin
-      int_cntr_next = int_comp_wire ? {(CNTR_WIDTH){1'b0}} : int_cntr_reg + 1'b1;
+      int_cntr_next = int_cntr_reg + 1'b1;
     end
   end
 
-  assign s_axis_tready = m_axis_tready;
-  assign m_axis_tvalid = s_axis_tvalid;
-  assign m_axis_tdata = s_axis_tdata;
-
-  assign m_axis_tlast = int_comp_wire;
+  assign m_axis_tdata = int_tdata_reg;
+  assign m_axis_tvalid = int_tvalid_reg;
 
 endmodule
