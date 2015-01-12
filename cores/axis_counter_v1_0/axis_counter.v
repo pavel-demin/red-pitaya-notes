@@ -11,31 +11,44 @@ module axis_counter #
   input  wire                        aclk,
   input  wire                        aresetn,
 
+  input  wire [CNTR_WIDTH-1:0]       cfg_data,
+
   // Master side
   output wire                        m_axis_tvalid,
   output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata
 );
 
   reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
+  reg int_tvalid_reg, int_tvalid_next;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
+      int_tvalid_reg <= 1'b0;
     end
     else
     begin
       int_cntr_reg <= int_cntr_next;
+      int_tvalid_reg <= int_tvalid_next;
     end
   end
 
   always @*
   begin
-    int_cntr_next = int_cntr_reg + 1'b1;
+    int_cntr_next = int_cntr_reg;
+
+    int_tvalid_next = int_cntr_reg < cfg_data;
+
+    if(int_tvalid_reg)
+    begin
+      int_cntr_next = int_cntr_reg + 1'b1;
+    end
   end
 
-  assign m_axis_tvalid = 1'b1;
+  assign m_axis_tvalid = int_tvalid_reg;
   assign m_axis_tdata = {{(AXIS_TDATA_WIDTH-CNTR_WIDTH){1'b0}}, int_cntr_reg};
 
 endmodule
+
