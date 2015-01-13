@@ -3,7 +3,7 @@
 
 module axis_counter #
 (
-  parameter integer CNTR_WIDTH = 20,
+  parameter integer CNTR_WIDTH = 32,
   parameter integer AXIS_TDATA_WIDTH = 32
 )
 (
@@ -24,11 +24,9 @@ module axis_counter #
 
   reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
   reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg, int_tdata_next;
-  reg int_flag_reg, int_flag_next;
+  reg int_tvalid_reg, int_tvalid_next;
 
-  wire int_flag_wire;
-
-  assign int_flag_wire = int_flag_reg & (int_cntr_reg < cfg_data);
+  wire int_comp_wire;
 
   always @(posedge aclk)
   begin
@@ -36,34 +34,41 @@ module axis_counter #
     begin
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
       int_tdata_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
-      int_flag_reg <= 1'b0;
+      int_tvalid_reg <= 1'b0;
     end
     else
     begin
       int_cntr_reg <= int_cntr_next;
       int_tdata_reg <= int_tdata_next;
-      int_flag_reg <= int_flag_next;
+      int_tvalid_reg <= int_tvalid_next;
     end
   end
+
+  assign int_comp_wire = int_cntr_reg < cfg_data;
 
   always @*
   begin
     int_cntr_next = int_cntr_reg;
-
     int_tdata_next = s_axis_tdata;
+    int_tvalid_next = int_tvalid_reg;
 
-    if(~int_flag_reg)
+    if(~int_tvalid_reg & int_comp_wire)
     begin
-      int_flag_next = 1'b1;
+      int_tvalid_next = 1'b1;
     end
 
-    if(int_flag_wire)
+    if(int_tvalid_reg & int_comp_wire)
     begin
       int_cntr_next = int_cntr_reg + 1'b1;
+    end
+
+    if(int_tvalid_reg & (int_cntr_reg == cfg_data))
+    begin
+      int_tvalid_next = 1'b0;
     end
   end
 
   assign m_axis_tdata = int_tdata_reg;
-  assign m_axis_tvalid = int_flag_wire;
+  assign m_axis_tvalid = int_tvalid_reg;
 
 endmodule
