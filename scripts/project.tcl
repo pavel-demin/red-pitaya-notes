@@ -39,7 +39,7 @@ proc cell {cell_vlnv cell_name {cell_props {}} {cell_ports {}}} {
   }
 }
 
-source $project_name/block_design.tcl
+source projects/$project_name/block_design.tcl
 
 rename cell {}
 
@@ -48,7 +48,7 @@ make_wrapper -files [get_files $bd_path/system.bd] -top
 
 add_files -norecurse $bd_path/hdl/system_wrapper.v
 
-set files [glob -nocomplain $project_name/*.v]
+set files [glob -nocomplain projects/$project_name/*.v]
 if {[llength $files] > 0} {
   add_files -norecurse $files
 }
