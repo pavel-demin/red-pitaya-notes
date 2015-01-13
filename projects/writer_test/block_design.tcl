@@ -1,4 +1,4 @@
-source cfg_test/block_design.tcl
+source projects/cfg_test/block_design.tcl
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
