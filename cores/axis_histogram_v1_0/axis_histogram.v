@@ -58,7 +58,7 @@ module axis_histogram #
       int_cntr_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
       int_case_reg <= 2'd0;
       int_tready_reg <= 1'b0;
-      int_wren_reg <= 1'b0;
+      int_wren_reg <= 1'b1;
       int_zero_reg <= 1'b1;
     end
     else
@@ -98,8 +98,9 @@ module axis_histogram #
         if(&int_addr_reg)
         begin
           int_tready_next = 1'b1;
+          int_wren_next = 1'b0;
           int_zero_next = 1'b0;
-          int_case_next = 2'b1;
+          int_case_next = 2'd1;
         end
       end
       1:
