@@ -49,7 +49,7 @@ module axis_histogram #
 
   assign sum_cntr_wire = int_cntr_reg + 1'b1;
 
-  always @(posedge clock)
+  always @(posedge aclk)
   begin
     if(~aresetn)
     begin
