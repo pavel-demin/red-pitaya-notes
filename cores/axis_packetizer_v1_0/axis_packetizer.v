@@ -1,7 +1,7 @@
 
 `timescale 1 ns / 1 ps
 
-module axis_counter #
+module axis_packetizer #
 (
   parameter integer CNTR_WIDTH = 32,
   parameter integer AXIS_TDATA_WIDTH = 32
