@@ -31,7 +31,6 @@ foreach {logical physical} {
   ADDR bram_porta_addr
   DIN  bram_porta_wrdata
   DOUT bram_porta_rddata
-  EN   bram_porta_en
   WE   bram_porta_we
 } {
   set_property PHYSICAL_NAME $physical [ipx::add_port_map $logical $bus]
@@ -51,7 +50,6 @@ foreach {logical physical} {
   ADDR bram_portb_addr
   DIN  bram_portb_wrdata
   DOUT bram_portb_rddata
-  EN   bram_portb_en
   WE   bram_portb_we
 } {
   set_property PHYSICAL_NAME $physical [ipx::add_port_map $logical $bus]
