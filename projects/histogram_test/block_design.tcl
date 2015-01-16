@@ -23,13 +23,20 @@ cell xilinx.com:ip:xlslice:1.0 slice_4 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+  DIN_WIDTH 1024 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
+  DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_7 {
   DIN_WIDTH 1024 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
@@ -37,7 +44,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_6 {
 
 # Create axis_counter
 cell pavel-demin:user:axis_counter:1.0 cntr_1 {} {
-  cfg_data slice_5/Dout
+  cfg_data slice_6/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_2/Dout
 }
@@ -63,14 +70,16 @@ cell pavel-demin:user:axis_histogram:1.0 hist_0 {
   S_AXIS cntr_1/M_AXIS
   BRAM_PORTA bram_0/BRAM_PORTA
   BRAM_PORTB bram_0/BRAM_PORTB
+  aclk ps_0/FCLK_CLK0
+  aresetn slice_3/Dout
 }
 
 # Create axis_packetizer
 cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {} {
   S_AXIS hist_0/M_AXIS
-  cfg_data slice_6/Dout
+  cfg_data slice_7/Dout
   aclk ps_0/FCLK_CLK0
-  aresetn slice_3/Dout
+  aresetn slice_4/Dout
 }
 
 # Create axis_ram_writer
@@ -78,7 +87,7 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {} {
   S_AXIS pktzr_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
   aclk ps_0/FCLK_CLK0
-  aresetn slice_4/Dout
+  aresetn slice_5/Dout
 }
 
 create_bd_addr_seg -range 8M -offset 0x1E000000 [get_bd_addr_spaces writer_0/M_AXI] [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_ps_0_HP0_DDR_LOWOCM
