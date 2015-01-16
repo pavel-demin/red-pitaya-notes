@@ -41,9 +41,10 @@ module axis_histogram #
 
   reg [BRAM_ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
   reg [BRAM_ADDR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
-  reg int_wea_reg, int_wea_next;
-  reg int_web_reg, int_web_next;
+  reg [1:0] int_case_reg, int_case_next;
   reg int_tready_reg, int_tready_next;
+  reg int_wren_reg, int_wren_next;
+  reg int_zero_reg, int_zero_next;
 
   wire [BRAM_ADDR_WIDTH-1:0] sum_cntr_wire;
 
@@ -55,63 +56,90 @@ module axis_histogram #
     begin
       int_addr_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
       int_cntr_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
-      int_wea_reg <= 1'b0;
-      int_web_reg <= 1'b1;
+      int_case_reg <= 2'd0;
       int_tready_reg <= 1'b0;
+      int_wren_reg <= 1'b0;
+      int_zero_reg <= 1'b1;
     end
     else
     begin
       int_addr_reg <= int_addr_next;
       int_cntr_reg <= int_cntr_next;
-      int_wea_reg <= int_wea_next;
-      int_web_reg <= int_web_next;
+      int_case_reg <= int_case_next;
       int_tready_reg <= int_tready_next;
+      int_wren_reg <= int_wren_next;
+      int_zero_reg <= int_zero_next;
+    end
+  end
+
+  always @*
+  begin
+    int_cntr_next = int_cntr_reg;
+
+    if(m_axis_tready)
+    begin
+      int_cntr_next = sum_cntr_wire;
     end
   end
 
   always @*
   begin
     int_addr_next = int_addr_reg;
-    int_cntr_next = int_cntr_reg;
-    int_wea_next = int_wea_reg;
-    int_web_next = int_web_reg;
+    int_case_next = int_case_reg;
     int_tready_next = int_tready_reg;
+    int_wren_next = int_wren_reg;
+    int_zero_next = int_zero_reg;
 
-    if(int_tready_reg)
-    begin
-      int_addr_next = s_axis_tdata[BRAM_ADDR_WIDTH-1:0];
-      int_wea_next = int_wea_reg ? 1'b0 : s_axis_tvalid;
-      if(m_axis_tready)
+    case(int_case_reg)
+      0:
       begin
-        int_cntr_next = sum_cntr_wire;
+        // write zeros
+        int_addr_next = int_addr_reg + 1'b1;
+        if(&int_addr_reg)
+        begin
+          int_tready_next = 1'b1;
+          int_zero_next = 1'b0;
+          int_case_next = 2'b1;
+        end
       end
-    end
-    else
-    begin
-      int_cntr_next = sum_cntr_wire;
-      if(&int_cntr_reg)
+      1:
       begin
-        int_web_next = 1'b0;
+        if(s_axis_tvalid)
+        begin
+          int_addr_next = s_axis_tdata[BRAM_ADDR_WIDTH-1:0];
+          int_tready_next = 1'b0;
+          int_case_next = 2'd2;
+        end
+      end
+      2:
+      begin
+        int_wren_next = 1'b1;
+        int_case_next = 2'd3;
+      end
+      3:
+      begin
         int_tready_next = 1'b1;
+        int_wren_next = 1'b0;
+        int_case_next = 2'd1;
       end
-    end
+    endcase
   end
 
-  assign s_axis_tready = int_tready_reg & ~int_wea_reg;
+  assign s_axis_tready = int_tready_reg;
 
   assign bram_porta_clk = aclk;
   assign bram_porta_rst = ~aresetn;
-  assign bram_porta_addr = int_wea_reg ? int_addr_reg : s_axis_tdata[BRAM_ADDR_WIDTH-1:0];
-  assign bram_porta_wrdata = bram_porta_rddata + 1'b1;
-  assign bram_porta_we = int_wea_reg & ~&bram_porta_rddata;
+  assign bram_porta_addr = int_wren_reg ? int_addr_reg : s_axis_tdata[BRAM_ADDR_WIDTH-1:0];
+  assign bram_porta_wrdata = int_zero_reg ? {(M_AXIS_TDATA_WIDTH){1'b0}} : (bram_porta_rddata + 1'b1);
+  assign bram_porta_we = int_zero_reg ? 1'b1 : (int_wren_reg & ~&bram_porta_rddata);
 
   assign m_axis_tdata = bram_portb_rddata;
-  assign m_axis_tvalid = int_tready_reg;
+  assign m_axis_tvalid = 1'b1;
 
   assign bram_portb_clk = aclk;
   assign bram_portb_rst = ~aresetn;
   assign bram_portb_addr = m_axis_tready ? sum_cntr_wire : int_cntr_reg;
   assign bram_portb_wrdata = {(M_AXIS_TDATA_WIDTH){1'b0}};
-  assign bram_portb_we = int_web_reg;
+  assign bram_portb_we = 1'b0;
 
 endmodule
