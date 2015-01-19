@@ -9,6 +9,21 @@ diff -rupN old/linux-xlnx-xilinx-v2014.3/arch/arm/configs/xilinx_zynq_defconfig 
  CONFIG_MDIO_BITBANG=y
  CONFIG_INPUT_SPARSEKMAP=y
  CONFIG_INPUT_EVDEV=y
+@@ -268,3 +269,14 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
+ CONFIG_FONTS=y
+ CONFIG_FONT_8x8=y
+ CONFIG_FONT_8x16=y
++CONFIG_WIRELESS=y
++CONFIG_CFG80211=y
++CONFIG_MAC80211=y
++CONFIG_RTLWIFI=y
++CONFIG_RTL8192CU=y
++CONFIG_RT2X00=y
++CONFIG_RT2800USB=y
++CONFIG_RT2800USB_RT3573=y
++CONFIG_RT2800USB_RT53XX=y
++CONFIG_RT2800USB_RT55XX=y
++CONFIG_RT2800USB_UNKNOWN=y
 diff -rupN old/linux-xlnx-xilinx-v2014.3/drivers/misc/eeprom/at24.c linux-xlnx-xilinx-v2014.3/drivers/misc/eeprom/at24.c
 --- old/linux-xlnx-xilinx-v2014.3/drivers/misc/eeprom/at24.c	2014-10-09 14:58:01.000000000 +0200
 +++ linux-xlnx-xilinx-v2014.3/drivers/misc/eeprom/at24.c	2015-01-07 00:25:55.307231000 +0100
