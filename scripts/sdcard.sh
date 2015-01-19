@@ -1,22 +1,26 @@
-parted -s /dev/mmcblk0 mklabel msdos
-parted -s /dev/mmcblk0 mkpart primary fat16 4MB 64MB
-parted -s /dev/mmcblk0 mkpart primary ext4 64MB 100%
+device=$1
 
-mkfs.vfat -v /dev/mmcblk0p1
-mkfs.ext4 -F -j /dev/mmcblk0p2
+boot_dir=/tmp/BOOT
+root_dir=/tmp/ROOT
 
-mkdir /tmp/BOOT
-mkdir /tmp/ROOT
+parted -s $device mklabel msdos
+parted -s $device mkpart primary fat16 4MB 16MB
+parted -s $device mkpart primary ext4 16MB 100%
 
-mount /dev/mmcblk0p1 /tmp/BOOT
-mount /dev/mmcblk0p2 /tmp/ROOT
+boot_dev=/dev/`lsblk -lno NAME $device | sed '2!d'`
+root_dev=/dev/`lsblk -lno NAME $device | sed '3!d'`
 
-cp boot.bin devicetree.dtb uEnv.txt uImage /tmp/BOOT
-tar zxpf rootfs.tar.gz --strip-components=2 --directory=/tmp/ROOT
+mkfs.vfat -v $boot_dev
+mkfs.ext4 -F -j $root_dev
 
-umount /tmp/BOOT
-umount /tmp/ROOT
+mkdir $boot_dir $root_dir
 
-rmdir /tmp/BOOT
-rmdir /tmp/ROOT
+mount $boot_dev $boot_dir
+mount $root_dev $root_dir
 
+cp boot.bin devicetree.dtb uEnv.txt uImage $boot_dir
+tar --numeric-owner -zxpf rootfs.tar.gz --strip-components=2 --directory=$root_dir
+
+umount $boot_dir $root_dir
+
+rmdir $boot_dir $root_dir
