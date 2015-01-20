@@ -77,12 +77,12 @@ make NAME=led_blinker all
 
 Building a Debian Wheezy root file system:
 {% highlight bash %}
-sudo source scripts/rootfs.sh
+sudo sh scripts/rootfs.sh
 {% endhighlight %}
 
 Building a bootable SD card:
 {% highlight bash %}
-sudo source scripts/sdcard.sh
+sudo sh scripts/sdcard.sh
 {% endhighlight %}
 
 Reprogramming FPGA
