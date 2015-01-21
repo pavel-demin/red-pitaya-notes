@@ -81,5 +81,5 @@ EOF_CHROOT
 rm $rootfs/etc/resolv.conf
 rm $rootfs/usr/bin/qemu-arm-static
 
-tar zpcf rootfs.tar.gz $rootfs
+tar --numeric-owner -zcpf rootfs.tar.gz $rootfs
 
