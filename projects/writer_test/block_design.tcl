@@ -31,7 +31,7 @@ cell pavel-demin:user:axis_counter:1.0 cntr_1 {} {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_1 {
   CONST_WIDTH 32
-  CONST_VAL 0x1E000000
+  CONST_VAL 503316480
 }
 
 # Create axis_ram_writer

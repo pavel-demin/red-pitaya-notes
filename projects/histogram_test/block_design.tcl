@@ -84,7 +84,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {} {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_2 {
   CONST_WIDTH 32
-  CONST_VAL 0x1E000000
+  CONST_VAL 503316480
 }
 
 # Create axis_ram_writer
