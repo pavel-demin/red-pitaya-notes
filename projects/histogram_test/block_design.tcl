@@ -81,12 +81,19 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {} {
   aresetn slice_4/Dout
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_2 {
+  CONST_WIDTH 32
+  CONST_VAL 0x1E000000
+}
+
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {} {
   S_AXIS pktzr_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
+  cfg_data const_2/dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_5/Dout
 }
 
-create_bd_addr_seg -range 8M -offset 0x1E000000 [get_bd_addr_spaces writer_0/M_AXI] [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_ps_0_HP0_DDR_LOWOCM
+assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
