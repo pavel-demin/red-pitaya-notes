@@ -1,21 +1,20 @@
-set display_name {AXI4-Stream Histogram}
+set display_name {AXI4-Stream Block RAM Reader}
 
 set core [ipx::current_core]
 
 set_property DISPLAY_NAME $display_name $core
 set_property DESCRIPTION $display_name $core
 
-core_parameter AXIS_TDATA_WIDTH {AXIS TDATA WIDTH} {Width of the S_AXIS data bus.}
+core_parameter AXIS_TDATA_WIDTH {AXIS TDATA WIDTH} {Width of the M_AXIS data bus.}
 core_parameter BRAM_DATA_WIDTH {BRAM DATA WIDTH} {Width of the BRAM data ports.}
-core_parameter BRAM_ADDR_WIDTH {BRAM ADDR WIDTH} {Width of the BRAM address ports.}
 
-set bus [ipx::get_bus_interfaces -of_objects $core s_axis]
-set_property NAME S_AXIS $bus
-set_property INTERFACE_MODE slave $bus
+set bus [ipx::get_bus_interfaces -of_objects $core m_axis]
+set_property NAME M_AXIS $bus
+set_property INTERFACE_MODE master $bus
 
 set bus [ipx::get_bus_interfaces signal_clock]
 set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
-set_property VALUE S_AXIS $parameter
+set_property VALUE M_AXIS $parameter
 
 set bus [ipx::add_bus_interface BRAM_PORTA $core]
 set_property ABSTRACTION_TYPE_VLNV xilinx.com:interface:bram_rtl:1.0 $bus
@@ -25,7 +24,6 @@ foreach {logical physical} {
   RST  bram_porta_rst
   CLK  bram_porta_clk
   ADDR bram_porta_addr
-  DIN  bram_porta_wrdata
   DOUT bram_porta_rddata
   WE   bram_porta_we
 } {
