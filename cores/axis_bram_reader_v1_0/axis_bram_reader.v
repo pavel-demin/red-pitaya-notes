@@ -53,27 +53,24 @@ module axis_bram_reader #
   assign int_comp_wire = int_cntr_reg < cfg_data;
   assign int_tlast_wire = int_cntr_reg == cfg_data;
 
-  always @*
-  begin
-    int_cntr_next = int_cntr_reg;
-    int_enbl_next = int_enbl_reg;
-
-    if(~int_enbl_reg & int_comp_wire)
-    begin
-      int_enbl_next = 1'b1;
-    end
-
-    if(m_axis_tready & int_enbl_reg & int_comp_wire)
-    begin
-      int_cntr_next = sum_cntr_wire;
-    end
-  end
-
   generate
     if(CONTINUOUS == "TRUE")
     begin : CONTINUOUS
       always @*
       begin
+        int_cntr_next = int_cntr_reg;
+        int_enbl_next = int_enbl_reg;
+
+        if(~int_enbl_reg & int_comp_wire)
+        begin
+          int_enbl_next = 1'b1;
+        end
+
+        if(m_axis_tready & int_enbl_reg & int_comp_wire)
+        begin
+          int_cntr_next = sum_cntr_wire;
+        end
+
         if(m_axis_tready & int_enbl_reg & int_tlast_wire)
         begin
           int_cntr_next = {(BRAM_ADDR_WIDTH){1'b0}};
@@ -84,6 +81,19 @@ module axis_bram_reader #
     begin : STOP
       always @*
       begin
+        int_cntr_next = int_cntr_reg;
+        int_enbl_next = int_enbl_reg;
+
+        if(~int_enbl_reg & int_comp_wire)
+        begin
+          int_enbl_next = 1'b1;
+        end
+
+        if(m_axis_tready & int_enbl_reg & int_comp_wire)
+        begin
+          int_cntr_next = sum_cntr_wire;
+        end
+
         if(m_axis_tready & int_enbl_reg & int_tlast_wire)
         begin
           int_enbl_next = 1'b0;
