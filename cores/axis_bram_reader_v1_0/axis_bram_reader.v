@@ -5,7 +5,8 @@ module axis_bram_reader #
 (
   parameter integer AXIS_TDATA_WIDTH = 32,
   parameter integer BRAM_DATA_WIDTH = 32,
-  parameter integer BRAM_ADDR_WIDTH = 14
+  parameter integer BRAM_ADDR_WIDTH = 14,
+  parameter         CONTINUOUS = "FALSE"
 )
 (
   // System signals
@@ -66,12 +67,30 @@ module axis_bram_reader #
     begin
       int_cntr_next = sum_cntr_wire;
     end
-
-    if(m_axis_tready & int_enbl_reg & int_tlast_wire)
-    begin
-      int_enbl_next = 1'b0;
-    end
   end
+
+  generate
+    if(CONTINUOUS == "TRUE")
+    begin : CONTINUOUS
+      always @*
+      begin
+        if(m_axis_tready & int_enbl_reg & int_tlast_wire)
+        begin
+          int_cntr_next = {(BRAM_ADDR_WIDTH){1'b0}};
+        end
+      end
+    end
+    else
+    begin : STOP
+      always @*
+      begin
+        if(m_axis_tready & int_enbl_reg & int_tlast_wire)
+        begin
+          int_enbl_next = 1'b0;
+        end
+      end
+    end
+  endgenerate
 
   assign m_axis_tdata = bram_porta_rddata;
   assign m_axis_tvalid = int_enbl_reg;

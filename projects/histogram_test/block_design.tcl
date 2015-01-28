@@ -72,8 +72,9 @@ cell pavel-demin:user:axis_histogram:1.0 hist_0 {
   aresetn slice_3/Dout
 }
 
-# Create axis_packetizer
+# Create axis_bram_reader
 cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
+  CONTINUOUS FALSE
   BRAM_ADDR_WIDTH 14
   BRAM_DATA_WIDTH 32
   AXIS_TDATA_WIDTH 32
