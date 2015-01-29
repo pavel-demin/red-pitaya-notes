@@ -69,7 +69,7 @@ module axis_packetizer #
 
         if(m_axis_tready & int_tvalid_wire & int_tlast_wire)
         begin
-          int_cntr_next = {(BRAM_ADDR_WIDTH){1'b0}};
+          int_cntr_next = {(CNTR_WIDTH){1'b0}};
         end
       end
     end
