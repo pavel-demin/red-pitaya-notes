@@ -1,0 +1,81 @@
+d-i debian-installer/locale string en_US
+d-i debian-installer/quiet boolean false
+d-i debian-installer/splash boolean false
+d-i debian-installer/framebuffer boolean false
+
+d-i console-setup/ask_detect boolean false
+d-i keyboard-configuration/layoutcode string us
+
+d-i netcfg/choose_interface select auto
+
+d-i netcfg/get_hostname string unassigned-hostname
+d-i netcfg/get_domain string unassigned-domain
+
+d-i netcfg/wireless_wep string
+
+d-i mirror/country string manual
+d-i mirror/http/hostname string ftp.heanet.ie
+d-i mirror/http/directory string /pub/ubuntu
+
+d-i clock-setup/utc boolean true
+
+d-i time/zone string UTC
+
+d-i clock-setup/ntp boolean true
+
+d-i partman-auto/disk string /dev/sda
+d-i partman-auto/method string regular
+
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-md/device_remove_md boolean true
+
+d-i partman-auto/expert_recipe string                         \
+      boot-root ::                                            \
+              1024 1 1024 linux-swap                          \
+                      $primary{ }                             \
+                      method{ swap } format{ }                \
+              .                                               \
+              8192 1 -1 ext4                                  \
+                      $primary{ } $bootable{ }                \
+                      method{ format } format{ }              \
+                      use_filesystem{ } filesystem{ ext4 }    \
+                      mountpoint{ / }                         \
+              .
+
+d-i partman/default_filesystem string ext4
+
+d-i partman-basicfilesystems/no_swap boolean false
+
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+d-i partman/mount_style select traditional
+
+d-i passwd/root-login boolean true
+d-i passwd/root-password-crypted password $1$v3L95$40ea0mxTdfAkaPGt6ugpK0
+
+d-i passwd/user-fullname string Red Pitaya
+d-i passwd/username string red-pitaya
+d-i passwd/user-password-crypted password $1$v3L95$40ea0mxTdfAkaPGt6ugpK0
+
+tasksel tasksel/first multiselect
+tasksel tasksel/skip-tasks string standard
+
+d-i pkgsel/language-pack-patterns string
+d-i pkgsel/install-language-support boolean false
+
+d-i pkgsel/include string wget
+d-i pkgsel/include/install-recommends boolean false
+
+d-i pkgsel/update-policy select none
+
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+
+d-i finish-install/reboot_in_progress note
+
+d-i preseed/late_command string in-target \
+  apt-get --yes --no-install-recommends install \
+  network-manager openssh-server virtualbox-guest-dkms
