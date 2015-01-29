@@ -10,7 +10,6 @@ core_parameter BRAM_DATA_WIDTH {BRAM DATA WIDTH} {Width of the BRAM data ports.}
 core_parameter BRAM_ADDR_WIDTH {BRAM ADDR WIDTH} {Width of the BRAM address ports.}
 core_parameter CONTINUOUS {CONTINUOUS} {If TRUE, reader runs continuously.}
 
-
 set bus [ipx::get_bus_interfaces -of_objects $core m_axis]
 set_property NAME M_AXIS $bus
 set_property INTERFACE_MODE master $bus
