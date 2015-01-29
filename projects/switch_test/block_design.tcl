@@ -98,19 +98,23 @@ cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
 # Create axis_histogram
 cell pavel-demin:user:axis_histogram:1.0 hist_0 {
   BRAM_ADDR_WIDTH 14
-  S_AXIS_TDATA_WIDTH 16
-  M_AXIS_TDATA_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  AXIS_TDATA_WIDTH 16
 } {
   S_AXIS cntr_1/M_AXIS
   BRAM_PORTA bram_0/BRAM_PORTA
-  BRAM_PORTB bram_0/BRAM_PORTB
   aclk ps_0/FCLK_CLK0
   aresetn slice_3/Dout
 }
 
-# Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {} {
-  S_AXIS hist_0/M_AXIS
+# Create axis_bram_reader
+cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
+  AXIS_TDATA_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 14
+  CONTINUOUS FALSE
+} {
+  BRAM_PORTA bram_0/BRAM_PORTB
   cfg_data slice_10/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_4/Dout
@@ -137,19 +141,23 @@ cell xilinx.com:ip:blk_mem_gen:8.2 bram_1 {
 # Create axis_histogram
 cell pavel-demin:user:axis_histogram:1.0 hist_1 {
   BRAM_ADDR_WIDTH 14
-  S_AXIS_TDATA_WIDTH 16
-  M_AXIS_TDATA_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  AXIS_TDATA_WIDTH 16
 } {
   S_AXIS cntr_2/M_AXIS
   BRAM_PORTA bram_1/BRAM_PORTA
-  BRAM_PORTB bram_1/BRAM_PORTB
   aclk ps_0/FCLK_CLK0
   aresetn slice_6/Dout
 }
 
-# Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_1 {} {
-  S_AXIS hist_1/M_AXIS
+# Create axis_bram_reader
+cell pavel-demin:user:axis_bram_reader:1.0 reader_1 {
+  AXIS_TDATA_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 14
+  CONTINUOUS FALSE
+} {
+  BRAM_PORTA bram_1/BRAM_PORTB
   cfg_data slice_12/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_7/Dout
@@ -163,8 +171,8 @@ cell xilinx.com:ip:axis_switch:1.1 switch_0 {
   ARB_ON_MAX_XFERS 0
   ARB_ON_TLAST 1
 } {
-  S00_AXIS pktzr_0/M_AXIS
-  S01_AXIS pktzr_1/M_AXIS
+  S00_AXIS reader_0/M_AXIS
+  S01_AXIS reader_1/M_AXIS
   aclk ps_0/FCLK_CLK0
   aresetn rst_0/peripheral_aresetn
 }
