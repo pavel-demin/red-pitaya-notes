@@ -34,7 +34,11 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
 }
 
 # Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {} {
+cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
+  AXIS_TDATA_WIDTH 32
+  CNTR_WIDTH 32
+  CONTINUOUS FALSE
+} {
   S_AXIS fifo_0/M_AXIS
   cfg_data slice_4/Dout
   aclk ps_0/FCLK_CLK0
