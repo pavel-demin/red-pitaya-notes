@@ -12,7 +12,7 @@ For my experiments with the [Red Pitaya](http://wiki.redpitaya.com), I'd like to
  - recent version of the [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado)
  - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2014.3)
  - recent version of the [Ubuntu distribution](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) on the development machine
- - recent version of the [Debian distribution](http://www.debian.org/releases/stable) on the Red Pitaya
+ - recent version of the [Ubuntu distribution](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) on the Red Pitaya
  - basic project with all the [Red Pitaya](http://wiki.redpitaya.com) peripherals connected
  - mostly command-line tools
  - shallow directory structure
@@ -22,21 +22,22 @@ Here is how I set it all up.
 Pre-requirements
 -----
 
-I'm skipping the installation of the development machine for the time being.
-
 My development machine has the following installed:
 
  - [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.1 (amd64)
 
  - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2014.3.1 with full SDK
 
-Here is the command to install all the other required packages:
+The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+
+Here are the commands to install all the other required packages:
 {% highlight bash %}
 sudo apt-get --no-install-recommends install \
-  build-essential git curl bc u-boot-tools \
+  build-essential git curl ca-certificates sudo \
   libxrender1 libxtst6 libxi6 lib32ncurses5 \
   gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
-  qemu-user-static debootstrap binfmt-support
+  bc u-boot-tools libncurses5-dev  qemu-user-static \
+  binfmt-support dosfstools parted
 {% endhighlight %}
 
 Source code
@@ -48,12 +49,66 @@ The source code is available at
 
 This repository contains the following components:
 
- - `Makefile` that builds everything (almost)
- - `cfg` directory with constraints and board definition files
- - `led_blinker` directory with two Verilog files for a basic project
- - `scripts` directory with
+ - [Makefile](https://github.com/pavel-demin/red-pitaya-notes/blob/master/Makefile) that builds everything (almost)
+ - [cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/cfg) directory with constraints and board definition files
+ - [cores](https://github.com/pavel-demin/red-pitaya-notes/tree/master/cores) directory with IP cores written in Verilog
+ - [projects](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects) directory with Vivado projects written in Tcl
+ - [scripts](https://github.com/pavel-demin/red-pitaya-notes/tree/master/scripts) directory with
    - Tcl scripts for Vivado and SDK
-   - shell scripts that bootstrap a Debian root file system and build a bootable SD card
+   - shell script that builds a bootable SD card
+
+Syntactic sugar for IP cores
+-----
+
+The [projects/led_blinker](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/led_blinker) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/led_blinker/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
+
+By default, the IP core instantiation and configuration commands are quite verbose:
+{% highlight Tcl %}
+create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 ps_0
+
+set_property CONFIG.PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml [get_bd_cells ps_0]
+
+connect_bd_net [get_bd_pins ps_0/FCLK_CLK0] [get_bd_pins ps_0/M_AXI_GP0_ACLK]
+{% endhighlight %}
+
+With the Tcl's flexibility, it's easy to define a less verbose command that looks similar to the module instantiation in Verilog:
+{% highlight Tcl %}
+cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+} {
+  M_AXI_GP0_ACLK ps_0/FCLK_CLK0
+}
+{% endhighlight %}
+
+The `cell` command is defined in the [scripts/project.tcl
+](https://github.com/pavel-demin/red-pitaya-notes/blob/master/scripts/project.tcl) script as follows:
+{% highlight Tcl %}
+proc cell {cell_vlnv cell_name {cell_props {}} {cell_ports {}}} {
+  set cell [create_bd_cell -type ip -vlnv $cell_vlnv $cell_name]
+  set prop_list {}
+  foreach {prop_name prop_value} $cell_props {
+    lappend prop_list CONFIG.$prop_name $prop_value
+  }
+  if {[llength $prop_list] > 1} {
+    set_property -dict $prop_list $cell
+  }
+  foreach {local_name remote_name} $cell_ports {
+    set local_port [get_bd_pins $cell_name/$local_name]
+    set remote_port [get_bd_pins $remote_name]
+    if {[llength $local_port] == 1 && [llength $remote_port] == 1} {
+      connect_bd_net $local_port $remote_port
+      continue
+    }
+    set local_port [get_bd_intf_pins $cell_name/$local_name]
+    set remote_port [get_bd_intf_pins $remote_name]
+    if {[llength $local_port] == 1 && [llength $remote_port] == 1} {
+      connect_bd_intf_net $local_port $remote_port
+      continue
+    }
+    error "** ERROR: can't connect $cell_name/$local_name and $remote_port"
+  }
+}
+{% endhighlight %}
 
 Getting started
 -----
@@ -75,14 +130,9 @@ Building `u-boot.elf`, `boot.bin` and `devicetree.dtb`:
 make NAME=led_blinker all
 {% endhighlight %}
 
-Building a Debian Wheezy root file system:
-{% highlight bash %}
-sudo sh scripts/rootfs.sh
-{% endhighlight %}
-
 Building a bootable SD card:
 {% highlight bash %}
-sudo sh scripts/sdcard.sh
+sudo sh scripts/sdcard.sh /dev/mmcblk0
 {% endhighlight %}
 
 Reprogramming FPGA
