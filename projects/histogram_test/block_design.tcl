@@ -74,10 +74,10 @@ cell pavel-demin:user:axis_histogram:1.0 hist_0 {
 
 # Create axis_bram_reader
 cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
-  CONTINUOUS FALSE
-  BRAM_ADDR_WIDTH 14
-  BRAM_DATA_WIDTH 32
   AXIS_TDATA_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 14
+  CONTINUOUS FALSE
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
   cfg_data slice_7/Dout
