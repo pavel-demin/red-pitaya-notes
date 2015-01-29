@@ -78,4 +78,10 @@ d-i finish-install/reboot_in_progress note
 
 d-i preseed/late_command string in-target \
   apt-get --yes --no-install-recommends install \
-  network-manager openssh-server virtualbox-guest-dkms
+  network-manager openssh-server virtualbox-guest-dkms \
+  autofs samba git curl ca-certificates xauth \
+  build-essential less vim screen sudo psmisc \
+  libxrender1 libxtst6 libxi6 lib32ncurses5 \
+  gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
+  bc u-boot-tools libncurses5-dev  qemu-user-static \
+  binfmt-support dosfstools parted
