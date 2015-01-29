@@ -3,8 +3,9 @@
 
 module axis_packetizer #
 (
+  parameter integer AXIS_TDATA_WIDTH = 32,
   parameter integer CNTR_WIDTH = 32,
-  parameter integer AXIS_TDATA_WIDTH = 32
+  parameter         CONTINUOUS = "FALSE"
 )
 (
   // System signals
@@ -48,26 +49,54 @@ module axis_packetizer #
   assign int_tvalid_wire = int_enbl_reg & s_axis_tvalid;
   assign int_tlast_wire = int_cntr_reg == cfg_data;
 
-  always @*
-  begin
-    int_cntr_next = int_cntr_reg;
-    int_enbl_next = int_enbl_reg;
+  generate
+    if(CONTINUOUS == "TRUE")
+    begin : CONTINUOUS
+      always @*
+      begin
+        int_cntr_next = int_cntr_reg;
+        int_enbl_next = int_enbl_reg;
 
-    if(~int_enbl_reg & int_comp_wire)
-    begin
-      int_enbl_next = 1'b1;
-    end
+        if(~int_enbl_reg & int_comp_wire)
+        begin
+          int_enbl_next = 1'b1;
+        end
 
-    if(m_axis_tready & int_tvalid_wire & int_comp_wire)
-    begin
-      int_cntr_next = int_cntr_reg + 1'b1;
-    end
+        if(m_axis_tready & int_tvalid_wire & int_comp_wire)
+        begin
+          int_cntr_next = int_cntr_reg + 1'b1;
+        end
 
-    if(m_axis_tready & int_tvalid_wire & int_tlast_wire)
-    begin
-      int_enbl_next = 1'b0;
+        if(m_axis_tready & int_tvalid_wire & int_tlast_wire)
+        begin
+          int_cntr_next = {(BRAM_ADDR_WIDTH){1'b0}};
+        end
+      end
     end
-  end
+    else
+    begin : STOP
+      always @*
+      begin
+        int_cntr_next = int_cntr_reg;
+        int_enbl_next = int_enbl_reg;
+
+        if(~int_enbl_reg & int_comp_wire)
+        begin
+          int_enbl_next = 1'b1;
+        end
+
+        if(m_axis_tready & int_tvalid_wire & int_comp_wire)
+        begin
+          int_cntr_next = int_cntr_reg + 1'b1;
+        end
+
+        if(m_axis_tready & int_tvalid_wire & int_tlast_wire)
+        begin
+          int_enbl_next = 1'b0;
+        end
+      end
+    end
+  endgenerate
 
   assign s_axis_tready = int_enbl_reg & m_axis_tready;
   assign m_axis_tdata = s_axis_tdata;
