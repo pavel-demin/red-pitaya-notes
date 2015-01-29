@@ -15,7 +15,7 @@ Creating virtual machine with Ubuntu 14.04.1 (amd64)
 
 - Start VirtualBox
 
-- Create a new virtual machine using the mini.iso image:
+- Create a new virtual machine using the `mini.iso` image:
   - Click the blue "New" icon
  
   - Pick a name for the machine, then select "Linux" and "Ubuntu (64 bit)"
@@ -75,7 +75,7 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 Installing Vivado Design Suite
 -----
 
-- Download "Vivado 2014.3.1 Full Image for Linux with SDK" the [Xilinx download page](http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2014-3.html) (the file name is Xilinx_Vivado_SDK_Lin_2014.3.1_1031_1.tar.gz)
+- Download "Vivado 2014.3.1 Full Image for Linux with SDK" from the [Xilinx download page](http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2014-3.html) (the file name is Xilinx_Vivado_SDK_Lin_2014.3.1_1031_1.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
