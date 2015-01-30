@@ -95,13 +95,13 @@ apt-get clean
 
 echo root:$passwd | chpasswd
 
+service ntp stop
+
 history -c
 EOF_CHROOT
 
 rm $root_dir/etc/resolv.conf
 rm $root_dir/usr/bin/qemu-arm-static
-
-killall qemu-arm-static
 
 # Unmount file systems
 
