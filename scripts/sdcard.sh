@@ -87,7 +87,7 @@ echo $timezone > etc/timezone
 dpkg-reconfigure --frontend=noninteractive tzdata
 
 apt-get -y install openssh-server ca-certificates ntp usbutils psmisc lsof \
-  curl less vim man-db iw wpasupplicant linux-firmware
+  parted curl less vim man-db iw wpasupplicant linux-firmware
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
@@ -95,13 +95,13 @@ apt-get clean
 
 echo root:$passwd | chpasswd
 
+service ntp stop
+
 history -c
 EOF_CHROOT
 
 rm $root_dir/etc/resolv.conf
 rm $root_dir/usr/bin/qemu-arm-static
-
-killall qemu-arm-static
 
 # Unmount file systems
 
