@@ -135,6 +135,32 @@ Building a bootable SD card:
 sudo sh scripts/sdcard.sh /dev/mmcblk0
 {% endhighlight %}
 
+SD card image
+-----
+
+Building a bootable SD card image:
+{% highlight bash %}
+sudo sh scripts/image.sh red-pitaya-ubuntu-14.04.1.img
+{% endhighlight %}
+
+A pre-built SD card image can be downloaded from [this link](https://docs.google.com/uc?id=0B-t5klOOymMNSEg3cDhTT0lGdzA&export=download).
+
+There are various methods to write the image to SD card. For example, the `dd` command can be used on Linux and Mac OS X and [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/) can be used on MS Windows.
+
+Resizing SD card partitions on running Red Pitaya:
+{% highlight bash %}
+# delete second partition
+fdisk /dev/mmcblk0 <<- EOF_FDISK
+d
+2
+w
+EOF_FDISK
+# recreate partition
+parted -s /dev/mmcblk0 mkpart primary ext4 16MB 100%
+# resize partition
+resize2fs /dev/mmcblk0p2
+{% endhighlight %}
+
 Reprogramming FPGA
 -----
 
