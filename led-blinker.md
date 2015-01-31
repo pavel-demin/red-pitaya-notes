@@ -55,7 +55,7 @@ This repository contains the following components:
  - [projects](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects) directory with Vivado projects written in Tcl
  - [scripts](https://github.com/pavel-demin/red-pitaya-notes/tree/master/scripts) directory with
    - Tcl scripts for Vivado and SDK
-   - shell script that builds a bootable SD card
+   - shell scripts that build a bootable SD card and SD card image
 
 Syntactic sugar for IP cores
 -----
@@ -150,11 +150,7 @@ There are various methods to write the image to SD card. For example, the `dd` c
 Resizing SD card partitions on running Red Pitaya:
 {% highlight bash %}
 # delete second partition
-fdisk /dev/mmcblk0 <<- EOF_FDISK
-d
-2
-w
-EOF_FDISK
+echo -e "d\n2\nw" | fdisk /dev/mmcblk0
 # recreate partition
 parted -s /dev/mmcblk0 mkpart primary ext4 16MB 100%
 # resize partition
