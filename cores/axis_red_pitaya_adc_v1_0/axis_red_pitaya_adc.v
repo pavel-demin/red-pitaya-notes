@@ -23,16 +23,16 @@ module axis_red_pitaya_adc #
 );
   localparam ZERO_WIDTH = AXIS_TDATA_WIDTH/2 - ADC_DATA_WIDTH;
 
-  reg  [ADC_DATA_WIDTH-1:0] int_dat_a;
-  reg  [ADC_DATA_WIDTH-1:0] int_dat_b;
+  reg  [ADC_DATA_WIDTH-1:0] int_dat_a_reg;
+  reg  [ADC_DATA_WIDTH-1:0] int_dat_b_reg;
   wire                      int_clk;
 
   IBUFGDS adc_clk_inst (.I(adc_clk_p), .IB(adc_clk_n), .O(int_clk));
 
   always @(posedge int_clk)
   begin
-    int_dat_a <= adc_dat_a;
-    int_dat_b <= adc_dat_b;
+    int_dat_a_reg <= adc_dat_a;
+    int_dat_b_reg <= adc_dat_b;
   end
 
   assign adc_clk = int_clk;
@@ -42,7 +42,7 @@ module axis_red_pitaya_adc #
   assign m_axis_tvalid = 1'b1;
 
   assign m_axis_tdata = {
-    {(ZERO_WIDTH){1'b0}}, ~int_dat_b[ADC_DATA_WIDTH-1], int_dat_b[ADC_DATA_WIDTH-2:0],
-    {(ZERO_WIDTH){1'b0}}, ~int_dat_a[ADC_DATA_WIDTH-1], int_dat_a[ADC_DATA_WIDTH-2:0]};
+    {(ZERO_WIDTH){1'b0}}, ~int_dat_b_reg[ADC_DATA_WIDTH-1], int_dat_b_reg[ADC_DATA_WIDTH-2:0],
+    {(ZERO_WIDTH){1'b0}}, ~int_dat_a_reg[ADC_DATA_WIDTH-1], int_dat_a_reg[ADC_DATA_WIDTH-2:0]};
 
 endmodule
