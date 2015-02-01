@@ -5,6 +5,7 @@ set core [ipx::current_core]
 set_property DISPLAY_NAME $display_name $core
 set_property DESCRIPTION $display_name $core
 
+core_parameter ADDR_WIDTH {ADDR WIDTH} {Width of the address.}
 core_parameter AXI_ID_WIDTH {AXI ID WIDTH} {Width of the AXI ID bus.}
 core_parameter AXI_ADDR_WIDTH {AXI ADDR WIDTH} {Width of the AXI address bus.}
 core_parameter AXI_DATA_WIDTH {AXI DATA WIDTH} {Width of the AXI data bus.}
