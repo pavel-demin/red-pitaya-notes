@@ -3,7 +3,7 @@
 
 module axis_ram_writer #
 (
-  parameter integer ADDR_WIDTH = 19,
+  parameter integer ADDR_WIDTH = 20,
   parameter integer AXI_ID_WIDTH = 6,
   parameter integer AXI_ADDR_WIDTH = 32,
   parameter integer AXI_DATA_WIDTH = 64,
