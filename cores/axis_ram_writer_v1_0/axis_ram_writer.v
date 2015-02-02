@@ -3,6 +3,7 @@
 
 module axis_ram_writer #
 (
+  parameter integer ADDR_WIDTH = 20,
   parameter integer AXI_ID_WIDTH = 6,
   parameter integer AXI_ADDR_WIDTH = 32,
   parameter integer AXI_DATA_WIDTH = 64,
@@ -48,7 +49,7 @@ module axis_ram_writer #
   reg int_wren_reg, int_wren_next;
   reg int_awvalid_reg, int_awvalid_next;
   reg int_wvalid_reg, int_wvalid_next;
-  reg [AXI_ADDR_WIDTH-ADDR_SIZE-1:0] int_addr_reg, int_addr_next;
+  reg [ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
   reg [AXI_ID_WIDTH-1:0] int_wid_reg, int_wid_next;
 
   wire int_full_wire, int_empty_wire, int_rden_wire;
@@ -84,7 +85,7 @@ module axis_ram_writer #
       int_wren_reg <= 1'b0;
       int_awvalid_reg <= 1'b0;
       int_wvalid_reg <= 1'b0;
-      int_addr_reg <= {(AXI_ADDR_WIDTH-ADDR_SIZE){1'b0}};
+      int_addr_reg <= {(ADDR_WIDTH){1'b0}};
       int_wid_reg <= {(AXI_ID_WIDTH){1'b0}};
     end
     else
