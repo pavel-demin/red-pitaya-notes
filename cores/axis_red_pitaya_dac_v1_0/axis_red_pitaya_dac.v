@@ -33,7 +33,7 @@ module axis_red_pitaya_dac #
   wire [DAC_DATA_WIDTH-1:0] int_dat_b_wire;
 
   assign int_dat_a_wire = s_axis_tdata[DAC_DATA_WIDTH-1:0];
-  assign int_dat_a_wire = s_axis_tdata[AXIS_TDATA_WIDTH/2+DAC_DATA_WIDTH-1:AXIS_TDATA_WIDTH/2];
+  assign int_dat_b_wire = s_axis_tdata[AXIS_TDATA_WIDTH/2+DAC_DATA_WIDTH-1:AXIS_TDATA_WIDTH/2];
 
   genvar j;
 
