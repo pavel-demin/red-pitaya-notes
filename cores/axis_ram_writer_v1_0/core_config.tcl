@@ -24,5 +24,5 @@ set_property NAME S_AXIS $bus
 set_property INTERFACE_MODE slave $bus
 
 set bus [ipx::get_bus_interfaces signal_clock]
-set parameter [ipx::add_bus_parameter ASSOCIATED_BUSIF $bus]
+set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
 set_property VALUE M_AXI:S_AXIS $parameter
