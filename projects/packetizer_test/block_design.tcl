@@ -16,6 +16,13 @@ cell xilinx.com:ip:xlslice:1.0 slice_3 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_4 {
+  DIN_WIDTH 1024 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
@@ -30,7 +37,7 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
   s_axis_aclk adc_0/adc_clk
   s_axis_aresetn const_1/dout
   m_axis_aclk ps_0/FCLK_CLK0
-  m_axis_aresetn rst_0/peripheral_aresetn
+  m_axis_aresetn slice_4/Dout
 }
 
 # Create axis_packetizer
@@ -40,7 +47,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
   CONTINUOUS FALSE
 } {
   S_AXIS fifo_0/M_AXIS
-  cfg_data slice_4/Dout
+  cfg_data slice_5/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_2/Dout
 }
