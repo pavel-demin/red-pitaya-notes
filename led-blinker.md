@@ -143,7 +143,7 @@ Building a bootable SD card image:
 sudo sh scripts/image.sh red-pitaya-ubuntu-14.04.1.img
 {% endhighlight %}
 
-A pre-built SD card image can be downloaded from [this link](https://docs.google.com/uc?id=0B-t5klOOymMNSEg3cDhTT0lGdzA&export=download).
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ubuntu-14.04.1-20150130.zip).
 
 There are various methods to write the image to SD card. For example, the `dd` command can be used on Linux and Mac OS X and [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/) can be used on MS Windows.
 
