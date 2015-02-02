@@ -21,7 +21,7 @@ module axis_red_pitaya_adc #
   output wire                        m_axis_tvalid,
   output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata
 );
-  localparam ZERO_WIDTH = AXIS_TDATA_WIDTH/2 - ADC_DATA_WIDTH;
+  localparam PADDING_WIDTH = AXIS_TDATA_WIDTH/2 - ADC_DATA_WIDTH;
 
   reg  [ADC_DATA_WIDTH-1:0] int_dat_a_reg;
   reg  [ADC_DATA_WIDTH-1:0] int_dat_b_reg;
@@ -42,7 +42,7 @@ module axis_red_pitaya_adc #
   assign m_axis_tvalid = 1'b1;
 
   assign m_axis_tdata = {
-    {(ZERO_WIDTH){1'b0}}, ~int_dat_b_reg[ADC_DATA_WIDTH-1], int_dat_b_reg[ADC_DATA_WIDTH-2:0],
-    {(ZERO_WIDTH){1'b0}}, ~int_dat_a_reg[ADC_DATA_WIDTH-1], int_dat_a_reg[ADC_DATA_WIDTH-2:0]};
+    {(PADDING_WIDTH+1){~int_dat_b_reg[ADC_DATA_WIDTH-1]}}, int_dat_b_reg[ADC_DATA_WIDTH-2:0],
+    {(PADDING_WIDTH+1){~int_dat_a_reg[ADC_DATA_WIDTH-1]}}, int_dat_a_reg[ADC_DATA_WIDTH-2:0]};
 
 endmodule
