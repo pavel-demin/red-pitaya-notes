@@ -29,25 +29,25 @@ module axis_pulse_height_analyzer #
   reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg, int_tdata_next;
   reg [15:0] int_cntr_reg, int_cntr_next;
   reg int_enbl_reg, int_enbl_next;
-  reg int_comp_reg, int_comp_next;
+  reg int_rising_reg, int_rising_next;
   reg int_tvalid_reg, int_tvalid_next;
 
   wire [AXIS_TDATA_WIDTH-1:0] int_tdata_wire;
-  wire int_mincut_wire, int_maxcut_wire, int_comp_wire, int_delay_wire;
+  wire int_mincut_wire, int_maxcut_wire, int_rising_wire, int_delay_wire;
 
   assign int_delay_wire = int_cntr_reg < cfg_data[AXIS_TDATA_WIDTH*2+15:AXIS_TDATA_WIDTH*2];
 
   generate
     if(AXIS_TDATA_SIGNED == "TRUE")
     begin : SIGNED
-      assign int_comp_wire = $signed(int_data_reg[1]) < $signed(s_axis_tdata);
+      assign int_rising_wire = $signed(int_data_reg[1]) < $signed(s_axis_tdata);
       assign int_tdata_wire = $signed(int_data_reg[0]) - $signed(int_min_reg);
       assign int_mincut_wire = $signed(int_tdata_wire) > $signed(cfg_data[AXIS_TDATA_WIDTH-1:0]);
       assign int_maxcut_wire = $signed(int_data_reg[0]) < $signed(cfg_data[AXIS_TDATA_WIDTH*2-1:AXIS_TDATA_WIDTH]);
     end
     else
     begin : UNSIGNED
-      assign int_comp_wire = int_data_reg[1] < s_axis_tdata;
+      assign int_rising_wire = int_data_reg[1] < s_axis_tdata;
       assign int_tdata_wire = int_data_reg[0] - int_min_reg;
       assign int_mincut_wire = int_tdata_wire > cfg_data[AXIS_TDATA_WIDTH-1:0];
       assign int_maxcut_wire = int_data_reg[0] < cfg_data[AXIS_TDATA_WIDTH*2-1:AXIS_TDATA_WIDTH];
@@ -58,24 +58,24 @@ module axis_pulse_height_analyzer #
   begin
     if(~aresetn)
     begin
-			int_data_reg[0] <= {(AXIS_TDATA_WIDTH){1'b0}};
-			int_data_reg[1] <= {(AXIS_TDATA_WIDTH){1'b0}};
+      int_data_reg[0] <= {(AXIS_TDATA_WIDTH){1'b0}};
+      int_data_reg[1] <= {(AXIS_TDATA_WIDTH){1'b0}};
       int_tdata_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
       int_min_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
       int_cntr_reg <= 16'd0;
       int_enbl_reg <= 1'b0;
-      int_comp_reg <= 1'b0;
+      int_rising_reg <= 1'b0;
       int_tvalid_reg <= 1'b0;
     end
     else
     begin
-			int_data_reg[0] <= int_data_next[0];
-			int_data_reg[1] <= int_data_next[1];
+      int_data_reg[0] <= int_data_next[0];
+      int_data_reg[1] <= int_data_next[1];
       int_tdata_reg <= int_tdata_next;
       int_min_reg <= int_min_next;
       int_cntr_reg <= int_cntr_next;
       int_enbl_reg <= int_enbl_next;
-      int_comp_reg <= int_comp_next;
+      int_rising_reg <= int_rising_next;
       int_tvalid_reg <= int_tvalid_next;
     end
   end
@@ -88,14 +88,14 @@ module axis_pulse_height_analyzer #
     int_min_next = int_min_reg;
     int_cntr_next = int_cntr_reg;
     int_enbl_next = int_enbl_reg;
-    int_comp_next = int_comp_reg;
+    int_rising_next = int_rising_reg;
     int_tvalid_next = int_tvalid_reg;
 
     if(s_axis_tvalid)
     begin
       int_data_next[0] = s_axis_tdata;
       int_data_next[1] = int_data_reg[0];
-      int_comp_next = int_comp_wire;
+      int_rising_next = int_rising_wire;
     end
 
     if(s_axis_tvalid & int_delay_wire)
@@ -104,14 +104,14 @@ module axis_pulse_height_analyzer #
     end
 
     // minimum after delay
-    if(s_axis_tvalid & ~int_comp_reg & int_comp_wire & ~int_delay_wire)
+    if(s_axis_tvalid & ~int_rising_reg & int_rising_wire & ~int_delay_wire)
     begin
-      int_min_next = int_data_reg[0];
+      int_min_next = int_data_reg[1];
       int_enbl_next = 1'b1;
     end
 
     // maximum after minimum
-    if(s_axis_tvalid & int_comp_reg & ~int_comp_wire & int_enbl_reg)
+    if(s_axis_tvalid & int_rising_reg & ~int_rising_wire & int_enbl_reg)
     begin
       int_tdata_next = int_tdata_wire;
       if(int_mincut_wire)
