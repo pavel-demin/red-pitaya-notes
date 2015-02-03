@@ -16,7 +16,7 @@ module axis_bram_reader #
   input  wire [BRAM_ADDR_WIDTH-1:0]  cfg_data,
 
   // Master side
-  input wire                         m_axis_tready,
+  input  wire                        m_axis_tready,
   output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata,
   output wire                        m_axis_tvalid,
   output wire                        m_axis_tlast,
