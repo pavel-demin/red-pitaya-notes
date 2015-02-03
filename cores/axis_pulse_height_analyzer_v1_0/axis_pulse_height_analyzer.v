@@ -104,21 +104,18 @@ module axis_pulse_height_analyzer #
     end
 
     // minimum after delay
-    if(s_axis_tvalid & ~int_rising_reg & int_rising_wire & ~int_delay_wire)
+    if(s_axis_tvalid & ~int_delay_wire & ~int_rising_reg & int_rising_wire)
     begin
       int_min_next = int_data_reg[1];
       int_enbl_next = 1'b1;
     end
 
     // maximum after minimum
-    if(s_axis_tvalid & int_rising_reg & ~int_rising_wire & int_enbl_reg)
+    if(s_axis_tvalid & int_enbl_reg & int_rising_reg & ~int_rising_wire & int_mincut_wire)
     begin
       int_tdata_next = int_tdata_wire;
-      if(int_mincut_wire)
-      begin
-        int_cntr_next = 16'd0;
-        int_tvalid_next = int_maxcut_wire;
-      end
+      int_tvalid_next = int_maxcut_wire;
+      int_cntr_next = 16'd0;
     end
 
     if(m_axis_tready & int_tvalid_reg)
