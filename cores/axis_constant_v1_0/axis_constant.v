@@ -8,7 +8,6 @@ module axis_constant #
 (
   // System signals
   input  wire                        aclk,
-  input  wire                        aresetn,
 
   input  wire [AXIS_TDATA_WIDTH-1:0] cfg_data,
 
