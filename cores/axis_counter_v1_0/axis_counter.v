@@ -54,7 +54,7 @@ module axis_counter #
       int_cntr_next = int_cntr_reg + 1'b1;
     end
 
-    if(int_enbl_reg & (int_cntr_reg == cfg_data))
+    if(int_enbl_reg & ~int_comp_wire)
     begin
       int_enbl_next = 1'b0;
     end
