@@ -53,7 +53,7 @@ module axis_phase_generator #
     end
   end
 
-  assign m_axis_tdata = {{(AXIS_TDATA_WIDTH-CNTR_WIDTH){int_cntr_reg[PHASE_WIDTH-1]}}, int_cntr_reg};
+  assign m_axis_tdata = {{(AXIS_TDATA_WIDTH-PHASE_WIDTH){int_cntr_reg[PHASE_WIDTH-1]}}, int_cntr_reg};
   assign m_axis_tvalid = int_enbl_reg;
 
 endmodule
