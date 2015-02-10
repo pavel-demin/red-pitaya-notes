@@ -15,6 +15,7 @@ module axis_ram_writer #
   input  wire                        aresetn,
 
   input  wire [AXI_ADDR_WIDTH-1:0]   cfg_data,
+  output wire [ADDR_WIDTH-1:0]       sts_data,
 
   // Master side
   output wire [AXI_ID_WIDTH-1:0]     m_axi_awid,    // AXI master: Write address ID
@@ -143,6 +144,8 @@ module axis_ram_writer #
       end
     end
   end
+
+  assign sts_data = int_addr_reg;
 
   assign m_axi_awid = int_wid_reg;
   assign m_axi_awaddr = cfg_data + {int_addr_reg, {(ADDR_SIZE){1'b0}}};
