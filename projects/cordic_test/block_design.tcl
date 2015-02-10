@@ -23,21 +23,21 @@ cell xilinx.com:ip:xlslice:1.0 slice_4 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 48
+  DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
-  DIN_WIDTH 1024 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 48
+  DIN_WIDTH 1024 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_7 {
-  DIN_WIDTH 1024 DIN_FROM 127 DIN_TO 96 DOUT_WIDTH 48
+  DIN_WIDTH 1024 DIN_FROM 127 DIN_TO 96 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
