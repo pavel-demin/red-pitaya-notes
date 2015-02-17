@@ -177,6 +177,16 @@ cell xilinx.com:ip:axis_switch:1.1 switch_0 {
   aresetn rst_0/peripheral_aresetn
 }
 
+# Create axis_dwidth_converter
+cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 4
+  M_TDATA_NUM_BYTES 8
+} {
+  S_AXIS switch_0/M00_AXIS
+  aclk ps_0/FCLK_CLK0
+}
+
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_2 {
   CONST_WIDTH 32
@@ -185,7 +195,7 @@ cell xilinx.com:ip:xlconstant:1.1 const_2 {
 
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {} {
-  S_AXIS switch_0/M00_AXIS
+  S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
   cfg_data const_2/dout
   aclk ps_0/FCLK_CLK0

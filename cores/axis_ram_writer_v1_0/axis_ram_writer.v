@@ -7,7 +7,7 @@ module axis_ram_writer #
   parameter integer AXI_ID_WIDTH = 6,
   parameter integer AXI_ADDR_WIDTH = 32,
   parameter integer AXI_DATA_WIDTH = 64,
-  parameter integer AXIS_TDATA_WIDTH = 32
+  parameter integer AXIS_TDATA_WIDTH = 64
 )
 (
   // System signals
@@ -46,8 +46,6 @@ module axis_ram_writer #
 
   localparam integer ADDR_SIZE = clogb2((AXI_DATA_WIDTH/8)-1);
 
-  reg [AXIS_TDATA_WIDTH-1:0] int_data_reg, int_data_next;
-  reg int_wren_reg, int_wren_next;
   reg int_awvalid_reg, int_awvalid_next;
   reg int_wvalid_reg, int_wvalid_next;
   reg [ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
@@ -71,8 +69,8 @@ module axis_ram_writer #
     .ALMOSTEMPTY(int_empty_wire),
     .RST(~aresetn),
     .WRCLK(aclk),
-    .WREN(int_tready_wire & s_axis_tvalid & int_wren_reg),
-    .DI({{(72-AXI_DATA_WIDTH-1){1'b0}}, s_axis_tdata, int_data_reg}),
+    .WREN(int_tready_wire & s_axis_tvalid),
+    .DI({{(72-AXIS_TDATA_WIDTH){1'b0}}, s_axis_tdata}),
     .RDCLK(aclk),
     .RDEN(m_axi_wready & int_wvalid_reg),
     .DO(int_wdata_wire)
@@ -82,8 +80,6 @@ module axis_ram_writer #
   begin
     if(~aresetn)
     begin
-      int_data_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
-      int_wren_reg <= 1'b0;
       int_awvalid_reg <= 1'b0;
       int_wvalid_reg <= 1'b0;
       int_addr_reg <= {(ADDR_WIDTH){1'b0}};
@@ -91,8 +87,6 @@ module axis_ram_writer #
     end
     else
     begin
-      int_data_reg <= int_data_next;
-      int_wren_reg <= int_wren_next;
       int_awvalid_reg <= int_awvalid_next;
       int_wvalid_reg <= int_wvalid_next;
       int_addr_reg <= int_addr_next;
@@ -102,18 +96,10 @@ module axis_ram_writer #
 
   always @*
   begin
-    int_data_next = int_data_reg;
-    int_wren_next = int_wren_reg;
     int_awvalid_next = int_awvalid_reg;
     int_wvalid_next = int_wvalid_reg;
     int_addr_next = int_addr_reg;
     int_wid_next = int_wid_reg;
-
-    if(s_axis_tvalid)
-    begin
-      int_data_next = s_axis_tdata;
-      int_wren_next = ~int_wren_reg;
-    end
 
     if(~int_empty_wire & ~int_awvalid_reg & ~int_wvalid_reg)
     begin
