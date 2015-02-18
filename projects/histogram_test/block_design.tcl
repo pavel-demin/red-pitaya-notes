@@ -93,6 +93,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
 } {
   S_AXIS reader_0/M_AXIS
   aclk ps_0/FCLK_CLK0
+  aresetn slice_5/Dout
 }
 
 # Create xlconstant
