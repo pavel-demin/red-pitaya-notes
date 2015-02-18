@@ -2,9 +2,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
 #include <windows.h>
-#include <winsock.h>
-#pragma comment (lib, "wsock32.lib")
 
 //---------------------------------------------------------------------------
 
@@ -13,6 +14,9 @@
 #define FREQ_PORT 1001
 #define DATA_PORT 1002
 #define MCAST_ADDR "239.0.0.39"
+
+#define LO_MIN   100000
+#define LO_MAX 50000000
 
 int gFreqSock, gDataSock;
 struct sockaddr_in gFreqAddr, gDataAddr;
@@ -24,7 +28,7 @@ HANDLE gTimer = NULL;
 char gBuffer[4096];
 int gOffset = 0;
 
-long gFreq = 550000;
+long gFreq = 600000;
 
 bool gInitHW = false;
 
@@ -37,7 +41,7 @@ void (*ExtIOCallback)(int, int, float, void *) = NULL;
 
 //---------------------------------------------------------------------------
 
-DWORD WINAPI GeneratorThreadProc(__in  LPVOID lpParameter)
+DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
 {
   unsigned long size = 0;
 
@@ -92,6 +96,10 @@ static void startThread()
 
 //---------------------------------------------------------------------------
 
+extern "C" int EXTIO_API SetHWLO(long LOfreq);
+
+//---------------------------------------------------------------------------
+
 extern "C"
 bool EXTIO_API InitHW(char *name, char *model, int &type)
 {
@@ -102,7 +110,7 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
 
   if(!gInitHW)
   {
-    gFreq = 550000;
+    gFreq = 600000;
     gInitHW = true;
   }
 
@@ -115,7 +123,7 @@ extern "C"
 bool EXTIO_API OpenHW()
 {
   WSADATA wsaData;
-  WSAStartup(MAKEWORD(2, 0), &wsaData);
+  WSAStartup(MAKEWORD(2, 2), &wsaData);
 
   gFreqSock = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -130,14 +138,14 @@ bool EXTIO_API OpenHW()
 //---------------------------------------------------------------------------
 
 extern "C"
-int  EXTIO_API StartHW(long LOfreq)
+int EXTIO_API StartHW(long LOfreq)
 {
   struct ip_mreq mreq;
   WSADATA wsaData;
 
   if(!gInitHW) return 0;
 
-  WSAStartup(MAKEWORD(2, 0), &wsaData);
+  WSAStartup(MAKEWORD(2, 2), &wsaData);
 
   gDataSock = socket(AF_INET,SOCK_DGRAM,0);
 
@@ -146,13 +154,14 @@ int  EXTIO_API StartHW(long LOfreq)
   gDataAddr.sin_addr.s_addr = htonl(INADDR_ANY);
   gDataAddr.sin_port = htons(DATA_PORT);
 
-  bind(gDataSock, (struct sockaddr *) &gDataAddr, sizeof(gDataAddr));
+  bind(gDataSock, (struct sockaddr *)&gDataAddr, sizeof(gDataAddr));
 
   mreq.imr_multiaddr.s_addr = inet_addr(MCAST_ADDR);
   mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-  setsockopt(gDataSock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *) &mreq, sizeof(mreq));
+  setsockopt(gDataSock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof(mreq));
 
   stopThread();
+  SetHWLO(LOfreq);
   startThread();
 
   return 512;
@@ -184,17 +193,31 @@ extern "C"
 void EXTIO_API SetCallback(void (*callback)(int, int, float, void *))
 {
   ExtIOCallback = callback;
-  (*ExtIOCallback)(-1, 101, 0, NULL);
 }
 
 //---------------------------------------------------------------------------
 
 extern "C"
-int  EXTIO_API SetHWLO(long LOfreq)
+int EXTIO_API SetHWLO(long LOfreq)
 {
+  long ret = 0;
+
+  // check limits
+  if(LOfreq < LO_MIN)
+  {
+    LOfreq = LO_MIN;
+    ret = -LO_MIN;
+  }
+  else if(LOfreq > LO_MAX)
+  {
+    LOfreq = LO_MAX;
+    ret = LO_MAX;
+  }
+
   gFreq = LOfreq;
-  sendto(gFreqSock, (char *) &gFreq, 4, 0, (struct sockaddr *) &gFreqAddr, sizeof(gFreqAddr));
-  return 0;
+  sendto(gFreqSock, (char *) &gFreq, 4, 0, (struct sockaddr *)&gFreqAddr, sizeof(gFreqAddr));
+
+  return ret;
 }
 
 //---------------------------------------------------------------------------
@@ -216,7 +239,7 @@ long EXTIO_API GetHWSR()
 //---------------------------------------------------------------------------
 
 extern "C"
-int  EXTIO_API GetStatus()
+int EXTIO_API GetStatus()
 {
   return 0;
 }
