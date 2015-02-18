@@ -49,7 +49,7 @@ The [projects/sdr_receiver](https://github.com/pavel-demin/red-pitaya-notes/tree
 
 The [projects/sdr_receiver/multicast](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver/multicast) directory contains two C programs  [sdr_freq.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver/multicast/sdr_freq.c) and [sdr_data.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver/multicast/sdr_data.c).
 
-The I/Q data stream (2 x 32 bit x 100 kSPS = 6.4 Mbit/s) is transmitted by the `sdr_data` program via IP multicast. The `sdr_freq` program receives multicast packets containing frequency of the sine and cosine waves used for the I/Q demodulation. By default, the multicast address is `239.0.0.39`, the port number for the frequency information is `1001` and the port number for the I/Q data stream is `1002`.
+The I/Q data stream (2 x 32 bit x 100 kSPS = 6.1 Mbit/s) is transmitted by the `sdr_data` program via IP multicast. The `sdr_freq` program receives multicast packets containing frequency of the sine and cosine waves used for the I/Q demodulation. By default, the multicast address is `239.0.0.39`, the port number for the frequency information is `1001` and the port number for the I/Q data stream is `1002`.
 
 User interface
 -----
