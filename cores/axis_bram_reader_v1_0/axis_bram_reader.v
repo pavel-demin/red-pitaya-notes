@@ -51,7 +51,7 @@ module axis_bram_reader #
 
   assign sum_cntr_wire = int_cntr_reg + 1'b1;
   assign int_comp_wire = int_cntr_reg < cfg_data;
-  assign int_tlast_wire = int_cntr_reg == cfg_data;
+  assign int_tlast_wire = ~int_comp_wire;
 
   generate
     if(CONTINUOUS == "TRUE")

@@ -23,40 +23,56 @@ cell xilinx.com:ip:xlslice:1.0 slice_4 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 1024 DIN_FROM 79 DIN_TO 32 DOUT_WIDTH 32
+  DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
+  DIN_WIDTH 1024 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_7 {
   DIN_WIDTH 1024 DIN_FROM 127 DIN_TO 96 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
 
-# Create dds_compiler
-cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
-  DDS_CLOCK_RATE 125
-  SPURIOUS_FREE_DYNAMIC_RANGE 84
-  FREQUENCY_RESOLUTION 0.5
-  AMPLITUDE_MODE Unit_Circle
-  OUTPUT_SELECTION Sine
-  HAS_PHASE_OUT false
-  OUTPUT_FREQUENCY1 0.9765625
+# Create axis_constant
+cell pavel-demin:user:axis_constant:1.0 const_0 {
+  AXIS_TDATA_WIDTH 32
 } {
+  cfg_data slice_5/Dout
   aclk ps_0/FCLK_CLK0
 }
 
-# Create axis_pulse_height_analyzer
-cell pavel-demin:user:axis_pulse_height_analyzer:1.0 pha_0 {
-  AXIS_TDATA_WIDTH 16
-  AXIS_TDATA_SIGNED TRUE
+# Create axis_phase_generator
+cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
+  AXIS_TDATA_WIDTH 32
+  PHASE_WIDTH 30
 } {
-  S_AXIS dds_0/M_AXIS_DATA
-  cfg_data slice_5/Dout
+  cfg_data slice_6/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_2/Dout
+}
+
+# Create cordic
+cell xilinx.com:ip:cordic:6.0 cordic_0 {
+  INPUT_WIDTH.VALUE_SRC USER
+  PIPELINING_MODE Optimal
+  PHASE_FORMAT Scaled_Radians
+  INPUT_WIDTH 32
+  OUTPUT_WIDTH 15
+  ROUND_MODE Round_Pos_Neg_Inf
+  COMPENSATION_SCALING Embedded_Multiplier
+} {
+  S_AXIS_CARTESIAN const_0/M_AXIS
+  S_AXIS_PHASE phase_0/M_AXIS
+  aclk ps_0/FCLK_CLK0
 }
 
 # Create axis_packetizer
@@ -65,8 +81,8 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
   CNTR_WIDTH 32
   CONTINUOUS FALSE
 } {
-  S_AXIS pha_0/M_AXIS
-  cfg_data slice_6/Dout
+  S_AXIS cordic_0/M_AXIS_DOUT
+  cfg_data slice_7/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_3/Dout
 }

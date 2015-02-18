@@ -47,7 +47,7 @@ module axis_packetizer #
 
   assign int_comp_wire = int_cntr_reg < cfg_data;
   assign int_tvalid_wire = int_enbl_reg & s_axis_tvalid;
-  assign int_tlast_wire = int_cntr_reg == cfg_data;
+  assign int_tlast_wire = ~int_comp_wire;
 
   generate
     if(CONTINUOUS == "TRUE")
