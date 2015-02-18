@@ -67,7 +67,7 @@ The ExtIO plug-in can be built from the source code with [Microsoft Visual C++ 2
 
 A pre-built ExtIO plug-in for the Red Pitaya SDR receiver can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/ExtIO_RedPitaya.dll).
 
-In case of SDR#, the `ExtIO_RedPitaya.dll` file should be copied to the SDR# main directory and the program will recognize it automatically at start-up.
+For both SDR# and HDSDR, the `ExtIO_RedPitaya.dll` file should be copied to the directory where the program is installed and the program will recognize it automatically at start-up.
 
 SD card image
 -----
