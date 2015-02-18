@@ -8,3 +8,4 @@ layout: default
 1. [Links]({{ "/links/" | prepend: site.baseurl }})
 1. [Development machine]({{ "/development-machine/" | prepend: site.baseurl }})
 1. [LED blinker]({{ "/led-blinker/" | prepend: site.baseurl }})
+1. [SDR receiver]({{ "/sdr-receiver/" | prepend: site.baseurl }})
