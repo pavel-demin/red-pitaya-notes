@@ -29,8 +29,7 @@ int main(int argc, char *argv[])
   char *name = "/dev/mem";
   struct sockaddr_in addr;
 
-  fd = open(name, O_RDWR);
-  if(fd < 1)
+  if((fd = open(name, O_RDWR)) < 1)
   {
     perror("open");
     return 1;
@@ -40,8 +39,7 @@ int main(int argc, char *argv[])
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   ram = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
 
-  fd = socket(AF_INET, SOCK_DGRAM, 0);
-  if(fd < 1)
+  if((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 1)
   {
     perror("socket");
     return 1;
@@ -68,7 +66,7 @@ int main(int argc, char *argv[])
     pos = *((uint32_t *)(sts + 0));
 
     /* send 1024 bytes if ready, otherwise sleep 0.5 ms */
-    if((limit > 0 && pos > limit) || (limit == 0 && pos < 192))
+    if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
     {
       start = limit > 0 ? limit*8 - 1024 : 3072;
       sendto(fd, ram + start, 1024, 0, (struct sockaddr *) &addr, sizeof(addr));
