@@ -18,13 +18,16 @@
 #define LO_MIN   100000
 #define LO_MAX 50000000
 
-SOCKET gFreqSock, gDataSock;
-struct sockaddr_in gFreqAddr, gDataAddr;
+SOCKET gCtrlSock, gDataSock;
+struct sockaddr_in gCtrlAddr, gDataAddr;
 
 char gBuffer[4096];
 int gOffset = 0;
 
 long gFreq = 600000;
+
+const unsigned long gStart = (1<<30);
+const unsigned long gStop = (2<<30);
 
 bool gInitHW = false;
 
@@ -121,12 +124,12 @@ bool EXTIO_API OpenHW()
   WSADATA wsaData;
   WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-  gFreqSock = socket(AF_INET, SOCK_DGRAM, 0);
+  gCtrlSock = socket(AF_INET, SOCK_DGRAM, 0);
 
   memset(&gDataAddr, 0, sizeof(gDataAddr));
-  gFreqAddr.sin_family = AF_INET;
-  gFreqAddr.sin_addr.s_addr = inet_addr(MCAST_ADDR);
-  gFreqAddr.sin_port = htons(FREQ_PORT);
+  gCtrlAddr.sin_family = AF_INET;
+  gCtrlAddr.sin_addr.s_addr = inet_addr(MCAST_ADDR);
+  gCtrlAddr.sin_port = htons(FREQ_PORT);
 
   return gInitHW;
 }
@@ -160,6 +163,8 @@ int EXTIO_API StartHW(long LOfreq)
   SetHWLO(LOfreq);
   startThread();
 
+  sendto(gCtrlSock, (char *)&gStart, 4, 0, (struct sockaddr *)&gCtrlAddr, sizeof(gCtrlAddr));
+
   return 512;
 }
 
@@ -168,7 +173,10 @@ int EXTIO_API StartHW(long LOfreq)
 extern "C"
 void EXTIO_API StopHW()
 {
+  sendto(gCtrlSock, (char *)&gStop, 4, 0, (struct sockaddr *)&gCtrlAddr, sizeof(gCtrlAddr));
+
   stopThread();
+
   closesocket(gDataSock);
   WSACleanup();
 }
@@ -178,7 +186,7 @@ void EXTIO_API StopHW()
 extern "C"
 void EXTIO_API CloseHW()
 {
-  closesocket(gFreqSock);
+  closesocket(gCtrlSock);
   WSACleanup();
   gInitHW = false;
 }
@@ -215,7 +223,8 @@ int EXTIO_API SetHWLO(long LOfreq)
   gFreq = (long)floor(floor(gFreq/125.0e6*(1<<30)+0.5)*125e6/(1<<30)+0.5);
 
   if(gFreq != LOfreq && ExtIOCallback) (*ExtIOCallback)(-1, 101, 0.0, 0);
-  sendto(gFreqSock, (char *)&gFreq, 4, 0, (struct sockaddr *)&gFreqAddr, sizeof(gFreqAddr));
+
+  sendto(gCtrlSock, (char *)&gFreq, 4, 0, (struct sockaddr *)&gCtrlAddr, sizeof(gCtrlAddr));
 
   return rc;
 }
