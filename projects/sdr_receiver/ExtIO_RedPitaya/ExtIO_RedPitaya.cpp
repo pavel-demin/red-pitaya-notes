@@ -1,6 +1,6 @@
 
 #include <string.h>
-#include <stdio.h>
+#include <math.h>
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -18,12 +18,8 @@
 #define LO_MIN   100000
 #define LO_MAX 50000000
 
-int gFreqSock, gDataSock;
+SOCKET gFreqSock, gDataSock;
 struct sockaddr_in gFreqAddr, gDataAddr;
-
-HANDLE gTriggerEvent = NULL;
-HANDLE gTimerQueue = NULL;
-HANDLE gTimer = NULL;
 
 char gBuffer[4096];
 int gOffset = 0;
@@ -37,7 +33,7 @@ bool gThreadRunning = false;
 
 //---------------------------------------------------------------------------
 
-void (*ExtIOCallback)(int, int, float, void *) = NULL;
+void (*ExtIOCallback)(int, int, float, void *) = 0;
 
 //---------------------------------------------------------------------------
 
@@ -60,7 +56,7 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
       if(gOffset == 4096)
       {
         gOffset = 0;
-        (*ExtIOCallback)(512, 0, 0, gBuffer);
+        if(ExtIOCallback) (*ExtIOCallback)(512, 0, 0.0, gBuffer);
       }
 
       ioctlsocket(gDataSock, FIONREAD, &size);
@@ -200,24 +196,28 @@ void EXTIO_API SetCallback(void (*callback)(int, int, float, void *))
 extern "C"
 int EXTIO_API SetHWLO(long LOfreq)
 {
-  long ret = 0;
-
-  // check limits
-  if(LOfreq < LO_MIN)
-  {
-    LOfreq = LO_MIN;
-    ret = -LO_MIN;
-  }
-  else if(LOfreq > LO_MAX)
-  {
-    LOfreq = LO_MAX;
-    ret = LO_MAX;
-  }
+  long rc = 0;
 
   gFreq = LOfreq;
-  sendto(gFreqSock, (char *) &gFreq, 4, 0, (struct sockaddr *)&gFreqAddr, sizeof(gFreqAddr));
 
-  return ret;
+  // check limits
+  if(gFreq < LO_MIN)
+  {
+    gFreq = LO_MIN;
+    rc = -LO_MIN;
+  }
+  else if(gFreq > LO_MAX)
+  {
+    gFreq = LO_MAX;
+    rc = LO_MAX;
+  }
+
+  gFreq = (long)floor(floor(gFreq/125.0e6*(1<<30)+0.5)*125e6/(1<<30)+0.5);
+
+  if(gFreq != LOfreq && ExtIOCallback) (*ExtIOCallback)(-1, 101, 0.0, 0);
+  sendto(gFreqSock, (char *)&gFreq, 4, 0, (struct sockaddr *)&gFreqAddr, sizeof(gFreqAddr));
+
+  return rc;
 }
 
 //---------------------------------------------------------------------------

@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
   *((uint32_t *)(cfg + 0)) &= ~15;
 
-  *((uint32_t *)(cfg + 4)) = roundf(freq/125.0e6*(1<<22)-1);
+  *((uint32_t *)(cfg + 4)) = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
   *((uint32_t *)(cfg + 8)) = 127;
 
   *((uint32_t *)(cfg + 0)) |= 15;
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
     {
       start = limit > 0 ? limit*8 - 1024 : 3072;
-      sendto(fd, ram + start, 1024, 0, (struct sockaddr *) &addr, sizeof(addr));
+      sendto(fd, ram + start, 1024, 0, (struct sockaddr *)&addr, sizeof(addr));
       limit += 128;
       if(limit == 512) limit = 0;
     }

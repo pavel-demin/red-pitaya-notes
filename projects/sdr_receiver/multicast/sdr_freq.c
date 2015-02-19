@@ -13,6 +13,9 @@
 #define FREQ_PORT 1001
 #define MCAST_ADDR "239.0.0.39"
 
+#define LO_MIN   100000
+#define LO_MAX 50000000
+
 int interrupted = 0;
 
 void signal_handler(int sig)
@@ -23,7 +26,6 @@ void signal_handler(int sig)
 int main(int argc, char *argv[])
 {
   struct sockaddr_in addr;
-  int addrlen = sizeof(addr);
   int fd;
   struct ip_mreq mreq;
   long freq = 600000;
@@ -45,21 +47,21 @@ int main(int argc, char *argv[])
   }
 
   /* set up destination address */
-  memset(&addr,0,sizeof(addr));
-  addr.sin_family=AF_INET;
-  addr.sin_addr.s_addr=htonl(INADDR_ANY);
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl(INADDR_ANY);
   addr.sin_port=htons(FREQ_PORT);
 
   /* bind to receive address */
-  if(bind(fd,(struct sockaddr *) &addr,sizeof(addr)) < 0)
+  if(bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
   {
     perror("bind");
     return 1;
   }
-     
+
   /* use setsockopt() to request that the kernel join a multicast group */
-  mreq.imr_multiaddr.s_addr=inet_addr(MCAST_ADDR);
-  mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+  mreq.imr_multiaddr.s_addr = inet_addr(MCAST_ADDR);
+  mreq.imr_interface.s_addr = htonl(INADDR_ANY);
   if(setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
   {
     perror("setsockopt");
@@ -68,12 +70,15 @@ int main(int argc, char *argv[])
 
   while(!interrupted)
   {
-    if(recvfrom(fd, (char *) &freq, 4, 0, NULL, 0) < 0)
+    if(recvfrom(fd, (char *)&freq, 4, 0, NULL, 0) < 0)
     {
       perror("recvfrom");
       return 1;
     }
-    *((uint32_t *)(cfg + 4)) = roundf(freq/125.0e6*(1<<22)-1);
+
+    if(freq < LO_MIN || freq > LO_MAX) continue;
+
+    *((uint32_t *)(cfg + 4)) = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
   }
 
   munmap(cfg, sysconf(_SC_PAGESIZE));
