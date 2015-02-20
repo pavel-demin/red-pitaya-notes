@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <sys/mman.h>
+#include <signal.h>
 #include <fcntl.h>
 #include <math.h>
-#include <signal.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -94,7 +95,7 @@ int main(int argc, char *argv[])
       if(recvfrom(sockCtrl, (char *)&command, 4, 0, NULL, 0) < 0)
       {
         perror("recvfrom");
-        exit(1);
+        return 1;
       }
 
       switch(command>>30)
@@ -120,58 +121,54 @@ int main(int argc, char *argv[])
     /* parent process */
     int sockData;
     struct sockaddr_in addrData;
-    int pos, limit, start, status;
+    int pos, limit, start;
 
     if((sockData = socket(AF_INET, SOCK_DGRAM, 0)) < 1)
     {
       perror("socket");
-      return 1;
     }
-
-    /* set up destination address */
-    memset(&addrData, 0, sizeof(addrData));
-    addrData.sin_family = AF_INET;
-    addrData.sin_addr.s_addr = inet_addr(MCAST_ADDR);
-    addrData.sin_port = htons(DATA_PORT);
-
-    signal(SIGINT, signal_handler);
-
-    limit = 128;
-    while(!interrupted && waitpid(pid, &status, WNOHANG) != pid)
+    else
     {
-      /* read ram writer position */
-      pos = *((uint32_t *)(sts + 0));
+      /* set up destination address */
+      memset(&addrData, 0, sizeof(addrData));
+      addrData.sin_family = AF_INET;
+      addrData.sin_addr.s_addr = inet_addr(MCAST_ADDR);
+      addrData.sin_port = htons(DATA_PORT);
 
-      /* send 1024 bytes if ready, otherwise sleep 0.5 ms */
-      if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
+      signal(SIGINT, signal_handler);
+
+      limit = 128;
+      while(!interrupted && waitpid(pid, NULL, WNOHANG) != pid)
       {
-        start = limit > 0 ? limit*8 - 1024 : 3072;
-        sendto(sockData, ram + start, 1024, 0, (struct sockaddr *)&addrData, sizeof(addrData));
-        limit += 128;
-        if(limit == 512) limit = 0;
-      }
-      else
-      {
-        usleep(500);
+        /* read ram writer position */
+        pos = *((uint32_t *)(sts + 0));
+
+        /* send 1024 bytes if ready, otherwise sleep 0.5 ms */
+        if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
+        {
+          start = limit > 0 ? limit*8 - 1024 : 3072;
+          sendto(sockData, ram + start, 1024, 0, (struct sockaddr *)&addrData, sizeof(addrData));
+          limit += 128;
+          if(limit == 512) limit = 0;
+        }
+        else
+        {
+          usleep(500);
+        }
       }
     }
 
-    if(waitpid(pid, &status, WNOHANG) != pid) kill(pid, SIGTERM);
-    usleep(1000);
-    if(waitpid(pid, &status, WNOHANG) != pid) kill(pid, SIGKILL);
+    kill(pid, SIGTERM);
+    waitpid(pid, NULL, 0);
 
     /* enter reset mode */
     *((uint32_t *)(cfg + 0)) &= ~15;
+
+    return 1;
   }
   else
   {
     perror("fork");
     return 1;
   }
-
-  munmap(ram, sysconf(_SC_PAGESIZE));
-  munmap(sts, sysconf(_SC_PAGESIZE));
-  munmap(cfg, sysconf(_SC_PAGESIZE));
-
-  return 0;
 }
