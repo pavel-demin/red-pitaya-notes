@@ -45,15 +45,13 @@ h <- fir2(L, f, Mf, window=kaiser(L+1, Beta))
 paste(as.character(h), collapse=", ")
 {% endhighlight %}
 
-To get an idea of the combined (CIC and FIR) filter response, the following figure shows the FFT display from the SDR# program when Red Pitaya inputs are not connected to anything and the SDR# filtering is switched off:
+To get an idea of the combined (CIC and FIR) filter response, the following figure shows a 128k FFT display from the SDR# program when Red Pitaya inputs are not connected to anything and the SDR# filtering is switched off:
 
 ![Filter response]({{ "/img/no-signal.png" | prepend: site.baseurl }})
 
 The [projects/sdr_receiver](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
-The [projects/sdr_receiver/multicast](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver/multicast) directory contains two C programs  [sdr_ctrl.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver/multicast/sdr_ctrl.c) and [sdr_data.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver/multicast/sdr_data.c).
-
-The I/Q data stream (2 x 32 bit x 100 kSPS = 6.1 Mbit/s) is transmitted by the `sdr_data` program via IP multicast. The `sdr_ctrl` program receives multicast packets containing control commands and frequency of the sine and cosine waves used for the I/Q demodulation. By default, the multicast address is `239.0.0.39`, the port number for the control commands and for the frequency information is `1001`, the port number for the I/Q data stream is `1002`.
+The [projects/sdr_receiver/multicast](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver/multicast) directory contains one C program [sdr-receiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver/multicast/sdr-receiver.c). This program transmits the I/Q data stream (2 x 32 bit x 100 kSPS = 6.1 Mbit/s) via IP multicast and receives multicast packets containing control commands and frequency of the sine and cosine waves used for the I/Q demodulation. By default, the multicast address is `239.0.0.39`, the port number for the control commands and for the frequency information is `1001`, the port number for the I/Q data stream is `1002`.
 
 User interface
 -----
@@ -73,29 +71,14 @@ A pre-built ExtIO plug-in for the Red Pitaya SDR receiver can be downloaded from
 
 For both SDR# and HDSDR, the `ExtIO_RedPitaya.dll` file should be copied to the directory where the program is installed and the program will recognize it automatically at start-up.
 
-SD card image
------
-
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-sdr-receiver-20150220.zip).
-
-To write the image to SD card, the `dd` command can be used on Linux and Mac OS X and [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/) can be used on MS Windows.
-
-The user name is `root` and the default password is `changeme`.
-
-Starting the two multicast programs on Red Pitaya:
-{% highlight bash %}
-./sdr_data &
-./sdr_ctrl &
-{% endhighlight %}
-
 Antenna
 -----
 
-Inspired by the "Wideband active loop antenna" article appeared in the January, 2001 issue of Elektor Electronics, I've build my antenna using 4 pair telephone cable (9 m, 4 x 0.2 mm<sup>2</sup>). The schematic is shown on the following diagram:
+Inspired by the "Wideband active loop antenna" article appeared in the January, 2001 issue of Elektor Electronics, I've build my antenna using 4 wire telephone cable (9 m, 4 x 0.2 mm<sup>2</sup>). A schematic and picture of the antenna connected to Red Pitaya is shown in the following figure:
 
-![Antenna]({{ "/img/antenna.png" | prepend: site.baseurl }})
+![Antenna schematic]({{ "/img/antenna-schematic.png" | prepend: site.baseurl }}) ![Antenna picture]({{ "/img/antenna-picture.jpg" | prepend: site.baseurl }})
 
-With this antenna I can receive some broadcast stations.
+With this antenna I can receive some MW and SW broadcast stations.
 
 Screen shot and audio sample
 -----
@@ -105,6 +88,48 @@ Signal from a 300 kW broadcast MW transmitter, 25 km from the transmitter:
 ![Strong signal]({{ "/img/strong-signal.png" | prepend: site.baseurl }})
 
 [Audio sample](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/strong-signal.wav)
+
+Getting started
+-----
+
+ - Requirements:
+   - Computer running MS Windows.
+   - Wired Ethernet connection between the computer and the Red Pitaya board.
+ - Connect an antenna to the IN2 connector on the Red Pitaya board.
+ - Download [pre-built SD card image](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-sdr-receiver-20150221.zip).
+ - Write it to a SD card using [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/).
+ - Insert the newly created SD card in Red Pitaya and connect the power.
+ - Download and install [SDR#](http://sdrsharp.com/#download) or [HDSDR](http://www.hdsdr.de/).
+ - Download [pre-built ExtIO plug-in](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/ExtIO_RedPitaya.dll) for SDR# and HDSDR.
+ - Copy `ExtIO_RedPitaya.dll` into the SDR# or HDSDR installation directory.
+ - Start SDR# or HDSDR.
+ - Select Red Pitaya SDR from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
+ - Press Play icon in SDR# or press Start [F2] button in HDSDR.
+
+SD card image
+-----
+
+The SD card image size is 512 MB, so it should fit on any SD card starting from 1 GB.
+
+To write the image to a SD card, the `dd` command-line utility can be used on GNU/Linux and Mac OS X or [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/) can be used on MS Windows.
+
+The default user name is `root` and the default password is `changeme`.
+
+The `sdr-receiver` program is started automatically at boot. If needed, it can be started and stopped with the following commands:
+{% highlight bash %}
+start sdr-receiver
+stop sdr-receiver
+{% endhighlight %}
+
+To use the full size of a SD card, the partitions can be resized on running Red Pitaya with the following commands:
+{% highlight bash %}
+# delete second partition
+echo -e "d\n2\nw" | fdisk /dev/mmcblk0
+# recreate partition
+parted -s /dev/mmcblk0 mkpart primary ext4 16MB 100%
+# resize partition
+resize2fs /dev/mmcblk0p2
+{% endhighlight %}
 
 Building from source
 -----
@@ -130,10 +155,9 @@ Building `u-boot.elf`, `boot.bin` and `devicetree.dtb`:
 make NAME=sdr_receiver all
 {% endhighlight %}
 
-Building `sdr_ctrl` and `sdr_data`:
+Building `sdr-receiver`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc projects/sdr_receiver/multicast/sdr_ctrl.c -o sdr_ctrl -lm
-arm-linux-gnueabihf-gcc projects/sdr_receiver/multicast/sdr_data.c -o sdr_data -lm
+arm-linux-gnueabihf-gcc projects/sdr_receiver/multicast/sdr-receiver.c -o sdr-receiver -lm
 {% endhighlight %}
 
 Building a bootable SD card image:
@@ -141,24 +165,15 @@ Building a bootable SD card image:
 sudo sh scripts/image.sh red-pitaya-sdr-receiver.img
 {% endhighlight %}
 
-Copying `sdr_ctrl` and `sdr_data` to SD card image:
+Copying `sdr-receiver` to SD card image:
 {% highlight bash %}
 device=`sudo losetup -f`
 sudo losetup $device red-pitaya-sdr-receiver.img
 sudo mkdir /tmp/ROOT
 sudo mount /dev/`lsblk -lno NAME $device | sed '3!d'` /tmp/ROOT
-sudo cp sdr_* /tmp/ROOT/root/
+sudo cp sdr-receiver /tmp/ROOT/usr/bin/
+sudo cp projects/sdr_receiver/multicast/sdr-receiver.conf /tmp/ROOT/etc/init/
 sudo umount /tmp/ROOT
 sudo rmdir /tmp/ROOT
 sudo losetup -d $device
-{% endhighlight %}
-
-Resizing SD card partitions on running Red Pitaya:
-{% highlight bash %}
-# delete second partition
-echo -e "d\n2\nw" | fdisk /dev/mmcblk0
-# recreate partition
-parted -s /dev/mmcblk0 mkpart primary ext4 16MB 100%
-# resize partition
-resize2fs /dev/mmcblk0p2
 {% endhighlight %}
