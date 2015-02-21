@@ -1,44 +1,101 @@
 
-source projects/cfg_test/block_design.tcl
+# Create processing_system7
+cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+  PCW_USE_S_AXI_HP0 1
+} {
+  M_AXI_GP0_ACLK ps_0/FCLK_CLK0
+  S_AXI_HP0_ACLK ps_0/FCLK_CLK0
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
+  make_external {FIXED_IO, DDR}
+  Master Disable
+  Slave Disable
+} [get_bd_cells ps_0]
+
+# Create proc_sys_reset
+cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
+
+# Create axis_red_pitaya_adc
+cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
+  adc_clk_p adc_clk_p_i
+  adc_clk_n adc_clk_n_i
+  adc_dat_a adc_dat_a_i
+  adc_dat_b adc_dat_b_i
+  adc_csn adc_csn_o
+}
+
+# Create c_counter_binary
+cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
+  Output_Width 32
+} {
+  CLK adc_0/adc_clk
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_0 {
+  DIN_WIDTH 32 DIN_FROM 26 DIN_TO 26 DOUT_WIDTH 1
+} {
+  Din cntr_0/Q
+  Dout led_o
+}
+
+# Create axi_cfg_register
+cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
+  CFG_DATA_WIDTH 96
+  AXI_ADDR_WIDTH 32
+  AXI_DATA_WIDTH 32
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins cfg_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
+set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_1 {
+  DIN_WIDTH 96 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 1024 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+  DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 1024 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+  DIN_WIDTH 96 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 1024 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
+  DIN_WIDTH 96 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 1024 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
+  DIN_WIDTH 96 DIN_FROM 61 DIN_TO 32 DOUT_WIDTH 30
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
-  DIN_WIDTH 1024 DIN_FROM 61 DIN_TO 32 DOUT_WIDTH 30
-} {
-  Din cfg_0/cfg_data
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_7 {
-  DIN_WIDTH 1024 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
+  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
@@ -52,7 +109,7 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
   s_axis_aclk adc_0/adc_clk
   s_axis_aresetn const_1/dout
   m_axis_aclk ps_0/FCLK_CLK0
-  m_axis_aresetn slice_2/Dout
+  m_axis_aresetn slice_1/Dout
 }
 
 # Create axis_subset_converter
@@ -73,9 +130,9 @@ cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
   AXIS_TDATA_WIDTH 32
   PHASE_WIDTH 30
 } {
-  cfg_data slice_6/Dout
+  cfg_data slice_5/Dout
   aclk ps_0/FCLK_CLK0
-  aresetn slice_3/Dout
+  aresetn slice_2/Dout
 }
 
 # Create cordic
@@ -177,9 +234,9 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
   CONTINUOUS TRUE
 } {
   S_AXIS fir_0/M_AXIS_DATA
-  cfg_data slice_7/Dout
+  cfg_data slice_6/Dout
   aclk ps_0/FCLK_CLK0
-  aresetn slice_4/Dout
+  aresetn slice_3/Dout
 }
 
 # Create xlconstant
@@ -196,7 +253,7 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
   M_AXI ps_0/S_AXI_HP0
   cfg_data const_2/dout
   aclk ps_0/FCLK_CLK0
-  aresetn slice_5/Dout
+  aresetn slice_4/Dout
 }
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
