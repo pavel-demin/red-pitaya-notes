@@ -85,7 +85,7 @@ For both SDR# and HDSDR, the `ExtIO_RedPitaya.dll` file should be copied to the 
 Antenna
 -----
 
-Inspired by the "Wideband active loop antenna" article appeared in the January, 2000 issue of Elektor Electronics, I've build my antenna using 4 wire telephone cable (9 m, 4 x 0.2 mm<sup>2</sup>). A schematic and picture of the antenna connected to Red Pitaya is shown in the following figure:
+Inspired by the "Wideband active loop antenna" article appeared in the January, 2000 issue of Elektor Electronics, I've built my antenna using 4 wire telephone cable (9 m, 4 x 0.2 mm<sup>2</sup>). A schematic and picture of the antenna connected to Red Pitaya is shown in the following figure:
 
 ![Antenna schematic]({{ "/img/antenna-schematic.png" | prepend: site.baseurl }}) ![Antenna picture]({{ "/img/antenna-picture.jpg" | prepend: site.baseurl }})
 
