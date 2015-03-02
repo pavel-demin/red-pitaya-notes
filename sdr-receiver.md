@@ -18,7 +18,7 @@ Some interesting links on digital signal processing and software defined radio:
 Digital Down Converter
 -----
 
-Red Pitaya has all the components of a Software Defined Radio (SDR). In order to test its performance, I've implemented a Digital Down Converter (DDC) following [Xilinx application note 1113](http://www.xilinx.com/support/documentation/application_notes/xapp1113.pdf). The basic blocks of this converter are shown on the following diagram:
+[Red Pitaya](http://redpitaya.com) has all the components of a Software Defined Radio (SDR). In order to test its performance, I've implemented a Digital Down Converter (DDC) following [Xilinx application note 1113](http://www.xilinx.com/support/documentation/application_notes/xapp1113.pdf). The basic blocks of this converter are shown on the following diagram:
 
 ![SDR receiver]({{ "/img/sdr-receiver.png" | prepend: site.baseurl }})
 
