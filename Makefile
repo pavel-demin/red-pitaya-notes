@@ -101,6 +101,7 @@ tmp/cores:
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_counter_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_phase_generator_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_bram_reader_v1_0 $(PART)
+	$(VIVADO) -source scripts/core.tcl -tclargs axis_bram_writer_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_pulse_height_analyzer_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_histogram_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axi_cfg_register_v1_0 $(PART)
