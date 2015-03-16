@@ -76,7 +76,6 @@ namespace ExtIO_RedPitaya {
 			this->addrValue->Name = L"addrValue";
 			this->addrValue->Size = System::Drawing::Size(107, 20);
 			this->addrValue->TabIndex = 1;
-			this->addrValue->Text = L"192.168.1.4";
 			// 
 			// GUI
 			// 

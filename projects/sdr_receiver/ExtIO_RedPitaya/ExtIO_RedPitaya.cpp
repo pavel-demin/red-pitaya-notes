@@ -11,6 +11,7 @@
 
 using namespace System;
 using namespace System::Runtime::InteropServices;
+using namespace Microsoft::Win32;
 
 using namespace ExtIO_RedPitaya;
 
@@ -19,6 +20,7 @@ using namespace ExtIO_RedPitaya;
 #define EXTIO_API __declspec(dllexport) __stdcall
 
 #define TCP_PORT 1001
+#define TCP_ADDR "192.168.1.4"
 
 #define LO_MIN   100000
 #define LO_MAX 50000000
@@ -41,6 +43,7 @@ ref class ManagedGlobals
 {
   public:
     static GUI ^gGUI = nullptr;
+    static RegistryKey ^gKey = nullptr;
 };
 
 //---------------------------------------------------------------------------
@@ -118,7 +121,14 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
 
   if(!gInitHW)
   {
+    ManagedGlobals::gKey = Registry::CurrentUser->OpenSubKey("Software\\ExtIO_RedPitaya", true);
+    if(!ManagedGlobals::gKey)
+    {
+      ManagedGlobals::gKey = Registry::CurrentUser->CreateSubKey("Software\\ExtIO_RedPitaya");
+      ManagedGlobals::gKey->SetValue("IP Address", TCP_ADDR);
+    }
     ManagedGlobals::gGUI = gcnew GUI;
+	ManagedGlobals::gGUI->addrValue->Text = ManagedGlobals::gKey->GetValue("IP Address")->ToString();
     gFreq = 600000;
     gInitHW = true;
   }
@@ -141,6 +151,7 @@ int EXTIO_API StartHW(long LOfreq)
 {
   WSADATA wsaData;
   struct sockaddr_in addr;
+  String ^addrString;
   char *buffer;
 
   if(!gInitHW) return 0;
@@ -149,7 +160,11 @@ int EXTIO_API StartHW(long LOfreq)
 
   gSock = socket(AF_INET, SOCK_STREAM, 0);
 
-  buffer = (char*)Marshal::StringToHGlobalAnsi(ManagedGlobals::gGUI->addrValue->Text).ToPointer();
+  addrString = ManagedGlobals::gGUI->addrValue->Text;
+  ManagedGlobals::gKey->SetValue("IP Address", addrString);
+
+  buffer = (char*)Marshal::StringToHGlobalAnsi(addrString).ToPointer();
+
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = inet_addr(buffer);
