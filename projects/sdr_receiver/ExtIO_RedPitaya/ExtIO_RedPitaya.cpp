@@ -7,32 +7,39 @@
 #pragma comment(lib, "ws2_32.lib")
 #include <windows.h>
 
+#include "GUI.h"
+
+using namespace System;
+using namespace System::Runtime::InteropServices;
+
+using namespace ExtIO_RedPitaya;
+
 //---------------------------------------------------------------------------
 
 #define EXTIO_API __declspec(dllexport) __stdcall
 
-#define FREQ_PORT 1001
-#define DATA_PORT 1002
-#define MCAST_ADDR "239.0.0.39"
-
 #define LO_MIN   100000
 #define LO_MAX 50000000
 
-SOCKET gCtrlSock, gDataSock;
-struct sockaddr_in gCtrlAddr, gDataAddr;
+SOCKET gSock;
 
 char gBuffer[4096];
 int gOffset = 0;
 
 long gFreq = 600000;
 
-const unsigned long gStart = (1<<30);
-const unsigned long gStop = (2<<30);
-
 bool gInitHW = false;
 
 bool gExitThread = false;
 bool gThreadRunning = false;
+
+//---------------------------------------------------------------------------
+
+ref class ManagedGlobals
+{
+  public:
+    static GUI ^gGUI = nullptr;
+};
 
 //---------------------------------------------------------------------------
 
@@ -49,11 +56,11 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
     SleepEx(1, FALSE );
     if(gExitThread) break;
 
-    ioctlsocket(gDataSock, FIONREAD, &size);
+    ioctlsocket(gSock, FIONREAD, &size);
 
     while(size >= 1024)
     {
-      recvfrom(gDataSock, gBuffer + gOffset, 1024, 0, NULL, 0);
+      recv(gSock, gBuffer + gOffset, 1024, 0);
 
       gOffset += 1024;
       if(gOffset == 4096)
@@ -62,7 +69,7 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
         if(ExtIOCallback) (*ExtIOCallback)(512, 0, 0.0, gBuffer);
       }
 
-      ioctlsocket(gDataSock, FIONREAD, &size);
+      ioctlsocket(gSock, FIONREAD, &size);
     }
   }
   gExitThread = false;
@@ -109,6 +116,7 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
 
   if(!gInitHW)
   {
+    ManagedGlobals::gGUI = gcnew GUI;
     gFreq = 600000;
     gInitHW = true;
   }
@@ -121,16 +129,6 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
 extern "C"
 bool EXTIO_API OpenHW()
 {
-  WSADATA wsaData;
-  WSAStartup(MAKEWORD(2, 2), &wsaData);
-
-  gCtrlSock = socket(AF_INET, SOCK_DGRAM, 0);
-
-  memset(&gDataAddr, 0, sizeof(gDataAddr));
-  gCtrlAddr.sin_family = AF_INET;
-  gCtrlAddr.sin_addr.s_addr = inet_addr(MCAST_ADDR);
-  gCtrlAddr.sin_port = htons(FREQ_PORT);
-
   return gInitHW;
 }
 
@@ -139,31 +137,25 @@ bool EXTIO_API OpenHW()
 extern "C"
 int EXTIO_API StartHW(long LOfreq)
 {
-  struct ip_mreq mreq;
   WSADATA wsaData;
+  struct sockaddr_in addr;
 
   if(!gInitHW) return 0;
 
   WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-  gDataSock = socket(AF_INET,SOCK_DGRAM,0);
+  gSock = socket(AF_INET, SOCK_STREAM, 0);
 
-  memset(&gDataAddr, 0, sizeof(gDataAddr));
-  gDataAddr.sin_family = AF_INET;
-  gDataAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  gDataAddr.sin_port = htons(DATA_PORT);
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = inet_addr((const char*)Marshal::StringToHGlobalAnsi(ManagedGlobals::gGUI->host->Text).ToPointer());
+  addr.sin_port = htons((u_short)ManagedGlobals::gGUI->port->Value);
 
-  bind(gDataSock, (struct sockaddr *)&gDataAddr, sizeof(gDataAddr));
-
-  mreq.imr_multiaddr.s_addr = inet_addr(MCAST_ADDR);
-  mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-  setsockopt(gDataSock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof(mreq));
+  connect(gSock, (struct sockaddr *)&addr, sizeof(addr));
 
   stopThread();
   SetHWLO(LOfreq);
   startThread();
-
-  sendto(gCtrlSock, (char *)&gStart, 4, 0, (struct sockaddr *)&gCtrlAddr, sizeof(gCtrlAddr));
 
   return 512;
 }
@@ -173,11 +165,10 @@ int EXTIO_API StartHW(long LOfreq)
 extern "C"
 void EXTIO_API StopHW()
 {
-  sendto(gCtrlSock, (char *)&gStop, 4, 0, (struct sockaddr *)&gCtrlAddr, sizeof(gCtrlAddr));
-
   stopThread();
 
-  closesocket(gDataSock);
+  closesocket(gSock);
+
   WSACleanup();
 }
 
@@ -186,8 +177,6 @@ void EXTIO_API StopHW()
 extern "C"
 void EXTIO_API CloseHW()
 {
-  closesocket(gCtrlSock);
-  WSACleanup();
   gInitHW = false;
 }
 
@@ -224,7 +213,7 @@ int EXTIO_API SetHWLO(long LOfreq)
 
   if(gFreq != LOfreq && ExtIOCallback) (*ExtIOCallback)(-1, 101, 0.0, 0);
 
-  sendto(gCtrlSock, (char *)&gFreq, 4, 0, (struct sockaddr *)&gCtrlAddr, sizeof(gCtrlAddr));
+  send(gSock, (char *)&gFreq, 4, 0);
 
   return rc;
 }
@@ -251,4 +240,20 @@ extern "C"
 int EXTIO_API GetStatus()
 {
   return 0;
+}
+
+//---------------------------------------------------------------------------
+
+extern "C"
+void EXTIO_API ShowGUI()
+{
+  if(ManagedGlobals::gGUI) ManagedGlobals::gGUI->ShowDialog();
+}
+
+//---------------------------------------------------------------------------
+
+extern "C"
+void EXTIO_API HideGUI()
+{
+  if(ManagedGlobals::gGUI) ManagedGlobals::gGUI->Hide();
 }
