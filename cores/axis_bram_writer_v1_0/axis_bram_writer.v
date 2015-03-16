@@ -12,18 +12,18 @@ module axis_bram_writer #
   input  wire                        aclk,
   input  wire                        aresetn,
 
-  output wire [ADDR_WIDTH-1:0]       sts_data,
+  output wire [BRAM_ADDR_WIDTH-1:0]  sts_data,
 
   // Slave side
-  input  wire                        s_axis_tready,
-  output wire [AXIS_TDATA_WIDTH-1:0] s_axis_tdata,
-  output wire                        s_axis_tvalid,
+  output wire                        s_axis_tready,
+  input  wire [AXIS_TDATA_WIDTH-1:0] s_axis_tdata,
+  input  wire                        s_axis_tvalid,
 
   // BRAM port
   output wire                        bram_porta_clk,
   output wire                        bram_porta_rst,
   output wire [BRAM_ADDR_WIDTH-1:0]  bram_porta_addr,
-  input  wire [BRAM_DATA_WIDTH-1:0]  bram_porta_wrdata,
+  output wire [BRAM_DATA_WIDTH-1:0]  bram_porta_wrdata,
   output wire                        bram_porta_we
 );
 

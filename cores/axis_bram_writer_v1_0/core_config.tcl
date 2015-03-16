@@ -11,7 +11,7 @@ core_parameter BRAM_ADDR_WIDTH {BRAM ADDR WIDTH} {Width of the BRAM address port
 
 set bus [ipx::get_bus_interfaces -of_objects $core s_axis]
 set_property NAME S_AXIS $bus
-set_property INTERFACE_MODE master $bus
+set_property INTERFACE_MODE slave $bus
 
 set bus [ipx::get_bus_interfaces signal_clock]
 set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
