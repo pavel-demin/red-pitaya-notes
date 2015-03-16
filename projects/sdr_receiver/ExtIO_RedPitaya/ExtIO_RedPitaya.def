@@ -13,4 +13,3 @@ EXPORTS
   GetHWSR     = _GetHWSR@0
   GetStatus   = _GetStatus@0
   ShowGUI     = _ShowGUI@0
-  HideGUI     = _HideGUI@0

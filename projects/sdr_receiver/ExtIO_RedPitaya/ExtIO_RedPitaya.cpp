@@ -18,6 +18,8 @@ using namespace ExtIO_RedPitaya;
 
 #define EXTIO_API __declspec(dllexport) __stdcall
 
+#define TCP_PORT 1001
+
 #define LO_MIN   100000
 #define LO_MAX 50000000
 
@@ -139,6 +141,7 @@ int EXTIO_API StartHW(long LOfreq)
 {
   WSADATA wsaData;
   struct sockaddr_in addr;
+  char *buffer;
 
   if(!gInitHW) return 0;
 
@@ -146,12 +149,15 @@ int EXTIO_API StartHW(long LOfreq)
 
   gSock = socket(AF_INET, SOCK_STREAM, 0);
 
+  buffer = (char*)Marshal::StringToHGlobalAnsi(ManagedGlobals::gGUI->addrValue->Text).ToPointer();
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = inet_addr((const char*)Marshal::StringToHGlobalAnsi(ManagedGlobals::gGUI->host->Text).ToPointer());
-  addr.sin_port = htons((u_short)ManagedGlobals::gGUI->port->Value);
+  addr.sin_addr.s_addr = inet_addr(buffer);
+  addr.sin_port = htons(TCP_PORT);
 
   connect(gSock, (struct sockaddr *)&addr, sizeof(addr));
+
+  Marshal::FreeHGlobal(IntPtr(buffer));
 
   stopThread();
   SetHWLO(LOfreq);
@@ -248,12 +254,4 @@ extern "C"
 void EXTIO_API ShowGUI()
 {
   if(ManagedGlobals::gGUI) ManagedGlobals::gGUI->ShowDialog();
-}
-
-//---------------------------------------------------------------------------
-
-extern "C"
-void EXTIO_API HideGUI()
-{
-  if(ManagedGlobals::gGUI) ManagedGlobals::gGUI->Hide();
 }

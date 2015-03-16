@@ -41,12 +41,8 @@ namespace ExtIO_RedPitaya {
 				delete components;
 			}
 		}
-	private: System::Windows::Forms::Label^  label1;
-	public: System::Windows::Forms::TextBox^  host;
-
-	private: System::Windows::Forms::Label^  label2;
-	public: System::Windows::Forms::NumericUpDown^  port;
-
+	private: System::Windows::Forms::Label^  addrLabel;
+	public: System::Windows::Forms::TextBox^  addrValue;
 
 	private:
 		/// <summary>
@@ -61,61 +57,36 @@ namespace ExtIO_RedPitaya {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			this->label1 = (gcnew System::Windows::Forms::Label());
-			this->host = (gcnew System::Windows::Forms::TextBox());
-			this->label2 = (gcnew System::Windows::Forms::Label());
-			this->port = (gcnew System::Windows::Forms::NumericUpDown());
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->port))->BeginInit();
+			this->addrLabel = (gcnew System::Windows::Forms::Label());
+			this->addrValue = (gcnew System::Windows::Forms::TextBox());
 			this->SuspendLayout();
 			// 
-			// label1
+			// addrLabel
 			// 
-			this->label1->AutoSize = true;
-			this->label1->Location = System::Drawing::Point(12, 15);
-			this->label1->Name = L"label1";
-			this->label1->Size = System::Drawing::Size(29, 13);
-			this->label1->TabIndex = 0;
-			this->label1->Text = L"Host";
+			this->addrLabel->AutoSize = true;
+			this->addrLabel->Location = System::Drawing::Point(12, 15);
+			this->addrLabel->Name = L"addrLabel";
+			this->addrLabel->Size = System::Drawing::Size(57, 13);
+			this->addrLabel->TabIndex = 0;
+			this->addrLabel->Text = L"IP address";
 			// 
-			// host
+			// addrValue
 			// 
-			this->host->Location = System::Drawing::Point(48, 12);
-			this->host->Name = L"host";
-			this->host->Size = System::Drawing::Size(104, 20);
-			this->host->TabIndex = 1;
-			this->host->Text = L"192.168.1.4";
-			// 
-			// label2
-			// 
-			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(12, 41);
-			this->label2->Name = L"label2";
-			this->label2->Size = System::Drawing::Size(26, 13);
-			this->label2->TabIndex = 2;
-			this->label2->Text = L"Port";
-			// 
-			// port
-			// 
-			this->port->Location = System::Drawing::Point(48, 39);
-			this->port->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {65535, 0, 0, 0});
-			this->port->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1000, 0, 0, 0});
-			this->port->Name = L"port";
-			this->port->Size = System::Drawing::Size(104, 20);
-			this->port->TabIndex = 3;
-			this->port->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1001, 0, 0, 0});
+			this->addrValue->Location = System::Drawing::Point(75, 12);
+			this->addrValue->Name = L"addrValue";
+			this->addrValue->Size = System::Drawing::Size(107, 20);
+			this->addrValue->TabIndex = 1;
+			this->addrValue->Text = L"192.168.1.4";
 			// 
 			// GUI
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(164, 72);
-			this->Controls->Add(this->port);
-			this->Controls->Add(this->label2);
-			this->Controls->Add(this->host);
-			this->Controls->Add(this->label1);
+			this->ClientSize = System::Drawing::Size(194, 42);
+			this->Controls->Add(this->addrValue);
+			this->Controls->Add(this->addrLabel);
 			this->Name = L"GUI";
 			this->Text = L"GUI";
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->port))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
