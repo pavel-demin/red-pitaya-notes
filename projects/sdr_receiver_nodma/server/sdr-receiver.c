@@ -45,16 +45,13 @@ int main(int argc, char *argv[])
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40001000);
-  ram = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x1E000000);
+  ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40002000);
 
   /* enter reset mode */
-  *((uint32_t *)(cfg + 0)) &= ~15;
+  *((uint32_t *)(cfg + 0)) &= ~7;
 
   /* set default phase increment */
   *((uint32_t *)(cfg + 4)) = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-
-  /* set packet size */
-  *((uint32_t *)(cfg + 8)) = 127;
 
   if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 1)
   {
@@ -79,12 +76,14 @@ int main(int argc, char *argv[])
 
   lenClient = sizeof(addrClient);
 
+  limit = 128;
+
   while(!interrupted)
   {
     sockClient = accept(sockServer, (struct sockaddr *)&addrClient, &lenClient);
 
     /* enter normal operating mode */
-    *((uint32_t *)(cfg + 0)) |= 15;
+    *((uint32_t *)(cfg + 0)) |= 7;
 
     while(!interrupted)
     {
@@ -119,11 +118,11 @@ int main(int argc, char *argv[])
     close(sockClient);
 
     /* enter reset mode */
-    *((uint32_t *)(cfg + 0)) &= ~15;
+    *((uint32_t *)(cfg + 0)) &= ~7;
   }
 
   /* enter reset mode */
-  *((uint32_t *)(cfg + 0)) &= ~15;
+  *((uint32_t *)(cfg + 0)) &= ~7;
 
   return 0;
 }

@@ -220,6 +220,7 @@ cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
   WRITE_WIDTH_B 32
   WRITE_DEPTH_B 1024
   ENABLE_A Always_Enabled
+  ENABLE_B Always_Enabled
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
 }
 
@@ -235,10 +236,12 @@ cell pavel-demin:user:axis_bram_writer:1.0 writer_0 {
   aresetn slice_3/Dout
 }
 
-# Create axi_bram_ctrl
-cell xilinx.com:ip:axi_bram_ctrl:4.0 bram_ctrl_0 {
-  PROTOCOL AXI4LITE
-  SINGLE_PORT_BRAM 1
+# Create axi_bram_reader
+cell pavel-demin:user:axi_bram_reader:1.0 reader_0 {
+  AXI_DATA_WIDTH 32
+  AXI_ADDR_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 10
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
 }
@@ -247,7 +250,10 @@ cell xilinx.com:ip:axi_bram_ctrl:4.0 bram_ctrl_0 {
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Master /ps_0/M_AXI_GP0
   Clk Auto
-} [get_bd_intf_pins bram_ctrl_0/S_AXI]
+} [get_bd_intf_pins reader_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
+set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
 
 # Create axi_sts_register
 cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
