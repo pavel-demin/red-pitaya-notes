@@ -9,3 +9,4 @@ layout: default
 1. [Development machine]({{ "/development-machine/" | prepend: site.baseurl }})
 1. [LED blinker]({{ "/led-blinker/" | prepend: site.baseurl }})
 1. [SDR receiver]({{ "/sdr-receiver/" | prepend: site.baseurl }})
+1. [SDR receiver without DMA]({{ "/sdr-receiver-nodma/" | prepend: site.baseurl }})
