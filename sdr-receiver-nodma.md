@@ -14,7 +14,7 @@ To make the [SDR receiver]({{ "/sdr-receiver/" | prepend: site.baseurl }}) compa
 The [projects/sdr_receiver_nodma](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_receiver_nodma) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_receiver_nodma/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
 This new version communicates with the SDR software via TCP. The port number is `1001`.
- 
+
 The [projects/sdr_receiver_nodma/server](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_receiver_nodma/server) directory contains the source code of the TCP server ([sdr-receiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_receiver_nodma/server/sdr-receiver.c)).
 
 The ExtIO plug-in has now a GUI form for the IP address configuration.
