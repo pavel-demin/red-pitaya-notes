@@ -42,5 +42,5 @@ cat /opt/sdr_receiver.bin > /dev/xdevcfg
  - Copy `ExtIO_RedPitaya.dll` into the SDR# or HDSDR installation directory.
  - Start SDR# or HDSDR.
  - Select Red Pitaya SDR from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
- - Press Configure in SDR# or press ExtIO button in HDSDR and type in the IP address of your Red Pitaya.
+ - Press Configure icon in SDR# or press ExtIO button in HDSDR and type in the IP address of the Red Pitaya board.
  - Press Play icon in SDR# or press Start [F2] button in HDSDR.
