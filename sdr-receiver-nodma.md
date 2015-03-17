@@ -32,7 +32,7 @@ Getting started
  - Copy the downloaded files (`sdr_receiver.bin` and `sdr-receiver`) to the original Red Pitaya SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Connect to the Red Pitaya command line interface (follow [this link](http://wiki.redpitaya.com/index.php?title=User_Manual#Red_Pitaya_command_line_access) for instructions).
- - From the Red Pitaya command line interface, configure FPGA and start the sdr-receiver program:
+ - From the Red Pitaya command line interface, configure FPGA and start the `sdr-receiver` program:
 {% highlight bash %}
 cat /opt/sdr_receiver.bin > /dev/xdevcfg
 /opt/sdr-receiver
