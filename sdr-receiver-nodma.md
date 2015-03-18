@@ -33,7 +33,7 @@ Getting started
  - Edit `etc/init.d/rcS` on the SD card to add the commands that configure FPGA and start the `sdr-receiver` program:
 {% highlight bash %}
 cat /opt/sdr_receiver.bin > /dev/xdevcfg
-/opt/sdr-receiver
+/opt/sdr-receiver &
 {% endhighlight %}
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [SDR#](http://sdrsharp.com/#download) or [HDSDR](http://www.hdsdr.de/).
