@@ -54,6 +54,7 @@ ref class ManagedGlobals
 void (*ExtIOCallback)(int, int, float, void *) = 0;
 
 static void SetBandwidth(UInt32);
+static void UpdateBandwidth(UInt32);
 
 //---------------------------------------------------------------------------
 
@@ -63,7 +64,7 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
 
   while(!gExitThread)
   {
-    SleepEx(1, FALSE );
+    SleepEx(1, FALSE);
     if(gExitThread) break;
 
     ioctlsocket(gDataSock, FIONREAD, &size);
@@ -148,7 +149,9 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
       ManagedGlobals::gKey->SetValue("Bandwidth", bwIndex);
     }
     ManagedGlobals::gGUI->bwValue->SelectedIndex = bwIndex;
-    ManagedGlobals::gGUI->bwCallback = SetBandwidth;
+    ManagedGlobals::gGUI->bwCallback = UpdateBandwidth;
+
+    SetBandwidth(bwIndex);
 
     gInitHW = true;
   }
@@ -280,15 +283,21 @@ static void SetBandwidth(UInt32 bwIndex)
     case 0: gRate = 100000; gFreqMin = 100000; break;
     case 1: gRate = 500000; gFreqMin = 300000; break;
   }
-  
-  if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Bandwidth", bwIndex);
 
-  if(ExtIOCallback) (*ExtIOCallback)(-1, 100, 0.0, 0);
+  if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Bandwidth", bwIndex);
 
   bwIndex |= 1<<31;
   if(gCtrlSock) send(gCtrlSock, (char *)&bwIndex, 4, 0);
 
   SetHWLO(gFreq);
+}
+
+//---------------------------------------------------------------------------
+
+static void UpdateBandwidth(UInt32 bwIndex)
+{
+  SetBandwidth(bwIndex);
+  if(ExtIOCallback) (*ExtIOCallback)(-1, 100, 0.0, 0);
 }
 
 //---------------------------------------------------------------------------

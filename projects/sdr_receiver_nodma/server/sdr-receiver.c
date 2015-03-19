@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   uint32_t freqMax = 50000000;
   int yes = 1;
 
-  if((file = open(name, O_RDWR)) < 1)
+  if((file = open(name, O_RDWR)) < 0)
   {
     perror("open");
     return 1;
@@ -47,13 +47,7 @@ int main(int argc, char *argv[])
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40001000);
   ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40002000);
 
-  /* enter reset mode */
-  *((uint32_t *)(cfg + 0)) &= ~7;
-
-  /* set default phase increment */
-  *((uint32_t *)(cfg + 4)) = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-
-  if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 1)
+  if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     perror("socket");
     return 1;
@@ -81,16 +75,30 @@ int main(int argc, char *argv[])
 
   while(!interrupted)
   {
-    sockClient = accept(sockServer, (struct sockaddr *)&addrClient, &lenClient);
+    /* enter reset mode */
+    *((uint32_t *)(cfg + 0)) &= ~7;
+    /* set default phase increment */
+    *((uint32_t *)(cfg + 4)) = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+    /* set default bandwidth */
+    *((uint8_t *)(cfg + 8)) = 255;
+    *((uint8_t *)(cfg + 9)) = 0;
+
+    if((sockClient = accept(sockServer, (struct sockaddr *)&addrClient, &lenClient)) < 0)
+    {
+      perror("accept");
+      return 1;
+    }
 
     pid = fork();
     if(pid == 0)
     {
       /* child process */
+
       int sockData;
       struct sockaddr_in addrData;
       int pos, limit, start;
-      if((sockData = socket(AF_INET, SOCK_DGRAM, 0)) < 1)
+
+      if((sockData = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
       {
         perror("socket");
         return 1;
@@ -102,9 +110,12 @@ int main(int argc, char *argv[])
       addrData.sin_addr = addrClient.sin_addr;
       addrData.sin_port = htons(UDP_PORT);
 
+      connect(sockData, (struct sockaddr *)&addrData, sizeof(addrData));
+
       signal(SIGINT, signal_handler);
 
       limit = 128;
+
       while(!interrupted)
       {
         /* read ram writer position */
@@ -136,8 +147,7 @@ int main(int argc, char *argv[])
       while(!interrupted)
       {
         if(recv(sockClient, (char *)&command, 4, 0) == 0) break;
-
-        switch(command>>30)
+        switch(command >> 31)
         {
           case 0:
             /* set phase increment */
@@ -146,25 +156,21 @@ int main(int argc, char *argv[])
             break;
           case 1:
             /* set bandwidth */
-            *((uint32_t *)(cfg + 0)) &= ~7;
             switch(command & 1)
             {
-              case 0: *((uint32_t *)(cfg + 0)) |= 7; break;
-              case 1: *((uint32_t *)(cfg + 0)) |= 7; break;
+              case 0: freqMin = 100000; *((uint8_t *)(cfg + 8)) = 255; *((uint8_t *)(cfg + 9)) = 0; break;
+              case 1: freqMin = 300000; *((uint8_t *)(cfg + 8)) = 0; *((uint8_t *)(cfg + 9)) = 255; break;
             }
             break;
         }
       }
 
-      close(sockClient);
+      kill(pid, SIGTERM);
+      waitpid(pid, NULL, 0);
 
-      /* enter reset mode */
-      *((uint32_t *)(cfg + 0)) &= ~7;
+      close(sockClient);
     }
   }
-
-  /* enter reset mode */
-  *((uint32_t *)(cfg + 0)) &= ~7;
 
   return 0;
 }
