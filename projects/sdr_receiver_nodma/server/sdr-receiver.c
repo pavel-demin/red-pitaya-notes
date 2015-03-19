@@ -13,9 +13,7 @@
 #include <arpa/inet.h>
 
 #define TCP_PORT 1001
-
-#define LO_MIN   100000
-#define LO_MAX 50000000
+#define UDP_PORT 1002
 
 int interrupted = 0;
 
@@ -35,6 +33,8 @@ int main(int argc, char *argv[])
   struct sockaddr_in addrServer, addrClient;
   socklen_t lenClient;
   uint32_t command = 600000;
+  uint32_t freqMin = 100000;
+  uint32_t freqMax = 50000000;
   int yes = 1;
 
   if((file = open(name, O_RDWR)) < 1)
@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
 
   setsockopt(sockServer, SOL_SOCKET, SO_REUSEADDR, (void *)&yes , sizeof(yes));
 
+  /* set up server address */
   memset(&addrServer, 0, sizeof(addrServer));
   addrServer.sin_family = AF_INET;
   addrServer.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -82,43 +83,84 @@ int main(int argc, char *argv[])
   {
     sockClient = accept(sockServer, (struct sockaddr *)&addrClient, &lenClient);
 
-    /* enter normal operating mode */
-    *((uint32_t *)(cfg + 0)) |= 7;
-
-    while(!interrupted)
+    pid = fork();
+    if(pid == 0)
     {
-      ioctl(sockClient, FIONREAD, &size);
-
-      if(size >= 4)
+      /* child process */
+      int sockData;
+      struct sockaddr_in addrData;
+      int pos, limit, start;
+      if((sockData = socket(AF_INET, SOCK_DGRAM, 0)) < 1)
       {
-        recv(sockClient, (char *)&command, 4, 0);
-        if(command >= LO_MIN || command <= LO_MAX)
+        perror("socket");
+        return 1;
+      }
+
+      /* set up destination address */
+      memset(&addrData, 0, sizeof(addrData));
+      addrData.sin_family = AF_INET;
+      addrData.sin_addr = addrClient.sin_addr;
+      addrData.sin_port = htons(UDP_PORT);
+
+      signal(SIGINT, signal_handler);
+
+      limit = 128;
+      while(!interrupted)
+      {
+        /* read ram writer position */
+        pos = *((uint32_t *)(sts + 0));
+
+        /* send 1024 bytes if ready, otherwise sleep 0.5 ms */
+        if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
         {
-          *((uint32_t *)(cfg + 4)) = (uint32_t)floor(command/125.0e6*(1<<30)+0.5);
+          start = limit > 0 ? limit*8 - 1024 : 3072;
+          send(sockData, ram + start, 1024, 0);
+          limit += 128;
+          if(limit == 512) limit = 0;
+        }
+        else
+        {
+          usleep(100);
         }
       }
 
-      /* read ram writer position */
-      pos = *((uint32_t *)(sts + 0));
-
-      /* send 1024 bytes if ready, otherwise sleep 0.5 ms */
-      if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
-      {
-        start = limit > 0 ? limit*8 - 1024 : 3072;
-        if(send(sockClient, ram + start, 1024, 0) < 0) break;;
-        limit += 128;
-        if(limit == 512) limit = 0;
-      }
-      else
-      {
-        usleep(500);
-      }
+      close(sockData);
     }
+    else if(pid > 0)
+    {
+      /* parent process */
 
-    close(sockClient);
+      /* enter normal operating mode */
+      *((uint32_t *)(cfg + 0)) |= 7;
 
-    /* enter reset mode */
-    *((uint32_t *)(cfg + 0)) &= ~7;
+      while(!interrupted)
+      {
+        if(recv(sockClient, (char *)&command, 4, 0) == 0) break;
+
+        switch(command>>30)
+        {
+          case 0:
+            /* set phase increment */
+            if(command < freqMin || command > freqMax) continue;
+            *((uint32_t *)(cfg + 4)) = (uint32_t)floor(command/125.0e6*(1<<30)+0.5);
+            break;
+          case 1:
+            /* set bandwidth */
+            *((uint32_t *)(cfg + 0)) &= ~7;
+            switch(command & 1)
+            {
+              case 0: *((uint32_t *)(cfg + 0)) |= 7; break;
+              case 1: *((uint32_t *)(cfg + 0)) |= 7; break;
+            }
+            break;
+        }
+      }
+
+      close(sockClient);
+
+      /* enter reset mode */
+      *((uint32_t *)(cfg + 0)) &= ~7;
+    }
   }
 
   /* enter reset mode */

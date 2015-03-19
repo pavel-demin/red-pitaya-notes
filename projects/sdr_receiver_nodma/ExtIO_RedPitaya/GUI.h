@@ -28,6 +28,7 @@ namespace ExtIO_RedPitaya {
 			//
 			//TODO: Add the constructor code here
 			//
+			bwCallback = 0;
 		}
 
 	protected:
@@ -43,6 +44,10 @@ namespace ExtIO_RedPitaya {
 		}
 	private: System::Windows::Forms::Label^  addrLabel;
 	public: System::Windows::Forms::TextBox^  addrValue;
+	private: System::Windows::Forms::Label^  bwLabel;
+	public: System::Windows::Forms::ComboBox^  bwValue;
+	public: void (*bwCallback)(UInt32); 
+
 
 	private:
 		/// <summary>
@@ -59,6 +64,8 @@ namespace ExtIO_RedPitaya {
 		{
 			this->addrLabel = (gcnew System::Windows::Forms::Label());
 			this->addrValue = (gcnew System::Windows::Forms::TextBox());
+			this->bwLabel = (gcnew System::Windows::Forms::Label());
+			this->bwValue = (gcnew System::Windows::Forms::ComboBox());
 			this->SuspendLayout();
 			// 
 			// addrLabel
@@ -77,11 +84,33 @@ namespace ExtIO_RedPitaya {
 			this->addrValue->Size = System::Drawing::Size(107, 20);
 			this->addrValue->TabIndex = 1;
 			// 
+			// bwLabel
+			// 
+			this->bwLabel->AutoSize = true;
+			this->bwLabel->Location = System::Drawing::Point(12, 40);
+			this->bwLabel->Name = L"bwLabel";
+			this->bwLabel->Size = System::Drawing::Size(57, 13);
+			this->bwLabel->TabIndex = 3;
+			this->bwLabel->Text = L"Bandwidth";
+			// 
+			// bwValue
+			// 
+			this->bwValue->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->bwValue->FormattingEnabled = true;
+			this->bwValue->Items->AddRange(gcnew cli::array< System::Object^  >(2) {L"100 kHz", L"500 kHz"});
+			this->bwValue->Location = System::Drawing::Point(75, 37);
+			this->bwValue->Name = L"bwValue";
+			this->bwValue->Size = System::Drawing::Size(107, 21);
+			this->bwValue->TabIndex = 2;
+			this->bwValue->SelectedIndexChanged += gcnew System::EventHandler(this, &GUI::bwValue_SelectedIndexChanged);
+			// 
 			// GUI
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(194, 42);
+			this->ClientSize = System::Drawing::Size(194, 70);
+			this->Controls->Add(this->bwLabel);
+			this->Controls->Add(this->bwValue);
 			this->Controls->Add(this->addrValue);
 			this->Controls->Add(this->addrLabel);
 			this->Name = L"GUI";
@@ -91,5 +120,8 @@ namespace ExtIO_RedPitaya {
 
 		}
 #pragma endregion
+	private: System::Void bwValue_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
+				 if(bwCallback) (*bwCallback)(bwValue->SelectedIndex);
+			 }
 	};
 }
