@@ -79,7 +79,7 @@ namespace ExtIO_RedPitaya {
 			// 
 			// addrValue
 			// 
-			this->addrValue->Location = System::Drawing::Point(81, 8);
+			this->addrValue->Location = System::Drawing::Point(81, 12);
 			this->addrValue->Name = L"addrValue";
 			this->addrValue->Size = System::Drawing::Size(101, 20);
 			this->addrValue->TabIndex = 1;
@@ -87,7 +87,7 @@ namespace ExtIO_RedPitaya {
 			// rateLabel
 			// 
 			this->rateLabel->AutoSize = true;
-			this->rateLabel->Location = System::Drawing::Point(12, 40);
+			this->rateLabel->Location = System::Drawing::Point(12, 41);
 			this->rateLabel->Name = L"rateLabel";
 			this->rateLabel->Size = System::Drawing::Size(63, 13);
 			this->rateLabel->TabIndex = 3;
@@ -98,7 +98,7 @@ namespace ExtIO_RedPitaya {
 			this->rateValue->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->rateValue->FormattingEnabled = true;
 			this->rateValue->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"50 kSPS", L"100 kSPS", L"250 kSPS", L"500 kSPS"});
-			this->rateValue->Location = System::Drawing::Point(81, 37);
+			this->rateValue->Location = System::Drawing::Point(81, 38);
 			this->rateValue->Name = L"rateValue";
 			this->rateValue->Size = System::Drawing::Size(101, 21);
 			this->rateValue->TabIndex = 2;
