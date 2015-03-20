@@ -12,3 +12,4 @@ EXPORTS
   GetHWLO     = _GetHWLO@0
   GetHWSR     = _GetHWSR@0
   GetStatus   = _GetStatus@0
+  ShowGUI     = _ShowGUI@0

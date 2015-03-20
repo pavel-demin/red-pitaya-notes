@@ -1,4 +1,4 @@
-set display_name {AXI4-Stream Histogram}
+set display_name {AXI4-Stream Block RAM Writer}
 
 set core [ipx::current_core]
 
@@ -26,7 +26,6 @@ foreach {logical physical} {
   CLK  bram_porta_clk
   ADDR bram_porta_addr
   DIN  bram_porta_wrdata
-  DOUT bram_porta_rddata
   WE   bram_porta_we
 } {
   set_property PHYSICAL_NAME $physical [ipx::add_port_map $logical $bus]
