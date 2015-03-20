@@ -29,8 +29,7 @@ int main(int argc, char *argv[])
   void *cfg, *sts, *ram;
   char *name = "/dev/mem";
   unsigned long size = 0;
-  struct sockaddr_in addrServer, addrClient;
-  socklen_t lenClient;
+  struct sockaddr_in addr;
   uint32_t command = 600000;
   uint32_t freqMin = 100000;
   uint32_t freqMax = 50000000;
@@ -54,21 +53,19 @@ int main(int argc, char *argv[])
 
   setsockopt(sockServer, SOL_SOCKET, SO_REUSEADDR, (void *)&yes , sizeof(yes));
 
-  /* set up server address */
-  memset(&addrServer, 0, sizeof(addrServer));
-  addrServer.sin_family = AF_INET;
-  addrServer.sin_addr.s_addr = htonl(INADDR_ANY);
-  addrServer.sin_port=htons(TCP_PORT);
+  /* setup listening address */
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  addr.sin_port = htons(TCP_PORT);
 
-  if(bind(sockServer, (struct sockaddr *)&addrServer, sizeof(addrServer)) < 0)
+  if(bind(sockServer, (struct sockaddr *)&addr, sizeof(addr)) < 0)
   {
     perror("bind");
     return 1;
   }
 
   listen(sockServer, 1024);
-
-  lenClient = sizeof(addrClient);
 
   limit = 128;
 
@@ -81,11 +78,13 @@ int main(int argc, char *argv[])
     /* set default sample rate */
     *((uint32_t *)(cfg + 8)) = 625;
 
-    if((sockClient = accept(sockServer, (struct sockaddr *)&addrClient, &lenClient)) < 0)
+    if((sockClient = accept(sockServer, NULL, NULL)) < 0)
     {
       perror("accept");
       return 1;
     }
+
+    signal(SIGINT, signal_handler);
 
     /* enter normal operating mode */
     *((uint32_t *)(cfg + 0)) |= 15;
@@ -140,7 +139,7 @@ int main(int argc, char *argv[])
       /* read ram writer position */
       pos = *((uint32_t *)(sts + 0));
 
-      /* send 1024 bytes if ready, otherwise sleep 0.5 ms */
+      /* send 1024 bytes if ready, otherwise sleep 0.1 ms */
       if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
       {
         start = limit > 0 ? limit*8 - 1024 : 3072;
@@ -154,6 +153,7 @@ int main(int argc, char *argv[])
       }
     }
 
+    signal(SIGINT, SIG_DFL);
     close(sockClient);
   }
 
