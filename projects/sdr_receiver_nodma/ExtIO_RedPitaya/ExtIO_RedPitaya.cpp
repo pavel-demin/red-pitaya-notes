@@ -51,8 +51,8 @@ ref class ManagedGlobals
 
 void (*ExtIOCallback)(int, int, float, void *) = 0;
 
-static void SetBandwidth(UInt32);
-static void UpdateBandwidth(UInt32);
+static void SetRate(UInt32);
+static void UpdateRate(UInt32);
 
 //---------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ extern "C"
 bool EXTIO_API InitHW(char *name, char *model, int &type)
 {
   String ^addrString;
-  UInt32 bwIndex = 0;
+  UInt32 rateIndex = 1;
 
   type = 6;
 
@@ -133,23 +133,19 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
     {
       ManagedGlobals::gKey = Registry::CurrentUser->CreateSubKey("Software\\ExtIO_RedPitaya");
       ManagedGlobals::gKey->SetValue("IP Address", TCP_ADDR);
-      ManagedGlobals::gKey->SetValue("Bandwidth", bwIndex);
+      ManagedGlobals::gKey->SetValue("Sample Rate", rateIndex);
     }
 
     ManagedGlobals::gGUI = gcnew GUI;
     addrString = ManagedGlobals::gKey->GetValue("IP Address")->ToString();
     ManagedGlobals::gGUI->addrValue->Text = addrString;
 
-    bwIndex = Convert::ToUInt32(ManagedGlobals::gKey->GetValue("Bandwidth"));
-    if(bwIndex < 0 || bwIndex > 3)
-    {
-      bwIndex = 1;
-      ManagedGlobals::gKey->SetValue("Bandwidth", bwIndex);
-    }
-    ManagedGlobals::gGUI->bwValue->SelectedIndex = bwIndex;
-    ManagedGlobals::gGUI->bwCallback = UpdateBandwidth;
+    rateIndex = Convert::ToUInt32(ManagedGlobals::gKey->GetValue("Sample Rate", 1));
+    if(rateIndex < 0 || rateIndex > 3) rateIndex = 1;
+    ManagedGlobals::gGUI->rateValue->SelectedIndex = rateIndex;
+    ManagedGlobals::gGUI->rateCallback = UpdateRate;
 
-    SetBandwidth(bwIndex);
+    SetRate(rateIndex);
 
     gInitHW = true;
   }
@@ -197,7 +193,7 @@ int EXTIO_API StartHW(long LOfreq)
 
   StopThread();
   gFreq = LOfreq;
-  SetBandwidth(ManagedGlobals::gGUI->bwValue->SelectedIndex);
+  SetRate(ManagedGlobals::gGUI->rateValue->SelectedIndex);
   StartThread();
 
   return 512;
@@ -265,9 +261,9 @@ int EXTIO_API SetHWLO(long LOfreq)
 
 //---------------------------------------------------------------------------
 
-static void SetBandwidth(UInt32 bwIndex)
+static void SetRate(UInt32 rateIndex)
 {
-  switch(bwIndex)
+  switch(rateIndex)
   {
     case 0: gRate = 50000; gFreqMin = 75000; break;
     case 1: gRate = 100000; gFreqMin = 100000; break;
@@ -275,19 +271,19 @@ static void SetBandwidth(UInt32 bwIndex)
     case 3: gRate = 500000; gFreqMin = 300000; break;
   }
 
-  if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Bandwidth", bwIndex);
+  if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Sample Rate", rateIndex);
 
-  bwIndex |= 1<<31;
-  if(gSock) send(gSock, (char *)&bwIndex, 4, 0);
+  rateIndex |= 1<<31;
+  if(gSock) send(gSock, (char *)&rateIndex, 4, 0);
 
   SetHWLO(gFreq);
 }
 
 //---------------------------------------------------------------------------
 
-static void UpdateBandwidth(UInt32 bwIndex)
+static void UpdateRate(UInt32 rateIndex)
 {
-  SetBandwidth(bwIndex);
+  SetRate(rateIndex);
   if(ExtIOCallback) (*ExtIOCallback)(-1, 100, 0.0, 0);
 }
 

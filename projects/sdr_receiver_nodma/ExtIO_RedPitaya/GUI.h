@@ -28,7 +28,7 @@ namespace ExtIO_RedPitaya {
 			//
 			//TODO: Add the constructor code here
 			//
-			bwCallback = 0;
+			rateCallback = 0;
 		}
 
 	protected:
@@ -44,10 +44,10 @@ namespace ExtIO_RedPitaya {
 		}
 	private: System::Windows::Forms::Label^  addrLabel;
 	public: System::Windows::Forms::TextBox^  addrValue;
-	private: System::Windows::Forms::Label^  bwLabel;
-	public: System::Windows::Forms::ComboBox^  bwValue;
-	public: void (*bwCallback)(UInt32); 
+	private: System::Windows::Forms::Label^  rateLabel;
+	public: System::Windows::Forms::ComboBox^  rateValue;
 
+	public: void (*rateCallback)(UInt32);
 
 	private:
 		/// <summary>
@@ -64,8 +64,8 @@ namespace ExtIO_RedPitaya {
 		{
 			this->addrLabel = (gcnew System::Windows::Forms::Label());
 			this->addrValue = (gcnew System::Windows::Forms::TextBox());
-			this->bwLabel = (gcnew System::Windows::Forms::Label());
-			this->bwValue = (gcnew System::Windows::Forms::ComboBox());
+			this->rateLabel = (gcnew System::Windows::Forms::Label());
+			this->rateValue = (gcnew System::Windows::Forms::ComboBox());
 			this->SuspendLayout();
 			// 
 			// addrLabel
@@ -79,49 +79,49 @@ namespace ExtIO_RedPitaya {
 			// 
 			// addrValue
 			// 
-			this->addrValue->Location = System::Drawing::Point(75, 12);
+			this->addrValue->Location = System::Drawing::Point(81, 8);
 			this->addrValue->Name = L"addrValue";
-			this->addrValue->Size = System::Drawing::Size(107, 20);
+			this->addrValue->Size = System::Drawing::Size(101, 20);
 			this->addrValue->TabIndex = 1;
 			// 
-			// bwLabel
+			// rateLabel
 			// 
-			this->bwLabel->AutoSize = true;
-			this->bwLabel->Location = System::Drawing::Point(12, 40);
-			this->bwLabel->Name = L"bwLabel";
-			this->bwLabel->Size = System::Drawing::Size(57, 13);
-			this->bwLabel->TabIndex = 3;
-			this->bwLabel->Text = L"Bandwidth";
+			this->rateLabel->AutoSize = true;
+			this->rateLabel->Location = System::Drawing::Point(12, 40);
+			this->rateLabel->Name = L"rateLabel";
+			this->rateLabel->Size = System::Drawing::Size(63, 13);
+			this->rateLabel->TabIndex = 3;
+			this->rateLabel->Text = L"Sample rate";
 			// 
-			// bwValue
+			// rateValue
 			// 
-			this->bwValue->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
-			this->bwValue->FormattingEnabled = true;
-			this->bwValue->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"50 kHz", L"100 kHz", L"250 kHz", L"500 kHz"});
-			this->bwValue->Location = System::Drawing::Point(75, 37);
-			this->bwValue->Name = L"bwValue";
-			this->bwValue->Size = System::Drawing::Size(107, 21);
-			this->bwValue->TabIndex = 2;
-			this->bwValue->SelectedIndexChanged += gcnew System::EventHandler(this, &GUI::bwValue_SelectedIndexChanged);
+			this->rateValue->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->rateValue->FormattingEnabled = true;
+			this->rateValue->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"50 kSPS", L"100 kSPS", L"250 kSPS", L"500 kSPS"});
+			this->rateValue->Location = System::Drawing::Point(81, 37);
+			this->rateValue->Name = L"rateValue";
+			this->rateValue->Size = System::Drawing::Size(101, 21);
+			this->rateValue->TabIndex = 2;
+			this->rateValue->SelectedIndexChanged += gcnew System::EventHandler(this, &GUI::bwValue_SelectedIndexChanged);
 			// 
 			// GUI
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(194, 70);
-			this->Controls->Add(this->bwLabel);
-			this->Controls->Add(this->bwValue);
+			this->Controls->Add(this->rateLabel);
+			this->Controls->Add(this->rateValue);
 			this->Controls->Add(this->addrValue);
 			this->Controls->Add(this->addrLabel);
 			this->Name = L"GUI";
-			this->Text = L"GUI";
+			this->Text = L"Settings";
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
 		}
 #pragma endregion
 	private: System::Void bwValue_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
-				 if(bwCallback) (*bwCallback)(bwValue->SelectedIndex);
+				 if(rateCallback) (*rateCallback)(rateValue->SelectedIndex);
 			 }
 	};
 }
