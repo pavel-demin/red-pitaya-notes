@@ -17,7 +17,9 @@ This new version communicates with the SDR software via TCP. The port number is 
 
 The [projects/sdr_receiver_nodma/server](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_receiver_nodma/server) directory contains the source code of the TCP server ([sdr-receiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_receiver_nodma/server/sdr-receiver.c)).
 
-The ExtIO plug-in has now a GUI form for the IP address configuration.
+The sample rate is now configurable and four settings are available: 50 kSPS, 100 kSPS, 250 kSPS and 500 kSPS.
+
+The ExtIO plug-in has now a GUI form for the IP address and sample rate configuration.
 
 The [projects/sdr_receiver_nodma/ExtIO_RedPitaya](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_receiver_nodma/ExtIO_RedPitaya) directory contains the source code of this plug-in.
 
