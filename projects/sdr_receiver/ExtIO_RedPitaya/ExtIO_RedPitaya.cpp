@@ -22,15 +22,16 @@ using namespace ExtIO_RedPitaya;
 #define TCP_PORT 1001
 #define TCP_ADDR "192.168.1.4"
 
-#define LO_MIN   100000
-#define LO_MAX 50000000
-
-SOCKET gSock;
+SOCKET gSock = 0;
 
 char gBuffer[4096];
 int gOffset = 0;
 
+long gRate = 100000;
+
 long gFreq = 600000;
+long gFreqMin = 100000;
+long gFreqMax = 50000000;
 
 bool gInitHW = false;
 
@@ -50,6 +51,9 @@ ref class ManagedGlobals
 
 void (*ExtIOCallback)(int, int, float, void *) = 0;
 
+static void SetRate(UInt32);
+static void UpdateRate(UInt32);
+
 //---------------------------------------------------------------------------
 
 DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
@@ -58,7 +62,7 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
 
   while(!gExitThread)
   {
-    SleepEx(1, FALSE );
+    SleepEx(1, FALSE);
     if(gExitThread) break;
 
     ioctlsocket(gSock, FIONREAD, &size);
@@ -84,7 +88,7 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
 
 //---------------------------------------------------------------------------
 
-static void stopThread()
+static void StopThread()
 {
   if(gThreadRunning)
   {
@@ -98,7 +102,7 @@ static void stopThread()
 
 //---------------------------------------------------------------------------
 
-static void startThread()
+static void StartThread()
 {
   gExitThread = false;
   gThreadRunning = true;
@@ -114,6 +118,9 @@ extern "C" int EXTIO_API SetHWLO(long LOfreq);
 extern "C"
 bool EXTIO_API InitHW(char *name, char *model, int &type)
 {
+  String ^addrString;
+  UInt32 rateIndex = 1;
+
   type = 6;
 
   strcpy(name, "Red Pitaya SDR");
@@ -126,10 +133,20 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
     {
       ManagedGlobals::gKey = Registry::CurrentUser->CreateSubKey("Software\\ExtIO_RedPitaya");
       ManagedGlobals::gKey->SetValue("IP Address", TCP_ADDR);
+      ManagedGlobals::gKey->SetValue("Sample Rate", rateIndex);
     }
+
     ManagedGlobals::gGUI = gcnew GUI;
-	ManagedGlobals::gGUI->addrValue->Text = ManagedGlobals::gKey->GetValue("IP Address")->ToString();
-    gFreq = 600000;
+    addrString = ManagedGlobals::gKey->GetValue("IP Address")->ToString();
+    ManagedGlobals::gGUI->addrValue->Text = addrString;
+
+    rateIndex = Convert::ToUInt32(ManagedGlobals::gKey->GetValue("Sample Rate", 1));
+    if(rateIndex < 0 || rateIndex > 3) rateIndex = 1;
+    ManagedGlobals::gGUI->rateValue->SelectedIndex = rateIndex;
+    ManagedGlobals::gGUI->rateCallback = UpdateRate;
+
+    SetRate(rateIndex);
+
     gInitHW = true;
   }
 
@@ -174,9 +191,10 @@ int EXTIO_API StartHW(long LOfreq)
 
   Marshal::FreeHGlobal(IntPtr(buffer));
 
-  stopThread();
-  SetHWLO(LOfreq);
-  startThread();
+  StopThread();
+  gFreq = LOfreq;
+  SetRate(ManagedGlobals::gGUI->rateValue->SelectedIndex);
+  StartThread();
 
   return 512;
 }
@@ -186,9 +204,11 @@ int EXTIO_API StartHW(long LOfreq)
 extern "C"
 void EXTIO_API StopHW()
 {
-  stopThread();
+  StopThread();
 
   closesocket(gSock);
+
+  gSock = 0;
 
   WSACleanup();
 }
@@ -219,24 +239,52 @@ int EXTIO_API SetHWLO(long LOfreq)
   gFreq = LOfreq;
 
   // check limits
-  if(gFreq < LO_MIN)
+  if(gFreq < gFreqMin)
   {
-    gFreq = LO_MIN;
-    rc = -LO_MIN;
+    gFreq = gFreqMin;
+    rc = -gFreqMin;
   }
-  else if(gFreq > LO_MAX)
+  else if(gFreq > gFreqMax)
   {
-    gFreq = LO_MAX;
-    rc = LO_MAX;
+    gFreq = gFreqMax;
+    rc = gFreqMax;
   }
 
   gFreq = (long)floor(floor(gFreq/125.0e6*(1<<30)+0.5)*125e6/(1<<30)+0.5);
 
   if(gFreq != LOfreq && ExtIOCallback) (*ExtIOCallback)(-1, 101, 0.0, 0);
 
-  send(gSock, (char *)&gFreq, 4, 0);
+  if(gSock) send(gSock, (char *)&gFreq, 4, 0);
 
   return rc;
+}
+
+//---------------------------------------------------------------------------
+
+static void SetRate(UInt32 rateIndex)
+{
+  switch(rateIndex)
+  {
+    case 0: gRate = 50000; gFreqMin = 75000; break;
+    case 1: gRate = 100000; gFreqMin = 100000; break;
+    case 2: gRate = 250000; gFreqMin = 175000; break;
+    case 3: gRate = 500000; gFreqMin = 300000; break;
+  }
+
+  if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Sample Rate", rateIndex);
+
+  rateIndex |= 1<<31;
+  if(gSock) send(gSock, (char *)&rateIndex, 4, 0);
+
+  SetHWLO(gFreq);
+}
+
+//---------------------------------------------------------------------------
+
+static void UpdateRate(UInt32 rateIndex)
+{
+  SetRate(rateIndex);
+  if(ExtIOCallback) (*ExtIOCallback)(-1, 100, 0.0, 0);
 }
 
 //---------------------------------------------------------------------------
@@ -252,7 +300,7 @@ long EXTIO_API GetHWLO()
 extern "C"
 long EXTIO_API GetHWSR()
 {
-  return 100000;
+  return gRate;
 }
 
 //---------------------------------------------------------------------------

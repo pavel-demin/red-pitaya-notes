@@ -14,9 +14,6 @@
 
 #define TCP_PORT 1001
 
-#define LO_MIN   100000
-#define LO_MAX 50000000
-
 int interrupted = 0;
 
 void signal_handler(int sig)
@@ -32,12 +29,13 @@ int main(int argc, char *argv[])
   void *cfg, *sts, *ram;
   char *name = "/dev/mem";
   unsigned long size = 0;
-  struct sockaddr_in addrServer, addrClient;
-  socklen_t lenClient;
+  struct sockaddr_in addr;
   uint32_t command = 600000;
+  uint32_t freqMin = 100000;
+  uint32_t freqMax = 50000000;
   int yes = 1;
 
-  if((file = open(name, O_RDWR)) < 1)
+  if((file = open(name, O_RDWR)) < 0)
   {
     perror("open");
     return 1;
@@ -45,18 +43,9 @@ int main(int argc, char *argv[])
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40001000);
-  ram = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x1E000000);
+  ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40002000);
 
-  /* enter reset mode */
-  *((uint32_t *)(cfg + 0)) &= ~15;
-
-  /* set default phase increment */
-  *((uint32_t *)(cfg + 4)) = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-
-  /* set packet size */
-  *((uint32_t *)(cfg + 8)) = 127;
-
-  if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 1)
+  if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     perror("socket");
     return 1;
@@ -64,12 +53,13 @@ int main(int argc, char *argv[])
 
   setsockopt(sockServer, SOL_SOCKET, SO_REUSEADDR, (void *)&yes , sizeof(yes));
 
-  memset(&addrServer, 0, sizeof(addrServer));
-  addrServer.sin_family = AF_INET;
-  addrServer.sin_addr.s_addr = htonl(INADDR_ANY);
-  addrServer.sin_port=htons(TCP_PORT);
+  /* setup listening address */
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  addr.sin_port = htons(TCP_PORT);
 
-  if(bind(sockServer, (struct sockaddr *)&addrServer, sizeof(addrServer)) < 0)
+  if(bind(sockServer, (struct sockaddr *)&addr, sizeof(addr)) < 0)
   {
     perror("bind");
     return 1;
@@ -77,11 +67,24 @@ int main(int argc, char *argv[])
 
   listen(sockServer, 1024);
 
-  lenClient = sizeof(addrClient);
+  limit = 128;
 
   while(!interrupted)
   {
-    sockClient = accept(sockServer, (struct sockaddr *)&addrClient, &lenClient);
+    /* enter reset mode */
+    *((uint32_t *)(cfg + 0)) &= ~15;
+    /* set default phase increment */
+    *((uint32_t *)(cfg + 4)) = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+    /* set default sample rate */
+    *((uint32_t *)(cfg + 8)) = 625;
+
+    if((sockClient = accept(sockServer, NULL, NULL)) < 0)
+    {
+      perror("accept");
+      return 1;
+    }
+
+    signal(SIGINT, signal_handler);
 
     /* enter normal operating mode */
     *((uint32_t *)(cfg + 0)) |= 15;
@@ -93,34 +96,68 @@ int main(int argc, char *argv[])
       if(size >= 4)
       {
         recv(sockClient, (char *)&command, 4, 0);
-        if(command >= LO_MIN || command <= LO_MAX)
+        switch(command >> 31)
         {
-          *((uint32_t *)(cfg + 4)) = (uint32_t)floor(command/125.0e6*(1<<30)+0.5);
+          case 0:
+            /* set phase increment */
+            if(command < freqMin || command > freqMax) continue;
+            *((uint32_t *)(cfg + 4)) = (uint32_t)floor(command/125.0e6*(1<<30)+0.5);
+            break;
+          case 1:
+            /* set sample rate */
+            switch(command & 3)
+            {
+              case 0:
+                freqMin = 75000;
+                *((uint32_t *)(cfg + 0)) &= ~8;
+                *((uint32_t *)(cfg + 8)) = 1250;
+                *((uint32_t *)(cfg + 0)) |= 8;
+                break;
+              case 1:
+                freqMin = 100000;
+                *((uint32_t *)(cfg + 0)) &= ~8;
+                *((uint32_t *)(cfg + 8)) = 625;
+                *((uint32_t *)(cfg + 0)) |= 8;
+                break;
+              case 2:
+                freqMin = 175000;
+                *((uint32_t *)(cfg + 0)) &= ~8;
+                *((uint32_t *)(cfg + 8)) = 250;
+                *((uint32_t *)(cfg + 0)) |= 8;
+                break;
+              case 3:
+                freqMin = 300000;
+                *((uint32_t *)(cfg + 0)) &= ~8;
+                *((uint32_t *)(cfg + 8)) = 125;
+                *((uint32_t *)(cfg + 0)) |= 8;
+                break;
+            }
+            break;
         }
       }
 
       /* read ram writer position */
       pos = *((uint32_t *)(sts + 0));
 
-      /* send 1024 bytes if ready, otherwise sleep 0.5 ms */
+      /* send 1024 bytes if ready, otherwise sleep 0.1 ms */
       if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
       {
         start = limit > 0 ? limit*8 - 1024 : 3072;
-        if(send(sockClient, ram + start, 1024, 0) < 0) break;;
+        if(send(sockClient, ram + start, 1024, 0) < 0) break;
         limit += 128;
         if(limit == 512) limit = 0;
       }
       else
       {
-        usleep(500);
+        usleep(100);
       }
     }
 
+    signal(SIGINT, SIG_DFL);
     close(sockClient);
-
-    /* enter reset mode */
-    *((uint32_t *)(cfg + 0)) &= ~15;
   }
+
+  close(sockServer);
 
   /* enter reset mode */
   *((uint32_t *)(cfg + 0)) &= ~15;

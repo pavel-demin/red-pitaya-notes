@@ -225,6 +225,7 @@
 				>
 				<File
 					RelativePath=".\GUI.resx"
+					SubType="Designer"
 					>
 				</File>
 			</File>
