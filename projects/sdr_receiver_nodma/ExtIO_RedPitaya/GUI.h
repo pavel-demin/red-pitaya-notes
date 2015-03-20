@@ -97,7 +97,7 @@ namespace ExtIO_RedPitaya {
 			// 
 			this->bwValue->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->bwValue->FormattingEnabled = true;
-			this->bwValue->Items->AddRange(gcnew cli::array< System::Object^  >(2) {L"100 kHz", L"500 kHz"});
+			this->bwValue->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"50 kHz", L"100 kHz", L"250 kHz", L"500 kHz"});
 			this->bwValue->Location = System::Drawing::Point(75, 37);
 			this->bwValue->Name = L"bwValue";
 			this->bwValue->Size = System::Drawing::Size(107, 21);

@@ -20,11 +20,9 @@ using namespace ExtIO_RedPitaya;
 #define EXTIO_API __declspec(dllexport) __stdcall
 
 #define TCP_PORT 1001
-#define UDP_PORT 1002
 #define TCP_ADDR "192.168.1.4"
 
-SOCKET gCtrlSock = 0, gDataSock = 0;
-struct sockaddr_in gCtrlAddr, gDataAddr;
+SOCKET gSock = 0;
 
 char gBuffer[4096];
 int gOffset = 0;
@@ -67,11 +65,11 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
     SleepEx(1, FALSE);
     if(gExitThread) break;
 
-    ioctlsocket(gDataSock, FIONREAD, &size);
+    ioctlsocket(gSock, FIONREAD, &size);
 
     while(size >= 1024)
     {
-      recv(gDataSock, gBuffer + gOffset, 1024, 0);
+      recv(gSock, gBuffer + gOffset, 1024, 0);
 
       gOffset += 1024;
       if(gOffset == 4096)
@@ -80,7 +78,7 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
         if(ExtIOCallback) (*ExtIOCallback)(512, 0, 0.0, gBuffer);
       }
 
-      ioctlsocket(gDataSock, FIONREAD, &size);
+      ioctlsocket(gSock, FIONREAD, &size);
     }
   }
   gExitThread = false;
@@ -143,9 +141,9 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
     ManagedGlobals::gGUI->addrValue->Text = addrString;
 
     bwIndex = Convert::ToUInt32(ManagedGlobals::gKey->GetValue("Bandwidth"));
-    if(bwIndex < 0 || bwIndex > 1)
+    if(bwIndex < 0 || bwIndex > 3)
     {
-      bwIndex = 0;
+      bwIndex = 1;
       ManagedGlobals::gKey->SetValue("Bandwidth", bwIndex);
     }
     ManagedGlobals::gGUI->bwValue->SelectedIndex = bwIndex;
@@ -181,16 +179,7 @@ int EXTIO_API StartHW(long LOfreq)
 
   WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-  gDataSock = socket(AF_INET, SOCK_DGRAM, 0);
-
-  memset(&addr, 0, sizeof(gDataAddr));
-  addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  addr.sin_port = htons(UDP_PORT);
-
-  bind(gDataSock, (struct sockaddr *)&addr, sizeof(addr));
-
-  gCtrlSock = socket(AF_INET, SOCK_STREAM, 0);
+  gSock = socket(AF_INET, SOCK_STREAM, 0);
 
   addrString = ManagedGlobals::gGUI->addrValue->Text;
   ManagedGlobals::gKey->SetValue("IP Address", addrString);
@@ -202,7 +191,7 @@ int EXTIO_API StartHW(long LOfreq)
   addr.sin_addr.s_addr = inet_addr(buffer);
   addr.sin_port = htons(TCP_PORT);
 
-  connect(gCtrlSock, (struct sockaddr *)&addr, sizeof(addr));
+  connect(gSock, (struct sockaddr *)&addr, sizeof(addr));
 
   Marshal::FreeHGlobal(IntPtr(buffer));
 
@@ -221,9 +210,9 @@ void EXTIO_API StopHW()
 {
   StopThread();
 
-  closesocket(gCtrlSock);
+  closesocket(gSock);
 
-  gCtrlSock = 0;
+  gSock = 0;
 
   WSACleanup();
 }
@@ -269,7 +258,7 @@ int EXTIO_API SetHWLO(long LOfreq)
 
   if(gFreq != LOfreq && ExtIOCallback) (*ExtIOCallback)(-1, 101, 0.0, 0);
 
-  if(gCtrlSock) send(gCtrlSock, (char *)&gFreq, 4, 0);
+  if(gSock) send(gSock, (char *)&gFreq, 4, 0);
 
   return rc;
 }
@@ -280,14 +269,16 @@ static void SetBandwidth(UInt32 bwIndex)
 {
   switch(bwIndex)
   {
-    case 0: gRate = 100000; gFreqMin = 100000; break;
-    case 1: gRate = 500000; gFreqMin = 300000; break;
+    case 0: gRate = 50000; gFreqMin = 75000; break;
+    case 1: gRate = 100000; gFreqMin = 100000; break;
+    case 2: gRate = 250000; gFreqMin = 175000; break;
+    case 3: gRate = 500000; gFreqMin = 300000; break;
   }
 
   if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Bandwidth", bwIndex);
 
   bwIndex |= 1<<31;
-  if(gCtrlSock) send(gCtrlSock, (char *)&bwIndex, 4, 0);
+  if(gSock) send(gSock, (char *)&bwIndex, 4, 0);
 
   SetHWLO(gFreq);
 }
