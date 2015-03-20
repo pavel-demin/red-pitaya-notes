@@ -77,7 +77,7 @@ h <- fir2(L, f, Mf, window=kaiser(L+1, Beta))
 paste(as.character(h), collapse=", ")
 {% endhighlight %}
 
-To get an idea of the combined (CIC and FIR) filter response, the following figure shows a 128k FFT display from the SDR# program when Red Pitaya inputs are not connected to anything and the SDR# filtering is switched off:
+To get an idea of the combined (CIC and FIR) filter response, the following figure shows a 256k FFT display from the SDR# program when Red Pitaya inputs are not connected to anything and the SDR# filtering is switched off:
 
 ![Filter response]({{ "/img/no-signal.png" | prepend: site.baseurl }})
 
