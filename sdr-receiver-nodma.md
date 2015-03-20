@@ -1,7 +1,9 @@
 ---
-layout: page
+layout: redirect
 title: SDR receiver without DMA
+sitemap: false
 permalink: /sdr-receiver-nodma/
+redirect_to: /sdr-receiver/
 ---
 
 What's new
