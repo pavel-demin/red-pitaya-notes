@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   uint32_t freqMax = 50000000;
   int yes = 1;
 
-  if((file = open(name, O_RDWR)) < 1)
+  if((file = open(name, O_RDWR)) < 0)
   {
     perror("open");
     return 1;
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40001000);
   ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40002000);
 
-  if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 1)
+  if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     perror("socket");
     return 1;
@@ -81,7 +81,11 @@ int main(int argc, char *argv[])
     /* set default sample rate */
     *((uint32_t *)(cfg + 8)) = 625;
 
-    sockClient = accept(sockServer, (struct sockaddr *)&addrClient, &lenClient);
+    if((sockClient = accept(sockServer, (struct sockaddr *)&addrClient, &lenClient)) < 0)
+    {
+      perror("accept");
+      return 1;
+    }
 
     /* enter normal operating mode */
     *((uint32_t *)(cfg + 0)) |= 15;
@@ -152,6 +156,8 @@ int main(int argc, char *argv[])
 
     close(sockClient);
   }
+
+  close(sockServer);
 
   /* enter reset mode */
   *((uint32_t *)(cfg + 0)) &= ~15;
