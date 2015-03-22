@@ -25,8 +25,7 @@ module axis_bram_reader #
   output wire                        bram_porta_clk,
   output wire                        bram_porta_rst,
   output wire [BRAM_ADDR_WIDTH-1:0]  bram_porta_addr,
-  input  wire [BRAM_DATA_WIDTH-1:0]  bram_porta_rddata,
-  output wire                        bram_porta_we
+  input  wire [BRAM_DATA_WIDTH-1:0]  bram_porta_rddata
 );
 
   reg [BRAM_ADDR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
@@ -109,6 +108,5 @@ module axis_bram_reader #
   assign bram_porta_clk = aclk;
   assign bram_porta_rst = ~aresetn;
   assign bram_porta_addr = m_axis_tready & int_enbl_reg ? sum_cntr_wire : int_cntr_reg;
-  assign bram_porta_we = 1'b0;
 
 endmodule

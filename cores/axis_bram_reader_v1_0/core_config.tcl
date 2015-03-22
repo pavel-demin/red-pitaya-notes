@@ -27,7 +27,6 @@ foreach {logical physical} {
   CLK  bram_porta_clk
   ADDR bram_porta_addr
   DOUT bram_porta_rddata
-  WE   bram_porta_we
 } {
   set_property PHYSICAL_NAME $physical [ipx::add_port_map $logical $bus]
 }
