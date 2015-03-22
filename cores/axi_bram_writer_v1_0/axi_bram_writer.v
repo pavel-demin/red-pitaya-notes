@@ -42,6 +42,9 @@ module axi_bram_writer #
   reg int_awready_reg, int_awready_next;
   reg int_wready_reg, int_wready_next;
   reg int_bvalid_reg, int_bvalid_next;
+  wire int_wvalid_wire;
+
+  assign int_wvalid_wire = s_axi_awvalid & s_axi_wvalid;
 
   always @(posedge aclk)
   begin
@@ -92,8 +95,8 @@ module axi_bram_writer #
 
   assign bram_porta_clk = aclk;
   assign bram_porta_rst = ~aresetn;
-  assign bram_porta_addr = s_axi_araddr[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
+  assign bram_porta_addr = s_axi_awaddr[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
   assign bram_porta_wrdata = s_axi_wdata;
-  assign bram_porta_we = s_axi_wstrb;
+  assign bram_porta_we = int_wvalid_wire ? s_axi_wstrb : {(BRAM_DATA_WIDTH/8){1'b0}};
 
 endmodule
