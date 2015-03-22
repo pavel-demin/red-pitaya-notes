@@ -101,6 +101,9 @@ cell xilinx.com:ip:xlslice:1.0 slice_6 {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_1
+
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
   S_AXIS adc_0/M_AXIS
@@ -177,7 +180,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
   CONTINUOUS FALSE
 } {
   S_AXIS const_1/M_AXIS
-  cfg_data const_0/dout
+  cfg_data const_1/dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_4/Dout
 }
@@ -197,7 +200,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_1 {
   CONTINUOUS FALSE
 } {
   S_AXIS const_2/M_AXIS
-  cfg_data const_0/dout
+  cfg_data const_1/dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_4/Dout
 }
