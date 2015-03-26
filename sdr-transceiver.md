@@ -4,6 +4,8 @@ title: SDR transceiver
 permalink: /sdr-transceiver/
 ---
 
+This is a work in progress...
+
 Implementation
 -----
 
@@ -27,7 +29,9 @@ The SDR transmitter consists of the similar blocks but arranged in an opposite o
 
 The tunable frequency range covers from 50 kHz to 50 MHz.
 
-The receiver I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
+The receiver and transmitter I/Q data rates are fixed to 50 kSPS.
+
+The panadapter I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
 
 The basic blocks of the digital down-converter (DDC) and of the digital up-converter (DUC) are shown on the following diagram:
 
