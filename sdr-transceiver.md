@@ -41,7 +41,7 @@ The [projects/sdr_transceiver](https://github.com/pavel-demin/red-pitaya-notes/t
 
 The [projects/sdr_transceiver/server](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver/server) directory contains the source code of two TCP servers:
 
-  - [sdr-receiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/server/sdr-receiver.c) that receives control commands and transmits the I/Q data stream (up to 2 x 32 bit x 500 kSPS = 30.5 Mbit/s) to the SDR programs
+  - [sdr-receiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/server/sdr-receiver.c) that receives control commands and transmits the I/Q data stream (2 x 32 bit x 50 kSPS = 3.1 Mbit/s) to the SDR programs
   - [sdr-transmitter.c](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/server/sdr-transmitter.c) that receives the I/Q data stream from the SDR programs.
 
 <!---
