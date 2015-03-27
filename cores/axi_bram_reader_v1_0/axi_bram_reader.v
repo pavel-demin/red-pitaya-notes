@@ -26,8 +26,7 @@ module axi_bram_reader #
   output wire                       bram_porta_clk,
   output wire                       bram_porta_rst,
   output wire [BRAM_ADDR_WIDTH-1:0] bram_porta_addr,
-  input  wire [BRAM_DATA_WIDTH-1:0] bram_porta_rddata,
-  output wire                       bram_porta_we
+  input  wire [BRAM_DATA_WIDTH-1:0] bram_porta_rddata
 );
 
   function integer clogb2 (input integer value);
@@ -84,6 +83,5 @@ module axi_bram_reader #
   assign bram_porta_clk = aclk;
   assign bram_porta_rst = ~aresetn;
   assign bram_porta_addr = s_axi_araddr[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
-  assign bram_porta_we = 1'b0;
 
 endmodule

@@ -107,6 +107,7 @@ tmp/cores:
 	$(VIVADO) -source scripts/core.tcl -tclargs axi_cfg_register_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axi_sts_register_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axi_bram_reader_v1_0 $(PART)
+	$(VIVADO) -source scripts/core.tcl -tclargs axi_bram_writer_v1_0 $(PART)
 
 tmp/%.xpr: projects/% tmp/cores
 	$(RM) $@ tmp/$*.cache tmp/$*.srcs tmp/$*.runs

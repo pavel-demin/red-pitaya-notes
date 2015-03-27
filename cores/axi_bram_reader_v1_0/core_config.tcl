@@ -18,7 +18,6 @@ set bus [ipx::get_bus_interfaces signal_clock]
 set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
 set_property VALUE S_AXI $parameter
 
-
 set bus [ipx::add_bus_interface BRAM_PORTA $core]
 set_property ABSTRACTION_TYPE_VLNV xilinx.com:interface:bram_rtl:1.0 $bus
 set_property BUS_TYPE_VLNV xilinx.com:interface:bram:1.0 $bus
@@ -28,7 +27,6 @@ foreach {logical physical} {
   CLK  bram_porta_clk
   ADDR bram_porta_addr
   DOUT bram_porta_rddata
-  WE   bram_porta_we
 } {
   set_property PHYSICAL_NAME $physical [ipx::add_port_map $logical $bus]
 }

@@ -24,14 +24,13 @@ void signal_handler(int sig)
 int main(int argc, char *argv[])
 {
   int file, sockServer, sockClient;
-  int pos, limit, start;
-  pid_t pid;
+  int pos, limit, offset;
   void *cfg, *sts, *ram;
   char *name = "/dev/mem";
   unsigned long size = 0;
   struct sockaddr_in addr;
   uint32_t command = 600000;
-  uint32_t freqMin = 50000;
+  uint32_t freqMin = 100000;
   uint32_t freqMax = 50000000;
   int yes = 1;
 
@@ -72,11 +71,12 @@ int main(int argc, char *argv[])
   while(!interrupted)
   {
     /* enter reset mode */
-    *((uint32_t *)(cfg + 0)) &= ~15;
-    /* set default phase increment */
+    *((uint16_t *)(cfg + 0)) &= ~15;
+    /* set default rx sample rate */
+    *((uint16_t *)(cfg + 2)) = 625;
+    /* set default rx phase increment */
     *((uint32_t *)(cfg + 4)) = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-    /* set default sample rate */
-    *((uint32_t *)(cfg + 8)) = 625;
+
 
     if((sockClient = accept(sockServer, NULL, NULL)) < 0)
     {
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     signal(SIGINT, signal_handler);
 
     /* enter normal operating mode */
-    *((uint32_t *)(cfg + 0)) |= 15;
+    *((uint16_t *)(cfg + 0)) |= 3;
 
     while(!interrupted)
     {
@@ -96,41 +96,60 @@ int main(int argc, char *argv[])
       if(size >= 4)
       {
         recv(sockClient, (char *)&command, 4, 0);
-        switch(command >> 31)
+        switch(command >> 30)
         {
           case 0:
-            /* set phase increment */
+            /* set rx phase increment */
             if(command < freqMin || command > freqMax) continue;
             *((uint32_t *)(cfg + 4)) = (uint32_t)floor(command/125.0e6*(1<<30)+0.5);
             break;
           case 1:
-            /* set sample rate */
+            /* set rx sample rate */
             switch(command & 3)
             {
               case 0:
-                freqMin = 25000;
-                *((uint32_t *)(cfg + 0)) &= ~8;
-                *((uint32_t *)(cfg + 8)) = 1250;
-                *((uint32_t *)(cfg + 0)) |= 8;
+                freqMin = 75000;
+                *((uint16_t *)(cfg + 0)) &= ~8;
+                *((uint16_t *)(cfg + 2)) = 1250;
+                *((uint16_t *)(cfg + 0)) |= 8;
                 break;
               case 1:
-                freqMin = 50000;
-                *((uint32_t *)(cfg + 0)) &= ~8;
-                *((uint32_t *)(cfg + 8)) = 625;
-                *((uint32_t *)(cfg + 0)) |= 8;
+                freqMin = 100000;
+                *((uint16_t *)(cfg + 0)) &= ~8;
+                *((uint16_t *)(cfg + 2)) = 625;
+                *((uint16_t *)(cfg + 0)) |= 8;
                 break;
               case 2:
-                freqMin = 125000;
-                *((uint32_t *)(cfg + 0)) &= ~8;
-                *((uint32_t *)(cfg + 8)) = 250;
-                *((uint32_t *)(cfg + 0)) |= 8;
+                freqMin = 175000;
+                *((uint16_t *)(cfg + 0)) &= ~8;
+                *((uint16_t *)(cfg + 2)) = 250;
+                *((uint16_t *)(cfg + 0)) |= 8;
                 break;
               case 3:
-                freqMin = 250000;
-                *((uint32_t *)(cfg + 0)) &= ~8;
-                *((uint32_t *)(cfg + 8)) = 125;
-                *((uint32_t *)(cfg + 0)) |= 8;
+                freqMin = 300000;
+                *((uint16_t *)(cfg + 0)) &= ~8;
+                *((uint16_t *)(cfg + 2)) = 125;
+                *((uint16_t *)(cfg + 0)) |= 8;
                 break;
+            }
+            break;
+          case 2:
+            /* set tx phase increment */
+            if(command < 75000 || command > 50000000) continue;
+            *((uint32_t *)(cfg + 8)) = (uint32_t)floor(command/125.0e6*(1<<30)+0.5);
+            break;
+          case 3:
+            /* tx commands */
+            switch(command & 1)
+            {
+              case 0:
+                /* enter reset mode */
+                *((uint16_t *)(cfg + 0)) &= ~12;
+                break;
+              case 2:
+                /* enter normal operating mode */
+                *((uint16_t *)(cfg + 0)) |= 12;
+              break;
             }
             break;
         }
@@ -142,8 +161,8 @@ int main(int argc, char *argv[])
       /* send 1024 bytes if ready, otherwise sleep 0.1 ms */
       if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
       {
-        start = limit > 0 ? limit*8 - 1024 : 3072;
-        if(send(sockClient, ram + start, 1024, 0) < 0) break;
+        offset = limit > 0 ? limit*8 - 1024 : 3072;
+        if(send(sockClient, ram + offset, 1024, 0) < 0) break;
         limit += 128;
         if(limit == 512) limit = 0;
       }
@@ -160,7 +179,7 @@ int main(int argc, char *argv[])
   close(sockServer);
 
   /* enter reset mode */
-  *((uint32_t *)(cfg + 0)) &= ~15;
+  *((uint16_t *)(cfg + 0)) &= ~15;
 
   return 0;
 }

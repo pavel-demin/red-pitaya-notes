@@ -5,7 +5,7 @@ module axis_bram_reader #
 (
   parameter integer AXIS_TDATA_WIDTH = 32,
   parameter integer BRAM_DATA_WIDTH = 32,
-  parameter integer BRAM_ADDR_WIDTH = 14,
+  parameter integer BRAM_ADDR_WIDTH = 10,
   parameter         CONTINUOUS = "FALSE"
 )
 (
@@ -14,6 +14,7 @@ module axis_bram_reader #
   input  wire                        aresetn,
 
   input  wire [BRAM_ADDR_WIDTH-1:0]  cfg_data,
+  output wire [BRAM_ADDR_WIDTH-1:0]  sts_data,
 
   // Master side
   input  wire                        m_axis_tready,
@@ -25,11 +26,10 @@ module axis_bram_reader #
   output wire                        bram_porta_clk,
   output wire                        bram_porta_rst,
   output wire [BRAM_ADDR_WIDTH-1:0]  bram_porta_addr,
-  input  wire [BRAM_DATA_WIDTH-1:0]  bram_porta_rddata,
-  output wire                        bram_porta_we
+  input  wire [BRAM_DATA_WIDTH-1:0]  bram_porta_rddata
 );
 
-  reg [BRAM_ADDR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
+  reg [BRAM_ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
   reg int_enbl_reg, int_enbl_next;
 
   wire [BRAM_ADDR_WIDTH-1:0] sum_cntr_wire;
@@ -39,18 +39,18 @@ module axis_bram_reader #
   begin
     if(~aresetn)
     begin
-      int_cntr_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
+      int_addr_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
       int_enbl_reg <= 1'b0;
     end
     else
     begin
-      int_cntr_reg <= int_cntr_next;
+      int_addr_reg <= int_addr_next;
       int_enbl_reg <= int_enbl_next;
     end
   end
 
-  assign sum_cntr_wire = int_cntr_reg + 1'b1;
-  assign int_comp_wire = int_cntr_reg < cfg_data;
+  assign sum_cntr_wire = int_addr_reg + 1'b1;
+  assign int_comp_wire = int_addr_reg < cfg_data;
   assign int_tlast_wire = ~int_comp_wire;
 
   generate
@@ -58,7 +58,7 @@ module axis_bram_reader #
     begin : CONTINUOUS
       always @*
       begin
-        int_cntr_next = int_cntr_reg;
+        int_addr_next = int_addr_reg;
         int_enbl_next = int_enbl_reg;
 
         if(~int_enbl_reg & int_comp_wire)
@@ -68,12 +68,12 @@ module axis_bram_reader #
 
         if(m_axis_tready & int_enbl_reg & int_comp_wire)
         begin
-          int_cntr_next = sum_cntr_wire;
+          int_addr_next = sum_cntr_wire;
         end
 
         if(m_axis_tready & int_enbl_reg & int_tlast_wire)
         begin
-          int_cntr_next = {(BRAM_ADDR_WIDTH){1'b0}};
+          int_addr_next = {(BRAM_ADDR_WIDTH){1'b0}};
         end
       end
     end
@@ -81,7 +81,7 @@ module axis_bram_reader #
     begin : STOP
       always @*
       begin
-        int_cntr_next = int_cntr_reg;
+        int_addr_next = int_addr_reg;
         int_enbl_next = int_enbl_reg;
 
         if(~int_enbl_reg & int_comp_wire)
@@ -91,7 +91,7 @@ module axis_bram_reader #
 
         if(m_axis_tready & int_enbl_reg & int_comp_wire)
         begin
-          int_cntr_next = sum_cntr_wire;
+          int_addr_next = sum_cntr_wire;
         end
 
         if(m_axis_tready & int_enbl_reg & int_tlast_wire)
@@ -102,13 +102,14 @@ module axis_bram_reader #
     end
   endgenerate
 
+  assign sts_data = int_addr_reg;
+
   assign m_axis_tdata = bram_porta_rddata;
   assign m_axis_tvalid = int_enbl_reg;
   assign m_axis_tlast = int_enbl_reg & int_tlast_wire;
 
   assign bram_porta_clk = aclk;
   assign bram_porta_rst = ~aresetn;
-  assign bram_porta_addr = m_axis_tready & int_enbl_reg ? sum_cntr_wire : int_cntr_reg;
-  assign bram_porta_we = 1'b0;
+  assign bram_porta_addr = m_axis_tready & int_enbl_reg ? sum_cntr_wire : int_addr_reg;
 
 endmodule
