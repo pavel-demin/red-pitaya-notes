@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   unsigned long size = 0;
   struct sockaddr_in addr;
   uint32_t command = 600000;
-  uint32_t freqMin = 100000;
+  uint32_t freqMin = 50000;
   uint32_t freqMax = 50000000;
   int yes = 1;
 
@@ -108,25 +108,25 @@ int main(int argc, char *argv[])
             switch(command & 3)
             {
               case 0:
-                freqMin = 75000;
+                freqMin = 25000;
                 *((uint32_t *)(cfg + 0)) &= ~8;
                 *((uint32_t *)(cfg + 8)) = 1250;
                 *((uint32_t *)(cfg + 0)) |= 8;
                 break;
               case 1:
-                freqMin = 100000;
+                freqMin = 50000;
                 *((uint32_t *)(cfg + 0)) &= ~8;
                 *((uint32_t *)(cfg + 8)) = 625;
                 *((uint32_t *)(cfg + 0)) |= 8;
                 break;
               case 2:
-                freqMin = 175000;
+                freqMin = 125000;
                 *((uint32_t *)(cfg + 0)) &= ~8;
                 *((uint32_t *)(cfg + 8)) = 250;
                 *((uint32_t *)(cfg + 0)) |= 8;
                 break;
               case 3:
-                freqMin = 300000;
+                freqMin = 250000;
                 *((uint32_t *)(cfg + 0)) &= ~8;
                 *((uint32_t *)(cfg + 8)) = 125;
                 *((uint32_t *)(cfg + 0)) |= 8;

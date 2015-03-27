@@ -265,10 +265,10 @@ static void SetRate(UInt32 rateIndex)
 {
   switch(rateIndex)
   {
-    case 0: gRate = 50000; gFreqMin = 75000; break;
-    case 1: gRate = 100000; gFreqMin = 100000; break;
-    case 2: gRate = 250000; gFreqMin = 175000; break;
-    case 3: gRate = 500000; gFreqMin = 300000; break;
+    case 0: gRate = 50000; gFreqMin = 25000; break;
+    case 1: gRate = 100000; gFreqMin = 50000; break;
+    case 2: gRate = 250000; gFreqMin = 125000; break;
+    case 3: gRate = 500000; gFreqMin = 250000; break;
   }
 
   if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Sample Rate", rateIndex);
