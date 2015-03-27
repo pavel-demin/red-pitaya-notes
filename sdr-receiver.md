@@ -32,7 +32,7 @@ The implementation of the SDR receiver is quite straightforward:
  - The data coming from the ADC is processed by a in-phase/quadrature (I/Q) digital down-converter (DDC) running on the Red Pitaya's FPGA.
  - The I/Q data is transmitted via TCP to the SDR programs such as SDR# and HDSDR.
 
-The tunable frequency range covers from 50 kHz to 50 MHz.
+The tunable frequency range covers from 0 Hz to 50 MHz.
 
 The I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
 
