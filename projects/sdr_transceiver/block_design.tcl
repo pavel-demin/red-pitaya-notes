@@ -318,7 +318,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 2500
-  MAXIMUM_RATE 250000
+  MAXIMUM_RATE 6250
   FIXED_OR_INITIAL_RATE 2500
   INPUT_SAMPLE_FREQUENCY 125
   CLOCK_FREQUENCY 125
@@ -341,7 +341,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 2500
-  MAXIMUM_RATE 250000
+  MAXIMUM_RATE 6250
   FIXED_OR_INITIAL_RATE 2500
   INPUT_SAMPLE_FREQUENCY 125
   CLOCK_FREQUENCY 125
@@ -582,7 +582,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_2 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 125
-  MAXIMUM_RATE 12500
+  MAXIMUM_RATE 1250
   FIXED_OR_INITIAL_RATE 125
   INPUT_SAMPLE_FREQUENCY 125
   CLOCK_FREQUENCY 125
@@ -605,7 +605,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_3 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 125
-  MAXIMUM_RATE 12500
+  MAXIMUM_RATE 1250
   FIXED_OR_INITIAL_RATE 125
   INPUT_SAMPLE_FREQUENCY 125
   CLOCK_FREQUENCY 125
@@ -674,8 +674,8 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_5 {
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_3 {
-CONST_WIDTH 12
-CONST_VAL 4095
+  CONST_WIDTH 12
+  CONST_VAL 4095
 }
 
 # Create axis_packetizer
@@ -795,8 +795,8 @@ set_property OFFSET 0x40004000 [get_bd_addr_segs ps_0/Data/SEG_writer_3_reg0]
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_4 {
-CONST_WIDTH 9
-CONST_VAL 511
+  CONST_WIDTH 9
+  CONST_VAL 511
 }
 
 # Create axis_bram_reader
@@ -819,9 +819,9 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN1_WIDTH 16
   IN2_WIDTH 16
 } {
-  In0 writer_0/sts_data
-  In1 writer_1/sts_data
-  In2 reader_2/sts_data
+  In0 writer_1/sts_data
+  In1 writer_2/sts_data
+  In2 reader_3/sts_data
 }
 
 # Create axi_sts_register
@@ -941,7 +941,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_7 {
   CNTR_WIDTH 1
   CONTINUOUS FALSE
 } {
-  S_AXIS rate_2/M_AXIS
+  S_AXIS rate_4/M_AXIS
   cfg_data const_1/dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_11/Dout
@@ -961,7 +961,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_8 {
   CNTR_WIDTH 1
   CONTINUOUS FALSE
 } {
-  S_AXIS rate_3/M_AXIS
+  S_AXIS rate_5/M_AXIS
   cfg_data const_1/dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_11/Dout
@@ -974,9 +974,9 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_4 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 2500
-  MAXIMUM_RATE 250000
+  MAXIMUM_RATE 6250
   FIXED_OR_INITIAL_RATE 2500
-  INPUT_SAMPLE_FREQUENCY 0.1
+  INPUT_SAMPLE_FREQUENCY 0.05
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 32
   QUANTIZATION Truncation
@@ -997,7 +997,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_5 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 2500
-  MAXIMUM_RATE 250000
+  MAXIMUM_RATE 6250
   FIXED_OR_INITIAL_RATE 2500
   INPUT_SAMPLE_FREQUENCY 0.05
   CLOCK_FREQUENCY 125
