@@ -28,6 +28,7 @@ char gBuffer[4096];
 int gOffset = 0;
 
 long gRate = 100000;
+int gCorr = 25;
 
 long gFreq = 600000;
 long gFreqMin = 100000;
@@ -53,6 +54,7 @@ void (*ExtIOCallback)(int, int, float, void *) = 0;
 
 static void SetRate(UInt32);
 static void UpdateRate(UInt32);
+static void SetCorr(Int32);
 
 //---------------------------------------------------------------------------
 
@@ -120,6 +122,7 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
 {
   String ^addrString;
   UInt32 rateIndex = 1;
+  Int32 corr = 1;
 
   type = 6;
 
@@ -134,6 +137,7 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
       ManagedGlobals::gKey = Registry::CurrentUser->CreateSubKey("Software\\ExtIO_RedPitaya");
       ManagedGlobals::gKey->SetValue("IP Address", TCP_ADDR);
       ManagedGlobals::gKey->SetValue("Sample Rate", rateIndex);
+      ManagedGlobals::gKey->SetValue("Freq. Corr.", corr);
     }
 
     ManagedGlobals::gGUI = gcnew GUI;
@@ -145,7 +149,13 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
     ManagedGlobals::gGUI->rateValue->SelectedIndex = rateIndex;
     ManagedGlobals::gGUI->rateCallback = UpdateRate;
 
+    corr = Convert::ToUInt32(ManagedGlobals::gKey->GetValue("Freq. Corr.", 25));
+    if(corr < -100 || corr > 100) corr = 25;
+    ManagedGlobals::gGUI->corrValue->Value = corr;
+    ManagedGlobals::gGUI->corrCallback = SetCorr;
+
     SetRate(rateIndex);
+    SetCorr(corr);
 
     gInitHW = true;
   }
@@ -235,6 +245,7 @@ extern "C"
 int EXTIO_API SetHWLO(long LOfreq)
 {
   long rc = 0;
+  long buffer = 0;
 
   gFreq = LOfreq;
 
@@ -250,11 +261,10 @@ int EXTIO_API SetHWLO(long LOfreq)
     rc = gFreqMax;
   }
 
-  gFreq = (long)floor(floor(gFreq/125.0e6*(1<<30)+0.5)*125e6/(1<<30)+0.5);
-
   if(gFreq != LOfreq && ExtIOCallback) (*ExtIOCallback)(-1, 101, 0.0, 0);
 
-  if(gSock) send(gSock, (char *)&gFreq, 4, 0);
+  buffer = (long)floor(gFreq*(1.0 + gCorr*1.0e-6) + 0.5);
+  if(gSock) send(gSock, (char *)&buffer, 4, 0);
 
   return rc;
 }
@@ -285,6 +295,15 @@ static void UpdateRate(UInt32 rateIndex)
 {
   SetRate(rateIndex);
   if(ExtIOCallback) (*ExtIOCallback)(-1, 100, 0.0, 0);
+}
+
+//---------------------------------------------------------------------------
+
+static void SetCorr(Int32 corr)
+{
+  gCorr = corr;
+  if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Freq. Corr.", corr);
+  SetHWLO(gFreq);
 }
 
 //---------------------------------------------------------------------------
