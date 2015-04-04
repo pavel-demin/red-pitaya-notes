@@ -101,9 +101,6 @@ cell xilinx.com:ip:xlslice:1.0 slice_6 {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1
-
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
   S_AXIS adc_0/M_AXIS
@@ -165,8 +162,11 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   aresetn rst_0/peripheral_aresetn
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_1
+
 # Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 const_1 {
+cell pavel-demin:user:axis_constant:1.0 rate_0 {
   AXIS_TDATA_WIDTH 16
 } {
   cfg_data slice_6/Dout
@@ -179,14 +179,14 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
   CNTR_WIDTH 1
   CONTINUOUS FALSE
 } {
-  S_AXIS const_1/M_AXIS
+  S_AXIS rate_0/M_AXIS
   cfg_data const_1/dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_4/Dout
 }
 
 # Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 const_2 {
+cell pavel-demin:user:axis_constant:1.0 rate_1 {
   AXIS_TDATA_WIDTH 16
 } {
   cfg_data slice_6/Dout
@@ -199,7 +199,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_1 {
   CNTR_WIDTH 1
   CONTINUOUS FALSE
 } {
-  S_AXIS const_2/M_AXIS
+  S_AXIS rate_1/M_AXIS
   cfg_data const_1/dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_4/Dout
