@@ -29,11 +29,9 @@ Premier Farnell
 
  - [SMA-BNC adapter, SMA jack, BNC plug](http://uk.farnell.com/jsp/search/productdetail.jsp?id=1826186)
 
- - [SMA adapter, SMA plug, SMA plug](http://uk.farnell.com/jsp/search/productdetail.jsp?id=1654645)
-
  - [SMA tee adapter, SMA plug, SMA jack, SMA jack](http://uk.farnell.com/jsp/search/productdetail.jsp?id=2135972)
 
- - [SMA terminator, 50 Ohm](http://uk.farnell.com/jsp/search/productdetail.jsp?id=1789622)
+ - [SMA terminator, 50 Ohm](http://uk.farnell.com/jsp/search/productdetail.jsp?id=2112480)
 
  - [Oscilloscope probe, 150 MHz, 1:10](http://uk.farnell.com/jsp/search/productdetail.jsp?id=4308098)
 
