@@ -4,7 +4,7 @@
 # You need to set NAME, PART, PROC and REPO for your project.
 # NAME is the base name for most of the generated files.
 
-NAME = base_system
+NAME = led_blinker
 PART = xc7z010clg400-1
 PROC = ps7_cortexa9_0
 
@@ -36,30 +36,33 @@ UBOOT_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 all: boot.bin uImage devicetree.dtb
 
 $(UBOOT_TAR):
+	mkdir -p $(@D)
 	curl -L $(UBOOT_URL) -o $@
 
 $(LINUX_TAR):
+	mkdir -p $(@D)
 	curl -L $(LINUX_URL) -o $@
 
 $(DTREE_TAR):
+	mkdir -p $(@D)
 	curl -L $(DTREE_URL) -o $@
 
 $(UBOOT_DIR): $(UBOOT_TAR)
-	mkdir $@
-	tar zxf $< --strip-components=1 --directory=$@
+	mkdir -p $@
+	tar -zxf $< --strip-components=1 --directory=$@
 	patch -d tmp -p 0 < patches/u-boot-xlnx-$(UBOOT_TAG).patch
 	cp patches/zynq_red_pitaya.h $@/include/configs
 	cp patches/u-boot-lantiq.c $@/drivers/net/phy/lantiq.c
 
 $(LINUX_DIR): $(LINUX_TAR)
-	mkdir $@
-	tar zxf $< --strip-components=1 --directory=$@
+	mkdir -p $@
+	tar -zxf $< --strip-components=1 --directory=$@
 	patch -d tmp -p 0 < patches/linux-xlnx-$(LINUX_TAG).patch
 	cp patches/linux-lantiq.c $@/drivers/net/phy/lantiq.c
 
 $(DTREE_DIR): $(DTREE_TAR)
-	mkdir $@
-	tar zxf $< --strip-components=1 --directory=$@
+	mkdir -p $@
+	tar -zxf $< --strip-components=1 --directory=$@
 
 uImage: $(LINUX_DIR)
 	make -C $< mrproper
@@ -70,19 +73,12 @@ uImage: $(LINUX_DIR)
 	cp $</arch/arm/boot/uImage $@
 
 tmp/u-boot.elf: $(UBOOT_DIR)
+	mkdir -p $(@D)
 	make -C $< arch=ARM zynq_red_pitaya_config
 	make -C $< arch=ARM CFLAGS=$(UBOOT_CFLAGS) \
-	  CROSS_COMPILE=arm-linux-gnueabihf- all
+	  CROSS_COMPILE=arm-linux-gnueabihf- all env
 	cp $</u-boot $@
-
-# fw_printenv: $(UBOOT_DIR) u-boot.elf
-#	make -C $< arch=ARM CFLAGS=$(UBOOT_CFLAGS) \
-#	  CROSS_COMPILE=arm-linux-gnueabihf- env
-#	cp $</tools/env/fw_printenv $@
-
-# rootfs.tar.gz: fw_printenv
-rootfs.tar.gz:
-	su -c 'sh scripts/rootfs.sh'
+	cp $</tools/env/fw_printenv fw_printenv
 
 boot.bin: tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit tmp/u-boot.elf
 	echo "img:{[bootloader] $^}" > tmp/boot.bif
@@ -93,6 +89,7 @@ devicetree.dtb: uImage tmp/$(NAME).tree/system.dts
 	  -i tmp/$(NAME).tree tmp/$(NAME).tree/system.dts
 
 tmp/cores:
+	mkdir -p $@
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_red_pitaya_adc_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_red_pitaya_dac_v1_0 $(PART)
 	$(VIVADO) -source scripts/core.tcl -tclargs axis_packetizer_v1_0 $(PART)
@@ -110,19 +107,24 @@ tmp/cores:
 	$(VIVADO) -source scripts/core.tcl -tclargs axi_bram_writer_v1_0 $(PART)
 
 tmp/%.xpr: projects/% tmp/cores
+	mkdir -p $(@D)
 	$(RM) $@ tmp/$*.cache tmp/$*.srcs tmp/$*.runs
 	$(VIVADO) -source scripts/project.tcl -tclargs $* $(PART)
 
 tmp/%.hwdef: tmp/%.xpr
+	mkdir -p $(@D)
 	$(VIVADO) -source scripts/hwdef.tcl -tclargs $*
 
 tmp/%.bit: tmp/%.xpr
+	mkdir -p $(@D)
 	$(VIVADO) -source scripts/bitstream.tcl -tclargs $*
 
 tmp/%.fsbl/executable.elf: tmp/%.hwdef
+	mkdir -p $(@D)
 	$(HSI) -source scripts/fsbl.tcl -tclargs $* $(PROC)
 
 tmp/%.tree/system.dts: tmp/%.hwdef $(DTREE_DIR)
+	mkdir -p $(@D)
 	$(HSI) -source scripts/devicetree.tcl -tclargs $* $(PROC) $(DTREE_DIR)
 	patch $@ patches/devicetree.patch
 

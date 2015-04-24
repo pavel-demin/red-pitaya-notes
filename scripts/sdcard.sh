@@ -3,8 +3,8 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-root_tar=ubuntu-core-14.04.1-core-armhf.tar.gz
-root_url=http://cdimage.ubuntu.com/ubuntu-core/releases/14.04/release/ubuntu-core-14.04.1-core-armhf.tar.gz
+root_tar=ubuntu-core-14.04.2-core-armhf.tar.gz
+root_url=http://cdimage.ubuntu.com/ubuntu-core/releases/14.04/release/$root_tar
 
 passwd=changeme
 timezone=Europe/Brussels
@@ -25,7 +25,7 @@ mkfs.ext4 -F -j $root_dev
 
 # Mount file systems
 
-mkdir $boot_dir $root_dir
+mkdir -p $boot_dir $root_dir
 
 mount $boot_dev $boot_dir
 mount $root_dev $root_dir
@@ -38,12 +38,16 @@ cp boot.bin devicetree.dtb uEnv.txt uImage $boot_dir
 
 test -f $root_tar || curl -L $root_url -o $root_tar
 
-tar zxf $root_tar --directory=$root_dir
+tar -zxf $root_tar --directory=$root_dir
 
 # Add missing configuration files and packages
 
 cp /etc/resolv.conf $root_dir/etc/
 cp /usr/bin/qemu-arm-static $root_dir/usr/bin/
+
+cp patches/fw_env.config $root_dir/etc/
+cp fw_printenv $root_dir/usr/bin/fw_printenv
+cp fw_printenv $root_dir/usr/bin/fw_setenv
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
