@@ -45,7 +45,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 160
+  CFG_DATA_WIDTH 192
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -61,91 +61,91 @@ set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 160 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+  DIN_WIDTH 192 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 160 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+  DIN_WIDTH 192 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 160 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
+  DIN_WIDTH 192 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 160 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
+  DIN_WIDTH 192 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 160 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
+  DIN_WIDTH 192 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
-  DIN_WIDTH 160 DIN_FROM 5 DIN_TO 5 DOUT_WIDTH 1
+  DIN_WIDTH 192 DIN_FROM 5 DIN_TO 5 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_7 {
-  DIN_WIDTH 160 DIN_FROM 6 DIN_TO 6 DOUT_WIDTH 1
+  DIN_WIDTH 192 DIN_FROM 6 DIN_TO 6 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_8 {
-  DIN_WIDTH 160 DIN_FROM 7 DIN_TO 7 DOUT_WIDTH 1
+  DIN_WIDTH 192 DIN_FROM 7 DIN_TO 7 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_9 {
-  DIN_WIDTH 160 DIN_FROM 31 DIN_TO 16 DOUT_WIDTH 16
+  DIN_WIDTH 192 DIN_FROM 48 DIN_TO 32 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_10 {
-  DIN_WIDTH 160 DIN_FROM 61 DIN_TO 32 DOUT_WIDTH 30
+  DIN_WIDTH 192 DIN_FROM 93 DIN_TO 64 DOUT_WIDTH 30
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_11 {
-  DIN_WIDTH 160 DIN_FROM 93 DIN_TO 64 DOUT_WIDTH 30
+  DIN_WIDTH 192 DIN_FROM 125 DIN_TO 96 DOUT_WIDTH 30
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_12 {
-  DIN_WIDTH 160 DIN_FROM 127 DIN_TO 96 DOUT_WIDTH 32
+  DIN_WIDTH 192 DIN_FROM 159 DIN_TO 128 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_13 {
-  DIN_WIDTH 160 DIN_FROM 157 DIN_TO 128 DOUT_WIDTH 30
+  DIN_WIDTH 192 DIN_FROM 189 DIN_TO 160 DOUT_WIDTH 30
 } {
   Din cfg_0/cfg_data
 }
@@ -343,7 +343,6 @@ set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
 ###############
 # Panadapter  #
 ###############
-
 
 # Create axis_phase_generator
 cell pavel-demin:user:axis_phase_generator:1.0 phase_1 {
