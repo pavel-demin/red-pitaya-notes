@@ -13,7 +13,7 @@ set bus [ipx::get_bus_interfaces -of_objects $core s_axis]
 set_property NAME S_AXIS $bus
 set_property INTERFACE_MODE slave $bus
 
-set bus [ipx::get_bus_interfaces signal_clock]
+set bus [ipx::get_bus_interfaces aclk]
 set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
 set_property VALUE S_AXIS $parameter
 
@@ -32,6 +32,6 @@ foreach {logical physical} {
   set_property PHYSICAL_NAME $physical [ipx::add_port_map $logical $bus]
 }
 
-set bus [ipx::get_bus_interfaces bram_porta_signal_clock]
+set bus [ipx::get_bus_interfaces bram_porta_clk]
 set parameter [ipx::add_bus_parameter ASSOCIATED_BUSIF $bus]
 set_property VALUE BRAM_PORTA $parameter

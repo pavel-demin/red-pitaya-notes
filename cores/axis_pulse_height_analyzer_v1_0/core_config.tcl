@@ -16,6 +16,6 @@ set bus [ipx::get_bus_interfaces -of_objects $core s_axis]
 set_property NAME S_AXIS $bus
 set_property INTERFACE_MODE slave $bus
 
-set bus [ipx::get_bus_interfaces signal_clock]
+set bus [ipx::get_bus_interfaces aclk]
 set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
 set_property VALUE M_AXIS:S_AXIS $parameter

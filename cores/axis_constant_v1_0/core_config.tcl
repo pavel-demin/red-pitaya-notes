@@ -11,6 +11,6 @@ set bus [ipx::get_bus_interfaces -of_objects $core m_axis]
 set_property NAME M_AXIS $bus
 set_property INTERFACE_MODE master $bus
 
-set bus [ipx::get_bus_interfaces signal_clock]
+set bus [ipx::get_bus_interfaces aclk]
 set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
 set_property VALUE M_AXIS $parameter

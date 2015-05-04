@@ -18,7 +18,7 @@ set bus [ipx::get_bus_interfaces -of_objects $core m_axis_config]
 set_property NAME M_AXIS_CONFIG $bus
 set_property INTERFACE_MODE master $bus
 
-set bus [ipx::get_bus_interfaces signal_clock]
+set bus [ipx::get_bus_interfaces aclk]
 set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
 set_property VALUE M_AXIS:M_AXIS_CONFIG $parameter
 
@@ -35,6 +35,6 @@ foreach {logical physical} {
   set_property PHYSICAL_NAME $physical [ipx::add_port_map $logical $bus]
 }
 
-set bus [ipx::get_bus_interfaces bram_porta_signal_clock]
+set bus [ipx::get_bus_interfaces bram_porta_clk]
 set parameter [ipx::add_bus_parameter ASSOCIATED_BUSIF $bus]
 set_property VALUE BRAM_PORTA $parameter
