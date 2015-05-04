@@ -1,17 +1,21 @@
---- system.dts.old	2015-01-12 23:48:19.815231000 +0100
-+++ system.dts	2015-01-12 23:48:19.815231000 +0100
-@@ -21,6 +21,31 @@
- 	} ;
- 	ps7_ddr_0: memory@00100000 {
+--- system.dts.old	2015-05-04 21:26:22.287150846 +0200
++++ system.dts	2015-05-04 21:46:22.381101790 +0200
+@@ -24,7 +24,7 @@
+ 	};
+ 	memory {
  		device_type = "memory";
 -		reg = <0x0 0x20000000>;
 +		reg = <0x0 0x1E000000>;
- 	} ;
+ 	};
  };
-+
-+&ps7_ethernet_0 {
+ &gem0 {
+@@ -37,6 +37,16 @@
+ 		#size-cells = <0>;
+ 	};
+ };
++&gem0 {
 +	phy-handle = <&phy0>;
-+	mdio {
++	ps7_ethernet_0_mdio: mdio {
 +		phy0: phy@1 {
 +			compatible = "lantiq,phy11g";
 +			device_type = "ethernet-phy";
@@ -19,10 +23,14 @@
 +		};
 +	};
 +};
-+
-+&ps7_i2c_0 {
-+	#address-cells = <1>;
-+	#size-cells = <0>;
+ &gpio0 {
+ 	emio-gpio-width = <64>;
+ 	gpio-mask-high = <0x0>;
+@@ -46,6 +56,16 @@
+ 	clock-frequency = <400000>;
+ 	status = "okay";
+ };
++&i2c0 {
 +	eep@50 {
 +		compatible = "24c64";
 +		reg = <0x50>;
@@ -32,4 +40,6 @@
 +		reg = <0x51>;
 +	};
 +};
-+
+ &intc {
+ 	num_cpus = <2>;
+ 	num_interrupts = <96>;
