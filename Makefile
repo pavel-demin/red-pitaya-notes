@@ -12,9 +12,9 @@ VIVADO = vivado -nolog -nojournal -mode batch
 HSI = hsi -nolog -nojournal -mode batch
 RM = rm -rf
 
-UBOOT_TAG = xilinx-v2014.3
-LINUX_TAG = xilinx-v2014.3
-DTREE_TAG = xilinx-v2014.3
+UBOOT_TAG = xilinx-v2015.1
+LINUX_TAG = xilinx-v2015.1
+DTREE_TAG = xilinx-v2015.1
 
 UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
 LINUX_DIR = tmp/linux-xlnx-$(LINUX_TAG)
