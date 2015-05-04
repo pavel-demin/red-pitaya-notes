@@ -1,7 +1,7 @@
 diff -rupN old/linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig
---- old/linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig	2014-10-09 14:58:01.000000000 +0200
-+++ linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig	2015-01-07 00:25:55.303231000 +0100
-@@ -142,6 +142,7 @@ CONFIG_XILINX_AXI_EMAC=y
+--- old/linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig	2015-03-03 09:24:37.000000000 +0100
++++ linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig	2015-05-04 08:48:15.373593422 +0200
+@@ -117,6 +117,7 @@ CONFIG_XILINX_AXI_EMAC=y
  CONFIG_XILINX_PS_EMAC=y
  CONFIG_MARVELL_PHY=y
  CONFIG_VITESSE_PHY=y
@@ -9,7 +9,7 @@ diff -rupN old/linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig 
  CONFIG_MDIO_BITBANG=y
  CONFIG_INPUT_SPARSEKMAP=y
  CONFIG_INPUT_EVDEV=y
-@@ -268,3 +269,14 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
+@@ -245,3 +246,14 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
  CONFIG_FONTS=y
  CONFIG_FONT_8x8=y
  CONFIG_FONT_8x16=y
@@ -25,8 +25,8 @@ diff -rupN old/linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig 
 +CONFIG_RT2800USB_RT55XX=y
 +CONFIG_RT2800USB_UNKNOWN=y
 diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c
---- old/linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c	2014-10-09 14:58:01.000000000 +0200
-+++ linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c	2015-01-07 00:25:55.307231000 +0100
+--- old/linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c	2015-03-03 09:24:37.000000000 +0100
++++ linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c	2015-05-04 08:48:15.373593422 +0200
 @@ -508,6 +508,9 @@ static int at24_probe(struct i2c_client
  		 * is recommended anyhow.
  		 */
@@ -38,9 +38,9 @@ diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c linux-xlnx-x
  		/* update chipdata if OF is present */
  		at24_get_ofdata(client, &chip);
 diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig
---- old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig	2014-10-09 14:58:01.000000000 +0200
-+++ linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig	2015-01-07 00:25:55.307231000 +0100
-@@ -112,6 +112,11 @@ config MICREL_PHY
+--- old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig	2015-03-03 09:24:37.000000000 +0100
++++ linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig	2015-05-04 08:48:15.373593422 +0200
+@@ -118,6 +118,11 @@ config MICREL_PHY
  	---help---
  	  Supports the KSZ9021, VSC8201, KS8001 PHYs.
  
@@ -53,8 +53,8 @@ diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig linux-xlnx-xili
  	bool "Driver for MDIO Bus/PHY emulation with fixed speed/link PHYs"
  	depends on PHYLIB=y
 diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile
---- old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile	2014-10-09 14:58:01.000000000 +0200
-+++ linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile	2015-01-07 00:25:55.307231000 +0100
+--- old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile	2015-03-03 09:24:37.000000000 +0100
++++ linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile	2015-05-04 08:48:15.373593422 +0200
 @@ -24,6 +24,7 @@ obj-$(CONFIG_NATIONAL_PHY)	+= national.o
  obj-$(CONFIG_DP83640_PHY)	+= dp83640.o
  obj-$(CONFIG_STE10XP)		+= ste10Xp.o
@@ -64,8 +64,8 @@ diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile linux-xlnx-xil
  obj-$(CONFIG_MICREL_KS8995MA)	+= spi_ks8995.o
  obj-$(CONFIG_AT803X_PHY)	+= at803x.o
 diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/uio/uio_pdrv_genirq.c linux-xlnx-xilinx-v2015.1/drivers/uio/uio_pdrv_genirq.c
---- old/linux-xlnx-xilinx-v2015.1/drivers/uio/uio_pdrv_genirq.c	2014-10-09 14:58:01.000000000 +0200
-+++ linux-xlnx-xilinx-v2015.1/drivers/uio/uio_pdrv_genirq.c	2015-01-07 00:27:59.603231000 +0100
+--- old/linux-xlnx-xilinx-v2015.1/drivers/uio/uio_pdrv_genirq.c	2015-03-03 09:24:37.000000000 +0100
++++ linux-xlnx-xilinx-v2015.1/drivers/uio/uio_pdrv_genirq.c	2015-05-04 08:48:15.373593422 +0200
 @@ -148,7 +148,7 @@ static int uio_pdrv_genirq_probe(struct
  	if (!uioinfo->irq) {
  		ret = platform_get_irq(pdev, 0);
