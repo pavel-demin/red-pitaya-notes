@@ -28,8 +28,8 @@ UBOOT_URL = https://github.com/Xilinx/u-boot-xlnx/archive/$(UBOOT_TAG).tar.gz
 LINUX_URL = https://github.com/Xilinx/linux-xlnx/archive/$(LINUX_TAG).tar.gz
 DTREE_URL = https://github.com/Xilinx/device-tree-xlnx/archive/$(DTREE_TAG).tar.gz
 
-LINUX_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
-UBOOT_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
+LINUX_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp"
+UBOOT_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp"
 
 .PRECIOUS: tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system.dts
 
@@ -71,14 +71,14 @@ uImage: $(LINUX_DIR)
 	make -C $< ARCH=arm xilinx_zynq_defconfig
 	make -C $< ARCH=arm CFLAGS=$(LINUX_CFLAGS) \
 	  -j $(shell grep -c ^processor /proc/cpuinfo) \
-	  CROSS_COMPILE=arm-linux-gnueabihf- UIMAGE_LOADADDR=0x8000 uImage
+	  CROSS_COMPILE=arm-xilinx-linux-gnueabi- UIMAGE_LOADADDR=0x8000 uImage
 	cp $</arch/arm/boot/uImage $@
 
 tmp/u-boot.elf: $(UBOOT_DIR)
 	mkdir -p $(@D)
 	make -C $< arch=ARM zynq_red_pitaya_config
 	make -C $< arch=ARM CFLAGS=$(UBOOT_CFLAGS) \
-	  CROSS_COMPILE=arm-linux-gnueabihf- all env
+	  CROSS_COMPILE=arm-xilinx-linux-gnueabi- all env
 	cp $</u-boot $@
 	cp $</tools/env/fw_printenv fw_printenv
 
@@ -110,7 +110,7 @@ tmp/cores:
 
 tmp/%.xpr: projects/% tmp/cores
 	mkdir -p $(@D)
-	$(RM) $@ tmp/$*.cache tmp/$*.srcs tmp/$*.runs
+	$(RM) $@ tmp/$*.cache tmp/$*.hw tmp/$*.srcs tmp/$*.runs
 	$(VIVADO) -source scripts/project.tcl -tclargs $* $(PART)
 
 tmp/%.hwdef: tmp/%.xpr
