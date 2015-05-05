@@ -32,7 +32,7 @@ mount $root_dev $root_dir
 
 # Copy files to the boot file system
 
-cp boot.bin devicetree.dtb uEnv.txt uImage $boot_dir
+cp boot.bin devicetree.dtb uImage $boot_dir
 
 # Copy Ubuntu Core to the root file system
 
