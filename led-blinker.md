@@ -10,7 +10,7 @@ Introduction
 For my experiments with the [Red Pitaya](http://wiki.redpitaya.com), I'd like to have the following development environment:
 
  - recent version of the [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado)
- - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2014.3)
+ - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2015.1)
  - recent version of the [Ubuntu distribution](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) on the development machine
  - recent version of the [Ubuntu distribution](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) on the Red Pitaya
  - basic project with all the [Red Pitaya](http://wiki.redpitaya.com) peripherals connected
@@ -24,9 +24,9 @@ Pre-requirements
 
 My development machine has the following installed:
 
- - [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.1 (amd64)
+ - [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.2 (amd64)
 
- - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2014.3.1 with full SDK
+ - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.1 with full SDK
 
 The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
 
@@ -115,8 +115,8 @@ Getting started
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2014.3.1/settings64.sh
-source /opt/Xilinx/SDK/2014.3.1/settings64.sh
+source /opt/Xilinx/Vivado/2015.1/settings64.sh
+source /opt/Xilinx/SDK/2015.1/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
@@ -140,7 +140,7 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh red-pitaya-ubuntu-14.04.1.img
+sudo sh scripts/image.sh red-pitaya-ubuntu-14.04.2.img
 {% endhighlight %}
 
 The SD card image size is 512 MB, so it should fit on any SD card starting from 1 GB.
@@ -149,7 +149,7 @@ To write the image to a SD card, the `dd` command-line utility can be used on GN
 
 The default user name is `root` and the default password is `changeme`.
 
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ubuntu-14.04.1-20150130.zip).
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ubuntu-14.04.2-20150505.zip).
 
 Resizing SD card partitions on running Red Pitaya:
 {% highlight bash %}

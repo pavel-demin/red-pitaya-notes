@@ -119,7 +119,7 @@ Signal from a 300 kW broadcast MW transmitter, 25 km from the transmitter:
 
 ![Strong signal]({{ "/img/strong-signal.png" | prepend: site.baseurl }})
 
-[Audio sample](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/strong-signal.wav)
+[Audio sample](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/strong-signal.wav)
 
 Getting started
 -----
@@ -153,8 +153,8 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2014.3.1/settings64.sh
-source /opt/Xilinx/SDK/2014.3.1/settings64.sh
+source /opt/Xilinx/Vivado/2015.1/settings64.sh
+source /opt/Xilinx/SDK/2015.1/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:

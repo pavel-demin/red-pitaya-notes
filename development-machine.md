@@ -4,9 +4,9 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.1 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2014.3.1 with full SDK.
+The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.2 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.1 with full SDK.
 
-Creating virtual machine with Ubuntu 14.04.1 (amd64)
+Creating virtual machine with Ubuntu 14.04.2 (amd64)
 -----
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
@@ -17,7 +17,7 @@ Creating virtual machine with Ubuntu 14.04.1 (amd64)
 
 - Create a new virtual machine using the `mini.iso` image:
   - Click the blue "New" icon
- 
+
   - Pick a name for the machine, then select "Linux" and "Ubuntu (64 bit)"
 
   - Set the memory size to at least 2048 MB
@@ -49,7 +49,7 @@ Creating virtual machine with Ubuntu 14.04.1 (amd64)
   - Press TAB when the "Installer boot menu" appears
 
   - Edit the boot parameters at the bottom of the boot screen to make them look like the following:
-    
+
     (the content of the `git.io/FwVS` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/ubuntu.seed))
 {% highlight bash %}
 linux initrd=initrd.gz url=git.io/FwVS auto=true priority=critical interface=auto
@@ -70,37 +70,37 @@ linux initrd=initrd.gz url=git.io/FwVS auto=true priority=critical interface=aut
 Accessing the virtual machine
 -----
 
-The virtual machine can be accessed via SSH. To display applications with graphical user interfaces, a X11 server ([Xming](http://sourceforge.net/projects/xming) for MS Windows or [XQuartz](http://xquartz.macosforge.org) for Mac OS X) should be installed on the host computer. 
+The virtual machine can be accessed via SSH. To display applications with graphical user interfaces, a X11 server ([Xming](http://sourceforge.net/projects/xming) for MS Windows or [XQuartz](http://xquartz.macosforge.org) for Mac OS X) should be installed on the host computer.
 
 Installing Vivado Design Suite
 -----
 
-- Download "Vivado 2014.3.1 Full Image for Linux with SDK" from the [Xilinx download page](http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2014-3.html) (the file name is Xilinx_Vivado_SDK_Lin_2014.3.1_1031_1.tar.gz)
+- Download "Vivado 2015.1: Full Installer for Linux Single File Download Image Including SDK" from the [Xilinx download page](http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-1.html) or from [this direct link](https://secure.xilinx.com/webreg/register.do?group=dlc&version=2015.1&akdm=0&filename=Xilinx_Vivado_SDK_Lin_2015.1_0428_1.tar.gz) (the file name is Xilinx_Vivado_SDK_Lin_2015.1_0428_1.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
 mkdir /opt/Xilinx
 cd /opt/Xilinx
-tar zxf Xilinx_Vivado_SDK_Lin_2014.3.1_1031_1.tar.gz
-cd Xilinx_Vivado_SDK_Lin_2014.3.1_1031_1
+tar -zxf Xilinx_Vivado_SDK_Lin_2015.1_0428_1.tar.gz
+cd Xilinx_Vivado_SDK_Lin_2015.1_0428_1
 ./xsetup
 {% endhighlight %}
 
-- Follow the installation wizard and don't forget to select "Software Development Kit (SDK)" on the "Select Extra Content" page
-  (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2014_3/ug973-vivado-release-notes-install-license.pdf))
+- Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page
+  (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2015_1/ug973-vivado-release-notes-install-license.pdf))
 
 Activating Vivado Design Suite license
 -----
 
 - Initialize the trusted-storage area for the Xilinx licenses:
 {% highlight bash %}
-cd /opt/Xilinx/Vivado/2014.3.1/bin/unwrapped/lnx64.o
+cd /opt/Xilinx/Vivado/2015.1/bin/unwrapped/lnx64.o
 ./install_fnp.sh
 {% endhighlight %}
 
 - Setup Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2014.3.1/settings64.sh
+source /opt/Xilinx/Vivado/2015.1/settings64.sh
 {% endhighlight %}
 
 - Create a license request:
