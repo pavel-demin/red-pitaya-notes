@@ -30,10 +30,11 @@ DTREE_URL = https://github.com/Xilinx/device-tree-xlnx/archive/$(DTREE_TAG).tar.
 
 LINUX_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp"
 UBOOT_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp"
+ARMHF_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 
 .PRECIOUS: tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system.dts
 
-all: boot.bin uImage devicetree.dtb
+all: boot.bin uImage devicetree.dtb fw_printenv
 
 $(UBOOT_TAR):
 	mkdir -p $(@D)
@@ -76,11 +77,15 @@ uImage: $(LINUX_DIR)
 
 tmp/u-boot.elf: $(UBOOT_DIR)
 	mkdir -p $(@D)
-	make -C $< arch=ARM zynq_red_pitaya_config
+	make -C $< arch=ARM zynq_red_pitaya_defconfig
 	make -C $< arch=ARM CFLAGS=$(UBOOT_CFLAGS) \
-	  CROSS_COMPILE=arm-xilinx-linux-gnueabi- all env
+	  CROSS_COMPILE=arm-xilinx-linux-gnueabi- all
 	cp $</u-boot $@
-	cp $</tools/env/fw_printenv fw_printenv
+
+fw_printenv: $(UBOOT_DIR) tmp/u-boot.elf
+	make -C $< arch=ARM CFLAGS=$(ARMHF_CFLAGS) \
+	  CROSS_COMPILE=arm-linux-gnueabihf- env
+	cp $</tools/env/fw_printenv $@
 
 boot.bin: tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit tmp/u-boot.elf
 	echo "img:{[bootloader] $^}" > tmp/boot.bif
