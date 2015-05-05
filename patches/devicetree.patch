@@ -1,6 +1,6 @@
---- system.dts.old	2015-05-04 21:26:22.287150846 +0200
-+++ system.dts	2015-05-04 21:46:22.381101790 +0200
-@@ -24,7 +24,7 @@
+--- system.dts.old	2015-05-05 02:15:44.613245972 +0200
++++ system.dts	2015-05-05 02:14:53.928994642 +0200
+@@ -23,7 +23,7 @@
  	};
  	memory {
  		device_type = "memory";
@@ -9,7 +9,7 @@
  	};
  };
  &gem0 {
-@@ -37,6 +37,16 @@
+@@ -36,6 +36,16 @@
  		#size-cells = <0>;
  	};
  };
@@ -26,7 +26,7 @@
  &gpio0 {
  	emio-gpio-width = <64>;
  	gpio-mask-high = <0x0>;
-@@ -46,6 +56,16 @@
+@@ -45,6 +55,16 @@
  	clock-frequency = <400000>;
  	status = "okay";
  };
@@ -43,3 +43,11 @@
  &intc {
  	num_cpus = <2>;
  	num_interrupts = <96>;
+@@ -87,6 +107,6 @@
+ 	usb-reset = <&gpio0 48 0>;
+ };
+ &clkc {
+-	fclk-enable = <0x0>;
++	fclk-enable = <0xf>;
+ 	ps-clk-frequency = <33333333>;
+ };
