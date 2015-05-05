@@ -12,7 +12,7 @@ set bus [ipx::get_bus_interfaces -of_objects $core m_axis]
 set_property NAME M_AXIS $bus
 set_property INTERFACE_MODE master $bus
 
-set bus [ipx::get_bus_interfaces adc_signal_clock]
+set bus [ipx::get_bus_interfaces adc_clk]
 set parameter [ipx::add_bus_parameter ASSOCIATED_BUSIF $bus]
 set_property VALUE M_AXIS $parameter
 set parameter [ipx::add_bus_parameter FREQ_HZ $bus]
