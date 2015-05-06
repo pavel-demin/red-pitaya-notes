@@ -77,7 +77,7 @@ cat <<- EOF_CAT >> etc/securetty
 ttyPS0
 EOF_CAT
 
-sed 's/tty1/ttyPS0/g; s/38400/115200/' etc/init/tty1.conf  > etc/init/ttyPS0.conf
+sed 's/tty1/ttyPS0/g; s/38400/115200/' etc/init/tty1.conf > etc/init/ttyPS0.conf
 
 echo red-pitaya > etc/hostname
 
