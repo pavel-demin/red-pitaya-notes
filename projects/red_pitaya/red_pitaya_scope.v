@@ -70,7 +70,6 @@ module red_pitaya_scope #(
    output                axi0_wfixed_o   ,  // system write burst type (fixed / incremental)
    input                 axi0_werr_i     ,  // system write error
    input                 axi0_wrdy_i     ,  // system write ready
-   input                 axi0_rstn_i     ,  // reset from PS
 
    // AXI1 master
    output                axi1_clk_o      ,  // global clock
@@ -83,7 +82,6 @@ module red_pitaya_scope #(
    output                axi1_wfixed_o   ,  // system write burst type (fixed / incremental)
    input                 axi1_werr_i     ,  // system write error
    input                 axi1_wrdy_i     ,  // system write ready
-   input                 axi1_rstn_i     ,  // reset from PS
   
    // System bus
    input      [ 32-1: 0] sys_addr      ,  // bus saddress
@@ -190,15 +188,105 @@ end
 //---------------------------------------------------------------------------------
 //  ADC buffer RAM
 
-reg    [  4-1: 0] set_trig_src;
-reg               adc_trig    ;
+reg   [  14-1: 0] adc_a_buf [0:(1<<RSZ)-1] ;
+reg   [  14-1: 0] adc_b_buf [0:(1<<RSZ)-1] ;
+reg   [  14-1: 0] adc_a_rd      ;
+reg   [  14-1: 0] adc_b_rd      ;
+reg   [ RSZ-1: 0] adc_wp        ;
+reg   [ RSZ-1: 0] adc_raddr     ;
+reg   [ RSZ-1: 0] adc_a_raddr   ;
+reg   [ RSZ-1: 0] adc_b_raddr   ;
+reg   [   4-1: 0] adc_rval      ;
+wire              adc_rd_dv     ;
+reg               adc_we        ;
+reg               adc_trig      ;
 
-reg    [ 20-1: 0] set_deb_len; // debouncing length (glitch free time after a posedge)
-reg               set_acu_ena; // accumulation enable
-reg    [ 32-1: 0] set_acu_cnt; // accumulation counter length
-wire   [ 32-1: 0] set_sts_cnt; // accumulation counter current status
-reg    [  4-1: 0] set_acu_shf; // accumulation output shift
-reg    [ 14-1: 0] set_acu_len; // accumulation sequence length
+reg   [ RSZ-1: 0] adc_wp_trig   ;
+reg   [ RSZ-1: 0] adc_wp_cur    ;
+reg   [  32-1: 0] set_dly       ;
+reg   [  32-1: 0] adc_we_cnt    ;
+reg   [  32-1: 0] adc_dly_cnt   ;
+reg               adc_dly_do    ;
+reg    [ 20-1: 0] set_deb_len   ; // debouncing length (glitch free time after a posedge)
+
+// Write
+always @(posedge adc_clk_i) begin
+   if (adc_rstn_i == 1'b0) begin
+      adc_wp      <= {RSZ{1'b0}};
+      adc_we      <=  1'b0      ;
+      adc_wp_trig <= {RSZ{1'b0}};
+      adc_wp_cur  <= {RSZ{1'b0}};
+      adc_we_cnt  <= 32'h0      ;
+      adc_dly_cnt <= 32'h0      ;
+      adc_dly_do  <=  1'b0      ;
+   end
+   else begin
+      if (adc_arm_do)
+         adc_we <= 1'b1 ;
+      else if (((adc_dly_do || adc_trig) && (adc_dly_cnt == 32'h0)) || adc_rst_do) //delayed reached or reset
+         adc_we <= 1'b0 ;
+
+      // count how much data was written into the buffer before trigger
+      if (adc_rst_do | adc_arm_do)
+         adc_we_cnt <= 32'h0;
+      if (adc_we & ~adc_dly_do & adc_dv & ~&adc_we_cnt)
+         adc_we_cnt <= adc_we_cnt + 1;
+
+      if (adc_rst_do)
+         adc_wp <= {RSZ{1'b0}};
+      else if (adc_we && adc_dv)
+         adc_wp <= adc_wp + 1;
+
+      if (adc_rst_do)
+         adc_wp_trig <= {RSZ{1'b0}};
+      else if (adc_trig && !adc_dly_do)
+         adc_wp_trig <= adc_wp_cur ; // save write pointer at trigger arrival
+
+      if (adc_rst_do)
+         adc_wp_cur <= {RSZ{1'b0}};
+      else if (adc_we && adc_dv)
+         adc_wp_cur <= adc_wp ; // save current write pointer
+
+
+      if (adc_trig)
+         adc_dly_do  <= 1'b1 ;
+      else if ((adc_dly_do && (adc_dly_cnt == 32'b0)) || adc_rst_do || adc_arm_do) //delayed reached or reset
+         adc_dly_do  <= 1'b0 ;
+
+      if (adc_dly_do && adc_we && adc_dv)
+         adc_dly_cnt <= adc_dly_cnt - 1;
+      else if (!adc_dly_do)
+         adc_dly_cnt <= set_dly ;
+
+   end
+end
+
+always @(posedge adc_clk_i) begin
+   if (adc_we && adc_dv) begin
+      adc_a_buf[adc_wp] <= adc_a_dat ;
+      adc_b_buf[adc_wp] <= adc_b_dat ;
+   end
+end
+
+// Read
+always @(posedge adc_clk_i) begin
+   if (adc_rstn_i == 1'b0)
+      adc_rval <= 4'h0 ;
+   else
+      adc_rval <= {adc_rval[2:0], (sys_ren || sys_wen)};
+end
+assign adc_rd_dv = adc_rval[3];
+
+always @(posedge adc_clk_i) begin
+   adc_raddr   <= sys_addr[RSZ+1:2] ; // address synchronous to clock
+   adc_a_raddr <= adc_raddr     ; // double register 
+   adc_b_raddr <= adc_raddr     ; // otherwise memory corruption at reading
+   adc_a_rd    <= adc_a_buf[adc_a_raddr] ;
+   adc_b_rd    <= adc_b_buf[adc_b_raddr] ;
+end
+
+
+
 
 //---------------------------------------------------------------------------------
 //
@@ -241,7 +329,7 @@ always @(posedge axi0_clk_o) begin
          axi_a_dly_do  <= 1'b0 ;
 
       if (axi_a_dly_do && axi_a_we && adc_dv)
-         axi_a_dly_cnt <= axi_a_dly_cnt + {32{1'b1}} ; // -1
+         axi_a_dly_cnt <= axi_a_dly_cnt - 1;
       else if (!axi_a_dly_do)
          axi_a_dly_cnt <= set_a_axi_dly ;
 
@@ -254,10 +342,10 @@ always @(posedge axi0_clk_o) begin
    end
 
    if (axi_a_we && adc_dv) begin
-      if (axi_a_dat_sel == 2'b00) axi_a_dat[ 16-1:  0] <= {2'h0,adc_a_dat};
-      if (axi_a_dat_sel == 2'b01) axi_a_dat[ 32-1: 16] <= {2'h0,adc_a_dat};
-      if (axi_a_dat_sel == 2'b10) axi_a_dat[ 48-1: 32] <= {2'h0,adc_a_dat};
-      if (axi_a_dat_sel == 2'b11) axi_a_dat[ 64-1: 48] <= {2'h0,adc_a_dat};
+      if (axi_a_dat_sel == 2'b00) axi_a_dat[ 16-1:  0] <= $signed(adc_a_dat);
+      if (axi_a_dat_sel == 2'b01) axi_a_dat[ 32-1: 16] <= $signed(adc_a_dat);
+      if (axi_a_dat_sel == 2'b10) axi_a_dat[ 48-1: 32] <= $signed(adc_a_dat);
+      if (axi_a_dat_sel == 2'b11) axi_a_dat[ 64-1: 48] <= $signed(adc_a_dat);
    end
 
    if (axi_a_clr)
@@ -275,9 +363,7 @@ axi_wr_fifo #(
   .DW  (  64    ), // data width (8,16,...,1024)
   .AW  (  32    ), // address width
   .FW  (   8    )  // address width of FIFO pointers
-)
-i_wr0
-(
+) i_wr0 (
    // global signals
   .axi_clk_i          (  axi0_clk_o        ), // global clock
   .axi_rstn_i         (  axi0_rstn_o       ), // global reset
@@ -306,15 +392,7 @@ i_wr0
 );
 
 assign axi0_clk_o  = adc_clk_i ;
-assign axi0_rstn_o = (adc_rstn_i != 1'b0) && axi0_rstn_i ;
-
-
-
-
-
-
-
-
+assign axi0_rstn_o = adc_rstn_i;
 
 //---------------------------------------------------------------------------------
 //
@@ -357,7 +435,7 @@ always @(posedge axi1_clk_o) begin
          axi_b_dly_do  <= 1'b0 ;
 
       if (axi_b_dly_do && axi_b_we && adc_dv)
-         axi_b_dly_cnt <= axi_b_dly_cnt + {32{1'b1}} ; // -1
+         axi_b_dly_cnt <= axi_b_dly_cnt - 1;
       else if (!axi_b_dly_do)
          axi_b_dly_cnt <= set_b_axi_dly ;
 
@@ -370,10 +448,10 @@ always @(posedge axi1_clk_o) begin
    end
 
    if (axi_b_we && adc_dv) begin
-      if (axi_b_dat_sel == 2'b00) axi_b_dat[ 16-1:  0] <= {2'h0,adc_b_dat};
-      if (axi_b_dat_sel == 2'b01) axi_b_dat[ 32-1: 16] <= {2'h0,adc_b_dat};
-      if (axi_b_dat_sel == 2'b10) axi_b_dat[ 48-1: 32] <= {2'h0,adc_b_dat};
-      if (axi_b_dat_sel == 2'b11) axi_b_dat[ 64-1: 48] <= {2'h0,adc_b_dat};
+      if (axi_b_dat_sel == 2'b00) axi_b_dat[ 16-1:  0] <= $signed(adc_b_dat);
+      if (axi_b_dat_sel == 2'b01) axi_b_dat[ 32-1: 16] <= $signed(adc_b_dat);
+      if (axi_b_dat_sel == 2'b10) axi_b_dat[ 48-1: 32] <= $signed(adc_b_dat);
+      if (axi_b_dat_sel == 2'b11) axi_b_dat[ 64-1: 48] <= $signed(adc_b_dat);
    end
 
    if (axi_b_clr)
@@ -391,9 +469,7 @@ axi_wr_fifo #(
   .DW  (  64    ), // data width (8,16,...,1024)
   .AW  (  32    ), // address width
   .FW  (   8    )  // address width of FIFO pointers
-)
-i_wr1
-(
+) i_wr1 (
    // global signals
   .axi_clk_i          (  axi1_clk_o        ), // global clock
   .axi_rstn_i         (  axi1_rstn_o       ), // global reset
@@ -422,151 +498,7 @@ i_wr1
 );
 
 assign axi1_clk_o  = adc_clk_i ;
-assign axi1_rstn_o = (adc_rstn_i != 1'b0) && axi1_rstn_i ;
-
-
-
-
-
-
-
-
-
-
-
-
-
-//---------------------------------------------------------------------------------
-// adding a calibration offset to the input stream
-
-reg                 off_tvalid;
-reg                 off_t_trig;
-reg signed [15-1:0] off_a_tdata , off_b_tdata ;
-
-reg signed [14-1:0] set_off_a, set_off_b;
-
-// saturation
-function signed [14-1:0] sat (input signed [15-1:0] dat);
-begin
-  if ((&dat[14:13]) || (~|dat[14:13])) sat = dat[13:0];
-  else                                 sat = {dat[14], {13{~dat[14]}}};
-end
-endfunction
-
-always @(posedge adc_clk_i) // , posedge adc_rstn_i)
-if (~adc_rstn_i) begin
-  off_tvalid <= 1'b0;
-  off_t_trig <= 1'b0;
-end else begin
-  off_tvalid <= adc_dv;
-  off_t_trig <= adc_trig;
-end
-
-always @(posedge adc_clk_i)
-if (adc_dv) begin
-  off_a_tdata <= sat($signed(adc_a_dat) + set_off_a);
-  off_b_tdata <= sat($signed(adc_b_dat) + set_off_b);
-end
-
-//---------------------------------------------------------------------------------
-// averaging accumulator module instances
-
-wire           acu_ctl_run;
-wire           acu_sts_run;
-
-reg            acu_rd_dv;
-
-wire           acu_a_mem_ren, acu_b_mem_ren;
-wire           acu_a_mem_vld, acu_b_mem_vld;
-wire [RSZ-1:0] acu_a_mem_adr, acu_b_mem_adr;
-wire  [46-1:0] acu_a_mem_tmp, acu_b_mem_tmp; // 14+32 = 46
-reg   [32-1:0] acu_a_mem_rdt, acu_b_mem_rdt;
-
-// generate pulse on write into the run bit of the control/status register
-assign acu_ctl_run = set_acu_ena & sys_wen & (sys_addr[19:0]==20'h94) & sys_wdata[1];
-
-// memory read data valid
-always @(posedge adc_clk_i)
-if (~adc_rstn_i) begin
-  acu_rd_dv <= 1'b0;
-end else begin
-  acu_rd_dv <= acu_a_mem_vld | acu_b_mem_vld;
-end
-
-red_pitaya_acum #(
-  .IDW (14)
-) acum_a (
-  // system signals
-  .clk        (adc_clk_i),
-  .rst        (~adc_rstn_i),
-  .clr        (adc_rst_do),
-  // configuration
-  .cfg_cnt    (set_acu_cnt),
-  .cfg_len    (set_acu_len),
-  // control/status
-  .ctl_run    (acu_ctl_run),
-  .sts_run    (acu_sts_run),
-  .sts_cnt    (set_sts_cnt),
-  // input data stream
-//  .sti_tdata  (($signed(adc_a_i) + 14'(set_off_a))),  // TODO remove debug code
-  .sti_tdata  (off_a_tdata),
-  .sti_t_trig (off_t_trig),
-  .sti_tvalid (off_tvalid),
-  .sti_tready (),
-  // output data stream
-  .sto_tlast  (),
-  .sto_tdata  (),
-  .sto_tvalid (),
-  .sto_tready (1'b1),
-  // memmory interface (read only)
-  .bus_ren    (acu_a_mem_ren),
-  .bus_adr    (acu_a_mem_adr),
-  .bus_rdt    (acu_a_mem_tmp),
-  .bus_vld    (acu_a_mem_vld)
-);
-
-assign acu_a_mem_ren = sys_ren & (sys_addr[17:16] == 2'h3);
-assign acu_a_mem_adr =            sys_addr[RSZ+1:2];
-
-always @ (posedge adc_clk_i)
-if (acu_a_mem_vld) acu_a_mem_rdt <= acu_a_mem_tmp >>> set_acu_shf;
-
-red_pitaya_acum #(
-  .IDW (14)
-) acum_b (
-  // system signals
-  .clk        (adc_clk_i),
-  .rst        (~adc_rstn_i),
-  .clr        (adc_rst_do),
-  // configuration
-  .cfg_cnt    (set_acu_cnt),
-  .cfg_len    (set_acu_len),
-  // control/status
-  .ctl_run    (acu_ctl_run),
-  .sts_run    (           ),
-  .sts_cnt    (           ),
-  // input data stream
-  .sti_tdata  (off_b_tdata),
-  .sti_t_trig (off_t_trig),
-  .sti_tvalid (off_tvalid),
-  .sti_tready (),
-  // output data stream
-  .sto_tlast  (),
-  .sto_tdata  (),
-  .sto_tvalid (),
-  .sto_tready (1'b1),
-  // memmory interface (read only)
-  .bus_ren    (acu_b_mem_ren),
-  .bus_adr    (acu_b_mem_adr),
-  .bus_rdt    (acu_b_mem_tmp),
-  .bus_vld    (acu_b_mem_vld)
-);
-
-assign acu_b_mem_ren = sys_ren & (sys_addr[17:16] == 2'h4);
-assign acu_b_mem_adr =            sys_addr[RSZ+1:2];
-
-always @ (posedge adc_clk_i)
-if (acu_b_mem_vld) acu_b_mem_rdt <= acu_b_mem_tmp >>> set_acu_shf;
+assign axi1_rstn_o = adc_rstn_i;
 
 //---------------------------------------------------------------------------------
 //  Trigger source selector
@@ -576,6 +508,7 @@ reg               adc_trig_an      ;
 reg               adc_trig_bp      ;
 reg               adc_trig_bn      ;
 reg               adc_trig_sw      ;
+reg   [   4-1: 0] set_trig_src     ;
 wire              ext_trig_p       ;
 wire              ext_trig_n       ;
 wire              asg_trig_p       ;
@@ -586,11 +519,17 @@ if (adc_rstn_i == 1'b0) begin
    adc_arm_do    <= 1'b0 ;
    adc_rst_do    <= 1'b0 ;
    adc_trig_sw   <= 1'b0 ;
+   set_trig_src  <= 4'h0 ;
    adc_trig      <= 1'b0 ;
 end else begin
    adc_arm_do  <= sys_wen && (sys_addr[19:0]==20'h0) && sys_wdata[0] ; // SW ARM
    adc_rst_do  <= sys_wen && (sys_addr[19:0]==20'h0) && sys_wdata[1] ;
    adc_trig_sw <= sys_wen && (sys_addr[19:0]==20'h4) && (sys_wdata[3:0]==4'h1); // SW trigger
+
+      if (sys_wen && (sys_addr[19:0]==20'h4))
+         set_trig_src <= sys_wdata[3:0] ;
+      else if (((adc_dly_do || adc_trig) && (adc_dly_cnt == 32'h0)) || adc_rst_do) //delayed reached or reset
+         set_trig_src <= 4'h0 ;
 
    case (set_trig_src)
        4'd1 : adc_trig <= adc_trig_sw   ; // manual
@@ -747,9 +686,9 @@ assign asg_trig_n = (asg_trig_dn == 2'b10) ;
 
 always @(posedge adc_clk_i)
 if (adc_rstn_i == 1'b0) begin
-   set_trig_src  <=   4'h0      ;
    set_a_tresh   <=  14'd5000   ;
    set_b_tresh   <= -14'd5000   ;
+   set_dly       <=  32'd0      ;
    set_dec       <=  17'd1      ;
    set_a_hyst    <=  14'd20     ;
    set_b_hyst    <=  14'd20     ;
@@ -762,24 +701,14 @@ if (adc_rstn_i == 1'b0) begin
    set_b_filt_bb <=  25'h0      ;
    set_b_filt_kk <=  25'hFFFFFF ;
    set_b_filt_pp <=  25'h0      ;
-
    set_deb_len   <=  20'd62500  ;
-   set_acu_ena   <=   1'd0      ;
-   set_acu_cnt   <=  32'd0      ;
-   set_acu_shf   <=   4'd0      ;
-   set_acu_len   <=  14'd0      ;
-
-   set_off_a     <=  14'd0      ;
-   set_off_b     <=  14'd0      ;
-
    set_a_axi_en  <=   1'b0      ;
    set_b_axi_en  <=   1'b0      ;
 end else begin
    if (sys_wen) begin
-      if (sys_addr[19:0]==20'h04)   set_trig_src  <= sys_wdata[ 4-1:0] ;
       if (sys_addr[19:0]==20'h08)   set_a_tresh   <= sys_wdata[14-1:0] ;
       if (sys_addr[19:0]==20'h0C)   set_b_tresh   <= sys_wdata[14-1:0] ;
-//    if (sys_addr[19:0]==20'h10)   set_dly       <= sys_wdata[32-1:0] ;
+      if (sys_addr[19:0]==20'h10)   set_dly       <= sys_wdata[32-1:0] ;
       if (sys_addr[19:0]==20'h14)   set_dec       <= sys_wdata[17-1:0] ;
       if (sys_addr[19:0]==20'h20)   set_a_hyst    <= sys_wdata[14-1:0] ;
       if (sys_addr[19:0]==20'h24)   set_b_hyst    <= sys_wdata[14-1:0] ;
@@ -805,12 +734,6 @@ end else begin
       if (sys_addr[19:0]==20'h7C)   set_b_axi_en    <= sys_wdata[     0] ;
 
       if (sys_addr[19:0]==20'h90)   set_deb_len <= sys_wdata[20-1:0] ;
-      if (sys_addr[19:0]==20'h94)   set_acu_ena <= sys_wdata[     0] ;
-      if (sys_addr[19:0]==20'h98)   set_acu_cnt <= sys_wdata[32-1:0] ;
-      if (sys_addr[19:0]==20'h9c)   set_acu_shf <= sys_wdata[ 4-1:0] ;
-      if (sys_addr[19:0]==20'ha0)   set_acu_len <= sys_wdata[14-1:0] ;
-      if (sys_addr[19:0]==20'ha4)   set_off_a   <= sys_wdata[14-1:0] ;
-      if (sys_addr[19:0]==20'ha8)   set_off_b   <= sys_wdata[14-1:0] ;
    end
 end
 
@@ -825,20 +748,26 @@ end else begin
    sys_err <= 1'b0 ;
 
    casez (sys_addr[19:0])
+     20'h00000 : begin sys_ack <= sys_en;          sys_rdata <= {{32- 4{1'b0}}, adc_dly_do                // trigger status
+                                                                              , 1'b0                      // reset
+                                                                              , adc_we}             ; end // arm
+
      20'h00004 : begin sys_ack <= sys_en;          sys_rdata <= {{32- 4{1'b0}}, set_trig_src}       ; end 
 
      20'h00008 : begin sys_ack <= sys_en;          sys_rdata <= {{32-14{1'b0}}, set_a_tresh}        ; end
      20'h0000C : begin sys_ack <= sys_en;          sys_rdata <= {{32-14{1'b0}}, set_b_tresh}        ; end
-//   20'h00010 : begin sys_ack <= sys_en;          sys_rdata <= {               set_dly}            ; end
+     20'h00010 : begin sys_ack <= sys_en;          sys_rdata <= {               set_dly}            ; end
      20'h00014 : begin sys_ack <= sys_en;          sys_rdata <= {{32-17{1'b0}}, set_dec}            ; end
 
-     20'h00018 : begin sys_ack <= sys_en;          sys_rdata <= 32'h0                               ; end  // NOTE: removed functionality
-     20'h0001C : begin sys_ack <= sys_en;          sys_rdata <= 32'h0                               ; end  // NOTE: removed functionality
+     20'h00018 : begin sys_ack <= sys_en;          sys_rdata <= {{32-RSZ{1'b0}}, adc_wp_cur}        ; end
+     20'h0001C : begin sys_ack <= sys_en;          sys_rdata <= {{32-RSZ{1'b0}}, adc_wp_trig}       ; end
 
      20'h00020 : begin sys_ack <= sys_en;          sys_rdata <= {{32-14{1'b0}}, set_a_hyst}         ; end
      20'h00024 : begin sys_ack <= sys_en;          sys_rdata <= {{32-14{1'b0}}, set_b_hyst}         ; end
 
      20'h00028 : begin sys_ack <= sys_en;          sys_rdata <= {{32- 1{1'b0}}, set_avg_en}         ; end
+
+     20'h0002C : begin sys_ack <= sys_en;          sys_rdata <=                 adc_we_cnt          ; end
 
      20'h00030 : begin sys_ack <= sys_en;          sys_rdata <= {{32-18{1'b0}}, set_a_filt_aa}      ; end
      20'h00034 : begin sys_ack <= sys_en;          sys_rdata <= {{32-25{1'b0}}, set_a_filt_bb}      ; end
@@ -864,19 +793,9 @@ end else begin
      20'h00084 : begin sys_ack <= sys_en;          sys_rdata <=                 set_b_axi_cur       ; end
 
      20'h00090 : begin sys_ack <= sys_en;          sys_rdata <= {{32-20{1'b0}}, set_deb_len}        ; end
-     20'h00094 : begin sys_ack <= sys_en;          sys_rdata <= {{32- 2{1'b0}}, acu_sts_run,
-                                                                                set_acu_ena}        ; end
-     20'h00098 : begin sys_ack <= sys_en;          sys_rdata <= {               set_sts_cnt}        ; end
-     20'h0009c : begin sys_ack <= sys_en;          sys_rdata <= {{32- 4{1'b0}}, set_acu_shf}        ; end
-     20'h000a0 : begin sys_ack <= sys_en;          sys_rdata <= {{32-14{1'b0}}, set_acu_len}        ; end
-     20'h000a4 : begin sys_ack <= sys_en;          sys_rdata <= {{32-14{1'b0}}, set_off_a  }        ; end
-     20'h000a8 : begin sys_ack <= sys_en;          sys_rdata <= {{32-14{1'b0}}, set_off_b  }        ; end
 
-     20'h1???? : begin sys_ack <= sys_en;          sys_rdata <= 32'h0                               ; end  // NOTE: removed functionality
-     20'h2???? : begin sys_ack <= sys_en;          sys_rdata <= 32'h0                               ; end  // NOTE: removed functionality
-
-     20'h3???? : begin sys_ack <= acu_rd_dv;       sys_rdata <= acu_a_mem_rdt                       ; end
-     20'h4???? : begin sys_ack <= acu_rd_dv;       sys_rdata <= acu_b_mem_rdt                       ; end
+     20'h1???? : begin sys_ack <= adc_rd_dv;       sys_rdata <= {16'h0, 2'h0,adc_a_rd}              ; end
+     20'h2???? : begin sys_ack <= adc_rd_dv;       sys_rdata <= {16'h0, 2'h0,adc_b_rd}              ; end
 
        default : begin sys_ack <= sys_en;          sys_rdata <=  32'h0                              ; end
    endcase
