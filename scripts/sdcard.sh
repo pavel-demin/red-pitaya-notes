@@ -65,7 +65,7 @@ cat <<- EOF_CAT > etc/fstab
 EOF_CAT
 
 cat <<- EOF_CAT >> etc/network/interfaces.d/eth0
-auto eth0
+allow-hotplug eth0
 iface eth0 inet dhcp
 EOF_CAT
 
@@ -78,6 +78,8 @@ EOF_CAT
 sed 's/tty1/ttyPS0/g; s/38400/115200/' etc/init/tty1.conf  > etc/init/ttyPS0.conf
 
 echo red-pitaya > etc/hostname
+
+sed -i '/^# deb .* universe$/s/^# //' etc/apt/sources.list
 
 apt-get update
 apt-get -y upgrade
@@ -94,6 +96,50 @@ apt-get -y install openssh-server ca-certificates ntp usbutils psmisc lsof \
   parted curl less vim man-db iw wpasupplicant linux-firmware
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
+
+apt-get -y install hostapd isc-dhcp-server
+
+cat <<- EOF_CAT > etc/network/interfaces.d/wlan0
+allow-hotplug wlan0
+iface wlan0 inet static
+  address 192.168.42.1
+  netmask 255.255.255.0
+EOF_CAT
+
+cat <<- EOF_CAT > etc/hostapd/hostapd.conf
+interface=wlan0
+ssid=RedPitaya
+driver=nl80211
+hw_mode=g
+channel=6
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=RedPitaya
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+EOF_CAT
+
+sed -i 's/^#DAEMON_CONF=""/DAEMON_CONF="\/etc\/hostapd\/hostapd.conf"/' etc/default/hostapd
+
+cat <<- EOF_CAT > etc/dhcp/dhcpd.conf
+ddns-update-style none;
+default-lease-time 600;
+max-lease-time 7200;
+authoritative;
+log-facility local7;
+subnet 192.168.42.0 netmask 255.255.255.0 {
+  range 192.168.42.10 192.168.42.50;
+  option broadcast-address 192.168.42.255;
+  option routers 192.168.42.1;
+  default-lease-time 600;
+  max-lease-time 7200;
+  option domain-name "local";
+  option domain-name-servers 8.8.8.8, 8.8.4.4;
+}
+EOF_CAT
 
 apt-get clean
 
