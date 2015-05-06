@@ -140,8 +140,8 @@ module red_pitaya_top (
 //---------------------------------------------------------------------------------
 //
 
-wire  [ 5-1: 0] vinp_i = {Vp_Vn_v_p, Vaux0_v_p, Vaux1_v_p, Vaux8_v_p, Vaux9_v_p};
-wire  [ 5-1: 0] vinn_i = {Vp_Vn_v_n, Vaux0_v_n, Vaux1_v_n, Vaux8_v_n, Vaux9_v_n};
+wire  [ 5-1: 0] vinp_i = {Vp_Vn_v_p, Vaux9_v_p, Vaux8_v_p, Vaux1_v_p, Vaux0_v_p};
+wire  [ 5-1: 0] vinn_i = {Vp_Vn_v_n, Vaux9_v_n, Vaux8_v_n, Vaux1_v_n, Vaux0_v_n};
 
 //  Connections to PS
 
