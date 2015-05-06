@@ -231,10 +231,10 @@ red_pitaya_ps i_ps (
 assign adc_csn_o = 1'b1 ;
 
 // generating ADC clock is disabled
-assign adc_enc_p_o = 1'b1;
-assign adc_enc_n_o = 1'b0;
-//ODDR i_adc_clk_p ( .Q(adc_clk_o[0]), .D1(1'b1), .D2(1'b0), .C(fclk[0]), .CE(1'b1), .R(1'b0), .S(1'b0));
-//ODDR i_adc_clk_n ( .Q(adc_clk_o[1]), .D1(1'b0), .D2(1'b1), .C(fclk[0]), .CE(1'b1), .R(1'b0), .S(1'b0));
+assign adc_enc_p_o = 1'b0;
+assign adc_enc_n_o = 1'b1;
+//ODDR i_adc_clk_p ( .Q(adc_enc_p_o), .D1(1'b1), .D2(1'b0), .C(fclk[0]), .CE(1'b1), .R(1'b0), .S(1'b0));
+//ODDR i_adc_clk_n ( .Q(adc_enc_n_o), .D1(1'b0), .D2(1'b1), .C(fclk[0]), .CE(1'b1), .R(1'b0), .S(1'b0));
 
 
 wire             ser_clk     ;
