@@ -4,12 +4,12 @@ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI_H
 create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI_HP1
 
 # Configure interface ports
-set_property -dict [list CONFIG.ADDR_WIDTH 32 CONFIG.DATA_WIDTH 32 CONFIG.PROTOCOL AXI3 CONFIG.NUM_READ_OUTSTANDING 8 CONFIG.NUM_WRITE_OUTSTANDING 8] [get_bd_intf_ports M_AXI_GP0]
-set_property -dict [list CONFIG.DATA_WIDTH 64 CONFIG.PROTOCOL AXI3 CONFIG.ID_WIDTH 6 CONFIG.NUM_READ_OUTSTANDING 8 CONFIG.NUM_WRITE_OUTSTANDING 8 CONFIG.MAX_BURST_LENGTH 16] [get_bd_intf_ports S_AXI_HP0]
-set_property -dict [list CONFIG.DATA_WIDTH 64 CONFIG.PROTOCOL AXI3 CONFIG.ID_WIDTH 6 CONFIG.NUM_READ_OUTSTANDING 8 CONFIG.NUM_WRITE_OUTSTANDING 8 CONFIG.MAX_BURST_LENGTH 16] [get_bd_intf_ports S_AXI_HP1]
+set_property -dict [list CONFIG.ADDR_WIDTH 32 CONFIG.DATA_WIDTH 32 CONFIG.PROTOCOL AXI3] [get_bd_intf_ports M_AXI_GP0]
+set_property -dict [list CONFIG.ADDR_WIDTH 32 CONFIG.DATA_WIDTH 64 CONFIG.PROTOCOL AXI3] [get_bd_intf_ports S_AXI_HP0]
+set_property -dict [list CONFIG.ADDR_WIDTH 32 CONFIG.DATA_WIDTH 64 CONFIG.PROTOCOL AXI3] [get_bd_intf_ports S_AXI_HP1]
 
 # Create ports
-set_property -dict [list CONFIG.ASSOCIATED_BUSIF {M_AXI_GP0}] [create_bd_port -dir I -type clk M_AXI_GP0_ACLK]
+create_bd_port -dir I -type clk M_AXI_GP0_ACLK
 create_bd_port -dir I -type clk S_AXI_HP0_aclk
 create_bd_port -dir I -type clk S_AXI_HP1_aclk
 create_bd_port -dir O -type clk FCLK_CLK0
@@ -35,6 +35,9 @@ create_bd_port -dir I SPI0_SS_I
 create_bd_port -dir O SPI0_SS_O
 create_bd_port -dir O SPI0_SS_T
 
+# Configure ports
+set_property CONFIG.ASSOCIATED_BUSIF M_AXI_GP0 [get_bd_ports M_AXI_GP0_ACLK]
+
 # Create processing_system7
 cell xilinx.com:ip:processing_system7:5.5 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
@@ -56,9 +59,9 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 } [get_bd_cells ps_0]
 
 # Create interface connections
-connect_bd_intf_net [get_bd_intf_pins ps_0/M_AXI_GP0] [get_bd_intf_ports M_AXI_GP0]
-connect_bd_intf_net [get_bd_intf_pins ps_0/S_AXI_HP0] [get_bd_intf_ports S_AXI_HP0]
-connect_bd_intf_net [get_bd_intf_pins ps_0/S_AXI_HP1] [get_bd_intf_ports S_AXI_HP1]
+connect_bd_intf_net [get_bd_intf_ports M_AXI_GP0] [get_bd_intf_pins ps_0/M_AXI_GP0]
+connect_bd_intf_net [get_bd_intf_ports S_AXI_HP0] [get_bd_intf_pins ps_0/S_AXI_HP0]
+connect_bd_intf_net [get_bd_intf_ports S_AXI_HP1] [get_bd_intf_pins ps_0/S_AXI_HP1]
 
 # Create port connections
 connect_bd_net [get_bd_ports M_AXI_GP0_ACLK] [get_bd_pins ps_0/M_AXI_GP0_ACLK]
@@ -91,4 +94,3 @@ connect_bd_net [get_bd_ports SPI0_SS_T] [get_bd_pins ps_0/SPI0_SS_T]
 create_bd_addr_seg -range 0x40000000 -offset 0x40000000 [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs M_AXI_GP0/Reg] SEG_M_AXI_GP0_Reg
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP1/HP1_DDR_LOWOCM]
-
