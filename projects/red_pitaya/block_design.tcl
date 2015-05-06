@@ -35,9 +35,6 @@ create_bd_port -dir I SPI0_SS_I
 create_bd_port -dir O SPI0_SS_O
 create_bd_port -dir O SPI0_SS_T
 
-# Configure ports
-set_property CONFIG.ASSOCIATED_BUSIF M_AXI_GP0 [get_bd_ports M_AXI_GP0_ACLK]
-
 # Create processing_system7
 cell xilinx.com:ip:processing_system7:5.5 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
