@@ -349,8 +349,8 @@ assign adc_csn_o = 1'b1 ;
 // lowest 2 bits reserved for 16bit ADC
 always @(posedge adc_clk)
 begin
-  adc_dat_a <= adc_dat_a_i[16-1:2];
-  adc_dat_b <= adc_dat_b_i[16-1:2];
+  adc_dat_a <= adc_dat_a_i[14-1:0];
+  adc_dat_b <= adc_dat_b_i[14-1:0];
 end
     
 // transform into 2's complement (negative slope)
