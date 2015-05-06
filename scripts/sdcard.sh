@@ -46,8 +46,10 @@ cp /etc/resolv.conf $root_dir/etc/
 cp /usr/bin/qemu-arm-static $root_dir/usr/bin/
 
 cp patches/fw_env.config $root_dir/etc/
-cp fw_printenv $root_dir/usr/bin/fw_printenv
-cp fw_printenv $root_dir/usr/bin/fw_setenv
+cp fw_printenv $root_dir/usr/local/bin/fw_printenv
+cp fw_printenv $root_dir/usr/local/bin/fw_setenv
+
+# cp acquire generate monitor $root_dir/usr/local/bin/
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
