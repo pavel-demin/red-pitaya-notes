@@ -108,6 +108,10 @@ allow-hotplug wlan0
 iface wlan0 inet static
   address 192.168.42.1
   netmask 255.255.255.0
+  post-up service hostapd restart
+  post-up service isc-dhcp-server restart
+  pre-down service isc-dhcp-server stop
+  pre-down service hostapd stop
 EOF_CAT
 
 cat <<- EOF_CAT > etc/hostapd/hostapd.conf
