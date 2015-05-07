@@ -101,6 +101,8 @@ sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
 apt-get -y install hostapd isc-dhcp-server
 
+touch etc/udev/rules.d/75-persistent-net-generator.rules
+
 cat <<- EOF_CAT > etc/network/interfaces.d/wlan0
 allow-hotplug wlan0
 iface wlan0 inet static
