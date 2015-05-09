@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
             /* phase increment for down converter */
             *((uint32_t *)(cfg + 4)) = (uint32_t)floor(command/125.0e6*(1<<30)+0.5);
             /* amlitude for test signal */
-            *((uint32_t *)(cfg + 12)) = 0x00ffffff;
+            *((uint32_t *)(cfg + 12)) = 0x000fffff;
             /* phase increment for test signal */
             *((uint32_t *)(cfg + 16)) = (uint32_t)floor((command + 100.0)/125.0e6*(1<<30)+0.5);
             break;
