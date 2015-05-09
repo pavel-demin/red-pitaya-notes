@@ -46,7 +46,7 @@ int main(int argc, char**argv)
   rate |= 1<<31;
   send(sock, (char *)&rate, 4, 0);
 
-  freq = 621000;
+  freq = 5000000;
   corr = 25; // ppm
   freq = (int)floor(freq*(1.0 + corr*1.0e-6) + 0.5);
   send(sock, (char *)&freq, 4, 0);
