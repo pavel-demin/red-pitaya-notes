@@ -1,6 +1,6 @@
 /*
 command to compile:
-gcc sdr-receiver-client-raw.c -o sdr-receiver-client-raw -lm
+gcc sdr-receiver-client-le32f.c -o sdr-receiver-client-le32f -lm
 */
 
 #include <math.h>
@@ -19,8 +19,8 @@ int main(int argc, char**argv)
 {
   int sock;
   struct sockaddr_in addr;
-  int32_t bufferInt[256];
-  float bufferFloat[256];
+  int32_t bufferIn[256];
+  float bufferOut[256];
   int32_t freq, corr, rate;
   int i;
 
@@ -52,13 +52,13 @@ int main(int argc, char**argv)
 
   while(1)
   {
-    recv(sock, bufferInt, 1024, MSG_WAITALL);
+    recv(sock, bufferIn, 1024, MSG_WAITALL);
     for(i = 0; i < 256; ++i)
     {
-      bufferFloat[i] = ((float)bufferInt[i]) / 2147483647.0;
+      bufferOut[i] = ((float)bufferIn[i]) / 2147483647.0;
     }
 
-    fwrite(bufferFloat, 4, 256, stdout);
+    fwrite(bufferOut, 1, 1024, stdout);
     fflush(stdout);
   }
 }
