@@ -89,6 +89,11 @@ cd Xilinx_Vivado_SDK_Lin_2015.1_0428_1
 - Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page
   (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2015_1/ug973-vivado-release-notes-install-license.pdf))
 
+- Xilinx SDK requires `gmake` that is not available on Ubuntu. The following command creates a symbolic link called `gmake` and pointing to `make`:
+{% highlight bash %}
+ln -s make /usr/bin/gmake
+{% endhighlight %}
+
 Activating Vivado Design Suite license
 -----
 

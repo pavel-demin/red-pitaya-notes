@@ -38,6 +38,8 @@ sudo apt-get --no-install-recommends install \
   gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
   bc u-boot-tools libncurses5-dev  qemu-user-static \
   binfmt-support dosfstools parted
+
+ln -s make /usr/bin/gmake
 {% endhighlight %}
 
 Source code
