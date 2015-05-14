@@ -99,7 +99,7 @@ apt-get -y install openssh-server ca-certificates ntp usbutils psmisc lsof \
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
-apt-get -y install hostapd isc-dhcp-server
+apt-get -y install hostapd isc-dhcp-server iptables
 
 touch etc/udev/rules.d/75-persistent-net-generator.rules
 
@@ -110,6 +110,8 @@ iface wlan0 inet static
   netmask 255.255.255.0
   post-up service hostapd restart
   post-up service isc-dhcp-server restart
+  post-up iptables-restore < /etc/iptables.ipv4.nat
+  pre-down iptables-restore < /etc/iptables.ipv4.nonat
   pre-down service isc-dhcp-server stop
   pre-down service hostapd stop
 EOF_CAT
@@ -147,6 +149,53 @@ subnet 192.168.42.0 netmask 255.255.255.0 {
   option domain-name "local";
   option domain-name-servers 8.8.8.8, 8.8.4.4;
 }
+EOF_CAT
+
+sed -i '/^#net.ipv4.ip_forward=1$/s/^#//' etc/sysctl.conf
+
+cat <<- EOF_CAT > etc/iptables.ipv4.nat
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING -o eth0 -j MASQUERADE
+COMMIT
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+COMMIT
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i wlan0 -o eth0 -j ACCEPT
+COMMIT
+EOF_CAT
+
+cat <<- EOF_CAT > etc/iptables.ipv4.nonat
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+COMMIT
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+COMMIT
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
 EOF_CAT
 
 apt-get clean
