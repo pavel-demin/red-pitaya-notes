@@ -31,6 +31,53 @@ module tx_0 {
     aresetn /rst_slice_3/Dout
   }
 
+  # Create axis_broadcaster
+  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
+    S_TDATA_NUM_BYTES.VALUE_SRC USER
+    M_TDATA_NUM_BYTES.VALUE_SRC USER
+    S_TDATA_NUM_BYTES 8
+    M_TDATA_NUM_BYTES 4
+    M00_TDATA_REMAP {tdata[31:0]}
+    M01_TDATA_REMAP {tdata[63:32]}
+  } {
+    S_AXIS reader_0/M_AXIS
+    aclk /ps_0/FCLK_CLK0
+    aresetn /rst_0/peripheral_aresetn
+  }
+
+  # Create floating_point
+  cell xilinx.com:ip:floating_point:7.0 fp_0 {
+    OPERATION_TYPE Float_to_fixed
+    RESULT_PRECISION_TYPE Custom
+    C_RESULT_EXPONENT_WIDTH 2
+    C_RESULT_FRACTION_WIDTH 30
+  } {
+    S_AXIS_A bcast_0/M00_AXIS
+    aclk /ps_0/FCLK_CLK0
+  }
+
+  # Create floating_point
+  cell xilinx.com:ip:floating_point:7.0 fp_1 {
+    OPERATION_TYPE Float_to_fixed
+    RESULT_PRECISION_TYPE Custom
+    C_RESULT_EXPONENT_WIDTH 2
+    C_RESULT_FRACTION_WIDTH 30
+  } {
+    S_AXIS_A bcast_0/M01_AXIS
+    aclk /ps_0/FCLK_CLK0
+  }
+
+  # Create axis_combiner
+  cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
+    TDATA_NUM_BYTES.VALUE_SRC USER
+    TDATA_NUM_BYTES 4
+  } {
+    S00_AXIS fp_0/M_AXIS_RESULT
+    S01_AXIS fp_1/M_AXIS_RESULT
+    aclk /ps_0/FCLK_CLK0
+    aresetn /rst_0/peripheral_aresetn
+  }
+
   # Create fir_compiler
   cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
     DATA_WIDTH.VALUE_SRC USER
@@ -47,12 +94,12 @@ module tx_0 {
     OUTPUT_ROUNDING_MODE Truncate_LSBs
     OUTPUT_WIDTH 32
   } {
-    S_AXIS_DATA reader_0/M_AXIS
+    S_AXIS_DATA comb_0/M_AXIS
     aclk /ps_0/FCLK_CLK0
   }
 
   # Create axis_broadcaster
-  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
+  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
     S_TDATA_NUM_BYTES.VALUE_SRC USER
     M_TDATA_NUM_BYTES.VALUE_SRC USER
     S_TDATA_NUM_BYTES 8
@@ -78,7 +125,7 @@ module tx_0 {
     OUTPUT_DATA_WIDTH 32
     USE_XTREME_DSP_SLICE false
   } {
-    S_AXIS_DATA bcast_0/M00_AXIS
+    S_AXIS_DATA bcast_1/M00_AXIS
     aclk /ps_0/FCLK_CLK0
   }
 
@@ -95,12 +142,12 @@ module tx_0 {
     OUTPUT_DATA_WIDTH 32
     USE_XTREME_DSP_SLICE false
   } {
-    S_AXIS_DATA bcast_0/M01_AXIS
+    S_AXIS_DATA bcast_1/M01_AXIS
     aclk /ps_0/FCLK_CLK0
   }
 
   # Create axis_combiner
-  cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
+  cell  xilinx.com:ip:axis_combiner:1.1 comb_1 {
     TDATA_NUM_BYTES.VALUE_SRC USER
     TDATA_NUM_BYTES 4
   } {
@@ -130,7 +177,7 @@ module tx_0 {
     ROUND_MODE Round_Pos_Neg_Inf
     COMPENSATION_SCALING Embedded_Multiplier
   } {
-    S_AXIS_CARTESIAN comb_0/M_AXIS
+    S_AXIS_CARTESIAN comb_1/M_AXIS
     S_AXIS_PHASE phase_0/M_AXIS
     aclk /ps_0/FCLK_CLK0
   }

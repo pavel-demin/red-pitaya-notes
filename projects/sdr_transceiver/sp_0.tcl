@@ -259,6 +259,61 @@ module sp_0 {
     aresetn slice_2/Dout
   }
 
+  # Create axis_broadcaster
+  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
+    S_TDATA_NUM_BYTES.VALUE_SRC USER
+    M_TDATA_NUM_BYTES.VALUE_SRC USER
+    S_TDATA_NUM_BYTES 8
+    M_TDATA_NUM_BYTES 4
+    M00_TDATA_REMAP {tdata[31:0]}
+    M01_TDATA_REMAP {tdata[63:32]}
+  } {
+    S_AXIS fft_0/M_AXIS_DATA
+    aclk /ps_0/FCLK_CLK0
+    aresetn /rst_0/peripheral_aresetn
+  }
+
+  # Create floating_point
+  cell xilinx.com:ip:floating_point:7.0 fp_0 {
+    OPERATION_TYPE Fixed_to_float
+    A_PRECISION_TYPE.VALUE_SRC USER
+    C_A_EXPONENT_WIDTH.VALUE_SRC USER
+    C_A_FRACTION_WIDTH.VALUE_SRC USER
+    A_PRECISION_TYPE Custom
+    C_A_EXPONENT_WIDTH 2
+    C_A_FRACTION_WIDTH 30
+    RESULT_PRECISION_TYPE Single
+  } {
+    S_AXIS_A bcast_1/M00_AXIS
+    aclk /ps_0/FCLK_CLK0
+  }
+
+  # Create floating_point
+  cell xilinx.com:ip:floating_point:7.0 fp_1 {
+    OPERATION_TYPE Fixed_to_float
+    A_PRECISION_TYPE.VALUE_SRC USER
+    C_A_EXPONENT_WIDTH.VALUE_SRC USER
+    C_A_FRACTION_WIDTH.VALUE_SRC USER
+    A_PRECISION_TYPE Custom
+    C_A_EXPONENT_WIDTH 2
+    C_A_FRACTION_WIDTH 30
+    RESULT_PRECISION_TYPE Single
+  } {
+    S_AXIS_A bcast_1/M01_AXIS
+    aclk /ps_0/FCLK_CLK0
+  }
+
+  # Create axis_combiner
+  cell  xilinx.com:ip:axis_combiner:1.1 comb_1 {
+    TDATA_NUM_BYTES.VALUE_SRC USER
+    TDATA_NUM_BYTES 4
+  } {
+    S00_AXIS fp_0/M_AXIS_RESULT
+    S01_AXIS fp_1/M_AXIS_RESULT
+    aclk /ps_0/FCLK_CLK0
+    aresetn /rst_0/peripheral_aresetn
+  }
+
   # Create blk_mem_gen
   cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
     MEMORY_TYPE True_Dual_Port_RAM
@@ -280,7 +335,7 @@ module sp_0 {
     BRAM_DATA_WIDTH 64
     BRAM_ADDR_WIDTH 12
   } {
-    S_AXIS fft_0/M_AXIS_DATA
+    S_AXIS comb_1/M_AXIS
     BRAM_PORTA bram_0/BRAM_PORTA
     aclk /ps_0/FCLK_CLK0
     aresetn slice_0/Dout
