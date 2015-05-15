@@ -167,8 +167,67 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 }
 
 source projects/sdr_transceiver/rx_0.tcl
+
+# Create axi_bram_reader
+cell pavel-demin:user:axi_bram_reader:1.0 rx_reader_0 {
+  AXI_DATA_WIDTH 32
+  AXI_ADDR_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 10
+} {
+  BRAM_PORTA rx_0/bram_0/BRAM_PORTB
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins rx_reader_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_rx_reader_0_reg0]
+set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_rx_reader_0_reg0]
+
 source projects/sdr_transceiver/sp_0.tcl
+
+# Create axi_bram_reader
+cell pavel-demin:user:axi_bram_reader:1.0 sp_reader_0 {
+  AXI_DATA_WIDTH 32
+  AXI_ADDR_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 13
+} {
+  BRAM_PORTA sp_0/bram_0/BRAM_PORTB
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins sp_reader_0/S_AXI]
+
+set_property RANGE 32K [get_bd_addr_segs ps_0/Data/SEG_sp_reader_0_reg0]
+set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_sp_reader_0_reg0]
+
 source projects/sdr_transceiver/tx_0.tcl
+
+# Create axi_bram_writer
+cell pavel-demin:user:axi_bram_writer:1.0 tx_writer_0 {
+  AXI_DATA_WIDTH 32
+  AXI_ADDR_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 10
+} {
+  BRAM_PORTA tx_0/bram_0/BRAM_PORTB
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins tx_writer_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_tx_writer_0_reg0]
+set_property OFFSET 0x40003000 [get_bd_addr_segs ps_0/Data/SEG_tx_writer_0_reg0]
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_0 {
@@ -199,15 +258,6 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
 set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
-
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_rx_reader_0_reg0]
-set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_rx_reader_0_reg0]
-
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_tx_writer_0_reg0]
-set_property OFFSET 0x40003000 [get_bd_addr_segs ps_0/Data/SEG_tx_writer_0_reg0]
-
-set_property RANGE 32K [get_bd_addr_segs ps_0/Data/SEG_sp_reader_0_reg0]
-set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_sp_reader_0_reg0]
 
 # Create axis_subset_converter
 cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {

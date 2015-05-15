@@ -285,20 +285,4 @@ module sp_0 {
     aclk /ps_0/FCLK_CLK0
     aresetn slice_0/Dout
   }
-
-  # Create axi_bram_reader
-  cell pavel-demin:user:axi_bram_reader:1.0 sp_reader_0 {
-    AXI_DATA_WIDTH 32
-    AXI_ADDR_WIDTH 32
-    BRAM_DATA_WIDTH 32
-    BRAM_ADDR_WIDTH 13
-  } {
-    BRAM_PORTA bram_0/BRAM_PORTB
-  }
-
-  # Create all required interconnections
-  apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-    Master /ps_0/M_AXI_GP0
-    Clk Auto
-  } [get_bd_intf_pins sp_reader_0/S_AXI]
 }
