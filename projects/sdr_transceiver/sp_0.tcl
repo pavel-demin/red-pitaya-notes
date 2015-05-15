@@ -238,6 +238,48 @@ module sp_0 {
     aresetn slice_3/Dout
   }
 
+  # Create blk_mem_gen
+  cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
+    MEMORY_TYPE True_Dual_Port_RAM
+    USE_BRAM_BLOCK Stand_Alone
+    USE_BYTE_WRITE_ENABLE true
+    BYTE_SIZE 8
+    WRITE_WIDTH_A 32
+    WRITE_DEPTH_A 4096
+    WRITE_WIDTH_B 32
+    WRITE_DEPTH_B 4096
+    ENABLE_A Always_Enabled
+    ENABLE_B Always_Enabled
+    REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
+  }
+
+  # Create axis_bram_reader
+  cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
+    AXIS_TDATA_WIDTH 32
+    BRAM_DATA_WIDTH 32
+    BRAM_ADDR_WIDTH 12
+    CONTINUOUS TRUE
+  } {
+    BRAM_PORTA bram_0/BRAM_PORTA
+    cfg_data const_1/dout
+    aclk /ps_0/FCLK_CLK0
+    aresetn slice_3/Dout
+  }
+
+  # Create cmpy
+  cell xilinx.com:ip:cmpy:6.0 mult_0 {
+    FLOWCONTROL Blocking
+    APORTWIDTH.VALUE_SRC USER
+    BPORTWIDTH.VALUE_SRC USER
+    APORTWIDTH 24
+    BPORTWIDTH 24
+    OUTPUTWIDTH 24
+  } {
+    S_AXIS_A pktzr_3/M_AXIS
+    S_AXIS_B reader_0/M_AXIS
+    aclk /ps_0/FCLK_CLK0
+  }
+
   # Create xfft
   cell xilinx.com:ip:xfft:9.0 fft_0 {
     INPUT_WIDTH.VALUE_SRC USER
@@ -253,7 +295,7 @@ module sp_0 {
     OUTPUT_ORDERING natural_order
     ARESETN true
   } {
-    S_AXIS_DATA pktzr_3/M_AXIS
+    S_AXIS_DATA mult_0/M_AXIS_DOUT
     S_AXIS_CONFIG pktzr_2/M_AXIS
     aclk /ps_0/FCLK_CLK0
     aresetn slice_2/Dout
@@ -315,7 +357,7 @@ module sp_0 {
   }
 
   # Create blk_mem_gen
-  cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
+  cell xilinx.com:ip:blk_mem_gen:8.2 bram_1 {
     MEMORY_TYPE True_Dual_Port_RAM
     USE_BRAM_BLOCK Stand_Alone
     USE_BYTE_WRITE_ENABLE true
@@ -336,7 +378,7 @@ module sp_0 {
     BRAM_ADDR_WIDTH 12
   } {
     S_AXIS comb_1/M_AXIS
-    BRAM_PORTA bram_0/BRAM_PORTA
+    BRAM_PORTA bram_1/BRAM_PORTA
     aclk /ps_0/FCLK_CLK0
     aresetn slice_0/Dout
   }

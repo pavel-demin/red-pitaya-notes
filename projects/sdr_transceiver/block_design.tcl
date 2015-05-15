@@ -189,6 +189,25 @@ set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_rx_reader_0_reg0]
 
 source projects/sdr_transceiver/sp_0.tcl
 
+# Create axi_bram_writer
+cell pavel-demin:user:axi_bram_writer:1.0 sp_writer_0 {
+  AXI_DATA_WIDTH 32
+  AXI_ADDR_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 12
+} {
+  BRAM_PORTA sp_0/bram_0/BRAM_PORTB
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins sp_writer_0/S_AXI]
+
+set_property RANGE 16K [get_bd_addr_segs ps_0/Data/SEG_sp_writer_0_reg0]
+set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_sp_writer_0_reg0]
+
 # Create axi_bram_reader
 cell pavel-demin:user:axi_bram_reader:1.0 sp_reader_0 {
   AXI_DATA_WIDTH 32
@@ -196,7 +215,7 @@ cell pavel-demin:user:axi_bram_reader:1.0 sp_reader_0 {
   BRAM_DATA_WIDTH 32
   BRAM_ADDR_WIDTH 13
 } {
-  BRAM_PORTA sp_0/bram_0/BRAM_PORTB
+  BRAM_PORTA sp_0/bram_1/BRAM_PORTB
 }
 
 # Create all required interconnections
@@ -206,7 +225,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 } [get_bd_intf_pins sp_reader_0/S_AXI]
 
 set_property RANGE 32K [get_bd_addr_segs ps_0/Data/SEG_sp_reader_0_reg0]
-set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_sp_reader_0_reg0]
+set_property OFFSET 0x40020000 [get_bd_addr_segs ps_0/Data/SEG_sp_reader_0_reg0]
 
 source projects/sdr_transceiver/tx_0.tcl
 
