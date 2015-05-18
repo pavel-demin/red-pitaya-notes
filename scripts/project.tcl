@@ -39,9 +39,17 @@ proc cell {cell_vlnv cell_name {cell_props {}} {cell_ports {}}} {
   }
 }
 
+proc module {module_name module_body} {
+  set bd [current_bd_instance .]
+  current_bd_instance [create_bd_cell -type hier $module_name]
+  eval $module_body
+  current_bd_instance $bd
+}
+
 source projects/$project_name/block_design.tcl
 
 rename cell {}
+rename module {}
 
 generate_target all [get_files $bd_path/system.bd]
 make_wrapper -files [get_files $bd_path/system.bd] -top
