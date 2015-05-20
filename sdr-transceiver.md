@@ -27,11 +27,11 @@ The SDR transmitter consists of the similar blocks but arranged in an opposite o
  - The on-board DAC (125 MS/s sampling frequency, 14-bit resolution) outputs RF signal.
  - An antenna is connected to one of the analog outputs.
 
-The tunable frequency range covers from 50 kHz to 50 MHz.
+The tunable frequency range covers from 0 Hz to 50 MHz.
 
-The receiver and transmitter I/Q data rates are fixed to 50 kSPS.
+The receiver and transmitter I/Q data rates are fixed to 20 kSPS.
 
-The panadapter I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
+The spectrum display I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
 
 The basic blocks of the digital down-converter (DDC) and of the digital up-converter (DUC) are shown on the following diagram:
 
