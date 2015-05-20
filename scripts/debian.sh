@@ -96,7 +96,7 @@ apt-get -y upgrade
 
 apt-get -y install locales
 
-sed -i "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" etc/locale.gen
+sed -i "/^# en_US.UTF-8 UTF-8$/s/^# //" etc/locale.gen
 locale-gen
 update-locale LANG=en_US.UTF-8
 
