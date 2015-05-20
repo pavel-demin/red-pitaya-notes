@@ -37,12 +37,7 @@ The basic blocks of the digital down-converter (DDC) and of the digital up-conve
 
 ![SDR transceiver]({{ "/img/sdr-transceiver.png" | prepend: site.baseurl }})
 
-The [projects/sdr_transceiver](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
-
-The [projects/sdr_transceiver/server](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver/server) directory contains the source code of two TCP servers:
-
-  - [sdr-receiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/server/sdr-receiver.c) that receives control commands and transmits the I/Q data stream (2 x 32 bit x 50 kSPS = 3.1 Mbit/s) to the SDR programs
-  - [sdr-transmitter.c](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/server/sdr-transmitter.c) that receives the I/Q data stream from the SDR programs.
+The [projects/sdr_transceiver](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver) directory contains four Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/block_design.tcl), [rx_0.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/rx_0.tcl), [sp_0.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/sp_0.tcl), [tx_0.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/tx_0.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
 <!---
 Getting started
@@ -58,8 +53,7 @@ Getting started
  - Edit `etc/init.d/rcS` on the SD card to add the commands that configure FPGA and start the programs:
 {% highlight bash %}
 cat /opt/sdr_transceiver.bin > /dev/xdevcfg
-/opt/sdr-receiver &
-/opt/sdr-transmitter &
+/opt/MiniTRX-server &
 {% endhighlight %}
  - Insert the SD card in Red Pitaya and connect the power.
 -->
@@ -87,10 +81,4 @@ Building `sdr_transceiver.bin`:
 {% highlight bash %}
 make NAME=sdr_transceiver tmp/sdr_transceiver.bit
 python scripts/fpga-bit-to-bin.py --flip tmp/sdr_transceiver.bit sdr_transceiver.bin
-{% endhighlight %}
-
-Building `sdr-receiver` and `sdr-transmitter`:
-{% highlight bash %}
-arm-linux-gnueabihf-gcc projects/sdr_transceiver/server/sdr-receiver.c -o sdr-receiver -lm -static
-arm-linux-gnueabihf-gcc projects/sdr_transceiver/server/sdr-transmitter.c -o sdr-transmitter -lm -static
 {% endhighlight %}
