@@ -66,6 +66,7 @@ d-i pkgsel/update-policy select none
 d-i apt-setup/non-free boolean true
 d-i apt-setup/contrib boolean true
 
+d-i grub-installer/bootdev string default
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
 
