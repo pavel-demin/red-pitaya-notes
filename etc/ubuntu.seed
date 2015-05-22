@@ -84,4 +84,4 @@ d-i preseed/late_command string in-target \
   libxrender1 libxtst6 libxi6 lib32ncurses5 \
   gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
   bc u-boot-tools libncurses5-dev qemu-user-static \
-  binfmt-support dosfstools parted
+  binfmt-support dosfstools parted debootstrap
