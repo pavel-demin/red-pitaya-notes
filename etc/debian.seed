@@ -72,16 +72,16 @@ d-i grub-installer/with_other_os boolean true
 
 d-i finish-install/reboot_in_progress note
 
-d-i preseed/late_command string in-target \
-  apt-get --yes --no-install-recommends install \
+d-i preseed/late_command string \
+  in-target apt-get --yes --no-install-recommends install \
   network-manager openssh-server virtualbox-guest-dkms \
   autofs samba git curl ca-certificates xauth \
   build-essential less vim screen sudo psmisc \
   libxrender1 libxtst6 libxi6 lib32ncurses5 \
   bc u-boot-tools libncurses5-dev qemu-user-static \
-  binfmt-support dosfstools parted ; \
-  echo "deb http://emdebian.org/tools/debian jessie main" > /etc/apt/sources.list.d/emdebian.list ; \
-  curl http://emdebian.org/tools/debian/emdebian-toolchain-archive.key | sudo apt-key add - ; \
-  dpkg --add-architecture armhf ; \
-  apt-get update ; \
-  apt-get --yes --no-install-recommends install crossbuild-essential-armhf
+  binfmt-support dosfstools parted; \
+  in-target echo "deb http://emdebian.org/tools/debian jessie main" > /etc/apt/sources.list.d/emdebian.list; \
+  in-target curl http://emdebian.org/tools/debian/emdebian-toolchain-archive.key | sudo apt-key add -; \
+  in-target dpkg --add-architecture armhf; \
+  in-target apt-get update; \
+  in-target apt-get --yes --no-install-recommends install crossbuild-essential-armhf
