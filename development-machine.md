@@ -4,21 +4,22 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.2 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.1 with full SDK.
+The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.2 (amd64) or [Debian](http://www.debian.org/releases/stable/) 8.0 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.1 with full SDK.
 
-Creating virtual machine with Ubuntu 14.04.2 (amd64)
+Creating virtual machine with Ubuntu 14.04.2 (amd64) or Debian 8.0 (amd64)
 -----
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](http://archive.ubuntu.com/ubuntu/dists/trusty-updates/main/installer-amd64/current/images/netboot/mini.iso) for Ubuntu 14.04
+- Download [mini.iso](http://archive.ubuntu.com/ubuntu/dists/trusty-updates/main/installer-amd64/current/images/netboot/mini.iso) for Ubuntu 14.04 or [mini.iso](http://ftp.heanet.ie/pub/debian/dists/jessie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 8.0
 
 - Start VirtualBox
 
 - Create a new virtual machine using the `mini.iso` image:
+
   - Click the blue "New" icon
 
-  - Pick a name for the machine, then select "Linux" and "Ubuntu (64 bit)"
+  - Pick a name for the machine, then select "Linux" and "Ubuntu (64 bit)" or "Debian (64 bit)"
 
   - Set the memory size to at least 2048 MB
 
@@ -44,18 +45,27 @@ Creating virtual machine with Ubuntu 14.04.2 (amd64)
 
   - Click "OK"
 
-  - Click the green "Start" icon
+  - Select the newly created virtual machine and click the green "Start" icon
 
   - Press TAB when the "Installer boot menu" appears
 
-  - Edit the boot parameters at the bottom of the boot screen to make them look like the following:
+- For Ubuntu, edit the boot parameters at the bottom of the boot screen to make them look like the following:
 
-    (the content of the `git.io/FwVS` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/ubuntu.seed))
-{% highlight bash %}
-linux initrd=initrd.gz url=git.io/FwVS auto=true priority=critical interface=auto
-{% endhighlight %}
+  (the content of the `git.io/FwVS` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/ubuntu.seed))
 
-  - Press ENTER to start the automatic installation
+  {% highlight bash %}
+  linux initrd=initrd.gz url=git.io/FwVS auto=true priority=critical interface=auto
+  {% endhighlight %}
+
+- For Debian, edit the boot parameters at the bottom of the boot screen to make them look like the following:
+
+  (the content of the `git.io/vTXXT` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/debian.seed))
+
+  {% highlight bash %}
+  linux initrd=initrd.gz url=git.io/vTXXT auto=true priority=critical interface=auto
+  {% endhighlight %}
+
+- Press ENTER to start the automatic installation
 
 - After installation is done, stop the virtual machine
 
@@ -83,6 +93,7 @@ mkdir /opt/Xilinx
 cd /opt/Xilinx
 tar -zxf Xilinx_Vivado_SDK_Lin_2015.1_0428_1.tar.gz
 cd Xilinx_Vivado_SDK_Lin_2015.1_0428_1
+sed -i '/uname -i/s/ -i/ -m/' xsetup
 ./xsetup
 {% endhighlight %}
 
