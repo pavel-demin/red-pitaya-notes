@@ -75,7 +75,7 @@ linux initrd=initrd.gz url=git.io/vTXXT auto=true priority=critical interface=au
 
 - Click "OK"
 
-- The virtual machine is ready to use (the root password is "changeme")
+- The virtual machine is ready to use (the default password for the `root` and `red-pitaya` accounts is `changeme`)
 
 Accessing the virtual machine
 -----
