@@ -50,7 +50,7 @@ A software called [MiniTRX](https://github.com/pavel-demin/MiniTRX) is currently
 The server relies on the following libraries:
 
  - [FFTW-ARM](http://www.vesperix.com/arm/fftw-arm/)
- - [WDSP](http://openhpsdr.org/publications.php)
+ - [WDSP](http://openhpsdr.org/videos.php)
  - [libsamplerate](http://www.mega-nerd.com/SRC/)
  - [Qt](http://www.qt.io/)
 
