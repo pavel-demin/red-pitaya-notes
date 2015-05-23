@@ -4,7 +4,7 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.2 (amd64) or [Debian](http://www.debian.org/releases/stable/) 8.0 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.1 with full SDK.
+The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.2 (amd64) or [Debian](http://www.debian.org/releases/jessie) 8.0 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.1 with full SDK.
 
 Creating virtual machine with Ubuntu 14.04.2 (amd64) or Debian 8.0 (amd64)
 -----
