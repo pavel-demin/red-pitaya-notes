@@ -15,7 +15,7 @@ Creating virtual machine with Ubuntu 14.04.2 (amd64) or Debian 8.0 (amd64)
 
 - Start VirtualBox
 
-- Create a new virtual machine using the `mini.iso` image:
+- Create a new virtual machine:
 
   - Click the blue "New" icon
 
@@ -45,25 +45,25 @@ Creating virtual machine with Ubuntu 14.04.2 (amd64) or Debian 8.0 (amd64)
 
   - Click "OK"
 
-  - Select the newly created virtual machine and click the green "Start" icon
+- Select the newly created virtual machine and click the green "Start" icon
 
-  - Press TAB when the "Installer boot menu" appears
+- Press TAB when the "Installer boot menu" appears
 
 - For Ubuntu, edit the boot parameters at the bottom of the boot screen to make them look like the following:
 
   (the content of the `git.io/FwVS` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/ubuntu.seed))
 
-  {% highlight bash %}
-  linux initrd=initrd.gz url=git.io/FwVS auto=true priority=critical interface=auto
-  {% endhighlight %}
+{% highlight bash %}
+linux initrd=initrd.gz url=git.io/FwVS auto=true priority=critical interface=auto
+{% endhighlight %}
 
 - For Debian, edit the boot parameters at the bottom of the boot screen to make them look like the following:
 
   (the content of the `git.io/vTXXT` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/debian.seed))
 
-  {% highlight bash %}
-  linux initrd=initrd.gz url=git.io/vTXXT auto=true priority=critical interface=auto
-  {% endhighlight %}
+{% highlight bash %}
+linux initrd=initrd.gz url=git.io/vTXXT auto=true priority=critical interface=auto
+{% endhighlight %}
 
 - Press ENTER to start the automatic installation
 
@@ -100,7 +100,7 @@ sed -i '/uname -i/s/ -i/ -m/' xsetup
 - Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page
   (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2015_1/ug973-vivado-release-notes-install-license.pdf))
 
-- Xilinx SDK requires `gmake` that is not available on Ubuntu. The following command creates a symbolic link called `gmake` and pointing to `make`:
+- Xilinx SDK requires `gmake` that is unavailable on Ubuntu and Debian. The following command creates a symbolic link called `gmake` and pointing to `make`:
 {% highlight bash %}
 ln -s make /usr/bin/gmake
 {% endhighlight %}
