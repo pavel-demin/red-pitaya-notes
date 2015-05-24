@@ -3,7 +3,7 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-mirror=http://ftp.belnet.be/debian
+mirror=http://ftp.heanet.ie/pub/debian
 distro=jessie
 arch=armhf
 
