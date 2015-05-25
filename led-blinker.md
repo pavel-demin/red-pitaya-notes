@@ -37,7 +37,7 @@ sudo apt-get --no-install-recommends install \
   libxrender1 libxtst6 libxi6 lib32ncurses5 \
   gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
   bc u-boot-tools libncurses5-dev  qemu-user-static \
-  binfmt-support dosfstools parted
+  binfmt-support dosfstools parted debootstrap
 
 sudo ln -s make /usr/bin/gmake
 {% endhighlight %}
@@ -127,14 +127,14 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 {% endhighlight %}
 
-Building `u-boot.elf`, `boot.bin` and `devicetree.dtb`:
+Building `boot.bin`, `devicetree.dtb` and `uImage`:
 {% highlight bash %}
 make NAME=led_blinker all
 {% endhighlight %}
 
 Building a bootable SD card:
 {% highlight bash %}
-sudo sh scripts/sdcard.sh /dev/mmcblk0
+sudo sh scripts/ubuntu.sh /dev/mmcblk0
 {% endhighlight %}
 
 SD card image
@@ -142,14 +142,14 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh red-pitaya-ubuntu-14.04.2.img
+sudo sh scripts/image.sh scripts/ubuntu.sh red-pitaya-ubuntu-14.04.2.img
 {% endhighlight %}
 
 The SD card image size is 512 MB, so it should fit on any SD card starting from 1 GB.
 
 To write the image to a SD card, the `dd` command-line utility can be used on GNU/Linux and Mac OS X or [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/) can be used on MS Windows.
 
-The default user name is `root` and the default password is `changeme`.
+The default password for the `root` account is `changeme`.
 
 A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ubuntu-14.04.2-20150505.zip).
 
