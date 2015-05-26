@@ -32,6 +32,9 @@ LINUX_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp"
 UBOOT_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp"
 ARMHF_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 
+RTL_TAR = tmp/rtl8192cu.tgz
+RTL_URL = https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/rtl8192cu.tgz
+
 .PRECIOUS: tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system.dts
 
 all: boot.bin uImage devicetree.dtb fw_printenv
@@ -48,6 +51,10 @@ $(DTREE_TAR):
 	mkdir -p $(@D)
 	curl -L $(DTREE_URL) -o $@
 
+$(RTL_TAR):
+	mkdir -p $(@D)
+	curl -L $(RTL_URL) -o $@
+
 $(UBOOT_DIR): $(UBOOT_TAR)
 	mkdir -p $@
 	tar -zxf $< --strip-components=1 --directory=$@
@@ -57,9 +64,10 @@ $(UBOOT_DIR): $(UBOOT_TAR)
 	cp patches/zynq_red_pitaya.h $@/include/configs
 	cp patches/u-boot-lantiq.c $@/drivers/net/phy/lantiq.c
 
-$(LINUX_DIR): $(LINUX_TAR)
+$(LINUX_DIR): $(LINUX_TAR) $(RTL_TAR)
 	mkdir -p $@
 	tar -zxf $< --strip-components=1 --directory=$@
+	tar -zxf $(RTL_TAR) --directory=$@/drivers/net/wireless
 	patch -d tmp -p 0 < patches/linux-xlnx-$(LINUX_TAG).patch
 	cp patches/linux-lantiq.c $@/drivers/net/phy/lantiq.c
 
