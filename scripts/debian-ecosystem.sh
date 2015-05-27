@@ -80,12 +80,6 @@ cat <<- EOF_CAT > etc/fstab
 /dev/mmcblk0p1  /boot           vfat    defaults            0       2
 EOF_CAT
 
-cat <<- EOF_CAT >> etc/network/interfaces.d/eth0
-auto eth0
-allow-hotplug eth0
-iface eth0 inet dhcp
-EOF_CAT
-
 cat <<- EOF_CAT >> etc/securetty
 
 # Serial Console for Xilinx Zynq-7000
@@ -109,7 +103,7 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
   iw firmware-realtek firmware-ralink build-essential libluajit-5.1 lua-cjson \
-  unzip
+  unzip ifplugd
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
@@ -137,6 +131,17 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/lib
 EOF_CAT
 
 touch etc/udev/rules.d/75-persistent-net-generator.rules
+
+cat <<- EOF_CAT > etc/network/interfaces.d/eth0
+iface eth0 inet dhcp
+EOF_CAT
+
+cat <<- EOF_CAT > etc/default/ifplugd
+INTERFACES="eth0"
+HOTPLUG_INTERFACES="eth0"
+ARGS="-q -f -u0 -d10 -w -I"
+SUSPEND_ACTION="stop"
+EOF_CAT
 
 cat <<- EOF_CAT > etc/network/interfaces.d/wlan0
 auto wlan0
@@ -177,11 +182,9 @@ then
   iw wlan0 info > /dev/null 2>&1
   if [ $? -eq 0 ]
   then
-    echo 1 >> /tmp/echo
     sed -i '/^driver/s/=.*/=nl80211/' /etc/hostapd/hostapd.conf
     DAEMON_SBIN=/usr/sbin/hostapd
   else
-    echo 2 >> /tmp/echo
     sed -i '/^driver/s/=.*/=rtl871xdrv/' /etc/hostapd/hostapd.conf
     DAEMON_SBIN=/opt/sbin/hostapd
   fi
