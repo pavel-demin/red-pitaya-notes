@@ -81,6 +81,7 @@ cat <<- EOF_CAT > etc/fstab
 EOF_CAT
 
 cat <<- EOF_CAT >> etc/network/interfaces.d/eth0
+auto eth0
 allow-hotplug eth0
 iface eth0 inet dhcp
 EOF_CAT
@@ -138,10 +139,12 @@ EOF_CAT
 touch etc/udev/rules.d/75-persistent-net-generator.rules
 
 cat <<- EOF_CAT > etc/network/interfaces.d/wlan0
+auto wlan0
 allow-hotplug wlan0
 iface wlan0 inet static
   address 192.168.42.1
   netmask 255.255.255.0
+  wireless-power off
   post-up service hostapd restart
   post-up service isc-dhcp-server restart
   post-up iptables-restore < /etc/iptables.ipv4.nat
@@ -167,15 +170,25 @@ rsn_pairwise=CCMP
 EOF_CAT
 
 cat <<- EOF_CAT > etc/default/hostapd
-DAEMON_CONF="/etc/hostapd/hostapd.conf"
+DAEMON_CONF=/etc/hostapd/hostapd.conf
 
-iw wlan0 info > /dev/null 2>&1
-if [ $? -eq 0 ]
+if [ "$1" = "start" ]
 then
-  sed -i '/^driver/s/=.*/=nl80211/' /etc/hostapd/hostapd.conf
-else
-  sed -i '/^driver/s/=.*/=rtl871xdrv/' /etc/hostapd/hostapd.conf
-  DAEMON_SBIN=/opt/sbin/hostapd
+  iw wlan0 info > /dev/null 2>&1
+  if [ $? -eq 0 ]
+  then
+    echo 1 >> /tmp/echo
+    sed -i '/^driver/s/=.*/=nl80211/' /etc/hostapd/hostapd.conf
+    DAEMON_SBIN=/usr/sbin/hostapd
+  else
+    echo 2 >> /tmp/echo
+    sed -i '/^driver/s/=.*/=rtl871xdrv/' /etc/hostapd/hostapd.conf
+    DAEMON_SBIN=/opt/sbin/hostapd
+  fi
+  echo $DAEMON_SBIN > /run/hostapd.which
+elif [ "$1" = "stop" ]
+then
+  DAEMON_SBIN=$(cat /run/hostapd.which)
 fi
 EOF_CAT
 
