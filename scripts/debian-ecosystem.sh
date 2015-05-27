@@ -166,7 +166,18 @@ wpa_pairwise=TKIP
 rsn_pairwise=CCMP
 EOF_CAT
 
-sed -i 's/^#DAEMON_CONF=""/DAEMON_CONF="\/etc\/hostapd\/hostapd.conf"/' etc/default/hostapd
+cat <<- EOF_CAT > etc/default/hostapd
+DAEMON_CONF="/etc/hostapd/hostapd.conf"
+
+iw wlan0 info > /dev/null 2>&1
+if [ $? -eq 0 ]
+then
+  sed -i '/^driver/s/=.*/=nl80211/' /etc/hostapd/hostapd.conf
+else
+  sed -i '/^driver/s/=.*/=rtl871xdrv/' /etc/hostapd/hostapd.conf
+  DAEMON_SBIN=/opt/sbin/hostapd
+fi
+EOF_CAT
 
 cat <<- EOF_CAT > etc/dhcp/dhcpd.conf
 ddns-update-style none;
