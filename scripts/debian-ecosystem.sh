@@ -138,18 +138,16 @@ EOF_CAT
 
 cat <<- EOF_CAT > etc/default/ifplugd
 INTERFACES="eth0"
-HOTPLUG_INTERFACES="eth0"
+HOTPLUG_INTERFACES=""
 ARGS="-q -f -u0 -d10 -w -I"
 SUSPEND_ACTION="stop"
 EOF_CAT
 
 cat <<- EOF_CAT > etc/network/interfaces.d/wlan0
-auto wlan0
 allow-hotplug wlan0
 iface wlan0 inet static
   address 192.168.42.1
   netmask 255.255.255.0
-  wireless-power off
   post-up service hostapd restart
   post-up service isc-dhcp-server restart
   post-up iptables-restore < /etc/iptables.ipv4.nat
