@@ -3,7 +3,7 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-ecosystem_tar=red-pitaya-ecosystem-0.92-20150524.tgz
+ecosystem_tar=red-pitaya-ecosystem-0.92-20150527.tgz
 ecosystem_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/$ecosystem_tar
 
 mirror=http://ftp.heanet.ie/pub/debian
