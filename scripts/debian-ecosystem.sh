@@ -126,8 +126,8 @@ EOF_CAT
 systemctl enable nginx
 
 cat <<- EOF_CAT > etc/profile.d/red-pitaya.sh
-export PATH=$PATH:/opt/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/lib
+export PATH=\\\$PATH:/opt/bin
+export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:/opt/lib
 EOF_CAT
 
 touch etc/udev/rules.d/75-persistent-net-generator.rules
@@ -177,10 +177,10 @@ EOF_CAT
 cat <<- EOF_CAT > etc/default/hostapd
 DAEMON_CONF=/etc/hostapd/hostapd.conf
 
-if [ "$1" = "start" ]
+if [ "\\\$1" = "start" ]
 then
   iw wlan0 info > /dev/null 2>&1
-  if [ $? -eq 0 ]
+  if [ \\\$? -eq 0 ]
   then
     sed -i '/^driver/s/=.*/=nl80211/' /etc/hostapd/hostapd.conf
     DAEMON_SBIN=/usr/sbin/hostapd
@@ -188,10 +188,10 @@ then
     sed -i '/^driver/s/=.*/=rtl871xdrv/' /etc/hostapd/hostapd.conf
     DAEMON_SBIN=/opt/sbin/hostapd
   fi
-  echo $DAEMON_SBIN > /run/hostapd.which
-elif [ "$1" = "stop" ]
+  echo \\\$DAEMON_SBIN > /run/hostapd.which
+elif [ "\\\$1" = "stop" ]
 then
-  DAEMON_SBIN=$(cat /run/hostapd.which)
+  DAEMON_SBIN=\\\$(cat /run/hostapd.which)
 fi
 EOF_CAT
 
