@@ -6,6 +6,8 @@ root_dir=/tmp/ROOT
 root_tar=ubuntu-core-14.04.2-core-armhf.tar.gz
 root_url=http://cdimage.ubuntu.com/ubuntu-core/releases/14.04/release/$root_tar
 
+hostapd_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/rtl8192cu/hostapd-armhf
+
 passwd=changeme
 timezone=Europe/Brussels
 
@@ -32,7 +34,7 @@ mount $root_dev $root_dir
 
 # Copy files to the boot file system
 
-cp boot.bin devicetree.dtb uImage $boot_dir
+cp boot.bin devicetree.dtb uImage uEnv.txt $boot_dir
 
 # Copy Ubuntu Core to the root file system
 
@@ -46,10 +48,12 @@ cp /etc/resolv.conf $root_dir/etc/
 cp /usr/bin/qemu-arm-static $root_dir/usr/bin/
 
 cp patches/fw_env.config $root_dir/etc/
+
 cp fw_printenv $root_dir/usr/local/bin/fw_printenv
 cp fw_printenv $root_dir/usr/local/bin/fw_setenv
 
-# cp acquire generate monitor $root_dir/usr/local/bin/
+curl -L $hostapd_url -o $root_dir/usr/local/sbin/hostapd
+chmod +x $root_dir/usr/local/sbin/hostapd
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
@@ -64,11 +68,6 @@ cat <<- EOF_CAT > etc/fstab
 # <file system> <mount point>   <type>  <options>           <dump>  <pass>
 /dev/mmcblk0p2  /               ext4    errors=remount-ro   0       1
 /dev/mmcblk0p1  /boot           vfat    defaults            0       2
-EOF_CAT
-
-cat <<- EOF_CAT >> etc/network/interfaces.d/eth0
-allow-hotplug eth0
-iface eth0 inet dhcp
 EOF_CAT
 
 cat <<- EOF_CAT >> etc/securetty
@@ -103,6 +102,11 @@ apt-get -y install hostapd isc-dhcp-server iptables
 
 touch etc/udev/rules.d/75-persistent-net-generator.rules
 
+cat <<- EOF_CAT >> etc/network/interfaces.d/eth0
+allow-hotplug eth0
+iface eth0 inet dhcp
+EOF_CAT
+
 cat <<- EOF_CAT > etc/network/interfaces.d/wlan0
 allow-hotplug wlan0
 iface wlan0 inet static
@@ -132,7 +136,26 @@ wpa_pairwise=TKIP
 rsn_pairwise=CCMP
 EOF_CAT
 
-sed -i 's/^#DAEMON_CONF=""/DAEMON_CONF="\/etc\/hostapd\/hostapd.conf"/' etc/default/hostapd
+cat <<- EOF_CAT > etc/default/hostapd
+DAEMON_CONF=/etc/hostapd/hostapd.conf
+
+if [ "\\\$1" = "start" ]
+then
+  iw wlan0 info > /dev/null 2>&1
+  if [ \\\$? -eq 0 ]
+  then
+    sed -i '/^driver/s/=.*/=nl80211/' /etc/hostapd/hostapd.conf
+    DAEMON_SBIN=/usr/sbin/hostapd
+  else
+    sed -i '/^driver/s/=.*/=rtl871xdrv/' /etc/hostapd/hostapd.conf
+    DAEMON_SBIN=/usr/local/sbin/hostapd
+  fi
+  echo \\\$DAEMON_SBIN > /run/hostapd.which
+elif [ "\\\$1" = "stop" ]
+then
+  DAEMON_SBIN=\\\$(cat /run/hostapd.which)
+fi
+EOF_CAT
 
 cat <<- EOF_CAT > etc/dhcp/dhcpd.conf
 ddns-update-style none;

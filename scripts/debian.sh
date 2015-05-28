@@ -7,6 +7,8 @@ mirror=http://ftp.heanet.ie/pub/debian
 distro=jessie
 arch=armhf
 
+hostapd_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/rtl8192cu/hostapd-$arch
+
 passwd=changeme
 timezone=Europe/Brussels
 
@@ -33,7 +35,7 @@ mount $root_dev $root_dir
 
 # Copy files to the boot file system
 
-cp boot.bin devicetree.dtb uImage $boot_dir
+cp boot.bin devicetree.dtb uImage uEnv.txt $boot_dir
 
 # Install Debian base system to the root file system
 
@@ -50,7 +52,9 @@ mkdir -p $root_dir/usr/local/bin
 cp fw_printenv $root_dir/usr/local/bin/fw_printenv
 cp fw_printenv $root_dir/usr/local/bin/fw_setenv
 
-# cp acquire generate monitor $root_dir/usr/local/bin/
+mkdir -p $root_dir/usr/local/sbin
+curl -L $hostapd_url -o $root_dir/usr/local/sbin/hostapd
+chmod +x $root_dir/usr/local/sbin/hostapd
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
@@ -78,11 +82,6 @@ cat <<- EOF_CAT > etc/fstab
 /dev/mmcblk0p1  /boot           vfat    defaults            0       2
 EOF_CAT
 
-cat <<- EOF_CAT >> etc/network/interfaces.d/eth0
-allow-hotplug eth0
-iface eth0 inet dhcp
-EOF_CAT
-
 cat <<- EOF_CAT >> etc/securetty
 
 # Serial Console for Xilinx Zynq-7000
@@ -105,11 +104,22 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
-  iw firmware-realtek firmware-ralink
+  iw firmware-realtek firmware-ralink ifplugd
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
 touch etc/udev/rules.d/75-persistent-net-generator.rules
+
+cat <<- EOF_CAT > etc/network/interfaces.d/eth0
+iface eth0 inet dhcp
+EOF_CAT
+
+cat <<- EOF_CAT > etc/default/ifplugd
+INTERFACES="eth0"
+HOTPLUG_INTERFACES=""
+ARGS="-q -f -u0 -d10 -w -I"
+SUSPEND_ACTION="stop"
+EOF_CAT
 
 cat <<- EOF_CAT > etc/network/interfaces.d/wlan0
 allow-hotplug wlan0
@@ -140,7 +150,26 @@ wpa_pairwise=TKIP
 rsn_pairwise=CCMP
 EOF_CAT
 
-sed -i 's/^#DAEMON_CONF=""/DAEMON_CONF="\/etc\/hostapd\/hostapd.conf"/' etc/default/hostapd
+cat <<- EOF_CAT > etc/default/hostapd
+DAEMON_CONF=/etc/hostapd/hostapd.conf
+
+if [ "\\\$1" = "start" ]
+then
+  iw wlan0 info > /dev/null 2>&1
+  if [ \\\$? -eq 0 ]
+  then
+    sed -i '/^driver/s/=.*/=nl80211/' /etc/hostapd/hostapd.conf
+    DAEMON_SBIN=/usr/sbin/hostapd
+  else
+    sed -i '/^driver/s/=.*/=rtl871xdrv/' /etc/hostapd/hostapd.conf
+    DAEMON_SBIN=/usr/local/sbin/hostapd
+  fi
+  echo \\\$DAEMON_SBIN > /run/hostapd.which
+elif [ "\\\$1" = "stop" ]
+then
+  DAEMON_SBIN=\\\$(cat /run/hostapd.which)
+fi
+EOF_CAT
 
 cat <<- EOF_CAT > etc/dhcp/dhcpd.conf
 ddns-update-style none;

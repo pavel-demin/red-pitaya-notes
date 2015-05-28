@@ -36,7 +36,7 @@ mount $root_dev $root_dir
 
 # Copy files to the boot file system
 
-cp boot.bin devicetree.dtb uImage $boot_dir
+cp boot.bin devicetree.dtb uImage uEnv.txt $boot_dir
 
 # Install Debian base system to the root file system
 
@@ -114,7 +114,7 @@ After=network.target
 
 [Service]
 Type=forking
-PIDFile=/var/run/nginx.pid
+PIDFile=/run/nginx.pid
 ExecStart=/opt/sbin/nginx -p /opt/www
 ExecReload=/opt/sbin/nginx -p /opt/www -s reload
 ExecStop=/opt/sbin/nginx -p /opt/www -s quit
