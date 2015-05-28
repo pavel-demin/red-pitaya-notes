@@ -114,7 +114,7 @@ After=network.target
 
 [Service]
 Type=forking
-PIDFile=/var/run/nginx.pid
+PIDFile=/run/nginx.pid
 ExecStart=/opt/sbin/nginx -p /opt/www
 ExecReload=/opt/sbin/nginx -p /opt/www -s reload
 ExecStop=/opt/sbin/nginx -p /opt/www -s quit
