@@ -28,35 +28,33 @@ void signal_handler(int sig)
 
 int main ()
 {
-  int pipes[2];
   pid_t pid;
-  int files[2], sockServer, sockClient;
+  int pipefd[2], mmapfd[2], sockServer, sockClient;
   int position, limit, offset;
   void *cfg, *sts, *ram, *buf;
   char *name;
-  unsigned long size = 0;
   struct sockaddr_in addr;
   int yes = 1;
 
   name = "/dev/mem";
-  if((files[0] = open(name, O_RDWR)) < 0)
+  if((mmapfd[0] = open(name, O_RDWR)) < 0)
   {
     perror("open");
     return 1;
   }
 
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, files[0], 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, files[0], 0x40001000);
-  ram = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, files[0], 0x1E000000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd[0], 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd[0], 0x40001000);
+  ram = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd[0], 0x1E000000);
 
   name = "/dev/zero";
-  if((files[1] = open(name, O_RDWR)) < 0)
+  if((mmapfd[1] = open(name, O_RDWR)) < 0)
   {
     perror("open");
     return 1;
   }
 
-  buf = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, files[1], 0);
+  buf = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd[1], 0);
   if(buf == MAP_FAILED)
   {
     perror("mmap");
@@ -66,7 +64,7 @@ int main ()
   limit = 512*1024;
 
   /* create a pipe */
-  pipe(pipes);
+  pipe(pipefd);
 
   pid = fork();
   if(pid == 0)
@@ -75,8 +73,8 @@ int main ()
     FILE *stream;
     char buffer[256];
 
-    close(pipes[1]);
-    stream = fdopen(pipes[0], "r");
+    close(pipefd[1]);
+    stream = fdopen(pipefd[0], "r");
 
     if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -121,10 +119,10 @@ int main ()
       while(1)
       {
         fgets(buffer, sizeof(buffer), stream);
-        if(send(sockClient, buf, 4096*1024, 0) < 0) return;
+        if(send(sockClient, buf, 4096*1024, 0) < 0) break;
 
         fgets(buffer, sizeof(buffer), stream);
-        if(send(sockClient, buf + 4096*1024, 4096*1024, 0) < 0) return;
+        if(send(sockClient, buf + 4096*1024, 4096*1024, 0) < 0) break;
       }
     }
   }
@@ -133,15 +131,15 @@ int main ()
     /* parent process */
     FILE *stream;
 
-    close(pipes[0]);
-    stream = fdopen(pipes[1], "w");
+    close(pipefd[0]);
+    stream = fdopen(pipefd[1], "w");
 
     while(1)
     {
       /* read ram writer position */
       position = *((uint32_t *)(sts + 0));
 
-      /* send 4 MB bytes if ready, otherwise sleep 1 ms */
+      /* send 4 MB if ready, otherwise sleep 1 ms */
       if((limit > 0 && position > limit) || (limit == 0 && position < 512*1024))
       {
         offset = limit > 0 ? 0 : 4096*1024;
