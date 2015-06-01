@@ -34,7 +34,7 @@ int main ()
   void *cfg, *sts, *ram, *buf;
   char *name;
   struct sockaddr_in addr;
-  int yes = 1;
+  int yes = 1, buffer = 0;
 
   name = "/dev/mem";
   if((mmapfd[0] = open(name, O_RDWR)) < 0)
@@ -70,11 +70,33 @@ int main ()
   if(pid == 0)
   {
     /* child process */
-    FILE *stream;
-    char buffer[256];
+
+    close(pipefd[0]);
+
+    while(1)
+    {
+      /* read ram writer position */
+      position = *((uint32_t *)(sts + 0));
+
+      /* send 4 MB if ready, otherwise sleep 1 ms */
+      if((limit > 0 && position > limit) || (limit == 0 && position < 512*1024))
+      {
+        offset = limit > 0 ? 0 : 4096*1024;
+        limit = limit > 0 ? 0 : 512*1024;
+        memcpy(buf + offset, ram + offset, 4096*1024);
+        write(pipefd[1], &buffer, sizeof(buffer));
+      }
+      else
+      {
+        usleep(1000);
+      }
+    }
+  }
+  else if(pid > 0)
+  {
+    /* parent process */
 
     close(pipefd[1]);
-    stream = fdopen(pipefd[0], "r");
 
     if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -98,7 +120,7 @@ int main ()
 
     listen(sockServer, 1024);
 
-    while(1)
+    while(!interrupted)
     {
       /* enter reset mode */
       *((uint32_t *)(cfg + 0)) &= ~15;
@@ -111,47 +133,33 @@ int main ()
         return 1;
       }
 
+      signal(SIGINT, signal_handler);
+
       printf("new connection\n");
 
       /* enter normal operating mode */
       *((uint32_t *)(cfg + 0)) |= 15;
 
-      while(1)
+      while(!interrupted)
       {
-        fgets(buffer, sizeof(buffer), stream);
+        read(pipefd[0], &buffer, sizeof(buffer));
         if(send(sockClient, buf, 4096*1024, 0) < 0) break;
 
-        fgets(buffer, sizeof(buffer), stream);
+        read(pipefd[0], &buffer, sizeof(buffer));
         if(send(sockClient, buf + 4096*1024, 4096*1024, 0) < 0) break;
       }
+
+      signal(SIGINT, SIG_DFL);
+      close(sockClient);
     }
-  }
-  else if(pid > 0)
-  {
-    /* parent process */
-    FILE *stream;
 
-    close(pipefd[0]);
-    stream = fdopen(pipefd[1], "w");
+    /* enter reset mode */
+    *((uint32_t *)(cfg + 0)) &= ~15;
 
-    while(1)
-    {
-      /* read ram writer position */
-      position = *((uint32_t *)(sts + 0));
+    close(sockServer);
 
-      /* send 4 MB if ready, otherwise sleep 1 ms */
-      if((limit > 0 && position > limit) || (limit == 0 && position < 512*1024))
-      {
-        offset = limit > 0 ? 0 : 4096*1024;
-        limit = limit > 0 ? 0 : 512*1024;
-        memcpy(buf + offset, ram + offset, 4096*1024);
-        fprintf(stream, "\n");
-        fflush(stream);
-      }
-      else
-      {
-        usleep(1000);
-      }
-    }
+    kill(pid, SIGTERM);
+
+    return 0;
   }
 }
