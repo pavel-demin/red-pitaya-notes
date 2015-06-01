@@ -29,7 +29,7 @@ void signal_handler(int sig)
 int main ()
 {
   pid_t pid;
-  int pipefd[2], mmapfd[2], sockServer, sockClient;
+  int pipefd[2], mmapfd, sockServer, sockClient;
   int position, limit, offset;
   void *cfg, *sts, *ram, *buf;
   char *name;
@@ -37,29 +37,16 @@ int main ()
   int yes = 1, buffer = 0;
 
   name = "/dev/mem";
-  if((mmapfd[0] = open(name, O_RDWR)) < 0)
+  if((mmapfd = open(name, O_RDWR)) < 0)
   {
     perror("open");
     return 1;
   }
 
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd[0], 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd[0], 0x40001000);
-  ram = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd[0], 0x1E000000);
-
-  name = "/dev/zero";
-  if((mmapfd[1] = open(name, O_RDWR)) < 0)
-  {
-    perror("open");
-    return 1;
-  }
-
-  buf = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd[1], 0);
-  if(buf == MAP_FAILED)
-  {
-    perror("mmap");
-    return 1;
-  }
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40001000);
+  ram = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x1E000000);
+  buf = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 
   limit = 512*1024;
 
