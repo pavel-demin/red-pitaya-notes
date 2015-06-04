@@ -77,6 +77,10 @@ int main(int argc, char *argv[])
     *((uint32_t *)(cfg + 4)) = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
     /* set default sample rate */
     *((uint32_t *)(cfg + 8)) = 625;
+    /* set default amlitude for test signal */
+    *((uint32_t *)(cfg + 12)) = (15 << 16);
+    /* set default phase increment for test signal */
+    *((uint32_t *)(cfg + 16)) = (uint32_t)floor((600000 + 100)/125.0e6*(1<<30)+0.5);
 
     if((sockClient = accept(sockServer, NULL, NULL)) < 0)
     {
@@ -103,10 +107,8 @@ int main(int argc, char *argv[])
             if(command < freqMin || command > freqMax) continue;
             /* phase increment for down converter */
             *((uint32_t *)(cfg + 4)) = (uint32_t)floor(command/125.0e6*(1<<30)+0.5);
-            /* amlitude for test signal */
-            *((uint32_t *)(cfg + 12)) = 0x000fffff;
             /* phase increment for test signal */
-            *((uint32_t *)(cfg + 16)) = (uint32_t)floor((command + 100.0)/125.0e6*(1<<30)+0.5);
+            *((uint32_t *)(cfg + 16)) = (uint32_t)floor((command + 100)/125.0e6*(1<<30)+0.5);
             break;
           case 1:
             /* set sample rate */
