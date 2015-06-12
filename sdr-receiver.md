@@ -77,7 +77,7 @@ h <- fir2(L, f, Mf, window=kaiser(L+1, Beta))
 paste(as.character(h), collapse=", ")
 {% endhighlight %}
 
-To get an idea of the combined (CIC and FIR) filter response, the following figure shows a 256k FFT display from the SDR# program when Red Pitaya inputs are not connected to anything and the SDR# filtering is switched off:
+To get an idea of the combined (CIC and FIR) filter response, the following figure shows a 256k FFT display from the SDR# program when Red Pitaya inputs are not connected to anything:
 
 ![Filter response]({{ "/img/no-signal.png" | prepend: site.baseurl }})
 
@@ -128,13 +128,8 @@ Getting started
    - Computer running MS Windows.
    - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect an antenna to the IN2 connector on the Red Pitaya board.
- - Download [FPGA configuration file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/sdr_receiver.bin) and the [sdr-receiver program](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/sdr-receiver).
- - Copy the downloaded files (`sdr_receiver.bin` and `sdr-receiver`) to the original Red Pitaya SD card.
- - Edit `etc/init.d/rcS` on the SD card to add the commands that configure FPGA and start the `sdr-receiver` program:
-{% highlight bash %}
-cat /opt/sdr_receiver.bin > /dev/xdevcfg
-/opt/sdr-receiver &
-{% endhighlight %}
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.92-65-35575ed-sdr-receiver.zip).
+ - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [SDR#](http://sdrsharp.com/#download) or [HDSDR](http://www.hdsdr.de/).
  - Download [pre-built ExtIO plug-in](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ExtIO_RedPitaya.dll) for SDR# and HDSDR.
