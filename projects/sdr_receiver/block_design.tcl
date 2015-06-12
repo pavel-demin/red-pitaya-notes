@@ -128,15 +128,29 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
   m_axis_aresetn slice_1/Dout
 }
 
+# Create axis_broadcaster
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  M_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 4
+  M_TDATA_NUM_BYTES 2
+  M00_TDATA_REMAP {tdata[31:16]}
+  M01_TDATA_REMAP {tdata[31:16]}
+} {
+  S_AXIS fifo_0/M_AXIS
+  aclk ps_0/FCLK_CLK0
+  aresetn rst_0/peripheral_aresetn
+}
+
 # Create axis_subset_converter
 cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
+  S_TDATA_NUM_BYTES 2
   M_TDATA_NUM_BYTES 8
-  TDATA_REMAP {tdata[30:16],49'b0000000000000000000000000000000000000000000000000}
+  TDATA_REMAP {tdata[14:0],49'b0000000000000000000000000000000000000000000000000}
 } {
-  S_AXIS fifo_0/M_AXIS
+  S_AXIS bcast_0/M00_AXIS
   aclk ps_0/FCLK_CLK0
   aresetn rst_0/peripheral_aresetn
 }
@@ -146,6 +160,7 @@ cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
   AXIS_TDATA_WIDTH 32
   PHASE_WIDTH 30
 } {
+  S_AXIS bcast_0/M01_AXIS
   cfg_data slice_5/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_2/Dout
@@ -154,6 +169,7 @@ cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
 # Create cordic
 cell xilinx.com:ip:cordic:6.0 cordic_0 {
   INPUT_WIDTH.VALUE_SRC USER
+  FLOW_CONTROL Blocking
   PIPELINING_MODE Optimal
   PHASE_FORMAT Scaled_Radians
   INPUT_WIDTH 32
@@ -167,7 +183,7 @@ cell xilinx.com:ip:cordic:6.0 cordic_0 {
 }
 
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 8
@@ -239,7 +255,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   OUTPUT_DATA_WIDTH 32
   HAS_ARESETN true
 } {
-  S_AXIS_DATA bcast_0/M00_AXIS
+  S_AXIS_DATA bcast_1/M00_AXIS
   S_AXIS_CONFIG pktzr_0/M_AXIS
   aclk ps_0/FCLK_CLK0
   aresetn slice_4/Dout
@@ -261,7 +277,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   OUTPUT_DATA_WIDTH 32
   HAS_ARESETN true
 } {
-  S_AXIS_DATA bcast_0/M01_AXIS
+  S_AXIS_DATA bcast_1/M01_AXIS
   S_AXIS_CONFIG pktzr_1/M_AXIS
   aclk ps_0/FCLK_CLK0
   aresetn slice_4/Dout
