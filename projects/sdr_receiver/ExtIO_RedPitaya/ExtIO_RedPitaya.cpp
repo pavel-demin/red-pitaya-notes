@@ -122,7 +122,7 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
 {
   String ^addrString;
   UInt32 rateIndex = 1;
-  Int32 corr = 1;
+  Int32 corr = 0;
 
   type = 6;
 
