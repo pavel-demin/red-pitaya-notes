@@ -28,7 +28,7 @@ char gBuffer[4096];
 int gOffset = 0;
 
 long gRate = 100000;
-int gCorr = 25;
+int gCorr = 0;
 
 long gFreq = 600000;
 long gFreqMin = 100000;
@@ -149,8 +149,8 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
     ManagedGlobals::gGUI->rateValue->SelectedIndex = rateIndex;
     ManagedGlobals::gGUI->rateCallback = UpdateRate;
 
-    corr = Convert::ToUInt32(ManagedGlobals::gKey->GetValue("Freq. Corr.", 25));
-    if(corr < -100 || corr > 100) corr = 25;
+    corr = Convert::ToUInt32(ManagedGlobals::gKey->GetValue("Freq. Corr.", 0));
+    if(corr < -100 || corr > 100) corr = 0;
     ManagedGlobals::gGUI->corrValue->Value = corr;
     ManagedGlobals::gGUI->corrCallback = SetCorr;
 
