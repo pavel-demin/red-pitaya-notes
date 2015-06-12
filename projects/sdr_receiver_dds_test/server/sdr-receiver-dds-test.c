@@ -72,13 +72,13 @@ int main(int argc, char *argv[])
   while(!interrupted)
   {
     /* enter reset mode */
-    *((uint32_t *)(cfg + 0)) &= ~15;
+    *((uint32_t *)(cfg + 0)) &= ~7;
     /* set default phase increment */
     *((uint32_t *)(cfg + 4)) = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
     /* set default sample rate */
     *((uint32_t *)(cfg + 8)) = 625;
     /* set default amlitude for test signal */
-    *((uint32_t *)(cfg + 12)) = (15 << 16);
+    *((uint32_t *)(cfg + 12)) = 15;
     /* set default phase increment for test signal */
     *((uint32_t *)(cfg + 16)) = (uint32_t)floor((600000 + 100)/125.0e6*(1<<30)+0.5);
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     signal(SIGINT, signal_handler);
 
     /* enter normal operating mode */
-    *((uint32_t *)(cfg + 0)) |= 15;
+    *((uint32_t *)(cfg + 0)) |= 7;
 
     while(!interrupted)
     {
@@ -116,27 +116,27 @@ int main(int argc, char *argv[])
             {
               case 0:
                 freqMin = 25000;
-                *((uint32_t *)(cfg + 0)) &= ~8;
+                *((uint32_t *)(cfg + 0)) &= ~4;
                 *((uint32_t *)(cfg + 8)) = 1250;
-                *((uint32_t *)(cfg + 0)) |= 8;
+                *((uint32_t *)(cfg + 0)) |= 4;
                 break;
               case 1:
                 freqMin = 50000;
-                *((uint32_t *)(cfg + 0)) &= ~8;
+                *((uint32_t *)(cfg + 0)) &= ~4;
                 *((uint32_t *)(cfg + 8)) = 625;
-                *((uint32_t *)(cfg + 0)) |= 8;
+                *((uint32_t *)(cfg + 0)) |= 4;
                 break;
               case 2:
                 freqMin = 125000;
-                *((uint32_t *)(cfg + 0)) &= ~8;
+                *((uint32_t *)(cfg + 0)) &= ~4;
                 *((uint32_t *)(cfg + 8)) = 250;
-                *((uint32_t *)(cfg + 0)) |= 8;
+                *((uint32_t *)(cfg + 0)) |= 4;
                 break;
               case 3:
                 freqMin = 250000;
-                *((uint32_t *)(cfg + 0)) &= ~8;
+                *((uint32_t *)(cfg + 0)) &= ~4;
                 *((uint32_t *)(cfg + 8)) = 125;
-                *((uint32_t *)(cfg + 0)) |= 8;
+                *((uint32_t *)(cfg + 0)) |= 4;
                 break;
             }
             break;
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
   close(sockServer);
 
   /* enter reset mode */
-  *((uint32_t *)(cfg + 0)) &= ~15;
+  *((uint32_t *)(cfg + 0)) &= ~7;
 
   return 0;
 }
