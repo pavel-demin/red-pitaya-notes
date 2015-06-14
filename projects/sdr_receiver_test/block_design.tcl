@@ -176,10 +176,12 @@ cell pavel-demin:user:axis_phase_generator:1.0 phase_test {
 # Create cordic
 cell xilinx.com:ip:cordic:6.0 cordic_test {
   INPUT_WIDTH.VALUE_SRC USER
+  FLOW_CONTROL Blocking
   PIPELINING_MODE Optimal
   PHASE_FORMAT Scaled_Radians
   INPUT_WIDTH 32
-  OUTPUT_WIDTH 32
+  OUTPUT_WIDTH 15
+  OUT_TREADY true
   ROUND_MODE Round_Pos_Neg_Inf
   COMPENSATION_SCALING Embedded_Multiplier
 } {
@@ -188,15 +190,50 @@ cell xilinx.com:ip:cordic:6.0 cordic_test {
   aclk ps_0/FCLK_CLK0
 }
 
+# Create clk_wiz
+cell xilinx.com:ip:clk_wiz:5.1 pll_test {
+  PRIMITIVE PLL
+  PRIM_IN_FREQ.VALUE_SRC USER
+  PRIM_IN_FREQ 125.0
+  CLKOUT1_USED true
+  CLKOUT2_USED true
+  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+} {
+  clk_in1 adc_0/adc_clk
+}
+
+# Create axis_clock_converter
+cell xilinx.com:ip:axis_clock_converter:1.1 fifo_test {} {
+  S_AXIS cordic_test/M_AXIS_DOUT
+  s_axis_aclk ps_0/FCLK_CLK0
+  s_axis_aresetn slice_1/Dout
+  m_axis_aclk pll_test/clk_out1
+  m_axis_aresetn const_0/dout
+}
+
+# Create axis_red_pitaya_dac
+cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_test {} {
+  aclk pll_test/clk_out1
+  ddr_clk pll_test/clk_out2
+  locked pll_test/locked
+  S_AXIS fifo_test/M_AXIS
+  dac_clk dac_clk_o
+  dac_rst dac_rst_o
+  dac_sel dac_sel_o
+  dac_wrt dac_wrt_o
+  dac_dat dac_dat_o
+}
+
 # Create axis_subset_converter
 cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 8
+  S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 8
   TDATA_REMAP {tdata[30:16],49'b0000000000000000000000000000000000000000000000000}
 } {
-  S_AXIS cordic_test/M_AXIS_DOUT
+  S_AXIS fifo_0/M_AXIS
   aclk ps_0/FCLK_CLK0
   aresetn rst_0/peripheral_aresetn
 }
@@ -214,10 +251,12 @@ cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
 # Create cordic
 cell xilinx.com:ip:cordic:6.0 cordic_0 {
   INPUT_WIDTH.VALUE_SRC USER
+  FLOW_CONTROL Blocking
   PIPELINING_MODE Optimal
   PHASE_FORMAT Scaled_Radians
   INPUT_WIDTH 32
   OUTPUT_WIDTH 32
+  OUT_TREADY true
   ROUND_MODE Round_Pos_Neg_Inf
   COMPENSATION_SCALING Embedded_Multiplier
 } {
