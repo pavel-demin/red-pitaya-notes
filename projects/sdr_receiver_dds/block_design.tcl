@@ -158,10 +158,10 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   aclk ps_0/FCLK_CLK0
 }
 
-# Create axis_phase_generator
+# Create axis_lfsr
 cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
   aclk ps_0/FCLK_CLK0
-  aresetn slice_2/Dout
+  aresetn slice_1/Dout
 }
 
 # Create cmpy
