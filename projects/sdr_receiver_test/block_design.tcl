@@ -133,15 +133,6 @@ cell xilinx.com:ip:xlslice:1.0 slice_8 {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0
 
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
-  S_AXIS adc_0/M_AXIS
-  s_axis_aclk adc_0/adc_clk
-  s_axis_aresetn const_0/dout
-  m_axis_aclk ps_0/FCLK_CLK0
-  m_axis_aresetn slice_1/Dout
-}
-
 # Create axis_constant
 cell pavel-demin:user:axis_constant:1.0 const_test {
   AXIS_TDATA_WIDTH 32
@@ -223,6 +214,15 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_test {} {
   dac_sel dac_sel_o
   dac_wrt dac_wrt_o
   dac_dat dac_dat_o
+}
+
+# Create axis_clock_converter
+cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
+  S_AXIS adc_0/M_AXIS
+  s_axis_aclk adc_0/adc_clk
+  s_axis_aresetn const_0/dout
+  m_axis_aclk ps_0/FCLK_CLK0
+  m_axis_aresetn slice_1/Dout
 }
 
 # Create axis_subset_converter
