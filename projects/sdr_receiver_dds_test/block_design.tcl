@@ -126,13 +126,22 @@ cell xilinx.com:ip:xlslice:1.0 slice_7 {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0
 
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
-  S_AXIS adc_0/M_AXIS
-  s_axis_aclk adc_0/adc_clk
-  s_axis_aresetn const_0/dout
-  m_axis_aclk ps_0/FCLK_CLK0
-  m_axis_aresetn slice_1/Dout
+# Create axis_lfsr
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
+  aclk ps_0/FCLK_CLK0
+  aresetn slice_2/Dout
+}
+
+# Create axis_broadcaster
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  M_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 8
+  M_TDATA_NUM_BYTES 8
+} {
+  S_AXIS lfsr_0/M_AXIS
+  aclk ps_0/FCLK_CLK0
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create axis_constant
@@ -158,6 +167,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_test {
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
   DSP48_USE Maximal
+  HAS_TREADY true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
   OUTPUT_WIDTH 24
@@ -173,13 +183,60 @@ cell xilinx.com:ip:cmpy:6.0 mult_test {
   BPORTWIDTH.VALUE_SRC USER
   APORTWIDTH 14
   BPORTWIDTH 24
-  OUTPUTWIDTH 32
+  ROUNDMODE Random_Rounding
+  OUTPUTWIDTH 14
 } {
   S_AXIS_A const_test/M_AXIS
   S_AXIS_B dds_test/M_AXIS_DATA
+  S_AXIS_CTRL bcast_0/M00_AXIS
   aclk ps_0/FCLK_CLK0
 }
 
+# Create clk_wiz
+cell xilinx.com:ip:clk_wiz:5.1 pll_test {
+  PRIMITIVE PLL
+  PRIM_IN_FREQ.VALUE_SRC USER
+  PRIM_IN_FREQ 125.0
+  CLKOUT1_USED true
+  CLKOUT2_USED true
+  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+} {
+  clk_in1 adc_0/adc_clk
+}
+
+# Create axis_clock_converter
+cell xilinx.com:ip:axis_clock_converter:1.1 fifo_test {} {
+  S_AXIS mult_test/M_AXIS_DOUT
+  s_axis_aclk ps_0/FCLK_CLK0
+  s_axis_aresetn slice_1/Dout
+  m_axis_aclk pll_test/clk_out1
+  m_axis_aresetn const_0/dout
+}
+
+# Create axis_red_pitaya_dac
+cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_test {} {
+  aclk pll_test/clk_out1
+  ddr_clk pll_test/clk_out2
+  locked pll_test/locked
+  S_AXIS fifo_test/M_AXIS
+  dac_clk dac_clk_o
+  dac_rst dac_rst_o
+  dac_sel dac_sel_o
+  dac_wrt dac_wrt_o
+  dac_dat dac_dat_o
+}
+
+# Create axis_clock_converter
+cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
+  S_AXIS adc_0/M_AXIS
+  s_axis_aclk adc_0/adc_clk
+  s_axis_aresetn const_0/dout
+  m_axis_aclk ps_0/FCLK_CLK0
+  m_axis_aresetn slice_1/Dout
+}
+
+# Create axis_subset_converter
 cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
@@ -187,7 +244,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   M_TDATA_NUM_BYTES 2
   TDATA_REMAP {tdata[31:16]}
 } {
-  S_AXIS mult_test/M_AXIS_DOUT
+  S_AXIS fifo_0/M_AXIS
   aclk ps_0/FCLK_CLK0
   aresetn rst_0/peripheral_aresetn
 }
@@ -207,6 +264,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
   DSP48_USE Maximal
+  HAS_TREADY true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
   OUTPUT_WIDTH 24
@@ -222,15 +280,17 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   BPORTWIDTH.VALUE_SRC USER
   APORTWIDTH 14
   BPORTWIDTH 24
+  ROUNDMODE Random_Rounding
   OUTPUTWIDTH 32
 } {
   S_AXIS_A subset_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
+  S_AXIS_CTRL bcast_0/M01_AXIS
   aclk ps_0/FCLK_CLK0
 }
 
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 8
@@ -302,7 +362,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   OUTPUT_DATA_WIDTH 32
   HAS_ARESETN true
 } {
-  S_AXIS_DATA bcast_0/M00_AXIS
+  S_AXIS_DATA bcast_1/M00_AXIS
   S_AXIS_CONFIG pktzr_0/M_AXIS
   aclk ps_0/FCLK_CLK0
   aresetn slice_3/Dout
@@ -324,7 +384,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   OUTPUT_DATA_WIDTH 32
   HAS_ARESETN true
 } {
-  S_AXIS_DATA bcast_0/M01_AXIS
+  S_AXIS_DATA bcast_1/M01_AXIS
   S_AXIS_CONFIG pktzr_1/M_AXIS
   aclk ps_0/FCLK_CLK0
   aresetn slice_3/Dout
