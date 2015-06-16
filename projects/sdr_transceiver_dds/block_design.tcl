@@ -166,7 +166,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   aresetn rst_0/peripheral_aresetn
 }
 
-source projects/sdr_transceiver/rx_0.tcl
+source projects/sdr_transceiver_dds/rx_0.tcl
 
 # Create axi_bram_reader
 cell pavel-demin:user:axi_bram_reader:1.0 rx_reader_0 {
@@ -187,7 +187,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_rx_reader_0_reg0]
 set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_rx_reader_0_reg0]
 
-source projects/sdr_transceiver/sp_0.tcl
+source projects/sdr_transceiver_dds/sp_0.tcl
 
 # Create axi_bram_writer
 cell pavel-demin:user:axi_bram_writer:1.0 sp_writer_0 {
@@ -227,7 +227,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 32K [get_bd_addr_segs ps_0/Data/SEG_sp_reader_0_reg0]
 set_property OFFSET 0x40020000 [get_bd_addr_segs ps_0/Data/SEG_sp_reader_0_reg0]
 
-source projects/sdr_transceiver/tx_0.tcl
+source projects/sdr_transceiver_dds/tx_0.tcl
 
 # Create axi_bram_writer
 cell pavel-demin:user:axi_bram_writer:1.0 tx_writer_0 {
