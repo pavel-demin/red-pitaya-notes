@@ -71,7 +71,7 @@ module sp_0 {
     OUTPUT_WIDTH 24
   } {
     S_AXIS_PHASE phase_0/M_AXIS
-    aclk ps_0/FCLK_CLK0
+    aclk /ps_0/FCLK_CLK0
   }
 
   # Create axis_lfsr
