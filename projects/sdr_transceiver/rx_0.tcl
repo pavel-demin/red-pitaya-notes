@@ -12,10 +12,12 @@ module rx_0 {
   # Create cordic
   cell xilinx.com:ip:cordic:6.0 cordic_0 {
     INPUT_WIDTH.VALUE_SRC USER
+    FLOW_CONTROL Blocking
     PIPELINING_MODE Optimal
     PHASE_FORMAT Scaled_Radians
     INPUT_WIDTH 32
     OUTPUT_WIDTH 24
+    OUT_TREADY true
     ROUND_MODE Round_Pos_Neg_Inf
     COMPENSATION_SCALING Embedded_Multiplier
   } {
