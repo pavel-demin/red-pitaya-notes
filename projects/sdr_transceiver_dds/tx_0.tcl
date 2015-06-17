@@ -157,30 +157,49 @@ module tx_0 {
     aresetn /rst_0/peripheral_aresetn
   }
 
-  # Create axis_phase_generator
-  cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
+  # Create axis_constant
+  cell pavel-demin:user:axis_constant:1.0 phase_0 {
     AXIS_TDATA_WIDTH 32
-    PHASE_WIDTH 30
   } {
     cfg_data /cfg_slice_2/Dout
     aclk /ps_0/FCLK_CLK0
-    aresetn /rst_slice_3/Dout
   }
 
-  # Create cordic
-  cell xilinx.com:ip:cordic:6.0 cordic_0 {
-    INPUT_WIDTH.VALUE_SRC USER
-    FLOW_CONTROL Blocking
-    PIPELINING_MODE Optimal
-    PHASE_FORMAT Scaled_Radians
-    INPUT_WIDTH 32
-    OUTPUT_WIDTH 15
-    OUT_TREADY true
-    ROUND_MODE Round_Pos_Neg_Inf
-    COMPENSATION_SCALING Embedded_Multiplier
+  # Create dds_compiler
+  cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
+    DDS_CLOCK_RATE 125
+    SPURIOUS_FREE_DYNAMIC_RANGE 138
+    FREQUENCY_RESOLUTION 0.2
+    PHASE_INCREMENT Streaming
+    DSP48_USE Maximal
+    HAS_TREADY true
+    HAS_PHASE_OUT false
+    PHASE_WIDTH 30
+    OUTPUT_WIDTH 24
   } {
-    S_AXIS_CARTESIAN comb_1/M_AXIS
     S_AXIS_PHASE phase_0/M_AXIS
+    aclk /ps_0/FCLK_CLK0
+  }
+
+  # Create axis_lfsr
+  cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
+    aclk /ps_0/FCLK_CLK0
+    aresetn /rst_slice_1/Dout
+  }
+
+  # Create cmpy
+  cell xilinx.com:ip:cmpy:6.0 mult_0 {
+    FLOWCONTROL Blocking
+    APORTWIDTH.VALUE_SRC USER
+    BPORTWIDTH.VALUE_SRC USER
+    APORTWIDTH 14
+    BPORTWIDTH 24
+    ROUNDMODE Random_Rounding
+    OUTPUTWIDTH 14
+  } {
+    S_AXIS_A comb_1/M_AXIS
+    S_AXIS_B dds_0/M_AXIS_DATA
+    S_AXIS_CTRL lfsr_0/M_AXIS
     aclk /ps_0/FCLK_CLK0
   }
 }

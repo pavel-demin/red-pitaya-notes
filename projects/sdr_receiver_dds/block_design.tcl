@@ -149,12 +149,19 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
   DSP48_USE Maximal
+  HAS_TREADY true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
   OUTPUT_WIDTH 24
 } {
   S_AXIS_PHASE phase_0/M_AXIS
   aclk ps_0/FCLK_CLK0
+}
+
+# Create axis_lfsr
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
+  aclk ps_0/FCLK_CLK0
+  aresetn slice_1/Dout
 }
 
 # Create cmpy
@@ -164,10 +171,12 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   BPORTWIDTH.VALUE_SRC USER
   APORTWIDTH 14
   BPORTWIDTH 24
+  ROUNDMODE Random_Rounding
   OUTPUTWIDTH 32
 } {
   S_AXIS_A subset_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
+  S_AXIS_CTRL lfsr_0/M_AXIS
   aclk ps_0/FCLK_CLK0
 }
 

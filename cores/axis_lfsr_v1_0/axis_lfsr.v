@@ -1,17 +1,14 @@
 
 `timescale 1 ns / 1 ps
 
-module axis_phase_generator #
+module axis_lfsr #
 (
-  parameter integer AXIS_TDATA_WIDTH = 32,
-  parameter integer PHASE_WIDTH = 30
+  parameter integer AXIS_TDATA_WIDTH = 64
 )
 (
   // System signals
   input  wire                        aclk,
   input  wire                        aresetn,
-
-  input  wire [PHASE_WIDTH-1:0]      cfg_data,
 
   // Master side
   input  wire                        m_axis_tready,
@@ -19,26 +16,26 @@ module axis_phase_generator #
   output wire                        m_axis_tvalid
 );
 
-  reg [PHASE_WIDTH-1:0] int_cntr_reg, int_cntr_next;
+  reg [AXIS_TDATA_WIDTH-1:0] int_lfsr_reg, int_lfsr_next;
   reg int_enbl_reg, int_enbl_next;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
-      int_cntr_reg <= {(PHASE_WIDTH){1'b0}};
+      int_lfsr_reg <= 64'h5555555555555555;
       int_enbl_reg <= 1'b0;
     end
     else
     begin
-      int_cntr_reg <= int_cntr_next;
+      int_lfsr_reg <= int_lfsr_next;
       int_enbl_reg <= int_enbl_next;
     end
   end
 
   always @*
   begin
-    int_cntr_next = int_cntr_reg;
+    int_lfsr_next = int_lfsr_reg;
     int_enbl_next = int_enbl_reg;
 
     if(~int_enbl_reg)
@@ -48,11 +45,11 @@ module axis_phase_generator #
 
     if(int_enbl_reg & m_axis_tready)
     begin
-      int_cntr_next = int_cntr_reg + cfg_data;
+      int_lfsr_next = {int_lfsr_reg[62:0], int_lfsr_reg[62] ~^ int_lfsr_reg[61]}; 
     end
   end
 
-  assign m_axis_tdata = {{(AXIS_TDATA_WIDTH-PHASE_WIDTH){int_cntr_reg[PHASE_WIDTH-1]}}, int_cntr_reg};
+  assign m_axis_tdata = int_lfsr_reg;
   assign m_axis_tvalid = int_enbl_reg;
 
 endmodule

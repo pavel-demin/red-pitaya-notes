@@ -45,35 +45,54 @@ module sp_0 {
 
   # Create xlslice
   cell xilinx.com:ip:xlslice:1.0 slice_5 {
-    DIN_WIDTH 64 DIN_FROM 61 DIN_TO 32 DOUT_WIDTH 30
+    DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
   } {
     Din /cfg_slice_1/Dout
   }
 
-  # Create axis_phase_generator
-  cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
+  # Create axis_constant
+  cell pavel-demin:user:axis_constant:1.0 phase_0 {
     AXIS_TDATA_WIDTH 32
-    PHASE_WIDTH 30
   } {
     cfg_data slice_5/Dout
+    aclk /ps_0/FCLK_CLK0
+  }
+
+  # Create dds_compiler
+  cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
+    DDS_CLOCK_RATE 125
+    SPURIOUS_FREE_DYNAMIC_RANGE 138
+    FREQUENCY_RESOLUTION 0.2
+    PHASE_INCREMENT Streaming
+    DSP48_USE Maximal
+    HAS_TREADY true
+    HAS_PHASE_OUT false
+    PHASE_WIDTH 30
+    OUTPUT_WIDTH 24
+  } {
+    S_AXIS_PHASE phase_0/M_AXIS
+    aclk /ps_0/FCLK_CLK0
+  }
+
+  # Create axis_lfsr
+  cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
     aclk /ps_0/FCLK_CLK0
     aresetn slice_0/Dout
   }
 
-  # Create cordic
-  cell xilinx.com:ip:cordic:6.0 cordic_0 {
-    INPUT_WIDTH.VALUE_SRC USER
-    FLOW_CONTROL Blocking
-    PIPELINING_MODE Optimal
-    PHASE_FORMAT Scaled_Radians
-    INPUT_WIDTH 32
-    OUTPUT_WIDTH 24
-    OUT_TREADY true
-    ROUND_MODE Round_Pos_Neg_Inf
-    COMPENSATION_SCALING Embedded_Multiplier
+  # Create cmpy
+  cell xilinx.com:ip:cmpy:6.0 mult_0 {
+    FLOWCONTROL Blocking
+    APORTWIDTH.VALUE_SRC USER
+    BPORTWIDTH.VALUE_SRC USER
+    APORTWIDTH 14
+    BPORTWIDTH 24
+    ROUNDMODE Random_Rounding
+    OUTPUTWIDTH 24
   } {
-    S_AXIS_CARTESIAN /bcast_0/M01_AXIS
-    S_AXIS_PHASE phase_0/M_AXIS
+    S_AXIS_A /bcast_0/M01_AXIS
+    S_AXIS_B dds_0/M_AXIS_DATA
+    S_AXIS_CTRL lfsr_0/M_AXIS
     aclk /ps_0/FCLK_CLK0
   }
 
@@ -86,7 +105,7 @@ module sp_0 {
     M00_TDATA_REMAP {tdata[47:24]}
     M01_TDATA_REMAP {tdata[23:0]}
   } {
-    S_AXIS cordic_0/M_AXIS_DOUT
+    S_AXIS mult_0/M_AXIS_DOUT
     aclk /ps_0/FCLK_CLK0
     aresetn /rst_0/peripheral_aresetn
   }
@@ -269,7 +288,7 @@ module sp_0 {
   }
 
   # Create cmpy
-  cell xilinx.com:ip:cmpy:6.0 mult_0 {
+  cell xilinx.com:ip:cmpy:6.0 mult_1 {
     FLOWCONTROL Blocking
     APORTWIDTH.VALUE_SRC USER
     BPORTWIDTH.VALUE_SRC USER
@@ -297,7 +316,7 @@ module sp_0 {
     OUTPUT_ORDERING natural_order
     ARESETN true
   } {
-    S_AXIS_DATA mult_0/M_AXIS_DOUT
+    S_AXIS_DATA mult_1/M_AXIS_DOUT
     S_AXIS_CONFIG pktzr_2/M_AXIS
     aclk /ps_0/FCLK_CLK0
     aresetn slice_2/Dout
