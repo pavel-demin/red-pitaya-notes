@@ -121,8 +121,8 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 2
-  M00_TDATA_REMAP {tdata[15:0]}
-  M01_TDATA_REMAP {tdata[31:16]}
+  M00_TDATA_REMAP {tdata[13:0],2'b00}
+  M01_TDATA_REMAP {tdata[29:16],2'b00}
 } {
   S_AXIS fifo_0/M_AXIS
   aclk ps_0/FCLK_CLK0
