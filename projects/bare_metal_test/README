@@ -1,0 +1,78 @@
+Instructions for Vivado 2015.1
+
+Create, build, and export the hardware design to SDK:
+
+  source /opt/Xilinx/Vivado/2015.1/settings64.sh
+  source /opt/Xilinx/SDK/2015.1/settings64.sh
+
+  git clone https://github.com/pavel-demin/red-pitaya-notes
+  cd red-pitaya-notes
+
+  make NAME=bare_metal_test all
+
+  mkdir tmp/bare_metal_test.sdk
+  cp tmp/bare_metal_test.hwdef tmp/bare_metal_test.sdk/bare_metal_test.hdf
+
+  xsdk -workspace tmp/bare_metal_test.sdk -hwspec tmp/bare_metal_test.sdk/bare_metal_test.hdf
+
+Create BSP and application:
+
+  Select File->New->Application_Project
+  Enter the project name 'app_cpu1'
+  Change Processor to ps7_cortexa9_1
+  Select Next
+  Select the template 'Empty Application'
+  Select Finish
+  Select 'Modify this BSP's Settings'
+  Select Overview->standalone and change stdin and stdout to none
+  Select Overview->drivers->ps7_cortexa9_1 and change the extra_compiler_flags value to contain '-g -DUSE_AMP=1 -DSTDOUT_REDIR=1'
+  Select OK
+  Import the C and linkerscript file for app_cpu1 by navigating to SDK Project Explorer and right clicking on app_cpu1 and select 'Import'
+  Select General->File_System then select Next
+  In the 'From directory', browse to and select <xapp1078_2014.4>/design/src/apps/app_cpu1
+  In the right window, select all app_cpu1.c and lscript.ld then select Finish.
+  Answer Yes to overwrite lscript.ld
+  Exit SDK
+
+Patch BSP, then build BSP and application:
+
+  patch -d tmp/bare_metal_test.sdk/app_cpu1_bsp -p 0 < patches/standalone_v5_0.patch
+
+  make -C tmp/bare_metal_test.sdk/app_cpu1_bsp
+  make -C tmp/bare_metal_test.sdk/app_cpu1/Debug
+
+Patch and build zynq_remoteproc driver:
+
+  patch -d tmp -p 0 < patches/remoteproc.patch
+  make -C tmp/linux-xlnx-xilinx-v2015.1 ARCH=arm CFLAGS="-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp" CROSS_COMPILE=arm-xilinx-linux-gnueabi- modules
+  find tmp/linux-xlnx-xilinx-v2015.1/drivers -name \*.ko -printf '%P\0' | tar --null --directory=tmp/linux-xlnx-xilinx-v2015.1/drivers --files-from=- -zcvf drivers.tgz
+
+Build devicetree.dtb:
+
+  tmp/linux-xlnx-xilinx-v2015.1/scripts/dtc/dtc -I dts -O dtb -o devicetree.dtb -i tmp/bare_metal_test.tree patches/remoteproc.dts
+
+Install devicetree.dtb, drivers and application on Red Pitaya:
+
+  Create directory for drivers:
+  mkdir -p /lib/modules/3.18.0-xilinx/kernel/drivers
+
+  Unpack drivers and generate modules.dep and map files:
+  tar --directory=/lib/modules/3.18.0-xilinx/kernel/drivers -zxf drivers.tgz
+  depmod
+
+  Copy devicetree.dtb to /boot
+
+  Copy app_cpu1.elf to /lib/firmware
+
+  Reboot Red Pitaya
+
+Start CPU1 application:
+
+  modprobe zynq_remoteproc
+  echo 1 > /sys/devices/soc0/1e000000.remoteproc/remoteproc0/up
+
+Stop CPU1 application:
+
+  echo 0 > /sys/devices/soc0/1e000000.remoteproc/remoteproc0/up
+  rmmod zynq_remoteproc
+
