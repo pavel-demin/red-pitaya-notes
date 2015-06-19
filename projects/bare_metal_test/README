@@ -33,9 +33,11 @@ Create BSP and application:
   Select Overview->drivers->ps7_cortexa9_1 and change the extra_compiler_flags value to contain '-g -DUSE_AMP=1 -DSTDOUT_REDIR=1'
   Select OK
   Import the C and linkerscript file for app_cpu1 by navigating to SDK Project Explorer and right clicking on app_cpu1 and select 'Import'
-  Select General->File_System then select Next
-  In the 'From directory', browse to and select <xapp1078_2014.4>/design/src/apps/app_cpu1
-  In the right window, select all app_cpu1.c and lscript.ld then select Finish.
+  Select General->File_System
+  Select Next
+  In the 'From directory', browse to and select 'projects/bare_metal_test/app_cpu1'
+  In the right window, select 'app_cpu1.c' and 'lscript.ld'
+  Select Finish
   Answer Yes to overwrite lscript.ld
   Exit SDK
 
