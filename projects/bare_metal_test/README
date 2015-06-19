@@ -1,5 +1,10 @@
 Instructions for Vivado 2015.1
 
+Based on the information from the following links:
+
+  http://www.wiki.xilinx.com/XAPP1078+Latest+Information
+  http://henryomd.blogspot.be/2015/02/zynq-amp-linux-on-cpu0-and-bare-metal.html
+
 Create, build, and export the hardware design to SDK:
 
   source /opt/Xilinx/Vivado/2015.1/settings64.sh
