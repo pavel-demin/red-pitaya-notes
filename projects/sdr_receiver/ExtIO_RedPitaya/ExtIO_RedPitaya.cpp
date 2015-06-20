@@ -149,7 +149,7 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
     ManagedGlobals::gGUI->rateValue->SelectedIndex = rateIndex;
     ManagedGlobals::gGUI->rateCallback = UpdateRate;
 
-    corr = Convert::ToUInt32(ManagedGlobals::gKey->GetValue("Freq. Corr.", 0));
+    corr = Convert::ToInt32(ManagedGlobals::gKey->GetValue("Freq. Corr.", 0));
     if(corr < -100 || corr > 100) corr = 0;
     ManagedGlobals::gGUI->corrValue->Value = corr;
     ManagedGlobals::gGUI->corrCallback = SetCorr;
