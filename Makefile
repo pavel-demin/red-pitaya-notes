@@ -8,6 +8,13 @@ NAME = led_blinker
 PART = xc7z010clg400-1
 PROC = ps7_cortexa9_0
 
+CORES = axi_bram_reader_v1_0 axi_bram_writer_v1_0 axi_cfg_register_v1_0 \
+  axis_bram_reader_v1_0 axis_bram_writer_v1_0 axis_constant_v1_0 \
+  axis_counter_v1_0 axis_histogram_v1_0 axis_lfsr_v1_0 axis_packetizer_v1_0 \
+  axis_phase_generator_v1_0 axis_pulse_height_analyzer_v1_0 \
+  axis_ram_writer_v1_0 axis_red_pitaya_adc_v1_0 axis_red_pitaya_dac_v1_0 \
+  axi_sts_register_v1_0
+
 VIVADO = vivado -nolog -nojournal -mode batch
 HSI = hsi -nolog -nojournal -mode batch
 RM = rm -rf
@@ -35,7 +42,7 @@ ARMHF_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 RTL_TAR = tmp/rtl8192cu.tgz
 RTL_URL = https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/rtl8192cu/rtl8192cu.tgz
 
-.PRECIOUS: tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system.dts
+.PRECIOUS: tmp/cores/% tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system.dts
 
 all: boot.bin uImage devicetree.dtb fw_printenv
 
@@ -103,28 +110,12 @@ devicetree.dtb: uImage tmp/$(NAME).tree/system.dts
 	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb -o devicetree.dtb \
 	  -i tmp/$(NAME).tree tmp/$(NAME).tree/system.dts
 
-tmp/cores:
-	mkdir -p $@
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_red_pitaya_adc_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_red_pitaya_dac_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_packetizer_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_ram_writer_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_constant_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_counter_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_phase_generator_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_lfsr_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_bram_reader_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_bram_writer_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_pulse_height_analyzer_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axis_histogram_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axi_cfg_register_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axi_sts_register_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axi_bram_reader_v1_0 $(PART)
-	$(VIVADO) -source scripts/core.tcl -tclargs axi_bram_writer_v1_0 $(PART)
-
-tmp/%.xpr: projects/% tmp/cores
+tmp/cores/%: cores/%/core_config.tcl cores/%/*.v
 	mkdir -p $(@D)
-	$(RM) $@ tmp/$*.cache tmp/$*.hw tmp/$*.srcs tmp/$*.runs
+	$(VIVADO) -source scripts/core.tcl -tclargs $* $(PART)
+
+tmp/%.xpr: projects/% $(addprefix tmp/cores/, $(CORES))
+	mkdir -p $(@D)
 	$(VIVADO) -source scripts/project.tcl -tclargs $* $(PART)
 
 tmp/%.hwdef: tmp/%.xpr
