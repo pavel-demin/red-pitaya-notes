@@ -1,6 +1,6 @@
 diff -rupN old/linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig
---- old/linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig	2015-03-03 09:24:37.000000000 +0100
-+++ linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig	2015-05-26 14:37:37.389178926 +0200
+--- old/linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig
++++ linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig
 @@ -117,6 +117,7 @@ CONFIG_XILINX_AXI_EMAC=y
  CONFIG_XILINX_PS_EMAC=y
  CONFIG_MARVELL_PHY=y
@@ -70,8 +70,8 @@ diff -rupN old/linux-xlnx-xilinx-v2015.1/arch/arm/configs/xilinx_zynq_defconfig 
 +CONFIG_FB_MODE_HELPERS=y
 +CONFIG_FB_UDL=y
 diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c
---- old/linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c	2015-03-03 09:24:37.000000000 +0100
-+++ linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c	2015-05-26 14:37:37.393178946 +0200
+--- old/linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c
++++ linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c
 @@ -508,6 +508,9 @@ static int at24_probe(struct i2c_client
  		 * is recommended anyhow.
  		 */
@@ -83,8 +83,8 @@ diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/misc/eeprom/at24.c linux-xlnx-x
  		/* update chipdata if OF is present */
  		at24_get_ofdata(client, &chip);
 diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig
---- old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig	2015-03-03 09:24:37.000000000 +0100
-+++ linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig	2015-05-26 14:37:37.393178946 +0200
+--- old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig
++++ linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig
 @@ -118,6 +118,11 @@ config MICREL_PHY
  	---help---
  	  Supports the KSZ9021, VSC8201, KS8001 PHYs.
@@ -98,8 +98,8 @@ diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Kconfig linux-xlnx-xili
  	bool "Driver for MDIO Bus/PHY emulation with fixed speed/link PHYs"
  	depends on PHYLIB=y
 diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile
---- old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile	2015-03-03 09:24:37.000000000 +0100
-+++ linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile	2015-05-26 14:37:37.393178946 +0200
+--- old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile
++++ linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile
 @@ -24,6 +24,7 @@ obj-$(CONFIG_NATIONAL_PHY)	+= national.o
  obj-$(CONFIG_DP83640_PHY)	+= dp83640.o
  obj-$(CONFIG_STE10XP)		+= ste10Xp.o
@@ -109,8 +109,8 @@ diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/phy/Makefile linux-xlnx-xil
  obj-$(CONFIG_MICREL_KS8995MA)	+= spi_ks8995.o
  obj-$(CONFIG_AT803X_PHY)	+= at803x.o
 diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Kconfig linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Kconfig
---- old/linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Kconfig	2015-03-03 09:24:37.000000000 +0100
-+++ linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Kconfig	2015-05-26 14:42:29.814628985 +0200
+--- old/linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Kconfig
++++ linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Kconfig
 @@ -277,7 +277,7 @@ source "drivers/net/wireless/libertas/Kc
  source "drivers/net/wireless/orinoco/Kconfig"
  source "drivers/net/wireless/p54/Kconfig"
@@ -121,8 +121,8 @@ diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Kconfig linux-xlnx
  source "drivers/net/wireless/zd1211rw/Kconfig"
  source "drivers/net/wireless/mwifiex/Kconfig"
 diff -rupN old/linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Makefile linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Makefile
---- old/linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Makefile	2015-03-03 09:24:37.000000000 +0100
-+++ linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Makefile	2015-05-26 14:43:00.390780604 +0200
+--- old/linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Makefile
++++ linux-xlnx-xilinx-v2015.1/drivers/net/wireless/Makefile
 @@ -24,7 +24,7 @@ obj-$(CONFIG_B43LEGACY)		+= b43legacy/
  obj-$(CONFIG_ZD1211RW)		+= zd1211rw/
  obj-$(CONFIG_RTL8180)		+= rtl818x/
