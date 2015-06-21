@@ -36,6 +36,8 @@ Patching and building zynq_remoteproc driver:
   patch -d tmp -p 0 < patches/remoteproc.patch
   make -C tmp/linux-xlnx-xilinx-v2015.1 ARCH=arm CFLAGS="-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp" CROSS_COMPILE=arm-xilinx-linux-gnueabi- modules
   find tmp/linux-xlnx-xilinx-v2015.1/drivers -name \*.ko -printf '%P\0' | tar --null --directory=tmp/linux-xlnx-xilinx-v2015.1/drivers --files-from=- -zcvf drivers.tgz
+  cp tmp/linux-xlnx-xilinx-v2015.1/modules.order modules.order
+  cp tmp/linux-xlnx-xilinx-v2015.1/modules.builtin modules.builtin
 
 Building devicetree.dtb:
 
@@ -46,8 +48,12 @@ Installing devicetree.dtb, drivers and app_cpu1.elf on Red Pitaya:
   Create directory for drivers:
   mkdir -p /lib/modules/3.18.0-xilinx/kernel/drivers
 
-  Unpack drivers and generate modules.dep and map files:
+  Unpack drivers:
   tar --directory=/lib/modules/3.18.0-xilinx/kernel/drivers -zxf drivers.tgz
+
+  Copy modules.order and modules.builtin to /lib/modules/3.18.0-xilinx
+
+  Generate modules.dep and map files:
   depmod
 
   Copy devicetree.dtb to /boot
