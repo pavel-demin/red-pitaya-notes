@@ -69,7 +69,6 @@ $(UBOOT_DIR): $(UBOOT_TAR)
 	cp patches/zynq_red_pitaya_defconfig $@/configs
 	cp patches/zynq-red-pitaya.dts $@/arch/arm/dts
 	cp patches/zynq_red_pitaya.h $@/include/configs
-	cp patches/u-boot-lantiq.c $@/drivers/net/phy/lantiq.c
 
 $(LINUX_DIR): $(LINUX_TAR) $(RTL_TAR)
 	mkdir -p $@
