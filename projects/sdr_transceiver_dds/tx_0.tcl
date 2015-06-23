@@ -122,7 +122,7 @@ module tx_0 {
     CLOCK_FREQUENCY 125
     INPUT_DATA_WIDTH 24
     QUANTIZATION Truncation
-    OUTPUT_DATA_WIDTH 32
+    OUTPUT_DATA_WIDTH 24
     USE_XTREME_DSP_SLICE false
   } {
     S_AXIS_DATA bcast_1/M00_AXIS
@@ -139,7 +139,7 @@ module tx_0 {
     CLOCK_FREQUENCY 125
     INPUT_DATA_WIDTH 24
     QUANTIZATION Truncation
-    OUTPUT_DATA_WIDTH 32
+    OUTPUT_DATA_WIDTH 24
     USE_XTREME_DSP_SLICE false
   } {
     S_AXIS_DATA bcast_1/M01_AXIS
@@ -149,7 +149,7 @@ module tx_0 {
   # Create axis_combiner
   cell  xilinx.com:ip:axis_combiner:1.1 comb_1 {
     TDATA_NUM_BYTES.VALUE_SRC USER
-    TDATA_NUM_BYTES 4
+    TDATA_NUM_BYTES 3
   } {
     S00_AXIS cic_0/M_AXIS_DATA
     S01_AXIS cic_1/M_AXIS_DATA
@@ -192,7 +192,7 @@ module tx_0 {
     FLOWCONTROL Blocking
     APORTWIDTH.VALUE_SRC USER
     BPORTWIDTH.VALUE_SRC USER
-    APORTWIDTH 14
+    APORTWIDTH 24
     BPORTWIDTH 24
     ROUNDMODE Random_Rounding
     OUTPUTWIDTH 14
