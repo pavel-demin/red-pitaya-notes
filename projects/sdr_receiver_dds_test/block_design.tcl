@@ -184,7 +184,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_test {
   APORTWIDTH 14
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 14
+  OUTPUTWIDTH 15
 } {
   S_AXIS_A const_test/M_AXIS
   S_AXIS_B dds_test/M_AXIS_DATA
