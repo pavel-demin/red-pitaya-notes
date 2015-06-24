@@ -38,7 +38,7 @@ module rx_0 {
     APORTWIDTH 14
     BPORTWIDTH 24
     ROUNDMODE Random_Rounding
-    OUTPUTWIDTH 24
+    OUTPUTWIDTH 25
   } {
     S_AXIS_A /bcast_0/M00_AXIS
     S_AXIS_B dds_0/M_AXIS_DATA
@@ -50,9 +50,9 @@ module rx_0 {
   cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
     S_TDATA_NUM_BYTES.VALUE_SRC USER
     M_TDATA_NUM_BYTES.VALUE_SRC USER
-    S_TDATA_NUM_BYTES 6
+    S_TDATA_NUM_BYTES 8
     M_TDATA_NUM_BYTES 3
-    M00_TDATA_REMAP {tdata[47:24]}
+    M00_TDATA_REMAP {tdata[55:32]}
     M01_TDATA_REMAP {tdata[23:0]}
   } {
     S_AXIS mult_0/M_AXIS_DOUT

@@ -281,7 +281,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   APORTWIDTH 14
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 32
+  OUTPUTWIDTH 33
 } {
   S_AXIS_A subset_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
@@ -293,9 +293,9 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 8
+  S_TDATA_NUM_BYTES 10
   M_TDATA_NUM_BYTES 4
-  M00_TDATA_REMAP {tdata[63:32]}
+  M00_TDATA_REMAP {tdata[71:40]}
   M01_TDATA_REMAP {tdata[31:0]}
 } {
   S_AXIS mult_0/M_AXIS_DOUT
