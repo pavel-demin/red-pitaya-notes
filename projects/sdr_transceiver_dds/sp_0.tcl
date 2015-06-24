@@ -69,6 +69,7 @@ module sp_0 {
     HAS_PHASE_OUT false
     PHASE_WIDTH 30
     OUTPUT_WIDTH 24
+    DSP48_USE Minimal
   } {
     S_AXIS_PHASE phase_0/M_AXIS
     aclk /ps_0/FCLK_CLK0
@@ -276,8 +277,8 @@ module sp_0 {
 
   # Create axis_bram_reader
   cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
-    AXIS_TDATA_WIDTH 32
-    BRAM_DATA_WIDTH 32
+    AXIS_TDATA_WIDTH 24
+    BRAM_DATA_WIDTH 24
     BRAM_ADDR_WIDTH 12
     CONTINUOUS TRUE
   } {
@@ -287,6 +288,12 @@ module sp_0 {
     aresetn slice_3/Dout
   }
 
+  # Create axis_lfsr
+  cell pavel-demin:user:axis_lfsr:1.0 lfsr_1 {} {
+    aclk /ps_0/FCLK_CLK0
+    aresetn slice_0/Dout
+  }
+
   # Create cmpy
   cell xilinx.com:ip:cmpy:6.0 mult_1 {
     FLOWCONTROL Blocking
@@ -294,10 +301,13 @@ module sp_0 {
     BPORTWIDTH.VALUE_SRC USER
     APORTWIDTH 24
     BPORTWIDTH 24
+    ROUNDMODE Random_Rounding
     OUTPUTWIDTH 24
+    MULTTYPE Use_LUTs
   } {
     S_AXIS_A pktzr_3/M_AXIS
     S_AXIS_B reader_0/M_AXIS
+    S_AXIS_CTRL lfsr_1/M_AXIS
     aclk /ps_0/FCLK_CLK0
   }
 

@@ -176,6 +176,7 @@ module tx_0 {
     HAS_PHASE_OUT false
     PHASE_WIDTH 30
     OUTPUT_WIDTH 24
+    DSP48_USE Minimal
   } {
     S_AXIS_PHASE phase_0/M_AXIS
     aclk /ps_0/FCLK_CLK0
