@@ -16,13 +16,11 @@ The implementation of the SDR receiver is quite straightforward:
  - An antenna is connected to one of the high-impedance analog inputs.
  - The on-board ADC (125 MS/s sampling frequency, 14-bit resolution) digitizes the RF signal from the antenna.
  - The data coming from the ADC is processed by a in-phase/quadrature (I/Q) digital down-converter (DDC) running on the Red Pitaya's FPGA.
- - The I/Q data is transmitted via TCP to the SDR programs such as SDR# and HDSDR.
 
 The SDR receiver is described in more details at [this link]({{ "/sdr-receiver/" | prepend: site.baseurl }}).
 
 The SDR transmitter consists of the similar blocks but arranged in an opposite order:
 
- - The in-phase/quadrature (I/Q) data is received via TCP from a SDR program.
  - The I/Q data is processed by a digital up-converter (DUC) running on the Red Pitaya's FPGA.
  - The on-board DAC (125 MS/s sampling frequency, 14-bit resolution) outputs RF signal.
  - An antenna is connected to one of the analog outputs.
