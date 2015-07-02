@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
       /* read ram writer position */
       position = *((uint32_t *)(sts + 0));
 
-      /* send 128 kB if ready, otherwise sleep 10 ms */
+      /* send 128 kB if ready, otherwise sleep 1 ms */
       if((limit > 0 && position > limit) || (limit == 0 && position < 16*1024))
       {
         offset = limit > 0 ? 0 : 128*1024;
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
       }
       else
       {
-        usleep(10000);
+        usleep(1000);
       }
     }
 
