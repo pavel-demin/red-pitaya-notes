@@ -4,6 +4,10 @@
 # You need to set NAME, PART, PROC and REPO for your project.
 # NAME is the base name for most of the generated files.
 
+# solves problem with awk while building linux kernel
+# solution taken from http://www.googoolia.com/wp/2015/04/21/awk-symbol-lookup-error-awk-undefined-symbol-mpfr_z_sub/
+LD_LIBRARY_PATH=""
+
 NAME = led_blinker
 PART = xc7z010clg400-1
 PROC = ps7_cortexa9_0
@@ -19,9 +23,9 @@ VIVADO = vivado -nolog -nojournal -mode batch
 HSI = hsi -nolog -nojournal -mode batch
 RM = rm -rf
 
-UBOOT_TAG = xilinx-v2015.1
-LINUX_TAG = xilinx-v2015.1
-DTREE_TAG = xilinx-v2015.1
+UBOOT_TAG = xilinx-v2015.2
+LINUX_TAG = xilinx-v2015.2
+DTREE_TAG = xilinx-v2015.2
 
 UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
 LINUX_DIR = tmp/linux-xlnx-$(LINUX_TAG)
