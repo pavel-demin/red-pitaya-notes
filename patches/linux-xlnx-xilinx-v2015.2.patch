@@ -1,7 +1,7 @@
 diff -rupN old/linux-xlnx-xilinx-v2015.2/arch/arm/configs/xilinx_zynq_defconfig linux-xlnx-xilinx-v2015.2/arch/arm/configs/xilinx_zynq_defconfig
 --- old/linux-xlnx-xilinx-v2015.2/arch/arm/configs/xilinx_zynq_defconfig
 +++ linux-xlnx-xilinx-v2015.2/arch/arm/configs/xilinx_zynq_defconfig
-@@ -117,6 +117,7 @@ CONFIG_XILINX_AXI_EMAC=y
+@@ -115,6 +115,7 @@ CONFIG_XILINX_AXI_EMAC=y
  CONFIG_XILINX_PS_EMAC=y
  CONFIG_MARVELL_PHY=y
  CONFIG_VITESSE_PHY=y
@@ -9,7 +9,7 @@ diff -rupN old/linux-xlnx-xilinx-v2015.2/arch/arm/configs/xilinx_zynq_defconfig 
  CONFIG_MDIO_BITBANG=y
  CONFIG_INPUT_SPARSEKMAP=y
  CONFIG_INPUT_EVDEV=y
-@@ -245,3 +246,59 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
+@@ -243,3 +244,59 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
  CONFIG_FONTS=y
  CONFIG_FONT_8x8=y
  CONFIG_FONT_8x16=y
@@ -72,7 +72,7 @@ diff -rupN old/linux-xlnx-xilinx-v2015.2/arch/arm/configs/xilinx_zynq_defconfig 
 diff -rupN old/linux-xlnx-xilinx-v2015.2/drivers/misc/eeprom/at24.c linux-xlnx-xilinx-v2015.2/drivers/misc/eeprom/at24.c
 --- old/linux-xlnx-xilinx-v2015.2/drivers/misc/eeprom/at24.c
 +++ linux-xlnx-xilinx-v2015.2/drivers/misc/eeprom/at24.c
-@@ -508,6 +508,9 @@ static int at24_probe(struct i2c_client
+@@ -519,6 +519,9 @@ static int at24_probe(struct i2c_client
  		 * is recommended anyhow.
  		 */
  		chip.page_size = 1;
@@ -95,8 +95,8 @@ diff -rupN old/linux-xlnx-xilinx-v2015.2/drivers/net/phy/Kconfig linux-xlnx-xili
 +	  Supports the 11G and 22E PHYs.
 +
  config FIXED_PHY
- 	bool "Driver for MDIO Bus/PHY emulation with fixed speed/link PHYs"
- 	depends on PHYLIB=y
+ 	tristate "Driver for MDIO Bus/PHY emulation with fixed speed/link PHYs"
+ 	depends on PHYLIB
 diff -rupN old/linux-xlnx-xilinx-v2015.2/drivers/net/phy/Makefile linux-xlnx-xilinx-v2015.2/drivers/net/phy/Makefile
 --- old/linux-xlnx-xilinx-v2015.2/drivers/net/phy/Makefile
 +++ linux-xlnx-xilinx-v2015.2/drivers/net/phy/Makefile
