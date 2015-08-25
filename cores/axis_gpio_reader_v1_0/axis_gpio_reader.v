@@ -30,7 +30,7 @@ module axis_gpio_reader #
 
   always @(posedge aclk)
   begin
-    int_data_reg[0] <= gpio_data;
+    int_data_reg[0] <= int_data_wire;
     int_data_reg[1] <= int_data_reg[0];
   end
 
