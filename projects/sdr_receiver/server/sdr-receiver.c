@@ -91,11 +91,11 @@ int main(int argc, char *argv[])
 
     while(!interrupted)
     {
-      ioctl(sockClient, FIONREAD, &size);
+      if(ioctl(sockClient, FIONREAD, &size) < 0) break;
 
       if(size >= 4)
       {
-        recv(sockClient, (char *)&command, 4, 0);
+        if(recv(sockClient, (char *)&command, 4, MSG_WAITALL) < 0) break;
         switch(command >> 31)
         {
           case 0:
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
       if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
       {
         start = limit > 0 ? limit*8 - 1024 : 3072;
-        if(send(sockClient, ram + start, 1024, 0) < 0) break;
+        if(send(sockClient, ram + start, 1024, MSG_NOSIGNAL) < 0) break;
         limit += 128;
         if(limit == 512) limit = 0;
       }
