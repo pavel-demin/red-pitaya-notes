@@ -23,8 +23,8 @@ void signal_handler(int sig)
 
 int main(int argc, char *argv[])
 {
-  int file, sockServer, sockClient;
-  int pos, limit, start;
+  int fd, sockServer, sockClient;
+  int position, limit, offset;
   pid_t pid;
   void *cfg, *sts, *ram;
   char *name = "/dev/mem";
@@ -35,15 +35,15 @@ int main(int argc, char *argv[])
   uint32_t freqMax = 50000000;
   int yes = 1;
 
-  if((file = open(name, O_RDWR)) < 0)
+  if((fd = open(name, O_RDWR)) < 0)
   {
     perror("open");
     return 1;
   }
 
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40001000);
-  ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40002000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
 
   if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -91,11 +91,11 @@ int main(int argc, char *argv[])
 
     while(!interrupted)
     {
-      ioctl(sockClient, FIONREAD, &size);
+      if(ioctl(sockClient, FIONREAD, &size) < 0) break;
 
       if(size >= 4)
       {
-        recv(sockClient, (char *)&command, 4, 0);
+        if(recv(sockClient, (char *)&command, 4, MSG_WAITALL) < 0) break;
         switch(command >> 31)
         {
           case 0:
@@ -137,15 +137,14 @@ int main(int argc, char *argv[])
       }
 
       /* read ram writer position */
-      pos = *((uint32_t *)(sts + 0));
+      position = *((uint32_t *)(sts + 0));
 
-      /* send 1024 bytes if ready, otherwise sleep 0.1 ms */
-      if((limit > 0 && pos > limit) || (limit == 0 && pos < 384))
+      /* send 2048 bytes if ready, otherwise sleep 0.1 ms */
+      if((limit > 0 && position > limit) || (limit == 0 && position < 256))
       {
-        start = limit > 0 ? limit*8 - 1024 : 3072;
-        if(send(sockClient, ram + start, 1024, 0) < 0) break;
-        limit += 128;
-        if(limit == 512) limit = 0;
+        offset = limit > 0 ? 0 : 2048;
+        limit = limit > 0 ? 0 : 256;
+        if(send(sockClient, ram + offset, 2048, MSG_NOSIGNAL) < 0) break;
       }
       else
       {

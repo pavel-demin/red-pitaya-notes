@@ -92,11 +92,11 @@ int main(int argc, char *argv[])
 
     while(!interrupted)
     {
-      ioctl(sockClient, FIONREAD, &size);
+      if(ioctl(sockClient, FIONREAD, &size) < 0) break;
 
       if(size >= 4)
       {
-        recv(sockClient, (char *)&command, 4, 0);
+        if(recv(sockClient, (char *)&command, 4, MSG_WAITALL) < 0) break;
         switch(command >> 31)
         {
           case 0:
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
         limit = limit > 0 ? 0 : 16*1024;
         /* copy data to cached buffer */
         memcpy(buf + offset, ram + offset, 128*1024);
-        send(sockClient, buf + offset, 128*1024, 0);
+        if(send(sockClient, buf + offset, 128*1024, MSG_NOSIGNAL) < 0) break;
       }
       else
       {
