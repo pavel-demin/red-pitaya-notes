@@ -166,5 +166,5 @@ python scripts/fpga-bit-to-bin.py --flip tmp/sdr_receiver.bit sdr_receiver.bin
 
 Building `sdr-receiver`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc projects/sdr_receiver/server/sdr-receiver.c -o sdr-receiver -lm -static
+arm-xilinx-linux-gnueabi-gcc projects/sdr_receiver/server/sdr-receiver.c -o sdr-receiver -lm -static
 {% endhighlight %}
