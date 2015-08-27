@@ -10,4 +10,5 @@ layout: default
 1. [LED blinker]({{ "/led-blinker/" | prepend: site.baseurl }})
 1. [SDR receiver]({{ "/sdr-receiver/" | prepend: site.baseurl }})
 1. [SDR transceiver]({{ "/sdr-transceiver/" | prepend: site.baseurl }})
+1. [SDR transceiver with FFT]({{ "/sdr-transceiver-fft/" | prepend: site.baseurl }})
 1. [Debian with Red Pitaya ecosystem]({{ "/debian-ecosystem/" | prepend: site.baseurl }})

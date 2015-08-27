@@ -35,47 +35,12 @@ The basic blocks of the digital down-converter (DDC) and of the digital up-conve
 
 ![SDR transceiver]({{ "/img/sdr-transceiver.png" | prepend: site.baseurl }})
 
-The [projects/sdr_transceiver](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver) directory contains four Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/block_design.tcl), [rx_0.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/rx_0.tcl), [sp_0.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/sp_0.tcl), [tx_0.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/tx_0.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/sdr_transceiver](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/block_design.tcl), [rx_0.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/rx_0.tcl), [tx_0.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/tx_0.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
 Software
 -----
 
-A software called [MiniTRX](https://github.com/pavel-demin/MiniTRX) is currently being developed. This software consists of two components:
-
- - server that runs on the Red Pitaya board and processes all the I/Q data
- - client that runs on a computer, receives the audio and spectrum data from the server and sends the audio data to the server for transmission
-
-The server relies on the following libraries:
-
- - [FFTW-ARM](http://www.vesperix.com/arm/fftw-arm/)
- - [WDSP](http://openhpsdr.org/videos.php)
- - [libsamplerate](http://www.mega-nerd.com/SRC/)
- - [Qt](http://www.qt.io/)
-
-The client is mainly based on the [Qt](http://www.qt.io/) library.
-
-The [WebSocket](http://doc.qt.io/qt-5/qtwebsockets-index.html) protocol is used for the communication between the server and the client.
-
-The client GUI is written in the [QML](http://doc.qt.io/qt-5/qtqml-index.html) language.
-
-<!---
-Getting started
------
-
- - Requirements:
-   - Computer running MS Windows.
-   - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
- - Connect an RX antenna to the IN2 connector on the Red Pitaya board.
- - Connect an TX antenna to the OUT1 connector on the Red Pitaya board.
- - Download [FPGA configuration file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/sdr_transceiver.bin), [sdr-receiver](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/sdr-receiver) and [sdr-transmitter](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/sdr-transmitter).
- - Copy the downloaded files (`sdr_transceiver.bin`, `sdr-receiver` and `sdr-transmitter`) to the original Red Pitaya SD card.
- - Edit `etc/init.d/rcS` on the SD card to add the commands that configure FPGA and start the programs:
-{% highlight bash %}
-cat /opt/sdr_transceiver.bin > /dev/xdevcfg
-/opt/MiniTRX-server &
-{% endhighlight %}
- - Insert the SD card in Red Pitaya and connect the power.
--->
+An interface with GNU Radio is currently being developed.
 
 Building from source
 -----
