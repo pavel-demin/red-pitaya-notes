@@ -23,20 +23,20 @@ void signal_handler(int sig)
 
 int main(int argc, char *argv[])
 {
-  int file, sockServer, sockClient;
+  int fd, sockServer, sockClient;
   int offset;
   void *ram;
   char *name = "/dev/mem";
   struct sockaddr_in addr;
   int yes = 1;
 
-  if((file = open(name, O_RDWR)) < 0)
+  if((fd = open(name, O_RDWR)) < 0)
   {
     perror("open");
     return 1;
   }
 
-  ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40003000);
+  ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
 
   if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
     while(!interrupted)
     {
-      if(recv(sockClient, ram + offset, 1024, 0) < 0) break;
+      if(recv(sockClient, ram + offset, 1024, MSG_WAITALL) < 0) break;
 
       offset += 1024;
       if(offset == 4096)
