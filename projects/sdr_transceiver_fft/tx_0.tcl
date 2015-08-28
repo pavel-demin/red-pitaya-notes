@@ -185,7 +185,7 @@ module tx_0 {
   # Create axis_lfsr
   cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
     aclk /ps_0/FCLK_CLK0
-    aresetn /rst_slice_1/Dout
+    aresetn /rst_slice_3/Dout
   }
 
   # Create cmpy
