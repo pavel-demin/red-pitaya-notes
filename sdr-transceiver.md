@@ -25,11 +25,11 @@ The SDR transmitter consists of the similar blocks but arranged in an opposite o
  - The on-board DAC (125 MS/s sampling frequency, 14-bit resolution) outputs RF signal.
  - An antenna is connected to one of the analog outputs.
 
-The tunable frequency range covers from 0 Hz to 50 MHz.
+The tunable frequency range covers from 0 Hz to 60 MHz.
 
-The receiver and transmitter I/Q data rates are fixed to 20 kSPS.
+The receiver I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
 
-The spectrum display I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
+The transmitter I/Q data rate is fixed to 20 kSPS.
 
 The basic blocks of the digital down-converter (DDC) and of the digital up-converter (DUC) are shown on the following diagram:
 
@@ -37,10 +37,15 @@ The basic blocks of the digital down-converter (DDC) and of the digital up-conve
 
 The [projects/sdr_transceiver](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/block_design.tcl), [rx_0.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/rx_0.tcl), [tx_0.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/tx_0.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
+The [projects/sdr_transceiver/server](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver/server) directory contains the source code of two TCP servers:
+
+  - [sdr-receiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/server/sdr-receiver.c) that receives control commands and transmits the I/Q data stream (up to 2 x 32 bit x 500 kSPS = 30.5 Mbit/s) to the SDR programs
+  - [sdr-transmitter.c](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/sdr_transceiver/server/sdr-transmitter.c) that receives the I/Q data stream (2 x 32 bit x 20 kSPS = 1.2 Mbit/s) from the SDR programs.
+
 Software
 -----
 
-An interface with GNU Radio is currently being developed.
+An interface with [GNU Radio](http://gnuradio.org) and [QSDR](http://dl2stg.de/stefan/hiqsdr/qsdr.html) is currently being developed.
 
 Building from source
 -----
