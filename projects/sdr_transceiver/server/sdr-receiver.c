@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
       if(size >= 4)
       {
         if(recv(sockClient, (char *)&command, 4, MSG_WAITALL) < 0) break;
-        switch(command >> 24)
+        switch(command >> 28)
         {
           case 0:
             /* set rx phase increment */
