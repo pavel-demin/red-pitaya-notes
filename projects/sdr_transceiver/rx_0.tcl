@@ -72,7 +72,7 @@ module rx_0 {
     ROUNDMODE Random_Rounding
     OUTPUTWIDTH 25
   } {
-    S_AXIS_A /bcast_0/M00_AXIS
+    S_AXIS_A /subset_0/M_AXIS
     S_AXIS_B dds_0/M_AXIS_DATA
     S_AXIS_CTRL lfsr_0/M_AXIS
     aclk /ps_0/FCLK_CLK0

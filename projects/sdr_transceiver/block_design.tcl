@@ -140,18 +140,6 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   aresetn rst_0/peripheral_aresetn
 }
 
-# Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 2
-  M_TDATA_NUM_BYTES 2
-} {
-  S_AXIS subset_0/M_AXIS
-  aclk ps_0/FCLK_CLK0
-  aresetn rst_0/peripheral_aresetn
-}
-
 source projects/sdr_transceiver/rx_0.tcl
 
 # Create axi_bram_reader
