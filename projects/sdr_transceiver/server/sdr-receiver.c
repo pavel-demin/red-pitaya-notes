@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
       }
 
       /* read ram writer position */
-      position = *((uint32_t *)(sts + 0));
+      position = *((uint16_t *)(sts + 0));
 
       /* send 2048 bytes if ready, otherwise sleep 0.1 ms */
       if((limit > 0 && position > limit) || (limit == 0 && position < 256))
