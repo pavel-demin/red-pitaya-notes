@@ -29,7 +29,7 @@ The tunable frequency range covers from 0 Hz to 60 MHz.
 
 The receiver I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
 
-The transmitter I/Q data rate is fixed to 20 kSPS.
+The transmitter I/Q data rate is fixed to 50 kSPS.
 
 The basic blocks of the digital down-converter (DDC) and of the digital up-converter (DUC) are shown on the following diagram:
 
