@@ -203,7 +203,7 @@ module rx_0 {
     RATESPECIFICATION Input_Sample_Period
     SAMPLEPERIOD 125
     OUTPUT_ROUNDING_MODE Truncate_LSBs
-    OUTPUT_WIDTH 24
+    OUTPUT_WIDTH 25
   } {
     S_AXIS_DATA comb_0/M_AXIS
     aclk /ps_0/FCLK_CLK0
@@ -213,10 +213,10 @@ module rx_0 {
   cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
     S_TDATA_NUM_BYTES.VALUE_SRC USER
     M_TDATA_NUM_BYTES.VALUE_SRC USER
-    S_TDATA_NUM_BYTES 6
+    S_TDATA_NUM_BYTES 8
     M_TDATA_NUM_BYTES 3
     M00_TDATA_REMAP {tdata[23:0]}
-    M01_TDATA_REMAP {tdata[47:24]}
+    M01_TDATA_REMAP {tdata[55:32]}
   } {
     S_AXIS fir_0/M_AXIS_DATA
     aclk /ps_0/FCLK_CLK0
