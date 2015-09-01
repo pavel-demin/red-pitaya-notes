@@ -216,7 +216,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 4
-  TDATA_REMAP {tdata[15:0],16'b0000000000000000}
+  TDATA_REMAP {16'b0000000000000000,tdata[15:0]}
 } {
   S_AXIS tx_0/mult_0/M_AXIS_DOUT
   aclk ps_0/FCLK_CLK0
