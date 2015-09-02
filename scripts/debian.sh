@@ -188,6 +188,19 @@ subnet 192.168.42.0 netmask 255.255.255.0 {
 }
 EOF_CAT
 
+cat <<- EOF_CAT >> etc/dhcp/dhclient.conf
+timeout 20;
+
+lease {
+  interface "eth0";
+  fixed-address 192.168.1.100;
+  option subnet-mask 255.255.255.0;
+  renew 2 2030/1/1 00:00:01;
+  rebind 2 2030/1/1 00:00:01;
+  expire 2 2030/1/1 00:00:01;
+}
+EOF_CAT
+
 sed -i '/^#net.ipv4.ip_forward=1$/s/^#//' etc/sysctl.conf
 
 cat <<- EOF_CAT > etc/iptables.ipv4.nat

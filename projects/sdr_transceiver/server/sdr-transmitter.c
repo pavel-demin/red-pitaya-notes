@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
     while(!interrupted)
     {
-      if(recv(sockClient, ram + offset, 1024, MSG_WAITALL) < 0) break;
+      if(recv(sockClient, ram + offset, 1024, MSG_WAITALL) <= 0) break;
 
       offset += 1024;
       if(offset == 4096)
