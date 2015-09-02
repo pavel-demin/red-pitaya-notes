@@ -1,12 +1,12 @@
 # 'make' builds everything
 # 'make clean' deletes everything except source files and Makefile
 #
-# You need to set NAME, PART, PROC and REPO for your project.
+# You need to set NAME, PART and PROC for your project.
 # NAME is the base name for most of the generated files.
 
 # solves problem with awk while building linux kernel
 # solution taken from http://www.googoolia.com/wp/2015/04/21/awk-symbol-lookup-error-awk-undefined-symbol-mpfr_z_sub/
-LD_LIBRARY_PATH=""
+undefine LD_LIBRARY_PATH
 
 NAME = led_blinker
 PART = xc7z010clg400-1
@@ -89,7 +89,7 @@ uImage: $(LINUX_DIR)
 	make -C $< mrproper
 	make -C $< ARCH=arm xilinx_zynq_defconfig
 	make -C $< ARCH=arm CFLAGS=$(LINUX_CFLAGS) \
-	  -j $(shell grep -c ^processor /proc/cpuinfo) \
+	  -j $(shell nproc 2> /dev/null || echo 1) \
 	  CROSS_COMPILE=arm-xilinx-linux-gnueabi- UIMAGE_LOADADDR=0x8000 uImage
 	cp $</arch/arm/boot/uImage $@
 
