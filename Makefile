@@ -1,7 +1,7 @@
 # 'make' builds everything
 # 'make clean' deletes everything except source files and Makefile
 #
-# You need to set NAME, PART, PROC and REPO for your project.
+# You need to set NAME, PART and PROC for your project.
 # NAME is the base name for most of the generated files.
 
 # solves problem with awk while building linux kernel
