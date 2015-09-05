@@ -18,30 +18,29 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  -->
 <block>
-	<name>Red Pitaya sdr_transceiver_tx</name>
-	<key>redpitaya_sink</key>
-	<category>Red Pitaya</category>
-	<import>import gr_redpitaya</import>
-	<make>
-    gr_redpitaya.sdr_transceiver_tx(
-      addr=$addr,
-      port=$port
-    )
-	</make>
-	<param>
-		<name>Address</name>
-		<key>addr</key>
-		<value>192.168.1.100</value>
-		<type>string</type>
-	</param>
-	<param>
-		<name>Port</name>
-		<key>port</key>
-		<value>1002</value>
-		<type>int</type>
-	</param>
-	<sink>
-		<name>in</name>
-		<type>complex</type>
-	</sink>
+  <name>Red Pitaya Sink</name>
+  <key>redpitaya_sink</key>
+  <category>Red Pitaya</category>
+  <import>import gr_redpitaya</import>
+  <make>gr_redpitaya.sdr_transceiver_tx(
+        addr=$addr,
+        port=$port
+)
+  </make>
+  <param>
+    <name>Address</name>
+    <key>addr</key>
+    <value>192.168.1.100</value>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Port</name>
+    <key>port</key>
+    <value>1002</value>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
 </block>
