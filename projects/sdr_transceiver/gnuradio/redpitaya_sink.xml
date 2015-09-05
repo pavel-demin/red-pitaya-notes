@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!--
+# GNU Radio blocks for the Red Pitaya transceiver
+# Copyright (C) 2015  Renzo Davoli
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ -->
+<block>
+  <name>Red Pitaya Sink</name>
+  <key>redpitaya_sink</key>
+  <category>Red Pitaya</category>
+  <import>import gr_redpitaya</import>
+  <make>gr_redpitaya.sdr_transceiver_tx(
+        addr=$addr,
+        port=$port
+)
+  </make>
+  <param>
+    <name>Address</name>
+    <key>addr</key>
+    <value>192.168.1.100</value>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Port</name>
+    <key>port</key>
+    <value>1002</value>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+</block>

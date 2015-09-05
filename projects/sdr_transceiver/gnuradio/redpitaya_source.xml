@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!--
+# GNU Radio blocks for the Red Pitaya transceiver
+# Copyright (C) 2015  Renzo Davoli
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ -->
+<block>
+  <name>Red Pitaya Source</name>
+  <key>redpitaya_source</key>
+  <category>Red Pitaya</category>
+  <import>import gr_redpitaya</import>
+  <make>gr_redpitaya.sdr_transceiver_rx(
+        addr=$addr,
+        port=$port,
+        rx_rate=$rx_rate,
+        rx_freq=$rx_freq,
+        tx_freq=$tx_freq,
+        corr=$corr
+)
+  </make>
+  <callback>set_rx_rate($rx_rate)</callback>
+  <callback>set_rx_freq($rx_freq, $corr)</callback>
+  <callback>set_tx_freq($tx_freq, $corr)</callback>
+  <callback>set_ptt($ptt)</callback>
+  <param>
+    <name>Address</name>
+    <key>addr</key>
+    <value>192.168.1.100</value>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Port</name>
+    <key>port</key>
+    <value>1001</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>RX Sample Rate</name>
+    <key>rx_rate</key>
+    <value>rx_samp_rate</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>RX Center Frequency</name>
+    <key>rx_freq</key>
+    <value>600000</value>
+    <type>real</type>
+  </param>
+  <param>
+    <name>TX Center Frequency</name>
+    <key>tx_freq</key>
+    <value>600000</value>
+    <type>real</type>
+  </param>
+  <param>
+    <name>PTT</name>
+    <key>ptt</key>
+    <value>False</value>
+    <type>bool</type>
+  </param>
+  <param>
+    <name>Freq. Correction ppm</name>
+    <key>corr</key>
+    <value>0</value>
+    <type>real</type>
+  </param>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>
