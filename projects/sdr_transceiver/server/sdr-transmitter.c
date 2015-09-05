@@ -24,8 +24,8 @@ void signal_handler(int sig)
 int main(int argc, char *argv[])
 {
   int fd, sockServer, sockClient;
-  int offset;
-  void *ram;
+  int position, limit, offset;
+  void *sts, *ram;
   char *name = "/dev/mem";
   struct sockaddr_in addr;
   int yes = 1;
@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
 
   if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -60,8 +61,12 @@ int main(int argc, char *argv[])
 
   listen(sockServer, 1024);
 
+  limit = 256;
+
   while(!interrupted)
   {
+    memset(ram, 0, 4096);
+
     if((sockClient = accept(sockServer, NULL, NULL)) < 0)
     {
       perror("accept");
@@ -74,12 +79,19 @@ int main(int argc, char *argv[])
 
     while(!interrupted)
     {
-      if(recv(sockClient, ram + offset, 1024, MSG_WAITALL) <= 0) break;
+      /* read ram writer position */
+      position = *((uint16_t *)(sts + 2));
 
-      offset += 1024;
-      if(offset == 4096)
+      /* receive 2048 bytes if ready, otherwise sleep 0.1 ms */
+      if((limit > 0 && position > limit) || (limit == 0 && position < 256))
       {
-        offset = 0;
+        offset = limit > 0 ? 0 : 2048;
+        limit = limit > 0 ? 0 : 256;
+        if(recv(sockClient, ram + offset, 2048, MSG_WAITALL) <= 0) break;
+      }
+      else
+      {
+        usleep(100);
       }
     }
 
