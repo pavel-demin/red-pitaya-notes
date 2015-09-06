@@ -104,8 +104,8 @@ module tx_0 {
     M_TDATA_NUM_BYTES.VALUE_SRC USER
     S_TDATA_NUM_BYTES 8
     M_TDATA_NUM_BYTES 3
-    M00_TDATA_REMAP {tdata[55:32]}
-    M01_TDATA_REMAP {tdata[23:0]}
+    M00_TDATA_REMAP {tdata[23:0]}
+    M01_TDATA_REMAP {tdata[55:32]}
   } {
     S_AXIS fir_0/M_AXIS_DATA
     aclk /ps_0/FCLK_CLK0
