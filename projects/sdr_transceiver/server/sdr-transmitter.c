@@ -79,10 +79,10 @@ int main(int argc, char *argv[])
 
     while(!interrupted)
     {
-      /* read ram writer position */
+      /* read ram reader position */
       position = *((uint16_t *)(sts + 2));
 
-      /* receive 2048 bytes if ready, otherwise sleep 0.1 ms */
+      /* receive 2048 bytes if ready, otherwise sleep 1 ms */
       if((limit > 0 && position > limit) || (limit == 0 && position < 256))
       {
         offset = limit > 0 ? 0 : 2048;
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
       }
       else
       {
-        usleep(100);
+        usleep(1000);
       }
     }
 

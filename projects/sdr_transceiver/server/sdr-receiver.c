@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   pid_t pid;
   void *cfg, *sts, *ram;
   char *name = "/dev/mem";
-  unsigned long size = 0;
+  int size = 0;
   struct sockaddr_in addr;
   uint32_t command, freq;
   uint32_t freqMin = 50000;
