@@ -5,7 +5,7 @@
     <key>options</key>
     <param>
       <key>id</key>
-      <value>top_block</value>
+      <value>trx_am</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -99,7 +99,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(100, 90)</value>
+      <value>(110, 90)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -146,7 +146,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(10, 470)</value>
+      <value>(10, 450)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -189,7 +189,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(430, 470)</value>
+      <value>(430, 450)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -228,7 +228,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(400, 540)</value>
+      <value>(400, 510)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -323,7 +323,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(210, 10)</value>
+      <value>(220, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -390,7 +390,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(260, 320)</value>
+      <value>(260, 310)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -457,7 +457,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(820, 370)</value>
+      <value>(820, 320)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -508,7 +508,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(210, 446)</value>
+      <value>(210, 426)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -563,7 +563,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(260, 196)</value>
+      <value>(260, 186)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -598,7 +598,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(614, 474)</value>
+      <value>(614, 454)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -617,7 +617,7 @@
     </param>
     <param>
       <key>addr</key>
-      <value>192.168.1.140</value>
+      <value>192.168.1.100</value>
     </param>
     <param>
       <key>port</key>
@@ -629,7 +629,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(820, 479)</value>
+      <value>(820, 459)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -676,7 +676,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(460, 204)</value>
+      <value>(460, 194)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -727,7 +727,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(670, 204)</value>
+      <value>(670, 194)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -766,7 +766,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(890, 228)</value>
+      <value>(890, 218)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -785,7 +785,7 @@
     </param>
     <param>
       <key>addr</key>
-      <value>192.168.1.140</value>
+      <value>192.168.1.100</value>
     </param>
     <param>
       <key>port</key>
@@ -825,7 +825,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(10, 180)</value>
+      <value>(10, 170)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -880,7 +880,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(340, 10)</value>
+      <value>(350, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -935,7 +935,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(470, 10)</value>
+      <value>(480, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -978,7 +978,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(600, 10)</value>
+      <value>(610, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
