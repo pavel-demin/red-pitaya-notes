@@ -15,7 +15,7 @@ The Red Pitaya web server and the Red Pitaya SDK are by default built for the AR
 
 I've put together a bootable SD card image for the Red Pitaya board containing the following:
 
- - Linux 3.18.0-xilinx
+ - Linux 3.19.0-xilinx
  - Debian 8.0 (armel)
  - Development tools (GCC 4.9.2, make)
  - Wi-Fi drivers for MediaTek/Ralink and Realtek chipsets
@@ -47,7 +47,7 @@ vncserver -geometry 1200x700
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/red-pitaya-ecosystem-0.92-debian-8.0-armel-20150902.zip).
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/red-pitaya-ecosystem-0.92-debian-8.0-armel-20150908.zip).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
