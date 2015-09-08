@@ -1,6 +1,18 @@
 --- system.dts.old
 +++ system.dts
-@@ -23,7 +23,7 @@
+@@ -16,6 +16,11 @@
+ 	chosen {
+ 		bootargs = "console=ttyPS0,115200 root=/dev/mmcblk0p2 ro rootfstype=ext4 earlyprintk rootwait";
+ 	};
++	usb0_phy: usb-phy {
++		#phy-cells = <0>;
++		compatible = "usb-nop-xceiv";
++		reset-gpios = <&gpio0 48 1>;
++	};
+ 	aliases {
+ 		ethernet0 = &gem0;
+ 		serial0 = &uart0;
+@@ -23,7 +28,7 @@
  	};
  	memory {
  		device_type = "memory";
@@ -9,7 +21,7 @@
  	};
  };
  &gem0 {
-@@ -36,6 +36,16 @@
+@@ -36,6 +41,16 @@
  		#size-cells = <0>;
  	};
  };
@@ -26,7 +38,7 @@
  &gpio0 {
  	emio-gpio-width = <64>;
  	gpio-mask-high = <0x0>;
-@@ -45,6 +55,16 @@
+@@ -45,6 +60,16 @@
  	clock-frequency = <400000>;
  	status = "okay";
  };
@@ -43,11 +55,15 @@
  &intc {
  	num_cpus = <2>;
  	num_interrupts = <96>;
-@@ -87,6 +107,6 @@
- 	usb-reset = <&gpio0 48 0>;
+@@ -82,9 +107,9 @@
+ };
+ &usb0 {
+ 	dr_mode = "host";
+-	phy_type = "ulpi";
++	usb-phy = <&usb0_phy>;
+ 	status = "okay";
+-	usb-reset = <&gpio0 48 0>;
++	xlnx,phy-reset-gpio = <&gpio0 48 0>;
  };
  &clkc {
--	fclk-enable = <0x0>;
-+	fclk-enable = <0xf>;
- 	ps-clk-frequency = <33333333>;
- };
+ 	fclk-enable = <0x0>;
