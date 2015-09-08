@@ -55,7 +55,7 @@
  &intc {
  	num_cpus = <2>;
  	num_interrupts = <96>;
-@@ -82,9 +101,9 @@
+@@ -82,11 +101,11 @@
  };
  &usb0 {
  	dr_mode = "host";
@@ -66,4 +66,7 @@
 +	xlnx,phy-reset-gpio = <&gpio0 48 0>;
  };
  &clkc {
- 	fclk-enable = <0x0>;
+-	fclk-enable = <0x0>;
++	fclk-enable = <0xf>;
+ 	ps-clk-frequency = <33333333>;
+ };
