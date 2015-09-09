@@ -67,8 +67,6 @@ int main(int argc, char *argv[])
 
   listen(sockServer, 1024);
 
-  limit = 256;
-
   while(!interrupted)
   {
     /* enter reset mode */
@@ -88,6 +86,8 @@ int main(int argc, char *argv[])
 
     /* enter normal operating mode */
     *((uint32_t *)(cfg + 0)) |= 7;
+
+    limit = 256;
 
     while(!interrupted)
     {
