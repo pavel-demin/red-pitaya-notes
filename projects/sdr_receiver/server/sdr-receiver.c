@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   pid_t pid;
   void *cfg, *sts, *ram;
   char *name = "/dev/mem";
-  unsigned long size = 0;
+  int size = 0;
   struct sockaddr_in addr;
   uint32_t command = 600000;
   uint32_t freqMin = 50000;
@@ -67,8 +67,6 @@ int main(int argc, char *argv[])
 
   listen(sockServer, 1024);
 
-  limit = 256;
-
   while(!interrupted)
   {
     /* enter reset mode */
@@ -88,6 +86,8 @@ int main(int argc, char *argv[])
 
     /* enter normal operating mode */
     *((uint32_t *)(cfg + 0)) |= 15;
+
+    limit = 256;
 
     while(!interrupted)
     {
