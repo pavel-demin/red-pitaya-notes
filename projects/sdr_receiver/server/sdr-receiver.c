@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
   listen(sockServer, 1024);
 
-  limit = 128;
+  limit = 256;
 
   while(!interrupted)
   {
