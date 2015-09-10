@@ -27,6 +27,7 @@
         port=$port
 )
   </make>
+  <callback>set_ptt($ptt)</callback>
   <param>
     <name>Address</name>
     <key>addr</key>
@@ -38,6 +39,12 @@
     <key>port</key>
     <value>1002</value>
     <type>int</type>
+  </param>
+  <param>
+    <name>PTT</name>
+    <key>ptt</key>
+    <value>False</value>
+    <type>bool</type>
   </param>
   <sink>
     <name>in</name>

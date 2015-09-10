@@ -34,7 +34,6 @@
   <callback>set_rx_rate($rx_rate)</callback>
   <callback>set_rx_freq($rx_freq, $corr)</callback>
   <callback>set_tx_freq($tx_freq, $corr)</callback>
-  <callback>set_ptt($ptt)</callback>
   <param>
     <name>Address</name>
     <key>addr</key>
@@ -64,12 +63,6 @@
     <key>tx_freq</key>
     <value>600000</value>
     <type>real</type>
-  </param>
-  <param>
-    <name>PTT</name>
-    <key>ptt</key>
-    <value>False</value>
-    <type>bool</type>
   </param>
   <param>
     <name>Freq. Correction ppm</name>

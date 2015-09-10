@@ -33,14 +33,14 @@ class source(gr.sync_block):
       out_sig = [numpy.complex64]
     )
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.sock.connect((addr,port))
+    self.sock.connect((addr, port))
     self.set_rx_rate(rx_rate)
     self.set_rx_freq(rx_freq, corr)
     self.set_tx_freq(tx_freq, corr)
 
   def set_rx_rate(self, rate):
-    if rate in red_pitaya_source.rx_rates:
-      code = red_pitaya_source.rx_rates[rate]
+    if rate in source.rx_rates:
+      code = source.rx_rates[rate]
       self.sock.send(struct.pack('<I', 1<<28 | code))
     else:
       raise ValueError("acceptable sample rates are 50k, 100k, 250k, 500k")
@@ -50,9 +50,6 @@ class source(gr.sync_block):
 
   def set_tx_freq(self, freq, corr):
     self.sock.send(struct.pack('<I', 2<<28 | int((1.0 + 1e-6 * corr) * freq)))
-
-  def set_ptt(self, on):
-    self.sock.send(struct.pack('<I', (3<<28, 4<<28)[on == False]))
 
   def work(self, input_items, output_items):
     data = self.sock.recv(len(output_items[0]) * 8, socket.MSG_WAITALL)
@@ -70,9 +67,19 @@ class sink(gr.sync_block):
       in_sig = [numpy.complex64],
       out_sig = []
     )
-    self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.sock.connect((addr,port))
+    self.addr = addr
+    self.port = port
+    self.ptt = False
+
+  def set_ptt(self, on):
+    if on and not self.ptt:
+      self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      self.sock.connect((self.addr, self.port))
+      self.ptt = True
+    elif not on and self.ptt:
+      self.sock.close()
+      self.ptt = False
 
   def work(self, input_items, output_items):
-    self.sock.send(input_items[0].tostring())
+    if self.ptt == True: self.sock.send(input_items[0].tostring())
     return len(input_items[0])
