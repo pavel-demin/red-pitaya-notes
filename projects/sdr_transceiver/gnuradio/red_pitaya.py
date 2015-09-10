@@ -81,5 +81,5 @@ class sink(gr.sync_block):
       self.ptt = False
 
   def work(self, input_items, output_items):
-    if self.ptt == True: self.sock.send(input_items[0].tostring())
+    if self.ptt: self.sock.send(input_items[0].tostring())
     return len(input_items[0])
