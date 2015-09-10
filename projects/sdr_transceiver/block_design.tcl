@@ -170,7 +170,7 @@ cell pavel-demin:user:axi_bram_writer:1.0 tx_writer_0 {
   BRAM_DATA_WIDTH 32
   BRAM_ADDR_WIDTH 10
 } {
-  BRAM_PORTA tx_0/bram_0/BRAM_PORTB
+  BRAM_PORTA tx_0/bram_0/BRAM_PORTA
 }
 
 # Create all required interconnections

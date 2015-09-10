@@ -9,10 +9,10 @@ module tx_0 {
   cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
     MEMORY_TYPE True_Dual_Port_RAM
     USE_BRAM_BLOCK Stand_Alone
-    WRITE_WIDTH_A 64
-    WRITE_DEPTH_A 512
-    WRITE_WIDTH_B 32
-    WRITE_DEPTH_B 1024
+    WRITE_WIDTH_A 32
+    WRITE_DEPTH_A 1024
+    WRITE_WIDTH_B 64
+    WRITE_DEPTH_B 512
     ENABLE_A Always_Enabled
     ENABLE_B Always_Enabled
     REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
@@ -25,7 +25,7 @@ module tx_0 {
     BRAM_ADDR_WIDTH 9
     CONTINUOUS TRUE
   } {
-    BRAM_PORTA bram_0/BRAM_PORTA
+    BRAM_PORTA bram_0/BRAM_PORTB
     cfg_data const_0/dout
     aclk /ps_0/FCLK_CLK0
     aresetn /rst_slice_2/Dout
