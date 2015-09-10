@@ -23,12 +23,12 @@ import struct
 import socket
 from gnuradio import gr, blocks
 
-class sdr_transceiver_rx(gr.sync_block):
-  '''Red Pitaya sdr_transceiver_rx'''
+class source(gr.sync_block):
+  '''Red Pitaya Source'''
   def __init__(self, addr, port, rx_rate, rx_freq, tx_freq, corr):
     gr.sync_block.__init__(
       self,
-      name = "sdr_transceiver_rx",
+      name = "red_pitaya_source",
       in_sig = [],
       out_sig = [numpy.complex64]
     )
@@ -39,8 +39,8 @@ class sdr_transceiver_rx(gr.sync_block):
     self.set_tx_freq(tx_freq, corr)
 
   def set_rx_rate(self, rate):
-    if rate in sdr_transceiver_rx.rx_rates:
-      code = sdr_transceiver_rx.rx_rates[rate]
+    if rate in red_pitaya_source.rx_rates:
+      code = red_pitaya_source.rx_rates[rate]
       self.sock.send(struct.pack('<I', 1<<28 | code))
     else:
       raise ValueError("acceptable sample rates are 50k, 100k, 250k, 500k")
@@ -59,14 +59,14 @@ class sdr_transceiver_rx(gr.sync_block):
     output_items[0][:] = numpy.fromstring(data, numpy.complex64)
     return len(output_items[0])
 
-sdr_transceiver_rx.rx_rates={50000:0, 100000:1, 250000:2, 500000:3}
+source.rx_rates={50000:0, 100000:1, 250000:2, 500000:3}
 
-class sdr_transceiver_tx(gr.sync_block):
-  '''Red Pitaya sdr_transceiver_tx'''
+class sink(gr.sync_block):
+  '''Red Pitaya Sink'''
   def __init__(self, addr, port):
     gr.sync_block.__init__(
       self,
-      name = "sdr_transceiver_rx",
+      name = "red_pitaya_sink",
       in_sig = [numpy.complex64],
       out_sig = []
     )

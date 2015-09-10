@@ -606,10 +606,10 @@
     </param>
   </block>
   <block>
-    <key>redpitaya_sink</key>
+    <key>red_pitaya_sink</key>
     <param>
       <key>id</key>
-      <value>redpitaya_sink_0</value>
+      <value>red_pitaya_sink_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -774,10 +774,10 @@
     </param>
   </block>
   <block>
-    <key>redpitaya_source</key>
+    <key>red_pitaya_source</key>
     <param>
       <key>id</key>
-      <value>redpitaya_source_0</value>
+      <value>red_pitaya_source_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -998,13 +998,13 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>redpitaya_source_0</source_block_id>
+    <source_block_id>red_pitaya_source_0</source_block_id>
     <sink_block_id>qtgui_freq_sink_x_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>redpitaya_source_0</source_block_id>
+    <source_block_id>red_pitaya_source_0</source_block_id>
     <sink_block_id>analog_agc2_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -1023,7 +1023,7 @@
   </connection>
   <connection>
     <source_block_id>blocks_float_to_complex_0</source_block_id>
-    <sink_block_id>redpitaya_sink_0</sink_block_id>
+    <sink_block_id>red_pitaya_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

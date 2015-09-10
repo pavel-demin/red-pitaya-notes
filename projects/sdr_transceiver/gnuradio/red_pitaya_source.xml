@@ -19,10 +19,10 @@
  -->
 <block>
   <name>Red Pitaya Source</name>
-  <key>redpitaya_source</key>
+  <key>red_pitaya_source</key>
   <category>Red Pitaya</category>
-  <import>import gr_redpitaya</import>
-  <make>gr_redpitaya.sdr_transceiver_rx(
+  <import>import red_pitaya</import>
+  <make>red_pitaya.source(
         addr=$addr,
         port=$port,
         rx_rate=$rx_rate,
