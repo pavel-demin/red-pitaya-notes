@@ -125,47 +125,22 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1
-
-# Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 rate_0 {
+# Create axis_variable
+cell pavel-demin:user:axis_variable:1.0 rate_0 {
   AXIS_TDATA_WIDTH 16
 } {
   cfg_data slice_2/Dout
   aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
-  AXIS_TDATA_WIDTH 16
-  CNTR_WIDTH 1
-  CONTINUOUS FALSE
-} {
-  S_AXIS rate_0/M_AXIS
-  cfg_data const_1/dout
-  aclk /ps_0/FCLK_CLK0
-  aresetn slice_0/Dout
-}
-
-# Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 rate_1 {
+# Create axis_variable
+cell pavel-demin:user:axis_variable:1.0 rate_1 {
   AXIS_TDATA_WIDTH 16
 } {
   cfg_data slice_2/Dout
   aclk /ps_0/FCLK_CLK0
-}
-
-# Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_1 {
-  AXIS_TDATA_WIDTH 16
-  CNTR_WIDTH 1
-  CONTINUOUS FALSE
-} {
-  S_AXIS rate_1/M_AXIS
-  cfg_data const_1/dout
-  aclk /ps_0/FCLK_CLK0
-  aresetn slice_0/Dout
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create cic_compiler
@@ -183,11 +158,10 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
-  HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_1/M00_AXIS
+  S_AXIS_CONFIG rate_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
-  aresetn slice_0/Dout
 }
 
 # Create cic_compiler
@@ -205,11 +179,10 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
-  HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_1/M01_AXIS
+  S_AXIS_CONFIG rate_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
-  aresetn slice_0/Dout
 }
 
 # Create axis_combiner
