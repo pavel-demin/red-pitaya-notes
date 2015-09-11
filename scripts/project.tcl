@@ -41,11 +41,26 @@ proc cell {cell_vlnv cell_name {cell_props {}} {cell_ports {}}} {
   }
 }
 
-proc module {module_name module_body} {
+proc module {module_name module_body {module_ports {}}} {
   set bd [current_bd_instance .]
   current_bd_instance [create_bd_cell -type hier $module_name]
   eval $module_body
   current_bd_instance $bd
+  foreach {local_name remote_name} $module_ports {
+    set local_port [get_bd_pins $module_name/$local_name]
+    set remote_port [get_bd_pins $remote_name]
+    if {[llength $local_port] == 1 && [llength $remote_port] == 1} {
+      connect_bd_net $local_port $remote_port
+      continue
+    }
+    set local_port [get_bd_intf_pins $module_name/$local_name]
+    set remote_port [get_bd_intf_pins $remote_name]
+    if {[llength $local_port] == 1 && [llength $remote_port] == 1} {
+      connect_bd_intf_net $local_port $remote_port
+      continue
+    }
+    error "** ERROR: can't connect $module_name/$local_name and $remote_port"
+  }
 }
 
 source projects/$project_name/block_design.tcl
