@@ -186,7 +186,7 @@ set_property OFFSET 0x40013000 [get_bd_addr_segs ps_0/Data/SEG_tx_writer_0_reg01
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 out_slice_1 {
-  DIN_WIDTH 160 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
+  DIN_WIDTH 160 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
 } {
   Din trx_1/cfg_0/cfg_data
 }
