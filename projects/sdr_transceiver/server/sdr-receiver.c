@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     signal(SIGINT, signal_handler);
 
     /* enter normal operating mode */
-    *((uint32_t *)(cfg + 0)) |= 7;
+    *((uint32_t *)(cfg + 0)) |= 31;
 
     limit = 256;
 
@@ -139,14 +139,6 @@ int main(int argc, char *argv[])
             freq = command & 0xfffffff;
             if(freq < freqMin || freq > freqMax) continue;
             *((uint32_t *)(cfg + 12)) = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
-            break;
-          case 3:
-            /* start tx */
-            *((uint32_t *)(cfg + 0)) |= 24;
-            break;
-          case 4:
-            /* stop tx */
-            *((uint32_t *)(cfg + 0)) &= ~24;
             break;
         }
       }

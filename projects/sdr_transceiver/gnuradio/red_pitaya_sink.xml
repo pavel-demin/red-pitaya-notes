@@ -19,14 +19,15 @@
  -->
 <block>
   <name>Red Pitaya Sink</name>
-  <key>redpitaya_sink</key>
+  <key>red_pitaya_sink</key>
   <category>Red Pitaya</category>
-  <import>import gr_redpitaya</import>
-  <make>gr_redpitaya.sdr_transceiver_tx(
+  <import>import red_pitaya</import>
+  <make>red_pitaya.sink(
         addr=$addr,
         port=$port
 )
   </make>
+  <callback>set_ptt($ptt)</callback>
   <param>
     <name>Address</name>
     <key>addr</key>
@@ -38,6 +39,12 @@
     <key>port</key>
     <value>1002</value>
     <type>int</type>
+  </param>
+  <param>
+    <name>PTT</name>
+    <key>ptt</key>
+    <value>False</value>
+    <type>bool</type>
   </param>
   <sink>
     <name>in</name>
