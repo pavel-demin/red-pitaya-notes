@@ -9,9 +9,9 @@ This is a work in progress...
 Hardware
 -----
 
-The SDR transceiver consists of the SDR receiver and of the SDR transmitter.
+The SDR transceiver consists of two SDR receivers and of two SDR transmitters.
 
-The implementation of the SDR receiver is quite straightforward:
+The implementation of the SDR receivers is quite straightforward:
 
  - An antenna is connected to one of the high-impedance analog inputs.
  - The on-board ADC (125 MS/s sampling frequency, 14-bit resolution) digitizes the RF signal from the antenna.
@@ -19,7 +19,7 @@ The implementation of the SDR receiver is quite straightforward:
 
 The SDR receiver is described in more details at [this link]({{ "/sdr-receiver/" | prepend: site.baseurl }}).
 
-The SDR transmitter consists of the similar blocks but arranged in an opposite order:
+The SDR transmitters consist of the similar blocks but arranged in an opposite order:
 
  - The I/Q data is processed by a digital up-converter (DUC) running on the Red Pitaya's FPGA.
  - The on-board DAC (125 MS/s sampling frequency, 14-bit resolution) outputs RF signal.
@@ -27,11 +27,9 @@ The SDR transmitter consists of the similar blocks but arranged in an opposite o
 
 The tunable frequency range covers from 0 Hz to 60 MHz.
 
-The receiver I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
+The I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
 
-The transmitter I/Q data rate is fixed to 50 kSPS.
-
-The basic blocks of the digital down-converter (DDC) and of the digital up-converter (DUC) are shown on the following diagram:
+The basic blocks of the digital down-converters (DDC) and of the digital up-converters (DUC) are shown on the following diagram:
 
 ![SDR transceiver]({{ "/img/sdr-transceiver.png" | prepend: site.baseurl }})
 
