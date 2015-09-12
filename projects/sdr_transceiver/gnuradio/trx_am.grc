@@ -84,29 +84,6 @@
     </param>
   </block>
   <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>tx_samp_rate</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>50000</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(110, 90)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>audio_source</key>
     <param>
       <key>id</key>
@@ -255,7 +232,7 @@
     </param>
     <param>
       <key>num_opts</key>
-      <value>4</value>
+      <value>5</value>
     </param>
     <param>
       <key>value</key>
@@ -263,7 +240,7 @@
     </param>
     <param>
       <key>options</key>
-      <value>[0, 1, 2]</value>
+      <value>[0, 1, 2, 3, 4]</value>
     </param>
     <param>
       <key>labels</key>
@@ -271,7 +248,7 @@
     </param>
     <param>
       <key>option0</key>
-      <value>50000</value>
+      <value>20000</value>
     </param>
     <param>
       <key>label0</key>
@@ -279,7 +256,7 @@
     </param>
     <param>
       <key>option1</key>
-      <value>100000</value>
+      <value>50000</value>
     </param>
     <param>
       <key>label1</key>
@@ -287,7 +264,7 @@
     </param>
     <param>
       <key>option2</key>
-      <value>250000</value>
+      <value>100000</value>
     </param>
     <param>
       <key>label2</key>
@@ -295,7 +272,7 @@
     </param>
     <param>
       <key>option3</key>
-      <value>500000</value>
+      <value>250000</value>
     </param>
     <param>
       <key>label3</key>
@@ -303,7 +280,7 @@
     </param>
     <param>
       <key>option4</key>
-      <value>4</value>
+      <value>500000</value>
     </param>
     <param>
       <key>label4</key>
@@ -323,7 +300,102 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(220, 10)</value>
+      <value>(180, 10)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_qtgui_chooser</key>
+    <param>
+      <key>id</key>
+      <value>tx_samp_rate</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>int</value>
+    </param>
+    <param>
+      <key>num_opts</key>
+      <value>5</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>100000</value>
+    </param>
+    <param>
+      <key>options</key>
+      <value>[0, 1, 2, 3, 4]</value>
+    </param>
+    <param>
+      <key>labels</key>
+      <value>[]</value>
+    </param>
+    <param>
+      <key>option0</key>
+      <value>20000</value>
+    </param>
+    <param>
+      <key>label0</key>
+      <value></value>
+    </param>
+    <param>
+      <key>option1</key>
+      <value>50000</value>
+    </param>
+    <param>
+      <key>label1</key>
+      <value></value>
+    </param>
+    <param>
+      <key>option2</key>
+      <value>100000</value>
+    </param>
+    <param>
+      <key>label2</key>
+      <value></value>
+    </param>
+    <param>
+      <key>option3</key>
+      <value>250000</value>
+    </param>
+    <param>
+      <key>label3</key>
+      <value></value>
+    </param>
+    <param>
+      <key>option4</key>
+      <value>500000</value>
+    </param>
+    <param>
+      <key>label4</key>
+      <value></value>
+    </param>
+    <param>
+      <key>widget</key>
+      <value>combo_box</value>
+    </param>
+    <param>
+      <key>orient</key>
+      <value>Qt.QVBoxLayout</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(310, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -457,7 +529,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(820, 310)</value>
+      <value>(820, 340)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -480,7 +552,7 @@
     </param>
     <param>
       <key>interp</key>
-      <value>25*tx_samp_rate/50000</value>
+      <value>tx_samp_rate/2000</value>
     </param>
     <param>
       <key>decim</key>
@@ -563,7 +635,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(260, 178)</value>
+      <value>(260, 186)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -680,7 +752,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(460, 186)</value>
+      <value>(460, 194)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -707,7 +779,7 @@
     </param>
     <param>
       <key>decim</key>
-      <value>25*rx_samp_rate/50000</value>
+      <value>rx_samp_rate/2000</value>
     </param>
     <param>
       <key>taps</key>
@@ -731,7 +803,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(670, 186)</value>
+      <value>(670, 194)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -770,7 +842,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(890, 210)</value>
+      <value>(890, 218)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -796,16 +868,20 @@
       <value>1001</value>
     </param>
     <param>
-      <key>rx_rate</key>
-      <value>rx_samp_rate</value>
-    </param>
-    <param>
       <key>rx_freq</key>
       <value>rx_freq</value>
     </param>
     <param>
+      <key>rx_rate</key>
+      <value>rx_samp_rate</value>
+    </param>
+    <param>
       <key>tx_freq</key>
       <value>tx_freq</value>
+    </param>
+    <param>
+      <key>tx_rate</key>
+      <value>tx_samp_rate</value>
     </param>
     <param>
       <key>corr</key>
@@ -880,7 +956,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(350, 10)</value>
+      <value>(570, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -935,7 +1011,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(480, 10)</value>
+      <value>(440, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -978,7 +1054,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(610, 10)</value>
+      <value>(700, 10)</value>
     </param>
     <param>
       <key>_rotation</key>

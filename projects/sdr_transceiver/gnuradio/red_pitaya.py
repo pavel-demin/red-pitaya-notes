@@ -25,7 +25,7 @@ from gnuradio import gr, blocks
 
 class source(gr.sync_block):
   '''Red Pitaya Source'''
-  def __init__(self, addr, port, rx_rate, rx_freq, tx_freq, corr):
+  def __init__(self, addr, port, rx_freq, rx_rate, tx_freq, tx_rate, corr):
     gr.sync_block.__init__(
       self,
       name = "red_pitaya_source",
@@ -34,29 +34,37 @@ class source(gr.sync_block):
     )
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.sock.connect((addr, port))
-    self.set_rx_rate(rx_rate)
     self.set_rx_freq(rx_freq, corr)
+    self.set_rx_rate(rx_rate)
     self.set_tx_freq(tx_freq, corr)
-
-  def set_rx_rate(self, rate):
-    if rate in source.rx_rates:
-      code = source.rx_rates[rate]
-      self.sock.send(struct.pack('<I', 1<<28 | code))
-    else:
-      raise ValueError("acceptable sample rates are 50k, 100k, 250k, 500k")
+    self.set_tx_rate(tx_rate)
 
   def set_rx_freq(self, freq, corr):
     self.sock.send(struct.pack('<I', 0<<28 | int((1.0 + 1e-6 * corr) * freq)))
 
+  def set_rx_rate(self, rate):
+    if rate in source.rates:
+      code = source.rates[rate]
+      self.sock.send(struct.pack('<I', 1<<28 | code))
+    else:
+      raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k")
+
   def set_tx_freq(self, freq, corr):
     self.sock.send(struct.pack('<I', 2<<28 | int((1.0 + 1e-6 * corr) * freq)))
+
+  def set_tx_rate(self, rate):
+    if rate in source.rates:
+      code = source.rates[rate]
+      self.sock.send(struct.pack('<I', 3<<28 | code))
+    else:
+      raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k")
 
   def work(self, input_items, output_items):
     data = self.sock.recv(len(output_items[0]) * 8, socket.MSG_WAITALL)
     output_items[0][:] = numpy.fromstring(data, numpy.complex64)
     return len(output_items[0])
 
-source.rx_rates={50000:0, 100000:1, 250000:2, 500000:3}
+source.rates={20000:0, 50000:1, 100000:2, 250000:3, 500000:4}
 
 class sink(gr.sync_block):
   '''Red Pitaya Sink'''
