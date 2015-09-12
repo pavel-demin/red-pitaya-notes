@@ -232,15 +232,15 @@
     </param>
     <param>
       <key>num_opts</key>
-      <value>4</value>
+      <value>5</value>
     </param>
     <param>
       <key>value</key>
-      <value>50000</value>
+      <value>100000</value>
     </param>
     <param>
       <key>options</key>
-      <value>[0, 1, 2]</value>
+      <value>[0, 1, 2, 3, 4]</value>
     </param>
     <param>
       <key>labels</key>
@@ -280,7 +280,7 @@
     </param>
     <param>
       <key>option4</key>
-      <value>4</value>
+      <value>1250000</value>
     </param>
     <param>
       <key>label4</key>
@@ -327,15 +327,15 @@
     </param>
     <param>
       <key>num_opts</key>
-      <value>4</value>
+      <value>5</value>
     </param>
     <param>
       <key>value</key>
-      <value>50000</value>
+      <value>100000</value>
     </param>
     <param>
       <key>options</key>
-      <value>[0, 1, 2]</value>
+      <value>[0, 1, 2, 3, 4]</value>
     </param>
     <param>
       <key>labels</key>
@@ -375,7 +375,7 @@
     </param>
     <param>
       <key>option4</key>
-      <value>4</value>
+      <value>1250000</value>
     </param>
     <param>
       <key>label4</key>

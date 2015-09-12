@@ -64,7 +64,7 @@ class source(gr.sync_block):
     output_items[0][:] = numpy.fromstring(data, numpy.complex64)
     return len(output_items[0])
 
-source.rates={50000:0, 100000:1, 250000:2, 500000:3}
+source.rates={20000:0, 50000:1, 100000:2, 250000:3, 500000:4, 1250000:5}
 
 class sink(gr.sync_block):
   '''Red Pitaya Sink'''

@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   }
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
+  ram = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
 
   if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -61,11 +61,9 @@ int main(int argc, char *argv[])
 
   listen(sockServer, 1024);
 
-  limit = 256;
-
   while(!interrupted)
   {
-    memset(ram, 0, 4096);
+    memset(ram, 0, 8192);
 
     if((sockClient = accept(sockServer, NULL, NULL)) < 0)
     {
@@ -75,23 +73,23 @@ int main(int argc, char *argv[])
 
     signal(SIGINT, signal_handler);
 
-    offset = 0;
+    limit = 512;
 
     while(!interrupted)
     {
       /* read ram reader position */
       position = *((uint16_t *)(sts + 2));
 
-      /* receive 2048 bytes if ready, otherwise sleep 1 ms */
-      if((limit > 0 && position > limit) || (limit == 0 && position < 256))
+      /* receive 4096 bytes if ready, otherwise sleep 0.1 ms */
+      if((limit > 0 && position > limit) || (limit == 0 && position < 512))
       {
-        offset = limit > 0 ? 0 : 2048;
-        limit = limit > 0 ? 0 : 256;
-        if(recv(sockClient, ram + offset, 2048, MSG_WAITALL) <= 0) break;
+        offset = limit > 0 ? 0 : 4096;
+        limit = limit > 0 ? 0 : 512;
+        if(recv(sockClient, ram + offset, 4096, MSG_WAITALL) <= 0) break;
       }
       else
       {
-        usleep(1000);
+        usleep(100);
       }
     }
 
