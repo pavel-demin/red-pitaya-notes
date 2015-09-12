@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
       /* read ram reader position */
       position = *((uint16_t *)(sts + 2));
 
-      /* receive 4096 bytes if ready, otherwise sleep 0.1 ms */
+      /* receive 4096 bytes if ready, otherwise sleep 0.5 ms */
       if((limit > 0 && position > limit) || (limit == 0 && position < 512))
       {
         offset = limit > 0 ? 0 : 4096;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
       }
       else
       {
-        usleep(100);
+        usleep(500);
       }
     }
 

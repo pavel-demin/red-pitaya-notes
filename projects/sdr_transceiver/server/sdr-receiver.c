@@ -69,13 +69,13 @@ int main(int argc, char *argv[])
 
   while(!interrupted)
   {
-    /* set default phase increment */
+    /* set default rx phase increment */
     *((uint32_t *)(cfg + 4)) = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-    /* set default sample rate */
+    /* set default rx sample rate */
     *((uint32_t *)(cfg + 8)) = 625;
-    /* set default phase increment */
+    /* set default tx phase increment */
     *((uint32_t *)(cfg + 12)) = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-    /* set default sample rate */
+    /* set default tx sample rate */
     *((uint32_t *)(cfg + 16)) = 625;
 
     if((sockClient = accept(sockServer, NULL, NULL)) < 0)
@@ -127,10 +127,6 @@ int main(int argc, char *argv[])
                 freqMin = 250000;
                 *((uint32_t *)(cfg + 8)) = 125;
                 break;
-              case 5:
-                freqMin = 625000;
-                *((uint32_t *)(cfg + 8)) = 50;
-                break;
             }
             break;
           case 2:
@@ -163,10 +159,6 @@ int main(int argc, char *argv[])
                 freqMin = 250000;
                 *((uint32_t *)(cfg + 16)) = 125;
                 break;
-              case 5:
-                freqMin = 625000;
-                *((uint32_t *)(cfg + 16)) = 50;
-                break;
             }
             break;
         }
@@ -175,7 +167,7 @@ int main(int argc, char *argv[])
       /* read ram writer position */
       position = *((uint16_t *)(sts + 0));
 
-      /* send 4096 bytes if ready, otherwise sleep 0.1 ms */
+      /* send 4096 bytes if ready, otherwise sleep 0.5 ms */
       if((limit > 0 && position > limit) || (limit == 0 && position < 512))
       {
         offset = limit > 0 ? 0 : 4096;
@@ -184,7 +176,7 @@ int main(int argc, char *argv[])
       }
       else
       {
-        usleep(100);
+        usleep(500);
       }
     }
 
