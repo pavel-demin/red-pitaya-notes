@@ -242,6 +242,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   ROUNDMODE Random_Rounding
   OUTPUTWIDTH 17
 } {
+  S_AXIS_A comb_1/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
   S_AXIS_CTRL lfsr_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
