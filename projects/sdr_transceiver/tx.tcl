@@ -107,10 +107,11 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   FILTER_TYPE Interpolation
   INTERPOLATION_RATE 2
   NUMBER_PATHS 2
-  RATESPECIFICATION Input_Sample_Period
-  SAMPLEPERIOD 250
+  SAMPLE_FREQUENCY 0.5
+  CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Truncate_LSBs
   OUTPUT_WIDTH 25
+  M_DATA_HAS_TREADY true
 } {
   S_AXIS_DATA comb_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
@@ -163,6 +164,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
+  HAS_DOUT_TREADY true
 } {
   S_AXIS_DATA bcast_1/M00_AXIS
   S_AXIS_CONFIG rate_0/M_AXIS
@@ -184,6 +186,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
+  HAS_DOUT_TREADY true
 } {
   S_AXIS_DATA bcast_1/M01_AXIS
   S_AXIS_CONFIG rate_1/M_AXIS
