@@ -18,7 +18,7 @@ module axis_variable #
   output wire                        m_axis_tvalid
 );
 
-  reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg, int_tdata_next;
+  reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg;
   reg int_tvalid_reg, int_tvalid_next;
 
   always @(posedge aclk)
@@ -30,14 +30,13 @@ module axis_variable #
     end
     else
     begin
-      int_tdata_reg <= int_tdata_next;
+      int_tdata_reg <= cfg_data;
       int_tvalid_reg <= int_tvalid_next;
     end
   end
 
   always @*
   begin
-    int_tdata_next = cfg_data;
     int_tvalid_next = int_tvalid_reg;
 
     if(int_tdata_reg != cfg_data)
