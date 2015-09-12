@@ -47,7 +47,7 @@ class source(gr.sync_block):
       code = source.rates[rate]
       self.sock.send(struct.pack('<I', 1<<28 | code))
     else:
-      raise ValueError("acceptable sample rates are 50k, 100k, 250k, 500k")
+      raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k")
 
   def set_tx_freq(self, freq, corr):
     self.sock.send(struct.pack('<I', 2<<28 | int((1.0 + 1e-6 * corr) * freq)))
@@ -57,14 +57,14 @@ class source(gr.sync_block):
       code = source.rates[rate]
       self.sock.send(struct.pack('<I', 3<<28 | code))
     else:
-      raise ValueError("acceptable sample rates are 50k, 100k, 250k, 500k")
+      raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k")
 
   def work(self, input_items, output_items):
     data = self.sock.recv(len(output_items[0]) * 8, socket.MSG_WAITALL)
     output_items[0][:] = numpy.fromstring(data, numpy.complex64)
     return len(output_items[0])
 
-source.rates={20000:0, 50000:1, 100000:2, 250000:3, 500000:4, 1250000:5}
+source.rates={20000:0, 50000:1, 100000:2, 250000:3, 500000:4}
 
 class sink(gr.sync_block):
   '''Red Pitaya Sink'''
