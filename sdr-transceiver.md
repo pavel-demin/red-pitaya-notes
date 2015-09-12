@@ -27,7 +27,7 @@ The SDR transmitters consist of the similar blocks but arranged in an opposite o
 
 The tunable frequency range covers from 0 Hz to 60 MHz.
 
-The I/Q data rate is configurable and four settings are available: 50, 100, 250 and 500 kSPS.
+The I/Q data rate is configurable and five settings are available: 20, 50, 100, 250 and 500 kSPS.
 
 The basic blocks of the digital down-converters (DDC) and of the digital up-converters (DUC) are shown on the following diagram:
 
@@ -38,7 +38,7 @@ The [projects/sdr_transceiver](https://github.com/pavel-demin/red-pitaya-notes/t
 The [projects/sdr_transceiver/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/server) directory contains the source code of two TCP servers:
 
   - [sdr-receiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/server/sdr-receiver.c) that receives control commands and transmits the I/Q data stream (up to 2 x 32 bit x 500 kSPS = 30.5 Mbit/s) to the SDR programs
-  - [sdr-transmitter.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/server/sdr-transmitter.c) that receives the I/Q data stream (2 x 32 bit x 50 kSPS = 3.1 Mbit/s) from the SDR programs.
+  - [sdr-transmitter.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/server/sdr-transmitter.c) that receives the I/Q data stream (up to 2 x 32 bit x 500 kSPS = 30.5 Mbit/s) from the SDR programs.
 
 Software
 -----
