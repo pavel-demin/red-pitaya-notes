@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 {
   int fd, sockServer, sockClient;
   int position, limit, offset;
-  void *sts, *ram;
+  void *cfg, *sts, *ram;
   char *end, *name = "/dev/mem";
   struct sockaddr_in addr;
   uint16_t port;
@@ -51,11 +51,13 @@ int main(int argc, char *argv[])
   {
     case 0:
       port = 1002;
+      cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
       sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
       ram = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
       break;
     case 1:
       port = 1004;
+      cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
       sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
       ram = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000A000);
       break;
@@ -85,6 +87,9 @@ int main(int argc, char *argv[])
 
   while(!interrupted)
   {
+    /* set PTT pin to low */
+    *((uint32_t *)(cfg + 0)) = 0;
+
     memset(ram, 0, 8192);
 
     if((sockClient = accept(sockServer, NULL, NULL)) < 0)
@@ -94,6 +99,9 @@ int main(int argc, char *argv[])
     }
 
     signal(SIGINT, signal_handler);
+
+    /* set PTT pin to high */
+    *((uint32_t *)(cfg + 0)) = 1;
 
     limit = 512;
 
