@@ -250,3 +250,18 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   S_AXIS_CTRL lfsr_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
 }
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_1
+
+# Create axis_clock_converter
+cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 2
+} {
+  S_AXIS mult_0/M_AXIS_DOUT
+  s_axis_aclk /ps_0/FCLK_CLK0
+  s_axis_aresetn /rst_0/peripheral_aresetn
+  m_axis_aclk /pll_0/clk_out1
+  m_axis_aresetn const_1/dout
+}
