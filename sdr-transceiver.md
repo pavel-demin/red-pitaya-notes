@@ -43,7 +43,34 @@ The [projects/sdr_transceiver/server](https://github.com/pavel-demin/red-pitaya-
 Software
 -----
 
-An interface with [GNU Radio](http://gnuradio.org) and [QSDR](http://dl2stg.de/stefan/hiqsdr/qsdr.html) is currently being developed.
+The [projects/sdr_transceiver/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](http://gnuradio.org/redmine/projects/gnuradio/wiki/GNURadioCompanion).
+
+An interface with [QSDR](http://dl2stg.de/stefan/hiqsdr/qsdr.html) is currently [being developed](https://github.com/pavel-demin/QSDR).
+
+Getting started
+-----
+
+ - Requirements:
+   - Computer running Ubuntu 14.04 or Debian 8.
+   - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
+ - Connect an antenna to the IN1 connector on the Red Pitaya board.
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.92-65-35575ed-sdr-transceiver.zip).
+ - Copy the content of the SD card image zip file to an SD card.
+ - Insert the SD card in Red Pitaya and connect the power.
+ - Install [GNU Radio](http://gnuradio.org):
+{% highlight bash %}
+sudo apt-get install gnuradio python-numpy python-gtk2
+{% endhighlight %}
+ - Clone the source code repository:
+{% highlight bash %}
+git clone https://github.com/pavel-demin/red-pitaya-notes
+{% endhighlight %}
+ - Run [GNU Radio Companion](http://gnuradio.org/redmine/projects/gnuradio/wiki/GNURadioCompanion) and open AM transceiver flow graph:
+{% highlight bash %}
+cd red-pitaya-notes/projects/sdr_transceiver/gnuradio
+export GRC_BLOCKS_PATH=.
+gnuradio-companion trx_am.grc
+{% endhighlight %}
 
 Building from source
 -----
@@ -68,4 +95,19 @@ Building `sdr_transceiver.bin`:
 {% highlight bash %}
 make NAME=sdr_transceiver tmp/sdr_transceiver.bit
 python scripts/fpga-bit-to-bin.py --flip tmp/sdr_transceiver.bit sdr_transceiver.bin
+{% endhighlight %}
+
+Building `sdr-receiver`:
+{% highlight bash %}
+arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver/server/sdr-receiver.c -o sdr-receiver -lm -static
+{% endhighlight %}
+
+Building `sdr-transmitter`:
+{% highlight bash %}
+arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver/server/sdr-transmitter.c -o sdr-transmitter -lm -static
+{% endhighlight %}
+
+Customizing SD card image zip file:
+{% highlight bash %}
+source scripts/sdr-transceiver-ecosystem.sh
 {% endhighlight %}
