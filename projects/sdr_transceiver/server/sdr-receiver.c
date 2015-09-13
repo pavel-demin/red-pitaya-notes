@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <limits.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
@@ -11,8 +14,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
-#define TCP_PORT 1001
 
 int interrupted = 0;
 
@@ -27,28 +28,50 @@ int main(int argc, char *argv[])
   int position, limit, offset;
   pid_t pid;
   void *cfg, *sts, *ram;
-  char *name = "/dev/mem";
+  char *end, *name = "/dev/mem";
   int size = 0;
   struct sockaddr_in addr;
+  uint16_t port;
   uint32_t command, freq;
   uint32_t freqMin = 50000;
   uint32_t freqMax = 60000000;
   int yes = 1;
+  long number;
+
+  errno = 0;
+  number = (argc == 2) ? strtol(argv[1], &end, 10) : -1;
+  if(errno != 0 || end == argv[1] || number < 0 || number > 1)
+  {
+    printf("Usage: sdr-receiver 0|1\n");
+    return EXIT_FAILURE;
+  }
 
   if((fd = open(name, O_RDWR)) < 0)
   {
     perror("open");
-    return 1;
+    return EXIT_FAILURE;
   }
 
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  ram = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+  switch(number)
+  {
+    case 0:
+      port = 1001;
+      cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+      sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+      ram = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+      break;
+    case 1:
+      port = 1003;
+      cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
+      sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
+      ram = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+      break;
+  }
 
   if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     perror("socket");
-    return 1;
+    return EXIT_FAILURE;
   }
 
   setsockopt(sockServer, SOL_SOCKET, SO_REUSEADDR, (void *)&yes , sizeof(yes));
@@ -57,12 +80,12 @@ int main(int argc, char *argv[])
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  addr.sin_port = htons(TCP_PORT);
+  addr.sin_port = htons(port);
 
   if(bind(sockServer, (struct sockaddr *)&addr, sizeof(addr)) < 0)
   {
     perror("bind");
-    return 1;
+    return EXIT_FAILURE;
   }
 
   listen(sockServer, 1024);
@@ -81,7 +104,7 @@ int main(int argc, char *argv[])
     if((sockClient = accept(sockServer, NULL, NULL)) < 0)
     {
       perror("accept");
-      return 1;
+      return EXIT_FAILURE;
     }
 
     signal(SIGINT, signal_handler);
@@ -186,5 +209,5 @@ int main(int argc, char *argv[])
 
   close(sockServer);
 
-  return 0;
+  return EXIT_SUCCESS;
 }
