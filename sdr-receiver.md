@@ -15,13 +15,6 @@ Some interesting links on digital signal processing and software defined radio:
 
  - [GNU Radio - Suggested Reading](http://gnuradio.org/redmine/projects/gnuradio/wiki/SuggestedReading)
 
-Updates
------
-
-This page describes an updated version of the SDR receiver running on the Red Pitaya open-source instrument.
-
-It is now compatible with the Red Pitaya Ecosystem and can be installed on the original Red Pitaya SD card.
-
 Short description
 -----
 
@@ -167,4 +160,9 @@ python scripts/fpga-bit-to-bin.py --flip tmp/sdr_receiver.bit sdr_receiver.bin
 Building `sdr-receiver`:
 {% highlight bash %}
 arm-xilinx-linux-gnueabi-gcc projects/sdr_receiver/server/sdr-receiver.c -o sdr-receiver -lm -static
+{% endhighlight %}
+
+Customizing SD card image zip file:
+{% highlight bash %}
+source scripts/sdr-receiver-ecosystem.sh
 {% endhighlight %}
