@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Sat Sep  5 21:27:50 2015</timestamp>
+  <timestamp>Sun Sep 13 23:33:44 2015</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -296,7 +296,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value></value>
+      <value>1,0,1,1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -391,7 +391,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value></value>
+      <value>1,1,1,1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -454,7 +454,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value></value>
+      <value>3,0,1,1</value>
     </param>
     <param>
       <key>affinity</key>
@@ -521,7 +521,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value></value>
+      <value>3,1,1,1</value>
     </param>
     <param>
       <key>affinity</key>
@@ -689,7 +689,7 @@
     </param>
     <param>
       <key>addr</key>
-      <value>192.168.1.100</value>
+      <value>str(addr)</value>
     </param>
     <param>
       <key>port</key>
@@ -861,7 +861,7 @@
     </param>
     <param>
       <key>addr</key>
-      <value>192.168.1.100</value>
+      <value>str(addr)</value>
     </param>
     <param>
       <key>port</key>
@@ -952,7 +952,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value></value>
+      <value>0,1,1,1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1007,7 +1007,7 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value></value>
+      <value>0,0,1,1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1050,11 +1050,46 @@
     </param>
     <param>
       <key>gui_hint</key>
-      <value></value>
+      <value>2,1,1,1</value>
     </param>
     <param>
       <key>_coordinate</key>
       <value>(700, 10)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>id</key>
+      <value>addr</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>IP Address</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>192.168.1.100</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(840, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
