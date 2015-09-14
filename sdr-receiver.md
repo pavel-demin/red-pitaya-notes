@@ -167,7 +167,7 @@ Building `boot.bin`, `devicetree.dtb` and `uImage`:
 make NAME=red_pitaya_0_92 all
 {% endhighlight %}
 
-Customizing SD card image zip file:
+Building SD card image zip file:
 {% highlight bash %}
 source scripts/sdr-receiver-ecosystem.sh
 {% endhighlight %}
