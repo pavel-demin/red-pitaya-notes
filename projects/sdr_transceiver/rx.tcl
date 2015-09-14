@@ -42,6 +42,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   PHASE_WIDTH 30
   OUTPUT_WIDTH 24
   DSP48_USE Minimal
+  NEGATIVE_SINE true
 } {
   S_AXIS_PHASE phase_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
@@ -75,8 +76,8 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 8
   M_TDATA_NUM_BYTES 3
-  M00_TDATA_REMAP {tdata[55:32]}
-  M01_TDATA_REMAP {tdata[23:0]}
+  M00_TDATA_REMAP {tdata[23:0]}
+  M01_TDATA_REMAP {tdata[55:32]}
 } {
   S_AXIS mult_0/M_AXIS_DOUT
   aclk /ps_0/FCLK_CLK0
