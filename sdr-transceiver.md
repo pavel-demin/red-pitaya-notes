@@ -107,6 +107,11 @@ Building `sdr-transmitter`:
 arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver/server/sdr-transmitter.c -o sdr-transmitter -lm -static
 {% endhighlight %}
 
+Building `boot.bin`, `devicetree.dtb` and `uImage`:
+{% highlight bash %}
+make NAME=red_pitaya_0_92 all
+{% endhighlight %}
+
 Customizing SD card image zip file:
 {% highlight bash %}
 source scripts/sdr-transceiver-ecosystem.sh
