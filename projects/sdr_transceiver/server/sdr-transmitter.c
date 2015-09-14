@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
   int position, limit, offset;
   void *cfg, *sts, *ram;
   char *end, *name = "/dev/mem";
+  char buf[4096];
   struct sockaddr_in addr;
   uint16_t port;
   int yes = 1;
@@ -115,7 +116,8 @@ int main(int argc, char *argv[])
       {
         offset = limit > 0 ? 0 : 4096;
         limit = limit > 0 ? 0 : 512;
-        if(recv(sockClient, ram + offset, 4096, MSG_WAITALL) <= 0) break;
+        if(recv(sockClient, buf, 4096, MSG_WAITALL) <= 0) break;
+        memcpy(ram + offset, buf, 4096);
       }
       else
       {

@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
   pid_t pid;
   void *cfg, *sts, *ram;
   char *end, *name = "/dev/mem";
+  char buf[4096];
   int size = 0;
   struct sockaddr_in addr;
   uint16_t port;
@@ -195,7 +196,8 @@ int main(int argc, char *argv[])
       {
         offset = limit > 0 ? 0 : 4096;
         limit = limit > 0 ? 0 : 512;
-        if(send(sockClient, ram + offset, 4096, MSG_NOSIGNAL) < 0) break;
+        memcpy(buf, ram + offset, 4096);
+        if(send(sockClient, buf, 4096, MSG_NOSIGNAL) < 0) break;
       }
       else
       {
