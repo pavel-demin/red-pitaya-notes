@@ -25,6 +25,9 @@ from gnuradio import gr, blocks
 
 class source(gr.hier_block2):
   '''Red Pitaya Source'''
+
+  rates = {20000:0, 50000:1, 100000:2, 250000:3, 500000:4}
+
   def __init__(self, addr, port, freq, rate, corr):
     gr.hier_block2.__init__(
       self,
@@ -53,10 +56,11 @@ class source(gr.hier_block2):
     else:
       raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k")
 
-source.rates={20000:0, 50000:1, 100000:2, 250000:3, 500000:4}
-
 class sink(gr.hier_block2):
   '''Red Pitaya Sink'''
+
+  rates = {20000:0, 50000:1, 100000:2, 250000:3, 500000:4}
+
   def __init__(self, addr, port, freq, rate, corr):
     gr.hier_block2.__init__(
       self,
@@ -79,13 +83,11 @@ class sink(gr.hier_block2):
     self.ctrl_sock.send(struct.pack('<I', 0<<28 | int((1.0 + 1e-6 * corr) * freq)))
 
   def set_rate(self, rate):
-    if rate in source.rates:
-      code = source.rates[rate]
+    if rate in sink.rates:
+      code = sink.rates[rate]
       self.ctrl_sock.send(struct.pack('<I', 1<<28 | code))
     else:
       raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k")
 
   def set_ptt(self, on):
     self.ctrl_sock.send(struct.pack('<I', (2<<28, 3<<28)[on == False]))
-
-sink.rates={20000:0, 50000:1, 100000:2, 250000:3, 500000:4}
