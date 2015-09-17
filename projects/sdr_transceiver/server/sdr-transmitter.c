@@ -100,8 +100,8 @@ int main(int argc, char *argv[])
       perror("accept");
       return EXIT_FAILURE;
     }
-    if(recv(sockClient, (char *)&command, 4, MSG_WAITALL) < 0) continue;
-    if(command > 1 || sockThread[command])
+
+    if(recv(sockClient, (char *)&command, 4, MSG_WAITALL) <= 0 || command > 1 || sockThread[command])
     {
       close(sockClient);
       continue;
@@ -140,7 +140,7 @@ void *ctrl_handler(void *arg)
 
   while(1)
   {
-    if(recv(sockClient, (char *)&command, 4, MSG_WAITALL) < 0) break;
+    if(recv(sockClient, (char *)&command, 4, MSG_WAITALL) <= 0) break;
     switch(command >> 28)
     {
       case 0:
