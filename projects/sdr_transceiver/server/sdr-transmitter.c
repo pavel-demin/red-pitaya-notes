@@ -220,18 +220,10 @@ void *data_handler(void *arg)
     {
       offset = limit > 0 ? 0 : 4096;
       limit = limit > 0 ? 0 : 512;
-      if(ioctl(sockClient, FIONREAD, &size) < 0) break;
-      if(size >= 4096)
+      if(recv(sockClient, buf, 4096, MSG_WAITALL) <= 0) break;
+      if(*((uint32_t *)(cfg + 0)))
       {
-        if(recv(sockClient, buf, 4096, MSG_WAITALL) <= 0) break;
-        if(*((uint32_t *)(cfg + 0)))
-        {
-          memcpy(ram + offset, buf, 4096);
-        }
-        else
-        {
-          memset(ram + offset, 0, 4096);
-        }
+        memcpy(ram + offset, buf, 4096);
       }
       else
       {
