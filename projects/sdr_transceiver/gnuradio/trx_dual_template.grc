@@ -524,20 +524,12 @@
       <value>1001</value>
     </param>
     <param>
-      <key>rx_freq</key>
+      <key>freq</key>
       <value>600000</value>
     </param>
     <param>
-      <key>rx_rate</key>
+      <key>rate</key>
       <value>rx1_samp_rate</value>
-    </param>
-    <param>
-      <key>tx_freq</key>
-      <value>600000</value>
-    </param>
-    <param>
-      <key>tx_rate</key>
-      <value>tx1_samp_rate</value>
     </param>
     <param>
       <key>corr</key>
@@ -587,20 +579,12 @@
       <value>600000</value>
     </param>
     <param>
-      <key>rx_rate</key>
+      <key>rate</key>
       <value>rx2_samp_rate</value>
     </param>
     <param>
-      <key>tx_freq</key>
+      <key>freq</key>
       <value>600000</value>
-    </param>
-    <param>
-      <key>tx_rate</key>
-      <value>tx2_samp_rate</value>
-    </param>
-    <param>
-      <key>corr</key>
-      <value>0</value>
     </param>
     <param>
       <key>affinity</key>
@@ -642,6 +626,14 @@
       <value>1002</value>
     </param>
     <param>
+      <key>freq</key>
+      <value>600000</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>tx1_samp_rate</value>
+    </param>
+    <param>
       <key>ptt</key>
       <value>ptt1</value>
     </param>
@@ -675,6 +667,14 @@
     <param>
       <key>port</key>
       <value>1004</value>
+    </param>
+    <param>
+      <key>freq</key>
+      <value>600000</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>tx2_samp_rate</value>
     </param>
     <param>
       <key>ptt</key>
