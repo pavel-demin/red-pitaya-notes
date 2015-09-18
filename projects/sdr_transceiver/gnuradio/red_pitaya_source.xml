@@ -25,17 +25,13 @@
   <make>red_pitaya.source(
         addr=$addr,
         port=$port,
-        rx_freq=$rx_freq,
-        rx_rate=$rx_rate,
-        tx_freq=$tx_freq,
-        tx_rate=$tx_rate,
+        freq=$freq,
+        rate=$rate,
         corr=$corr
 )
   </make>
-  <callback>set_rx_freq($rx_freq, $corr)</callback>
-  <callback>set_rx_rate($rx_rate)</callback>
-  <callback>set_tx_freq($tx_freq, $corr)</callback>
-  <callback>set_tx_rate($tx_rate)</callback>
+  <callback>set_freq($freq, $corr)</callback>
+  <callback>set_rate($rate)</callback>
   <param>
     <name>Address</name>
     <key>addr</key>
@@ -49,27 +45,15 @@
     <type>int</type>
   </param>
   <param>
-    <name>RX Center Frequency</name>
-    <key>rx_freq</key>
+    <name>Center Frequency</name>
+    <key>freq</key>
     <value>600000</value>
     <type>real</type>
   </param>
   <param>
-    <name>RX Sample Rate</name>
-    <key>rx_rate</key>
-    <value>rx_samp_rate</value>
-    <type>int</type>
-  </param>
-  <param>
-    <name>TX Center Frequency</name>
-    <key>tx_freq</key>
-    <value>600000</value>
-    <type>real</type>
-  </param>
-  <param>
-    <name>TX Sample Rate</name>
-    <key>tx_rate</key>
-    <value>tx_samp_rate</value>
+    <name>Sample Rate</name>
+    <key>rate</key>
+    <value>100000</value>
     <type>int</type>
   </param>
   <param>

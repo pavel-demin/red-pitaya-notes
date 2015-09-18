@@ -76,7 +76,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(10, 90)</value>
+      <value>(180, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -213,7 +213,30 @@
     </param>
   </block>
   <block>
-    <key>variable_qtgui_chooser</key>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>addr</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>"192.168.1.100"</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(10, 90)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
     <param>
       <key>id</key>
       <value>rx_samp_rate</value>
@@ -223,92 +246,20 @@
       <value>True</value>
     </param>
     <param>
-      <key>label</key>
-      <value></value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>int</value>
-    </param>
-    <param>
-      <key>num_opts</key>
-      <value>5</value>
-    </param>
-    <param>
       <key>value</key>
       <value>100000</value>
     </param>
     <param>
-      <key>options</key>
-      <value>[0, 1, 2, 3, 4]</value>
-    </param>
-    <param>
-      <key>labels</key>
-      <value>[]</value>
-    </param>
-    <param>
-      <key>option0</key>
-      <value>20000</value>
-    </param>
-    <param>
-      <key>label0</key>
-      <value></value>
-    </param>
-    <param>
-      <key>option1</key>
-      <value>50000</value>
-    </param>
-    <param>
-      <key>label1</key>
-      <value></value>
-    </param>
-    <param>
-      <key>option2</key>
-      <value>100000</value>
-    </param>
-    <param>
-      <key>label2</key>
-      <value></value>
-    </param>
-    <param>
-      <key>option3</key>
-      <value>250000</value>
-    </param>
-    <param>
-      <key>label3</key>
-      <value></value>
-    </param>
-    <param>
-      <key>option4</key>
-      <value>500000</value>
-    </param>
-    <param>
-      <key>label4</key>
-      <value></value>
-    </param>
-    <param>
-      <key>widget</key>
-      <value>combo_box</value>
-    </param>
-    <param>
-      <key>orient</key>
-      <value>Qt.QVBoxLayout</value>
-    </param>
-    <param>
-      <key>gui_hint</key>
-      <value>1,0,1,1</value>
-    </param>
-    <param>
       <key>_coordinate</key>
-      <value>(180, 10)</value>
+      <value>(280, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>0</value>
+      <value>180</value>
     </param>
   </block>
   <block>
-    <key>variable_qtgui_chooser</key>
+    <key>variable</key>
     <param>
       <key>id</key>
       <value>tx_samp_rate</value>
@@ -318,88 +269,16 @@
       <value>True</value>
     </param>
     <param>
-      <key>label</key>
-      <value></value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>int</value>
-    </param>
-    <param>
-      <key>num_opts</key>
-      <value>5</value>
-    </param>
-    <param>
       <key>value</key>
       <value>100000</value>
     </param>
     <param>
-      <key>options</key>
-      <value>[0, 1, 2, 3, 4]</value>
-    </param>
-    <param>
-      <key>labels</key>
-      <value>[]</value>
-    </param>
-    <param>
-      <key>option0</key>
-      <value>20000</value>
-    </param>
-    <param>
-      <key>label0</key>
-      <value></value>
-    </param>
-    <param>
-      <key>option1</key>
-      <value>50000</value>
-    </param>
-    <param>
-      <key>label1</key>
-      <value></value>
-    </param>
-    <param>
-      <key>option2</key>
-      <value>100000</value>
-    </param>
-    <param>
-      <key>label2</key>
-      <value></value>
-    </param>
-    <param>
-      <key>option3</key>
-      <value>250000</value>
-    </param>
-    <param>
-      <key>label3</key>
-      <value></value>
-    </param>
-    <param>
-      <key>option4</key>
-      <value>500000</value>
-    </param>
-    <param>
-      <key>label4</key>
-      <value></value>
-    </param>
-    <param>
-      <key>widget</key>
-      <value>combo_box</value>
-    </param>
-    <param>
-      <key>orient</key>
-      <value>Qt.QVBoxLayout</value>
-    </param>
-    <param>
-      <key>gui_hint</key>
-      <value>1,1,1,1</value>
-    </param>
-    <param>
       <key>_coordinate</key>
-      <value>(310, 10)</value>
+      <value>(280, 90)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>0</value>
+      <value>180</value>
     </param>
   </block>
   <block>
@@ -529,7 +408,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(820, 340)</value>
+      <value>(820, 310)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -635,7 +514,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(260, 186)</value>
+      <value>(260, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -696,6 +575,14 @@
       <value>1002</value>
     </param>
     <param>
+      <key>freq</key>
+      <value>tx_freq</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>tx_samp_rate</value>
+    </param>
+    <param>
       <key>ptt</key>
       <value>ptt</value>
     </param>
@@ -705,7 +592,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(820, 451)</value>
+      <value>(820, 427)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -752,7 +639,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(460, 194)</value>
+      <value>(460, 188)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -803,7 +690,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(670, 194)</value>
+      <value>(670, 188)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -842,7 +729,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(890, 218)</value>
+      <value>(890, 212)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -868,20 +755,12 @@
       <value>1001</value>
     </param>
     <param>
-      <key>rx_freq</key>
+      <key>freq</key>
       <value>rx_freq</value>
     </param>
     <param>
-      <key>rx_rate</key>
+      <key>rate</key>
       <value>rx_samp_rate</value>
-    </param>
-    <param>
-      <key>tx_freq</key>
-      <value>tx_freq</value>
-    </param>
-    <param>
-      <key>tx_rate</key>
-      <value>tx_samp_rate</value>
     </param>
     <param>
       <key>corr</key>
@@ -901,7 +780,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(10, 170)</value>
+      <value>(10, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -956,7 +835,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(570, 10)</value>
+      <value>(520, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1011,7 +890,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 10)</value>
+      <value>(390, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1054,42 +933,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(700, 10)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>id</key>
-      <value>addr</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>IP Address</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>192.168.1.100</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>string</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(840, 10)</value>
+      <value>(650, 10)</value>
     </param>
     <param>
       <key>_rotation</key>

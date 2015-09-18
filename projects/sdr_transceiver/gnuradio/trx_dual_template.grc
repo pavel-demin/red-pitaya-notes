@@ -321,7 +321,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(240, 174)</value>
+      <value>(250, 150)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -388,7 +388,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(240, 324)</value>
+      <value>(250, 300)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -443,7 +443,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(420, 310)</value>
+      <value>(500, 300)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -498,7 +498,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(420, 160)</value>
+      <value>(500, 150)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -524,20 +524,12 @@
       <value>1001</value>
     </param>
     <param>
-      <key>rx_freq</key>
+      <key>freq</key>
       <value>600000</value>
     </param>
     <param>
-      <key>rx_rate</key>
+      <key>rate</key>
       <value>rx1_samp_rate</value>
-    </param>
-    <param>
-      <key>tx_freq</key>
-      <value>600000</value>
-    </param>
-    <param>
-      <key>tx_rate</key>
-      <value>tx1_samp_rate</value>
     </param>
     <param>
       <key>corr</key>
@@ -587,20 +579,12 @@
       <value>600000</value>
     </param>
     <param>
-      <key>rx_rate</key>
+      <key>rate</key>
       <value>rx2_samp_rate</value>
     </param>
     <param>
-      <key>tx_freq</key>
+      <key>freq</key>
       <value>600000</value>
-    </param>
-    <param>
-      <key>tx_rate</key>
-      <value>tx2_samp_rate</value>
-    </param>
-    <param>
-      <key>corr</key>
-      <value>0</value>
     </param>
     <param>
       <key>affinity</key>
@@ -642,6 +626,14 @@
       <value>1002</value>
     </param>
     <param>
+      <key>freq</key>
+      <value>600000</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>tx1_samp_rate</value>
+    </param>
+    <param>
       <key>ptt</key>
       <value>ptt1</value>
     </param>
@@ -651,7 +643,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(600, 176)</value>
+      <value>(700, 150)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -677,6 +669,14 @@
       <value>1004</value>
     </param>
     <param>
+      <key>freq</key>
+      <value>600000</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>tx2_samp_rate</value>
+    </param>
+    <param>
       <key>ptt</key>
       <value>ptt2</value>
     </param>
@@ -686,7 +686,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(600, 326)</value>
+      <value>(700, 300)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -694,7 +694,7 @@
     </param>
   </block>
   <block>
-    <key>parameter</key>
+    <key>variable</key>
     <param>
       <key>id</key>
       <value>addr</value>
@@ -704,20 +704,8 @@
       <value>True</value>
     </param>
     <param>
-      <key>label</key>
-      <value>IP Address</value>
-    </param>
-    <param>
       <key>value</key>
-      <value>192.168.1.100</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>string</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
+      <value>"192.168.1.100"</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -725,7 +713,7 @@
     </param>
     <param>
       <key>_rotation</key>
-      <value>0</value>
+      <value>180</value>
     </param>
   </block>
   <connection>
