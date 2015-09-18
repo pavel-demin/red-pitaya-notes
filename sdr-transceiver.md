@@ -99,12 +99,12 @@ python scripts/fpga-bit-to-bin.py --flip tmp/sdr_transceiver.bit sdr_transceiver
 
 Building `sdr-receiver`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver/server/sdr-receiver.c -o sdr-receiver -lm -static
+arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver/server/sdr-receiver.c -o sdr-receiver -lm -lpthread -static
 {% endhighlight %}
 
 Building `sdr-transmitter`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver/server/sdr-transmitter.c -o sdr-transmitter -lm -static
+arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver/server/sdr-transmitter.c -o sdr-transmitter -lm -lpthread -static
 {% endhighlight %}
 
 Building `boot.bin`, `devicetree.dtb` and `uImage`:
