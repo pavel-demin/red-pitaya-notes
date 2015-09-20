@@ -110,15 +110,15 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
 }
 
 # Delete input/output port
-delete_bd_objs [get_bd_ports exp_n_io]
+delete_bd_objs [get_bd_ports exp_p_io]
 
 # Create output port
-create_bd_port -dir O -from 7 -to 0 exp_n_io
+create_bd_port -dir O -from 7 -to 0 exp_p_io
 
 module trx_0 {
   source projects/sdr_transceiver/trx.tcl
 } {
-  out_slice_0/Dout exp_n_io
+  out_slice_0/Dout exp_p_io
   rx_0/fifo_0/S_AXIS bcast_0/M00_AXIS
   tx_0/fifo_0/M_AXIS comb_0/S00_AXIS
 }
@@ -160,15 +160,15 @@ set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 set_property OFFSET 0x40004000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 
 # Delete input/output port
-delete_bd_objs [get_bd_ports exp_p_io]
+delete_bd_objs [get_bd_ports exp_n_io]
 
 # Create output port
-create_bd_port -dir O -from 7 -to 0 exp_p_io
+create_bd_port -dir O -from 7 -to 0 exp_n_io
 
 module trx_1 {
   source projects/sdr_transceiver/trx.tcl
 } {
-  out_slice_0/Dout exp_p_io
+  out_slice_0/Dout exp_n_io
   rx_0/fifo_0/S_AXIS bcast_0/M01_AXIS
   tx_0/fifo_0/M_AXIS comb_0/S01_AXIS
 }
