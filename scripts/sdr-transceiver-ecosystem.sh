@@ -6,7 +6,7 @@ test -f ${ecosystem}.zip || curl -O http://archives.redpitaya.com/devel/${ecosys
 
 unzip -d ${ecosystem}-sdr-transceiver ${ecosystem}.zip
 
-cp sdr-receiver sdr-transmitter ${ecosystem}-sdr-transceiver/bin
+cp sdr-transceiver ${ecosystem}-sdr-transceiver/bin
 cp boot.bin devicetree.dtb sdr_transceiver.bin uImage ${ecosystem}-sdr-transceiver
 
 cat <<- EOF_CAT > ${ecosystem}-sdr-transceiver/uEnv.txt
@@ -35,11 +35,8 @@ cat <<- EOF_CAT >> ${ecosystem}-sdr-transceiver/etc/init.d/rcS
 
 cat /opt/sdr_transceiver.bin > /dev/xdevcfg
 
-/opt/bin/sdr-receiver 0 &
-/opt/bin/sdr-transmitter 0 &
-
-/opt/bin/sdr-receiver 1 &
-/opt/bin/sdr-transmitter 1 &
+/opt/bin/sdr-transceiver 1 &
+/opt/bin/sdr-transceiver 2 &
 
 EOF_CAT
 

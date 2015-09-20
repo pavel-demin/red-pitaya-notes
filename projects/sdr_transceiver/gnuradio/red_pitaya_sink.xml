@@ -42,7 +42,7 @@
   <param>
     <name>Port</name>
     <key>port</key>
-    <value>1002</value>
+    <value>1001</value>
     <type>int</type>
   </param>
   <param>

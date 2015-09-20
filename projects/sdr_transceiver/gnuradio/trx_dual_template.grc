@@ -572,7 +572,7 @@
     </param>
     <param>
       <key>port</key>
-      <value>1003</value>
+      <value>1002</value>
     </param>
     <param>
       <key>rx_freq</key>
@@ -623,7 +623,7 @@
     </param>
     <param>
       <key>port</key>
-      <value>1002</value>
+      <value>1001</value>
     </param>
     <param>
       <key>freq</key>
@@ -666,7 +666,7 @@
     </param>
     <param>
       <key>port</key>
-      <value>1004</value>
+      <value>1002</value>
     </param>
     <param>
       <key>freq</key>
