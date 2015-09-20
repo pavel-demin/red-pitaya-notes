@@ -14,9 +14,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-uint32_t *rx_freq, *rx_rate, *rx_data;
-uint32_t *tx_freq, *tx_rate, *tx_data;
+uint32_t *rx_freq, *rx_rate, *tx_freq, *tx_rate;
 uint16_t *gpio, *rx_cntr, *tx_cntr;
+void *rx_data, *tx_data;
 
 int sock_thread[4] = {-1, -1, -1, -1};
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     }
 
     result = recv(sock_client, (char *)&command, 4, MSG_WAITALL);
-    if(result <= 0 || command > 3 || sock_thread[command] < 0)
+    if(result <= 0 || command > 3 || sock_thread[command] > -1)
     {
       close(sock_client);
       continue;
