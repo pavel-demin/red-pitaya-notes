@@ -32,7 +32,6 @@
   </make>
   <callback>set_freq($freq, $corr)</callback>
   <callback>set_rate($rate)</callback>
-  <callback>set_ptt($ptt)</callback>
   <param>
     <name>Address</name>
     <key>addr</key>
@@ -62,12 +61,6 @@
     <key>corr</key>
     <value>0</value>
     <type>real</type>
-  </param>
-  <param>
-    <name>PTT</name>
-    <key>ptt</key>
-    <value>False</value>
-    <type>bool</type>
   </param>
   <sink>
     <name>in</name>
