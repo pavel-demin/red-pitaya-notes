@@ -229,7 +229,7 @@ void *rx_data_handler(void *arg)
     /* read ram writer position */
     position = *rx_cntr;
 
-    /* send 4096 bytes if ready, otherwise sleep 0.5 ms */
+    /* send 4096 bytes if ready, otherwise sleep */
     if((limit > 0 && position > limit) || (limit == 0 && position < 512))
     {
       offset = limit > 0 ? 0 : 4096;
@@ -239,7 +239,7 @@ void *rx_data_handler(void *arg)
     }
     else
     {
-      usleep(500);
+      usleep(*rx_rate * 2);
     }
   }
 
