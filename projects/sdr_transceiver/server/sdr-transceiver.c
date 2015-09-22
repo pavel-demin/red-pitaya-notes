@@ -373,7 +373,7 @@ void *tx_data_handler(void *arg)
       else
       {
         memset(tx_data + offset, 0, 4096);
-        rest = size & 7;
+        rest = abs(rest - size) & 7;
         *gpio = 0;
       }
     }
