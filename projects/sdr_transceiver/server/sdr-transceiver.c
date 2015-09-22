@@ -7,10 +7,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <math.h>
+#include <poll.h>
 #include <pthread.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
-#include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -314,10 +314,10 @@ void *tx_ctrl_handler(void *arg)
 
 void *tx_data_handler(void *arg)
 {
-  fd_set set_read, set_temp;
-  struct timeval timeout;
-  useconds_t delay;
   int sock_client = sock_thread[3];
+  struct pollfd pfd = {sock_client, POLLIN, 0};
+  struct timespec timeout;
+  useconds_t delay;
   int result, position, limit, offset;
   ssize_t size, rest;
   char buffer[5003];
@@ -327,9 +327,6 @@ void *tx_data_handler(void *arg)
 
   memset(tx_data, 0, 8192);
 
-  FD_ZERO(&set_read);
-  FD_SET(sock_client, &set_read);
-
   limit = 512;
   rest = 0;
 
@@ -338,11 +335,9 @@ void *tx_data_handler(void *arg)
     delay = *tx_rate * 2;
 
     timeout.tv_sec = 0;
-    timeout.tv_usec = delay;
+    timeout.tv_nsec = delay * 1000;
 
-    memcpy(&set_temp, &set_read, sizeof(set_temp));
-
-    result = select(sock_client + 1, &set_temp, NULL, NULL, &timeout);
+    result = ppoll(&pfd, 1, &timeout, NULL);
 
     if(result < 0) break;
 
