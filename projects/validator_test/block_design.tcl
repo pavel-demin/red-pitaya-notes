@@ -93,11 +93,15 @@ cell pavel-demin:user:axis_gpio_reader:1.0 gpio_0 {
   aclk adc_0/adc_clk
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_1
+
 # Create axis_trigger
 cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   AXIS_TDATA_WIDTH 8
 } {
   S_AXIS gpio_0/M_AXIS
+  cfg_data const_1/dout
   aclk adc_0/adc_clk
 }
 
