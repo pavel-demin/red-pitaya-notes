@@ -9,6 +9,8 @@ module axis_trigger #
   // System signals
   input  wire                        aclk,
 
+  input  wire                        cfg_data,
+
   output wire                        trig_data,
 
   // Slave side
@@ -17,17 +19,20 @@ module axis_trigger #
   input  wire                        s_axis_tvalid
 );
 
-  reg int_data_reg;
+  reg int_comp_reg;
+  wire int_comp_wire;
+
+  assign int_comp_wire = s_axis_tdata[0] == cfg_data;
 
   always @(posedge aclk)
   begin
     if(s_axis_tvalid)
     begin
-      int_data_reg <= s_axis_tdata[0];
+      int_comp_reg <= int_comp_wire;
     end
   end
 
   assign s_axis_tready = 1'b1;
-  assign trig_data = s_axis_tvalid & s_axis_tdata[0] & ~int_data_reg;
+  assign trig_data = s_axis_tvalid & int_comp_wire & ~int_comp_reg;
 
 endmodule
