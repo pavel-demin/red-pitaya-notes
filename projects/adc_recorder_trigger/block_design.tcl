@@ -92,20 +92,13 @@ cell xilinx.com:ip:xlslice:1.0 slice_1 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 64 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+  DIN_WIDTH 64 DIN_FROM 16 DIN_TO 16 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 64 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
-} {
-  Din cfg_0/cfg_data
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
   DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
@@ -114,32 +107,39 @@ cell xilinx.com:ip:xlslice:1.0 slice_4 {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0
 
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
-  S_AXIS adc_0/M_AXIS
-  s_axis_aclk adc_0/adc_clk
-  s_axis_aresetn const_0/dout
-  m_axis_aclk ps_0/FCLK_CLK0
-  m_axis_aresetn slice_1/Dout
+# Create axis_combiner
+cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 8
+} {
+  S00_AXIS adc_0/M_AXIS
+  S01_AXIS gpio_0/M_AXIS
+  aclk adc_0/adc_clk
+  aresetn const_0/dout
 }
 
 # Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {} {
-  S_AXIS gpio_0/M_AXIS
+cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 5
+} {
+  S_AXIS comb_0/M_AXIS
   s_axis_aclk adc_0/adc_clk
   s_axis_aresetn const_0/dout
   m_axis_aclk ps_0/FCLK_CLK0
-  m_axis_aresetn slice_1/Dout
+  m_axis_aresetn rst_0/peripheral_aresetn
 }
 
 # Create axis_broadcaster
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
+  S_TDATA_NUM_BYTES 5
   M_TDATA_NUM_BYTES 2
-  M00_TDATA_REMAP {tdata[13:0],2'b00}
-  M01_TDATA_REMAP {tdata[29:16],2'b00}
+  NUM_MI 3
+  M00_TDATA_REMAP {tdata[15:0]}
+  M01_TDATA_REMAP {tdata[31:16]}
+  M02_TDATA_REMAP {tdata[39:32]}
 } {
   S_AXIS fifo_0/M_AXIS
   aclk ps_0/FCLK_CLK0
@@ -154,15 +154,13 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   FIXED_OR_INITIAL_RATE 32
   INPUT_SAMPLE_FREQUENCY 125
   CLOCK_FREQUENCY 125
-  INPUT_DATA_WIDTH 16
+  INPUT_DATA_WIDTH 14
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 16
   USE_XTREME_DSP_SLICE true
-  HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M00_AXIS
   aclk ps_0/FCLK_CLK0
-  aresetn slice_1/Dout
 }
 
 # Create cic_compiler
@@ -173,19 +171,17 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   FIXED_OR_INITIAL_RATE 32
   INPUT_SAMPLE_FREQUENCY 125
   CLOCK_FREQUENCY 125
-  INPUT_DATA_WIDTH 16
+  INPUT_DATA_WIDTH 14
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 16
   USE_XTREME_DSP_SLICE true
-  HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M01_AXIS
   aclk ps_0/FCLK_CLK0
-  aresetn slice_1/Dout
 }
 
 # Create axis_combiner
-cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
+cell  xilinx.com:ip:axis_combiner:1.1 comb_1 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
 } {
@@ -210,11 +206,19 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   SAMPLEPERIOD 32
   OUTPUT_ROUNDING_MODE Truncate_LSBs
   OUTPUT_WIDTH 16
-  HAS_ARESETN true
 } {
-  S_AXIS_DATA comb_0/M_AXIS
+  S_AXIS_DATA comb_1/M_AXIS
   aclk ps_0/FCLK_CLK0
-  aresetn slice_1/Dout
+}
+
+# Create axis_trigger
+cell pavel-demin:user:axis_trigger:1.0 trig_0 {
+  AXIS_TDATA_WIDTH 8
+  INVERTED TRUE
+} {
+  S_AXIS bcast_0/M02_AXIS
+  cfg_data slice_2/dout
+  aclk adc_0/adc_clk
 }
 
 # Create axis_packetizer
@@ -224,9 +228,9 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
   CONTINUOUS FALSE
 } {
   S_AXIS fir_0/M_AXIS_DATA
-  cfg_data slice_4/Dout
+  cfg_data slice_3/Dout
   aclk ps_0/FCLK_CLK0
-  aresetn slice_2/Dout
+  aresetn trig_0/trig_data
 }
 
 # Create axis_dwidth_converter
@@ -237,7 +241,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
 } {
   S_AXIS pktzr_0/M_AXIS
   aclk ps_0/FCLK_CLK0
-  aresetn slice_3/Dout
+  aresetn slice_1/Dout
 }
 
 # Create xlconstant
@@ -254,7 +258,7 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
   M_AXI ps_0/S_AXI_HP0
   cfg_data const_1/dout
   aclk ps_0/FCLK_CLK0
-  aresetn slice_3/Dout
+  aresetn slice_1/Dout
 }
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]

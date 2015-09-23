@@ -20,25 +20,17 @@ int main()
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   ram = mmap(NULL, 1024*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
 
-  // reset writer
-  *((uint32_t *)(cfg + 0)) &= ~4;
-  *((uint32_t *)(cfg + 0)) |= 4;
+  // enter reset mode
+  *((uint16_t *)(cfg + 0)) &= ~1;
 
-  // reset fifo and filters
-  *((uint32_t *)(cfg + 0)) &= ~1;
-  *((uint32_t *)(cfg + 0)) |= 1;
-
-  // wait 1 second
-  sleep(1);
-
-  // enter reset mode for packetizer
-  *((uint32_t *)(cfg + 0)) &= ~2;
+  // configure trigger edge (0 for negative, 1 for positive)
+  *((uint16_t *)(cfg + 2)) = 0;
 
   // set number of samples
   *((uint32_t *)(cfg + 4)) = 1024 * 1024 - 1;
 
   // enter normal mode
-  *((uint32_t *)(cfg + 0)) |= 2;
+  *((uint16_t *)(cfg + 0)) |= 1;
 
   // wait 1 second
   sleep(1);
