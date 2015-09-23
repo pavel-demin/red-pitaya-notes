@@ -134,12 +134,12 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 5
+  S_TDATA_NUM_BYTES 6
   M_TDATA_NUM_BYTES 2
   NUM_MI 3
   M00_TDATA_REMAP {tdata[15:0]}
   M01_TDATA_REMAP {tdata[31:16]}
-  M02_TDATA_REMAP {tdata[39:32]}
+  M02_TDATA_REMAP {tdata[47:32]}
 } {
   S_AXIS fifo_0/M_AXIS
   aclk ps_0/FCLK_CLK0
@@ -218,7 +218,7 @@ cell pavel-demin:user:axis_trigger:1.0 trig_0 {
 } {
   S_AXIS bcast_0/M02_AXIS
   cfg_data slice_2/dout
-  aclk adc_0/adc_clk
+  aclk ps_0/FCLK_CLK0
 }
 
 # Create axis_packetizer
