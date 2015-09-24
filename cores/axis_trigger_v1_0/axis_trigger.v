@@ -3,8 +3,7 @@
 
 module axis_trigger #
 (
-  parameter integer AXIS_TDATA_WIDTH = 32,
-  parameter         INVERTED = "FALSE"
+  parameter integer AXIS_TDATA_WIDTH = 32
 )
 (
   // System signals
@@ -35,13 +34,6 @@ module axis_trigger #
 
   assign s_axis_tready = 1'b1;
 
-  if(INVERTED == "TRUE")
-  begin
-    assign trig_data = ~s_axis_tvalid | ~int_comp_wire | int_comp_reg;
-  end
-  else
-  begin
-    assign trig_data = s_axis_tvalid & int_comp_wire & ~int_comp_reg;
-  end
+  assign trig_data = s_axis_tvalid & int_comp_wire & ~int_comp_reg;
 
 endmodule
