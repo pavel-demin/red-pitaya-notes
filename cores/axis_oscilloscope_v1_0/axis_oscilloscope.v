@@ -31,7 +31,7 @@ module axis_oscilloscope #
 
   reg [CNTR_WIDTH-1:0] int_addr_reg, int_addr_next;
   reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
-  reg int_case_reg, int_case_next;
+  reg [1:0] int_case_reg, int_case_next;
   reg int_enbl_reg, int_enbl_next;
 
   always @(posedge aclk)
@@ -40,7 +40,7 @@ module axis_oscilloscope #
     begin
       int_addr_reg <= {(CNTR_WIDTH){1'b0}};;
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};;
-      int_case_reg <= 1'b0;
+      int_case_reg <= 2'd0;
       int_enbl_reg <= 1'b0;
     end
     else
@@ -95,7 +95,7 @@ module axis_oscilloscope #
           begin
             int_addr_next = {int_cntr_reg[CNTR_WIDTH-1:6], 6'd0};
             int_cntr_next = pre_data + int_cntr_reg[5:0];
-            int_case_next = 2'd2;
+            int_case_next = 2'd3;
           end
         end
       end
