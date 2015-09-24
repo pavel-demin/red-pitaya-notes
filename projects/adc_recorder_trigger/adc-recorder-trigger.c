@@ -34,7 +34,7 @@ int main()
   *((uint16_t *)(cfg + 0)) |= 1;
 
   // wait
-  while(*((uint32_t *)(sts + 0)) < 1024 * 1024 - 1;)
+  while(*((uint32_t *)(sts + 0)) < 1024 * 1024 - 1)
   {
     usleep(1000);
   }
