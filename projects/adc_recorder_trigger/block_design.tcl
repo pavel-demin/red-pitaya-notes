@@ -254,7 +254,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 8
 } {
-  S_AXIS pktzr_0/M_AXIS
+  S_AXIS scope_0/M_AXIS
   aclk ps_0/FCLK_CLK0
   aresetn slice_1/Dout
 }
