@@ -110,7 +110,7 @@ cell pavel-demin:user:axis_validator:1.0 vldtr_0 {
   AXIS_TDATA_WIDTH 32
 } {
   S_AXIS adc_0/M_AXIS
-  trig_data trig_0/trig_data
+  trg_flag trig_0/trg_flag
   aclk adc_0/adc_clk
 }
 

@@ -9,7 +9,7 @@ module axis_validator #
   // System signals
   input  wire                        aclk,
 
-  input  wire                        trig_data,
+  input  wire                        trg_flag,
 
   // Slave side
   output wire                        s_axis_tready,
@@ -24,6 +24,6 @@ module axis_validator #
 
   assign s_axis_tready = m_axis_tready;
   assign m_axis_tdata = s_axis_tdata;
-  assign m_axis_tvalid = s_axis_tvalid & trig_data;
+  assign m_axis_tvalid = s_axis_tvalid & trg_flag;
 
 endmodule
