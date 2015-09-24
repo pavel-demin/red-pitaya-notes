@@ -124,7 +124,7 @@ cell xilinx.com:ip:xlconstant:1.1 const_0
 # Create axis_combiner
 cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 8
+  TDATA_NUM_BYTES 4
 } {
   S00_AXIS adc_0/M_AXIS
   S01_AXIS gpio_0/M_AXIS
@@ -245,7 +245,7 @@ cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
   pre_data slice_4/Dout
   tot_data slice_5/Dout
   aclk ps_0/FCLK_CLK0
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_1/Dout
 }
 
 # Create axis_dwidth_converter
