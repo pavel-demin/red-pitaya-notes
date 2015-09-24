@@ -3,7 +3,8 @@
 
 module axis_oscilloscope #
 (
-  parameter integer AXIS_TDATA_WIDTH = 32
+  parameter integer AXIS_TDATA_WIDTH = 32,
+  parameter integer CNTR_WIDTH = 12
 )
 (
   // System signals
@@ -13,8 +14,10 @@ module axis_oscilloscope #
   input  wire                        run_flag,
   input  wire                        trg_flag,
 
-  input  wire [63:0]                 cfg_data,
-  output wire [63:0]                 sts_data,
+  input  wire [CNTR_WIDTH-1:0]       pre_data,
+  input  wire [CNTR_WIDTH-1:0]       tot_data,
+
+  output wire [CNTR_WIDTH:0]         sts_data,
 
   // Slave side
   output wire                        s_axis_tready,
@@ -26,8 +29,8 @@ module axis_oscilloscope #
   output wire                        m_axis_tvalid
 );
 
-  reg [31:0] int_addr_reg, int_addr_next;
-  reg [31:0] int_cntr_reg, int_cntr_next;
+  reg [CNTR_WIDTH-1:0] int_addr_reg, int_addr_next;
+  reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
   reg int_case_reg, int_case_next;
   reg int_enbl_reg, int_enbl_next;
 
@@ -35,8 +38,8 @@ module axis_oscilloscope #
   begin
     if(~aresetn)
     begin
-      int_addr_reg <= 32'd0;
-      int_cntr_reg <= 32'd0;
+      int_addr_reg <= {(CNTR_WIDTH){1'b0}};;
+      int_cntr_reg <= {(CNTR_WIDTH){1'b0}};;
       int_case_reg <= 1'b0;
       int_enbl_reg <= 1'b0;
     end
@@ -56,53 +59,53 @@ module axis_oscilloscope #
     int_case_next = int_case_reg;
     int_enbl_next = int_enbl_reg;
 
-		case(int_case_reg)
+    case(int_case_reg)
       // idle
-			0:
-			begin
+      0:
+      begin
         if(run_flag)
         begin
-          int_addr_next = 32'd0;
-					int_cntr_next = 32'd0;
+          int_addr_next = {(CNTR_WIDTH){1'b0}};;
+          int_cntr_next = {(CNTR_WIDTH){1'b0}};;
           int_case_next = 2'd1;
           int_enbl_next = 1'b1;
-				end
-			end
+        end
+      end
 
-			// pre-trigger recording
-			1:
-			begin
+      // pre-trigger recording
+      1:
+      begin
         if(s_axis_tvalid)
         begin
           int_cntr_next = int_cntr_reg + 1'b1;
-          if(int_cntr_reg == cfg_data[31:0])
+          if(int_cntr_reg == pre_data)
           begin
             int_case_next = 2'd2;
           end
         end
       end
 
-			// pre-trigger recording
-			2:
-			begin
+      // pre-trigger recording
+      2:
+      begin
         if(s_axis_tvalid)
         begin
           int_cntr_next = int_cntr_reg + 1'b1;
           if(trg_flag)
           begin
-            int_addr_next = {int_cntr_reg[31:6], 6'd0};
-            int_cntr_next = {26'd0, int_cntr_reg[5:0]};
-            int_case_next = 3'd2;
+            int_addr_next = {int_cntr_reg[CNTR_WIDTH-1:6], 6'd0};
+            int_cntr_next = pre_data + int_cntr_reg[5:0];
+            int_case_next = 2'd2;
           end
         end
       end
 
-			// post-trigger recording
-			3:
-			begin
+      // post-trigger recording
+      3:
+      begin
         if(s_axis_tvalid)
         begin
-          if(int_cntr_reg < cfg_data[63:32])
+          if(int_cntr_reg < tot_data)
           begin
             int_cntr_next = int_cntr_reg + 1'b1;
           end
@@ -116,7 +119,7 @@ module axis_oscilloscope #
     endcase
   end
 
-  assign sts_data = {int_cntr_reg, int_addr_reg};
+  assign sts_data = {int_addr_reg, int_enbl_reg};
 
   assign s_axis_tready = 1'b1;
   assign m_axis_tdata = s_axis_tdata;
