@@ -69,7 +69,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 64
+  CFG_DATA_WIDTH 96
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -85,21 +85,35 @@ set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 64 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+  DIN_WIDTH 96 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 64 DIN_FROM 16 DIN_TO 16 DOUT_WIDTH 1
+  DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+  DIN_WIDTH 96 DIN_FROM 16 DIN_TO 16 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_4 {
+  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_5 {
+  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
@@ -214,23 +228,24 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
 # Create axis_trigger
 cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   AXIS_TDATA_WIDTH 8
-  INVERTED TRUE
 } {
   S_AXIS bcast_0/M02_AXIS
-  cfg_data slice_2/dout
+  cfg_data slice_3/Dout
   aclk ps_0/FCLK_CLK0
 }
 
 # Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
+cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
   AXIS_TDATA_WIDTH 32
-  CNTR_WIDTH 32
-  CONTINUOUS FALSE
+  CNTR_WIDTH 23
 } {
   S_AXIS fir_0/M_AXIS_DATA
-  cfg_data slice_3/Dout
+  run_flag slice_2/Dout
+  trg_flag trig_0/trg_flag
+  pre_data slice_4/Dout
+  tot_data slice_5/Dout
   aclk ps_0/FCLK_CLK0
-  aresetn trig_0/trig_data
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create axis_dwidth_converter
@@ -263,13 +278,23 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
 
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+  NUM_PORTS 2
+  IN0_WIDTH 32
+  IN1_WIDTH 32
+} {
+  In0 scope_0/sts_data
+  In1 writer_0/sts_data
+}
+
 # Create axi_sts_register
 cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
-  STS_DATA_WIDTH 32
+  STS_DATA_WIDTH 64
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
-  sts_data writer_0/sts_data
+  sts_data concat_0/dout
 }
 
 # Create all required interconnections
