@@ -8,7 +8,7 @@ int main()
 {
   int fd, i;
   int16_t value[2];
-  void *cfg, *ram;
+  void *cfg, *sts, *ram;
   char *name = "/dev/mem";
 
   if((fd = open(name, O_RDWR)) < 0)
@@ -18,6 +18,7 @@ int main()
   }
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   ram = mmap(NULL, 1024*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
 
   // enter reset mode
@@ -32,8 +33,11 @@ int main()
   // enter normal mode
   *((uint16_t *)(cfg + 0)) |= 1;
 
-  // wait 1 second
-  sleep(1);
+  // wait
+  while(*((uint32_t *)(sts + 0)) < 1024 * 1024 - 1;)
+  {
+    usleep(1000);
+  }
 
   // print IN1 and IN2 samples
   for(i = 0; i < 1024 * 1024; ++i)

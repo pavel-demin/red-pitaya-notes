@@ -262,3 +262,21 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
 }
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
+
+# Create axi_sts_register
+cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
+  STS_DATA_WIDTH 32
+  AXI_ADDR_WIDTH 32
+  AXI_DATA_WIDTH 32
+} {
+  sts_data writer_0/sts_data
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins sts_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
+set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
