@@ -11,7 +11,7 @@ module axis_trigger #
 
   input  wire                        cfg_data,
 
-  output wire                        trig_data,
+  output wire                        trg_flag,
 
   // Slave side
   output wire                        s_axis_tready,
@@ -34,6 +34,6 @@ module axis_trigger #
 
   assign s_axis_tready = 1'b1;
 
-  assign trig_data = s_axis_tvalid & int_comp_wire & ~int_comp_reg;
+  assign trg_flag = s_axis_tvalid & int_comp_wire & ~int_comp_reg;
 
 endmodule
