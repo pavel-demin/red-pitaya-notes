@@ -224,7 +224,7 @@ cell pavel-demin:user:axis_variable:1.0 rate_0 {
 } {
   cfg_data slice_5/Dout
   aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create axis_variable
@@ -233,7 +233,7 @@ cell pavel-demin:user:axis_variable:1.0 rate_1 {
 } {
   cfg_data slice_5/Dout
   aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create cic_compiler
