@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
@@ -7,8 +8,9 @@
 
 int main()
 {
-  int fd;
+  int fd, i;
   int position, limit, offset;
+  int16_t value[2];
   void *cfg, *sts, *ram;
   char *name = "/dev/mem";
   char buffer[32768];
@@ -16,7 +18,7 @@ int main()
   if((fd = open(name, O_RDWR)) < 0)
   {
     perror("open");
-    return 1;
+    return EXIT_FAILURE;
   }
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
@@ -59,6 +61,13 @@ int main()
       limit = limit > 0 ? 0 : 8192;
       memcpy(buffer, ram + offset, 32768);
       /* process 8192 samples in buffer */
+      for(i = 0; i < 8192; ++i)
+      {
+        value[0] = *((int16_t *)(buffer + 4*i + 0));
+        value[1] = *((int16_t *)(buffer + 4*i + 2));
+        printf("%5d %5d\n", value[0], value[1]);
+      }
+      return EXIT_SUCCESS;
     }
     else
     {
@@ -70,5 +79,5 @@ int main()
   munmap(sts, sysconf(_SC_PAGESIZE));
   munmap(ram, sysconf(_SC_PAGESIZE));
 
-  return 0;
+  return EXIT_SUCCESS;
 }
