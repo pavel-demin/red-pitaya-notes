@@ -23,7 +23,7 @@ int main()
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   ram = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
 
-  /* reset oscilloscope and ram writer
+  /* reset oscilloscope and ram writer */
   *((uint16_t *)(cfg + 0)) &= ~1;
   *((uint16_t *)(cfg + 0)) |= 1;
 
