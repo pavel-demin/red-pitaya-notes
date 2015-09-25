@@ -235,6 +235,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
 # Create axis_trigger
 cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   AXIS_TDATA_WIDTH 8
+  AXIS_TDATA_SIGNED FALSE
 } {
   S_AXIS bcast_0/M02_AXIS
   pol_data slice_3/Dout

@@ -3,7 +3,8 @@
 
 module axis_trigger #
 (
-  parameter integer AXIS_TDATA_WIDTH = 32
+  parameter integer AXIS_TDATA_WIDTH = 32,
+  parameter         AXIS_TDATA_SIGNED = "FALSE"
 )
 (
   // System signals
@@ -23,7 +24,16 @@ module axis_trigger #
   reg int_comp_reg;
   wire int_comp_wire;
 
-  assign int_comp_wire = (s_axis_tdata >= lvl_data) == pol_data;
+  generate
+    if(AXIS_TDATA_SIGNED == "TRUE")
+    begin : SIGNED
+      assign int_comp_wire = ($signed(s_axis_tdata) >= $signed(lvl_data)) == pol_data;
+    end
+    else
+    begin : UNSIGNED
+      assign int_comp_wire = (s_axis_tdata >= lvl_data) == pol_data;
+    end
+  endgenerate
 
   always @(posedge aclk)
   begin

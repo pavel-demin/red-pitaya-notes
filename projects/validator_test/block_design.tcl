@@ -110,6 +110,7 @@ cell pavel-demin:user:axis_gpio_reader:1.0 gpio_0 {
 # Create axis_trigger
 cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   AXIS_TDATA_WIDTH 8
+  AXIS_TDATA_SIGNED FALSE
 } {
   S_AXIS gpio_0/M_AXIS
   pol_data slice_3/Dout

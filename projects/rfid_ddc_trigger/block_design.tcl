@@ -196,7 +196,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   APORTWIDTH 14
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 24
+  OUTPUTWIDTH 25
 } {
   S_AXIS_A subset_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
@@ -208,10 +208,10 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 6
+  S_TDATA_NUM_BYTES 8
   M_TDATA_NUM_BYTES 3
   M00_TDATA_REMAP {tdata[23:0]}
-  M01_TDATA_REMAP {tdata[47:24]}
+  M01_TDATA_REMAP {tdata[55:32]}
 } {
   S_AXIS mult_0/M_AXIS_DOUT
   aclk ps_0/FCLK_CLK0
@@ -303,7 +303,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   SAMPLE_FREQUENCY 12.5
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Truncate_LSBs
-  OUTPUT_WIDTH 24
+  OUTPUT_WIDTH 25
 } {
   S_AXIS_DATA comb_0/M_AXIS
   aclk ps_0/FCLK_CLK0
@@ -313,10 +313,10 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 6
+  S_TDATA_NUM_BYTES 8
   M_TDATA_NUM_BYTES 6
-  M00_TDATA_REMAP {tdata[47:0]}
-  M01_TDATA_REMAP {tdata[23:0],tdata[47:24]}
+  M00_TDATA_REMAP {tdata[55:32],tdata[23:0]}
+  M01_TDATA_REMAP {tdata[23:0],tdata[55:32]}
 } {
   S_AXIS fir_0/M_AXIS_DATA
   aclk ps_0/FCLK_CLK0
@@ -337,7 +337,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_1 {
   APORTWIDTH 24
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 32
+  OUTPUTWIDTH 33
 } {
   S_AXIS_A bcast_1/M00_AXIS
   S_AXIS_B bcast_1/M01_AXIS
@@ -349,10 +349,10 @@ cell xilinx.com:ip:cmpy:6.0 mult_1 {
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_2 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 8
+  S_TDATA_NUM_BYTES 10
   M_TDATA_NUM_BYTES 4
-  M00_TDATA_REMAP {tdata[63:32]}
-  M01_TDATA_REMAP {tdata[63:32]}
+  M00_TDATA_REMAP {tdata[71:40]}
+  M01_TDATA_REMAP {tdata[71:40]}
 } {
   S_AXIS mult_1/M_AXIS_DOUT
   aclk ps_0/FCLK_CLK0
@@ -362,6 +362,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_2 {
 # Create axis_trigger
 cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   AXIS_TDATA_WIDTH 32
+  AXIS_TDATA_SIGNED TRUE
 } {
   S_AXIS bcast_2/M00_AXIS
   pol_data slice_3/Dout

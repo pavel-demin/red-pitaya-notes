@@ -8,7 +8,8 @@
 int main()
 {
   int fd, i;
-  uint32_t start, offset, value;
+  uint32_t start, offset;
+  int32_t value;
   void *cfg, *sts, *ram;
   char *name = "/dev/mem";
 
@@ -36,7 +37,7 @@ int main()
   *((uint16_t *)(cfg + 2)) = 1;
 
   /* set trigger level */
-  *((uint32_t *)(cfg + 12)) = 10000;
+  *((int32_t *)(cfg + 12)) = 10000;
 
   /* set number of samples before trigger */
   *((uint32_t *)(cfg + 16)) = 1024 - 1;
@@ -61,7 +62,7 @@ int main()
   for(i = 0; i < 8 * 1024 * 1024; ++i)
   {
     offset = ((start + i) & 0x007FFFFF) * 4;
-    value = *((uint32_t *)(ram + offset));
+    value = *((int32_t *)(ram + offset));
     printf("%10d\n", value);
   }
 
