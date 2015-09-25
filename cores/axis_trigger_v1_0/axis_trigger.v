@@ -9,7 +9,8 @@ module axis_trigger #
   // System signals
   input  wire                        aclk,
 
-  input  wire                        cfg_data,
+  input  wire                        pol_data,
+  input  wire [AXIS_TDATA_WIDTH-1:0] lvl_data,
 
   output wire                        trg_flag,
 
@@ -22,7 +23,7 @@ module axis_trigger #
   reg int_comp_reg;
   wire int_comp_wire;
 
-  assign int_comp_wire = s_axis_tdata[0] == cfg_data;
+  assign int_comp_wire = (s_axis_tdata >= lvl_data) == pol_data;
 
   always @(posedge aclk)
   begin

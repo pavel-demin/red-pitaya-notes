@@ -22,24 +22,27 @@ int main()
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   ram = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
 
-  // reset oscilloscope and ram writer
+  /* reset oscilloscope and ram writer */
   *((uint16_t *)(cfg + 0)) &= ~1;
   *((uint16_t *)(cfg + 0)) |= 1;
 
-  // configure trigger edge (0 for negative, 1 for positive)
+  /* configure trigger edge (0 for negative, 1 for positive) */
   *((uint16_t *)(cfg + 2)) = 0;
 
-  // set number of samples before trigger
-  *((uint32_t *)(cfg + 4)) = 1024 - 1;
+  /* set trigger level */
+  *((uint32_t *)(cfg + 4)) = 1;
 
-  // set total number of samples
-  *((uint32_t *)(cfg + 8)) = 1024 * 1024 - 1;
+  /* set number of samples before trigger */
+  *((uint32_t *)(cfg + 8)) = 1024 - 1;
 
-  // start oscilloscope
+  /* set total number of samples */
+  *((uint32_t *)(cfg + 12)) = 1024 * 1024 - 1;
+
+  /* start oscilloscope */
   *((uint16_t *)(cfg + 0)) |= 2;
   *((uint16_t *)(cfg + 0)) &= ~2;
 
-  // wait when oscilloscope stops
+  /* wait when oscilloscope stops */
   while(*((uint32_t *)(sts + 0)) & 1)
   {
     usleep(1000);
@@ -48,7 +51,7 @@ int main()
   start = *((uint32_t *)(sts + 0)) >> 1;
   start = (start - 1024) & 0x007FFFFF;
 
-  // print IN1 and IN2 samples
+  /* print IN1 and IN2 samples */
   for(i = 0; i < 1024 * 1024; ++i)
   {
     offset = ((start + i) & 0x007FFFFF) * 4;

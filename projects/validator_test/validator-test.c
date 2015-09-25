@@ -34,8 +34,16 @@ int main()
 
   limit = 512;
 
-  /* reset fifo and writer */
+  /* enter reset mode */
   *((uint32_t *)(cfg + 0)) &= ~1;
+
+  /* configure trigger edge (0 for negative, 1 for positive) */
+  *((uint16_t *)(cfg + 2)) = 0;
+
+  /* set trigger level */
+  *((uint32_t *)(cfg + 4)) = 1;
+
+  /* enter normal operating mode */
   *((uint32_t *)(cfg + 0)) |= 1;
 
   while(!interrupted)
