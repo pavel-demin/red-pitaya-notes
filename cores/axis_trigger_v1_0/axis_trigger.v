@@ -28,11 +28,11 @@ module axis_trigger #
   generate
     if(AXIS_TDATA_SIGNED == "TRUE")
     begin : SIGNED
-      assign int_comp_wire = $signed(s_axis_tdata | msk_data) >= $signed(lvl_data);
+      assign int_comp_wire = $signed(s_axis_tdata & msk_data) >= $signed(lvl_data);
     end
     else
     begin : UNSIGNED
-      assign int_comp_wire = (s_axis_tdata | msk_data) >= lvl_data;
+      assign int_comp_wire = (s_axis_tdata & msk_data) >= lvl_data;
     end
   endgenerate
 
