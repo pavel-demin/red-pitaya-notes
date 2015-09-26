@@ -40,8 +40,6 @@ cat /opt/sdr_transceiver.bin > /dev/xdevcfg
 
 EOF_CAT
 
-${ecosystem}-sdr-transceiver
-
 cd ${ecosystem}-sdr-transceiver
 zip -r ../${ecosystem}-sdr-transceiver.zip .
 cd ..

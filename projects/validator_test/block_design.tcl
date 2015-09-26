@@ -96,8 +96,12 @@ cell pavel-demin:user:axis_gpio_reader:1.0 gpio_0 {
 # Create axis_trigger
 cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   AXIS_TDATA_WIDTH 8
+  AXIS_TDATA_SIGNED FALSE
 } {
   S_AXIS gpio_0/M_AXIS
+  pol_data const_0/dout
+  msk_data const_0/dout
+  lvl_data const_0/dout
   aclk adc_0/adc_clk
 }
 
@@ -106,7 +110,7 @@ cell pavel-demin:user:axis_validator:1.0 vldtr_0 {
   AXIS_TDATA_WIDTH 32
 } {
   S_AXIS adc_0/M_AXIS
-  trig_data trig_0/trig_data
+  trg_flag trig_0/trg_flag
   aclk adc_0/adc_clk
 }
 

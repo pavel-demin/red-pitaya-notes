@@ -7,9 +7,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <math.h>
+#include <poll.h>
 #include <pthread.h>
 #include <sys/mman.h>
-#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -229,7 +229,7 @@ void *rx_data_handler(void *arg)
     /* read ram writer position */
     position = *rx_cntr;
 
-    /* send 4096 bytes if ready, otherwise sleep 0.5 ms */
+    /* send 4096 bytes if ready, otherwise sleep */
     if((limit > 0 && position > limit) || (limit == 0 && position < 512))
     {
       offset = limit > 0 ? 0 : 4096;
@@ -239,7 +239,7 @@ void *rx_data_handler(void *arg)
     }
     else
     {
-      usleep(500);
+      usleep(*rx_rate * 2);
     }
   }
 
@@ -262,8 +262,6 @@ void *tx_ctrl_handler(void *arg)
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
   /* set default tx sample rate */
   *tx_rate = 625;
-
-  memset(tx_data, 0, 8192);
 
   while(1)
   {
@@ -320,8 +318,6 @@ void *tx_ctrl_handler(void *arg)
   /* set default tx sample rate */
   *tx_rate = 625;
 
-  memset(tx_data, 0, 8192);
-
   close(sock_client);
   sock_thread[2] = -1;
 
@@ -331,36 +327,64 @@ void *tx_ctrl_handler(void *arg)
 void *tx_data_handler(void *arg)
 {
   int sock_client = sock_thread[3];
-  int position, limit, offset;
-  char buffer[4096];
+  struct pollfd pfd = {sock_client, POLLIN, 0};
+  struct timespec timeout;
+  useconds_t delay;
+  int result, position, limit, offset;
+  ssize_t size, rest;
+  char buffer[5003];
+
+  memset(tx_data, 0, 8192);
 
   limit = 512;
+  rest = 0;
 
   while(1)
   {
+    delay = *tx_rate * 2;
+
+    timeout.tv_sec = 0;
+    timeout.tv_nsec = delay * 1000;
+
+    result = ppoll(&pfd, 1, &timeout, NULL);
+
+    if(result < 0) break;
+
     /* read ram reader position */
     position = *tx_cntr;
 
-    /* receive 4096 bytes if ready, otherwise sleep 0.5 ms */
+    /* receive 4096 bytes if ready, otherwise sleep */
     if((limit > 0 && position > limit) || (limit == 0 && position < 512))
     {
       offset = limit > 0 ? 0 : 4096;
       limit = limit > 0 ? 0 : 512;
-      if(recv(sock_client, buffer, 4096, MSG_WAITALL) <= 0) break;
-      if(*gpio)
+
+      if(result == 0)
       {
-        memcpy(tx_data + offset, buffer, 4096);
+        memset(tx_data + offset, 0, 4096);
+        continue;
+      }
+
+      if((size = recv(sock_client, buffer, 4096 + rest, 0)) <= 0) break;
+
+      if(size == 4096 + rest)
+      {
+        memcpy(tx_data + offset, buffer + rest, 4096);
+        rest = 0;
       }
       else
       {
         memset(tx_data + offset, 0, 4096);
+        rest = abs(rest - size) & 7;
       }
     }
     else
     {
-      usleep(500);
+      usleep(delay);
     }
   }
+
+  memset(tx_data, 0, 8192);
 
   close(sock_client);
   sock_thread[3] = -1;

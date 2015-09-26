@@ -39,8 +39,6 @@ cat /opt/sdr_receiver.bin > /dev/xdevcfg
 
 EOF_CAT
 
-${ecosystem}-sdr-receiver
-
 cd ${ecosystem}-sdr-receiver
 zip -r ../${ecosystem}-sdr-receiver.zip .
 cd ..

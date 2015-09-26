@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <math.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 
@@ -8,7 +9,7 @@ int main()
 {
   int fd, i;
   uint32_t start, offset;
-  int16_t value[2];
+  int32_t value;
   void *cfg, *sts, *ram;
   char *name = "/dev/mem";
 
@@ -26,20 +27,23 @@ int main()
   *((uint16_t *)(cfg + 0)) &= ~1;
   *((uint16_t *)(cfg + 0)) |= 1;
 
-  /* configure trigger edge (0 for negative, 1 for positive) */
-  *((uint16_t *)(cfg + 2)) = 0;
+  /* set default phase increment */
+  *((uint32_t *)(cfg + 4)) = (uint32_t)floor(13560000/125.0e6*(1<<30)+0.5);
 
-  /* set trigger mask */
-  *((uint16_t *)(cfg + 4)) = 1;
+  /* set default sample rate */
+  *((uint32_t *)(cfg + 8)) = 10;
+
+  /* configure trigger edge (0 for negative, 1 for positive) */
+  *((uint16_t *)(cfg + 2)) = 1;
 
   /* set trigger level */
-  *((uint16_t *)(cfg + 6)) = 1;
+  *((int32_t *)(cfg + 12)) = 10000;
 
   /* set number of samples before trigger */
-  *((uint32_t *)(cfg + 8)) = 1024 - 1;
+  *((uint32_t *)(cfg + 16)) = 1024 - 1;
 
   /* set total number of samples */
-  *((uint32_t *)(cfg + 12)) = 1024 * 1024 - 1;
+  *((uint32_t *)(cfg + 20)) = 8 * 1024 * 1024 - 1;
 
   /* start oscilloscope */
   *((uint16_t *)(cfg + 0)) |= 2;
@@ -54,13 +58,12 @@ int main()
   start = *((uint32_t *)(sts + 0)) >> 1;
   start = (start - 1024) & 0x007FFFFF;
 
-  /* print IN1 and IN2 samples */
-  for(i = 0; i < 1024 * 1024; ++i)
+  /* print (I^2 + Q^2) values */
+  for(i = 0; i < 8 * 1024 * 1024; ++i)
   {
     offset = ((start + i) & 0x007FFFFF) * 4;
-    value[0] = *((int16_t *)(ram + offset + 0));
-    value[1] = *((int16_t *)(ram + offset + 2));
-    printf("%5d %5d\n", value[0], value[1]);
+    value = *((int32_t *)(ram + offset));
+    printf("%10d\n", value);
   }
 
   munmap(cfg, sysconf(_SC_PAGESIZE));
