@@ -126,7 +126,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_6 {
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_6 {
+cell xilinx.com:ip:xlslice:1.0 slice_7 {
   DIN_WIDTH 128 DIN_FROM 111 DIN_TO 96 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
