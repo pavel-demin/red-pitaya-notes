@@ -256,6 +256,8 @@ void *tx_ctrl_handler(void *arg)
   uint32_t freq_min = 50000;
   uint32_t freq_max = 60000000;
 
+  /* set PTT pin to low */
+  *gpio = 0;
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
   /* set default tx sample rate */
@@ -298,9 +300,19 @@ void *tx_ctrl_handler(void *arg)
             break;
         }
         break;
+      case 2:
+        /* set PTT pin to high */
+        *gpio = 1;
+        break;
+      case 3:
+        /* set PTT pin to low */
+        *gpio = 0;
+        break;
     }
   }
 
+  /* set PTT pin to low */
+  *gpio = 0;
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
   /* set default tx sample rate */
@@ -321,9 +333,6 @@ void *tx_data_handler(void *arg)
   int result, position, limit, offset;
   ssize_t size, rest;
   char buffer[5003];
-
-  /* set PTT pin to low */
-  *gpio = 0;
 
   memset(tx_data, 0, 8192);
 
@@ -353,7 +362,6 @@ void *tx_data_handler(void *arg)
       if(result == 0)
       {
         memset(tx_data + offset, 0, 4096);
-        *gpio = 0;
         continue;
       }
 
@@ -363,13 +371,11 @@ void *tx_data_handler(void *arg)
       {
         memcpy(tx_data + offset, buffer + rest, 4096);
         rest = 0;
-        *gpio = 1;
       }
       else
       {
         memset(tx_data + offset, 0, 4096);
         rest = abs(rest - size) & 7;
-        *gpio = 0;
       }
     }
     else
@@ -377,9 +383,6 @@ void *tx_data_handler(void *arg)
       usleep(delay);
     }
   }
-
-  /* set PTT pin to low */
-  *gpio = 0;
 
   memset(tx_data, 0, 8192);
 

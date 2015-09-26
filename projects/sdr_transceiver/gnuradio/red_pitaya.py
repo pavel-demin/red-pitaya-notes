@@ -88,3 +88,6 @@ class sink(gr.hier_block2):
       self.ctrl_sock.send(struct.pack('<I', 1<<28 | code))
     else:
       raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k")
+
+  def set_ptt(self, on):
+    self.ctrl_sock.send(struct.pack('<I', (2<<28, 3<<28)[on == False]))
