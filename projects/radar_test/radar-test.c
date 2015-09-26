@@ -25,8 +25,8 @@ int main()
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   ram = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
 
-  /* enter reset mode */
-  *((uint16_t *)(cfg + 0)) &= ~1;
+  /* put oscilloscope and ram writer into reset mode */
+  *((uint16_t *)(cfg + 0)) &= ~3;
 
   /* configure trigger edge (0 for negative, 1 for positive) */
   *((uint16_t *)(cfg + 2)) = 0;
@@ -48,7 +48,7 @@ int main()
   *((uint16_t *)(cfg + 12)) = 5;
 
   /* enter normal operating mode */
-  *((uint16_t *)(cfg + 0)) |= 1;
+  *((uint16_t *)(cfg + 0)) |= 3;
 
   limit = 8192;
 
