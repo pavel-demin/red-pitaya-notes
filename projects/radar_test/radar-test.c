@@ -31,18 +31,21 @@ int main()
   /* configure trigger edge (0 for negative, 1 for positive) */
   *((uint16_t *)(cfg + 2)) = 0;
 
-  /* set trigger level */
+  /* set trigger mask */
   *((uint16_t *)(cfg + 4)) = 1;
 
+  /* set trigger level */
+  *((uint16_t *)(cfg + 6)) = 1;
+
   /* set number of samples before trigger */
-  *((uint16_t *)(cfg + 6)) = 0;
+  *((uint16_t *)(cfg + 8)) = 0;
 
   /* set total number of samples */
-  *((uint16_t *)(cfg + 8)) = 8192 - 1;
+  *((uint16_t *)(cfg + 10)) = 8192 - 1;
 
   /* set decimation factor for CIC filter (from 5 to 125)*/
   /* combined (CIC and FIR) decimation factor is twice greater */
-  *((uint16_t *)(cfg + 10)) = 5;
+  *((uint16_t *)(cfg + 12)) = 5;
 
   /* enter normal operating mode */
   *((uint16_t *)(cfg + 0)) |= 1;

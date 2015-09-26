@@ -359,6 +359,12 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_2 {
   aresetn rst_0/peripheral_aresetn
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_1 {
+  CONST_WIDTH 32
+  CONST_VAL 4294967295
+}
+
 # Create axis_trigger
 cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   AXIS_TDATA_WIDTH 32
@@ -366,6 +372,7 @@ cell pavel-demin:user:axis_trigger:1.0 trig_0 {
 } {
   S_AXIS bcast_2/M00_AXIS
   pol_data slice_3/Dout
+  msk_data const_1/Dout
   lvl_data slice_6/Dout
   aclk ps_0/FCLK_CLK0
 }
@@ -396,7 +403,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1 {
+cell xilinx.com:ip:xlconstant:1.1 const_2 {
   CONST_WIDTH 32
   CONST_VAL 503316480
 }
@@ -407,7 +414,7 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
 } {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
-  cfg_data const_1/dout
+  cfg_data const_2/dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_1/Dout
 }

@@ -29,8 +29,11 @@ int main()
   /* configure trigger edge (0 for negative, 1 for positive) */
   *((uint16_t *)(cfg + 2)) = 0;
 
+  /* set trigger mask */
+  *((uint16_t *)(cfg + 4)) = 1;
+
   /* set trigger level */
-  *((uint32_t *)(cfg + 4)) = 1;
+  *((uint16_t *)(cfg + 6)) = 1;
 
   /* set number of samples before trigger */
   *((uint32_t *)(cfg + 8)) = 1024 - 1;

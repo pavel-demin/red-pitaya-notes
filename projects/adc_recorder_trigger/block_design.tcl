@@ -106,20 +106,27 @@ cell xilinx.com:ip:xlslice:1.0 slice_3 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 128 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+  DIN_WIDTH 128 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 128 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
+  DIN_WIDTH 128 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
+  DIN_WIDTH 128 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_7 {
   DIN_WIDTH 128 DIN_FROM 127 DIN_TO 96 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
@@ -239,7 +246,8 @@ cell pavel-demin:user:axis_trigger:1.0 trig_0 {
 } {
   S_AXIS bcast_0/M02_AXIS
   pol_data slice_3/Dout
-  lvl_data slice_4/Dout
+  msk_data slice_4/Dout
+  lvl_data slice_5/Dout
   aclk ps_0/FCLK_CLK0
 }
 
@@ -251,8 +259,8 @@ cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
   S_AXIS fir_0/M_AXIS_DATA
   run_flag slice_2/Dout
   trg_flag trig_0/trg_flag
-  pre_data slice_5/Dout
-  tot_data slice_6/Dout
+  pre_data slice_6/Dout
+  tot_data slice_7/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_1/Dout
 }
