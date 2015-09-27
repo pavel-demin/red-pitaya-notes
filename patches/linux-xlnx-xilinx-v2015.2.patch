@@ -9,7 +9,7 @@ diff -rupN old/linux-xlnx-xilinx-v2015.2/arch/arm/configs/xilinx_zynq_defconfig 
  CONFIG_MDIO_BITBANG=y
  CONFIG_INPUT_SPARSEKMAP=y
  CONFIG_INPUT_EVDEV=y
-@@ -243,3 +244,60 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
+@@ -243,3 +244,61 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
  CONFIG_FONTS=y
  CONFIG_FONT_8x8=y
  CONFIG_FONT_8x16=y
@@ -70,6 +70,7 @@ diff -rupN old/linux-xlnx-xilinx-v2015.2/arch/arm/configs/xilinx_zynq_defconfig 
 +CONFIG_FB_MODE_HELPERS=y
 +CONFIG_FB_UDL=y
 +CONFIG_USB_ULPI=y
++CONFIG_FUSE_FS=y
 diff -rupN old/linux-xlnx-xilinx-v2015.2/drivers/misc/eeprom/at24.c linux-xlnx-xilinx-v2015.2/drivers/misc/eeprom/at24.c
 --- old/linux-xlnx-xilinx-v2015.2/drivers/misc/eeprom/at24.c
 +++ linux-xlnx-xilinx-v2015.2/drivers/misc/eeprom/at24.c
