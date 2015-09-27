@@ -94,7 +94,7 @@ echo $timezone > etc/timezone
 dpkg-reconfigure --frontend=noninteractive tzdata
 
 apt-get -y install openssh-server ca-certificates ntp usbutils psmisc lsof \
-  parted curl less vim man-db iw wpasupplicant linux-firmware
+  parted curl less vim man-db iw wpasupplicant linux-firmware ntfs-3g
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
