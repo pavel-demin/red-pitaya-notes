@@ -48,7 +48,7 @@ cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
 cell pavel-demin:user:axis_gpio_reader:1.0 gpio_0 {
   AXIS_TDATA_WIDTH 8
 } {
-  gpio_data exp_p_io
+  gpio_data exp_p_tri_io
   aclk adc_0/adc_clk
 }
 
@@ -64,12 +64,11 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
   DIN_WIDTH 32 DIN_FROM 26 DIN_TO 26 DOUT_WIDTH 1
 } {
   Din cntr_0/Q
-  Dout led_o
 }
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 96
+  CFG_DATA_WIDTH 128
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -85,52 +84,90 @@ set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 96 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+  DIN_WIDTH 128 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+  DIN_WIDTH 128 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 96 DIN_FROM 16 DIN_TO 16 DOUT_WIDTH 1
+  DIN_WIDTH 128 DIN_FROM 16 DIN_TO 16 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 96 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+  DIN_WIDTH 128 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
+  DIN_WIDTH 128 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
-  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
+  DIN_WIDTH 128 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_7 {
-  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 80 DOUT_WIDTH 16
+  DIN_WIDTH 128 DIN_FROM 95 DIN_TO 80 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_8 {
+  DIN_WIDTH 128 DIN_FROM 103 DIN_TO 96 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+  IN1_WIDTH 7
+} {
+  In0 slice_0/Dout
+  In1 slice_8/Dout
+  dout led_o
+}
+
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_n_tri_io]
+
+# Create input/output port
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 exp_n
+
+# Create axi_gpio
+cell xilinx.com:ip:axi_gpio:2.0 gpio_1 {
+  C_GPIO_WIDTH 8
+} {
+  GPIO exp_n
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins gpio_1/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_gpio_1_Reg]
+set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_gpio_1_Reg]
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0
@@ -341,7 +378,7 @@ set_property RANGE 64K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
 set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+cell xilinx.com:ip:xlconcat:2.1 concat_1 {
   NUM_PORTS 2
   IN0_WIDTH 16
   IN1_WIDTH 16
@@ -356,7 +393,7 @@ cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
-  sts_data concat_0/dout
+  sts_data concat_1/dout
 }
 
 # Create all required interconnections

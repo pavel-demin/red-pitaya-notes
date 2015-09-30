@@ -75,7 +75,10 @@ class sink(gr.hier_block2):
     self.data_sock.connect((addr, port))
     self.data_sock.send(struct.pack('<I', 3))
     fd = os.dup(self.data_sock.fileno())
-    self.connect(self, blocks.file_descriptor_sink(gr.sizeof_gr_complex, fd))
+    self.null_sink = blocks.null_sink(gr.sizeof_gr_complex)
+    self.file_sink = blocks.file_descriptor_sink(gr.sizeof_gr_complex, fd)
+    self.connect(self, self.null_sink)
+    self.ptt = False
     self.set_freq(freq, corr)
     self.set_rate(rate)
 
@@ -90,4 +93,17 @@ class sink(gr.hier_block2):
       raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k")
 
   def set_ptt(self, on):
-    self.ctrl_sock.send(struct.pack('<I', (2<<28, 3<<28)[on == False]))
+    if on and not self.ptt:
+      self.ptt = True
+      self.ctrl_sock.send(struct.pack('<I', 2<<28))
+      self.lock()
+      self.disconnect(self, self.null_sink)
+      self.connect(self, self.file_sink)
+      self.unlock()
+    elif not on and self.ptt:
+      self.ptt = False
+      self.ctrl_sock.send(struct.pack('<I', 3<<28))
+      self.lock()
+      self.disconnect(self, self.file_sink)
+      self.connect(self, self.null_sink)
+      self.unlock()
