@@ -153,8 +153,8 @@ module red_pitaya_top
    input            Vaux9_v_n          ,
 
    // Expansion connector
-   inout  [ 8-1: 0] exp_p_io           ,
-   inout  [ 8-1: 0] exp_n_io           ,
+   inout  [ 8-1: 0] exp_p_tri_io       ,
+   inout  [ 8-1: 0] exp_n_tri_io       ,
 
 
    // SATA connector
@@ -469,8 +469,8 @@ genvar GV ;
 generate
 for( GV = 0 ; GV < 8 ; GV = GV + 1)
 begin : exp_iobuf
-  IOBUF i_iobufp (.O(exp_p_in[GV]), .IO(exp_p_io[GV]), .I(exp_p_out[GV]), .T(!exp_p_dir[GV]) );
-  IOBUF i_iobufn (.O(exp_n_in[GV]), .IO(exp_n_io[GV]), .I(exp_n_out[GV]), .T(!exp_n_dir[GV]) );
+  IOBUF i_iobufp (.O(exp_p_in[GV]), .IO(exp_p_tri_io[GV]), .I(exp_p_out[GV]), .T(!exp_p_dir[GV]) );
+  IOBUF i_iobufn (.O(exp_n_in[GV]), .IO(exp_n_tri_io[GV]), .I(exp_n_out[GV]), .T(!exp_n_dir[GV]) );
 end
 endgenerate
 

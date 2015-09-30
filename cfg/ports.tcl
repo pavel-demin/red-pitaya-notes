@@ -35,8 +35,8 @@ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.
 
 ### Expansion connector
 
-create_bd_port -dir IO -from 7 -to 0 exp_p_io
-create_bd_port -dir IO -from 7 -to 0 exp_n_io
+create_bd_port -dir IO -from 7 -to 0 exp_p_tri_io
+create_bd_port -dir IO -from 7 -to 0 exp_n_tri_io
 
 ### SATA connector
 
