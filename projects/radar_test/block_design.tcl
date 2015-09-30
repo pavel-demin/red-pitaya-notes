@@ -48,7 +48,7 @@ cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
 cell pavel-demin:user:axis_gpio_reader:1.0 gpio_0 {
   AXIS_TDATA_WIDTH 8
 } {
-  gpio_data exp_p_io
+  gpio_data exp_p_tri_io
   aclk adc_0/adc_clk
 }
 
@@ -131,23 +131,9 @@ cell xilinx.com:ip:xlslice:1.0 slice_7 {
   Din cfg_0/cfg_data
 }
 
-# Delete input/output port
-delete_bd_objs [get_bd_ports exp_n_io]
-
-# Create output port
-create_bd_port -dir O -from 7 -to 0 exp_n_io
-
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_8 {
   DIN_WIDTH 128 DIN_FROM 103 DIN_TO 96 DOUT_WIDTH 8
-} {
-  Din cfg_0/cfg_data
-  Dout exp_n_io
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_9 {
-  DIN_WIDTH 128 DIN_FROM 119 DIN_TO 112 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
@@ -157,9 +143,31 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN1_WIDTH 7
 } {
   In0 slice_0/Dout
-  In1 slice_9/Dout
+  In1 slice_8/Dout
   dout led_o
 }
+
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_n_tri_io]
+
+# Create input/output port
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 exp_n
+
+# Create axi_gpio
+cell xilinx.com:ip:axi_gpio:2.0 gpio_1 {
+  C_GPIO_WIDTH 8
+} {
+  GPIO exp_n
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins gpio_1/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_gpio_1_Reg]
+set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_gpio_1_Reg]
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0

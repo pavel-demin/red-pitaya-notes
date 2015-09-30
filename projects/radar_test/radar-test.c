@@ -11,7 +11,7 @@ int main()
   int fd, i;
   int position, limit, offset;
   int16_t value[2];
-  void *cfg, *sts, *ram;
+  void *cfg, *sts, *gpio, *ram;
   char *name = "/dev/mem";
   char buffer[32768];
 
@@ -23,6 +23,7 @@ int main()
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  gpio = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   ram = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
 
   /* put oscilloscope and ram writer into reset mode */
@@ -43,6 +44,15 @@ int main()
   /* set decimation factor for CIC filter (from 5 to 125)*/
   /* combined (CIC and FIR) decimation factor is twice greater */
   *((uint16_t *)(cfg + 10)) = 5;
+
+  /* switch on LED 1 */
+  *((uint8_t *)(cfg + 12)) |= 1;
+
+  /* set tri-state control register */
+  *((uint8_t *)(gpio + 4)) &= ~1;
+
+  /* set pin DIO0_N to high */
+  *((uint8_t *)(gpio + 0)) |= 1;
 
   /* enter normal operating mode */
   *((uint16_t *)(cfg + 0)) |= 3;
@@ -77,6 +87,7 @@ int main()
 
   munmap(cfg, sysconf(_SC_PAGESIZE));
   munmap(sts, sysconf(_SC_PAGESIZE));
+  munmap(gpio, sysconf(_SC_PAGESIZE));
   munmap(ram, sysconf(_SC_PAGESIZE));
 
   return EXIT_SUCCESS;
