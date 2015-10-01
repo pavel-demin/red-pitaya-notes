@@ -168,6 +168,12 @@ set_property PACKAGE_PIN J16 [get_ports {exp_n_tri_io[6]}]
 set_property PACKAGE_PIN M14 [get_ports {exp_p_tri_io[7]}]
 set_property PACKAGE_PIN M15 [get_ports {exp_n_tri_io[7]}]
 
+set_property IOSTANDARD LVCMOS33 [get_ports exp_p_trg]
+set_property SLEW FAST [get_ports exp_p_trg]
+set_property DRIVE 8 [get_ports exp_p_trg]
+
+set_property PACKAGE_PIN M14 [get_ports exp_p_trg]
+
 ### SATA connector
 
 set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports daisy_p_o[*]]
