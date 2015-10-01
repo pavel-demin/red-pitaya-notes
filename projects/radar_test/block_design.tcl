@@ -44,11 +44,14 @@ cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
   adc_csn adc_csn_o
 }
 
+# Create input/output port
+create_bd_port -dir IO -from 0 -to 0 exp_p_trg
+
 # Create axis_gpio_reader
 cell pavel-demin:user:axis_gpio_reader:1.0 gpio_0 {
-  AXIS_TDATA_WIDTH 8
+  AXIS_TDATA_WIDTH 1
 } {
-  gpio_data exp_p_tri_io
+  gpio_data exp_p_trg
   aclk adc_0/adc_clk
 }
 
@@ -168,6 +171,28 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_gpio_1_Reg]
 set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_gpio_1_Reg]
+
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_p_tri_io]
+
+# Create input/output port
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 exp_p
+
+# Create axi_gpio
+cell xilinx.com:ip:axi_gpio:2.0 gpio_2 {
+  C_GPIO_WIDTH 7
+} {
+  GPIO exp_p
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins gpio_2/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_gpio_2_Reg]
+set_property OFFSET 0x40003000 [get_bd_addr_segs ps_0/Data/SEG_gpio_2_Reg]
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0
