@@ -89,7 +89,7 @@ cell xilinx.com:ip:xlconstant:1.1 const_0
 cell pavel-demin:user:axis_gpio_reader:1.0 gpio_0 {
   AXIS_TDATA_WIDTH 8
 } {
-  gpio_data exp_p_io
+  gpio_data exp_p_tri_io
   aclk adc_0/adc_clk
 }
 
