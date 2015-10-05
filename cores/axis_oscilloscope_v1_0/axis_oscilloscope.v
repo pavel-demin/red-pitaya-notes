@@ -38,8 +38,8 @@ module axis_oscilloscope #
   begin
     if(~aresetn)
     begin
-      int_addr_reg <= {(CNTR_WIDTH){1'b0}};;
-      int_cntr_reg <= {(CNTR_WIDTH){1'b0}};;
+      int_addr_reg <= {(CNTR_WIDTH){1'b0}};
+      int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
       int_case_reg <= 2'd0;
       int_enbl_reg <= 1'b0;
     end
@@ -65,8 +65,8 @@ module axis_oscilloscope #
       begin
         if(run_flag)
         begin
-          int_addr_next = {(CNTR_WIDTH){1'b0}};;
-          int_cntr_next = {(CNTR_WIDTH){1'b0}};;
+          int_addr_next = {(CNTR_WIDTH){1'b0}};
+          int_cntr_next = {(CNTR_WIDTH){1'b0}};
           int_case_next = 2'd1;
           int_enbl_next = 1'b1;
         end
