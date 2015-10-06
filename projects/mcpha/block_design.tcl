@@ -620,17 +620,21 @@ assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_0 {
-  NUM_PORTS 2
-  IN0_WIDTH 32
-  IN1_WIDTH 32
+  NUM_PORTS 4
+  IN0_WIDTH 64
+  IN1_WIDTH 64
+  IN2_WIDTH 32
+  IN3_WIDTH 32
 } {
-  In0 scope_0/sts_data
-  In1 writer_0/sts_data
+  In0 timer_0/sts_data
+  In1 timer_1/sts_data
+  In2 scope_0/sts_data
+  In3 writer_0/sts_data
 }
 
 # Create axi_sts_register
 cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
-  STS_DATA_WIDTH 64
+  STS_DATA_WIDTH 192
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
