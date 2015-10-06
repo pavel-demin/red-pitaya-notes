@@ -23,14 +23,28 @@ cell xilinx.com:ip:xlslice:1.0 slice_4 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 1024 DIN_FROM 79 DIN_TO 32 DOUT_WIDTH 32
+  DIN_WIDTH 1024 DIN_FROM 31 DIN_TO 16 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
-  DIN_WIDTH 1024 DIN_FROM 127 DIN_TO 96 DOUT_WIDTH 32
+  DIN_WIDTH 1024 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_7 {
+  DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_8 {
+  DIN_WIDTH 1024 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
@@ -52,9 +66,12 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 cell pavel-demin:user:axis_pulse_height_analyzer:1.0 pha_0 {
   AXIS_TDATA_WIDTH 16
   AXIS_TDATA_SIGNED TRUE
+  CNTR_WIDTH 16
 } {
   S_AXIS dds_0/M_AXIS_DATA
   cfg_data slice_5/Dout
+  min_data slice_6/Dout
+  max_data slice_7/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_2/Dout
 }
@@ -66,7 +83,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
   CONTINUOUS FALSE
 } {
   S_AXIS pha_0/M_AXIS
-  cfg_data slice_6/Dout
+  cfg_data slice_8/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_3/Dout
 }

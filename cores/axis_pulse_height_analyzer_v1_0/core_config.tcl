@@ -7,6 +7,7 @@ set_property DESCRIPTION $display_name $core
 
 core_parameter AXIS_TDATA_WIDTH {AXIS TDATA WIDTH} {Width of the M_AXIS and S_AXIS data buses.}
 core_parameter AXIS_TDATA_SIGNED {AXIS_TDATA_SIGNED} {If TRUE, the M_AXIS and S_AXIS data are signed values.}
+core_parameter CNTR_WIDTH {CNTR WIDTH} {Width of the counter register.}
 
 set bus [ipx::get_bus_interfaces -of_objects $core m_axis]
 set_property NAME M_AXIS $bus

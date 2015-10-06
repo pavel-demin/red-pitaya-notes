@@ -4,15 +4,17 @@
 module axis_pulse_height_analyzer #
 (
   parameter integer AXIS_TDATA_WIDTH = 16,
-  parameter         AXIS_TDATA_SIGNED = "FALSE"
-
+  parameter         AXIS_TDATA_SIGNED = "FALSE",
+  parameter integer CNTR_WIDTH = 16
 )
 (
   // System signals
   input  wire                           aclk,
   input  wire                           aresetn,
 
-  input  wire [AXIS_TDATA_WIDTH*2+15:0] cfg_data,
+  input  wire [CNTR_WIDTH-1:0]          cfg_data,
+  input  wire [AXIS_TDATA_WIDTH-1:0]    min_data,
+  input  wire [AXIS_TDATA_WIDTH-1:0]    max_data,
 
   // Slave side
   output wire                           s_axis_tready,
@@ -27,7 +29,7 @@ module axis_pulse_height_analyzer #
   reg [AXIS_TDATA_WIDTH-1:0] int_data_reg[1:0], int_data_next[1:0];
   reg [AXIS_TDATA_WIDTH-1:0] int_min_reg, int_min_next;
   reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg, int_tdata_next;
-  reg [15:0] int_cntr_reg, int_cntr_next;
+  reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
   reg int_enbl_reg, int_enbl_next;
   reg int_rising_reg, int_rising_next;
   reg int_tvalid_reg, int_tvalid_next;
@@ -35,22 +37,22 @@ module axis_pulse_height_analyzer #
   wire [AXIS_TDATA_WIDTH-1:0] int_tdata_wire;
   wire int_mincut_wire, int_maxcut_wire, int_rising_wire, int_delay_wire;
 
-  assign int_delay_wire = int_cntr_reg < cfg_data[AXIS_TDATA_WIDTH*2+15:AXIS_TDATA_WIDTH*2];
+  assign int_delay_wire = int_cntr_reg < cfg_data;
 
   generate
     if(AXIS_TDATA_SIGNED == "TRUE")
     begin : SIGNED
       assign int_rising_wire = $signed(int_data_reg[1]) < $signed(s_axis_tdata);
       assign int_tdata_wire = $signed(int_data_reg[0]) - $signed(int_min_reg);
-      assign int_mincut_wire = $signed(int_tdata_wire) > $signed(cfg_data[AXIS_TDATA_WIDTH-1:0]);
-      assign int_maxcut_wire = $signed(int_data_reg[0]) < $signed(cfg_data[AXIS_TDATA_WIDTH*2-1:AXIS_TDATA_WIDTH]);
+      assign int_mincut_wire = $signed(int_tdata_wire) > $signed(min_data);
+      assign int_maxcut_wire = $signed(int_data_reg[0]) < $signed(max_data);
     end
     else
     begin : UNSIGNED
       assign int_rising_wire = int_data_reg[1] < s_axis_tdata;
       assign int_tdata_wire = int_data_reg[0] - int_min_reg;
-      assign int_mincut_wire = int_tdata_wire > cfg_data[AXIS_TDATA_WIDTH-1:0];
-      assign int_maxcut_wire = int_data_reg[0] < cfg_data[AXIS_TDATA_WIDTH*2-1:AXIS_TDATA_WIDTH];
+      assign int_mincut_wire = int_tdata_wire > min_data;
+      assign int_maxcut_wire = int_data_reg[0] < max_data;
     end
   endgenerate
 
@@ -62,7 +64,7 @@ module axis_pulse_height_analyzer #
       int_data_reg[1] <= {(AXIS_TDATA_WIDTH){1'b0}};
       int_tdata_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
       int_min_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
-      int_cntr_reg <= 16'd0;
+      int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
       int_enbl_reg <= 1'b0;
       int_rising_reg <= 1'b0;
       int_tvalid_reg <= 1'b0;
@@ -115,7 +117,7 @@ module axis_pulse_height_analyzer #
     begin
       int_tdata_next = int_tdata_wire;
       int_tvalid_next = int_maxcut_wire;
-      int_cntr_next = 16'd0;
+      int_cntr_next = {(CNTR_WIDTH){1'b0}};
     end
 
     if(m_axis_tready & int_tvalid_reg)
