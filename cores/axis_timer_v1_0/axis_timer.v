@@ -3,7 +3,6 @@
 
 module axis_timer #
 (
-  parameter integer AXIS_TDATA_WIDTH = 32,
   parameter integer CNTR_WIDTH = 64
 )
 (
