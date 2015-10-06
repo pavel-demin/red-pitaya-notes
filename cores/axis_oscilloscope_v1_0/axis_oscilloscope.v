@@ -93,7 +93,7 @@ module axis_oscilloscope #
           int_cntr_next = int_cntr_reg + 1'b1;
           if(trg_flag)
           begin
-            int_addr_next = {int_cntr_reg[CNTR_WIDTH-1:6], 6'd0};
+            int_addr_next = int_cntr_reg;
             int_cntr_next = pre_data + int_cntr_reg[5:0];
             int_case_next = 2'd3;
           end
