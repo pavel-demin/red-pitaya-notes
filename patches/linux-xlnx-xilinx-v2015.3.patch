@@ -1,0 +1,878 @@
+diff -rupN old/linux-xlnx-xilinx-v2015.3/arch/arm/configs/xilinx_zynq_defconfig linux-xlnx-xilinx-v2015.3/arch/arm/configs/xilinx_zynq_defconfig
+--- old/linux-xlnx-xilinx-v2015.3/arch/arm/configs/xilinx_zynq_defconfig
++++ linux-xlnx-xilinx-v2015.3/arch/arm/configs/xilinx_zynq_defconfig
+@@ -114,6 +114,7 @@ CONFIG_XILINX_AXI_EMAC=y
+ CONFIG_XILINX_PS_EMAC=y
+ CONFIG_MARVELL_PHY=y
+ CONFIG_VITESSE_PHY=y
++CONFIG_LANTIQ_PHY=y
+ CONFIG_MDIO_BITBANG=y
+ CONFIG_INPUT_SPARSEKMAP=y
+ CONFIG_INPUT_EVDEV=y
+@@ -247,3 +248,62 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
+ CONFIG_FONTS=y
+ CONFIG_FONT_8x8=y
+ CONFIG_FONT_8x16=y
++CONFIG_WIRELESS=y
++CONFIG_CFG80211=y
++CONFIG_MAC80211=y
++CONFIG_RTLWIFI=y
++CONFIG_RTL8192CU=y
++CONFIG_RT2X00=y
++CONFIG_RT2800USB=y
++CONFIG_RT2800USB_RT3573=y
++CONFIG_RT2800USB_RT53XX=y
++CONFIG_RT2800USB_RT55XX=y
++CONFIG_RT2800USB_UNKNOWN=y
++CONFIG_NETFILTER=y
++CONFIG_NETFILTER_ADVANCED=y
++CONFIG_NF_CONNTRACK=y
++CONFIG_NF_CONNTRACK_PROCFS=y
++CONFIG_NF_NAT=y
++CONFIG_NF_NAT_NEEDED=y
++CONFIG_NETFILTER_XTABLES=y
++CONFIG_NETFILTER_XT_NAT=y
++CONFIG_NETFILTER_XT_MATCH_CONNTRACK=y
++CONFIG_NETFILTER_XT_MATCH_STATE=y
++CONFIG_NF_DEFRAG_IPV4=y
++CONFIG_NF_CONNTRACK_IPV4=y
++CONFIG_NF_CONNTRACK_PROC_COMPAT=y
++CONFIG_NF_NAT_IPV4=y
++CONFIG_NF_NAT_MASQUERADE_IPV4=y
++CONFIG_IP_NF_IPTABLES=y
++CONFIG_IP_NF_FILTER=y
++CONFIG_IP_NF_NAT=y
++CONFIG_IP_NF_TARGET_MASQUERADE=y
++CONFIG_IP_NF_MANGLE=y
++CONFIG_INPUT_TOUCHSCREEN=y
++CONFIG_OF_TOUCHSCREEN=y
++CONFIG_TOUCHSCREEN_USB_COMPOSITE=y
++CONFIG_TOUCHSCREEN_USB_EGALAX=y
++CONFIG_TOUCHSCREEN_USB_PANJIT=y
++CONFIG_TOUCHSCREEN_USB_3M=y
++CONFIG_TOUCHSCREEN_USB_ITM=y
++CONFIG_TOUCHSCREEN_USB_ETURBO=y
++CONFIG_TOUCHSCREEN_USB_GUNZE=y
++CONFIG_TOUCHSCREEN_USB_DMC_TSC10=y
++CONFIG_TOUCHSCREEN_USB_IRTOUCH=y
++CONFIG_TOUCHSCREEN_USB_IDEALTEK=y
++CONFIG_TOUCHSCREEN_USB_GENERAL_TOUCH=y
++CONFIG_TOUCHSCREEN_USB_GOTOP=y
++CONFIG_TOUCHSCREEN_USB_JASTEC=y
++CONFIG_TOUCHSCREEN_USB_ELO=y
++CONFIG_TOUCHSCREEN_USB_E2I=y
++CONFIG_TOUCHSCREEN_USB_ZYTRONIC=y
++CONFIG_TOUCHSCREEN_USB_ETT_TC45USB=y
++CONFIG_TOUCHSCREEN_USB_NEXIO=y
++CONFIG_TOUCHSCREEN_USB_EASYTOUCH=y
++CONFIG_FB_SYS_FOPS=y
++CONFIG_FB_DEFERRED_IO=y
++CONFIG_FB_MODE_HELPERS=y
++CONFIG_FB_UDL=y
++CONFIG_NOP_USB_XCEIV=y
++CONFIG_FUSE_FS=y
++CONFIG_SPI_SPIDEV=y
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/misc/eeprom/at24.c linux-xlnx-xilinx-v2015.3/drivers/misc/eeprom/at24.c
+--- old/linux-xlnx-xilinx-v2015.3/drivers/misc/eeprom/at24.c
++++ linux-xlnx-xilinx-v2015.3/drivers/misc/eeprom/at24.c
+@@ -519,6 +519,9 @@ static int at24_probe(struct i2c_client
+ 		 * is recommended anyhow.
+ 		 */
+ 		chip.page_size = 1;
++		if(!strncmp(id->name,"24c64",5)){
++			chip.page_size = 32;
++		}
+ 
+ 		/* update chipdata if OF is present */
+ 		at24_get_ofdata(client, &chip);
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/cadence/macb.c linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/cadence/macb.c
+--- old/linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/cadence/macb.c
++++ linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/cadence/macb.c
+@@ -30,8 +30,6 @@
+ #include <linux/of_device.h>
+ #include <linux/of_mdio.h>
+ #include <linux/of_net.h>
+-#include <linux/net_tstamp.h>
+-#include <linux/ptp_clock_kernel.h>
+ 
+ #include "macb.h"
+ 
+@@ -58,9 +56,6 @@
+ 
+ #define GEM_MTU_MIN_SIZE	68
+ 
+-#define GEM_TX_PTPHDR_OFFSET	42
+-#define GEM_RX_PTPHDR_OFFSET	28
+-
+ /*
+  * Graceful stop timeouts in us. We should allow up to
+  * 1 frame time (10 Mbits/s, full-duplex, ignoring collisions)
+@@ -119,9 +114,6 @@ void macb_set_hwaddr(struct macb *bp)
+ 	top = cpu_to_le16(*((u16 *)(bp->dev->dev_addr + 4)));
+ 	macb_or_gem_writel(bp, SA1T, top);
+ 
+-	gem_writel(bp, RXPTPUNI, bottom);
+-	gem_writel(bp, TXPTPUNI, bottom);
+-
+ 	/* Clear unused address register sets */
+ 	macb_or_gem_writel(bp, SA2B, 0);
+ 	macb_or_gem_writel(bp, SA2T, 0);
+@@ -606,42 +598,6 @@ static void macb_tx_error_task(struct wo
+ 	spin_unlock_irqrestore(&bp->lock, flags);
+ }
+ 
+-#ifdef CONFIG_MACB_EXT_BD
+-static inline void macb_handle_txtstamp(struct macb *bp, struct sk_buff *skb,
+-					struct macb_dma_desc *desc)
+-{
+-	u32 ts_s, ts_ns;
+-	u8 msg_type;
+-
+-	skb_copy_from_linear_data_offset(skb, GEM_TX_PTPHDR_OFFSET,
+-					 &msg_type, 1);
+-
+-	/* Bit[32:6] of TS secs from register
+-	 * Bit[5:0] of TS secs from BD
+-	 * TS nano secs is available in BD
+-	 */
+-	if (msg_type & 0x2) {
+-		/* PTP Peer Event Frame packets */
+-		ts_s = (gem_readl(bp, 1588PEERTXSEC) & GEM_SEC_MASK) |
+-		       ((desc->tsl >> GEM_TSL_SEC_RS) |
+-		       (desc->tsh << GEM_TSH_SEC_LS));
+-		ts_ns = desc->tsl & GEM_TSL_NSEC_MASK;
+-	} else {
+-		/* PTP Event Frame packets */
+-		ts_s = (gem_readl(bp, 1588TXSEC) & GEM_SEC_MASK) |
+-		       ((desc->tsl >> GEM_TSL_SEC_RS) |
+-		       (desc->tsh << GEM_TSH_SEC_LS));
+-		ts_ns = desc->tsl & GEM_TSL_NSEC_MASK;
+-	}
+-
+-	struct skb_shared_hwtstamps *shhwtstamps = skb_hwtstamps(skb);
+-
+-	memset(shhwtstamps, 0, sizeof(struct skb_shared_hwtstamps));
+-	shhwtstamps->hwtstamp = ns_to_ktime((ts_s * NS_PER_SEC) + ts_ns);
+-	skb_tstamp_tx(skb, skb_hwtstamps(skb));
+-}
+-#endif
+-
+ static void macb_tx_interrupt(struct macb_queue *queue)
+ {
+ 	unsigned int tail;
+@@ -692,10 +648,6 @@ static void macb_tx_interrupt(struct mac
+ 				bp->stats.tx_bytes += skb->len;
+ 			}
+ 
+-#ifdef CONFIG_MACB_EXT_BD
+-			if (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP)
+-				macb_handle_txtstamp(bp, skb, desc);
+-#endif
+ 			/* Now we can safely release resources */
+ 			macb_tx_unmap(bp, tx_skb);
+ 
+@@ -789,41 +741,6 @@ static void discard_partial_frame(struct
+ 	 */
+ }
+ 
+-#ifdef CONFIG_MACB_EXT_BD
+-static inline void macb_handle_rxtstamp(struct macb *bp, struct sk_buff *skb,
+-					struct macb_dma_desc *desc)
+-{
+-	u8 msg_type;
+-	u32 ts_ns, ts_s;
+-
+-	skb_copy_from_linear_data_offset(skb, GEM_RX_PTPHDR_OFFSET,
+-					 &msg_type, 1);
+-
+-	/* Bit[32:6] of TS secs from register
+-	 * Bit[5:0] of TS secs from BD
+-	 * TS nano secs is available in BD
+-	 */
+-	if (msg_type & 0x2) {
+-		/* PTP Peer Event Frame packets */
+-		ts_s = (gem_readl(bp, 1588PEERRXSEC) & GEM_SEC_MASK) |
+-			((desc->tsl >> GEM_TSL_SEC_RS) |
+-			(desc->tsh << GEM_TSH_SEC_LS));
+-		ts_ns = desc->tsl & GEM_TSL_NSEC_MASK;
+-	} else {
+-		/* PTP Event Frame packets */
+-		ts_s = (gem_readl(bp, 1588RXSEC) & GEM_SEC_MASK) |
+-			((desc->tsl >> GEM_TSL_SEC_RS) |
+-			(desc->tsh << GEM_TSH_SEC_LS));
+-		ts_ns = desc->tsl & GEM_TSL_NSEC_MASK;
+-	}
+-
+-	struct skb_shared_hwtstamps *shhwtstamps = skb_hwtstamps(skb);
+-
+-	memset(shhwtstamps, 0, sizeof(struct skb_shared_hwtstamps));
+-	shhwtstamps->hwtstamp = ns_to_ktime((ts_s * NS_PER_SEC) + ts_ns);
+-}
+-#endif
+-
+ static int gem_rx(struct macb *bp, int budget)
+ {
+ 	unsigned int		len;
+@@ -875,12 +792,6 @@ static int gem_rx(struct macb *bp, int b
+ 				 bp->rx_buffer_size, DMA_FROM_DEVICE);
+ 
+ 		skb->protocol = eth_type_trans(skb, bp->dev);
+-
+-#ifdef CONFIG_MACB_EXT_BD
+-		if (addr & GEM_RX_TS_MASK)
+-			macb_handle_rxtstamp(bp, skb, desc);
+-#endif
+-
+ 		skb_checksum_none_assert(skb);
+ 		if (bp->dev->features & NETIF_F_RXCSUM &&
+ 		    !(bp->dev->flags & IFF_PROMISC) &&
+@@ -1676,193 +1587,6 @@ static u32 macb_dbw(struct macb *bp)
+ 	}
+ }
+ 
+-static inline void macb_ptp_read(struct macb *bp, struct timespec *ts)
+-{
+-	ts->tv_sec = gem_readl(bp, 1588S);
+-	ts->tv_nsec = gem_readl(bp, 1588NS);
+-
+-	if (ts->tv_sec < gem_readl(bp, 1588S))
+-		ts->tv_nsec = gem_readl(bp, 1588NS);
+-}
+-
+-static inline void macb_ptp_write(struct macb *bp, const struct timespec *ts)
+-{
+-	gem_writel(bp, 1588S, ts->tv_sec);
+-	gem_writel(bp, 1588NS, ts->tv_nsec);
+-}
+-
+-static int macb_ptp_enable(struct ptp_clock_info *ptp,
+-			   struct ptp_clock_request *rq, int on)
+-{
+-	return -EOPNOTSUPP;
+-}
+-
+-static void macb_ptp_close(struct macb *bp)
+-{
+-	/* Clear the time counters */
+-	gem_writel(bp, 1588NS, 0);
+-	gem_writel(bp, 1588S, 0);
+-	gem_writel(bp, 1588ADJ, 0);
+-	gem_writel(bp, 1588INCR, 0);
+-
+-	ptp_clock_unregister(bp->ptp_clock);
+-}
+-
+-static int macb_ptp_gettime(struct ptp_clock_info *ptp, struct timespec *ts)
+-{
+-	struct macb *bp = container_of(ptp, struct macb, ptp_caps);
+-
+-	macb_ptp_read(bp, ts);
+-
+-	return 0;
+-}
+-
+-static int macb_ptp_settime(struct ptp_clock_info *ptp,
+-			    const struct timespec *ts)
+-{
+-	struct macb *bp = container_of(ptp, struct macb, ptp_caps);
+-
+-	macb_ptp_write(bp, ts);
+-
+-	return 0;
+-}
+-
+-static int macb_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
+-{
+-	struct macb *bp = container_of(ptp, struct macb, ptp_caps);
+-	struct timespec now, then = ns_to_timespec(delta);
+-	u32 adj, sign = 0;
+-
+-	if (delta < 0) {
+-		delta = -delta;
+-		sign = 1;
+-	}
+-
+-	if (delta > 0x3FFFFFFF) {
+-		macb_ptp_read(bp, &now);
+-
+-		if (sign)
+-			now = timespec_sub(now, then);
+-		else
+-			now = timespec_add(now, then);
+-
+-		macb_ptp_write(bp, (const struct timespec *)&now);
+-	} else {
+-		adj = delta;
+-		if (sign)
+-			adj |= GEM_BIT(ADDSUB);
+-
+-		gem_writel(bp, 1588ADJ, adj);
+-	}
+-
+-	return 0;
+-}
+-
+-static int macb_ptp_adjfreq(struct ptp_clock_info *ptp, s32 ppb)
+-{
+-	struct macb *bp = container_of(ptp, struct macb, ptp_caps);
+-	unsigned long rate = bp->tsu_clk;
+-	u64 adjsub;
+-	u32 addend, diff;
+-	u32 diffsub, addendsub;
+-	bool neg_adj = false;
+-	u32 subnsreg, rem;
+-
+-	if (ppb < 0) {
+-		neg_adj = true;
+-		ppb = -ppb;
+-	}
+-
+-	addend = bp->ns_incr;
+-	addendsub = bp->subns_incr;
+-
+-	diff = div_u64_rem(ppb, rate, &rem);
+-	addend = neg_adj ? addend - diff : addend + diff;
+-
+-	if (rem) {
+-		adjsub = rem;
+-		/* Multiple by 2^24 as subns field is 24 bits */
+-		adjsub = adjsub << 24;
+-
+-		diffsub = div_u64(adjsub, rate);
+-	} else {
+-		diffsub = 0;
+-	}
+-
+-	if (neg_adj && (diffsub > addendsub)) {
+-		addend -= 1;
+-		rem = (NS_PER_SEC - rem);
+-		neg_adj = false;
+-
+-		adjsub = rem;
+-		adjsub = adjsub << 24;
+-		diffsub = div_u64(adjsub, rate);
+-	}
+-
+-	addendsub = neg_adj ? addendsub - diffsub : addendsub + diffsub;
+-	/* RegBit[15:0] = Subns[23:8]; RegBit[31:24] = Subns[7:0] */
+-	subnsreg = ((addendsub & GEM_SUBNSINCL_MASK) << GEM_SUBNSINCL_SHFT) |
+-		   ((addendsub & GEM_SUBNSINCH_MASK) >> GEM_SUBNSINCH_SHFT);
+-
+-	gem_writel(bp, 1588INCRSUBNS, subnsreg);
+-	gem_writel(bp, 1588INCR, GEM_BF(NSINCR, addend));
+-
+-	return 0;
+-}
+-
+-static void macb_ptp_init(struct macb *bp)
+-{
+-	struct timespec now;
+-	unsigned long rate;
+-	u32 subnsreg, rem = 0;
+-	u64 adj;
+-
+-	bp->ptp_caps.owner = THIS_MODULE;
+-	bp->ptp_caps.max_adj = 250000000;
+-	bp->ptp_caps.n_alarm = 0;
+-	bp->ptp_caps.n_ext_ts = 0;
+-	bp->ptp_caps.n_per_out = 0;
+-	bp->ptp_caps.pps = 0;
+-	bp->ptp_caps.adjtime = macb_ptp_adjtime;
+-	bp->ptp_caps.gettime = macb_ptp_gettime;
+-	bp->ptp_caps.settime = macb_ptp_settime;
+-	bp->ptp_caps.enable = macb_ptp_enable;
+-	bp->ptp_caps.adjfreq = macb_ptp_adjfreq;
+-
+-	rate = bp->tsu_clk;
+-
+-	getnstimeofday(&now);
+-	gem_writel(bp, 1588SMSB, 0);
+-	macb_ptp_write(bp, (const struct timespec *)&now);
+-
+-	bp->ns_incr = div_u64_rem(NS_PER_SEC, rate, &rem);
+-	if (rem) {
+-		adj = rem;
+-		/* Multiply by 2^24 as subns register is 24 bits */
+-		adj = adj << 24;
+-
+-		bp->subns_incr = div_u64(adj, rate);
+-	} else {
+-		bp->subns_incr = 0;
+-	}
+-
+-	/* RegBit[15:0] = Subns[23:8]; RegBit[31:24] = Subns[7:0] */
+-	subnsreg = ((bp->subns_incr & GEM_SUBNSINCL_MASK)
+-		    << GEM_SUBNSINCL_SHFT) |
+-		   ((bp->subns_incr & GEM_SUBNSINCH_MASK)
+-		    >> GEM_SUBNSINCH_SHFT);
+-	gem_writel(bp, 1588INCRSUBNS, subnsreg);
+-	gem_writel(bp, 1588INCR, bp->ns_incr);
+-	gem_writel(bp, 1588ADJ, 0);
+-
+-	bp->ptp_clock = ptp_clock_register(&bp->ptp_caps, &bp->pdev->dev);
+-	if (IS_ERR(bp->ptp_clock)) {
+-		bp->ptp_clock = NULL;
+-		netdev_err(bp->dev, "ptp_clock_register failed\n");
+-	}
+-	bp->phc_index = ptp_clock_index(bp->ptp_clock);
+-}
+-
+ /*
+  * Configure the receive DMA engine
+  * - use the correct receive buffer size
+@@ -1950,18 +1674,6 @@ static void macb_init_hw(struct macb *bp
+ 	if (bp->caps & MACB_CAPS_JUMBO)
+ 		bp->rx_frm_len_mask = MACB_RX_JFRMLEN_MASK;
+ 
+-	gem_writel(bp, TXBDCNTRL,
+-		   (gem_readl(bp, TXBDCNTRL) & ~(GEM_TXBDCNTRL_MODE_ALL)) |
+-		   GEM_TXBDCNTRL_MODE_PTP_EVNT);
+-	gem_writel(bp, RXBDCNTRL,
+-		   (gem_readl(bp, RXBDCNTRL) & ~(GEM_RXBDCNTRL_MODE_ALL)) |
+-		   GEM_RXBDCNTRL_MODE_PTP_EVNT);
+-
+-	if ((gem_readl(bp, DCFG5) & GEM_BIT(TSU)) &&
+-	    (bp->caps & MACB_CAPS_TSU)) {
+-		macb_ptp_init(bp);
+-	}
+-
+ 	macb_configure_dma(bp);
+ 
+ 	/* Initialize TX and RX buffers */
+@@ -1977,8 +1689,7 @@ static void macb_init_hw(struct macb *bp
+ 	}
+ 
+ 	/* Enable TX and RX */
+-	macb_writel(bp, NCR, MACB_BIT(RE) | MACB_BIT(TE) | MACB_BIT(MPE) |
+-		    MACB_BIT(PTPUNI));
++	macb_writel(bp, NCR, MACB_BIT(RE) | MACB_BIT(TE) | MACB_BIT(MPE));
+ }
+ 
+ /*
+@@ -2158,7 +1869,6 @@ static int macb_close(struct net_device
+ 
+ 	spin_lock_irqsave(&bp->lock, flags);
+ 	macb_reset_hw(bp);
+-	macb_ptp_close(bp);
+ 	netif_carrier_off(dev);
+ 	spin_unlock_irqrestore(&bp->lock, flags);
+ 
+@@ -2387,23 +2097,6 @@ static void macb_get_regs(struct net_dev
+ 	}
+ }
+ 
+-static int macb_get_ts_info(struct net_device *dev,
+-			    struct ethtool_ts_info *info)
+-{
+-	struct macb *bp = netdev_priv(dev);
+-
+-	info->so_timestamping = SOF_TIMESTAMPING_TX_HARDWARE |
+-				SOF_TIMESTAMPING_RX_HARDWARE |
+-				SOF_TIMESTAMPING_RAW_HARDWARE;
+-	info->phc_index = bp->phc_index;
+-	info->tx_types = (1 << HWTSTAMP_TX_OFF) |
+-			 (1 << HWTSTAMP_TX_ON);
+-	info->rx_filters = (1 << HWTSTAMP_FILTER_NONE) |
+-			   (1 << HWTSTAMP_FILTER_ALL);
+-
+-	return 0;
+-}
+-
+ const struct ethtool_ops macb_ethtool_ops = {
+ 	.get_settings		= macb_get_settings,
+ 	.set_settings		= macb_set_settings,
+@@ -2420,74 +2113,24 @@ static const struct ethtool_ops gem_etht
+ 	.get_regs_len		= macb_get_regs_len,
+ 	.get_regs		= macb_get_regs,
+ 	.get_link		= ethtool_op_get_link,
+-	.get_ts_info		= macb_get_ts_info,
++	.get_ts_info		= ethtool_op_get_ts_info,
+ 	.get_ethtool_stats	= gem_get_ethtool_stats,
+ 	.get_strings		= gem_get_ethtool_strings,
+ 	.get_sset_count		= gem_get_sset_count,
+ };
+ 
+-static int macb_hwtstamp_ioctl(struct net_device *dev,
+-			       struct ifreq *ifr, int cmd)
+-{
+-	struct hwtstamp_config config;
+-
+-	if (copy_from_user(&config, ifr->ifr_data, sizeof(config)))
+-		return -EFAULT;
+-
+-	/* reserved for future extensions */
+-	if (config.flags)
+-		return -EINVAL;
+-
+-	if ((config.tx_type != HWTSTAMP_TX_OFF) &&
+-	    (config.tx_type != HWTSTAMP_TX_ON))
+-		return -ERANGE;
+-
+-	switch (config.rx_filter) {
+-	case HWTSTAMP_FILTER_NONE:
+-		break;
+-	case HWTSTAMP_FILTER_PTP_V1_L4_EVENT:
+-	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
+-	case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
+-	case HWTSTAMP_FILTER_ALL:
+-	case HWTSTAMP_FILTER_PTP_V1_L4_SYNC:
+-	case HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ:
+-	case HWTSTAMP_FILTER_PTP_V2_L2_SYNC:
+-	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
+-	case HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ:
+-	case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
+-	case HWTSTAMP_FILTER_PTP_V2_EVENT:
+-	case HWTSTAMP_FILTER_PTP_V2_SYNC:
+-	case HWTSTAMP_FILTER_PTP_V2_DELAY_REQ:
+-		config.rx_filter = HWTSTAMP_FILTER_ALL;
+-		break;
+-	default:
+-		return -ERANGE;
+-	}
+-
+-	config.tx_type = HWTSTAMP_TX_ON;
+-
+-	return copy_to_user(ifr->ifr_data, &config, sizeof(config)) ?
+-		-EFAULT : 0;
+-}
+-
+ int macb_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ {
+ 	struct macb *bp = netdev_priv(dev);
+ 	struct phy_device *phydev = bp->phy_dev;
+ 
+-	switch (cmd) {
+-	case SIOCSHWTSTAMP:
+-			return macb_hwtstamp_ioctl(dev, rq, cmd);
+-
+-	default:
+-		if (!netif_running(dev))
+-			return -EINVAL;
++	if (!netif_running(dev))
++		return -EINVAL;
+ 
+-		if (!phydev)
+-			return -ENODEV;
++	if (!phydev)
++		return -ENODEV;
+ 
+-		return phy_mii_ioctl(phydev, rq, cmd);
+-	}
++	return phy_mii_ioctl(phydev, rq, cmd);
+ }
+ EXPORT_SYMBOL_GPL(macb_ioctl);
+ 
+@@ -2558,7 +2201,7 @@ static const struct macb_config sama5d4_
+ };
+ 
+ static const struct macb_config zynqmp_config = {
+-	.caps = MACB_CAPS_GIGABIT_MODE_AVAILABLE | MACB_CAPS_JUMBO | MACB_CAPS_TSU,
++	.caps = MACB_CAPS_GIGABIT_MODE_AVAILABLE | MACB_CAPS_JUMBO,
+ 	.dma_burst_length = 16,
+ 	.jumbo_max_len = 10240,
+ };
+@@ -2736,8 +2379,6 @@ static int macb_probe(struct platform_de
+ 	if (macb_config)
+ 		bp->jumbo_max_len = macb_config->jumbo_max_len;
+ 
+-	of_property_read_u32(pdev->dev.of_node, "tsu-clk", &bp->tsu_clk);
+-
+ 	spin_lock_init(&bp->lock);
+ 
+ 	/* set the queue register mapping once for all: queue0 has a special
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/cadence/macb.h linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/cadence/macb.h
+--- old/linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/cadence/macb.h
++++ linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/cadence/macb.h
+@@ -82,8 +82,6 @@
+ #define GEM_SA3T		0x009C /* Specific3 Top */
+ #define GEM_SA4B		0x00A0 /* Specific4 Bottom */
+ #define GEM_SA4T		0x00A4 /* Specific4 Top */
+-#define GEM_RXPTPUNI		0x00D4 /* PTP RX Unicast address */
+-#define GEM_TXPTPUNI		0x00D8 /* PTP TX Unicast address */
+ #define GEM_OTX			0x0100 /* Octets transmitted */
+ #define GEM_OCTTXL		0x0100 /* Octets transmitted [31:0] */
+ #define GEM_OCTTXH		0x0104 /* Octets transmitted [47:32] */
+@@ -131,20 +129,6 @@
+ #define GEM_RXIPCCNT		0x01a8 /* IP header Checksum Error Counter */
+ #define GEM_RXTCPCCNT		0x01ac /* TCP Checksum Error Counter */
+ #define GEM_RXUDPCCNT		0x01b0 /* UDP Checksum Error Counter */
+-#define GEM_1588INCRSUBNS	0x01BC /* 1588 timer sub nsec increment */
+-#define GEM_1588SMSB		0x01C0 /* 1588 timer seconds register[47:32] */
+-#define GEM_1588S		0x01D0 /* 1588 timer seconds register[31:0] */
+-#define GEM_1588NS		0x01D4 /* 1588 timer nano seconds register */
+-#define GEM_1588ADJ		0x01D8 /* 1588 timer adjust register */
+-#define GEM_1588INCR		0x01DC /* 1588 timer increment register */
+-#define GEM_1588TXSEC		0x01E0 /* PTP event TX timestamp secs */
+-#define GEM_1588TXNSEC		0x01E4 /* PTP event TX timestamp nsecs */
+-#define GEM_1588RXSEC		0x01E8 /* PTP event RX timestamp secs */
+-#define GEM_1588RXNSEC		0x01EC /* PTP event RX timestamp nsecs */
+-#define GEM_1588PEERTXSEC	0x01F0 /* PTP peer event TX timestamp secs */
+-#define GEM_1588PEERTXNSEC	0x01F4 /* PTP peer event TX timestamp nsecs */
+-#define GEM_1588PEERRXSEC	0x01F8 /* PTP peer event RX timestamp secs */
+-#define GEM_1588PEERRXNSEC	0x01FC /* PTP peer event RX timestamp nsecs */
+ #define GEM_DCFG1		0x0280 /* Design Config 1 */
+ #define GEM_DCFG2		0x0284 /* Design Config 2 */
+ #define GEM_DCFG3		0x0288 /* Design Config 3 */
+@@ -152,8 +136,6 @@
+ #define GEM_DCFG5		0x0290 /* Design Config 5 */
+ #define GEM_DCFG6		0x0294 /* Design Config 6 */
+ #define GEM_DCFG7		0x0298 /* Design Config 7 */
+-#define GEM_TXBDCNTRL		0x04CC /* TX descriptor control */
+-#define GEM_RXBDCNTRL		0x04D0 /* RX descriptor control */
+ 
+ #define GEM_ISR(hw_q)		(0x0400 + ((hw_q) << 2))
+ #define GEM_TBQP(hw_q)		(0x0440 + ((hw_q) << 2))
+@@ -189,8 +171,6 @@
+ #define MACB_NCR_TPF_SIZE	1
+ #define MACB_TZQ_OFFSET		12 /* Transmit zero quantum pause frame */
+ #define MACB_TZQ_SIZE		1
+-#define MACB_PTPUNI_OFFSET			20
+-#define MACB_PTPUNI_SIZE			1
+ 
+ /* Bitfields in NCFGR */
+ #define MACB_SPD_OFFSET		0 /* Speed */
+@@ -394,34 +374,6 @@
+ #define GEM_TX_PKT_BUFF_OFFSET			21
+ #define GEM_TX_PKT_BUFF_SIZE			1
+ 
+-/* Bitfields in DCFG5. */
+-#define GEM_TSU_OFFSET				8
+-#define GEM_TSU_SIZE				1
+-
+-/* Bitfields in 1588INCRSUBNS */
+-#define GEM_SUBNSINCL_SHFT			24
+-#define GEM_SUBNSINCL_MASK			0xFF
+-#define GEM_SUBNSINCH_SHFT			8
+-#define GEM_SUBNSINCH_MASK			0xFFFF00
+-
+-/* Bitfields in 1588INCRNS */
+-#define GEM_NSINCR_OFFSET			0
+-#define GEM_NSINCR_SIZE				8
+-
+-/* Bitfields in 1588ADJ */
+-#define GEM_ADDSUB_OFFSET			31
+-#define GEM_ADDSUB_SIZE				1
+-
+-/* Bitfields in TXBDCNTRL */
+-#define GEM_TXBDCNTRL_MODE_ALL			0x00000030
+-#define GEM_TXBDCNTRL_MODE_PTP_EVNT		0x00000010
+-#define GEM_TXBDCNTRL_MODE_PTP_ALL		0x00000020
+-
+-/* Bitfields in RXBDCNTRL */
+-#define GEM_RXBDCNTRL_MODE_ALL			0x00000030
+-#define GEM_RXBDCNTRL_MODE_PTP_EVNT		0x00000010
+-#define GEM_RXBDCNTRL_MODE_PTP_ALL		0x00000020
+-
+ /* Constants for CLK */
+ #define MACB_CLK_DIV8				0
+ #define MACB_CLK_DIV16				1
+@@ -449,8 +401,6 @@
+ #define MACB_CAPS_SG_DISABLED			0x40000000
+ #define MACB_CAPS_MACB_IS_GEM			0x80000000
+ #define MACB_CAPS_JUMBO				0x00000010
+-#define MACB_CAPS_TSU				0x00000020
+-#define NS_PER_SEC				1000000000ULL
+ 
+ /* Bit manipulation macros */
+ #define MACB_BIT(name)					\
+@@ -603,11 +553,6 @@ struct macb_dma_desc {
+ #define GEM_TX_FRMLEN_OFFSET			0
+ #define GEM_TX_FRMLEN_SIZE			14
+ 
+-#define GEM_SEC_MASK		0xFFFFFFC0
+-#define GEM_TSL_SEC_RS		30
+-#define GEM_TSH_SEC_LS		2
+-#define GEM_TSL_NSEC_MASK	0x3FFFFFFF
+-
+ /* Buffer descriptor constants */
+ #define GEM_RX_CSUM_NONE			0
+ #define GEM_RX_CSUM_IP_ONLY			1
+@@ -617,8 +562,6 @@ struct macb_dma_desc {
+ /* limit RX checksum offload to TCP and UDP packets */
+ #define GEM_RX_CSUM_CHECKED_MASK		2
+ 
+-#define GEM_RX_TS_MASK				0x4
+-
+ /* struct macb_tx_skb - data about an skb which is being transmitted
+  * @skb: skb currently being transmitted, only set for the last buffer
+  *       of the frame
+@@ -893,13 +836,6 @@ struct macb {
+ 	u64			ethtool_stats[GEM_STATS_LEN];
+ 	unsigned int		rx_frm_len_mask;
+ 	unsigned int		jumbo_max_len;
+-	unsigned int		tsu_clk;
+-	struct ptp_clock	*ptp_clock;
+-	struct ptp_clock_info	ptp_caps;
+-	int			rx_hwtstamp_filter;
+-	int			phc_index;
+-	unsigned int		ns_incr;
+-	unsigned int		subns_incr;
+ };
+ 
+ extern const struct ethtool_ops macb_ethtool_ops;
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/net/phy/Kconfig linux-xlnx-xilinx-v2015.3/drivers/net/phy/Kconfig
+--- old/linux-xlnx-xilinx-v2015.3/drivers/net/phy/Kconfig
++++ linux-xlnx-xilinx-v2015.3/drivers/net/phy/Kconfig
+@@ -123,6 +123,11 @@ config DP83867_PHY
+ 	---help---
+ 	  Currently supports the DP83867 PHY.
+ 
++config LANTIQ_PHY
++	tristate "Driver for Lantiq PHYs"
++	---help---
++	  Supports the 11G and 22E PHYs.
++
+ config FIXED_PHY
+ 	tristate "Driver for MDIO Bus/PHY emulation with fixed speed/link PHYs"
+ 	depends on PHYLIB
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/net/phy/Makefile linux-xlnx-xilinx-v2015.3/drivers/net/phy/Makefile
+--- old/linux-xlnx-xilinx-v2015.3/drivers/net/phy/Makefile
++++ linux-xlnx-xilinx-v2015.3/drivers/net/phy/Makefile
+@@ -25,6 +25,7 @@ obj-$(CONFIG_DP83640_PHY)	+= dp83640.o
+ obj-$(CONFIG_DP83867_PHY)	+= dp83867.o
+ obj-$(CONFIG_STE10XP)		+= ste10Xp.o
+ obj-$(CONFIG_MICREL_PHY)	+= micrel.o
++obj-$(CONFIG_LANTIQ_PHY)	+= lantiq.o
+ obj-$(CONFIG_MDIO_OCTEON)	+= mdio-octeon.o
+ obj-$(CONFIG_MICREL_KS8995MA)	+= spi_ks8995.o
+ obj-$(CONFIG_AT803X_PHY)	+= at803x.o
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/net/wireless/Kconfig linux-xlnx-xilinx-v2015.3/drivers/net/wireless/Kconfig
+--- old/linux-xlnx-xilinx-v2015.3/drivers/net/wireless/Kconfig
++++ linux-xlnx-xilinx-v2015.3/drivers/net/wireless/Kconfig
+@@ -277,7 +277,7 @@ source "drivers/net/wireless/libertas/Kc
+ source "drivers/net/wireless/orinoco/Kconfig"
+ source "drivers/net/wireless/p54/Kconfig"
+ source "drivers/net/wireless/rt2x00/Kconfig"
+-source "drivers/net/wireless/rtlwifi/Kconfig"
++source "drivers/net/wireless/rtl8192cu/Kconfig"
+ source "drivers/net/wireless/ti/Kconfig"
+ source "drivers/net/wireless/zd1211rw/Kconfig"
+ source "drivers/net/wireless/mwifiex/Kconfig"
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/net/wireless/Makefile linux-xlnx-xilinx-v2015.3/drivers/net/wireless/Makefile
+--- old/linux-xlnx-xilinx-v2015.3/drivers/net/wireless/Makefile
++++ linux-xlnx-xilinx-v2015.3/drivers/net/wireless/Makefile
+@@ -24,7 +24,7 @@ obj-$(CONFIG_B43LEGACY)		+= b43legacy/
+ obj-$(CONFIG_ZD1211RW)		+= zd1211rw/
+ obj-$(CONFIG_RTL8180)		+= rtl818x/
+ obj-$(CONFIG_RTL8187)		+= rtl818x/
+-obj-$(CONFIG_RTLWIFI)		+= rtlwifi/
++obj-$(CONFIG_RTL8192CU)		+= rtl8192cu/
+ 
+ # 16-bit wireless PCMCIA client drivers
+ obj-$(CONFIG_PCMCIA_RAYCS)	+= ray_cs.o
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/ci_hdrc_usb2.c linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/ci_hdrc_usb2.c
+--- old/linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/ci_hdrc_usb2.c
++++ linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/ci_hdrc_usb2.c
+@@ -12,7 +12,6 @@
+ #include <linux/dma-mapping.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+-#include <linux/of_platform.h>
+ #include <linux/phy/phy.h>
+ #include <linux/platform_device.h>
+ #include <linux/usb/chipidea.h>
+@@ -31,38 +30,16 @@ static struct ci_hdrc_platform_data ci_d
+ 	.flags		= CI_HDRC_DISABLE_STREAMING,
+ };
+ 
+-static struct ci_hdrc_platform_data ci_zynq_pdata = {
+-	.capoffset	= DEF_CAPOFFSET,
+-	.flags          = CI_HDRC_PHY_VBUS_CONTROL,
+-};
+-
+-static const struct of_device_id ci_hdrc_usb2_of_match[] = {
+-	{ .compatible = "chipidea,usb2"},
+-	{ .compatible = "xlnx,zynq-usb-2.20a", .data = &ci_zynq_pdata},
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(of, ci_hdrc_usb2_of_match);
+-
+ static int ci_hdrc_usb2_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct ci_hdrc_usb2_priv *priv;
+ 	struct ci_hdrc_platform_data *ci_pdata = dev_get_platdata(dev);
+ 	int ret;
+-	const struct of_device_id *match;
+ 
+ 	if (!ci_pdata)
+ 		ci_pdata = &ci_default_pdata;
+ 
+-	match = of_match_device(ci_hdrc_usb2_of_match, &pdev->dev);
+-	if (match && match->data) {
+-		ci_pdata = (struct ci_hdrc_platform_data *)match->data;
+-		ci_pdata->usb_phy = devm_usb_get_phy_by_phandle(dev, "usb-phy",
+-					 0);
+-		if (IS_ERR(ci_pdata->usb_phy))
+-			return PTR_ERR(ci_pdata->usb_phy);
+-	}
+-
+ 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
+@@ -117,6 +94,12 @@ static int ci_hdrc_usb2_remove(struct pl
+ 	return 0;
+ }
+ 
++static const struct of_device_id ci_hdrc_usb2_of_match[] = {
++	{ .compatible = "chipidea,usb2" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, ci_hdrc_usb2_of_match);
++
+ static struct platform_driver ci_hdrc_usb2_driver = {
+ 	.probe	= ci_hdrc_usb2_probe,
+ 	.remove	= ci_hdrc_usb2_remove,
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/host.c linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/host.c
+--- old/linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/host.c
++++ linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/host.c
+@@ -64,14 +64,6 @@ static int ehci_ci_portpower(struct usb_
+ 			return ret;
+ 		}
+ 	}
+-
+-	if (ci->platdata->flags & CI_HDRC_PHY_VBUS_CONTROL) {
+-		if (enable)
+-			ci->usb_phy->set_vbus(ci->usb_phy, 1);
+-		else
+-			ci->usb_phy->set_vbus(ci->usb_phy, 0);
+-	}
+-
+ 	return 0;
+ };
+ 
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/otg_fsm.c linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/otg_fsm.c
+--- old/linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/otg_fsm.c
++++ linux-xlnx-xilinx-v2015.3/drivers/usb/chipidea/otg_fsm.c
+@@ -474,10 +474,6 @@ static void ci_otg_drv_vbus(struct otg_f
+ 				return;
+ 			}
+ 		}
+-
+-		if (ci->platdata->flags & CI_HDRC_PHY_VBUS_CONTROL)
+-			ci->usb_phy->set_vbus(ci->usb_phy, 1);
+-
+ 		/* Disable data pulse irq */
+ 		hw_write_otgsc(ci, OTGSC_DPIE, 0);
+ 
+@@ -487,9 +483,6 @@ static void ci_otg_drv_vbus(struct otg_f
+ 		if (ci->platdata->reg_vbus)
+ 			regulator_disable(ci->platdata->reg_vbus);
+ 
+-		if (ci->platdata->flags & CI_HDRC_PHY_VBUS_CONTROL)
+-			ci->usb_phy->set_vbus(ci->usb_phy, 0);
+-
+ 		fsm->a_bus_drop = 1;
+ 		fsm->a_bus_req = 0;
+ 	}
+diff -rupN old/linux-xlnx-xilinx-v2015.3/include/linux/usb/chipidea.h linux-xlnx-xilinx-v2015.3/include/linux/usb/chipidea.h
+--- old/linux-xlnx-xilinx-v2015.3/include/linux/usb/chipidea.h
++++ linux-xlnx-xilinx-v2015.3/include/linux/usb/chipidea.h
+@@ -27,7 +27,6 @@ struct ci_hdrc_platform_data {
+ #define CI_HDRC_DUAL_ROLE_NOT_OTG	BIT(4)
+ #define CI_HDRC_IMX28_WRITE_FIX		BIT(5)
+ #define CI_HDRC_FORCE_FULLSPEED		BIT(6)
+-#define CI_HDRC_PHY_VBUS_CONTROL	BIT(8)
+ 	enum usb_dr_mode	dr_mode;
+ #define CI_HDRC_CONTROLLER_RESET_EVENT		0
+ #define CI_HDRC_CONTROLLER_STOPPED_EVENT	1
