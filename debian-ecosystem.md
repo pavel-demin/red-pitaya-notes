@@ -15,8 +15,8 @@ The Red Pitaya web server and the Red Pitaya SDK are by default built for the AR
 
 I've put together a bootable SD card image for the Red Pitaya board containing the following:
 
- - Linux 3.19.0-xilinx
- - Debian 8.0 (armel)
+ - Linux 4.0.0-xilinx
+ - Debian 8.2 (armel)
  - Development tools (GCC 4.9.2, make)
  - Wi-Fi drivers for MediaTek/Ralink and Realtek chipsets
  - Wi-Fi access point
@@ -47,7 +47,7 @@ vncserver -geometry 1200x700
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/red-pitaya-ecosystem-0.92-debian-8.0-armel-20151001.zip).
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/red-pitaya-ecosystem-0.92-debian-8.2-armel-20151010.zip).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
@@ -75,8 +75,8 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2015.2/settings64.sh
-source /opt/Xilinx/SDK/2015.2/settings64.sh
+source /opt/Xilinx/Vivado/2015.3/settings64.sh
+source /opt/Xilinx/SDK/2015.3/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
@@ -92,5 +92,5 @@ make NAME=red_pitaya_0_92 all
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian-ecosystem.sh red-pitaya-ecosystem-0.92-debian-8.0-armel.img 1024
+sudo sh scripts/image.sh scripts/debian-ecosystem.sh red-pitaya-ecosystem-0.92-debian-8.2-armel.img 1024
 {% endhighlight %}

@@ -10,9 +10,9 @@ Introduction
 For my experiments with the [Red Pitaya](http://wiki.redpitaya.com), I'd like to have the following development environment:
 
  - recent version of the [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado)
- - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2015.2)
- - recent version of the [Ubuntu distribution](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) on the development machine
- - recent version of the [Ubuntu distribution](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) on the Red Pitaya
+ - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2015.3)
+ - recent version of the [Debian distribution](http://www.debian.org/releases/jessie) on the development machine
+ - recent version of the [Debian distribution](http://www.debian.org/releases/jessie) on the Red Pitaya
  - basic project with all the [Red Pitaya](http://wiki.redpitaya.com) peripherals connected
  - mostly command-line tools
  - shallow directory structure
@@ -24,20 +24,26 @@ Pre-requirements
 
 My development machine has the following installed:
 
- - [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.2 (amd64)
+ - [Debian](http://www.debian.org/releases/jessie) 8.2 (amd64)
 
- - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.2 with full SDK
+ - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.3 with full SDK
 
 The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
 
 Here are the commands to install all the other required packages:
 {% highlight bash %}
+sudo echo "deb http://emdebian.org/tools/debian jessie main" > /etc/apt/sources.list.d/emdebian.list
+sudo wget -O - http://emdebian.org/tools/debian/emdebian-toolchain-archive.key | apt-key add -
+sudo dpkg --add-architecture armhf
+sudo apt-get update
+
 sudo apt-get --no-install-recommends install \
   build-essential git curl ca-certificates sudo \
   libxrender1 libxtst6 libxi6 lib32ncurses5 \
-  gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
-  bc u-boot-tools libncurses5-dev  qemu-user-static \
-  binfmt-support dosfstools parted debootstrap
+  crossbuild-essential-armhf \
+  bc u-boot-tools device-tree-compiler libncurses5-dev \
+  libssl-dev qemu-user-static binfmt-support \
+  dosfstools parted debootstrap
 
 sudo ln -s make /usr/bin/gmake
 {% endhighlight %}
@@ -117,8 +123,8 @@ Getting started
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2015.2/settings64.sh
-source /opt/Xilinx/SDK/2015.2/settings64.sh
+source /opt/Xilinx/Vivado/2015.3/settings64.sh
+source /opt/Xilinx/SDK/2015.3/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
@@ -142,7 +148,7 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/ubuntu.sh red-pitaya-ubuntu-14.04.2.img
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.2-armhf.img
 {% endhighlight %}
 
 The SD card image size is 512 MB, so it should fit on any SD card starting from 1 GB.
@@ -151,7 +157,7 @@ To write the image to a SD card, the `dd` command-line utility can be used on GN
 
 The default password for the `root` account is `changeme`.
 
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ubuntu-14.04.2-20150505.zip).
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-debian-8.2-armhf-20151010.zip).
 
 Resizing SD card partitions on running Red Pitaya:
 {% highlight bash %}
