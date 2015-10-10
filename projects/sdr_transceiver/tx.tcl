@@ -15,7 +15,7 @@ cell xilinx.com:ip:xlconstant:1.1 const_0 {
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
+cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 32
@@ -64,7 +64,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 }
 
 # Create floating_point
-cell xilinx.com:ip:floating_point:7.0 fp_0 {
+cell xilinx.com:ip:floating_point:7.1 fp_0 {
   OPERATION_TYPE Float_to_fixed
   RESULT_PRECISION_TYPE Custom
   C_RESULT_EXPONENT_WIDTH 2
@@ -75,7 +75,7 @@ cell xilinx.com:ip:floating_point:7.0 fp_0 {
 }
 
 # Create floating_point
-cell xilinx.com:ip:floating_point:7.0 fp_1 {
+cell xilinx.com:ip:floating_point:7.1 fp_1 {
   OPERATION_TYPE Float_to_fixed
   RESULT_PRECISION_TYPE Custom
   C_RESULT_EXPONENT_WIDTH 2

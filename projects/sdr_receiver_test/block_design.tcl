@@ -182,7 +182,7 @@ cell xilinx.com:ip:cordic:6.0 cordic_test {
 }
 
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.1 pll_test {
+cell xilinx.com:ip:clk_wiz:5.2 pll_test {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -398,7 +398,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
+cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   USE_BYTE_WRITE_ENABLE true

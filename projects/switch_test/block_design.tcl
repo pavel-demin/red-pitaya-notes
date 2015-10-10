@@ -85,7 +85,7 @@ cell pavel-demin:user:axis_counter:1.0 cntr_1 {} {
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
+cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 32
@@ -128,7 +128,7 @@ cell pavel-demin:user:axis_counter:1.0 cntr_2 {} {
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.2 bram_1 {
+cell xilinx.com:ip:blk_mem_gen:8.3 bram_1 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 32
