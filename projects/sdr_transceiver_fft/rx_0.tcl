@@ -141,7 +141,7 @@ module rx_0 {
   }
 
   # Create floating_point
-  cell xilinx.com:ip:floating_point:7.0 fp_0 {
+  cell xilinx.com:ip:floating_point:7.1 fp_0 {
     OPERATION_TYPE Fixed_to_float
     A_PRECISION_TYPE.VALUE_SRC USER
     C_A_EXPONENT_WIDTH.VALUE_SRC USER
@@ -156,7 +156,7 @@ module rx_0 {
   }
 
   # Create floating_point
-  cell xilinx.com:ip:floating_point:7.0 fp_1 {
+  cell xilinx.com:ip:floating_point:7.1 fp_1 {
     OPERATION_TYPE Fixed_to_float
     A_PRECISION_TYPE.VALUE_SRC USER
     C_A_EXPONENT_WIDTH.VALUE_SRC USER
@@ -182,7 +182,7 @@ module rx_0 {
   }
 
   # Create blk_mem_gen
-  cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
+  cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
     MEMORY_TYPE True_Dual_Port_RAM
     USE_BRAM_BLOCK Stand_Alone
     USE_BYTE_WRITE_ENABLE true

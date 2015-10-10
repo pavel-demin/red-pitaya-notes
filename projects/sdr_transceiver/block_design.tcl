@@ -75,7 +75,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 }
 
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.1 pll_0 {
+cell xilinx.com:ip:clk_wiz:5.2 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0

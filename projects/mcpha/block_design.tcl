@@ -433,7 +433,7 @@ cell pavel-demin:user:axis_validator:1.0 vldtr_1 {
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.2 bram_0 {
+cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   USE_BYTE_WRITE_ENABLE true
@@ -479,7 +479,7 @@ set_property RANGE 64K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
 set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.2 bram_1 {
+cell xilinx.com:ip:blk_mem_gen:8.3 bram_1 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   USE_BYTE_WRITE_ENABLE true
