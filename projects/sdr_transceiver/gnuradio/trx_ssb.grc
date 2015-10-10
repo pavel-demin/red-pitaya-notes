@@ -710,7 +710,7 @@
     </param>
     <param>
       <key>taps</key>
-      <value>firdes.complex_band_pass(1.0, rx_samp_rate, band[0], band[1],100, firdes.WIN_HAMMING )</value>
+      <value>firdes.complex_band_pass(1, rx_samp_rate, band[0], band[1], 100, firdes.WIN_HAMMING )</value>
     </param>
     <param>
       <key>samp_delay</key>
@@ -984,7 +984,7 @@
     </param>
     <param>
       <key>taps</key>
-      <value>firdes.complex_band_pass(1.0, rx_samp_rate, band[0], band[1],100, firdes.WIN_HAMMING )</value>
+      <value>firdes.complex_band_pass(1, tx_samp_rate, band[0], band[1], 100, firdes.WIN_HAMMING )</value>
     </param>
     <param>
       <key>samp_delay</key>
