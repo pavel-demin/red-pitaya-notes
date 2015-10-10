@@ -52,7 +52,7 @@ int main()
   }
 
   start = *((uint32_t *)(sts + 0)) >> 1;
-  start = (start - 1024) & 0x007FFFFF;
+  start = (start - 1024) & 0x007FFFC0;
 
   /* print IN1 and IN2 samples */
   for(i = 0; i < 1024 * 1024; ++i)

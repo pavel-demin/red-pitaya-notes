@@ -56,7 +56,7 @@ int main()
   }
 
   start = *((uint32_t *)(sts + 0)) >> 1;
-  start = (start - 1024) & 0x007FFFFF;
+  start = (start - 1024) & 0x007FFFC0;
 
   /* print (I^2 + Q^2) values */
   for(i = 0; i < 8 * 1024 * 1024; ++i)
