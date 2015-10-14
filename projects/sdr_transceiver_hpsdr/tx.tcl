@@ -90,7 +90,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
-  USE_XTREME_DSP_SLICE true
+  USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
   S_AXIS_DATA bcast_1/M00_AXIS
@@ -108,7 +108,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
-  USE_XTREME_DSP_SLICE true
+  USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
   S_AXIS_DATA bcast_1/M01_AXIS
@@ -126,7 +126,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_2 {
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
-  USE_XTREME_DSP_SLICE true
+  USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
   S_AXIS_DATA cic_0/M_AXIS_DATA
@@ -144,7 +144,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_3 {
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
-  USE_XTREME_DSP_SLICE true
+  USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
   S_AXIS_DATA cic_1/M_AXIS_DATA
@@ -162,7 +162,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_4 {
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
-  USE_XTREME_DSP_SLICE true
+  USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
   S_AXIS_DATA cic_2/M_AXIS_DATA
@@ -180,7 +180,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_5 {
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
-  USE_XTREME_DSP_SLICE true
+  USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
   S_AXIS_DATA cic_3/M_AXIS_DATA
