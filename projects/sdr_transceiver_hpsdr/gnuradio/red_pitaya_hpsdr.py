@@ -57,8 +57,8 @@ class source(gr.sync_block):
 
   def work(self, input_items, output_items):
     data = self.data_sock.recv(len(output_items[0]) * 8, socket.MSG_WAITALL)
-    temp = numpy.fromstring(data, numpy.int32)/math.pow(2, 23)
-    output_items[0][:] = numpy.vectorize(complex)(temp[0::2], temp[1::2])
+    temp = numpy.fromstring(data, numpy.int32) / math.pow(2, 20)
+    output_items[0][:] = numpy.fromstring(temp.astype(numpy.float32).tostring(), numpy.complex64)
     return len(output_items[0])
 
 class sink(gr.sync_block):
@@ -93,6 +93,6 @@ class sink(gr.sync_block):
 
   def work(self, input_items, output_items):
     if self.ptt:
-      temp = numpy.fromstring(input_items[0].tostring(), numpy.float32)*math.pow(2, 23)
+      temp = numpy.fromstring(input_items[0].tostring(), numpy.float32) * math.pow(2, 31)
       self.data_sock.send(temp.astype(numpy.int32).tostring())
-    return len(input_items[0]) 
+    return len(input_items[0])
