@@ -44,7 +44,7 @@ make NAME=sdr_transceiver_hpsdr tmp/sdr_transceiver_hpsdr.bit
 python scripts/fpga-bit-to-bin.py --flip tmp/sdr_transceiver_hpsdr.bit sdr_transceiver_hpsdr.bin
 {% endhighlight %}
 
-Building `sdr-transceiver`:
+Building `sdr-transceiver-hpsdr`:
 {% highlight bash %}
 arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -o sdr-transceiver-hpsdr -lm -lpthread -static
 {% endhighlight %}
