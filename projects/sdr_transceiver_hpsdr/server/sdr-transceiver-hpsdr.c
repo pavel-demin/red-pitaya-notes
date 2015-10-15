@@ -14,7 +14,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-uint32_t *rx_freq, *rx_rate, *tx_freq, *tx_rate;
+uint32_t *rx_freq, *rx_rate, *tx_freq;
 uint16_t *gpio, *rx_cntr, *tx_cntr;
 void *rx_data, *tx_data;
 
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   number = (argc == 2) ? strtol(argv[1], &end, 10) : -1;
   if(errno != 0 || end == argv[1] || number < 1 || number > 2)
   {
-    printf("Usage: sdr-transceiver 1|2\n");
+    printf("Usage: sdr-transceiver-hpsdr 1|2\n");
     return EXIT_FAILURE;
   }
 
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
       cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
       sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
       rx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
-      tx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000A000);
+      tx_data = NULL;
       break;
   }
 
@@ -85,7 +85,6 @@ int main(int argc, char *argv[])
   rx_cntr = ((uint16_t *)(sts + 0));
 
   tx_freq = ((uint32_t *)(cfg + 12));
-  tx_rate = ((uint32_t *)(cfg + 16));
   tx_cntr = ((uint16_t *)(sts + 2));
 
   /* set PTT pin to low */
@@ -94,12 +93,10 @@ int main(int argc, char *argv[])
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
   /* set default rx sample rate */
-  *rx_rate = 625;
+  *rx_rate = 500;
 
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-  /* set default tx sample rate */
-  *tx_rate = 625;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -132,7 +129,7 @@ int main(int argc, char *argv[])
     }
 
     result = recv(sock_client, (char *)&command, 4, MSG_WAITALL);
-    if(result <= 0 || command > 3 || sock_thread[command] > -1)
+    if(result <= 0 || (number == 1 && command > 3) || (number == 2 && command > 1) || sock_thread[command] > -1)
     {
       close(sock_client);
       continue;
@@ -157,13 +154,13 @@ void *rx_ctrl_handler(void *arg)
 {
   int sock_client = sock_thread[0];
   uint32_t command, freq;
-  uint32_t freq_min = 50000;
+  uint32_t freq_min = 48000;
   uint32_t freq_max = 60000000;
 
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
   /* set default rx sample rate */
-  *rx_rate = 625;
+  *rx_rate = 500;
 
   while(1)
   {
@@ -181,23 +178,19 @@ void *rx_ctrl_handler(void *arg)
         switch(command & 7)
         {
           case 0:
-            freq_min = 10000;
-            *rx_rate = 3125;
+            freq_min = 24000;
+            *rx_rate = 1000;
             break;
           case 1:
-            freq_min = 25000;
-            *rx_rate = 1250;
+            freq_min = 48000;
+            *rx_rate = 500;
             break;
           case 2:
-            freq_min = 50000;
-            *rx_rate = 625;
-            break;
-          case 3:
-            freq_min = 125000;
+            freq_min = 96000;
             *rx_rate = 250;
             break;
-          case 4:
-            freq_min = 250000;
+          case 3:
+            freq_min = 192000;
             *rx_rate = 125;
             break;
         }
@@ -253,15 +246,13 @@ void *tx_ctrl_handler(void *arg)
 {
   int sock_client = sock_thread[2];
   uint32_t command, freq;
-  uint32_t freq_min = 50000;
+  uint32_t freq_min = 24000;
   uint32_t freq_max = 60000000;
 
   /* set PTT pin to low */
   *gpio = 0;
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-  /* set default tx sample rate */
-  *tx_rate = 625;
 
   while(1)
   {
@@ -275,36 +266,10 @@ void *tx_ctrl_handler(void *arg)
         *tx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
         break;
       case 1:
-        /* set tx sample rate */
-        switch(command & 7)
-        {
-          case 0:
-            freq_min = 10000;
-            *tx_rate = 3125;
-            break;
-          case 1:
-            freq_min = 25000;
-            *tx_rate = 1250;
-            break;
-          case 2:
-            freq_min = 50000;
-            *tx_rate = 625;
-            break;
-          case 3:
-            freq_min = 125000;
-            *tx_rate = 250;
-            break;
-          case 4:
-            freq_min = 250000;
-            *tx_rate = 125;
-            break;
-        }
-        break;
-      case 2:
         /* set PTT pin to high */
         *gpio = 1;
         break;
-      case 3:
+      case 2:
         /* set PTT pin to low */
         *gpio = 0;
         break;
@@ -315,8 +280,6 @@ void *tx_ctrl_handler(void *arg)
   *gpio = 0;
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-  /* set default tx sample rate */
-  *tx_rate = 625;
 
   close(sock_client);
   sock_thread[2] = -1;
@@ -341,7 +304,7 @@ void *tx_data_handler(void *arg)
 
   while(1)
   {
-    delay = *tx_rate * 2;
+    delay = 1000;
 
     timeout.tv_sec = 0;
     timeout.tv_nsec = delay * 1000;
