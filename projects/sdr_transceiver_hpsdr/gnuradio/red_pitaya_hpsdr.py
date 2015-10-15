@@ -57,7 +57,7 @@ class source(gr.sync_block):
 
   def work(self, input_items, output_items):
     data = self.data_sock.recv(len(output_items[0]) * 8, socket.MSG_WAITALL)
-    temp = numpy.fromstring(data, numpy.int32) / math.pow(2, 20)
+    temp = numpy.fromstring(data, numpy.int32) / math.pow(2, 19)
     output_items[0][:] = numpy.fromstring(temp.astype(numpy.float32).tostring(), numpy.complex64)
     return len(output_items[0])
 
