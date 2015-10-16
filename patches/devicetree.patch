@@ -1,18 +1,20 @@
 --- system.dts.old
 +++ system.dts
-@@ -16,6 +16,11 @@
+@@ -16,6 +16,13 @@
  	chosen {
  		bootargs = "console=ttyPS0,115200 root=/dev/mmcblk0p2 ro rootfstype=ext4 earlyprintk rootwait";
  	};
 +	usb_phy0: phy0 {
 +		#phy-cells = <0>;
-+		compatible = "usb-nop-xceiv";
-+		reset-gpios = <&gpio0 48 1>;
++		compatible = "ulpi-phy";
++		reg = <0xe0002000 0x1000>;
++		view-port = <0x0170>;
++		drv-vbus;
 +	};
  	aliases {
  		ethernet0 = &gem0;
  		serial0 = &uart0;
-@@ -26,7 +31,7 @@
+@@ -26,7 +33,7 @@
  	};
  	memory {
  		device_type = "memory";
@@ -21,7 +23,7 @@
  	};
  };
  &gem0 {
-@@ -34,9 +39,13 @@
+@@ -34,9 +41,13 @@
  	phy-mode = "rgmii-id";
  	status = "okay";
  	xlnx,ptp-enet-clock = <0x69f6bcb>;
@@ -38,7 +40,7 @@
  	};
  };
  &gpio0 {
-@@ -48,6 +57,16 @@
+@@ -48,6 +59,16 @@
  	clock-frequency = <400000>;
  	status = "okay";
  };
@@ -55,7 +57,7 @@
  &intc {
  	num_cpus = <2>;
  	num_interrupts = <96>;
-@@ -70,6 +89,11 @@
+@@ -70,6 +91,11 @@
  	is-decoded-cs = <0>;
  	num-cs = <1>;
  	status = "okay";
@@ -67,7 +69,7 @@
  };
  &uart0 {
  	current-speed = <115200>;
-@@ -85,9 +109,9 @@
+@@ -85,9 +111,9 @@
  };
  &usb0 {
  	dr_mode = "host";
