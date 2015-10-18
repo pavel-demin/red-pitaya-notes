@@ -89,7 +89,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
@@ -107,38 +107,12 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
   S_AXIS_DATA bcast_1/M01_AXIS
   aclk /ps_0/FCLK_CLK0
-}
-
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 3
-  TDATA_REMAP {tdata[23:0]}
-} {
-  S_AXIS cic_0/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 3
-  TDATA_REMAP {tdata[23:0]}
-} {
-  S_AXIS cic_1/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create cic_compiler
@@ -151,11 +125,11 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_2 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
-  S_AXIS_DATA subset_0/M_AXIS
+  S_AXIS_DATA cic_0/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -169,37 +143,12 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_3 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
-  S_AXIS_DATA subset_1/M_AXIS
+  S_AXIS_DATA cic_1/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
-}
-
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 3
-  TDATA_REMAP {tdata[23:0]}
-} {
-  S_AXIS cic_2/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_3 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 3
-  TDATA_REMAP {tdata[23:0]}
-} {
-  S_AXIS cic_3/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create cic_compiler
@@ -212,11 +161,11 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_4 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
-  S_AXIS_DATA subset_2/M_AXIS
+  S_AXIS_DATA cic_2/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -230,11 +179,11 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_5 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
-  S_AXIS_DATA subset_3/M_AXIS
+  S_AXIS_DATA cic_3/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -287,7 +236,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   APORTWIDTH 24
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 16
+  OUTPUTWIDTH 19
 } {
   S_AXIS_A comb_1/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA

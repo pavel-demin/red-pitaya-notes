@@ -173,30 +173,16 @@ connect_bd_intf_net [get_bd_intf_pins tx_0/fifo_0/M_AXIS] [get_bd_intf_pins dac_
 
 # RX 1
 
-# Delete input/output port
-delete_bd_objs [get_bd_ports exp_n_tri_io]
-
-# Create output port
-create_bd_port -dir O -from 7 -to 0 exp_n_tri_io
-
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_1 {
-  CFG_DATA_WIDTH 96
+  CFG_DATA_WIDTH 64
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 out_slice_1 {
-  DIN_WIDTH 96 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
-} {
-  Din cfg_1/cfg_data
-  Dout exp_n_tri_io
-}
-
-# Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
-  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 32 DOUT_WIDTH 64
+  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 0 DOUT_WIDTH 64
 } {
   Din cfg_1/cfg_data
 }
