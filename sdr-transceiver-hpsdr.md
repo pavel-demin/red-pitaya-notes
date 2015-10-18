@@ -1,6 +1,6 @@
 ---
 layout: page
-title: SDR transceiver compatible with HPSDR 
+title: SDR transceiver compatible with HPSDR
 permalink: /sdr-transceiver-hpsdr/
 ---
 
@@ -15,9 +15,7 @@ The [projects/sdr_transceiver_hpsdr/server](https://github.com/pavel-demin/red-p
 Software
 -----
 
-The [projects/sdr_transceiver_hpsdr/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver_hpsdr/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](http://gnuradio.org/redmine/projects/gnuradio/wiki/GNURadioCompanion).
-
-An interface with [HPSDR](http://openhpsdr.org) is currently [being developed](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver_hpsdr/hpsdr).
+An interface with [HPSDR](http://openhpsdr.org) is currently being developed.
 
 Building from source
 -----
