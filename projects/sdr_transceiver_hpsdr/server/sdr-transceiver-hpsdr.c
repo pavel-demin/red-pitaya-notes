@@ -38,13 +38,12 @@ int main(int argc, char *argv[])
   int fd;
   pthread_t thread;
   void *cfg[2], *sts[2];
-  char *end, *name = "/dev/mem";
+  char *name = "/dev/mem";
   char buffer[1032];
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 18, 0};
   struct sockaddr_in addr_ep2;
-  socklen_t size_ep2;
   ssize_t result;
-  int i, yes = 1;
+  int yes = 1;
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -98,7 +97,6 @@ int main(int argc, char *argv[])
   addr_ep2.sin_family = AF_INET;
   addr_ep2.sin_addr.s_addr = htonl(INADDR_ANY);
   addr_ep2.sin_port = htons(1024);
-  size_ep2 = sizeof(addr_ep2);
 
   if(bind(sock_ep2, (struct sockaddr *)&addr_ep2, sizeof(addr_ep2)) < 0)
   {
@@ -147,8 +145,8 @@ int main(int argc, char *argv[])
           pthread_detach(thread);
         }
         break;
-		}
-	}
+    }
+  }
 
   close(sock_ep2);
 
