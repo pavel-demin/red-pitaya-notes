@@ -58,7 +58,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   FLOWCONTROL Blocking
   APORTWIDTH.VALUE_SRC USER
   BPORTWIDTH.VALUE_SRC USER
-  APORTWIDTH 16
+  APORTWIDTH 14
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
   OUTPUTWIDTH 25
@@ -114,7 +114,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
 } {
   S_AXIS_DATA bcast_0/M00_AXIS
@@ -135,38 +135,12 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
 } {
   S_AXIS_DATA bcast_0/M01_AXIS
   S_AXIS_CONFIG rate_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
-}
-
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 3
-  TDATA_REMAP {tdata[23:0]}
-} {
-  S_AXIS cic_0/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 3
-  TDATA_REMAP {tdata[23:0]}
-} {
-  S_AXIS cic_1/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create cic_compiler
@@ -179,10 +153,10 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_2 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
 } {
-  S_AXIS_DATA subset_0/M_AXIS
+  S_AXIS_DATA cic_0/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -196,37 +170,11 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_3 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
 } {
-  S_AXIS_DATA subset_1/M_AXIS
+  S_AXIS_DATA cic_1/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
-}
-
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 3
-  TDATA_REMAP {tdata[23:0]}
-} {
-  S_AXIS cic_2/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_3 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 3
-  TDATA_REMAP {tdata[23:0]}
-} {
-  S_AXIS cic_3/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create cic_compiler
@@ -239,10 +187,10 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_4 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
 } {
-  S_AXIS_DATA subset_2/M_AXIS
+  S_AXIS_DATA cic_2/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -256,10 +204,10 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_5 {
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 24
   QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 25
+  OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
 } {
-  S_AXIS_DATA subset_3/M_AXIS
+  S_AXIS_DATA cic_3/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -294,6 +242,19 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   aclk /ps_0/FCLK_CLK0
 }
 
+# Create axis_subset_converter
+cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  M_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 8
+  M_TDATA_NUM_BYTES 8
+  TDATA_REMAP {16'b0000000000000000,tdata[7:0],tdata[15:8],tdata[23:16],tdata[39:32],tdata[47:40],tdata[55:48]}
+} {
+  S_AXIS fir_0/M_AXIS_DATA
+  aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
+}
+
 # Create blk_mem_gen
 cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
@@ -314,7 +275,7 @@ cell pavel-demin:user:axis_bram_writer:1.0 writer_0 {
   BRAM_DATA_WIDTH 64
   BRAM_ADDR_WIDTH 10
 } {
-  S_AXIS fir_0/M_AXIS_DATA
+  S_AXIS subset_0/M_AXIS
   BRAM_PORTA bram_0/BRAM_PORTA
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
