@@ -125,6 +125,6 @@ module axis_bram_reader #
 
   assign bram_porta_clk = aclk;
   assign bram_porta_rst = ~aresetn;
-  assign bram_porta_addr = m_axis_tready & int_enbl_reg ? sum_cntr_wire : int_addr_reg;
+  assign bram_porta_addr = m_axis_tready & int_enbl_reg ? int_addr_next : int_addr_reg;
 
 endmodule
