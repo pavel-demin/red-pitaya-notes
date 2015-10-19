@@ -36,13 +36,16 @@ void *handler_ep6(void *arg);
 int main(int argc, char *argv[])
 {
   int fd;
+  ssize_t size;
+  int result, tx_position, tx_limit, tx_offset;
+  struct pollfd pfd;
+  struct timespec timeout;
   pthread_t thread;
   void *cfg, *sts;
   char *name = "/dev/mem";
   char buffer[1032];
-  uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 18, 0};
+  uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
   struct sockaddr_in addr_ep2;
-  ssize_t result;
   int yes = 1;
 
   if((fd = open(name, O_RDWR)) < 0)
@@ -54,8 +57,8 @@ int main(int argc, char *argv[])
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_data[0] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-  tx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
-  rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
+  rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
+  tx_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
 
   gpio = ((uint16_t *)(cfg + 0));
 
@@ -63,12 +66,12 @@ int main(int argc, char *argv[])
   rx_rate[0] = ((uint32_t *)(cfg + 8));
   rx_cntr[0] = ((uint16_t *)(sts + 0));
 
-  tx_freq = ((uint32_t *)(cfg + 12));
-  tx_cntr = ((uint16_t *)(sts + 2));
+  rx_freq[1] = ((uint32_t *)(cfg + 12));
+  rx_rate[1] = ((uint32_t *)(cfg + 16));
+  rx_cntr[1] = ((uint16_t *)(sts + 2));
 
-  rx_freq[1] = ((uint32_t *)(cfg + 16));
-  rx_rate[1] = ((uint32_t *)(cfg + 20));
-  rx_cntr[1] = ((uint16_t *)(sts + 4));
+  tx_freq = ((uint32_t *)(cfg + 20));
+  tx_cntr = ((uint16_t *)(sts + 4));
 
   /* set PTT pin to low */
   *gpio = 0;
@@ -102,47 +105,85 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  pfd.fd = sock_ep2;
+  pfd.events = POLLIN;
+  pfd.revents = 0;
+
+  tx_limit = 126;
+  memset(tx_data, 0, 2016);
+
   while(1)
   {
-    result = recvfrom(sock_ep2, buffer, 1032, 0, (struct sockaddr *)&addr_ep6, &size_ep6);
-    if(result <= 0) break;
+    timeout.tv_sec = 0;
+    timeout.tv_nsec = 500 * 1000;
 
-    printf("read %08x\n", *(uint32_t *)buffer);
-
-    switch(*(uint32_t *)buffer)
+    result = ppoll(&pfd, 1, &timeout, NULL);
+    if(result < 0)
     {
-      case 0x0201feef:
-        process_ep2(buffer + 11);
-        process_ep2(buffer + 523);
-        break;
-      case 0x0002feef:
-        reply[2] = 2 + active_thread;
-        memset(buffer, 0, 60);
-        memcpy(buffer, reply, 11);
-        sendto(sock_ep2, buffer, 60, 0, (struct sockaddr *)&addr_ep6, size_ep6);
-        break;
-      case 0x0004feef:
-        enable_thread = 0;
-        while(active_thread)
-        {
-          usleep(1000);
-        }
-        break;
-      case 0x0104feef:
-      case 0x0204feef:
-      case 0x0304feef:
-        if(!active_thread)
-        {
-          enable_thread = 1;
-          active_thread = 1;
-          if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
+      perror("ppoll");
+      return EXIT_FAILURE;
+    }
+
+    /* read ram reader position */
+    tx_position = *tx_cntr;
+
+    /* receive 1008 bytes if ready */
+    if((tx_limit > 0 && tx_position > tx_limit) || (tx_limit == 0 && tx_position < 126))
+    {
+      tx_offset = tx_limit > 0 ? 0 : 1008;
+      tx_limit = tx_limit > 0 ? 0 : 126;
+
+      memset(tx_data + tx_offset, 0, 1008);
+
+      if(result == 0) continue;
+
+      size = recvfrom(sock_ep2, buffer, 1032, 0, (struct sockaddr *)&addr_ep6, &size_ep6);
+      if(size < 0)
+      {
+        perror("recvfrom");
+        return EXIT_FAILURE;
+      }
+
+      switch(*(uint32_t *)buffer)
+      {
+        case 0x0201feef:
+          if(*gpio)
           {
-            perror("pthread_create");
-            return EXIT_FAILURE;
+            memcpy(tx_data + tx_offset, buffer + 16, 504);
+            memcpy(tx_data + tx_offset + 504, buffer + 528, 504);
           }
-          pthread_detach(thread);
-        }
-        break;
+          process_ep2(buffer + 11);
+          process_ep2(buffer + 523);
+          break;
+        case 0x0002feef:
+          reply[2] = 2 + active_thread;
+          memset(buffer, 0, 60);
+          memcpy(buffer, reply, 11);
+          sendto(sock_ep2, buffer, 60, 0, (struct sockaddr *)&addr_ep6, size_ep6);
+          break;
+        case 0x0004feef:
+          enable_thread = 0;
+          while(active_thread)
+          {
+            usleep(1000);
+          }
+          break;
+        case 0x0104feef:
+        case 0x0204feef:
+        case 0x0304feef:
+          if(!active_thread)
+          {
+            enable_thread = 1;
+            active_thread = 1;
+            if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
+            {
+              perror("pthread_create");
+              return EXIT_FAILURE;
+            }
+            pthread_detach(thread);
+          }
+          break;
+      }
     }
   }
 
@@ -154,18 +195,15 @@ int main(int argc, char *argv[])
 void process_ep2(char *frame)
 {
   uint32_t freq;
-  printf("frame %02x %02x %02x %02x %02x\n", (uint8_t)frame[0], (uint8_t)frame[1], (uint8_t)frame[2], (uint8_t)frame[3], (uint8_t)frame[4]);
+
   switch(frame[0])
   {
     case 0:
     case 1:
-      printf("receivers %d\n", ((frame[4] >> 3) & 7) + 1);
       receivers = ((frame[4] >> 3) & 7) + 1;
       /* set PTT pin */
-      printf("ptt %d\n", frame[0] & 1);
       *gpio = frame[0] & 1;
       /* set rx sample rate */
-      printf("rate %d\n", frame[1] & 3);
       switch(frame[1] & 3)
       {
         case 0:
@@ -190,7 +228,6 @@ void process_ep2(char *frame)
     case 3:
       /* set tx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      printf("freq tx %d\n", freq);
       if(freq < freq_min || freq > freq_max) break;
       *tx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
       break;
@@ -198,7 +235,6 @@ void process_ep2(char *frame)
     case 5:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      printf("freq rx0 %d\n", freq);
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[0] = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
       break;
@@ -206,7 +242,6 @@ void process_ep2(char *frame)
     case 7:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      printf("freq rx1 %d\n", freq);
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[1] = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
       break;
