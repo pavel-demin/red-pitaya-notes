@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 {
   int fd;
   pthread_t thread;
-  void *cfg[2], *sts[2];
+  void *cfg, *sts;
   char *name = "/dev/mem";
   char buffer[1032];
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 18, 0};
@@ -51,26 +51,24 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  cfg[0] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  sts[0] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_data[0] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   tx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
-  cfg[1] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
-  sts[1] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
-  rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
 
   gpio = ((uint16_t *)(cfg + 0));
 
-  rx_freq[0] = ((uint32_t *)(cfg[0] + 4));
-  rx_rate[0] = ((uint32_t *)(cfg[0] + 8));
-  rx_cntr[0] = ((uint16_t *)(sts[0] + 0));
+  rx_freq[0] = ((uint32_t *)(cfg + 4));
+  rx_rate[0] = ((uint32_t *)(cfg + 8));
+  rx_cntr[0] = ((uint16_t *)(sts + 0));
 
-  tx_freq = ((uint32_t *)(cfg[0] + 12));
-  tx_cntr = ((uint16_t *)(sts[0] + 2));
+  tx_freq = ((uint32_t *)(cfg + 12));
+  tx_cntr = ((uint16_t *)(sts + 2));
 
-  rx_freq[1] = ((uint32_t *)(cfg[1] + 0));
-  rx_rate[1] = ((uint32_t *)(cfg[1] + 4));
-  rx_cntr[1] = ((uint16_t *)(sts[1] + 0));
+  rx_freq[1] = ((uint32_t *)(cfg + 16));
+  rx_rate[1] = ((uint32_t *)(cfg + 20));
+  rx_cntr[1] = ((uint16_t *)(sts + 4));
 
   /* set PTT pin to low */
   *gpio = 0;
@@ -161,10 +159,13 @@ void process_ep2(char *frame)
   {
     case 0:
     case 1:
+      printf("receivers %d\n", ((frame[4] >> 3) & 7) + 1);
       receivers = ((frame[4] >> 3) & 7) + 1;
       /* set PTT pin */
+      printf("ptt %d\n", frame[0] & 1);
       *gpio = frame[0] & 1;
       /* set rx sample rate */
+      printf("rate %d\n", frame[1] & 3);
       switch(frame[1] & 3)
       {
         case 0:
@@ -189,7 +190,7 @@ void process_ep2(char *frame)
     case 3:
       /* set tx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      printf("%d\n", freq);
+      printf("freq tx %d\n", freq);
       if(freq < freq_min || freq > freq_max) break;
       *tx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
       break;
@@ -197,7 +198,7 @@ void process_ep2(char *frame)
     case 5:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      printf("%d\n", freq);
+      printf("freq rx0 %d\n", freq);
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[0] = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
       break;
@@ -205,7 +206,7 @@ void process_ep2(char *frame)
     case 7:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      printf("%d\n", freq);
+      printf("freq rx1 %d\n", freq);
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[1] = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
       break;
@@ -222,11 +223,11 @@ void *handler_ep6(void *arg)
   char buffer[1032];
   uint8_t header[40] =
   {
-    127, 127, 127, 0, 0, 32, 0, 18,
+    127, 127, 127, 0, 0, 33, 17, 21,
     127, 127, 127, 8, 0, 0, 0, 0,
     127, 127, 127, 16, 0, 0, 0, 0,
     127, 127, 127, 24, 0, 0, 0, 0,
-    127, 127, 127, 32, 64, 64, 64, 64
+    127, 127, 127, 32, 66, 66, 66, 66
   };
 
   counter = 0;
