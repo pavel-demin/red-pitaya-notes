@@ -25,7 +25,6 @@ int receivers = 1;
 
 int sock_ep2;
 struct sockaddr_in addr_ep6;
-socklen_t size_ep6;
 
 int enable_thread = 0;
 int active_thread = 0;
@@ -45,7 +44,8 @@ int main(int argc, char *argv[])
   char *name = "/dev/mem";
   char buffer[1032];
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
-  struct sockaddr_in addr_ep2;
+  struct sockaddr_in addr_ep2, addr_from;
+  socklen_t size_from;
   int yes = 1;
 
   if((fd = open(name, O_RDWR)) < 0)
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 
       if(result == 0) continue;
 
-      size = recvfrom(sock_ep2, buffer, 1032, 0, (struct sockaddr *)&addr_ep6, &size_ep6);
+      size = recvfrom(sock_ep2, buffer, 1032, 0, (struct sockaddr *)&addr_from, &size_from);
       if(size < 0)
       {
         perror("recvfrom");
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
           reply[2] = 2 + active_thread;
           memset(buffer, 0, 60);
           memcpy(buffer, reply, 11);
-          sendto(sock_ep2, buffer, 60, 0, (struct sockaddr *)&addr_ep6, size_ep6);
+          sendto(sock_ep2, buffer, 60, 0, (struct sockaddr *)&addr_from, size_from);
           break;
         case 0x0004feef:
           enable_thread = 0;
@@ -175,6 +175,10 @@ int main(int argc, char *argv[])
           {
             enable_thread = 1;
             active_thread = 1;
+            memset(&addr_ep6, 0, sizeof(addr_ep6));
+            addr_ep6.sin_family = AF_INET;
+            addr_ep6.sin_addr.s_addr = addr_from.sin_addr.s_addr;
+            addr_ep6.sin_port = addr_from.sin_port;
             if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
             {
               perror("pthread_create");
@@ -316,7 +320,7 @@ void *handler_ep6(void *arg)
             header_offset = header_offset >= 32 ? 0 : header_offset + 8;
             memcpy(buffer + 520, header + header_offset, 8);
             header_offset = header_offset >= 32 ? 0 : header_offset + 8;
-            sendto(sock_ep2, buffer, 1032, 0, (struct sockaddr *)&addr_ep6, size_ep6);
+            sendto(sock_ep2, buffer, 1032, 0, (struct sockaddr *)&addr_ep6, sizeof(addr_ep6));
             buffer_offset = 16;
             size = receivers * 6 + 2;
             memset(buffer + 8, 0, 1024);
