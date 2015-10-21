@@ -9,7 +9,7 @@ diff -rupN old/linux-xlnx-xilinx-v2015.3/arch/arm/configs/xilinx_zynq_defconfig 
  CONFIG_MDIO_BITBANG=y
  CONFIG_INPUT_SPARSEKMAP=y
  CONFIG_INPUT_EVDEV=y
-@@ -247,3 +248,62 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
+@@ -247,3 +248,63 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
  CONFIG_FONTS=y
  CONFIG_FONT_8x8=y
  CONFIG_FONT_8x16=y
@@ -72,6 +72,7 @@ diff -rupN old/linux-xlnx-xilinx-v2015.3/arch/arm/configs/xilinx_zynq_defconfig 
 +CONFIG_NOP_USB_XCEIV=y
 +CONFIG_FUSE_FS=y
 +CONFIG_SPI_SPIDEV=y
++CONFIG_XILINX_PS_EMAC_HWTSTAMP=y
 diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/misc/eeprom/at24.c linux-xlnx-xilinx-v2015.3/drivers/misc/eeprom/at24.c
 --- old/linux-xlnx-xilinx-v2015.3/drivers/misc/eeprom/at24.c
 +++ linux-xlnx-xilinx-v2015.3/drivers/misc/eeprom/at24.c
@@ -98,6 +99,17 @@ diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/cadence/macb.c lin
 +		macb_ptp_close(bp);
  	netif_carrier_off(dev);
  	spin_unlock_irqrestore(&bp->lock, flags);
+ 
+diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/xilinx/xilinx_emacps.c linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/xilinx/xilinx_emacps.c
+--- old/linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/xilinx/xilinx_emacps.c
++++ linux-xlnx-xilinx-v2015.3/drivers/net/ethernet/xilinx/xilinx_emacps.c
+@@ -45,6 +45,7 @@
+ #include <linux/of_mdio.h>
+ #include <linux/timer.h>
+ #include <linux/ptp_clock_kernel.h>
++#include <linux/timecounter.h>
+ 
+ /************************** Constant Definitions *****************************/
  
 diff -rupN old/linux-xlnx-xilinx-v2015.3/drivers/net/phy/Makefile linux-xlnx-xilinx-v2015.3/drivers/net/phy/Makefile
 --- old/linux-xlnx-xilinx-v2015.3/drivers/net/phy/Makefile
