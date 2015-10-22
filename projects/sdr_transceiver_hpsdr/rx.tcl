@@ -170,10 +170,23 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   SAMPLE_FREQUENCY 1.0
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
-  OUTPUT_WIDTH 24
+  OUTPUT_WIDTH 25
 } {
   S_AXIS_DATA comb_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
+}
+
+# Create axis_subset_converter
+cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  M_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 8
+  M_TDATA_NUM_BYTES 6
+  TDATA_REMAP {tdata[55:32],tdata[23:0]}
+} {
+  S_AXIS fir_0/M_AXIS_DATA
+  aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create fir_compiler
@@ -192,10 +205,23 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_1 {
   SAMPLE_FREQUENCY 0.96
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
-  OUTPUT_WIDTH 24
+  OUTPUT_WIDTH 25
 } {
-  S_AXIS_DATA fir_0/M_AXIS_DATA
+  S_AXIS_DATA subset_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
+}
+
+# Create axis_subset_converter
+cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  M_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 8
+  M_TDATA_NUM_BYTES 6
+  TDATA_REMAP {tdata[55:32],tdata[23:0]}
+} {
+  S_AXIS fir_1/M_AXIS_DATA
+  aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create fir_compiler
@@ -214,12 +240,12 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_2 {
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
 } {
-  S_AXIS_DATA fir_1/M_AXIS_DATA
+  S_AXIS_DATA subset_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
+cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 8
@@ -251,7 +277,7 @@ cell pavel-demin:user:axis_bram_writer:1.0 writer_0 {
   BRAM_DATA_WIDTH 64
   BRAM_ADDR_WIDTH 10
 } {
-  S_AXIS subset_0/M_AXIS
+  S_AXIS subset_2/M_AXIS
   BRAM_PORTA bram_0/BRAM_PORTA
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn

@@ -71,11 +71,24 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   SAMPLE_FREQUENCY 0.048
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
-  OUTPUT_WIDTH 24
+  OUTPUT_WIDTH 25
   M_DATA_HAS_TREADY true
 } {
   S_AXIS_DATA subset_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
+}
+
+# Create axis_subset_converter
+cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  M_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 8
+  M_TDATA_NUM_BYTES 6
+  TDATA_REMAP {tdata[55:32],tdata[23:0]}
+} {
+  S_AXIS fir_0/M_AXIS_DATA
+  aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create fir_compiler
@@ -97,7 +110,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_1 {
   OUTPUT_WIDTH 25
   M_DATA_HAS_TREADY true
 } {
-  S_AXIS_DATA fir_0/M_AXIS_DATA
+  S_AXIS_DATA subset_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -200,7 +213,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   APORTWIDTH 24
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 18
+  OUTPUTWIDTH 17
 } {
   S_AXIS_A comb_1/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
