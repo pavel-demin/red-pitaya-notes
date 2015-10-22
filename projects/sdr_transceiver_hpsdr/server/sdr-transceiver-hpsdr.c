@@ -189,6 +189,10 @@ int main(int argc, char *argv[])
           break;
       }
     }
+    else
+    {
+      usleep(500);
+    }
   }
 
   close(sock_ep2);
