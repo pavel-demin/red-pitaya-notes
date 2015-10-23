@@ -47,13 +47,15 @@ This SDR transceiver should work with most of the programs that support the [HPS
  - [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) that can be downloaded from [this link](http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/PowerSDR_Installers) and its skins can be downloaded from [this link](
 http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/OpenHPSDR_Skins)
 
- - [QUISK](http://james.ahlstrom.name/quisk/) with the `hermes/quisk_conf.py` configuration file
+ - [QUISK](http://james.ahlstrom.name/quisk) with the `hermes/quisk_conf.py` configuration file
 
- - [ghpsdr3-alex](http://napan.ca/ghpsdr3)
+ - [Ham VNA](http://dxatlas.com/HamVNA) vector network analyzer
+
+ - [ghpsdr3-alex](http://napan.ca/ghpsdr3) client-server distributed system
 
  - [openHPSDR Android Application](https://play.google.com/store/apps/details?id=org.g0orx.openhpsdr) that is described in more details at [this link](http://g0orx.blogspot.be/2015/01/openhpsdr-android-application.html)
 
- - [Java desktop application](http://g0orx.blogspot.co.uk/2015/04/java-desktop-application-based-on.html) based on openHPSDR Android Application 
+ - [Java desktop application](http://g0orx.blogspot.co.uk/2015/04/java-desktop-application-based-on.html) based on openHPSDR Android Application
 
 Getting started
 -----
