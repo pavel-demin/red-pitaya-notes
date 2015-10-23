@@ -181,7 +181,7 @@ module tx_0 {
   slice_0/Din cfg_slice_2/Dout
 }
 
-connect_bd_intf_net [get_bd_intf_pins tx_0/fifo_0/M_AXIS] [get_bd_intf_pins dac_0/S_AXIS]
+connect_bd_intf_net [get_bd_intf_pins tx_0/fifo_1/M_AXIS] [get_bd_intf_pins dac_0/S_AXIS]
 
 # STS
 
@@ -190,11 +190,11 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   NUM_PORTS 3
   IN0_WIDTH 16
   IN1_WIDTH 16
-  IN2_WIDTH 16
+  IN2_WIDTH 32
 } {
   In0 rx_0/writer_0/sts_data
   In1 rx_1/writer_0/sts_data
-  In2 tx_0/reader_0/sts_data
+  In2 tx_0/fifo_0/axis_data_count
 }
 
 # Create axi_sts_register
