@@ -3,58 +3,44 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
   DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0 {
-  CONST_WIDTH 8
-  CONST_VAL 251
-}
-
-# Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
-  MEMORY_TYPE True_Dual_Port_RAM
-  USE_BRAM_BLOCK Stand_Alone
-  WRITE_WIDTH_A 32
-  WRITE_DEPTH_A 512
-  WRITE_WIDTH_B 64
-  ENABLE_A Always_Enabled
-  ENABLE_B Always_Enabled
-  REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
-}
-
-# Create axi_bram_writer
-cell pavel-demin:user:axi_bram_writer:1.0 writer_0 {
+# Create axi_axis_writer
+cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
   AXI_DATA_WIDTH 32
-  AXI_ADDR_WIDTH 32
-  BRAM_DATA_WIDTH 32
-  BRAM_ADDR_WIDTH 9
 } {
-  BRAM_PORTA bram_0/BRAM_PORTA
-}
-
-# Create axis_bram_reader
-cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
-  AXIS_TDATA_WIDTH 64
-  BRAM_DATA_WIDTH 64
-  BRAM_ADDR_WIDTH 8
-  CONTINUOUS TRUE
-} {
-  BRAM_PORTA bram_0/BRAM_PORTB
-  cfg_data const_0/dout
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
+}
+
+# Create axis_data_fifo
+cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 4
+  FIFO_DEPTH 1024
+} {
+  S_AXIS writer_0/M_AXIS
+  s_axis_aclk /ps_0/FCLK_CLK0
+  s_axis_aresetn /rst_0/peripheral_aresetn
 }
 
 # Create axis_subset_converter
 cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 8
+  S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 4
-  TDATA_REMAP {tdata[39:32],tdata[47:40],tdata[55:48],tdata[63:56]}
+  TDATA_REMAP {tdata[7:0],tdata[15:8],tdata[23:16],tdata[31:24]}
 } {
-  S_AXIS reader_0/M_AXIS
+  S_AXIS fifo_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
+}
+
+# Create axis_zeroer
+cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
+  AXIS_TDATA_WIDTH 32
+} {
+  S_AXIS subset_0/M_AXIS
+  aclk /ps_0/FCLK_CLK0
 }
 
 # Create fir_compiler
@@ -74,7 +60,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   OUTPUT_WIDTH 25
   M_DATA_HAS_TREADY true
 } {
-  S_AXIS_DATA subset_0/M_AXIS
+  S_AXIS_DATA zeroer_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -213,7 +199,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   APORTWIDTH 24
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 17
+  OUTPUTWIDTH 18
 } {
   S_AXIS_A comb_1/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
@@ -225,7 +211,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
 cell xilinx.com:ip:xlconstant:1.1 const_1
 
 # Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
+cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
 } {
