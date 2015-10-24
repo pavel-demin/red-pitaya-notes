@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
   while(1)
   {
-    if(*tx_cntr > 480)
+    if(*tx_cntr > 3970)
     {
       usleep(1000);
       continue;
