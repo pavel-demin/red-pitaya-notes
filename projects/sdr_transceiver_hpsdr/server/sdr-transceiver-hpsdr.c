@@ -105,6 +105,12 @@ int main(int argc, char *argv[])
 
   while(1)
   {
+    if(*tx_cntr > 480)
+    {
+      usleep(1000);
+      continue;
+    }
+
     size_from = sizeof(addr_from);
     size = recvfrom(sock_ep2, buffer, 1032, 0, (struct sockaddr *)&addr_from, &size_from);
     if(size < 0)
