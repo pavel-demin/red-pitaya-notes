@@ -248,5 +248,5 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins tx_0/writer_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
-set_property OFFSET 0x40006000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+set_property RANGE 64K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]

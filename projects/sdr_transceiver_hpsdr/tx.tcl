@@ -15,7 +15,7 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
-  FIFO_DEPTH 1024
+  FIFO_DEPTH 16384
 } {
   S_AXIS writer_0/M_AXIS
   s_axis_aclk /ps_0/FCLK_CLK0
