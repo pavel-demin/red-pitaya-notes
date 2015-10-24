@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_data[0] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
-  tx_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
+  tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
 
   *(uint32_t *)(tx_data + 8) = 165;
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
   while(1)
   {
-    if(*tx_cntr > 3970)
+    if(*tx_cntr > 16258)
     {
       usleep(1000);
       continue;
@@ -122,10 +122,18 @@ int main(int argc, char *argv[])
     switch(*(uint32_t *)buffer)
     {
       case 0x0201feef:
+        if(*tx_cntr == 0)
+        {
+          memset(tx_data, 0, 65032);
+        }
         if(*gpio)
         {
           for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 20 + i, 4);
           for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 532 + i, 4);
+        }
+        else
+        {
+          memset(tx_data, 0, 504);
         }
         process_ep2(buffer + 11);
         process_ep2(buffer + 523);
@@ -160,6 +168,7 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
           }
           pthread_detach(thread);
+          memset(tx_data, 0, 65536);
         }
         break;
     }
