@@ -171,7 +171,6 @@ int main(int argc, char *argv[])
           return EXIT_FAILURE;
         }
         pthread_detach(thread);
-        memset(tx_data, 0, 65536);
         break;
     }
   }
