@@ -154,22 +154,23 @@ int main(int argc, char *argv[])
       case 0x0104feef:
       case 0x0204feef:
       case 0x0304feef:
-        if(!active_thread)
+        enable_thread = 0;
+        while(active_thread)
         {
-          enable_thread = 1;
-          active_thread = 1;
-          memset(&addr_ep6, 0, sizeof(addr_ep6));
-          addr_ep6.sin_family = AF_INET;
-          addr_ep6.sin_addr.s_addr = addr_from.sin_addr.s_addr;
-          addr_ep6.sin_port = addr_from.sin_port;
-          if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
-          {
-            perror("pthread_create");
-            return EXIT_FAILURE;
-          }
-          pthread_detach(thread);
-          memset(tx_data, 0, 65536);
+          usleep(1000);
         }
+        memset(&addr_ep6, 0, sizeof(addr_ep6));
+        addr_ep6.sin_family = AF_INET;
+        addr_ep6.sin_addr.s_addr = addr_from.sin_addr.s_addr;
+        addr_ep6.sin_port = addr_from.sin_port;
+        enable_thread = 1;
+        active_thread = 1;
+        if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
+        {
+          perror("pthread_create");
+          return EXIT_FAILURE;
+        }
+        pthread_detach(thread);
         break;
     }
   }
