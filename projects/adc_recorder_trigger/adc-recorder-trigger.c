@@ -38,8 +38,12 @@ int main()
   /* set number of samples before trigger */
   *((uint32_t *)(cfg + 8)) = 1024 - 1;
 
-  /* set total number of samples */
+  /* set total number of samples (up to 8 * 1024 * 1024 - 1) */
   *((uint32_t *)(cfg + 12)) = 1024 * 1024 - 1;
+
+  /* set decimation factor for CIC filter (from 5 to 3125) */
+  /* combined (CIC and FIR) decimation factor is twice greater */
+  *((uint16_t *)(cfg + 16)) = 5;
 
   /* start oscilloscope */
   *((uint16_t *)(cfg + 0)) |= 2;
