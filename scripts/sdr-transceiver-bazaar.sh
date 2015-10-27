@@ -1,7 +1,9 @@
 project=sdr_transceiver
+server=sdr-transceiver
 
 cp -a projects/$project/bazaar $project
-arm-linux-gnueabihf-gcc -shared -Wall -fPIC -lstdc++ -Os -s $project/src/main.c -o $project/controllerhf.so
+arm-linux-gnueabihf-gcc -shared -Wall -fPIC -Os -s $project/src/main.c -o $project/controllerhf.so
+arm-linux-gnueabihf-gcc -static projects/$project/server/$server.c -lm -lpthread -o $project/$server
 cp tmp/$project.bit $project
 
 build_number=`git rev-list HEAD --count`
