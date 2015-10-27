@@ -20,18 +20,18 @@ using namespace ExtIO_RedPitaya_TRX;
 #define EXTIO_API __declspec(dllexport) __stdcall
 
 #define TCP_PORT 1001
-#define TCP_ADDR "192.168.1.4"
+#define TCP_ADDR "192.168.1.100"
 
-SOCKET gSock = 0;
+SOCKET gSock[2] = {-1, -1};
 
 char gBuffer[4096];
 
-long gRate = 100000;
-int gCorr = 0;
+UInt32 gRate = 100000;
+Int32 gCorr = 0;
 
-long gFreq = 600000;
-long gFreqMin = 100000;
-long gFreqMax = 50000000;
+UInt32 gFreq = 600000;
+UInt32 gFreqMin = 100000;
+UInt32 gFreqMax = 50000000;
 
 bool gInitHW = false;
 
@@ -66,15 +66,15 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
     SleepEx(1, FALSE);
     if(gExitThread) break;
 
-    ioctlsocket(gSock, FIONREAD, &size);
+    ioctlsocket(gSock[1], FIONREAD, &size);
 
     while(size >= 4096)
     {
-      recv(gSock, gBuffer, 4096, 0);
+      recv(gSock[1], gBuffer, 4096, 0);
 
       if(ExtIOCallback) (*ExtIOCallback)(512, 0, 0.0, gBuffer);
 
-      ioctlsocket(gSock, FIONREAD, &size);
+      ioctlsocket(gSock[1], FIONREAD, &size);
     }
   }
   gExitThread = false;
@@ -120,7 +120,7 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
 
   type = 7;
 
-  strcpy(name, "Red Pitaya SDR");
+  strcpy(name, "Red Pitaya SDR TRX");
   strcpy(model, "");
 
   if(!gInitHW)
@@ -174,24 +174,32 @@ int EXTIO_API StartHW(long LOfreq)
   struct sockaddr_in addr;
   String ^addrString;
   char *buffer;
+  UInt32 command;
+  int i;
 
   if(!gInitHW) return 0;
 
   WSAStartup(MAKEWORD(2, 2), &wsaData);
-
-  gSock = socket(AF_INET, SOCK_STREAM, 0);
 
   addrString = ManagedGlobals::gGUI->addrValue->Text;
   ManagedGlobals::gKey->SetValue("IP Address", addrString);
 
   buffer = (char*)Marshal::StringToHGlobalAnsi(addrString).ToPointer();
 
-  memset(&addr, 0, sizeof(addr));
-  addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = inet_addr(buffer);
-  addr.sin_port = htons(TCP_PORT);
+  for(i = 0; i < 2; ++i)
+  {
+    gSock[i] = socket(AF_INET, SOCK_STREAM, 0);
 
-  connect(gSock, (struct sockaddr *)&addr, sizeof(addr));
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = inet_addr(buffer);
+    addr.sin_port = htons(TCP_PORT);
+
+    connect(gSock[i], (struct sockaddr *)&addr, sizeof(addr));
+
+    command = i;
+    send(gSock[i], (char *)&command, 4, 0);
+  }
 
   Marshal::FreeHGlobal(IntPtr(buffer));
 
@@ -210,9 +218,11 @@ void EXTIO_API StopHW()
 {
   StopThread();
 
-  closesocket(gSock);
+  closesocket(gSock[1]);
+  closesocket(gSock[0]);
 
-  gSock = 0;
+  gSock[1] = -1;
+  gSock[0] = -1;
 
   WSACleanup();
 }
@@ -238,8 +248,8 @@ void EXTIO_API SetCallback(void (*callback)(int, int, float, void *))
 extern "C"
 int EXTIO_API SetHWLO(long LOfreq)
 {
-  long rc = 0;
-  long buffer = 0;
+  int rc = 0;
+  UInt32 buffer = 0;
 
   gFreq = LOfreq;
 
@@ -258,7 +268,7 @@ int EXTIO_API SetHWLO(long LOfreq)
   if(gFreq != LOfreq && ExtIOCallback) (*ExtIOCallback)(-1, 101, 0.0, 0);
 
   buffer = (long)floor(gFreq*(1.0 + gCorr*1.0e-6) + 0.5);
-  if(gSock) send(gSock, (char *)&buffer, 4, 0);
+  if(gSock[0] > 0) send(gSock[0], (char *)&buffer, 4, 0);
 
   return rc;
 }
@@ -279,7 +289,7 @@ static void SetRate(UInt32 rateIndex)
   if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Sample Rate", rateIndex);
 
   rateIndex |= 1<<28;
-  if(gSock) send(gSock, (char *)&rateIndex, 4, 0);
+  if(gSock[0] > 0) send(gSock[0], (char *)&rateIndex, 4, 0);
 
   SetHWLO(gFreq);
 }
