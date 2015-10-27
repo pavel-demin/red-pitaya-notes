@@ -1,9 +1,13 @@
 /*
 command to compile:
-gcc -shared -Wall -fPIC -lstdc++ -Os -s main.c -o controllerhf.so
+gcc -shared -Wall -fPIC -Os -s main.c -o controllerhf.so
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#define APP_NAME "/opt/redpitaya/www/apps/sdr_transceiver/sdr-transceiver"
 
 typedef struct rp_app_params_s
 {
@@ -24,12 +28,15 @@ const char *rp_app_desc()
 int rp_app_init()
 {
   fprintf(stderr, "Starting SDR transceiver server.\n");
+  if(fork() == 0) execl(APP_NAME, APP_NAME, "1", NULL);
+  if(fork() == 0) execl(APP_NAME, APP_NAME, "2", NULL);
   return 0;
 }
 
 int rp_app_exit(void)
 {
   fprintf(stderr, "Stopping SDR transceiver server.\n");
+  system("killall sdr-transceiver");
   return 0;
 }
 
