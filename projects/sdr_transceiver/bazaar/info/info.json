@@ -1,0 +1,6 @@
+{
+    "name": "SDR transceiver",
+    "version": "0.94-1234",
+    "revision": "1234567",
+    "description": "Dual channel SDR transceiver compatible with SDR#, HDSDR and GNU Radio"
+}
