@@ -238,12 +238,14 @@ void process_ep2(char *frame)
 
 void *handler_ep6(void *arg)
 {
-  int i, size, rx_position, rx_limit, rx_offset;
+  int i, j, size, rx_position, rx_limit, rx_offset;
   int data_offset, header_offset, buffer_offset, frame_offset;
   uint32_t counter;
   char data0[4096];
   char data1[4096];
-  char buffer[1032];
+  char buffer[26][1032];
+  struct iovec iovec[26][1];
+  struct mmsghdr datagrams[26];
   uint8_t header[40] =
   {
     127, 127, 127, 0, 0, 33, 17, 21,
@@ -260,8 +262,14 @@ void *handler_ep6(void *arg)
   frame_offset = 0;
   size = receivers * 6 + 2;
 
-  memset(buffer, 0, 1032);
-  *(uint32_t *)(buffer + 0) = 0x0601feef;
+  memset(buffer, 0, sizeof(buffer));
+  memset(iovec, 0, sizeof(iovec));
+  memset(datagrams, 0, sizeof(datagrams));
+
+  for(i = 0; i < 26; ++i)
+  {
+    *(uint32_t *)(buffer[i] + 0) = 0x0601feef;
+  }
 
   while(1)
   {
@@ -279,13 +287,14 @@ void *handler_ep6(void *arg)
       memcpy(data1, rx_data[1] + rx_offset, 4096);
 
       data_offset = 0;
+      j = 0;
 
       for(i = 0; i < 512; ++i)
       {
-        memcpy(buffer + buffer_offset + frame_offset, data0 + data_offset, 6);
+        memcpy(buffer[j] + buffer_offset + frame_offset, data0 + data_offset, 6);
         if(size >= 12)
         {
-          memcpy(buffer + buffer_offset + frame_offset + 6, data1 + data_offset, 6);
+          memcpy(buffer[j] + buffer_offset + frame_offset + 6, data1 + data_offset, 6);
         }
         data_offset += 8;
         frame_offset += size;
@@ -299,18 +308,31 @@ void *handler_ep6(void *arg)
           }
           else
           {
-            *(uint32_t *)(buffer + 4) = htonl(counter);
-            memcpy(buffer + 8, header + header_offset, 8);
+            *(uint32_t *)(buffer[j] + 4) = htonl(counter);
+            memcpy(buffer[j] + 8, header + header_offset, 8);
             header_offset = header_offset >= 32 ? 0 : header_offset + 8;
-            memcpy(buffer + 520, header + header_offset, 8);
+            memcpy(buffer[j] + 520, header + header_offset, 8);
             header_offset = header_offset >= 32 ? 0 : header_offset + 8;
-            sendto(sock_ep2, buffer, 1032, 0, (struct sockaddr *)&addr_ep6, sizeof(addr_ep6));
+
+            iovec[j][0].iov_base = buffer[j];
+            iovec[j][0].iov_len = 1032;
+            datagrams[j].msg_hdr.msg_iov = iovec[j];
+            datagrams[j].msg_hdr.msg_iovlen = 1;
+            datagrams[j].msg_hdr.msg_name = &addr_ep6;
+            datagrams[j].msg_hdr.msg_namelen = sizeof(addr_ep6);
+            ++j;
+
             buffer_offset = 16;
             size = receivers * 6 + 2;
-            memset(buffer + 8, 0, 1024);
             ++counter;
           }
         }
+      }
+      sendmmsg(sock_ep2, datagrams, j, 0);
+      memcpy(buffer[0] + 8, buffer[j] + 8, 1024);
+      for(i = 1; i < j; ++i)
+      {
+        memset(buffer[i] + 8, 0, 1024);
       }
     }
     else

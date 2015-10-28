@@ -1,0 +1,6 @@
+{
+    "name": "SDR transceiver compatible with HPSDR",
+    "version": "0.94-BUILD_NUMBER",
+    "revision": "REVISION",
+    "description": "SDR transceiver emulating a HPSDR transceiver with one Metis network interface module, two Mercury receivers and one Pennylane transmitter. (by Pavel Demin)"
+}
