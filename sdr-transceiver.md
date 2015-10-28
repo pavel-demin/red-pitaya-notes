@@ -4,8 +4,6 @@ title: SDR transceiver
 permalink: /sdr-transceiver/
 ---
 
-This is a work in progress...
-
 Hardware
 -----
 
@@ -37,6 +35,8 @@ The [projects/sdr_transceiver](https://github.com/pavel-demin/red-pitaya-notes/t
 
 The [projects/sdr_transceiver/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/server) directory contains the source code of the TCP server ([sdr-transceiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/server/sdr-transceiver.c)) that receives control commands and transmits/receives the I/Q data streams (up to 2 x 32 bit x 500 kSPS = 30.5 Mbit/s) to/from the SDR programs.
 
+The [projects/sdr_transceiver/ExtIO_RedPitaya](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/ExtIO_RedPitaya) directory contains the source code of the ExtIO plug-in.
+
 Software
 -----
 
@@ -44,7 +44,7 @@ The [projects/sdr_transceiver/gnuradio](https://github.com/pavel-demin/red-pitay
 
 An interface with [QSDR](http://dl2stg.de/stefan/hiqsdr/qsdr.html) is currently [being developed](https://github.com/pavel-demin/QSDR).
 
-Getting started
+Getting started with GNU Radio
 -----
 
  - Requirements:
@@ -68,6 +68,24 @@ cd red-pitaya-notes/projects/sdr_transceiver/gnuradio
 export GRC_BLOCKS_PATH=.
 gnuradio-companion trx_am.grc
 {% endhighlight %}
+
+Getting started with SDR# and HDSDR
+-----
+
+ - Requirements:
+   - Computer running MS Windows.
+   - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
+ - Connect an antenna to the IN1 connector on the Red Pitaya board.
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.92-65-35575ed-sdr-transceiver.zip).
+ - Copy the content of the SD card image zip file to an SD card.
+ - Insert the SD card in Red Pitaya and connect the power.
+ - Download and install [SDR#](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/sdrsharp_v1.0.0.1361_with_plugins.zip) or [HDSDR](http://www.hdsdr.de/).
+ - Download [pre-built ExtIO plug-in](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ExtIO_RedPitaya_TRX.dll) for SDR# and HDSDR.
+ - Copy `ExtIO_RedPitaya_TRX.dll` into the SDR# or HDSDR installation directory.
+ - Start SDR# or HDSDR.
+ - Select Red Pitaya SDR TRX from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
+ - Press Configure icon in SDR# or press ExtIO button in HDSDR, then type in the IP address of the Red Pitaya board and close the configuration window.
+ - Press Play icon in SDR# or press Start [F2] button in HDSDR.
 
 Building from source
 -----
