@@ -109,7 +109,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   NUMBER_PATHS 2
   SAMPLE_FREQUENCY 0.5
   CLOCK_FREQUENCY 125
-  OUTPUT_ROUNDING_MODE Truncate_LSBs
+  OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
   M_DATA_HAS_TREADY true
 } {
