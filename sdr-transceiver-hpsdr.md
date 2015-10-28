@@ -4,8 +4,6 @@ title: SDR transceiver compatible with HPSDR
 permalink: /sdr-transceiver-hpsdr/
 ---
 
-This is a work in progress...
-
 Hardware
 -----
 
@@ -92,7 +90,7 @@ python scripts/fpga-bit-to-bin.py --flip tmp/sdr_transceiver_hpsdr.bit sdr_trans
 
 Building `sdr-transceiver-hpsdr`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -o sdr-transceiver-hpsdr -lm -lpthread -static
+arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -o sdr-transceiver-hpsdr -D_GNU_SOURCE -lm -lpthread -static
 {% endhighlight %}
 
 Building `boot.bin`, `devicetree.dtb` and `uImage`:
