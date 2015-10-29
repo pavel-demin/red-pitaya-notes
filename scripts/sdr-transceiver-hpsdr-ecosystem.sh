@@ -6,8 +6,8 @@ test -f ${ecosystem}.zip || curl -O http://archives.redpitaya.com/devel/${ecosys
 
 unzip -d ${ecosystem}-sdr-transceiver-hpsdr ${ecosystem}.zip
 
-cp sdr-transceiver-hpsdr ${ecosystem}-sdr-transceiver-hpsdr/bin
-cp boot.bin devicetree.dtb sdr_transceiver_hpsdr.bin uImage ${ecosystem}-sdr-transceiver-hpsdr
+arm-xilinx-linux-gnueabi-gcc -static projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -D_GNU_SOURCE -lm -lpthread -o ${ecosystem}-sdr-transceiver-hpsdr/bin/sdr-transceiver-hpsdr
+cp boot.bin devicetree.dtb uImage tmp/sdr_transceiver_hpsdr.bit ${ecosystem}-sdr-transceiver-hpsdr
 
 cat <<- EOF_CAT > ${ecosystem}-sdr-transceiver-hpsdr/uEnv.txt
 
@@ -33,7 +33,7 @@ cat <<- EOF_CAT >> ${ecosystem}-sdr-transceiver-hpsdr/etc/init.d/rcS
 
 # start SDR transceiver
 
-cat /opt/sdr_transceiver_hpsdr.bin > /dev/xdevcfg
+cat /opt/sdr_transceiver_hpsdr.bit > /dev/xdevcfg
 
 /opt/bin/sdr-transceiver-hpsdr &
 
