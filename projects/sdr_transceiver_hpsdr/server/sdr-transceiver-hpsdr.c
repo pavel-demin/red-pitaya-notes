@@ -243,9 +243,9 @@ void *handler_ep6(void *arg)
   uint32_t counter;
   char data0[4096];
   char data1[4096];
-  char buffer[26][1032];
-  struct iovec iovec[26][1];
-  struct mmsghdr datagram[26];
+  char buffer[27][1032];
+  struct iovec iovec[27][1];
+  struct mmsghdr datagram[27];
   uint8_t header[40] =
   {
     127, 127, 127, 0, 0, 33, 17, 21,
@@ -266,7 +266,7 @@ void *handler_ep6(void *arg)
   memset(iovec, 0, sizeof(iovec));
   memset(datagram, 0, sizeof(datagram));
 
-  for(i = 0; i < 26; ++i)
+  for(i = 0; i < 27; ++i)
   {
     *(uint32_t *)(buffer[i] + 0) = 0x0601feef;
     iovec[i][0].iov_base = buffer[i];
@@ -328,7 +328,7 @@ void *handler_ep6(void *arg)
       }
       sendmmsg(sock_ep2, datagram, j, 0);
       memcpy(buffer[0] + 8, buffer[j] + 8, 1024);
-      for(i = 1; i < j; ++i)
+      for(i = 1; i <= j; ++i)
       {
         memset(buffer[i] + 8, 0, 1024);
       }
