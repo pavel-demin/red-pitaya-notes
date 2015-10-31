@@ -97,20 +97,13 @@ cell xilinx.com:ip:xlslice:1.0 slice_3 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 96 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
-} {
-  Din cfg_0/cfg_data
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 96 DIN_FROM 61 DIN_TO 32 DOUT_WIDTH 30
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_6 {
+cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
@@ -146,7 +139,7 @@ cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
   AXIS_TDATA_WIDTH 32
   PHASE_WIDTH 30
 } {
-  cfg_data slice_5/Dout
+  cfg_data slice_4/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_2/Dout
 }
@@ -182,47 +175,22 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   aresetn rst_0/peripheral_aresetn
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1
-
-# Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 rate_0 {
+# Create axis_variable
+cell pavel-demin:user:axis_variable:1.0 rate_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_6/Dout
+  cfg_data slice_5/Dout
   aclk ps_0/FCLK_CLK0
+  aresetn rst_0/peripheral_aresetn
 }
 
-# Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
-  AXIS_TDATA_WIDTH 16
-  CNTR_WIDTH 1
-  CONTINUOUS FALSE
-} {
-  S_AXIS rate_0/M_AXIS
-  cfg_data const_1/dout
-  aclk ps_0/FCLK_CLK0
-  aresetn slice_4/Dout
-}
-
-# Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 rate_1 {
+# Create axis_variable
+cell pavel-demin:user:axis_variable:1.0 rate_1 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_6/Dout
+  cfg_data slice_5/Dout
   aclk ps_0/FCLK_CLK0
-}
-
-# Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_1 {
-  AXIS_TDATA_WIDTH 16
-  CNTR_WIDTH 1
-  CONTINUOUS FALSE
-} {
-  S_AXIS rate_1/M_AXIS
-  cfg_data const_1/dout
-  aclk ps_0/FCLK_CLK0
-  aresetn slice_4/Dout
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create cic_compiler
@@ -232,19 +200,17 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 125
-  MAXIMUM_RATE 1250
+  MAXIMUM_RATE 6250
   FIXED_OR_INITIAL_RATE 625
   INPUT_SAMPLE_FREQUENCY 125
   CLOCK_FREQUENCY 125
   INPUT_DATA_WIDTH 32
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 32
-  HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M00_AXIS
-  S_AXIS_CONFIG pktzr_0/M_AXIS
+  S_AXIS_CONFIG rate_0/M_AXIS
   aclk ps_0/FCLK_CLK0
-  aresetn slice_4/Dout
 }
 
 # Create cic_compiler
@@ -254,7 +220,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 125
-  MAXIMUM_RATE 1250
+  MAXIMUM_RATE 6250
   FIXED_OR_INITIAL_RATE 625
   INPUT_SAMPLE_FREQUENCY 125
   CLOCK_FREQUENCY 125
@@ -264,9 +230,8 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M01_AXIS
-  S_AXIS_CONFIG pktzr_1/M_AXIS
+  S_AXIS_CONFIG rate_1/M_AXIS
   aclk ps_0/FCLK_CLK0
-  aresetn slice_4/Dout
 }
 
 # Create axis_combiner
@@ -291,8 +256,8 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   FILTER_TYPE Decimation
   DECIMATION_RATE 2
   NUMBER_PATHS 2
-  RATESPECIFICATION Input_Sample_Period
-  SAMPLEPERIOD 125
+  SAMPLE_FREQUENCY 1.0
+  CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Truncate_LSBs
   OUTPUT_WIDTH 32
 } {
@@ -307,9 +272,8 @@ cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   USE_BYTE_WRITE_ENABLE true
   BYTE_SIZE 8
   WRITE_WIDTH_A 64
-  WRITE_DEPTH_A 512
+  WRITE_DEPTH_A 1024
   WRITE_WIDTH_B 32
-  WRITE_DEPTH_B 1024
   ENABLE_A Always_Enabled
   ENABLE_B Always_Enabled
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
@@ -319,7 +283,7 @@ cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
 cell pavel-demin:user:axis_bram_writer:1.0 writer_0 {
   AXIS_TDATA_WIDTH 64
   BRAM_DATA_WIDTH 64
-  BRAM_ADDR_WIDTH 9
+  BRAM_ADDR_WIDTH 10
 } {
   S_AXIS fir_0/M_AXIS_DATA
   BRAM_PORTA bram_0/BRAM_PORTA
@@ -332,7 +296,7 @@ cell pavel-demin:user:axi_bram_reader:1.0 reader_0 {
   AXI_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   BRAM_DATA_WIDTH 32
-  BRAM_ADDR_WIDTH 10
+  BRAM_ADDR_WIDTH 11
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
 }
@@ -343,7 +307,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins reader_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
+set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
 set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
 
 # Create axi_sts_register
