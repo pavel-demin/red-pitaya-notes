@@ -140,7 +140,7 @@ make NAME=led_blinker all
 
 Building a bootable SD card:
 {% highlight bash %}
-sudo sh scripts/ubuntu.sh /dev/mmcblk0
+sudo sh scripts/debian.sh /dev/mmcblk0
 {% endhighlight %}
 
 SD card image
