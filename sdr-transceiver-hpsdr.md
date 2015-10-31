@@ -4,28 +4,33 @@ title: SDR transceiver compatible with HPSDR
 permalink: /sdr-transceiver-hpsdr/
 ---
 
+Introduction
+-----
+
+The [High Performance Software Defined Radio](http://openhpsdr.org) (HPSDR) project is an open source hardware and software project that develops a modular Software Defined Radio (SDR) for use by radio amateurs and short wave listeners.
+
+This version of the Red Pitaya SDR transceiver makes it usable with the software developed by the HPSDR project and other SDR programs that support the HPSDR/Metis communication protocol.
+
+This SDR transceiver emulates a HPSDR transceiver with one [Metis](http://openhpsdr.org/metis.php) network interface module, two [Mercury](http://openhpsdr.org/mercury.php) receivers and one [Pennylane ](http://openhpsdr.org/penny.php) transmitter.
+
+The HPSDR/Metis communication protocol is described in the following documents:
+
+ - [Metis - How it works](http://svn.tapr.org/repos_sdr_hpsdr/trunk/Metis/Documentation/Metis-%20How%20it%20works_V1.33.pdf)
+
+ - [HPSDR - USB Data Protocol](http://svn.tapr.org/repos_sdr_hpsdr/trunk/Documentation/USB_protocol_V1.58.doc)
+
 Hardware
 -----
 
-This SDR transceiver emulates a [HPSDR](http://openhpsdr.org) transceiver with one [Metis](http://openhpsdr.org/metis.php) network interface module, two [Mercury](http://openhpsdr.org/mercury.php) receivers and one [Pennylane ](http://openhpsdr.org/penny.php) transmitter.
+The implementation of this SDR transceiver is similar to the previous version of the SDR transceiver that is described in more details at [this link]({{ "/sdr-transceiver/" | prepend: site.baseurl }}).
 
-The implementation of the SDR receivers is quite straightforward:
+The main problem in emulating the HPSDR hardware with Red Pitaya is that the Red Pitaya ADC sample rate is 125 MSPS and the HPSDR ADC sample rate is 122.88 MSPS.
 
- - An antenna is connected to one of the high-impedance analog inputs.
- - The on-board ADC (125 MS/s sampling frequency, 14-bit resolution) digitizes the RF signal from the antenna.
- - The data coming from the ADC is processed by a in-phase/quadrature (I/Q) digital down-converter (DDC) running on the Red Pitaya's FPGA.
+To address this problem, this version contains a set of FIR filters for fractional sample rate conversion.
 
-The SDR receiver is described in more details at [this link]({{ "/sdr-receiver/" | prepend: site.baseurl }}).
-
-The SDR transmitter consists of the similar blocks but arranged in an opposite order:
-
- - The I/Q data is processed by a digital up-converter (DUC) running on the Red Pitaya's FPGA.
- - The on-board DAC (125 MS/s sampling frequency, 14-bit resolution) outputs RF signal.
- - An antenna is connected to one of the analog outputs.
+The resulting I/Q data rate is configurable and four settings are available: 48, 96, 192, 384 kSPS.
 
 The tunable frequency range covers from 0 Hz to 61.44 MHz.
-
-The I/Q data rate is configurable and four settings are available: 48, 96, 192, 384 kSPS.
 
 The basic blocks of the digital down-converters (DDC) and of the digital up-converter (DUC) are shown on the following diagram:
 
@@ -40,7 +45,7 @@ The [projects/sdr_transceiver_hpsdr/server](https://github.com/pavel-demin/red-p
 Software
 -----
 
-This SDR transceiver should work with most of the programs that support the [HPSDR](http://openhpsdr.org)/[Metis](http://openhpsdr.org/metis.php) protocol:
+This SDR transceiver should work with most of the programs that support the HPSDR/Metis communication protocol:
 
  - [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) that can be downloaded from [this link](http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/PowerSDR_Installers) and its skins can be downloaded from [this link](
 http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/OpenHPSDR_Skins)
@@ -61,7 +66,7 @@ Getting started
  - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.92-65-35575ed-sdr-transceiver-hpsdr.zip).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
- - Install and run one of the [HPSDR](http://openhpsdr.org) programs.
+ - Install and run one of the HPSDR programs.
 
 Building from source
 -----
@@ -82,10 +87,9 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 {% endhighlight %}
 
-Building `sdr_transceiver_hpsdr.bin`:
+Building `sdr_transceiver_hpsdr.bit`:
 {% highlight bash %}
 make NAME=sdr_transceiver_hpsdr tmp/sdr_transceiver_hpsdr.bit
-python scripts/fpga-bit-to-bin.py --flip tmp/sdr_transceiver_hpsdr.bit sdr_transceiver_hpsdr.bin
 {% endhighlight %}
 
 Building `sdr-transceiver-hpsdr`:
