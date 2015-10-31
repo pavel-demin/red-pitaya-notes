@@ -245,7 +245,7 @@ void *handler_ep6(void *arg)
   char data1[4096];
   char buffer[26][1032];
   struct iovec iovec[26][1];
-  struct mmsghdr datagrams[26];
+  struct mmsghdr datagram[26];
   uint8_t header[40] =
   {
     127, 127, 127, 0, 0, 33, 17, 21,
@@ -264,11 +264,17 @@ void *handler_ep6(void *arg)
 
   memset(buffer, 0, sizeof(buffer));
   memset(iovec, 0, sizeof(iovec));
-  memset(datagrams, 0, sizeof(datagrams));
+  memset(datagram, 0, sizeof(datagram));
 
   for(i = 0; i < 26; ++i)
   {
     *(uint32_t *)(buffer[i] + 0) = 0x0601feef;
+    iovec[i][0].iov_base = buffer[i];
+    iovec[i][0].iov_len = 1032;
+    datagram[i].msg_hdr.msg_iov = iovec[i];
+    datagram[i].msg_hdr.msg_iovlen = 1;
+    datagram[i].msg_hdr.msg_name = &addr_ep6;
+    datagram[i].msg_hdr.msg_namelen = sizeof(addr_ep6);
   }
 
   while(1)
@@ -313,22 +319,14 @@ void *handler_ep6(void *arg)
             header_offset = header_offset >= 32 ? 0 : header_offset + 8;
             memcpy(buffer[j] + 520, header + header_offset, 8);
             header_offset = header_offset >= 32 ? 0 : header_offset + 8;
-
-            iovec[j][0].iov_base = buffer[j];
-            iovec[j][0].iov_len = 1032;
-            datagrams[j].msg_hdr.msg_iov = iovec[j];
-            datagrams[j].msg_hdr.msg_iovlen = 1;
-            datagrams[j].msg_hdr.msg_name = &addr_ep6;
-            datagrams[j].msg_hdr.msg_namelen = sizeof(addr_ep6);
-            ++j;
-
             buffer_offset = 16;
             size = receivers * 6 + 2;
             ++counter;
+            ++j;
           }
         }
       }
-      sendmmsg(sock_ep2, datagrams, j, 0);
+      sendmmsg(sock_ep2, datagram, j, 0);
       memcpy(buffer[0] + 8, buffer[j] + 8, 1024);
       for(i = 1; i < j; ++i)
       {
