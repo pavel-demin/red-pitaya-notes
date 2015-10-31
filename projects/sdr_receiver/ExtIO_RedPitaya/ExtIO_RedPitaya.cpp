@@ -20,19 +20,18 @@ using namespace ExtIO_RedPitaya;
 #define EXTIO_API __declspec(dllexport) __stdcall
 
 #define TCP_PORT 1001
-#define TCP_ADDR "192.168.1.4"
+#define TCP_ADDR "192.168.1.100"
 
 SOCKET gSock = 0;
 
 char gBuffer[4096];
-int gOffset = 0;
 
 long gRate = 100000;
 int gCorr = 0;
 
 long gFreq = 600000;
 long gFreqMin = 100000;
-long gFreqMax = 50000000;
+long gFreqMax = 60000000;
 
 bool gInitHW = false;
 
@@ -69,16 +68,11 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
 
     ioctlsocket(gSock, FIONREAD, &size);
 
-    while(size >= 1024)
+    while(size >= 4096)
     {
-      recv(gSock, gBuffer + gOffset, 1024, 0);
+      recv(gSock, gBuffer, 4096, 0);
 
-      gOffset += 1024;
-      if(gOffset == 4096)
-      {
-        gOffset = 0;
-        if(ExtIOCallback) (*ExtIOCallback)(512, 0, 0.0, gBuffer);
-      }
+      if(ExtIOCallback) (*ExtIOCallback)(512, 0, 0.0, gBuffer);
 
       ioctlsocket(gSock, FIONREAD, &size);
     }
