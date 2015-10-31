@@ -106,10 +106,9 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 {% endhighlight %}
 
-Building `sdr_transceiver.bin`:
+Building `sdr_transceiver.bit`:
 {% highlight bash %}
 make NAME=sdr_transceiver tmp/sdr_transceiver.bit
-python scripts/fpga-bit-to-bin.py --flip tmp/sdr_transceiver.bit sdr_transceiver.bin
 {% endhighlight %}
 
 Building `sdr-transceiver`:
