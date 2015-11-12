@@ -42,7 +42,7 @@ int main()
   /* set total number of samples */
   *((uint16_t *)(cfg + 8)) = 8192 - 1;
 
-  /* set decimation factor for CIC filter (from 5 to 125)*/
+  /* set decimation factor for CIC filter (from 5 to 125) */
   /* combined (CIC and FIR) decimation factor is twice greater */
   *((uint16_t *)(cfg + 10)) = 5;
 

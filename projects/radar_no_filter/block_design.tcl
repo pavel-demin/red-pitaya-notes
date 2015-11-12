@@ -238,7 +238,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 # Create axis_decimator
 cell pavel-demin:user:axis_decimator:1.0 dcmtr_0 {
   AXIS_TDATA_WIDTH 32
-  CNTR_WIDTH 16 
+  CNTR_WIDTH 16
 } {
   S_AXIS bcast_0/M00_AXIS
   cfg_data slice_7/Dout
