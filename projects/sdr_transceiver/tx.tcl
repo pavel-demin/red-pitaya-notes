@@ -10,8 +10,8 @@ cell xilinx.com:ip:xlslice:1.0 slice_1 {
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0 {
-  CONST_WIDTH 10
-  CONST_VAL 1023
+  CONST_WIDTH 11
+  CONST_VAL 2047
 }
 
 # Create blk_mem_gen
@@ -20,7 +20,7 @@ cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 32
   WRITE_DEPTH_A 2048
-  WRITE_WIDTH_B 64
+  WRITE_WIDTH_B 32
   ENABLE_A Always_Enabled
   ENABLE_B Always_Enabled
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
@@ -38,27 +38,13 @@ cell pavel-demin:user:axi_bram_writer:1.0 writer_0 {
 
 # Create axis_bram_reader
 cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
-  AXIS_TDATA_WIDTH 64
-  BRAM_DATA_WIDTH 64
-  BRAM_ADDR_WIDTH 10
+  AXIS_TDATA_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 11
   CONTINUOUS TRUE
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
   cfg_data const_0/dout
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 8
-  M_TDATA_NUM_BYTES 4
-  M00_TDATA_REMAP {tdata[31:0]}
-  M01_TDATA_REMAP {tdata[63:32]}
-} {
-  S_AXIS reader_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
@@ -70,30 +56,8 @@ cell xilinx.com:ip:floating_point:7.1 fp_0 {
   C_RESULT_EXPONENT_WIDTH 2
   C_RESULT_FRACTION_WIDTH 22
 } {
-  S_AXIS_A bcast_0/M00_AXIS
+  S_AXIS_A reader_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
-}
-
-# Create floating_point
-cell xilinx.com:ip:floating_point:7.1 fp_1 {
-  OPERATION_TYPE Float_to_fixed
-  RESULT_PRECISION_TYPE Custom
-  C_RESULT_EXPONENT_WIDTH 2
-  C_RESULT_FRACTION_WIDTH 22
-} {
-  S_AXIS_A bcast_0/M01_AXIS
-  aclk /ps_0/FCLK_CLK0
-}
-
-# Create axis_combiner
-cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 3
-} {
-  S00_AXIS fp_0/M_AXIS_RESULT
-  S01_AXIS fp_1/M_AXIS_RESULT
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create fir_compiler
@@ -106,19 +70,31 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   BESTPRECISION true
   FILTER_TYPE Interpolation
   INTERPOLATION_RATE 2
-  NUMBER_PATHS 2
+  NUMBER_CHANNELS 2
+  NUMBER_PATHS 1
   SAMPLE_FREQUENCY 0.5
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
   M_DATA_HAS_TREADY true
 } {
-  S_AXIS_DATA comb_0/M_AXIS
+  S_AXIS_DATA fp_0/M_AXIS_RESULT
   aclk /ps_0/FCLK_CLK0
 }
 
+# Create axis_dwidth_converter
+cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 4
+  M_TDATA_NUM_BYTES 8
+} {
+  S_AXIS fir_0/M_AXIS_DATA
+  aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
+}
+
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 8
@@ -126,7 +102,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
   M00_TDATA_REMAP {tdata[23:0]}
   M01_TDATA_REMAP {tdata[55:32]}
 } {
-  S_AXIS fir_0/M_AXIS_DATA
+  S_AXIS conv_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
@@ -166,7 +142,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
-  S_AXIS_DATA bcast_1/M00_AXIS
+  S_AXIS_DATA bcast_0/M00_AXIS
   S_AXIS_CONFIG rate_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
 }
@@ -188,7 +164,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
-  S_AXIS_DATA bcast_1/M01_AXIS
+  S_AXIS_DATA bcast_0/M01_AXIS
   S_AXIS_CONFIG rate_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
 }
