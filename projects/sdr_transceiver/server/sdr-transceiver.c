@@ -222,7 +222,7 @@ void *rx_data_handler(void *arg)
   int position, limit, offset;
   char buffer[4096];
 
-  limit = 512;
+  limit = 1024;
 
   while(1)
   {
@@ -230,10 +230,10 @@ void *rx_data_handler(void *arg)
     position = *rx_cntr;
 
     /* send 4096 bytes if ready, otherwise sleep */
-    if((limit > 0 && position > limit) || (limit == 0 && position < 512))
+    if((limit > 0 && position > limit) || (limit == 0 && position < 1024))
     {
       offset = limit > 0 ? 0 : 4096;
-      limit = limit > 0 ? 0 : 512;
+      limit = limit > 0 ? 0 : 1024;
       memcpy(buffer, rx_data + offset, 4096);
       if(send(sock_client, buffer, 4096, MSG_NOSIGNAL) < 0) break;
     }
@@ -336,7 +336,7 @@ void *tx_data_handler(void *arg)
 
   memset(tx_data, 0, 8192);
 
-  limit = 512;
+  limit = 1024;
   rest = 0;
 
   while(1)
@@ -354,10 +354,10 @@ void *tx_data_handler(void *arg)
     position = *tx_cntr;
 
     /* receive 4096 bytes if ready, otherwise sleep */
-    if((limit > 0 && position > limit) || (limit == 0 && position < 512))
+    if((limit > 0 && position > limit) || (limit == 0 && position < 1024))
     {
       offset = limit > 0 ? 0 : 4096;
-      limit = limit > 0 ? 0 : 512;
+      limit = limit > 0 ? 0 : 1024;
 
       if(result == 0)
       {
