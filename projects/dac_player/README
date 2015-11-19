@@ -1,0 +1,32 @@
+Setting up the Vivado environment:
+
+  source /opt/Xilinx/Vivado/2015.3/settings64.sh
+  source /opt/Xilinx/SDK/2015.3/settings64.sh
+
+Cloning the source code repository:
+
+  git clone https://github.com/pavel-demin/red-pitaya-notes
+  cd red-pitaya-notes
+
+Building dac_player.bit:
+
+  make NAME=dac_player tmp/dac_player.bit
+
+Configuring FPGA:
+
+  devcfg=/sys/devices/soc0/amba/f8007000.devcfg
+  echo fclk0 > $devcfg/fclk_export
+  echo 1 > $devcfg/fclk/fclk0/enable
+  echo 143000000 > $devcfg/fclk/fclk0/set_rate
+
+  cat dac_player.bit > /dev/xdevcfg
+
+Compiling and running ADC recorder:
+
+  gcc -O3 adc-recorder.c -o adc-recorder
+  ./adc-recorder 125 record.dat
+
+Compiling and running DAC player:
+
+  gcc -O3 dac-player.c -o dac-player
+  ./dac-player 125 record.dat
