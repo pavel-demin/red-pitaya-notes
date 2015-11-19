@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
   char *end, *name = "/dev/mem";
   char buffer[65536];
   long number;
+  size_t size;
 
   if((mmapfd = open(name, O_RDWR)) < 0)
   {
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40001000);
-  dac = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40010000);
+  dac = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40020000);
 
   errno = 0;
   number = (argc == 3) ? strtol(argv[1], &end, 10) : -1;
@@ -49,7 +50,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  if((fileIn = fopen(argv[2], "bb")) < 0)
+  if((fileIn = fopen(argv[2], "rb")) < 0)
   {
     perror("fopen");
     return EXIT_FAILURE;
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
   /* write OUT1 and OUT2 samples to DAC FIFO */
   while(!interrupted)
   {
-    fread(buffer, 1, 65536, fileIn);
+    if((size = fread(buffer, 1, 65536, fileIn)) <= 0) break;
 
     /* wait if there is not enough free space in FIFO */
     while(*((uint32_t *)(sts + 4)) > 16384)
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
       usleep(500);
     }
 
-    memcpy(dac, buffer, 65536);
+    memcpy(dac, buffer, size);
   }
 
   munmap(cfg, sysconf(_SC_PAGESIZE));
