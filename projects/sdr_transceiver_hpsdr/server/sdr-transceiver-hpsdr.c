@@ -9,9 +9,11 @@
 #include <math.h>
 #include <pthread.h>
 #include <sys/mman.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <net/if.h>
 
 uint32_t *rx_freq[2], *rx_rate[2], *tx_freq, *tx_cntr;
 uint16_t *gpio, *rx_cntr[2];
@@ -40,6 +42,7 @@ int main(int argc, char *argv[])
   char *name = "/dev/mem";
   char buffer[1032];
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
+  struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from;
   socklen_t size_from;
   int yes = 1;
@@ -89,6 +92,10 @@ int main(int argc, char *argv[])
     perror("socket");
     return EXIT_FAILURE;
   }
+
+  strncpy(hwaddr.ifr_name, "eth0", IFNAMSIZ);
+  ioctl(sock_ep2, SIOCGIFHWADDR, &hwaddr);
+  for(i = 0; i < 6; ++i) reply[i + 3] = hwaddr.ifr_addr.sa_data[i];
 
   setsockopt(sock_ep2, SOL_SOCKET, SO_REUSEADDR, (void *)&yes , sizeof(yes));
 
