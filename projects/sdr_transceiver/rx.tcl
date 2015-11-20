@@ -154,17 +154,6 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_dwidth_converter
-cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 6
-  M_TDATA_NUM_BYTES 3
-} {
-  S_AXIS comb_0/M_AXIS
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
-}
-
 # Create fir_compiler
 cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   DATA_WIDTH.VALUE_SRC USER
@@ -175,24 +164,24 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   BESTPRECISION true
   FILTER_TYPE Decimation
   DECIMATION_RATE 2
-  NUMBER_CHANNELS 2
-  NUMBER_PATHS 1
+  NUMBER_PATHS 2
   SAMPLE_FREQUENCY 1.0
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
 } {
-  S_AXIS_DATA conv_0/M_AXIS
+  S_AXIS_DATA comb_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
 }
 
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
+# Create axis_broadcaster
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
+  S_TDATA_NUM_BYTES 8
   M_TDATA_NUM_BYTES 3
-  TDATA_REMAP {tdata[23:0]}
+  M00_TDATA_REMAP {tdata[23:0]}
+  M01_TDATA_REMAP {tdata[55:32]}
 } {
   S_AXIS fir_0/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
@@ -210,8 +199,34 @@ cell xilinx.com:ip:floating_point:7.1 fp_0 {
   C_A_FRACTION_WIDTH 22
   RESULT_PRECISION_TYPE Single
 } {
-  S_AXIS_A subset_0/M_AXIS
+  S_AXIS_A bcast_1/M00_AXIS
   aclk /ps_0/FCLK_CLK0
+}
+
+# Create floating_point
+cell xilinx.com:ip:floating_point:7.1 fp_1 {
+  OPERATION_TYPE Fixed_to_float
+  A_PRECISION_TYPE.VALUE_SRC USER
+  C_A_EXPONENT_WIDTH.VALUE_SRC USER
+  C_A_FRACTION_WIDTH.VALUE_SRC USER
+  A_PRECISION_TYPE Custom
+  C_A_EXPONENT_WIDTH 2
+  C_A_FRACTION_WIDTH 22
+  RESULT_PRECISION_TYPE Single
+} {
+  S_AXIS_A bcast_1/M01_AXIS
+  aclk /ps_0/FCLK_CLK0
+}
+
+# Create axis_combiner
+cell  xilinx.com:ip:axis_combiner:1.1 comb_1 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 4
+} {
+  S00_AXIS fp_0/M_AXIS_RESULT
+  S01_AXIS fp_1/M_AXIS_RESULT
+  aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create blk_mem_gen
@@ -220,8 +235,8 @@ cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   USE_BRAM_BLOCK Stand_Alone
   USE_BYTE_WRITE_ENABLE true
   BYTE_SIZE 8
-  WRITE_WIDTH_A 32
-  WRITE_DEPTH_A 2048
+  WRITE_WIDTH_A 64
+  WRITE_DEPTH_A 1024
   WRITE_WIDTH_B 32
   ENABLE_A Always_Enabled
   ENABLE_B Always_Enabled
@@ -230,11 +245,11 @@ cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
 
 # Create axis_bram_writer
 cell pavel-demin:user:axis_bram_writer:1.0 writer_0 {
-  AXIS_TDATA_WIDTH 32
-  BRAM_DATA_WIDTH 32
-  BRAM_ADDR_WIDTH 11
+  AXIS_TDATA_WIDTH 64
+  BRAM_DATA_WIDTH 64
+  BRAM_ADDR_WIDTH 10
 } {
-  S_AXIS fp_0/M_AXIS_RESULT
+  S_AXIS comb_1/M_AXIS
   BRAM_PORTA bram_0/BRAM_PORTA
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
