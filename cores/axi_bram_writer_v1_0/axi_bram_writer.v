@@ -39,7 +39,6 @@ module axi_bram_writer #
 
   localparam integer ADDR_LSB = clogb2(AXI_DATA_WIDTH/8 - 1);
 
-  reg int_awready_reg, int_awready_next;
   reg int_wready_reg, int_wready_next;
   reg int_bvalid_reg, int_bvalid_next;
   wire int_wvalid_wire;
@@ -50,13 +49,11 @@ module axi_bram_writer #
   begin
     if(~aresetn)
     begin
-      int_awready_reg <= 1'b0;
       int_wready_reg <= 1'b0;
       int_bvalid_reg <= 1'b0;
     end
     else
     begin
-      int_awready_reg <= int_awready_next;
       int_wready_reg <= int_wready_next;
       int_bvalid_reg <= int_bvalid_next;
     end
@@ -64,19 +61,16 @@ module axi_bram_writer #
 
   always @*
   begin
-    int_awready_next = int_awready_reg;
     int_wready_next = int_wready_reg;
     int_bvalid_next = int_bvalid_reg;
 
-    if(int_wvalid_wire & ~int_awready_reg)
+    if(int_wvalid_wire)
     begin
-      int_awready_next = 1'b1;
       int_wready_next = 1'b1;
     end
 
-    if(int_awready_reg)
+    if(int_wready_reg)
     begin
-      int_awready_next = 1'b0;
       int_wready_next = 1'b0;
       int_bvalid_next = 1'b1;
     end
@@ -89,7 +83,7 @@ module axi_bram_writer #
 
   assign s_axi_bresp = 2'd0;
 
-  assign s_axi_awready = int_awready_reg;
+  assign s_axi_awready = int_wready_reg;
   assign s_axi_wready = int_wready_reg;
   assign s_axi_bvalid = int_bvalid_reg;
 
