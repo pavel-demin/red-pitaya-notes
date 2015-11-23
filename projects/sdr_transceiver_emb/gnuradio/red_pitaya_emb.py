@@ -40,7 +40,7 @@ class source(gr.sync_block):
     offset = 0
     while size > 0:
       while struct.unpack("<H", self.sts[0:2])[0] < 1024: time.sleep(0.001)
-      if struct.unpack("<H", self.sts[0:2])[0] == 2048:
+      if struct.unpack("<H", self.sts[0:2])[0] >= 2048:
         self.cfg[0:1] = struct.pack('<B', 1)
         self.cfg[0:1] = struct.pack('<B', 0)
       if size < 512:
@@ -51,7 +51,7 @@ class source(gr.sync_block):
         output_items[0][offset:offset+512] = numpy.fromstring(self.buf[0:4096], numpy.complex64)
         size = size - 512
         offset = offset + 512
-    return size
+    return len(output_items[0])
 
 class sink(gr.sync_block):
   '''Red Pitaya Embedded Sink'''
@@ -85,25 +85,25 @@ class sink(gr.sync_block):
   def set_ptt(self, on):
     if on and not self.ptt:
       self.ptt = True
-      self.cfg[0:2] = struct.pack('<H', 1)
+      self.cfg[2:4] = struct.pack('<H', 1)
     elif not on and self.ptt:
       self.ptt = False
-      self.cfg[0:2] = struct.pack('<H', 0)
+      self.cfg[2:4] = struct.pack('<H', 0)
 
   def work(self, input_items, output_items):
     size = len(input_items[0])
     if not self.ptt: return size
     offset = 0
     while size > 0:
-      while struct.unpack("<H", self.sts[2:4])[0] < 1024: time.sleep(0.001)
+      while struct.unpack("<H", self.sts[2:4])[0] > 1024: time.sleep(0.001)
       if(struct.unpack("<H", self.sts[2:4])[0] == 0):
-        self.buf[0:8192] = numpy.zeros(1024, numpy.complex64).tostring()
+        self.buf[0:4096] = numpy.zeros(512, numpy.complex64).tostring()
       if size < 512:
         self.buf[0:8*size] = input_items[0][offset:offset+size].tostring()
         size = 0
         offset = offset + size
-      else
+      else:
         self.buf[0:4096] = input_items[0][offset:offset+512].tostring()
         size = size - 512
         offset = offset + 512
-    return size
+    return len(input_items[0])
