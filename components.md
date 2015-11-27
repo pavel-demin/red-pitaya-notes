@@ -8,9 +8,9 @@ The following is a list of components that can be used with Red Pitaya.
 RS Components
 -----
 
- - [Red Pitaya V1.1 Open Source Instrument](http://uk.rs-online.com/web/c/?searchTerm=8007403)
+ - [Red Pitaya Open Source Instrument](http://uk.rs-online.com/web/c/?searchTerm=9010302)
 
- - [Red Pitaya Enclosure Plexi1 V1.1](http://uk.rs-online.com/web/c/?searchTerm=8194077)
+ - [Red Pitaya Case](http://uk.rs-online.com/web/c/?searchTerm=8194077)
 
  - [SMA cable, SMA jack, SMA plug, RG-174, 15 cm](http://uk.rs-online.com/web/c/?searchTerm=7839644)
 
