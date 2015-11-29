@@ -24,7 +24,7 @@ using namespace ExtIO_RedPitaya_TRX;
 
 SOCKET gSock[2] = {-1, -1};
 
-char gBuffer[16384];
+char gBuffer[8192];
 
 UInt32 gRate = 100000;
 Int32 gCorr = 0;
@@ -68,11 +68,11 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
 
     ioctlsocket(gSock[1], FIONREAD, &size);
 
-    while(size >= 16384)
+    while(size >= 8192)
     {
-      recv(gSock[1], gBuffer, 16384, 0);
+      recv(gSock[1], gBuffer, 8192, 0);
 
-      if(ExtIOCallback) (*ExtIOCallback)(2048, 0, 0.0, gBuffer);
+      if(ExtIOCallback) (*ExtIOCallback)(1024, 0, 0.0, gBuffer);
 
       ioctlsocket(gSock[1], FIONREAD, &size);
     }
@@ -208,7 +208,7 @@ int EXTIO_API StartHW(long LOfreq)
   SetRate(ManagedGlobals::gGUI->rateValue->SelectedIndex);
   StartThread();
 
-  return 512;
+  return 1024;
 }
 
 //---------------------------------------------------------------------------
