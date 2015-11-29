@@ -220,7 +220,14 @@ void *rx_data_handler(void *arg)
 
   while(1)
   {
+    if(*rx_cntr >= 2048)
+    {
+      *rx_rst |= 1;
+      *rx_rst &= ~1;
+    }
+
     while(*rx_cntr < 1024) usleep(1000);
+
     memcpy(buffer, rx_data, 4096);
     if(send(sock_client, buffer, 4096, MSG_NOSIGNAL) < 0) break;
   }
