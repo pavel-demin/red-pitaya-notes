@@ -25,7 +25,7 @@ The SDR transmitters consist of the similar blocks but arranged in an opposite o
 
 The tunable frequency range covers from 0 Hz to 60 MHz.
 
-The I/Q data rate is configurable and five settings are available: 20, 50, 100, 250 and 500 kSPS.
+The I/Q data rate is configurable and five settings are available: 20, 50, 100, 250, 500 and 1250 kSPS.
 
 The basic blocks of the digital down-converters (DDC) and of the digital up-converters (DUC) are shown on the following diagram:
 
@@ -33,7 +33,7 @@ The basic blocks of the digital down-converters (DDC) and of the digital up-conv
 
 The [projects/sdr_transceiver](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver) directory contains four Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/block_design.tcl), [trx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/trx.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
-The [projects/sdr_transceiver/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/server) directory contains the source code of the TCP server ([sdr-transceiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/server/sdr-transceiver.c)) that receives control commands and transmits/receives the I/Q data streams (up to 2 x 32 bit x 500 kSPS = 30.5 Mbit/s) to/from the SDR programs.
+The [projects/sdr_transceiver/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/server) directory contains the source code of the TCP server ([sdr-transceiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/server/sdr-transceiver.c)) that receives control commands and transmits/receives the I/Q data streams (up to 2 x 32 bit x 1250 kSPS = 76.3 Mbit/s) to/from the SDR programs.
 
 Software
 -----
