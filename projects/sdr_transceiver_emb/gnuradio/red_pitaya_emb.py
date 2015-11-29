@@ -58,7 +58,7 @@ class sink(gr.sync_block):
 
   rates = {24000:2500, 48000:1250, 96000:625}
 
-  def __init__(self, chan, freq, rate, corr):
+  def __init__(self, chan, freq, rate, corr, ptt):
     gr.sync_block.__init__(
       self,
       name = "red_pitaya_sink",
@@ -69,7 +69,7 @@ class sink(gr.sync_block):
     self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40000000)
     self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40001000)
     self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40004000)
-    self.ptt = False
+    self.ptt = ptt
     self.set_freq(freq, corr)
     self.set_rate(rate)
 
@@ -82,11 +82,11 @@ class sink(gr.sync_block):
     else:
       raise ValueError("acceptable sample rates are 24k, 48k, 96k")
 
-  def set_ptt(self, on):
-    if on and not self.ptt:
+  def set_ptt(self, ptt):
+    if ptt and not self.ptt:
       self.ptt = True
       self.cfg[2:4] = struct.pack('<H', 1)
-    elif not on and self.ptt:
+    elif not ptt and self.ptt:
       self.ptt = False
       self.cfg[2:4] = struct.pack('<H', 0)
 
