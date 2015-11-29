@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <math.h>
-#include <poll.h>
 #include <pthread.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
@@ -16,6 +15,7 @@
 
 uint32_t *rx_freq, *rx_rate, *tx_freq, *tx_rate;
 uint16_t *gpio, *rx_cntr, *tx_cntr;
+uint8_t *rx_rst, *tx_rst;
 void *rx_data, *tx_data;
 
 int sock_thread[4] = {-1, -1, -1, -1};
@@ -66,24 +66,26 @@ int main(int argc, char *argv[])
       port = 1001;
       cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
       sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-      rx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-      tx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
+      rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+      tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40018000);
       break;
     case 2:
       port = 1002;
       cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
       sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
-      rx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
-      tx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000A000);
+      rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+      tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40028000);
       break;
   }
 
-  gpio = ((uint16_t *)(cfg + 0));
+  gpio = ((uint16_t *)(cfg + 2));
 
+  rx_rst = ((uint8_t *)(cfg + 0));
   rx_freq = ((uint32_t *)(cfg + 4));
   rx_rate = ((uint32_t *)(cfg + 8));
   rx_cntr = ((uint16_t *)(sts + 0));
 
+  tx_rst = ((uint8_t *)(cfg + 1));
   tx_freq = ((uint32_t *)(cfg + 12));
   tx_rate = ((uint32_t *)(cfg + 16));
   tx_cntr = ((uint16_t *)(sts + 2));
@@ -200,6 +202,10 @@ void *rx_ctrl_handler(void *arg)
             freq_min = 250000;
             *rx_rate = 125;
             break;
+          case 5:
+            freq_min = 625000;
+            *rx_rate = 50;
+            break;
         }
         break;
     }
@@ -219,28 +225,23 @@ void *rx_ctrl_handler(void *arg)
 void *rx_data_handler(void *arg)
 {
   int sock_client = sock_thread[1];
-  int position, limit, offset;
-  char buffer[4096];
+  char buffer[16384];
 
-  limit = 512;
+  *rx_rst |= 1;
+  *rx_rst &= ~1;
 
   while(1)
   {
-    /* read ram writer position */
-    position = *rx_cntr;
+    if(*rx_cntr >= 8192)
+    {
+      *rx_rst |= 1;
+      *rx_rst &= ~1;
+    }
 
-    /* send 4096 bytes if ready, otherwise sleep */
-    if((limit > 0 && position > limit) || (limit == 0 && position < 512))
-    {
-      offset = limit > 0 ? 0 : 4096;
-      limit = limit > 0 ? 0 : 512;
-      memcpy(buffer, rx_data + offset, 4096);
-      if(send(sock_client, buffer, 4096, MSG_NOSIGNAL) < 0) break;
-    }
-    else
-    {
-      usleep(*rx_rate * 2);
-    }
+    while(*rx_cntr < 4096) usleep(500);
+
+    memcpy(buffer, rx_data, 16384);
+    if(send(sock_client, buffer, 16384, MSG_NOSIGNAL) < 0) break;
   }
 
   close(sock_client);
@@ -291,12 +292,16 @@ void *tx_ctrl_handler(void *arg)
             *tx_rate = 625;
             break;
           case 3:
-            freq_min = 125000;
+	    freq_min = 125000;
             *tx_rate = 250;
             break;
           case 4:
             freq_min = 250000;
             *tx_rate = 125;
+            break;
+          case 5:
+            freq_min = 625000;
+            *tx_rate = 50;
             break;
         }
         break;
@@ -327,64 +332,23 @@ void *tx_ctrl_handler(void *arg)
 void *tx_data_handler(void *arg)
 {
   int sock_client = sock_thread[3];
-  struct pollfd pfd = {sock_client, POLLIN, 0};
-  struct timespec timeout;
-  useconds_t delay;
-  int result, position, limit, offset;
-  ssize_t size, rest;
-  char buffer[5003];
+  char buffer[16384];
 
-  memset(tx_data, 0, 8192);
-
-  limit = 512;
-  rest = 0;
+  *tx_rst |= 1;
+  *tx_rst &= ~1;
 
   while(1)
   {
-    delay = *tx_rate * 2;
+    while(*tx_cntr > 4096) usleep(500);
 
-    timeout.tv_sec = 0;
-    timeout.tv_nsec = delay * 1000;
-
-    result = ppoll(&pfd, 1, &timeout, NULL);
-
-    if(result < 0) break;
-
-    /* read ram reader position */
-    position = *tx_cntr;
-
-    /* receive 4096 bytes if ready, otherwise sleep */
-    if((limit > 0 && position > limit) || (limit == 0 && position < 512))
+    if(*tx_cntr == 0)
     {
-      offset = limit > 0 ? 0 : 4096;
-      limit = limit > 0 ? 0 : 512;
-
-      if(result == 0)
-      {
-        memset(tx_data + offset, 0, 4096);
-        continue;
-      }
-
-      if((size = recv(sock_client, buffer, 4096 + rest, 0)) <= 0) break;
-
-      if(size == 4096 + rest)
-      {
-        memcpy(tx_data + offset, buffer + rest, 4096);
-        rest = 0;
-      }
-      else
-      {
-        memset(tx_data + offset, 0, 4096);
-        rest = abs(rest - size) & 7;
-      }
+      memset(tx_data, 0, 16384);
     }
-    else
-    {
-      usleep(delay);
-    }
+
+    if(recv(sock_client, buffer, 16384, 0) <= 0) break;
+    memcpy(tx_data, buffer, 16384);
   }
-
-  memset(tx_data, 0, 8192);
 
   close(sock_client);
   sock_thread[3] = -1;

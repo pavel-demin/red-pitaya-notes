@@ -5,9 +5,24 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
   AXI_DATA_WIDTH 32
 }
 
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
+  DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
+  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+  DIN_WIDTH 160 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
@@ -29,15 +44,17 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
 module rx_0 {
   source projects/sdr_transceiver/rx.tcl
 } {
-  slice_0/Din cfg_slice_0/Dout
+  slice_0/Din rst_slice_0/Dout
   slice_1/Din cfg_slice_0/Dout
+  slice_2/Din cfg_slice_0/Dout
 }
 
 module tx_0 {
   source projects/sdr_transceiver/tx.tcl
 } {
-  slice_0/Din cfg_slice_1/Dout
+  slice_0/Din rst_slice_1/Dout
   slice_1/Din cfg_slice_1/Dout
+  slice_2/Din cfg_slice_1/Dout
 }
 
 # Create xlconcat
@@ -46,8 +63,8 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN0_WIDTH 16
   IN1_WIDTH 16
 } {
-  In0 rx_0/writer_0/sts_data
-  In1 tx_0/reader_0/sts_data
+  In0 rx_0/fifo_generator_0/rd_data_count
+  In1 tx_0/fifo_generator_0/wr_data_count
 }
 
 # Create axi_sts_register
