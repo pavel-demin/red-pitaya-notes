@@ -23,6 +23,8 @@ class source(gr.sync_block):
     self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40000000)
     self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40001000)
     self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40002000)
+    self.cfg[0:1] = struct.pack('<B', 1)
+    self.cfg[0:1] = struct.pack('<B', 0)
     self.set_freq(freq, corr)
     self.set_rate(rate)
 
@@ -39,10 +41,10 @@ class source(gr.sync_block):
     size = len(output_items[0])
     offset = 0
     while size > 0:
-      while struct.unpack("<H", self.sts[0:2])[0] < 1024: time.sleep(0.001)
       if struct.unpack("<H", self.sts[0:2])[0] >= 2048:
         self.cfg[0:1] = struct.pack('<B', 1)
         self.cfg[0:1] = struct.pack('<B', 0)
+      while struct.unpack("<H", self.sts[0:2])[0] < 1024: time.sleep(0.001)
       if size < 512:
         output_items[0][offset:offset+size] = numpy.fromstring(self.buf[0:8*size], numpy.complex64)
         size = 0
@@ -69,9 +71,16 @@ class sink(gr.sync_block):
     self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40000000)
     self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40001000)
     self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40004000)
-    self.ptt = ptt
+    self.cfg[1:2] = struct.pack('<B', 1)
+    self.cfg[1:2] = struct.pack('<B', 0)
     self.set_freq(freq, corr)
     self.set_rate(rate)
+    if ptt:
+      self.ptt = True
+      self.cfg[2:4] = struct.pack('<H', 1)
+    else:
+      self.ptt = False
+      self.cfg[2:4] = struct.pack('<H', 0)
 
   def set_freq(self, freq, corr):
     self.cfg[12:16] = struct.pack('<I', int((1.0 + 1e-6 * corr) * freq / 125.0e6 * (1<<30) + 0.5))
