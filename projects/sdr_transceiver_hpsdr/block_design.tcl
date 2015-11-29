@@ -124,13 +124,20 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 192 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+  DIN_WIDTH 192 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
   Dout exp_p_tri_io
 }
 
 # RX 0
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
+  DIN_WIDTH 192 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
@@ -142,13 +149,20 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
 module rx_0 {
   source projects/sdr_transceiver_hpsdr/rx.tcl
 } {
-  slice_0/Din cfg_slice_0/Dout
+  slice_0/Din rst_slice_0/Dout
   slice_1/Din cfg_slice_0/Dout
+  slice_2/Din cfg_slice_0/Dout
+  fifo_0/S_AXIS bcast_0/M00_AXIS
 }
 
-connect_bd_intf_net [get_bd_intf_pins rx_0/fifo_0/S_AXIS] [get_bd_intf_pins bcast_0/M00_AXIS]
-
 # RX 1
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
+  DIN_WIDTH 192 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
@@ -160,13 +174,20 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
 module rx_1 {
   source projects/sdr_transceiver_hpsdr/rx.tcl
 } {
-  slice_0/Din cfg_slice_1/Dout
+  slice_0/Din rst_slice_1/Dout
   slice_1/Din cfg_slice_1/Dout
+  slice_2/Din cfg_slice_1/Dout
+  fifo_0/S_AXIS bcast_0/M01_AXIS
 }
 
-connect_bd_intf_net [get_bd_intf_pins rx_1/fifo_0/S_AXIS] [get_bd_intf_pins bcast_0/M01_AXIS]
-
 # TX 0
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
+  DIN_WIDTH 192 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
@@ -178,10 +199,10 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
 module tx_0 {
   source projects/sdr_transceiver_hpsdr/tx.tcl
 } {
-  slice_0/Din cfg_slice_2/Dout
+  slice_0/Din rst_slice_2/Dout
+  slice_1/Din cfg_slice_2/Dout
+  fifo_1/M_AXIS dac_0/S_AXIS
 }
-
-connect_bd_intf_net [get_bd_intf_pins tx_0/fifo_1/M_AXIS] [get_bd_intf_pins dac_0/S_AXIS]
 
 # STS
 
@@ -190,11 +211,11 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   NUM_PORTS 3
   IN0_WIDTH 16
   IN1_WIDTH 16
-  IN2_WIDTH 32
+  IN2_WIDTH 16
 } {
-  In0 rx_0/writer_0/sts_data
-  In1 rx_1/writer_0/sts_data
-  In2 tx_0/fifo_0/axis_data_count
+  In0 rx_0/fifo_generator_0/rd_data_count
+  In1 rx_1/fifo_generator_0/rd_data_count
+  In2 tx_0/fifo_generator_0/data_count
 }
 
 # Create axi_sts_register
