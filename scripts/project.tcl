@@ -37,7 +37,7 @@ proc cell {cell_vlnv cell_name {cell_props {}} {cell_ports {}}} {
       connect_bd_intf_net $local_port $remote_port
       continue
     }
-    error "** ERROR: can't connect $cell_name/$local_name and $remote_port"
+    error "** ERROR: can't connect $cell_name/$local_name and $remote_name"
   }
 }
 
@@ -59,7 +59,7 @@ proc module {module_name module_body {module_ports {}}} {
       connect_bd_intf_net $local_port $remote_port
       continue
     }
-    error "** ERROR: can't connect $module_name/$local_name and $remote_port"
+    error "** ERROR: can't connect $module_name/$local_name and $remote_name"
   }
 }
 

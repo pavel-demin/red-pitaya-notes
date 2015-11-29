@@ -24,7 +24,7 @@ int main()
   adc = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
 
   // set ADC decimation factor (125e6/5/1024/4)
-  *((uint16_t *)(cfg + 4)) = 6104 - 1;
+  *((uint16_t *)(cfg + 4)) = 6104;
 
   // set DAC interpolation factor (125e6/5/1024)
   *((uint16_t *)(cfg + 6)) = 24416 - 1;

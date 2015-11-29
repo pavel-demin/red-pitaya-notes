@@ -5,7 +5,6 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
   AXI_DATA_WIDTH 32
 }
 
-
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
   DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
@@ -42,7 +41,7 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
 }
 
 module rx_0 {
-  source projects/sdr_transceiver/rx.tcl
+  source projects/sdr_transceiver_emb/rx.tcl
 } {
   slice_0/Din rst_slice_0/Dout
   slice_1/Din cfg_slice_0/Dout
@@ -50,7 +49,7 @@ module rx_0 {
 }
 
 module tx_0 {
-  source projects/sdr_transceiver/tx.tcl
+  source projects/sdr_transceiver_emb/tx.tcl
 } {
   slice_0/Din rst_slice_1/Dout
   slice_1/Din cfg_slice_1/Dout

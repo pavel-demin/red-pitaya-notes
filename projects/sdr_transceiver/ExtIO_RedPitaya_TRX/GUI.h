@@ -104,7 +104,7 @@ namespace ExtIO_RedPitaya_TRX {
 			// 
 			this->rateValue->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->rateValue->FormattingEnabled = true;
-			this->rateValue->Items->AddRange(gcnew cli::array< System::Object^  >(5) {L"20 kSPS", L"50 kSPS", L"100 kSPS", L"250 kSPS", L"500 kSPS"});
+			this->rateValue->Items->AddRange(gcnew cli::array< System::Object^  >(6) {L"20 kSPS", L"50 kSPS", L"100 kSPS", L"250 kSPS", L"500 kSPS", L"1250 kSPS"});
 			this->rateValue->Location = System::Drawing::Point(102, 38);
 			this->rateValue->Name = L"rateValue";
 			this->rateValue->Size = System::Drawing::Size(101, 21);

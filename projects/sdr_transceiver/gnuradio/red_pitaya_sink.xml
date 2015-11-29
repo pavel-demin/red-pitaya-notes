@@ -27,7 +27,8 @@
         port=$port,
         freq=$freq,
         rate=$rate,
-        corr=$corr
+        corr=$corr,
+        ptt=$ptt
 )
   </make>
   <callback>set_freq($freq, $corr)</callback>

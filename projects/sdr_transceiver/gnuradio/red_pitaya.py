@@ -26,7 +26,7 @@ from gnuradio import gr, blocks
 class source(gr.hier_block2):
   '''Red Pitaya Source'''
 
-  rates = {20000:0, 50000:1, 100000:2, 250000:3, 500000:4}
+  rates = {20000:0, 50000:1, 100000:2, 250000:3, 500000:4, 1250000:5}
 
   def __init__(self, addr, port, freq, rate, corr):
     gr.hier_block2.__init__(
@@ -54,14 +54,14 @@ class source(gr.hier_block2):
       code = source.rates[rate]
       self.ctrl_sock.send(struct.pack('<I', 1<<28 | code))
     else:
-      raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k")
+      raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k, 1250k")
 
 class sink(gr.hier_block2):
   '''Red Pitaya Sink'''
 
-  rates = {20000:0, 50000:1, 100000:2, 250000:3, 500000:4}
+  rates = {20000:0, 50000:1, 100000:2, 250000:3, 500000:4, 1250000:5}
 
-  def __init__(self, addr, port, freq, rate, corr):
+  def __init__(self, addr, port, freq, rate, corr, ptt):
     gr.hier_block2.__init__(
       self,
       name = "red_pitaya_sink",
@@ -77,10 +77,16 @@ class sink(gr.hier_block2):
     fd = os.dup(self.data_sock.fileno())
     self.null_sink = blocks.null_sink(gr.sizeof_gr_complex)
     self.file_sink = blocks.file_descriptor_sink(gr.sizeof_gr_complex, fd)
-    self.connect(self, self.null_sink)
-    self.ptt = False
     self.set_freq(freq, corr)
     self.set_rate(rate)
+    if ptt:
+      self.ptt = True
+      self.ctrl_sock.send(struct.pack('<I', 2<<28))
+      self.connect(self, self.file_sink)
+    else:
+      self.ptt = False
+      self.ctrl_sock.send(struct.pack('<I', 3<<28))
+      self.connect(self, self.null_sink)
 
   def set_freq(self, freq, corr):
     self.ctrl_sock.send(struct.pack('<I', 0<<28 | int((1.0 + 1e-6 * corr) * freq)))
@@ -90,17 +96,17 @@ class sink(gr.hier_block2):
       code = sink.rates[rate]
       self.ctrl_sock.send(struct.pack('<I', 1<<28 | code))
     else:
-      raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k")
+      raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k, 1250k")
 
-  def set_ptt(self, on):
-    if on and not self.ptt:
+  def set_ptt(self, ptt):
+    if ptt and not self.ptt:
       self.ptt = True
       self.ctrl_sock.send(struct.pack('<I', 2<<28))
       self.lock()
       self.disconnect(self, self.null_sink)
       self.connect(self, self.file_sink)
       self.unlock()
-    elif not on and self.ptt:
+    elif not ptt and self.ptt:
       self.ptt = False
       self.ctrl_sock.send(struct.pack('<I', 3<<28))
       self.lock()

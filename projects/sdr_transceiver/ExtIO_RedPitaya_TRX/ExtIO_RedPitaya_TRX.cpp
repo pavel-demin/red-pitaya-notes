@@ -24,7 +24,7 @@ using namespace ExtIO_RedPitaya_TRX;
 
 SOCKET gSock[2] = {-1, -1};
 
-char gBuffer[4096];
+char gBuffer[8192];
 
 UInt32 gRate = 100000;
 Int32 gCorr = 0;
@@ -68,11 +68,11 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
 
     ioctlsocket(gSock[1], FIONREAD, &size);
 
-    while(size >= 4096)
+    while(size >= 8192)
     {
-      recv(gSock[1], gBuffer, 4096, 0);
+      recv(gSock[1], gBuffer, 8192, 0);
 
-      if(ExtIOCallback) (*ExtIOCallback)(512, 0, 0.0, gBuffer);
+      if(ExtIOCallback) (*ExtIOCallback)(1024, 0, 0.0, gBuffer);
 
       ioctlsocket(gSock[1], FIONREAD, &size);
     }
@@ -139,7 +139,7 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
     ManagedGlobals::gGUI->addrValue->Text = addrString;
 
     rateIndex = Convert::ToUInt32(ManagedGlobals::gKey->GetValue("Sample Rate", 1));
-    if(rateIndex < 0 || rateIndex > 4) rateIndex = 2;
+    if(rateIndex < 0 || rateIndex > 5) rateIndex = 2;
     ManagedGlobals::gGUI->rateValue->SelectedIndex = rateIndex;
     ManagedGlobals::gGUI->rateCallback = UpdateRate;
 
@@ -208,7 +208,7 @@ int EXTIO_API StartHW(long LOfreq)
   SetRate(ManagedGlobals::gGUI->rateValue->SelectedIndex);
   StartThread();
 
-  return 512;
+  return 1024;
 }
 
 //---------------------------------------------------------------------------
@@ -284,6 +284,7 @@ static void SetRate(UInt32 rateIndex)
     case 2: gRate = 100000; gFreqMin = 50000; break;
     case 3: gRate = 250000; gFreqMin = 125000; break;
     case 4: gRate = 500000; gFreqMin = 250000; break;
+    case 5: gRate = 1250000; gFreqMin = 625000; break;
   }
 
   if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Sample Rate", rateIndex);

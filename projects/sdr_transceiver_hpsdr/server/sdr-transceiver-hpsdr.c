@@ -15,8 +15,9 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
-uint32_t *rx_freq[2], *rx_rate[2], *tx_freq, *tx_cntr;
-uint16_t *gpio, *rx_cntr[2];
+uint32_t *rx_freq[2], *rx_rate[2], *tx_freq;
+uint16_t *rx_cntr[2], *tx_cntr;
+uint8_t *gpio, *rx_rst, *tx_rst;
 void *rx_data[2], *tx_data;
 
 const uint32_t freq_min = 0;
@@ -61,7 +62,9 @@ int main(int argc, char *argv[])
 
   *(uint32_t *)(tx_data + 8) = 165;
 
-  gpio = ((uint16_t *)(cfg + 0));
+  rx_rst = ((uint8_t *)(cfg + 0));
+  tx_rst = ((uint8_t *)(cfg + 1));
+  gpio = ((uint8_t *)(cfg + 2));
 
   rx_freq[0] = ((uint32_t *)(cfg + 4));
   rx_rate[0] = ((uint32_t *)(cfg + 8));
@@ -72,7 +75,7 @@ int main(int argc, char *argv[])
   rx_cntr[1] = ((uint16_t *)(sts + 2));
 
   tx_freq = ((uint32_t *)(cfg + 20));
-  tx_cntr = ((uint32_t *)(sts + 4));
+  tx_cntr = ((uint16_t *)(sts + 4));
 
   /* set PTT pin to low */
   *gpio = 0;
@@ -110,14 +113,11 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  *tx_rst |= 1;
+  *tx_rst &= ~1;
+
   while(1)
   {
-    if(*tx_cntr > 16258)
-    {
-      usleep(1000);
-      continue;
-    }
-
     size_from = sizeof(addr_from);
     size = recvfrom(sock_ep2, buffer, 1032, 0, (struct sockaddr *)&addr_from, &size_from);
     if(size < 0)
@@ -129,10 +129,8 @@ int main(int argc, char *argv[])
     switch(*(uint32_t *)buffer)
     {
       case 0x0201feef:
-        if(*tx_cntr == 0)
-        {
-          memset(tx_data, 0, 65032);
-        }
+        while(*tx_cntr > 16258) usleep(1000);
+        if(*tx_cntr == 0) memset(tx_data, 0, 65032);
         if(*gpio)
         {
           for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 20 + i, 4);
@@ -153,19 +151,13 @@ int main(int argc, char *argv[])
         break;
       case 0x0004feef:
         enable_thread = 0;
-        while(active_thread)
-        {
-          usleep(1000);
-        }
+        while(active_thread) usleep(1000);
         break;
       case 0x0104feef:
       case 0x0204feef:
       case 0x0304feef:
         enable_thread = 0;
-        while(active_thread)
-        {
-          usleep(1000);
-        }
+        while(active_thread) usleep(1000);
         memset(&addr_ep6, 0, sizeof(addr_ep6));
         addr_ep6.sin_family = AF_INET;
         addr_ep6.sin_addr.s_addr = addr_from.sin_addr.s_addr;
@@ -245,14 +237,14 @@ void process_ep2(char *frame)
 
 void *handler_ep6(void *arg)
 {
-  int i, j, size, rx_position, rx_limit, rx_offset;
-  int data_offset, header_offset, buffer_offset, frame_offset;
+  int i, j, n, m, size;
+  int data_offset, header_offset, buffer_offset;
   uint32_t counter;
   char data0[4096];
   char data1[4096];
-  char buffer[27][1032];
-  struct iovec iovec[27][1];
-  struct mmsghdr datagram[27];
+  char buffer[25][1032];
+  struct iovec iovec[25][1];
+  struct mmsghdr datagram[25];
   uint8_t header[40] =
   {
     127, 127, 127, 0, 0, 33, 17, 21,
@@ -262,18 +254,10 @@ void *handler_ep6(void *arg)
     127, 127, 127, 32, 66, 66, 66, 66
   };
 
-  counter = 0;
-  rx_limit = 512;
-  header_offset = 0;
-  buffer_offset = 16;
-  frame_offset = 0;
-  size = receivers * 6 + 2;
-
-  memset(buffer, 0, sizeof(buffer));
   memset(iovec, 0, sizeof(iovec));
   memset(datagram, 0, sizeof(datagram));
 
-  for(i = 0; i < 27; ++i)
+  for(i = 0; i < 25; ++i)
   {
     *(uint32_t *)(buffer[i] + 0) = 0x0601feef;
     iovec[i][0].iov_base = buffer[i];
@@ -284,66 +268,72 @@ void *handler_ep6(void *arg)
     datagram[i].msg_hdr.msg_namelen = sizeof(addr_ep6);
   }
 
+  header_offset = 0;
+  counter = 0;
+
+  *rx_rst |= 1;
+  *rx_rst &= ~1;
+
   while(1)
   {
     if(!enable_thread) break;
 
-    /* read ram writer position */
-    rx_position = *rx_cntr[0];
+    size = receivers * 6 + 2;
+    n = 504 / size;
+    m = 256 / n;
 
-    /* read 4096 bytes if ready, otherwise sleep */
-    if((rx_limit > 0 && rx_position > rx_limit) || (rx_limit == 0 && rx_position < 512))
+    if(*rx_cntr[0] >= 2048)
     {
-      rx_offset = rx_limit > 0 ? 0 : 4096;
-      rx_limit = rx_limit > 0 ? 0 : 512;
-      memcpy(data0, rx_data[0] + rx_offset, 4096);
-      memcpy(data1, rx_data[1] + rx_offset, 4096);
+      *rx_rst |= 1;
+      *rx_rst &= ~1;
+    }
 
-      data_offset = 0;
-      j = 0;
+    while(*rx_cntr[0] < m * n * 4) usleep(1000);
 
-      for(i = 0; i < 512; ++i)
+    memcpy(data0, rx_data[0], m * n * 16);
+    memcpy(data1, rx_data[1], m * n * 16);
+
+    data_offset = 0;
+    for(i = 0; i < m; ++i)
+    {
+      *(uint32_t *)(buffer[i] + 4) = htonl(counter);
+
+      memcpy(buffer[i] + 8, header + header_offset, 8);
+      header_offset = header_offset >= 32 ? 0 : header_offset + 8;
+      memset(buffer[i] + 16, 0, 504);
+
+      buffer_offset = 16;
+      for(j = 0; j < n; ++j)
       {
-        memcpy(buffer[j] + buffer_offset + frame_offset, data0 + data_offset, 6);
-        if(size >= 12)
+        memcpy(buffer[i] + buffer_offset, data0 + data_offset, 6);
+        if(size > 8)
         {
-          memcpy(buffer[j] + buffer_offset + frame_offset + 6, data1 + data_offset, 6);
+          memcpy(buffer[i] + buffer_offset + 6, data1 + data_offset, 6);
         }
         data_offset += 8;
-        frame_offset += size;
-        if(frame_offset + size > 504)
-        {
-          frame_offset = 0;
+        buffer_offset += size;
+      }
 
-          if(buffer_offset == 16)
-          {
-            buffer_offset = 528;
-          }
-          else
-          {
-            *(uint32_t *)(buffer[j] + 4) = htonl(counter);
-            memcpy(buffer[j] + 8, header + header_offset, 8);
-            header_offset = header_offset >= 32 ? 0 : header_offset + 8;
-            memcpy(buffer[j] + 520, header + header_offset, 8);
-            header_offset = header_offset >= 32 ? 0 : header_offset + 8;
-            buffer_offset = 16;
-            size = receivers * 6 + 2;
-            ++counter;
-            ++j;
-          }
-        }
-      }
-      sendmmsg(sock_ep2, datagram, j, 0);
-      memcpy(buffer[0] + 8, buffer[j] + 8, 1024);
-      for(i = 1; i <= j; ++i)
+      memcpy(buffer[i] + 520, header + header_offset, 8);
+      header_offset = header_offset >= 32 ? 0 : header_offset + 8;
+      memset(buffer[i] + 528, 0, 504);
+
+      buffer_offset = 528;
+      for(j = 0; j < n; ++j)
       {
-        memset(buffer[i] + 8, 0, 1024);
+        memcpy(buffer[i] + buffer_offset, data0 + data_offset, 6);
+        if(size > 8)
+        {
+          memcpy(buffer[i] + buffer_offset + 6, data1 + data_offset, 6);
+        }
+        data_offset += 8;
+        buffer_offset += size;
       }
+
+      ++counter;
     }
-    else
-    {
-      usleep(*rx_rate[0] * 2);
-    }
+
+    sendmmsg(sock_ep2, datagram, m, 0);
   }
 
   active_thread = 0;
