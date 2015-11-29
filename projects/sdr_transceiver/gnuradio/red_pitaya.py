@@ -77,10 +77,16 @@ class sink(gr.hier_block2):
     fd = os.dup(self.data_sock.fileno())
     self.null_sink = blocks.null_sink(gr.sizeof_gr_complex)
     self.file_sink = blocks.file_descriptor_sink(gr.sizeof_gr_complex, fd)
-    self.connect(self, self.null_sink)
-    self.ptt = ptt
     self.set_freq(freq, corr)
     self.set_rate(rate)
+    if ptt:
+      self.ptt = True
+      self.ctrl_sock.send(struct.pack('<I', 2<<28))
+      self.connect(self, self.file_sink)
+    else:
+      self.ptt = False
+      self.ctrl_sock.send(struct.pack('<I', 3<<28))
+      self.connect(self, self.null_sink)
 
   def set_freq(self, freq, corr):
     self.ctrl_sock.send(struct.pack('<I', 0<<28 | int((1.0 + 1e-6 * corr) * freq)))
