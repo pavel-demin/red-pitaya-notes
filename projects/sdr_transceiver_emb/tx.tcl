@@ -38,8 +38,8 @@ cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
 
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
-  M_AXIS_TDATA_WIDTH 64
   S_AXIS_TDATA_WIDTH 32
+  M_AXIS_TDATA_WIDTH 64
 } {
   S_AXIS writer_0/M_AXIS
   FIFO_READ fifo_generator_0/FIFO_READ
@@ -64,9 +64,11 @@ cell xilinx.com:ip:floating_point:7.1 fp_0 {
   RESULT_PRECISION_TYPE Custom
   C_RESULT_EXPONENT_WIDTH 2
   C_RESULT_FRACTION_WIDTH 22
+  HAS_ARESETN true
 } {
   S_AXIS_A conv_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create fir_compiler
@@ -140,7 +142,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
 }
 
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 8
@@ -178,7 +180,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 625
-  MAXIMUM_RATE 5000
+  MAXIMUM_RATE 8192
   FIXED_OR_INITIAL_RATE 1250
   INPUT_SAMPLE_FREQUENCY 0.2
   CLOCK_FREQUENCY 125
@@ -188,7 +190,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
-  S_AXIS_DATA bcast_1/M00_AXIS
+  S_AXIS_DATA bcast_0/M00_AXIS
   S_AXIS_CONFIG rate_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
 }
@@ -200,7 +202,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 625
-  MAXIMUM_RATE 5000
+  MAXIMUM_RATE 8192
   FIXED_OR_INITIAL_RATE 1250
   INPUT_SAMPLE_FREQUENCY 0.2
   CLOCK_FREQUENCY 125
@@ -210,7 +212,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
 } {
-  S_AXIS_DATA bcast_1/M01_AXIS
+  S_AXIS_DATA bcast_0/M01_AXIS
   S_AXIS_CONFIG rate_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
 }
@@ -264,7 +266,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   APORTWIDTH 24
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 17
+  OUTPUTWIDTH 18
 } {
   S_AXIS_A comb_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA

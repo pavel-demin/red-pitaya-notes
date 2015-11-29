@@ -113,7 +113,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 625
-  MAXIMUM_RATE 5000
+  MAXIMUM_RATE 8192
   FIXED_OR_INITIAL_RATE 1250
   INPUT_SAMPLE_FREQUENCY 125
   CLOCK_FREQUENCY 125
@@ -134,7 +134,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   NUMBER_OF_STAGES 6
   SAMPLE_RATE_CHANGES Programmable
   MINIMUM_RATE 625
-  MAXIMUM_RATE 5000
+  MAXIMUM_RATE 8192
   FIXED_OR_INITIAL_RATE 1250
   INPUT_SAMPLE_FREQUENCY 125
   CLOCK_FREQUENCY 125
@@ -250,9 +250,11 @@ cell xilinx.com:ip:floating_point:7.1 fp_0 {
   C_A_EXPONENT_WIDTH 2
   C_A_FRACTION_WIDTH 22
   RESULT_PRECISION_TYPE Single
+  HAS_ARESETN true
 } {
   S_AXIS_A subset_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create axis_dwidth_converter
@@ -273,7 +275,7 @@ cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
   INPUT_DEPTH 1024
   OUTPUT_DATA_WIDTH 32
   OUTPUT_DEPTH 2048
-  READ_DATA_COUNT true 
+  READ_DATA_COUNT true
   READ_DATA_COUNT_WIDTH 12
   RESET_TYPE Asynchronous_Reset
 } {
@@ -283,8 +285,8 @@ cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
 
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
-  M_AXIS_TDATA_WIDTH 32
   S_AXIS_TDATA_WIDTH 64
+  M_AXIS_TDATA_WIDTH 32
 } {
   S_AXIS conv_1/M_AXIS
   FIFO_READ fifo_generator_0/FIFO_READ
