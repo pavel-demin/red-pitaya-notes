@@ -214,11 +214,9 @@ cell xilinx.com:ip:floating_point:7.1 fp_0 {
   C_A_EXPONENT_WIDTH 2
   C_A_FRACTION_WIDTH 22
   RESULT_PRECISION_TYPE Single
-  HAS_ARESETN true
 } {
   S_AXIS_A subset_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create axis_dwidth_converter

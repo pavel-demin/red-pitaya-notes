@@ -88,9 +88,11 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
   M_DATA_HAS_TREADY true
+  HAS_ARESETN true
 } {
   S_AXIS_DATA fp_0/M_AXIS_RESULT
   aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create axis_dwidth_converter
