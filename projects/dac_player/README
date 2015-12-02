@@ -23,10 +23,10 @@ Configuring FPGA:
 
 Compiling and running ADC recorder:
 
-  gcc -O3 adc-recorder.c -o adc-recorder
+  gcc adc-recorder.c -o adc-recorder
   ./adc-recorder 125 record.dat
 
 Compiling and running DAC player:
 
-  gcc -O3 dac-player.c -o dac-player
+  gcc dac-player.c -o dac-player
   ./dac-player 125 record.dat
