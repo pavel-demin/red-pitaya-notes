@@ -1,6 +1,6 @@
 /*
 command to compile:
-gcc -O3 dac-player.c -o dac-player
+gcc dac-player.c -o dac-player
 */
 
 #include <stdio.h>

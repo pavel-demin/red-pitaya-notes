@@ -1,6 +1,6 @@
 /*
 command to compile:
-gcc -O3 adc-recorder.c -o adc-recorder
+gcc adc-recorder.c -o adc-recorder
 */
 
 #include <stdio.h>
