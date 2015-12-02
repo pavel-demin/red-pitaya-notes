@@ -35,37 +35,27 @@ module axi_bram_reader #
 
   localparam integer ADDR_LSB = clogb2(AXI_DATA_WIDTH/8 - 1);
 
-  reg int_rready_reg, int_rready_next;
   reg int_rvalid_reg, int_rvalid_next;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
-      int_rready_reg <= 1'b0;
       int_rvalid_reg <= 1'b0;
     end
     else
     begin
-      int_rready_reg <= int_rready_next;
       int_rvalid_reg <= int_rvalid_next;
     end
   end
 
   always @*
   begin
-    int_rready_next = int_rready_reg;
     int_rvalid_next = int_rvalid_reg;
 
     if(s_axi_arvalid)
     begin
-      int_rready_next = 1'b1;
       int_rvalid_next = 1'b1;
-    end
-
-    if(int_rready_reg)
-    begin
-      int_rready_next = 1'b0;
     end
 
     if(s_axi_rready & int_rvalid_reg)
@@ -76,7 +66,7 @@ module axi_bram_reader #
 
   assign s_axi_rresp = 2'd0;
 
-  assign s_axi_arready = int_rready_reg;
+  assign s_axi_arready = 1'b1;
   assign s_axi_rdata = bram_porta_rddata;
   assign s_axi_rvalid = int_rvalid_reg;
 
