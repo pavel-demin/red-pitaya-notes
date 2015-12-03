@@ -18,13 +18,13 @@ source cfg/ports.tcl
 proc cell {cell_vlnv cell_name {cell_props {}} {cell_ports {}}} {
   set cell [create_bd_cell -type ip -vlnv $cell_vlnv $cell_name]
   set prop_list {}
-  foreach {prop_name prop_value} $cell_props {
+  foreach {prop_name prop_value} [uplevel 1 [list subst $cell_props]] {
     lappend prop_list CONFIG.$prop_name $prop_value
   }
   if {[llength $prop_list] > 1} {
     set_property -dict $prop_list $cell
   }
-  foreach {local_name remote_name} $cell_ports {
+  foreach {local_name remote_name} [uplevel 1 [list subst $cell_ports]] {
     set local_port [get_bd_pins $cell_name/$local_name]
     set remote_port [get_bd_pins $remote_name]
     if {[llength $local_port] == 1 && [llength $remote_port] == 1} {
@@ -46,7 +46,7 @@ proc module {module_name module_body {module_ports {}}} {
   current_bd_instance [create_bd_cell -type hier $module_name]
   eval $module_body
   current_bd_instance $bd
-  foreach {local_name remote_name} $module_ports {
+  foreach {local_name remote_name} [uplevel 1 [list subst $module_ports]] {
     set local_port [get_bd_pins $module_name/$local_name]
     set remote_port [get_bd_pins $remote_name]
     if {[llength $local_port] == 1 && [llength $remote_port] == 1} {
