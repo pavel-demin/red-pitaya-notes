@@ -30,10 +30,9 @@ cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
   OUTPUT_DEPTH 4096
   WRITE_DATA_COUNT true
   WRITE_DATA_COUNT_WIDTH 14
-  RESET_TYPE Asynchronous_Reset
 } {
   clk /ps_0/FCLK_CLK0
-  rst slice_0/Dout
+  srst slice_0/Dout
 }
 
 # Create axis_fifo
@@ -154,10 +153,12 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
+  HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M00_AXIS
   S_AXIS_CONFIG rate_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create cic_compiler
@@ -176,10 +177,12 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
   HAS_DOUT_TREADY true
+  HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M01_AXIS
   S_AXIS_CONFIG rate_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create axis_combiner

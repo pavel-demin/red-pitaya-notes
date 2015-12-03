@@ -121,10 +121,13 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
+  HAS_DOUT_TREADY true
+  HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M00_AXIS
   S_AXIS_CONFIG rate_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create cic_compiler
@@ -142,10 +145,13 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
+  HAS_DOUT_TREADY true
+  HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M01_AXIS
   S_AXIS_CONFIG rate_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create axis_combiner
@@ -186,9 +192,12 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
+  M_DATA_HAS_TREADY true
+  HAS_ARESETN true
 } {
   S_AXIS_DATA conv_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create axis_subset_converter
@@ -214,9 +223,11 @@ cell xilinx.com:ip:floating_point:7.1 fp_0 {
   C_A_EXPONENT_WIDTH 2
   C_A_FRACTION_WIDTH 22
   RESULT_PRECISION_TYPE Single
+  HAS_ARESETN true
 } {
   S_AXIS_A subset_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create axis_dwidth_converter
@@ -239,10 +250,9 @@ cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
   OUTPUT_DEPTH 8192
   READ_DATA_COUNT true
   READ_DATA_COUNT_WIDTH 14
-  RESET_TYPE Asynchronous_Reset
 } {
   clk /ps_0/FCLK_CLK0
-  rst slice_0/Dout
+  srst slice_0/Dout
 }
 
 # Create axis_fifo
