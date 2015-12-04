@@ -1,0 +1,6 @@
+{
+    "name": "Wideband SDR transceiver",
+    "version": "0.94-BUILD_NUMBER",
+    "revision": "REVISION",
+    "description": "Wideband SDR transceiver compatible GNU Radio. (by Pavel Demin)"
+}
