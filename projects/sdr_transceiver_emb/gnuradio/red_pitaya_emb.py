@@ -20,9 +20,16 @@ class source(gr.sync_block):
       out_sig = [numpy.complex64]
     )
     file = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
-    self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40000000)
-    self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40001000)
-    self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40002000)
+    if chan == 1:
+      self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40000000)
+      self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40001000)
+      self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40002000)
+    elif chan == 2:
+      self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40006000)
+      self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40007000)
+      self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40008000)
+    else:
+      raise ValueError("acceptable channel numbers are 1 and 2")
     self.cfg[0:1] = struct.pack('<B', 1)
     self.cfg[0:1] = struct.pack('<B', 0)
     self.set_freq(freq, corr)
@@ -68,9 +75,16 @@ class sink(gr.sync_block):
       out_sig = []
     )
     file = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
-    self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40000000)
-    self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40001000)
-    self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40004000)
+    if chan == 1:
+      self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40000000)
+      self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40001000)
+      self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40004000)
+    elif chan == 2:
+      self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40006000)
+      self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40007000)
+      self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x4000A000)
+    else:
+      raise ValueError("acceptable channel numbers are 1 and 2")
     self.cfg[1:2] = struct.pack('<B', 1)
     self.cfg[1:2] = struct.pack('<B', 0)
     self.set_freq(freq, corr)
