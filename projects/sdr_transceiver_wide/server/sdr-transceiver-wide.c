@@ -285,7 +285,7 @@ void *tx_ctrl_handler(void *arg)
             freq_min = 625000;
             *tx_rate = 50;
             break;
-          case 5:
+          case 6:
             freq_min = 1250000;
             *tx_rate = 25;
             break;
