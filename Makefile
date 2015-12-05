@@ -100,13 +100,14 @@ uImage: $(LINUX_DIR)
 
 tmp/u-boot.elf: $(UBOOT_DIR)
 	mkdir -p $(@D)
-	make -C $< arch=ARM zynq_red_pitaya_defconfig
-	make -C $< arch=ARM CFLAGS=$(UBOOT_CFLAGS) \
+	make -C $< mrproper
+	make -C $< ARCH=arm zynq_red_pitaya_defconfig
+	make -C $< ARCH=arm CFLAGS=$(UBOOT_CFLAGS) \
 	  CROSS_COMPILE=arm-xilinx-linux-gnueabi- all
 	cp $</u-boot $@
 
 fw_printenv: $(UBOOT_DIR) tmp/u-boot.elf
-	make -C $< arch=ARM CFLAGS=$(ARMHF_CFLAGS) \
+	make -C $< ARCH=arm CFLAGS=$(ARMHF_CFLAGS) \
 	  CROSS_COMPILE=arm-linux-gnueabihf- env
 	cp $</tools/env/fw_printenv $@
 
@@ -146,4 +147,4 @@ tmp/%.tree/system.dts: tmp/%.hwdef $(DTREE_DIR)
 clean:
 	$(RM) uImage fw_printenv boot.bin devicetree.dtb tmp
 	$(RM) .Xil usage_statistics_webtalk.html usage_statistics_webtalk.xml
-
+	$(RM) webtalk*.jou webtalk*.log
