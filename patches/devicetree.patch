@@ -23,24 +23,22 @@
  	};
  };
  &gem0 {
-@@ -34,9 +41,13 @@
- 	phy-mode = "rgmii-id";
+@@ -35,6 +42,14 @@
  	status = "okay";
  	xlnx,ptp-enet-clock = <0x69f6bcb>;
--	ps7_ethernet_0_mdio: mdio {
--		#address-cells = <1>;
--		#size-cells = <0>;
-+};
+ };
 +&gem0 {
 +	phy-handle = <&ethernet_phy>;
 +	ethernet_phy: ethernet-phy@1 {
 +		compatible = "lantiq,phy11g";
 +		device_type = "ethernet-phy";
 +		reg = <0x1>;
- 	};
- };
++	};
++};
  &gpio0 {
-@@ -48,6 +59,12 @@
+ 	emio-gpio-width = <64>;
+ 	gpio-mask-high = <0x0>;
+@@ -44,6 +59,12 @@
  	clock-frequency = <400000>;
  	status = "okay";
  };
@@ -53,7 +51,7 @@
  &intc {
  	num_cpus = <2>;
  	num_interrupts = <96>;
-@@ -70,6 +91,11 @@
+@@ -68,6 +89,11 @@
  	is-decoded-cs = <0>;
  	num-cs = <1>;
  	status = "okay";
@@ -65,7 +63,7 @@
  };
  &uart0 {
  	current-speed = <115200>;
-@@ -85,9 +111,9 @@
+@@ -83,9 +109,9 @@
  };
  &usb0 {
  	dr_mode = "host";
@@ -76,4 +74,4 @@
 +	xlnx,phy-reset-gpio = <&gpio0 48 0>;
  };
  &clkc {
- 	fclk-enable = <0xf>;
+ 	fclk-enable = <0x1>;
