@@ -4,7 +4,7 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.3 (amd64) or [Debian](http://www.debian.org/releases/jessie) 8.2 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.3 with full SDK.
+The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.3 (amd64) or [Debian](http://www.debian.org/releases/jessie) 8.2 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.4 with full SDK.
 
 Creating virtual machine with Ubuntu 14.04.3 (amd64) or Debian 8.2 (amd64)
 -----
@@ -85,24 +85,24 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 Installing Vivado Design Suite
 -----
 
-- Download "Vivado 2015.3: Full Installer for Linux Single File Download Image Including SDK" from the [Xilinx download page](http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-3.html) or from [this direct link](https://secure.xilinx.com/webreg/register.do?group=dlc&version=2015.3&akdm=0&filename=Xilinx_Vivado_SDK_Lin_2015.3_0929_1.tar.gz) (the file name is Xilinx_Vivado_SDK_Lin_2015.3_0929_1.tar.gz)
+- Download "Vivado 2015.4: Full Installer for Linux Single File Download Image Including SDK" from the [Xilinx download page](http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-4.html) or from [this direct link](https://secure.xilinx.com/webreg/register.do?group=dlc&version=2015.4&akdm=0&filename=Xilinx_Vivado_SDK_Lin_2015.4_1118_2.tar.gz) (the file name is Xilinx_Vivado_SDK_Lin_2015.4_1118_2.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
 mkdir /opt/Xilinx
 cd /opt/Xilinx
-tar -zxf Xilinx_Vivado_SDK_Lin_2015.3_0929_1.tar.gz
-cd Xilinx_Vivado_SDK_Lin_2015.3_0929_1
+tar -zxf Xilinx_Vivado_SDK_Lin_2015.4_1118_2.tar.gz
+cd Xilinx_Vivado_SDK_Lin_2015.4_1118_2
 sed -i '/uname -i/s/ -i/ -m/' xsetup
 ./xsetup
 {% endhighlight %}
 
 - Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page
-  (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2015_3/ug973-vivado-release-notes-install-license.pdf))
+  (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2015_4/ug973-vivado-release-notes-install-license.pdf))
 
-- Vivado 2015.3 comes bundled with a strange `arm-linux-gnueabihf-gcc` version (4.8.3, Linaro 2013.11, pre-release) that interferes with the more recent `gcc` versions available from the Debian and Ubuntu repositories. The following command deactivates this strange `arm-linux-gnueabihf-gcc` version:
+- Vivado 2015.4 comes bundled with a strange `arm-linux-gnueabihf-gcc` version (4.8.3, Linaro 2013.11, pre-release) that interferes with the more recent `gcc` versions available from the Debian and Ubuntu repositories. The following command deactivates this strange `arm-linux-gnueabihf-gcc` version:
 {% highlight bash %}
-mv /opt/Xilinx/SDK/2015.3/gnu/aarch32 /opt/Xilinx/SDK/2015.3/gnu/aarch32_dont_use
+mv /opt/Xilinx/SDK/2015.4/gnu/aarch32 /opt/Xilinx/SDK/2015.4/gnu/aarch32_dont_use
 {% endhighlight %}
 
 - Xilinx SDK requires `gmake` that is unavailable on Ubuntu and Debian. The following command creates a symbolic link called `gmake` and pointing to `make`:
@@ -115,13 +115,13 @@ Activating Vivado Design Suite license
 
 - Initialize the trusted-storage area for the Xilinx licenses:
 {% highlight bash %}
-cd /opt/Xilinx/Vivado/2015.3/bin/unwrapped/lnx64.o
+cd /opt/Xilinx/Vivado/2015.4/bin/unwrapped/lnx64.o
 ./install_fnp.sh
 {% endhighlight %}
 
 - Setup Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2015.3/settings64.sh
+source /opt/Xilinx/Vivado/2015.4/settings64.sh
 {% endhighlight %}
 
 - Create a license request:

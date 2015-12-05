@@ -13,4 +13,5 @@ layout: default
 1. [SDR transceiver compatible with HPSDR]({{ "/sdr-transceiver-hpsdr/" | prepend: site.baseurl }})
 1. [SDR transceiver with FFT]({{ "/sdr-transceiver-fft/" | prepend: site.baseurl }})
 1. [Embedded SDR transceiver]({{ "/sdr-transceiver-emb/" | prepend: site.baseurl }})
+1. [Wideband SDR transceiver]({{ "/sdr-transceiver-wide/" | prepend: site.baseurl }})
 1. [Debian with Red Pitaya ecosystem]({{ "/debian-ecosystem/" | prepend: site.baseurl }})
