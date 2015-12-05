@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
@@ -44,15 +43,6 @@ int main(int argc, char *argv[])
   uint32_t command;
   ssize_t result;
   int yes = 1;
-  long number;
-
-  errno = 0;
-  number = (argc == 2) ? strtol(argv[1], &end, 10) : -1;
-  if(errno != 0 || end == argv[1] || number < 1 || number > 2)
-  {
-    printf("Usage: sdr-transceiver 1|2\n");
-    return EXIT_FAILURE;
-  }
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -60,23 +50,11 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  switch(number)
-  {
-    case 1:
-      port = 1001;
-      cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-      sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-      rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
-      tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40018000);
-      break;
-    case 2:
-      port = 1002;
-      cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-      sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
-      rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
-      tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40028000);
-      break;
-  }
+  port = 1001;
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  rx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+  tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
   gpio = ((uint16_t *)(cfg + 2));
 
@@ -206,6 +184,10 @@ void *rx_ctrl_handler(void *arg)
             freq_min = 625000;
             *rx_rate = 50;
             break;
+          case 6:
+            freq_min = 1250000;
+            *rx_rate = 25;
+            break;
         }
         break;
     }
@@ -225,23 +207,23 @@ void *rx_ctrl_handler(void *arg)
 void *rx_data_handler(void *arg)
 {
   int sock_client = sock_thread[1];
-  char buffer[16384];
+  char buffer[32768];
 
   *rx_rst |= 1;
   *rx_rst &= ~1;
 
   while(1)
   {
-    if(*rx_cntr >= 8192)
+    if(*rx_cntr >= 16384)
     {
       *rx_rst |= 1;
       *rx_rst &= ~1;
     }
 
-    while(*rx_cntr < 4096) usleep(500);
+    while(*rx_cntr < 8192) usleep(500);
 
-    memcpy(buffer, rx_data, 16384);
-    if(send(sock_client, buffer, 16384, MSG_NOSIGNAL) < 0) break;
+    memcpy(buffer, rx_data, 32768);
+    if(send(sock_client, buffer, 32768, MSG_NOSIGNAL) < 0) break;
   }
 
   close(sock_client);
@@ -303,6 +285,10 @@ void *tx_ctrl_handler(void *arg)
             freq_min = 625000;
             *tx_rate = 50;
             break;
+          case 6:
+            freq_min = 1250000;
+            *tx_rate = 25;
+            break;
         }
         break;
       case 2:
@@ -332,22 +318,22 @@ void *tx_ctrl_handler(void *arg)
 void *tx_data_handler(void *arg)
 {
   int sock_client = sock_thread[3];
-  char buffer[16384];
+  char buffer[32768];
 
   *tx_rst |= 1;
   *tx_rst &= ~1;
 
   while(1)
   {
-    while(*tx_cntr > 4096) usleep(500);
+    while(*tx_cntr > 8192) usleep(500);
 
     if(*tx_cntr == 0)
     {
-      memset(tx_data, 0, 16384);
+      memset(tx_data, 0, 32768);
     }
 
-    if(recv(sock_client, buffer, 16384, 0) <= 0) break;
-    memcpy(tx_data, buffer, 16384);
+    if(recv(sock_client, buffer, 32768, 0) <= 0) break;
+    memcpy(tx_data, buffer, 32768);
   }
 
   close(sock_client);
