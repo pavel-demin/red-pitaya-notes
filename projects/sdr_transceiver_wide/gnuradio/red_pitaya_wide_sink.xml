@@ -19,7 +19,7 @@
  -->
 <block>
   <name>Red Pitaya Wide Sink</name>
-  <key>red_pitaya_sink</key>
+  <key>red_pitaya_wide_sink</key>
   <category>Red Pitaya</category>
   <import>import red_pitaya_wide</import>
   <make>red_pitaya_wide.sink(
