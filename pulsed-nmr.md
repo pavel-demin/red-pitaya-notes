@@ -42,13 +42,15 @@ The [projects/pulsed_nmr/server](https://github.com/pavel-demin/red-pitaya-notes
 
 The [projects/pulsed_nmr/client](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/pulsed_nmr/client) directory contains the source code of the control program ([pulsed_nmr.py](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/pulsed_nmr/client/pulsed_nmr.py)).
 
+![Pulsed NMR client]({{ "/img/pulsed-nmr-client.png" | prepend: site.baseurl }})
+
 Getting started
 -----
 
  - Requirements:
    - Computer running Ubuntu 14.04 or Debian 8.
    - Wired Ethernet connection between the computer and the Red Pitaya board.
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.92-65-35575ed-pulsed-nmr.zip).
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/pulsed_nmr/ecosystem-0.92-65-35575ed-pulsed-nmr.zip).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install required Python libraries:
@@ -63,7 +65,7 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
  - Run the control program:
 {% highlight bash %}
 cd red-pitaya-notes/projects/pulsed_nmr/client
-python pulsed_nmr.py
+python3 pulsed_nmr.py
 {% endhighlight %}
 
 Building from source
@@ -90,9 +92,9 @@ Building `pulsed_nmr.bit`:
 make NAME=pulsed_nmr tmp/pulsed_nmr.bit
 {% endhighlight %}
 
-Building `sdr-transceiver`:
+Building `pulsed-nmr`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/pulsed_nmr/server/pulsed-nmr.c -o sdr-transceiver -lm -lpthread -static
+arm-xilinx-linux-gnueabi-gcc projects/pulsed_nmr/server/pulsed-nmr.c -o pulsed-nmr -lm -lpthread -static
 {% endhighlight %}
 
 Building `boot.bin`, `devicetree.dtb` and `uImage`:
