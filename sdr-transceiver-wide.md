@@ -26,8 +26,9 @@ The [projects/sdr_transceiver_wide](https://github.com/pavel-demin/red-pitaya-no
 Software
 -----
 
-The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wide/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](http://gnuradio.org/redmine/projects/gnuradio/wiki/GNURadioCompanion).
+The [projects/sdr_transceiver_wide/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wide/server) directory contains the source code of the TCP server ([sdr-transceiver-wide.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_wide/server/sdr-transceiver-wide.c)) that receives control commands and transmits/receives the I/Q data streams (up to 2 x 32 bit x 2500 kSPS = 152 Mbit/s) to/from the SDR programs.
 
+The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wide/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](http://gnuradio.org/redmine/projects/gnuradio/wiki/GNURadioCompanion).
 
 The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wide/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and an example flow graph configuration for [GNU Radio Companion](http://gnuradio.org/redmine/projects/gnuradio/wiki/GNURadioCompanion).
 
