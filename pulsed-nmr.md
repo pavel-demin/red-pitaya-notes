@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Pulsed NMR
+title: Pulsed Nuclear Magnetic Resonance
 permalink: /pulsed-nmr/
 ---
 
