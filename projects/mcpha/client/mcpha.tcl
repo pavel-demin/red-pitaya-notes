@@ -1,7 +1,7 @@
 package require TclOO
 package require oo::util
 package require BLT
-load mcpha.so
+load [file join [pwd] mcpha.so]
 
 wm minsize . 990 660
 
