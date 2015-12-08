@@ -15,8 +15,7 @@
 EXTDIR = ../../../../8.x
 STATIC = --disable-shared --enable-static
 OUTDIR = $(shell pwd)/build
-OBJ    = $(OUTDIR)/zvfs$O $(OUTDIR)/zlib$O \
-	 $(OUTDIR)/g2lite$O
+OBJ    = $(OUTDIR)/zvfs$O $(OUTDIR)/g2lite$O
 GUIOBJ ?= $(OBJ) $(OUTDIR)/tclAppInit$O
 TCLDIR = --with-tcl=$(OUTDIR)/lib --prefix=$(OUTDIR) --exec-prefix=$(OUTDIR)
 STRIP ?= strip
@@ -28,12 +27,7 @@ SO    ?=.so
 BLT_OPTS = --disable-threads
 TKTABLE_OPTS = --disable-threads
 VFS_OPTS = --disable-threads
-TDOM_OPTS = --disable-threads
-TCLX_OPTS = --disable-threads
-XOTCL_OPTS = --disable-threads
 SQLITE_OPTS = --disable-threads
-ZLIB_OPTS = --prefix=$(OUTDIR)
-LIBUSB_OPTS = --prefix=$(OUTDIR)
 
 tclkit-gui$(EXE): kit-gui$(EXE) ../../setupvfs.tcl build/files
 	cp kit-gui$(EXE) $@
@@ -43,31 +37,27 @@ tclkit-gui$(EXE): kit-gui$(EXE) ../../setupvfs.tcl build/files
 	./kit-gui -init- ../../setupvfs.tcl $(KIT_OPTS) $@ gui
 
 ifeq ($(PLAT), win)
-kit-gui$(EXE): build/tcl build/tk build/blt build/Tktable build/tclvfs build/zlib \
-	build/tdom build/tcllib build/sqlite $(GUIOBJ)
+kit-gui$(EXE): build/tcl build/tk build/blt build/Tktable build/tclvfs \
+	build/tcllib build/sqlite $(GUIOBJ)
 	$(CC) -o $@ $(CFLAGS) ../../kitInit.c $(GUIOBJ) \
 	  -Ibuild/include -DKIT_LITE -DSTATIC_BUILD \
 	  build/lib/vfs1*/*vfs1*$A \
-	  -DKIT_INCLUDES_TK build/lib/*tk8*$A \
-	  build/lib/libz$A \
-	  build/lib/*tcl8*$A \
+	  -DKIT_INCLUDES_TK build/lib/Tktable2*/*Tktable2*$A \
+	  build/lib/*tkstub8*$A build/lib/*tk8*$A \
+	  build/lib/*tclstub8*$A build/lib/*tcl8*$A \
 	  build/lib/BLT2*/*BLT2*$A \
-	  build/lib/Tktable2*/*Tktable2*$A \
-	  build/lib/tdom0*/*tdom0*$A \
 	  build/lib/sqlite3*/*sqlite3*$A \
 	  $(LDFLAGS) $(GUI_OPTS)
 else
-kit-gui$(EXE): build/tcl build/tk build/blt build/Tktable build/tclvfs build/zlib \
-	build/tdom build/tcllib build/sqlite $(GUIOBJ)
+kit-gui$(EXE): build/tcl build/tk build/blt build/Tktable build/tclvfs \
+	build/tcllib build/sqlite $(GUIOBJ)
 	$(CC) -o $@ $(CFLAGS) ../../kitInit.c $(GUIOBJ) \
 	  -Ibuild/include -DKIT_LITE -DSTATIC_BUILD \
 	  build/lib/vfs1*/*vfs1*$A \
 	  -DKIT_INCLUDES_TK build/lib/*tk8*$A \
-	  build/lib/libz$A $A \
 	  build/lib/*tcl8*$A \
 	  build/lib/BLT2*/*BLT2*$A \
 	  build/lib/Tktable2*/*Tktable2*$A \
-	  build/lib/tdom0*/*tdom0*$A \
 	  build/lib/sqlite3*/*sqlite3*$A \
 	  $(LDFLAGS) $(GUI_OPTS)
 endif
@@ -101,17 +91,6 @@ build/tclvfs: build/tcl
 	  sh $(EXTDIR)/tclvfs/configure $(STATIC) $(TCLDIR) $(VFS_OPTS) && \
 	  $(MAKE) install
 
-build/zlib: build/tcl
-	cp -R ../../8.x/zlib/. $@
-	cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
-	  sh $(EXTDIR)/zlib/configure $(ZLIB_OPTS) && \
-	  $(MAKE) install
-
-build/tdom: build/tcl
-	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
-	  sh $(EXTDIR)/tdom/configure $(STATIC) $(TCLDIR) $(TDOM_OPTS) && \
-	  $(MAKE) install
-
 build/tcllib: build/tcl
 	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
 	  sh $(EXTDIR)/tcllib/configure $(STATIC) $(TCLDIR) $(TCLLIB_OPTS) && \
@@ -129,8 +108,8 @@ tidy: cleanext
 	rm -rf build/tcl build/tk build/tkdyn
 
 cleanext:
-	rm -rf build/tclvfs build/thread build/zlib build/*.o
-	rm -rf build/lib/vfs* build/lib/thread*
+	rm -rf build/tclvfs build/*.o
+	rm -rf build/lib/vfs*
 
 clean:
 	rm -rf build kit-gui$(EXE)
@@ -142,9 +121,6 @@ distclean: clean
 
 $(OUTDIR)/zvfs$O: ../../zvfs.c
 	$(CC) -o $@ $(CFLAGS) -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DSTATIC_BUILD -Ibuild/include -c $<
-
-$(OUTDIR)/zlib$O: ../../zlib.c
-	$(CC) -o $@ $(CFLAGS) -DSTATIC_BUILD -Ibuild/include -c $<
 
 $(OUTDIR)/g2lite$O: ../../g2lite.c
 	$(CC) -o $@ $(CFLAGS) -DSTATIC_BUILD -Ibuild/include -c $<

@@ -1688,7 +1688,7 @@ ListVolumes(void)
  *----------------------------------------------------------------------
  */
 
-static CONST char **
+const char *CONST86 *
 FileAttrStrings( Tcl_Obj *pathPtr, Tcl_Obj** objPtrRef )
 {
     return ZvfsAttrs;

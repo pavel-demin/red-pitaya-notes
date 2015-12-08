@@ -84,7 +84,7 @@ case $cli-$dyn-$gui in 0-0-0) cli=1 dyn=1 gui=1 ;; esac
       ;;
 
     MINGW*)
-      echo 'LDFLAGS    = -lws2_32 build/lib/dde1*/tcldde1*.a build/lib/reg1*/tclreg1*.a'
+      echo 'LDFLAGS    = -lws2_32 -lnetapi32 build/lib/dde1*/*tcldde1*.a build/lib/reg1*/*tclreg1*.a'
       echo 'GUI_OPTS   = -lgdi32 -lcomdlg32 -limm32 -lcomctl32 -lshell32'
       echo 'GUI_OPTS  += -lole32 -loleaut32 -luuid -lwinspool'
       echo 'GUI_OPTS  += build/tk/wish.res.o -mwindows'

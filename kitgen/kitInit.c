@@ -30,28 +30,19 @@
 #undef WIN32_LEAN_AND_MEAN
 #endif
 
-/* defined in tclInt.h */
-extern Tcl_Obj* TclGetStartupScriptPath();
-extern void TclSetStartupScriptPath(Tcl_Obj*);
-
-Tcl_AppInitProc	Vfs_Init, Zlib_Init;
+Tcl_AppInitProc Vfs_Init, Zlib_Init;
 #ifdef TCL_THREADS
-Tcl_AppInitProc	Thread_Init;
+Tcl_AppInitProc Thread_Init;
 #endif
 #ifdef _WIN32
-Tcl_AppInitProc	Dde_Init, Registry_Init;
+Tcl_AppInitProc Dde_Init, Registry_Init;
 #endif
 #ifdef KIT_INCLUDES_TK
-Tcl_AppInitProc	Blt_Init, Blt_SafeInit;
-Tcl_AppInitProc	Tktable_Init, Tktable_SafeInit;
+Tcl_AppInitProc Blt_Init, Blt_SafeInit;
+Tcl_AppInitProc Tktable_Init, Tktable_SafeInit;
 #endif
 
-Tcl_AppInitProc	Tdom_Init, Tdom_SafeInit;
 Tcl_AppInitProc G2lite_Init;
-Tcl_AppInitProc Usb_Init;
-Tcl_AppInitProc Swt_Init;
-Tcl_AppInitProc Csr_Init;
-Tcl_AppInitProc Xotcl_Init;
 Tcl_AppInitProc Sqlite3_Init;
 
 #ifdef WIN32
@@ -117,13 +108,8 @@ TclKit_AppInit(Tcl_Interp *interp)
     Tcl_StaticPackage(0, "Tktable", Tktable_Init, Tktable_SafeInit);
 #endif
 
-    Tcl_StaticPackage(0, "XOTcl", Xotcl_Init, NULL);
     Tcl_StaticPackage(0, "g2lite", G2lite_Init, NULL);
-    Tcl_StaticPackage(0, "usb", Usb_Init, NULL);
-    Tcl_StaticPackage(0, "swt", Swt_Init, NULL);
-    Tcl_StaticPackage(0, "csr", Csr_Init, NULL);
     Tcl_StaticPackage(0, "sqlite3", Sqlite3_Init, NULL);
-    Tcl_StaticPackage(0, "tdom", Tdom_Init, Tdom_SafeInit);
 
     /* the tcl_rcFileName variable only exists in the initial interpreter */
 #ifdef _WIN32
@@ -138,8 +124,7 @@ TclKit_AppInit(Tcl_Interp *interp)
     Tcl_SetVar2(interp, "env", "TCL_LIBRARY", "/zvfs/lib/tcl", TCL_GLOBAL_ONLY);
     Tcl_SetVar2(interp, "env", "TK_LIBRARY", "/zvfs/lib/tk", TCL_GLOBAL_ONLY);
 
-    if ((Tcl_EvalEx(interp, appInitCmd, -1, TCL_EVAL_GLOBAL) == TCL_ERROR)
-	    || (Tcl_Init(interp) == TCL_ERROR))
+    if ((Tcl_EvalEx(interp, appInitCmd, -1, TCL_EVAL_GLOBAL) == TCL_ERROR) || (Tcl_Init(interp) == TCL_ERROR))
         goto error;
 
 #ifdef KIT_INCLUDES_TK
@@ -153,10 +138,10 @@ TclKit_AppInit(Tcl_Interp *interp)
 
     /* messy because TclSetStartupScriptPath is called slightly too late */
     if (Tcl_Eval(interp, initScript) == TCL_OK) {
-        Tcl_Obj* path = TclGetStartupScriptPath();
-      	TclSetStartupScriptPath(Tcl_GetObjResult(interp));
-      	if (path == NULL)
-        	  Tcl_Eval(interp, "incr argc -1; set argv [lrange $argv 1 end]");
+        Tcl_Obj* path = Tcl_GetStartupScript(NULL);
+        Tcl_SetStartupScript(Tcl_GetObjResult(interp), NULL);
+        if (path == NULL)
+            Tcl_Eval(interp, "incr argc -1; set argv [lrange $argv 1 end]");
     }
 
     Tcl_SetVar(interp, "errorInfo", "", TCL_GLOBAL_ONLY);
@@ -186,26 +171,26 @@ TclKit_InitStdChannels(void)
      */
     chan = Tcl_GetStdChannel(TCL_STDIN);
     if (chan == NULL) {
-      	chan = Tcl_OpenFileChannel(NULL, DEV_NULL, "r", 0);
-      	if (chan != NULL) {
-      	    Tcl_SetChannelOption(NULL, chan, "-encoding", "utf-8");
-      	}
-      	Tcl_SetStdChannel(chan, TCL_STDIN);
+        chan = Tcl_OpenFileChannel(NULL, DEV_NULL, "r", 0);
+        if (chan != NULL) {
+            Tcl_SetChannelOption(NULL, chan, "-encoding", "utf-8");
+        }
+        Tcl_SetStdChannel(chan, TCL_STDIN);
     }
     chan = Tcl_GetStdChannel(TCL_STDOUT);
     if (chan == NULL) {
-      	chan = Tcl_OpenFileChannel(NULL, DEV_NULL, "w", 0);
-      	if (chan != NULL) {
-      	    Tcl_SetChannelOption(NULL, chan, "-encoding", "utf-8");
-      	}
-      	Tcl_SetStdChannel(chan, TCL_STDOUT);
+        chan = Tcl_OpenFileChannel(NULL, DEV_NULL, "w", 0);
+        if (chan != NULL) {
+            Tcl_SetChannelOption(NULL, chan, "-encoding", "utf-8");
+        }
+        Tcl_SetStdChannel(chan, TCL_STDOUT);
     }
     chan = Tcl_GetStdChannel(TCL_STDERR);
     if (chan == NULL) {
-      	chan = Tcl_OpenFileChannel(NULL, DEV_NULL, "w", 0);
-      	if (chan != NULL) {
-      	    Tcl_SetChannelOption(NULL, chan, "-encoding", "utf-8");
-      	}
-      	Tcl_SetStdChannel(chan, TCL_STDERR);
+        chan = Tcl_OpenFileChannel(NULL, DEV_NULL, "w", 0);
+        if (chan != NULL) {
+            Tcl_SetChannelOption(NULL, chan, "-encoding", "utf-8");
+        }
+        Tcl_SetStdChannel(chan, TCL_STDERR);
     }
 }
