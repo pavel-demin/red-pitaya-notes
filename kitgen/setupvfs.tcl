@@ -116,6 +116,7 @@ set clifiles {
   lib/tcllib1.16/ldap
   lib/tcllib1.16/log
   lib/tcllib1.16/math
+  lib/tcllib1.16/ooutil
   lib/tcllib1.16/snit
   lib/tcllib1.16/struct
   lib/tcllib1.16/uri
