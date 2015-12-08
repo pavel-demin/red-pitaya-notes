@@ -94,7 +94,6 @@ TclKit_AppInit(Tcl_Interp *interp)
     TclKit_InitStdChannels();
 
     Tcl_StaticPackage(0, "vfs", Vfs_Init, NULL);
-    Tcl_StaticPackage(0, "zlib", Zlib_Init, NULL);
 #ifdef TCL_THREADS
     Tcl_StaticPackage(0, "Thread", Thread_Init, NULL);
 #endif
