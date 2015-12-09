@@ -28,7 +28,6 @@
 #include "bltInt.h"
 #include "bltList.h"
 #include "bltNsUtil.h"
-#include "tclInt.h"
 
 /* Namespace related routines */
 

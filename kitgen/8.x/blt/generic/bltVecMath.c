@@ -26,6 +26,8 @@
  * software.
  */
 
+#include <errno.h>
+
 #include "bltVecInt.h"
 
 /*
