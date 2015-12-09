@@ -69,12 +69,16 @@ build/tcl:
 	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
 	  sh ../../../tcl/$(PLAT)/configure $(STATIC) $(TCL_OPTS) \
 	    --prefix=$(OUTDIR) --exec-prefix=$(OUTDIR) && \
-	  $(MAKE) install-binaries install-libraries $(PRIV)
+	  $(MAKE) install-binaries install-libraries install-headers $(PRIV)
+	  cp ../../../tcl/compat/zlib/zconf.h ../include && \
+	  cp ../../../tcl/compat/zlib/zlib.h ../include
 
 build/tk: build/tcl
 	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
 	  sh ../../../tk/$(PLAT)/configure $(STATIC) $(TCLDIR) $(TK_OPTS) && \
-	  $(MAKE) install-binaries install-libraries $(PRIV)
+	  $(MAKE) install-binaries install-libraries $(PRIV) && \
+	  cp ../../../tk/generic/tk3d.h ../include && \
+	  cp ../../../tk/generic/tkFont.h ../include
 
 build/blt: build/tk
 	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
