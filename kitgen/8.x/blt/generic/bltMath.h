@@ -109,6 +109,21 @@
 #endif /*HUGE*/
 #endif /*HUGE_VAL*/
 #endif /*sun*/
+
+#ifndef BLT_DBL_EPSILON
+#  define BLT_DBL_EPSILON 2.2204460492503131e-16
+#endif
+#ifndef BLT_FLT_EPSILON
+#  define BLT_FLT_EPSILON 1.19209290e-07F
+#endif
+
+#ifndef DBL_EPSILON
+#  define DBL_EPSILON	BLT_DBL_EPSILON
+#endif
+#ifndef FLT_EPSILON
+#  define FLT_EPSILON	BLT_FLT_EPSILON
+#endif
+
 #endif /*!HAVE_FLOAT_H*/
 
 /*
