@@ -46,6 +46,56 @@ static Tcl_ObjType arrayObjType = {
 				 * from an object's string representation. */
 };
 
+#if 1     
+static int
+SetArrayFromAny(interp, objPtr)
+    Tcl_Interp *interp;
+    Tcl_Obj *objPtr;
+{
+    Blt_HashEntry *hPtr;
+    Blt_HashTable *tablePtr;
+    Tcl_Obj *elemObjPtr, **vobjv;
+    CONST Tcl_ObjType *oldTypePtr;
+    char *string;
+    int isNew;
+    int nElem;
+    register int i;
+
+    if (objPtr->typePtr == &arrayObjType) {
+	return TCL_OK;
+    }
+    if (Tcl_ListObjGetElements(interp, objPtr, &nElem, &vobjv) != TCL_OK) {
+        return TCL_ERROR;
+    }
+    if (nElem%2) {
+        if (interp != NULL) {
+	    string = Tcl_GetString(objPtr);
+            Tcl_AppendResult(interp, "odd length: ", string, 0);
+        }
+        return TCL_ERROR;
+    }
+    tablePtr = Blt_Malloc(sizeof(Blt_HashTable));
+    assert(tablePtr);
+    Blt_InitHashTable(tablePtr, BLT_STRING_KEYS);
+    for (i = 0; i < nElem; i += 2) {
+	hPtr = Blt_CreateHashEntry(tablePtr, Tcl_GetString(vobjv[i]), &isNew);
+	elemObjPtr = vobjv[i + 1];
+	Blt_SetHashValue(hPtr, elemObjPtr);
+
+	/* Make sure we increment the reference count */
+	Tcl_IncrRefCount(elemObjPtr);
+    }
+    
+    oldTypePtr = objPtr->typePtr;
+    if ((oldTypePtr != NULL) && (oldTypePtr->freeIntRepProc != NULL)) {
+        oldTypePtr->freeIntRepProc(objPtr);
+    }
+    objPtr->internalRep.otherValuePtr = (VOID *)tablePtr;
+    objPtr->typePtr = &arrayObjType;
+
+    return TCL_OK;
+}
+#else
 static int
 SetArrayFromAny(interp, objPtr)
     Tcl_Interp *interp;
@@ -71,6 +121,13 @@ SetArrayFromAny(interp, objPtr)
     if (Tcl_SplitList(interp, string, &nElem, &elemArr) != TCL_OK) {
 	return TCL_ERROR;
     }
+    if (nElem%2) {
+        if (interp != NULL) {
+            Tcl_AppendResult(interp, "odd length: ", string, 0);
+        }
+        Blt_Free(elemArr);
+        return TCL_ERROR;
+    }
     tablePtr = Blt_Malloc(sizeof(Blt_HashTable));
     assert(tablePtr);
     Blt_InitHashTable(tablePtr, BLT_STRING_KEYS);
@@ -92,13 +149,14 @@ SetArrayFromAny(interp, objPtr)
 
     return TCL_OK;
 }
+#endif
 
 static void
 DupArrayInternalRep(srcPtr, destPtr)
     Tcl_Obj *srcPtr;		/* Object with internal rep to copy. */
     Tcl_Obj *destPtr;		/* Object with internal rep to set. */
 {
-    Blt_HashEntry *hPtr;
+    Blt_HashEntry *hPtr, *h2Ptr;
     Blt_HashSearch cursor;
     Blt_HashTable *srcTablePtr, *destTablePtr;
     Tcl_Obj *valueObjPtr;
@@ -112,9 +170,10 @@ DupArrayInternalRep(srcPtr, destPtr)
     for (hPtr = Blt_FirstHashEntry(srcTablePtr, &cursor); hPtr != NULL;
 	 hPtr = Blt_NextHashEntry(&cursor)) {
 	key = Blt_GetHashKey(srcTablePtr, hPtr);
-	Blt_CreateHashEntry(destTablePtr, key, &isNew);
+	h2Ptr = Blt_CreateHashEntry(destTablePtr, key, &isNew);
 	valueObjPtr = (Tcl_Obj *)Blt_GetHashValue(hPtr);
-	Blt_SetHashValue(hPtr, valueObjPtr);
+        assert (valueObjPtr != NULL);
+	Blt_SetHashValue(h2Ptr, valueObjPtr );
 
 	/* Make sure we increment the reference count now that both
 	 * array objects are using the same elements. */
@@ -141,7 +200,7 @@ UpdateStringOfArray(objPtr)
 	 hPtr = Blt_NextHashEntry(&cursor)) {
 	elemObjPtr = (Tcl_Obj *)Blt_GetHashValue(hPtr);
 	Tcl_DStringAppendElement(&dString, Blt_GetHashKey(tablePtr, hPtr));
-	Tcl_DStringAppendElement(&dString, Tcl_GetString(elemObjPtr));
+	Tcl_DStringAppendElement(&dString, elemObjPtr == NULL?"":Tcl_GetString(elemObjPtr));
     }
     objPtr->bytes = Blt_Strdup(Tcl_DStringValue(&dString));
     objPtr->length = strlen(Tcl_DStringValue(&dString));
@@ -196,6 +255,9 @@ Blt_NewArrayObj(objc, objv)
     int isNew;
     register int i;
 
+    if (objc % 2) {
+        return NULL;
+    }
     tablePtr = Blt_Malloc(sizeof(Blt_HashTable));
     assert(tablePtr);
     Blt_InitHashTable(tablePtr, BLT_STRING_KEYS);
@@ -203,7 +265,7 @@ Blt_NewArrayObj(objc, objv)
     for (i = 0; i < objc; i += 2) {
 	hPtr = Blt_CreateHashEntry(tablePtr, Tcl_GetString(objv[i]), &isNew);
 	if ((i + 1) == objc) {
-	    objPtr = bltEmptyStringObjPtr;
+	    objPtr = Tcl_NewStringObj("",-1);
 	} else {
 	    objPtr = objv[i+1];
 	}

@@ -1070,12 +1070,17 @@ BoxesDontOverlap(graphPtr, extsPtr)
     Graph *graphPtr;
     Extents2D *extsPtr;
 {
-/*
+     /*if(extsPtr->right >= extsPtr->left || extsPtr->bottom >= extsPtr->top ||
+	 graphPtr->right >= graphPtr->left || graphPtr->bottom >= graphPtr->top)*/
+     if(extsPtr->right <= extsPtr->left || extsPtr->bottom <= extsPtr->top ||
+	 graphPtr->right <= graphPtr->left || graphPtr->bottom <= graphPtr->top)
+    {
+	return 1;
+    }
     assert(extsPtr->right >= extsPtr->left);
     assert(extsPtr->bottom >= extsPtr->top);
     assert(graphPtr->right >= graphPtr->left);
     assert(graphPtr->bottom >= graphPtr->top);
-*/
 
     return (((double)graphPtr->right < extsPtr->left) ||
 	    ((double)graphPtr->bottom < extsPtr->top) ||
@@ -2123,7 +2128,7 @@ ConfigureImageMarker(markerPtr)
     ImageMarker *imPtr = (ImageMarker *)markerPtr;
     Graph *graphPtr = markerPtr->graphPtr;
 
-    if (Blt_ConfigModified(markerPtr->classPtr->configSpecs, "-image", 
+    if (Blt_ConfigModified(markerPtr->classPtr->configSpecs, graphPtr->interp, "-image", 
 			   (char *)NULL)) {
 	Tcl_Interp *interp = graphPtr->interp;
 
@@ -2213,8 +2218,10 @@ MapImageMarker(markerPtr)
 	Tk_SizeOfImage(imPtr->tkImage, &srcWidth, &srcHeight);
 	imPtr->width = srcWidth;
 	imPtr->height = srcHeight;
-	imPtr->anchorPos.x = corner1.x + imPtr->xOffset;
-	imPtr->anchorPos.y = corner1.y + imPtr->yOffset;
+        imPtr->anchorPos = Blt_TranslatePoint(&corner1,
+             srcWidth, srcHeight, imPtr->anchor);
+        imPtr->anchorPos.x += imPtr->xOffset;
+        imPtr->anchorPos.y += imPtr->yOffset;
 	exts.left = imPtr->anchorPos.x;
 	exts.top = imPtr->anchorPos.y;
 	exts.right = exts.left + srcWidth - 1;
@@ -2581,7 +2588,7 @@ ConfigureTextMarker(markerPtr)
     tmPtr->fillGC = newGC;
     Blt_ResetTextStyle(graphPtr->tkwin, &tmPtr->style);
 
-    if (Blt_ConfigModified(tmPtr->classPtr->configSpecs, "-text", 
+    if (Blt_ConfigModified(tmPtr->classPtr->configSpecs, graphPtr->interp, "-text", 
 	(char *)NULL)) {
 	if (tmPtr->textPtr != NULL) {
 	    Blt_Free(tmPtr->textPtr);
@@ -4267,13 +4274,13 @@ ConfigureOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;
     Tcl_Interp *interp;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     Marker *markerPtr;
     int flags = TK_CONFIG_ARGV_ONLY;
     char *oldName;
     int nNames, nOpts;
-    char **options;
+    CONST char **options;
     register int i;
     int under;
 
@@ -4306,7 +4313,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	/* Save the old marker. */
 	oldName = markerPtr->name;
 	under = markerPtr->drawUnder;
-	if (Tk_ConfigureWidget(interp, graphPtr->tkwin, 
+	if (Blt_ConfigureWidget(interp, graphPtr->tkwin, 
 		markerPtr->classPtr->configSpecs, nOpts, options, 
 		(char *)markerPtr, flags) != TCL_OK) {
 	    return TCL_ERROR;
@@ -4361,7 +4368,6 @@ CreateOp(graphPtr, interp, argc, argv)
     char string[200];
     unsigned int length;
     char c;
-    register Tk_ConfigSpec *specPtr;
 
     c = argv[3][0];
     /* Create the new marker based upon the given type */
@@ -4408,12 +4414,6 @@ CreateOp(graphPtr, interp, argc, argv)
 	DestroyMarker(markerPtr);
 	return TCL_ERROR;
     }
-
-    for (argc -= 4, argv += 4 ; argc > 0; argc -= 2, argv += 2)
-      for (specPtr = markerPtr->classPtr->configSpecs; specPtr->type != TK_CONFIG_END; specPtr++)
-      	if ((Tcl_StringMatch(specPtr->argvName, *argv)))
-          specPtr->specFlags |= TK_CONFIG_OPTION_SPECIFIED;
-
     if ((*markerPtr->classPtr->configProc) (markerPtr) != TCL_OK) {
 	DestroyMarker(markerPtr);
 	return TCL_ERROR;

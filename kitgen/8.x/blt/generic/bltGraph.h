@@ -268,7 +268,8 @@ typedef struct {
 	Segment2D *segments;	/* Array of line segments representing the
 				 * x or y grid lines */
 	int nSegments;		/* # of axis segments. */
-    } x, y;	
+    } x, y;
+    int raised;
 
 } Grid;
 
@@ -466,7 +467,25 @@ struct GraphStruct {
     int nStacks;		/* Number of entries in frequency array.
 				 * If zero, indicates nothing special needs
 				 * to be done for "stack" or "align" modes */
-    char *dataCmd;		/* New data callback? */
+    char *redrawCmd;		/* New redraw callback. This command is
+				   executed after the graph is
+				   redrawed. You can use it to generate
+				   postcript frames, and from
+				   them a movie, or to update a
+				   tracking label associated to the cursor
+				   coordinates.
+				   
+				   Use it for example as
+
+				   proc redrawcmd { graph } {
+				     $graph postscript output <filename>
+				     ....
+                                   }
+
+				   $graph configure -redrawcmd datacmd
+
+				   See the movie.tcl example.
+				*/
 
 };
 
@@ -531,6 +550,10 @@ struct GraphStruct {
  *				4) window was resized. 
  *
  *	GRAPH_FOCUS	
+ *
+ *      EXEC_REDRAWCMD		Mark when the redrawing command is
+ *                              been executed, avoiding inifinite
+ *                              redraw loops.
  */
 
 #define	MAP_ITEM		(1<<0) /* 0x0001 */
@@ -545,7 +568,7 @@ struct GraphStruct {
 #define	REDRAW_BACKING_STORE	(1<<11)/* 0x0800 */
 
 #define GRAPH_FOCUS		(1<<12)/* 0x1000 */
-#define DATA_CHANGED		(1<<13)/* 0x2000 */
+#define EXEC_REDRAWCMD		(1<<13)/* 0x1000 */
 
 #define	MAP_WORLD		(MAP_ALL|RESET_AXES|GET_AXIS_GEOMETRY)
 #define REDRAW_WORLD		(DRAW_MARGINS | DRAW_LEGEND)
@@ -655,7 +678,7 @@ extern void Blt_GetAxisSegments _ANSI_ARGS_((Graph *graphPtr, Axis *axisPtr,
 extern Marker *Blt_NearestMarker _ANSI_ARGS_((Graph *graphPtr, int x, int y,
 	int under));
 extern Axis *Blt_NearestAxis _ANSI_ARGS_((Graph *graphPtr, int x, int y));
-
+extern int Blt_ConfigureAxes(Graph* graphPtr);
 
 typedef ClientData (MakeTagProc) _ANSI_ARGS_((Graph *graphPtr, char *tagName));
 extern MakeTagProc Blt_MakeElementTag;

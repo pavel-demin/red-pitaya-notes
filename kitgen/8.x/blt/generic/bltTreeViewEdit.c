@@ -223,8 +223,8 @@ static Blt_ConfigSpec textboxConfigSpecs[] =
 {
     {BLT_CONFIG_BORDER, "-background", "background", "Background",
 	DEF_TEXTBOX_BACKGROUND, Blt_Offset(Textbox, border), 0},
-    {BLT_CONFIG_SYNONYM, "-bd", "borderWidth", (char *)NULL, (char *)NULL, 0,0},
-    {BLT_CONFIG_SYNONYM, "-bg", "background", (char *)NULL, (char *)NULL, 0,0},
+    {BLT_CONFIG_SYNONYM, "-bd",  (char *)NULL, (char *)NULL, (char *)NULL, 0,0, (ClientData)"-borderwidth"},
+    {BLT_CONFIG_SYNONYM, "-bg",  (char *)NULL, (char *)NULL, (char *)NULL, 0,0, (ClientData)"-background"},
     {BLT_CONFIG_ACTIVE_CURSOR, "-cursor", "cursor", "Cursor",
 	DEF_TEXTBOX_CURSOR, Blt_Offset(Textbox, cursor), 
 	BLT_CONFIG_NULL_OK},
@@ -784,8 +784,8 @@ AcquireText(tvPtr, tbPtr, entryPtr, columnPtr)
     
     tbPtr->gap = stylePtr->gap;
     tbPtr->string = Blt_Strdup(string);
-    tbPtr->gc = Blt_TreeViewGetStyleGC(stylePtr);
-    tbPtr->font = Blt_TreeViewGetStyleFont(tvPtr, stylePtr);
+    tbPtr->gc = Blt_TreeViewGetStyleGC(tvPtr, stylePtr);
+    tbPtr->font = Blt_TreeViewGetStyleFont(tvPtr, columnPtr, stylePtr);
     tbPtr->selFirst = tbPtr->selLast = -1;
     UpdateLayout(tbPtr);
     Tk_MapWindow(tbPtr->tkwin);
@@ -995,7 +995,7 @@ DestroyTextbox(data)
 {
     Textbox *tbPtr = (Textbox *)data;
 
-    Blt_FreeObjOptions(textboxConfigSpecs, (char *)tbPtr, 
+    Blt_FreeObjOptions(tbPtr->interp, textboxConfigSpecs, (char *)tbPtr, 
 	tbPtr->display, 0);
 
     if (tbPtr->string != NULL) {
@@ -1098,7 +1098,7 @@ Blt_TreeViewTextbox(tvPtr, entryPtr, columnPtr)
     Tcl_CreateObjCommand(tvPtr->interp, Tk_PathName(tkwin), 
 	TextboxCmd, tbPtr, NULL);
     if (Blt_ConfigureWidgetFromObj(tvPtr->interp, tkwin, textboxConfigSpecs, 0, 
-	(Tcl_Obj **)NULL, (char *)tbPtr, 0) != TCL_OK) {
+	(Tcl_Obj **)NULL, (char *)tbPtr, 0, NULL) != TCL_OK) {
 	Tk_DestroyWindow(tkwin);
 	return TCL_ERROR;
     }
@@ -1177,9 +1177,15 @@ DisplayTextbox(clientData)
 	rightPos = count;
 	if ((rightPos < tbPtr->selFirst) || (leftPos > tbPtr->selLast)) {
 	    /* No part of the text fragment is selected. */
+#ifdef TK_DRAWCHARS_ANGLE
+	    Tk_DrawChars(tbPtr->display, drawable, tbPtr->gc, 
+			 tbPtr->font, fragPtr->text, fragPtr->count, 
+			 x + fragPtr->x, y + fragPtr->y, 0.);
+#else
 	    Tk_DrawChars(tbPtr->display, drawable, tbPtr->gc, 
 			 tbPtr->font, fragPtr->text, fragPtr->count, 
 			 x + fragPtr->x, y + fragPtr->y);
+#endif
 	    continue;
 	}
 
@@ -1221,9 +1227,15 @@ DisplayTextbox(clientData)
 	        width, fontMetrics.linespace,
 		tbPtr->selBorderWidth, tbPtr->selRelief);
 	}
+#ifdef TK_DRAWCHARS_ANGLE
+	Tk_DrawChars(Tk_Display(tbPtr->tkwin), drawable, tbPtr->gc, 
+	     tbPtr->font, fragPtr->text, fragPtr->count, 
+		     fragPtr->x + x, fragPtr->y + y, 0.);
+#else
 	Tk_DrawChars(Tk_Display(tbPtr->tkwin), drawable, tbPtr->gc, 
 	     tbPtr->font, fragPtr->text, fragPtr->count, 
 	     fragPtr->x + x, fragPtr->y + y);
+#endif
     }
     if ((tbPtr->flags & TEXTBOX_FOCUS) && (tbPtr->cursorOn)) {
 	int left, top, right, bottom;
@@ -1374,11 +1386,11 @@ ConfigureOp(tbPtr, interp, objc, objv)
 		textboxConfigSpecs, (char *)tbPtr, (Tcl_Obj *)NULL, 0);
     } else if (objc == 3) {
 	return Blt_ConfigureInfoFromObj(interp, tbPtr->tkwin, 
-		textboxConfigSpecs, (char *)tbPtr, objv[3], 0);
+		textboxConfigSpecs, (char *)tbPtr, objv[2], 0);
     }
     if (Blt_ConfigureWidgetFromObj(interp, tbPtr->tkwin, 
 	textboxConfigSpecs, objc - 2, objv + 2, (char *)tbPtr, 
-	BLT_CONFIG_OBJV_ONLY) != TCL_OK) {
+	BLT_CONFIG_OBJV_ONLY, NULL) != TCL_OK) {
 	return TCL_ERROR;
     }
     ConfigureTextbox(tbPtr);

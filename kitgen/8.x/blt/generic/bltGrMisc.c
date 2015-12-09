@@ -260,7 +260,7 @@ StringToColorPair(clientData, interp, tkwin, string, widgRec, offset)
 {
     ColorPair *pairPtr = (ColorPair *)(widgRec + offset);
     ColorPair sample;
-    int allowDefault = (int)clientData;
+    int allowDefault = (intptr_t)clientData;
 
     sample.fgColor = sample.bgColor = NULL;
     if ((string != NULL) && (*string != '\0')) {
@@ -1010,6 +1010,8 @@ Blt_GetScrollInfo(interp, argc, argv, offsetPtr, worldSize, windowSize,
 	length = strlen(argv[2]);
 	if ((c == 'u') && (strncmp(argv[2], "units", length) == 0)) {
 	    fract = (double)count *scrollUnits;
+	} else if ((c == 'p') && (strncmp(argv[2], "pixels", length) == 0)) {
+	    fract = (double)count;
 	} else if ((c == 'p') && (strncmp(argv[2], "pages", length) == 0)) {
 	    /* A page is 90% of the view-able window. */
 	    fract = (double)count *windowSize * 0.9;
@@ -1078,6 +1080,8 @@ Blt_GetScrollInfoFromObj(interp, objc, objv, offsetPtr, worldSize, windowSize,
 	length = strlen(string);
 	if ((c == 'u') && (strncmp(string, "units", length) == 0)) {
 	    fract = (double)count *scrollUnits;
+	} else if ((c == 'p') && (strncmp(string, "pixels", length) == 0)) {
+             fract = (double)count;
 	} else if ((c == 'p') && (strncmp(string, "pages", length) == 0)) {
 	    /* A page is 90% of the view-able window. */
 	    fract = (double)count *windowSize * 0.9;
@@ -1139,6 +1143,8 @@ Blt_UpdateScrollbar(interp, scrollCmd, firstFract, lastFract)
 
     Tcl_DStringInit(&dString);
     Tcl_DStringAppend(&dString, scrollCmd, -1);
+    if (firstFract<0.0) { firstFract = 0; }
+    if (lastFract>1.0) { lastFract = 1; }
     sprintf(string, " %f %f", firstFract, lastFract);
     Tcl_DStringAppend(&dString, string, -1);
     if (Tcl_GlobalEval(interp, Tcl_DStringValue(&dString)) != TCL_OK) {

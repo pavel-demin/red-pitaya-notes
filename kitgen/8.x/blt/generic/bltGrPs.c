@@ -406,7 +406,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;
     Tcl_Interp *interp;
     int argc;			/* Number of options in argv vector */
-    char **argv;		/* Option vector */
+    CONST char **argv;		/* Option vector */
 {
     int flags = TK_CONFIG_ARGV_ONLY;
     PostScript *psPtr = (PostScript *)graphPtr->postscript;
@@ -418,7 +418,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	return Tk_ConfigureInfo(interp, graphPtr->tkwin, configSpecs,
 		(char *)psPtr, argv[3], flags);
     }
-    if (Tk_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 3,
+    if (Blt_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 3,
 	    argv + 3, (char *)psPtr, flags) != TCL_OK) {
 	return TCL_ERROR;
     }
@@ -896,10 +896,10 @@ GraphToPostScript(graphPtr, ident, psToken)
     MarginsToPostScript(graphPtr, psToken);
     Blt_AppendToPostScript(psToken,
 	"showpage\n",
-	"%Trailer\n",
+	"%%Trailer\n",
 	"grestore\n",
 	"end\n",
-	"%EOF\n", (char *)NULL);
+	"%%EOF\n", (char *)NULL);
   error:
     /* Reset height and width of graph window */
     graphPtr->width = Tk_Width(graphPtr->tkwin);
@@ -1110,7 +1110,7 @@ OutputOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;		/* Graph widget record */
     Tcl_Interp *interp;
     int argc;			/* Number of options in argv vector */
-    char **argv;		/* Option vector */
+    CONST char **argv;		/* Option vector */
 {
     PostScript *psPtr = (PostScript *)graphPtr->postscript;
     FILE *f = NULL;
@@ -1121,10 +1121,10 @@ OutputOp(graphPtr, interp, argc, argv)
     fileName = NULL;
     if (argc > 3) {
 	if (argv[3][0] != '-') {
-	    fileName = argv[3];	/* First argument is the file name. */
+	    fileName = (char *)argv[3];	/* First argument is the file name. */
 	    argv++, argc--;
 	}
-	if (Tk_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 3,
+	if (Blt_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 3,
 		argv + 3, (char *)psPtr, TK_CONFIG_ARGV_ONLY) != TCL_OK) {
 	    return TCL_ERROR;
 	}

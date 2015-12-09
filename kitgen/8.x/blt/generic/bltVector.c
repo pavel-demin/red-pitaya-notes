@@ -41,7 +41,7 @@
  */
 
 #include "bltVecInt.h"
-#include "bltMath.h"
+#include <bltMath.h>
 
 #ifdef TIME_WITH_SYS_TIME
 #include <sys/time.h>
@@ -60,7 +60,7 @@
 
 #define DEF_ARRAY_SIZE		64
 #define VECFLAGS(v)	\
-	(((v)->varNsPtr != NULL) ? (TCL_NAMESPACE_ONLY | TCL_GLOBAL_ONLY) : 0;
+	(((v)->varNsPtr != NULL) ? (TCL_NAMESPACE_ONLY | TCL_GLOBAL_ONLY) : 0);
 #define TRACE_ALL  (TCL_TRACE_WRITES | TCL_TRACE_READS | TCL_TRACE_UNSETS)
 
 
@@ -99,10 +99,15 @@ typedef struct {
 } VectorClient;
 
 static Tcl_CmdDeleteProc VectorInstDeleteProc;
-static Tcl_CmdProc VectorCmd;
 static Tcl_InterpDeleteProc VectorInterpDeleteProc;
 
+#if (TCL_MAJOR_VERSION == 7)
+static Tcl_CmdProc VectorCmd;
+#endif
+
+#if defined(HAVE_SRAND48) && defined(NO_DECL_SRAND48)
 extern void srand48 _ANSI_ARGS_((long int seed));
+#endif
 
 static VectorObject *
 FindVectorInNamespace(dataPtr, nsPtr, vecName)
@@ -196,6 +201,36 @@ Blt_VectorUpdateRange(vPtr)
     vPtr->notifyFlags &= ~UPDATE_RANGE;
 }
 
+static int
+GetIntEnd(interp, string, iPtr, endVal)
+    Tcl_Interp *interp;
+    char *string;
+    int *iPtr;
+    int endVal;
+{
+    char *cp = string;
+    int add = 0;
+    
+    if (strncmp("end", cp, 3) == 0) {
+        if (*cp == 0) {
+            *iPtr = endVal;
+            return TCL_OK;
+        }
+        add = endVal;
+        cp += 3;
+    }
+    if (Tcl_GetInt(interp, cp, iPtr) != TCL_OK) {
+        long l;
+        Tcl_ResetResult(interp);
+        if (Tcl_ExprLong(interp, cp, &l) != TCL_OK) {
+            return TCL_ERROR;
+        }
+        *iPtr = (int)l;
+    }
+    *iPtr += add;
+    return TCL_OK;
+}
+
 /*
  * ----------------------------------------------------------------------
  *
@@ -222,7 +257,20 @@ Blt_VectorGetIndex(interp, vPtr, string, indexPtr, flags, procPtrPtr)
     Blt_VectorIndexProc **procPtrPtr;
 {
     char c;
-    int value;
+    int value = -1, value2 = -1, sz, result = TCL_OK;
+    char *comma, *zBuf;
+    char zStatic[201];
+    
+    /* Need a static copy of index. */
+    sz = strlen(string);
+    if (sz>=200) {
+        zBuf = Blt_Malloc(sz+1);
+        strcpy(zBuf, string);
+        string = zBuf;
+    } else {
+        strcpy(zStatic, string);
+        string = zStatic;
+    }
 
     c = string[0];
 
@@ -234,13 +282,14 @@ Blt_VectorGetIndex(interp, vPtr, string, indexPtr, flags, procPtrPtr)
 		Tcl_AppendResult(interp, "bad index \"end\": vector is empty", 
 				 (char *)NULL);
 	    }
-	    return TCL_ERROR;
+	    result = TCL_ERROR;
+	    goto cleanup;
 	}
 	*indexPtr = vPtr->length - 1;
-	return TCL_OK;
+	goto cleanup;
     } else if ((c == '+') && (strcmp(string, "++end") == 0)) {
 	*indexPtr = vPtr->length;
-	return TCL_OK;
+	goto cleanup;
     }
     if (procPtrPtr != NULL) {
 	Blt_HashEntry *hPtr;
@@ -249,15 +298,48 @@ Blt_VectorGetIndex(interp, vPtr, string, indexPtr, flags, procPtrPtr)
 	if (hPtr != NULL) {
 	    *indexPtr = SPECIAL_INDEX;
 	    *procPtrPtr = (Blt_VectorIndexProc *) Blt_GetHashValue(hPtr);
-	    return TCL_OK;
+	    goto cleanup;
 	}
     }
-    if (Tcl_GetInt(interp, (char *)string, &value) != TCL_OK) {
+    if ((comma=strchr(string, ','))) {
+        char *ccp;
+        *comma = 0;
+        ccp = (char*)comma+1;
+        if ((GetIntEnd(interp, ccp, &value2, vPtr->numcols-1) == TCL_OK) &&
+            (GetIntEnd(interp, (char *)string, &value, vPtr->numcols-1) ==
+             TCL_OK)) {
+                if (value2<0 || value<0) {
+                    if (flags & INDEX_VAR_TRACE) {
+                        *indexPtr = SPECIAL_INDEX;
+                        if (procPtrPtr != NULL) {
+                            *procPtrPtr = NULL;
+                        }
+                        goto cleanup;
+                    } else {
+                        Tcl_AppendResult(interp, "negative index not allowed", 0);
+                        result = TCL_ERROR;
+                        goto cleanup;
+                    }
+                }
+                if (value2>=vPtr->numcols) {
+                    Tcl_AppendResult(interp, "col index is > numcols", 0);
+                    result = TCL_ERROR;
+                    goto cleanup;
+                }
+                value = (value*vPtr->numcols)+value2; 
+                *comma = ',';
+        } else {
+            *comma = ',';
+            result = TCL_ERROR;
+            goto cleanup;
+        }
+        
+    } else if (Tcl_GetInt(interp, (char *)string, &value) != TCL_OK) {
 	long int lvalue;
-	/*
+	/*   
 	 * Unlike Tcl_GetInt, Tcl_ExprLong needs a valid interpreter,
 	 * but the interp passed in may be NULL.  So we have to use
-	 * vPtr->interp and then reset the result.
+	 * vPtr->interp and then reset the result.  
 	 */
 	if (Tcl_ExprLong(vPtr->interp, (char *)string, &lvalue) != TCL_OK) {
 	    Tcl_ResetResult(vPtr->interp);
@@ -265,8 +347,9 @@ Blt_VectorGetIndex(interp, vPtr, string, indexPtr, flags, procPtrPtr)
 		Tcl_AppendResult(interp, "bad index \"", string, "\"", 
 				 (char *)NULL);
 	    }
-	    return TCL_ERROR;
-	}
+             result = TCL_ERROR;
+             goto cleanup;
+         }
 	value = lvalue;
     }
     /*
@@ -281,10 +364,15 @@ Blt_VectorGetIndex(interp, vPtr, string, indexPtr, flags, procPtrPtr)
 	    Tcl_AppendResult(interp, "index \"", string, "\" is out of range", 
 			 (char *)NULL);
 	}
-	return TCL_ERROR;
-    }
+         result = TCL_ERROR;
+         goto cleanup;
+     }
     *indexPtr = (int)value;
-    return TCL_OK;
+cleanup:
+    if (string != zStatic) {
+        Blt_Free( (void *)string );
+    }
+    return result;
 }
 
 /*
@@ -486,6 +574,9 @@ Blt_VectorNotifyClients(clientData)
 	    clientPtr->serverPtr = NULL;
 	}
     }
+    if (vPtr->callback) {
+        Tcl_EvalObjEx( vPtr->interp, vPtr->callback, TCL_GLOBAL_ONLY);
+    }
 }
 
 /*
@@ -568,11 +659,28 @@ Blt_VectorFlushCache(vPtr)
     Tcl_UntraceVar2(interp, vPtr->arrayName, (char *)NULL,
 	TRACE_ALL | vPtr->varFlags, Blt_VectorVarTrace, vPtr);
 
-    /* Clear all the element entries from the entire array */
-    Tcl_UnsetVar2(interp, vPtr->arrayName, (char *)NULL, vPtr->varFlags);
+    if (vPtr->numcols>1) {
+        Tcl_Interp *i = vPtr->interp;
+        Tcl_Obj *o = Tcl_NewListObj(0,0);
+        /* Preserve non-numeric datat that Tktable stores. */
+        
+        Tcl_ListObjAppendElement(i, o, Tcl_NewStringObj("::array",-1));
+        Tcl_ListObjAppendElement(i, o, Tcl_NewStringObj("unset",-1));
+        Tcl_ListObjAppendElement(i, o, Tcl_NewStringObj(vPtr->arrayName,-1));
+        Tcl_ListObjAppendElement(i, o, Tcl_NewStringObj("[0-9]*,[0-9]*",-1));
+        Tcl_IncrRefCount(o);
+        if (Tcl_EvalObjEx(i, o, 0) != TCL_OK) {
+            /* printf("FAIL: %s\n", Tcl_GetStringResult(interp)); */
+        }
+        Tcl_DecrRefCount(o);
+    } else {
+        /* Clear all the element entries from the entire array */
+        Tcl_UnsetVar2(interp, vPtr->arrayName, (char *)NULL, vPtr->varFlags);
 
-    /* Restore the "end" index by default and the trace on the entire array */
-    Tcl_SetVar2(interp, vPtr->arrayName, "end", "", vPtr->varFlags);
+        /* Restore the "end" index by default and the trace on the entire array */
+        Tcl_SetVar2(interp, vPtr->arrayName, "end", "", vPtr->varFlags);
+    }
+
     Tcl_TraceVar2(interp, vPtr->arrayName, (char *)NULL,
 	TRACE_ALL | vPtr->varFlags, Blt_VectorVarTrace, vPtr);
 
@@ -748,6 +856,8 @@ Blt_VectorMapVariable(interp, vPtr, name)
 	    (char *)NULL);
 	return TCL_ERROR;
     }
+    /* We need to use fully qualified names. */
+    varName = name;
     if (nsPtr != NULL) {
 	/* [incr Tcl] 2.x doesn't like qualifiers with variable names,
 	 * so we need to enter the namespace if one was designated. */
@@ -823,6 +933,8 @@ Blt_VectorChangeLength(vPtr, length)
     int newSize;		/* Size of array in elements */
     double *newArr;
     Tcl_FreeProc *freeProc;
+    VectorInterpData *dataPtr = vPtr->dataPtr;
+
 
     newArr = NULL;
     newSize = 0;
@@ -831,7 +943,14 @@ Blt_VectorChangeLength(vPtr, length)
     if (length > 0) {
 	int wanted, used;
 
-	wanted = length;
+         if (vPtr->numcols>1 && length%vPtr->numcols) {
+            length += (vPtr->numcols-(length%vPtr->numcols));
+        }
+        if (dataPtr->bltMaxSize>0 && length>dataPtr->bltMaxSize) {
+            Tcl_AppendResult(vPtr->interp, "vector size too large",0);
+            return TCL_ERROR;
+        }
+        wanted = length;
 	used = vPtr->length;
 
 	/* Compute the new size by doubling old size until it's big enough */
@@ -846,7 +965,7 @@ Blt_VectorChangeLength(vPtr, length)
 	    newArr = vPtr->valueArr; /* Same size, use current array. */
 	} else {
 	    /* Dynamically allocate memory for the new array. */
-	    newArr = Blt_Malloc(newSize * sizeof(double));
+            newArr = Blt_Malloc(newSize * sizeof(double));
 	    if (newArr == NULL) {
 		Tcl_AppendResult(vPtr->interp, "can't allocate ", 
 		Blt_Itoa(newSize), " elements for vector \"", vPtr->name, 
@@ -988,6 +1107,7 @@ Blt_VectorNew(dataPtr)
     vPtr->hashPtr = NULL;
     vPtr->chainPtr = Blt_ChainCreate();
     vPtr->flush = FALSE;
+    vPtr->numcols = 1;
     vPtr->min = vPtr->max = bltNaN;
     return vPtr;
 }
@@ -1175,7 +1295,7 @@ Blt_VectorCreate(dataPtr, vecName, cmdName, varName, newPtr)
 #endif /* NAMESPACE_DELETE_NOTIFY */
 	Blt_SetHashValue(hPtr, vPtr);
     }
-    if (cmdName != NULL) {
+    if (cmdName != NULL && cmdName[0]) {
 	Tcl_CmdInfo cmdInfo;
 
 	if ((cmdName == vecName) ||
@@ -1196,7 +1316,7 @@ Blt_VectorCreate(dataPtr, vecName, cmdName, varName, newPtr)
 	    goto checkVariable;
 	}
     }
-    if (vPtr->cmdToken != 0) {
+    if (vPtr->cmdToken != 0 && cmdName[0]) {
 	DeleteCommand(vPtr);	/* Command already exists, delete old first */
     }
     if (cmdName != NULL) {
@@ -1225,11 +1345,12 @@ Blt_VectorCreate(dataPtr, vecName, cmdName, varName, newPtr)
 #endif
     }
   checkVariable:
-    if (varName != NULL) {
+  if (varName != NULL&& varName[0]) {
 	if ((varName[0] == '#') && (strcmp(varName, "#auto") == 0)) {
 	    varName = qualName;
 	}
-	if (Blt_VectorMapVariable(interp, vPtr, varName) != TCL_OK) {
+         varName = qualName;
+         if (Blt_VectorMapVariable(interp, vPtr, varName) != TCL_OK) {
 	    goto error;
 	}
     }
@@ -1282,6 +1403,8 @@ Blt_VectorDuplicate(destPtr, srcPtr)
  *----------------------------------------------------------------------
  */
 /*ARGSUSED*/
+#if (TCL_MAJOR_VERSION == 7)
+
 static int
 VectorNamesOp(clientData, interp, argc, argv)
     ClientData clientData;	/* Interpreter-specific data. */
@@ -1303,6 +1426,32 @@ VectorNamesOp(clientData, interp, argc, argv)
     }
     return TCL_OK;
 }
+
+#else
+
+static int
+VectorNamesObjOp(clientData, interp, objc, objv)
+ClientData clientData;	/* Interpreter-specific data. */
+Tcl_Interp *interp;
+int objc;
+Tcl_Obj *CONST *objv;
+{
+    VectorInterpData *dataPtr = clientData;
+    Blt_HashEntry *hPtr;
+    char *name;
+    Blt_HashSearch cursor;
+
+    for (hPtr = Blt_FirstHashEntry(&(dataPtr->vectorTable), &cursor);
+    hPtr != NULL; hPtr = Blt_NextHashEntry(&cursor)) {
+        name = Blt_GetHashKey(&(dataPtr->vectorTable), hPtr);
+        if ((objc == 2) || (Tcl_StringMatch(name, Tcl_GetString(objv[2])))) {
+            Tcl_AppendElement(interp, name);
+        }
+    }
+    return TCL_OK;
+}
+
+#endif
 
 /*
  *----------------------------------------------------------------------
@@ -1341,7 +1490,7 @@ VectorCreate2(clientData, interp, argStart, argc, argv)
     int length;
     int inspectFlags, freeOnUnset, flush;
     char **nameArr;
-    int count;
+    int count, numcols = 1;
     register int i;
 
     /*
@@ -1349,12 +1498,12 @@ VectorCreate2(clientData, interp, argStart, argc, argv)
      * name arguments into an array.
      */
     varName = cmdName = NULL;
-    freeOnUnset = 0;
+    freeOnUnset = dataPtr->bltFreeOnUnset;
     nameArr = Blt_Malloc(sizeof(char *) * argc);
     assert(nameArr);
 
     inspectFlags = TRUE;
-    flush = FALSE;
+    flush = dataPtr->bltFlushArray;
     count = 0;
     vPtr = NULL;
     for (i = argStart; i < argc; i++) {
@@ -1419,6 +1568,12 @@ VectorCreate2(clientData, interp, argStart, argc, argv)
 	    nameArr[count++] = argv[i];
 	}
     }
+    if (varName == NULL && dataPtr->bltNoVariable) {
+        varName = "";
+    }
+    if (cmdName == NULL && dataPtr->bltNoCommand) {
+        cmdName = "";
+    }
     if (count == 0) {
 	Tcl_AppendResult(interp, "no vector names supplied", (char *)NULL);
 	goto error;
@@ -1450,11 +1605,25 @@ VectorCreate2(clientData, interp, argStart, argc, argv)
 	}
 	if (leftParen != NULL) {
 	    int result;
-	    char *colon;
+	    char *colon, *comma;
 
 	    *rightParen = '\0';
+	    comma = strchr(leftParen + 1, ',');
 	    colon = strchr(leftParen + 1, ':');
-	    if (colon != NULL) {
+	    if (comma != NULL) {
+	        int rows;
+                *comma = '\0';
+                result = Tcl_GetInt(interp, leftParen + 1, &rows);
+		if ((*(comma + 1) != '\0') && (result == TCL_OK)) {
+		    result = Tcl_GetInt(interp, comma + 1, &numcols);
+		}
+		size = rows*numcols;
+                if (result != TCL_OK || rows<=0 || numcols<=0) {
+                    Tcl_AppendResult(interp, "bad matrix vector \"",
+			nameArr[i], "\"", (char *)NULL);
+			result = TCL_ERROR;
+	        }
+            } else if (colon != NULL) {
 
 		/* Specification is in the form vecName(first:last) */
 		*colon = '\0';
@@ -1486,6 +1655,11 @@ VectorCreate2(clientData, interp, argStart, argc, argv)
 	if (leftParen != NULL) {
 	    *leftParen = '\0';
 	}
+	if (dataPtr->bltMaxSize>0 && size>dataPtr->bltMaxSize) {
+             Tcl_AppendResult(interp, "vector size too large\"", nameArr[i], "\"",
+                (char *)NULL);
+                goto error;
+	}
 	/*
 	 * By default, we create a Tcl command by the name of the vector.
 	 */
@@ -1502,6 +1676,10 @@ VectorCreate2(clientData, interp, argStart, argc, argv)
 	vPtr->freeOnUnset = freeOnUnset;
 	vPtr->flush = flush;
 	vPtr->offset = first;
+        if (first && first%vPtr->numcols) {
+            first += (vPtr->numcols-(first%vPtr->numcols));
+        }
+	vPtr->numcols = numcols;
 	if (size > 0) {
 	    if (Blt_VectorChangeLength(vPtr, size) != TCL_OK) {
 		goto error;
@@ -1523,6 +1701,27 @@ VectorCreate2(clientData, interp, argStart, argc, argv)
   error:
     Blt_Free(nameArr);
     return TCL_ERROR;
+}
+
+static int
+VectorObjCallOp(clientData, interp, objc, objv, proc)
+ClientData clientData;
+Tcl_Interp *interp;
+int objc;
+Tcl_Obj *CONST *objv;
+Blt_Op proc;
+{
+    int i, result;
+    const char **argv;
+    argv = (const char **) ckalloc((unsigned)(objc + 1) * sizeof(char *));
+
+    for (i = 0;  i < objc;  i++) {
+        argv[i] = Tcl_GetString(objv[i]);
+    }
+    argv[objc] = 0;
+    result = (*proc)(clientData, interp, objc, argv);
+    ckfree((char*) argv);
+    return result;
 }
 
 /*
@@ -1554,6 +1753,16 @@ VectorCreateOp(clientData, interp, argc, argv)
     char **argv;
 {
     return VectorCreate2(clientData, interp, 2, argc, argv);
+}
+
+static int
+VectorCreateObjOp(clientData, interp, objc, objv)
+ClientData clientData;
+Tcl_Interp *interp;
+int objc;
+Tcl_Obj *CONST *objv;
+{
+    return VectorObjCallOp(clientData, interp, objc, objv, VectorCreateOp);
 }
 
 /*
@@ -1593,14 +1802,216 @@ VectorDestroyOp(clientData, interp, argc, argv)
     return TCL_OK;
 }
 
+static int
+VectorDestroyObjOp(clientData, interp, objc, objv)
+ClientData clientData;
+Tcl_Interp *interp;
+int objc;
+Tcl_Obj *CONST *objv;
+{
+    return VectorObjCallOp(clientData, interp, objc, objv, VectorDestroyOp);
+}
+
+#if (TCL_MAJOR_VERSION == 7)
+
+static int
+VectorOpOp(clientData, interp, argc, argv)
+ClientData clientData;	/* Interpreter-specific data. */
+Tcl_Interp *interp;
+int argc;
+char **argv;
+{
+    int i, result;
+    const char **nargv;
+    Blt_Vector *vecPtr;
+    
+    result = Blt_GetVector(interp, Tcl_GetString(argv[3]), &vecPtr);
+    if (result != TCL_OK) {
+        return result;
+    }
+    nargv = (const char **) ckalloc((unsigned)(argc) * sizeof(char *));
+
+    nargv[0] = argv[3];
+    nargv[1] = argv[2];
+    for (i = 2;  i < (argc-2);  i++) {
+        nargv[i] = argv[i+2];
+    }
+    nargv[argc-2] = 0;
+    result = Blt_VectorInstCmd((ClientData)vecPtr, interp, argc-2, nargv);
+    ckfree((char*) nargv);
+    return result;
+}
+
+#else
+
+
+/* 
+ * Set/get various options.  These include:
+ *
+ *    -oldcreate : compatibility mode of implicit 'create'.
+ *    -flush     : flush array cells
+ *    -watchunset: delete on var deletion.
+ *    -maxsize   : max allocation.
+ *
+ * These are global settings to all interps.
+ */
+
+static int
+VectorConfigureObjOp(clientData, interp, objc, objv)
+ClientData clientData;
+Tcl_Interp *interp;
+int objc;
+Tcl_Obj *CONST *objv;
+{
+    enum optionIndices {
+            OPTION_FLUSH, OPTION_OLDCREATE, OPTION_WATCHUNSET, OPTION_MAXSIZE,
+            OPTION_NOCOMMAND, OPTION_NOVARIABLE
+    };
+    static char *optionArr[] = {
+        "-flush", "-oldcreate", "-watchunset", "-maxsize",
+        "-nocommand", "-novariable", 0
+    };
+    int i;
+    VectorInterpData *d = clientData;
+    
+    if (objc%2) {
+        Tcl_WrongNumArgs(interp, 2, objv, "?-flush bool? ?-watchunset bool? ?-oldcreate bool?");
+        return TCL_ERROR;
+    }
+    if (objc == 2) {
+        Tcl_Obj * o = Tcl_NewListObj(0,0);
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewStringObj("-flush", -1));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewBooleanObj(d->bltFlushArray));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewStringObj("-watchunset", -1));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewBooleanObj(d->bltFreeOnUnset));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewStringObj("-oldcreate", -1));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewBooleanObj(d->bltOldCreate));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewStringObj("-nocommand", -1));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewBooleanObj(d->bltNoCommand));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewStringObj("-novariable", -1));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewBooleanObj(d->bltNoVariable));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewStringObj("-maxsize", -1));
+        Tcl_ListObjAppendElement(interp, o, Tcl_NewIntObj(d->bltMaxSize));
+        Tcl_SetObjResult(interp, o);
+        return TCL_OK;
+    }
+    for (i=2; i<objc; i+=2) {
+        int option, *ovar = NULL;
+        if (Tcl_GetIndexFromObj(interp, objv[i], optionArr, "option",
+            0, &option) != TCL_OK) {
+                return TCL_OK;
+        }
+        
+        switch (option) {
+            case OPTION_FLUSH:      ovar=&d->bltFlushArray; break;
+            case OPTION_OLDCREATE:  ovar=&d->bltOldCreate; break;
+            case OPTION_WATCHUNSET: ovar=&d->bltFreeOnUnset; break;
+            case OPTION_NOCOMMAND:  ovar=&d->bltNoCommand; break;
+            case OPTION_NOVARIABLE: ovar=&d->bltNoVariable; break;
+            case OPTION_MAXSIZE:
+                if (Tcl_GetIntFromObj(interp, objv[i+1], &d->bltMaxSize) != TCL_OK) {
+                    return TCL_ERROR;
+                }
+                return TCL_OK;
+        }
+
+        if (Tcl_GetBooleanFromObj(interp, objv[i+1], ovar) != TCL_OK) {
+            return TCL_ERROR;
+        }
+    }
+    return TCL_OK;
+}
+
+static int
+VectorOpObjOp(clientData, interp, objc, objv)
+    ClientData clientData;
+    Tcl_Interp *interp;
+    int objc;
+    Tcl_Obj *CONST *objv;
+{
+    int i, j, o1 = 2, result;
+    Tcl_Obj **nobjv;
+    Blt_Vector *vecPtr;
+    char *string;
+    
+    string = Tcl_GetString(objv[2]);
+    if (!strncmp(string, "ma", 2)) {
+        /* The "vector op matrix rowize VEC ?N?" command. */
+        o1 = 3;
+    }
+    result = Blt_GetVector(interp, Tcl_GetString(objv[o1+1]), &vecPtr);
+    if (result != TCL_OK) {
+        return result;
+    }
+    nobjv = (Tcl_Obj **) ckalloc((unsigned)(objc) * sizeof(Tcl_Obj *));
+
+    j = 0;
+    nobjv[j++] = objv[o1+1];
+    nobjv[j++] = objv[2];
+    i = 4;
+    if (o1 != 2) {
+        nobjv[j++] = objv[3];
+        i = 5;
+    }        
+    for (;  i < objc;  j++, i++) {
+        nobjv[j] = objv[i];
+    }
+    nobjv[j++] = 0;
+    /* TODO: fix error messages in this call duplicating the arg. */
+    result = Blt_VectorInstCmd((ClientData)vecPtr, interp, objc-2, nobjv);
+    ckfree((char*) nobjv);
+    return result;
+}
+
+
+#endif
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * VectorExprOp --
+ *
+ *	Computes the result of the expression which may be
+ *	either a scalar (single value) or vector (list of values).
+ *
+ * Results:
+ *	A standard Tcl result.
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+VectorExprOp(clientData, interp, argc, argv)
+    ClientData clientData;	/* Not Used. */
+    Tcl_Interp *interp;
+    int argc;
+    char **argv;
+{
+    return Blt_ExprVector(interp, argv[2], (Blt_Vector *) NULL);
+}
+
+static int
+VectorExprObjOp(clientData, interp, objc, objv)
+ClientData clientData;
+Tcl_Interp *interp;
+int objc;
+Tcl_Obj *CONST *objv;
+{
+    return VectorObjCallOp(clientData, interp, objc, objv, VectorExprOp);
+}
+
+#if (TCL_MAJOR_VERSION == 7)
+
 static Blt_OpSpec vectorCmdOps[] =
 {
     {"create", 1, (Blt_Op)VectorCreateOp, 3, 0,
 	"vecName ?vecName...? ?switches...?",},
     {"destroy", 1, (Blt_Op)VectorDestroyOp, 3, 0,
 	"vecName ?vecName...?",},
-    {"names", 1, (Blt_Op)VectorNamesOp, 2, 3, "?pattern?...",},
-};
+    {"expr", 1, (Blt_Op)VectorExprOp, 3, 3, "expression",},
+    {"names", 1, (Blt_Op)VectorNamesOp, 2, 3, "?pattern?",},
+    {"op", 1, (Blt_Op)VectorOpOp, 4, 0, "cmd ...",},
+    };
 
 static int nCmdOps = sizeof(vectorCmdOps) / sizeof(Blt_OpSpec);
 
@@ -1644,6 +2055,77 @@ VectorCmd(clientData, interp, argc, argv)
     return (*proc) (clientData, interp, argc, argv);
 }
 
+#else
+
+static Blt_OpSpec vectorCmdOps[] =
+{
+    {"configure", 1, (Blt_Op)VectorConfigureObjOp, 2, 0, "?-flush bool? ?-watchunset bool? ?-oldcreate bool? ?-maxsize N? ?-nocommand bool? ?-novariable bool?",},
+    {"create", 1, (Blt_Op)VectorCreateObjOp, 3, 0,
+        "vecName ?vecName...? ?switches...?",},
+    {"destroy", 1, (Blt_Op)VectorDestroyObjOp, 3, 0,
+        "vecName ?vecName...?",},
+    {"expr", 1, (Blt_Op)VectorExprObjOp, 3, 3, "expression",},
+    {"names", 1, (Blt_Op)VectorNamesObjOp, 2, 3, "?pattern?",},
+    {"op", 1, (Blt_Op)VectorOpObjOp, 4, 0, "cmd vecName ...",},
+};
+
+static int nCmdOps = sizeof(vectorCmdOps) / sizeof(Blt_OpSpec);
+
+static int
+VectorObjCmd(clientData, interp, objc, objv)
+    ClientData clientData;	/* Interpreter-specific data. */
+    Tcl_Interp *interp;
+    int objc;
+    Tcl_Obj *CONST *objv;
+{
+    Blt_Op proc;
+    VectorInterpData *dataPtr = clientData;
+
+    /*
+    * Try to replicate the old vector command's behavior:
+    */
+    if (objc > 1 && dataPtr->bltOldCreate) {
+        char c, *str;
+        register int i;
+        register Blt_OpSpec *specPtr;
+        int result;
+        int argc;
+        char **argv;
+        Tcl_Obj *listPtr;
+    
+        str = Tcl_GetString(objv[1]);
+        c = str[0];
+        for (specPtr = vectorCmdOps, i = 0; i < nCmdOps; i++, specPtr++) {
+            if ((c == specPtr->name[0]) &&
+            (strcmp(str, specPtr->name) == 0)) {
+                goto doOp;
+            }
+        }
+        /*
+        * The first argument is not an operation, so assume that its
+        * actually the name of a vector to be created
+        */
+        listPtr = Tcl_NewListObj(objc, objv);
+        result = Tcl_SplitList( interp, Tcl_GetString(listPtr), &argc, &argv);
+        if (result == TCL_OK) {
+            result = VectorCreate2(clientData, interp, 1, argc, argv);
+            ckfree((char*) argv);
+        }
+        Tcl_DecrRefCount(listPtr);
+        return result;
+    }
+    doOp:
+    /* Do the usual vector operation lookup now. */
+    proc = Blt_GetOpFromObj(interp, nCmdOps, vectorCmdOps, BLT_OP_ARG1, objc, objv,0);
+    if (proc == NULL) {
+        return TCL_ERROR;
+    }
+    return (*proc) (clientData, interp, objc, objv);
+}
+
+#endif
+
+
 /*
  * -----------------------------------------------------------------------
  *
@@ -1681,6 +2163,7 @@ VectorInterpDeleteProc(clientData, interp)
     Blt_DeleteHashTable(&(dataPtr->vectorTable));
 
     /* If any user-defined math functions were installed, remove them.  */
+    Blt_VectorUninstallMathFunctions(&(dataPtr->mathProcTable));
     Blt_DeleteHashTable(&(dataPtr->mathProcTable));
 
     Blt_DeleteHashTable(&(dataPtr->indexProcTable));
@@ -1698,7 +2181,7 @@ Blt_VectorGetInterpData(interp)
     dataPtr = (VectorInterpData *)
 	Tcl_GetAssocData(interp, VECTOR_THREAD_KEY, &proc);
     if (dataPtr == NULL) {
-	dataPtr = Blt_Malloc(sizeof(VectorInterpData));
+	dataPtr = Blt_Calloc(sizeof(VectorInterpData), 1);
 	assert(dataPtr);
 	dataPtr->interp = interp;
 	dataPtr->nextId = 0;
@@ -1707,7 +2190,11 @@ Blt_VectorGetInterpData(interp)
 	Blt_InitHashTable(&(dataPtr->vectorTable), BLT_STRING_KEYS);
 	Blt_InitHashTable(&(dataPtr->mathProcTable), BLT_STRING_KEYS);
 	Blt_InitHashTable(&(dataPtr->indexProcTable), BLT_STRING_KEYS);
+	Blt_VectorInstallMathFunctions(&(dataPtr->mathProcTable));
+	Blt_VectorInstallSpecialIndices(&(dataPtr->indexProcTable));
+#ifdef HAVE_SRAND48
 	srand48(time((time_t *) NULL));
+#endif
     }
     return dataPtr;
 }
@@ -1728,6 +2215,8 @@ Blt_VectorGetInterpData(interp)
  *
  * ------------------------------------------------------------------------
  */
+
+#if (TCL_MAJOR_VERSION == 7)
 
 int
 Blt_VectorInit(interp)
@@ -1750,6 +2239,30 @@ Blt_VectorInit(interp)
     return TCL_OK;
 }
 
+#else
+
+int
+Blt_VectorInit(interp)
+Tcl_Interp *interp;
+{
+    VectorInterpData *dataPtr;	/* Interpreter-specific data. */
+    static Blt_ObjCmdSpec cmdSpec = {"vector", VectorObjCmd, };
+    
+    dataPtr = Blt_VectorGetInterpData(interp);
+    /* 
+    * This routine may be run several times in the same interpreter. 
+    * For example, if someone tries to initial the BLT commands from 
+    * another namespace. Keep a reference count, so we know when it's 
+    * safe to clean up.
+    */
+    cmdSpec.clientData = dataPtr;
+    if (Blt_InitObjCmd(interp, "blt", &cmdSpec) == NULL) {
+        return TCL_ERROR;
+    }
+    return TCL_OK;
+}
+
+#endif
 
 
 /* C Application interface to vectors */
@@ -1848,7 +2361,6 @@ Blt_DeleteVector(vecPtr)
     Blt_Vector *vecPtr;
 {
     VectorObject *vPtr = (VectorObject *)vecPtr;
-
     Blt_VectorFree(vPtr);
     return TCL_OK;
 }
@@ -2030,7 +2542,7 @@ int
 Blt_ResetVector(vecPtr, valueArr, length, size, freeProc)
     Blt_Vector *vecPtr;
     double *valueArr;		/* Array containing the elements of the
-				 * vector. If NULL, indicates to reset the
+				 * vector. If NULL, indicates to reset the 
 				 * vector.*/
     int length;			/* The number of elements that the vector 
 				 * currently holds. */

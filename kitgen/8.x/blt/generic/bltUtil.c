@@ -31,7 +31,10 @@
 #else
 #include <varargs.h>
 #endif
-#include "bltHash.h"
+#include <bltHash.h>
+
+/* Limit the length of path name in errors or they are unreadable. */
+#define GETPATHOP(str) (strlen(str)<10?str:"$path")
 
 #ifndef HAVE_STRTOLOWER
 void
@@ -745,6 +748,37 @@ Blt_GetPosition(interp, string, indexPtr)
     }
     return TCL_OK;
 }
+int
+Blt_GetPositionSize(interp, string, size, indexPtr)
+    Tcl_Interp *interp;		/* Interpreter to report results back
+				 * to. */
+    char *string;		/* String representation of the index.
+				 * Can be an integer or "end" to refer
+				 * to the last index. */
+    int size;				 
+    int *indexPtr;		/* Holds the converted index. */
+{
+    int n;
+    if ((string[0] == 'e') && (strcmp(string, "end") == 0)) {
+	*indexPtr = size;		/* Indicates last position in hierarchy. */
+    } else if ((string[0] == 'e') && (strncmp(string, "end-", 4) == 0) &&
+        Tcl_GetInt(NULL, string+4, &n) == TCL_OK && n>=0 && n<=size) {
+	*indexPtr = size-n;		/* Indicates last position in hierarchy. */
+    } else {
+	int position;
+
+	if (Tcl_GetInt(interp, string, &position) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+	if (position < 0) {
+	    Tcl_AppendResult(interp, "bad position \"", string, "\"",
+		(char *)NULL);
+	    return TCL_ERROR;
+	}
+	*indexPtr = position;
+    }
+    return TCL_OK;
+}
 
 /*
  * The hash table below is used to keep track of all the Blt_Uids created
@@ -793,10 +827,10 @@ Blt_GetUid(string)
     if (isNew) {
 	refCount = 0;
     } else {
-	refCount = (int)Blt_GetHashValue(hPtr);
+	refCount = (intptr_t)Blt_GetHashValue(hPtr);
     }
     refCount++;
-    Blt_SetHashValue(hPtr, (ClientData)refCount);
+    Blt_SetHashValue(hPtr, (intptr_t)refCount);
     return (Blt_Uid)Blt_GetHashKey(&uidTable, hPtr);
 }
 
@@ -830,12 +864,12 @@ Blt_FreeUid(uid)
     if (hPtr) {
 	int refCount;
 
-	refCount = (int)Blt_GetHashValue(hPtr);
+	refCount = (intptr_t)Blt_GetHashValue(hPtr);
 	refCount--;
 	if (refCount == 0) {
 	    Blt_DeleteHashEntry(&uidTable, hPtr);
 	} else {
-	    Blt_SetHashValue(hPtr, (ClientData)refCount);
+	    Blt_SetHashValue(hPtr, (intptr_t)refCount);
 	}
     } else {
 	fprintf(stderr, "tried to release unknown identifier \"%s\"\n", uid);
@@ -1017,16 +1051,30 @@ Blt_GetOp(interp, nSpecs, specArr, operPos, argc, argv, flags)
     if (argc <= operPos) {	/* No operation argument */
 	Tcl_AppendResult(interp, "wrong # args: ", (char *)NULL);
       usage:
+#ifdef USE_OLDGETOP
 	Tcl_AppendResult(interp, "should be one of...", (char *)NULL);
 	for (n = 0; n < nSpecs; n++) {
 	    Tcl_AppendResult(interp, "\n  ", (char *)NULL);
-	    for (i = 0; i < operPos; i++) {
+            Tcl_AppendResult(interp, GETPATHOP(argv[0]), " ", (char *)NULL);
+	    for (i = 1; i < operPos; i++) {
 		Tcl_AppendResult(interp, argv[i], " ", (char *)NULL);
 	    }
 	    specPtr = specArr + n;
 	    Tcl_AppendResult(interp, specPtr->name, " ", specPtr->usage,
 		(char *)NULL);
 	}
+#else
+	Tcl_AppendResult(interp, "must be ", (char *)NULL);
+	for (n = 0; n < nSpecs; n++) {
+             specPtr = specArr + n;
+             if (n==(nSpecs-1)) {
+                 Tcl_AppendResult(interp, ", or ", 0);
+             } else if (n>0) {
+                 Tcl_AppendResult(interp, ", ", 0);
+             }
+             Tcl_AppendResult(interp, specPtr->name, 0);
+	}
+#endif
 	return NULL;
     }
     string = argv[operPos];
@@ -1043,7 +1091,7 @@ Blt_GetOp(interp, nSpecs, specArr, operPos, argc, argv, flags)
 	if (operPos > 2) {
 	    Tcl_AppendResult(interp, " ", argv[operPos - 1], (char *)NULL);
 	}
-	Tcl_AppendResult(interp, " operation \"", string, "\" matches:",
+	Tcl_AppendResult(interp, " option \"", string, "\" matches:",
 	    (char *)NULL);
 
 	c = string[0];
@@ -1062,7 +1110,7 @@ Blt_GetOp(interp, nSpecs, specArr, operPos, argc, argv, flags)
 	if (operPos > 2) {
 	    Tcl_AppendResult(interp, " ", argv[operPos - 1], (char *)NULL);
 	}
-	Tcl_AppendResult(interp, " operation \"", string, "\": ", 
+	Tcl_AppendResult(interp, " option \"", string, "\": ", 
 			 (char *)NULL);
 	goto usage;
     }
@@ -1118,10 +1166,12 @@ Blt_GetOpFromObj(interp, nSpecs, specArr, operPos, objc, objv, flags)
     if (objc <= operPos) {	/* No operation argument */
 	Tcl_AppendResult(interp, "wrong # args: ", (char *)NULL);
       usage:
+#ifdef USE_OLDGETOP	
 	Tcl_AppendResult(interp, "should be one of...", (char *)NULL);
 	for (n = 0; n < nSpecs; n++) {
 	    Tcl_AppendResult(interp, "\n  ", (char *)NULL);
-	    for (i = 0; i < operPos; i++) {
+            Tcl_AppendResult(interp, GETPATHOP(Tcl_GetString(objv[0])), " ", (char *)NULL);
+	    for (i = 1; i < operPos; i++) {
 		Tcl_AppendResult(interp, Tcl_GetString(objv[i]), " ", 
 			 (char *)NULL);
 	    }
@@ -1129,12 +1179,34 @@ Blt_GetOpFromObj(interp, nSpecs, specArr, operPos, objc, objv, flags)
 	    Tcl_AppendResult(interp, specPtr->name, " ", specPtr->usage,
 		(char *)NULL);
 	}
+#else
+	Tcl_AppendResult(interp, "must be ", (char *)NULL);
+	for (n = 0; n < nSpecs; n++) {
+             specPtr = specArr + n;
+             if (n==(nSpecs-1)) {
+                 Tcl_AppendResult(interp, ", or ", 0);
+             } else if (n>0) {
+                 Tcl_AppendResult(interp, ", ", 0);
+             }
+             Tcl_AppendResult(interp, specPtr->name, 0);
+	}
+#endif	
 	return NULL;
     }
     string = Tcl_GetString(objv[operPos]);
     if (flags & BLT_OP_LINEAR_SEARCH) {
 	n = LinearOpSearch(specArr, nSpecs, string);
     } else {
+#ifndef NDEBUG        
+        if (0) {
+            i = 0;
+            while (++i<nSpecs) {
+                if (strcmp(specArr[i-1].name, specArr[i].name)>0) {
+                    fprintf(stderr, "ops out of order: %s, %s\n", specArr[i-1].name, specArr[i].name);
+                }
+            }
+        }
+#endif
 	n = BinaryOpSearch(specArr, nSpecs, string);
     }
     if (n == -2) {
@@ -1146,7 +1218,7 @@ Blt_GetOpFromObj(interp, nSpecs, specArr, operPos, objc, objv, flags)
 	    Tcl_AppendResult(interp, " ", Tcl_GetString(objv[operPos - 1]), 
 		(char *)NULL);
 	}
-	Tcl_AppendResult(interp, " operation \"", string, "\" matches:",
+	Tcl_AppendResult(interp, " option \"", string, "\" matches:",
 	    (char *)NULL);
 
 	c = string[0];
@@ -1166,7 +1238,7 @@ Blt_GetOpFromObj(interp, nSpecs, specArr, operPos, objc, objv, flags)
 	    Tcl_AppendResult(interp, " ", Tcl_GetString(objv[operPos - 1]), 
 		(char *)NULL);
 	}
-	Tcl_AppendResult(interp, " operation \"", string, "\": ", (char *)NULL);
+	Tcl_AppendResult(interp, " option \"", string, "\": ", (char *)NULL);
 	goto usage;
     }
     specPtr = specArr + n;
@@ -1183,7 +1255,6 @@ Blt_GetOpFromObj(interp, nSpecs, specArr, operPos, objc, objv, flags)
     }
     return specPtr->proc;
 }
-
 #endif
 
 #include <stdio.h>
@@ -1285,7 +1356,7 @@ Crc32Cmd(
     
     crc = 0L;
     crc = crc ^ 0xffffffffL;
-    if (strcmp(argv[1], "-data") == 0) {
+    if (argc>1 && strcmp(argv[1], "-data") == 0) {
 	register char *p;
 
 	if (argc != 3) {

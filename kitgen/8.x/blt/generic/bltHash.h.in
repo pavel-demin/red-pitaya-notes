@@ -31,7 +31,7 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * RCS: @(#) $Id: bltHash.h.in,v 1.5 2002/07/14 00:08:13 ghowlett Exp $
+ * RCS: @(#) $Id: bltHash.h.in,v 1.1.1.1 2009/05/09 16:27:17 pcmacdon Exp $
  */
 
 #ifndef BLT_HASH_H
@@ -88,7 +88,7 @@ typedef uint32_t Blt_Hash;
  * Acceptable key types for hash tables:
  */
 #define BLT_STRING_KEYS		0
-#define BLT_ONE_WORD_KEYS	((size_t)-1)
+#define BLT_ONE_WORD_KEYS	-1
 
 /*
  * Forward declaration of Blt_HashTable.  Needed by some C++ compilers

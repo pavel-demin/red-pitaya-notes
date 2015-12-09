@@ -65,26 +65,6 @@ typedef struct {
     char dashValues[12];
 } XGCValuesEx;
 
-static int tkpWinRopModes[] =
-{
-    R2_BLACK,			/* GXclear */
-    R2_MASKPEN,			/* GXand */
-    R2_MASKPENNOT,		/* GXandReverse */
-    R2_COPYPEN,			/* GXcopy */
-    R2_MASKNOTPEN,		/* GXandInverted */
-    R2_NOT,			/* GXnoop */
-    R2_XORPEN,			/* GXxor */
-    R2_MERGEPEN,		/* GXor */
-    R2_NOTMERGEPEN,		/* GXnor */
-    R2_NOTXORPEN,		/* GXequiv */
-    R2_NOT,			/* GXinvert */
-    R2_MERGEPENNOT,		/* GXorReverse */
-    R2_NOTCOPYPEN,		/* GXcopyInverted */
-    R2_MERGENOTPEN,		/* GXorInverted */
-    R2_NOTMASKPEN,		/* GXnand */
-    R2_WHITE			/* GXset */
-};
-
 #define MASKPAT		0x00E20746 /* dest = (src & pat) | (!src & dst) */
 #define COPYFG		0x00CA0749 /* dest = (pat & src) | (!pat & dst) */
 #define COPYBG		0x00AC0744 /* dest = (!pat & src) | (pat & dst) */
@@ -178,12 +158,12 @@ CreateRotatedFont(
     fontPtr = (TkFont *) fontId;
     faPtr = &fontPtr->fa;
     ZeroMemory(&lf, sizeof(LOGFONT));
-    lf.lfHeight = -faPtr->pointsize;
+    lf.lfHeight = -faPtr->size;
     if (lf.lfHeight < 0) {
 	HDC dc;
 
 	dc = GetDC(NULL);
-	lf.lfHeight = -MulDiv(faPtr->pointsize,
+	lf.lfHeight = -MulDiv(faPtr->size,
 	    GetDeviceCaps(dc, LOGPIXELSY), 72);
 	ReleaseDC(NULL, dc);
     }
@@ -2084,7 +2064,7 @@ Blt_DrawRotatedText(
 	TkBorder *borderPtr = (TkBorder *) tsPtr->border;
 	XColor *color1, *color2;
 	
-	color1 = borderPtr->lightColor, color2 = borderPtr->darkColor;
+	color1 = borderPtr->lightColorPtr, color2 = borderPtr->darkColorPtr;
 	if (tsPtr->state & STATE_EMPHASIS) {
 	    XColor *hold;
 	    

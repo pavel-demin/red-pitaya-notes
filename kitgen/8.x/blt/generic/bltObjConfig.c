@@ -11,7 +11,7 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * RCS: @(#) $Id: bltObjConfig.c,v 1.22 2002/09/18 22:30:51 ghowlett Exp $
+ * RCS: @(#) $Id: bltObjConfig.c,v 1.4 2009/10/25 04:30:52 pcmacdon Exp $
  */
 
 #include "bltInt.h"
@@ -23,6 +23,11 @@
 #endif
 #include "bltObjConfig.h"
 #include "bltTile.h"
+
+static Blt_ConfigSpec *	GetCachedBltSpecs _ANSI_ARGS_((Tcl_Interp *interp,
+			    const Blt_ConfigSpec *staticSpecs));
+static void		DeleteSpecCacheTable _ANSI_ARGS_((
+			    ClientData clientData, Tcl_Interp *interp));
 
 #if (TK_VERSION_NUMBER < _VERSION(8,1,0))
 /*
@@ -391,6 +396,40 @@ Blt_GetPositionFromObj(interp, objPtr, indexPtr)
 	}
 	*indexPtr = position;
     }
+    return TCL_OK;
+}
+int
+Blt_GetPositionSizeFromObj(interp, objPtr, size, indexPtr)
+    Tcl_Interp *interp;		/* Interpreter to report results back
+				 * to. */
+    Tcl_Obj *objPtr;		/* Tcl_Obj representation of the index.
+				 * Can be an integer or "end" to refer
+				 * to the last index. */
+    int size;
+    int *indexPtr;		/* Holds the converted index. */
+{
+    char *string;
+    int position, n;
+
+    string = Tcl_GetString(objPtr);
+    if ((string[0] == 'e') && (strcmp(string, "end") == 0)) {
+	*indexPtr = -1;		/* Indicates last position in hierarchy. */
+         return TCL_OK;
+    }
+    if ((string[0] == 'e') && (strncmp(string, "end-", 4) == 0) &&
+        Tcl_GetInt(NULL, string+4, &n) == TCL_OK && n>=0 && n<=size) {
+	position = size-n;		/* Indicates last position in hierarchy. */
+    } else {
+	if (Tcl_GetIntFromObj(interp, objPtr, &position) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+    }
+    if (position < 0 || position >= size) {
+	    Tcl_AppendResult(interp, "bad position \"", string, "\"",
+		(char *)NULL);
+	    return TCL_ERROR;
+    }
+    *indexPtr = position;
     return TCL_OK;
 }
 
@@ -791,6 +830,69 @@ Blt_GetSideFromObj(interp, objPtr, sidePtr)
     return TCL_OK;
 }
 
+char *
+Blt_NameOfArrow(side)
+    int side;
+{
+    switch (side) {
+    case ARROW_LEFT:
+	return "left";
+    case ARROW_RIGHT:
+	return "right";
+    case ARROW_DOWN:
+	return "down";
+    case ARROW_UP:
+	return "up";
+    case ARROW_NONE:
+	return "none";
+    }
+    return "unknown arow value";
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * Blt_GetDirFromObj --
+ *
+ *	Converts the fill style string into its numeric representation.
+ *
+ *	Valid style strings are "left", "right", "up", or  "down".
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED */
+int
+Blt_GetArrowFromObj(interp, objPtr, sidePtr)
+    Tcl_Interp *interp;		/* Interpreter to send results back to */
+    Tcl_Obj *objPtr;		/* Value string */
+    int *sidePtr;		/* (out) Token representing arrow:
+				 * either ARROW_LEFT, ARROW_RIGHT,
+				 * ARROW_TOP, or ARROW_BOTTOM. */
+{
+    char c;
+    int length;
+    char *string;
+
+    string = Tcl_GetStringFromObj(objPtr, &length);
+    c = string[0];
+    if ((c == 'l') && (strncmp(string, "left", length) == 0)) {
+	*sidePtr = ARROW_LEFT;
+    } else if ((c == 'r') && (strncmp(string, "right", length) == 0)) {
+	*sidePtr = ARROW_RIGHT;
+    } else if ((c == 'u') && (strncmp(string, "up", length) == 0)) {
+	*sidePtr = ARROW_UP;
+    } else if ((c == 'd') && (strncmp(string, "down", length) == 0)) {
+	*sidePtr = ARROW_DOWN;
+    } else if ((c == 'n') && (strncmp(string, "none", length) == 0)) {
+	*sidePtr = ARROW_NONE;
+    } else {
+	Tcl_AppendResult(interp, "bad arrow \"", string,
+	    "\": should be none, left, right, up, or down", (char *)NULL);
+	return TCL_ERROR;
+    }
+    return TCL_OK;
+}
+
 /*
  *----------------------------------------------------------------------
  *
@@ -931,7 +1033,9 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 	    {
 		Tk_Anchor anchor;
 		
-		if (Tk_GetAnchorFromObj(interp, objPtr, &anchor) != TCL_OK) {
+                if (objIsEmpty) {
+                      anchor = -1;
+                } else if (Tk_GetAnchorFromObj(interp, objPtr, &anchor) != TCL_OK) {
 		    return TCL_ERROR;
 		}
 		*(Tk_Anchor *)ptr = anchor;
@@ -996,7 +1100,7 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 		Tk_Uid value;
 		
 		value = Tk_GetUid(Tcl_GetString(objPtr));
-		if (Tk_GetCapStyle(interp, value, &cap) != TCL_OK) {
+		if (Tk_GetCapStyle(interp, (char*)value, &cap) != TCL_OK) {
 		    return TCL_ERROR;
 		}
 		*(int *)ptr = cap;
@@ -1049,15 +1153,17 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 
 	case BLT_CONFIG_CUSTOM: 
 	    {
-		if ((*(char **)ptr != NULL) && 
-		    (specPtr->customPtr->freeProc != NULL)) {
-		    (*specPtr->customPtr->freeProc)
-			(specPtr->customPtr->clientData, Tk_Display(tkwin), 
-			 widgRec, specPtr->offset);
-		    *(char **)ptr = NULL;
-		}
+	        /* Note: defers freeProc call till after success from parseProc */
+	        char *oldPtr;
+	        oldPtr = (*(char **)ptr);
 		if (objIsEmpty) {
-		    *(char **)ptr = NULL;
+                      if ((oldPtr != NULL) && 
+                      (specPtr->customPtr->freeProc != NULL)) {
+                          (*specPtr->customPtr->freeProc)
+                          (specPtr->customPtr->clientData, Tk_Display(tkwin), 
+                              widgRec, specPtr->offset, oldPtr);
+                      }
+                      *(char **)ptr = NULL;
 		} else {
 		    int result;
 		
@@ -1065,9 +1171,16 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 			(specPtr->customPtr->clientData, interp, tkwin, objPtr,
 			 widgRec, specPtr->offset);
 		    if (result != TCL_OK) {
-			return TCL_ERROR;
+                          *(char **)ptr = oldPtr;
+                          return TCL_ERROR;
 		    }
-		}
+                    if ((oldPtr != NULL) && 
+                      (specPtr->customPtr->freeProc != NULL)) {
+                          (*specPtr->customPtr->freeProc)
+                          (specPtr->customPtr->clientData, Tk_Display(tkwin), 
+                              widgRec, specPtr->offset, oldPtr);
+                      }
+                  }
 	    }
 	    break;
 
@@ -1120,7 +1233,7 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 		Tk_Uid value;
 
 		value = Tk_GetUid(Tcl_GetString(objPtr));
-		if (Tk_GetJoinStyle(interp, value, &join) != TCL_OK) {
+		if (Tk_GetJoinStyle(interp, (char*)value, &join) != TCL_OK) {
 		    return TCL_ERROR;
 		}
 		*(int *)ptr = join;
@@ -1225,7 +1338,7 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 		if (Tcl_GetBooleanFromObj(interp, objPtr, &bool) != TCL_OK) {
 		    return TCL_ERROR;
 		}
-		flag = (unsigned int)specPtr->customPtr;
+		flag = (uintptr_t)specPtr->customPtr;
 		*(int *)ptr &= ~flag;
 		if (bool) {
 		    *(int *)ptr |= flag;
@@ -1283,19 +1396,40 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 	    }
 	    break;
 
+	case BLT_CONFIG_OBJCMD: 
 	case BLT_CONFIG_LISTOBJ: 
 	    {
 		Tcl_Obj **objv;
-		Tcl_Obj *listObjPtr;
+		Tcl_Obj *listObjPtr, *oldObjPtr;
 		int objc;
 		
 		if (Tcl_ListObjGetElements(interp, objPtr, &objc, &objv) 
 		    != TCL_OK) {
 		    return TCL_ERROR;
 		}
+		if (objc >= 1 && specPtr->type == BLT_CONFIG_OBJCMD) {
+		    /* Precharge to a command object if possible. */
+		    Tcl_GetCommandFromObj(interp, objv[0]);
+		}
+		oldObjPtr = *(Tcl_Obj **)ptr;
+		if (oldObjPtr != NULL) {
+                      Tcl_DecrRefCount(oldObjPtr);
+                }
 		listObjPtr = Tcl_NewListObj(objc, objv);
 		Tcl_IncrRefCount(listObjPtr);
 		*(Tcl_Obj **)ptr = listObjPtr;
+	    }
+	    break;
+
+	case BLT_CONFIG_OBJ: 
+	    {
+	        Tcl_Obj *oldObjPtr;
+		oldObjPtr = *(Tcl_Obj **)ptr;
+		if (oldObjPtr != NULL) {
+                      Tcl_DecrRefCount(oldObjPtr);
+                }
+		Tcl_IncrRefCount(objPtr);
+		*(Tcl_Obj **)ptr = objPtr;
 	    }
 	    break;
 
@@ -1322,9 +1456,6 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 	    {
 		Shadow *shadowPtr = (Shadow *)ptr;
 		
-		if ((shadowPtr != NULL) && (shadowPtr->color != NULL)) {
-		    Tk_FreeColor(shadowPtr->color);
-		}
 		if (Blt_GetShadowFromObj(interp, tkwin, objPtr, shadowPtr) 
 		    != TCL_OK) {
 		    return TCL_ERROR;
@@ -1363,6 +1494,12 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 
 	case BLT_CONFIG_SIDE:
 	    if (Blt_GetSideFromObj(interp, objPtr, (int *)ptr) != TCL_OK) {
+		return TCL_ERROR;
+	    }
+	    break;
+	    
+	case BLT_CONFIG_ARROW:
+	    if (Blt_GetArrowFromObj(interp, objPtr, (int *)ptr) != TCL_OK) {
 		return TCL_ERROR;
 	    }
 	    break;
@@ -1420,7 +1557,9 @@ FormatConfigValue(interp, tkwin, specPtr, widgRec)
     string = "";
     switch (specPtr->type) {
     case BLT_CONFIG_ANCHOR:
-	string = Tk_NameOfAnchor(*(Tk_Anchor *)ptr);
+        if ((*(int *)ptr)>=0) {
+            string = Tk_NameOfAnchor(*(Tk_Anchor *)ptr);
+        }
 	break;
 
     case BLT_CONFIG_BITMAP: 
@@ -1500,7 +1639,7 @@ FormatConfigValue(interp, tkwin, specPtr, widgRec)
 	{
 	    unsigned int flag;
 
-	    flag = (*(int *)ptr) & (unsigned int)specPtr->customPtr;
+	    flag = (*(unsigned int *)ptr) & (uintptr_t)specPtr->customPtr;
 	    return Tcl_NewBooleanObj((flag != 0));
 	}
 
@@ -1544,8 +1683,13 @@ FormatConfigValue(interp, tkwin, specPtr, widgRec)
 	    return listObjPtr;
 	}
 
+    case BLT_CONFIG_OBJCMD:
+    case BLT_CONFIG_OBJ: 
     case BLT_CONFIG_LISTOBJ: 
-	return *(Tcl_Obj **)ptr;
+        if (*(Tcl_Obj **)ptr) {
+	   return *(Tcl_Obj **)ptr;
+	}
+	return Tcl_NewStringObj("", -1);
 
     case BLT_CONFIG_PAD: 
 	{
@@ -1573,6 +1717,7 @@ FormatConfigValue(interp, tkwin, specPtr, widgRec)
 		Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
 		return listObjPtr;
 	    }
+	    break;
 	}
 
     case BLT_CONFIG_STATE: 
@@ -1580,11 +1725,15 @@ FormatConfigValue(interp, tkwin, specPtr, widgRec)
 	break;
 
     case BLT_CONFIG_TILE:
-	string = Blt_NameOfTile((Blt_Tile)ptr);
+	string = Blt_NameOfTile(*(Blt_Tile*)ptr);
 	break;
 	
     case BLT_CONFIG_SIDE: 
 	string = Blt_NameOfSide(*(int *)ptr);
+	break;
+
+    case BLT_CONFIG_ARROW: 
+	string = Blt_NameOfArrow(*(int *)ptr);
 	break;
 
     default: 
@@ -1620,33 +1769,55 @@ FormatConfigInfo(interp, tkwin, specPtr, widgRec)
     char *widgRec;			/* Pointer to record holding current
 					 * values of info for widget. */
 {
-    Tcl_Obj *objv[5];
+    Tcl_Obj *objv[6];
     Tcl_Obj *listObjPtr;
-    register int i;
+    int size=5;
 
-    for (i = 0; i < 5; i++) {
-	objv[i] = bltEmptyStringObjPtr;
-    }
-    if (specPtr->switchName != NULL) {
-	objv[0] = Tcl_NewStringObj(specPtr->switchName, -1);
-    } 
-    if (specPtr->dbName != NULL) {
-	objv[1] = Tcl_NewStringObj(specPtr->dbName, -1);
-    }
+    objv[0] = Tcl_NewStringObj(specPtr->switchName?specPtr->switchName:"", -1);    
     if (specPtr->type == BLT_CONFIG_SYNONYM) {
-	listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **)NULL);
-	Tcl_ListObjAppendElement(interp, listObjPtr, objv[0]);
-	Tcl_ListObjAppendElement(interp, listObjPtr, objv[1]);
-	return listObjPtr;
+        objv[1] = Tcl_NewStringObj(specPtr->customPtr?(char*)specPtr->customPtr:"", -1);
+        listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **)NULL);
+        Tcl_ListObjAppendElement(interp, listObjPtr, objv[0]);
+        Tcl_ListObjAppendElement(interp, listObjPtr, objv[1]);
+        return listObjPtr;
     } 
-    if (specPtr->dbClass != NULL) {
-	objv[2] = Tcl_NewStringObj(specPtr->dbClass, -1);
-    }
-    if (specPtr->defValue != NULL) {
-	objv[3] = Tcl_NewStringObj(specPtr->defValue, -1);
-    }
+    objv[1] = Tcl_NewStringObj(specPtr->dbName?(char*)specPtr->dbName:"", -1);
+    objv[2] = Tcl_NewStringObj(specPtr->dbClass?(char*)specPtr->dbClass:"", -1);
+    objv[3] = Tcl_NewStringObj(specPtr->defValue?(char*)specPtr->defValue:"", -1);
     objv[4] = FormatConfigValue(interp, tkwin, specPtr, widgRec);
-    return Tcl_NewListObj(5, objv);
+    
+    if (strstr(Tk_PathName(tkwin), ".__##") &&
+    specPtr->type < BLT_CONFIG_END && specPtr->type >=0) {
+        int stype = specPtr->type;
+        static char *conftypes[BLT_CONFIG_END+10] = {
+            "cursor", "anchor", "bitmap", "bool", "border", "cap", "color",
+            "activecursor", "custom", "double", "font", "int", "join",
+            "justify", "mm", "pixels", "relief", "string", "syn", "uid",
+            "window", "bitflag", "dashes", "distance", "fill", "float",
+            "list", "listobj", "pad", "paddistance", "shadow", "side",
+            "state", "tile", "obj", "objcmd", "arrow",
+             "END"
+        };
+        if (conftypes[BLT_CONFIG_END] == 0 ||
+        strcmp(conftypes[BLT_CONFIG_END],"END")) {
+            fprintf(stderr, "Blt_ConfigTypes changed\n");
+        }
+        if (stype == BLT_CONFIG_CUSTOM) {
+            extern Blt_CustomOption bltDistanceOption;
+            extern Blt_CustomOption bltPositiveDistanceOption;
+
+            if (specPtr->customPtr == &bltDistanceOption ||
+                specPtr->customPtr == &bltPositiveDistanceOption
+            ) {
+                stype = BLT_CONFIG_PIXELS;
+            }
+        }
+
+        objv[5] = Tcl_NewStringObj(conftypes[stype], -1);
+        size=6;
+    }
+
+    return Tcl_NewListObj(size, objv);
 }
 
 /*
@@ -1739,10 +1910,10 @@ FindConfigSpec(interp, specs, objPtr, needFlags, hateFlags)
 		}
 		return (Blt_ConfigSpec *) NULL;
 	    }
-	    if ((specPtr->dbName == matchPtr->dbName) && 
-		(specPtr->type != BLT_CONFIG_SYNONYM) && 
+             if ((specPtr->type != BLT_CONFIG_SYNONYM) && 
 		((specPtr->specFlags & needFlags) == needFlags) && 
-		!(specPtr->specFlags & hateFlags)) {
+		(specPtr->specFlags & hateFlags) == 0 &&
+	        (strcmp(specPtr->switchName, (char*)matchPtr->customPtr)==0)) {
 		break;
 	    }
 	}
@@ -1773,7 +1944,7 @@ FindConfigSpec(interp, specs, objPtr, needFlags, hateFlags)
  *--------------------------------------------------------------
  */
 int
-Blt_ConfigureWidgetFromObj(interp, tkwin, specs, objc, objv, widgRec, flags)
+Blt_ConfigureWidgetFromObj(interp, tkwin, specs, objc, objv, widgRec, flags, subwin)
     Tcl_Interp *interp;		/* Interpreter for error reporting. */
     Tk_Window tkwin;		/* Window containing widget (needed to
 				 * set up X resources). */
@@ -1787,6 +1958,7 @@ Blt_ConfigureWidgetFromObj(interp, tkwin, specs, objc, objv, widgRec, flags)
 				 * that must be present in config specs
 				 * for them to be considered.  Also,
 				 * may have BLT_CONFIG_ARGV_ONLY set. */
+    Tk_Window subwin;		/* Child window for components. */
 {
     register Blt_ConfigSpec *specPtr;
     int needFlags;		/* Specs must contain this set of flags
@@ -1802,6 +1974,10 @@ Blt_ConfigureWidgetFromObj(interp, tkwin, specs, objc, objv, widgRec, flags)
 	Tcl_AppendResult(interp, "NULL main window", (char *)NULL);
 	return TCL_ERROR;
     }
+    
+    if (subwin == NULL) {
+        subwin = tkwin;
+    }
 
     needFlags = flags & ~(BLT_CONFIG_USER_BIT - 1);
     if (Tk_Depth(tkwin) <= 1) {
@@ -1816,16 +1992,17 @@ Blt_ConfigureWidgetFromObj(interp, tkwin, specs, objc, objv, widgRec, flags)
      * clearing the BLT_CONFIG_OPTION_SPECIFIED flags.
      */
 
-    for (specPtr = specs; specPtr->type != BLT_CONFIG_END; specPtr++) {
+     specs = Blt_GetCachedBltSpecs(interp, specs);
+     for (specPtr = specs; specPtr->type != BLT_CONFIG_END; specPtr++) {
 	if (!(specPtr->specFlags & INIT) && (specPtr->switchName != NULL)) {
 	    if (specPtr->dbName != NULL) {
-		specPtr->dbName = Tk_GetUid(specPtr->dbName);
+		specPtr->dbName = Tk_GetUid((char*)specPtr->dbName);
 	    }
 	    if (specPtr->dbClass != NULL) {
-		specPtr->dbClass = Tk_GetUid(specPtr->dbClass);
+		specPtr->dbClass = Tk_GetUid((char*)specPtr->dbClass);
 	    }
 	    if (specPtr->defValue != NULL) {
-		specPtr->defValue = Tk_GetUid(specPtr->defValue);
+		specPtr->defValue = Tk_GetUid((char*)specPtr->defValue);
 	    }
 	}
 	specPtr->specFlags = 
@@ -1884,9 +2061,10 @@ Blt_ConfigureWidgetFromObj(interp, tkwin, specs, objc, objv, widgRec, flags)
 	    if (specPtr->dbName != NULL) {
 		Tk_Uid value;
 
-		value = Tk_GetOption(tkwin, specPtr->dbName, specPtr->dbClass);
+		value = Tk_GetOption(subwin, (char*)specPtr->dbName, (char*)specPtr->dbClass);
 		if (value != NULL) {
-		    objPtr = Tcl_NewStringObj(value, -1);
+		    objPtr = Tcl_NewStringObj((char*)value, -1);
+		    Tcl_IncrRefCount(objPtr);
 		}
 	    }
 	    if (objPtr != NULL) {
@@ -1897,12 +2075,22 @@ Blt_ConfigureWidgetFromObj(interp, tkwin, specs, objc, objv, widgRec, flags)
 		    sprintf(msg, "\n    (%s \"%.50s\" in widget \"%.50s\")",
 			    "database entry for",
 			    specPtr->dbName, Tk_PathName(tkwin));
+		    if (getenv("TCL_BADOPTS") == NULL) {
+                          fprintf(stderr, "%s%s\n", Tcl_GetStringResult(interp), msg);
+                          Tcl_DecrRefCount(objPtr);
+                          objPtr = NULL;
+                          goto dodefault;
+		    }
 		    Tcl_AddErrorInfo(interp, msg);
+		    Tcl_DecrRefCount(objPtr);
 		    return TCL_ERROR;
 		}
-	    } else {
+                Tcl_DecrRefCount(objPtr);
+              } else {
+dodefault:
 		if (specPtr->defValue != NULL) {
-		    objPtr = Tcl_NewStringObj(specPtr->defValue, -1);
+		    objPtr = Tcl_NewStringObj((char*)specPtr->defValue, -1);
+		    Tcl_IncrRefCount(objPtr);
 		} else {
 		    objPtr = NULL;
 		}
@@ -1912,6 +2100,7 @@ Blt_ConfigureWidgetFromObj(interp, tkwin, specs, objc, objv, widgRec, flags)
 			!= TCL_OK) {
 			char msg[200];
 	
+		        Tcl_DecrRefCount(objPtr);
 			sprintf(msg,
 				"\n    (%s \"%.50s\" in widget \"%.50s\")",
 				"default value for",
@@ -1920,6 +2109,9 @@ Blt_ConfigureWidgetFromObj(interp, tkwin, specs, objc, objv, widgRec, flags)
 			return TCL_ERROR;
 		    }
 		}
+                if ((objPtr != NULL)) {
+                    Tcl_DecrRefCount(objPtr);
+                }
 	    }
 	}
     }
@@ -1989,6 +2181,7 @@ Blt_ConfigureInfoFromObj(interp, tkwin, specs, widgRec, objPtr, flags)
      */
 
     Tcl_SetResult(interp, (char *)NULL, TCL_STATIC);
+    specs = Blt_GetCachedBltSpecs(interp, specs);
     if (objPtr != NULL) {
 	specPtr = FindConfigSpec(interp, specs, objPtr, needFlags, hateFlags);
 	if (specPtr == NULL) {
@@ -2025,6 +2218,22 @@ Blt_ConfigureInfoFromObj(interp, tkwin, specs, widgRec, objPtr, flags)
     Tcl_SetObjResult(interp, listObjPtr);
     return TCL_OK;
 }
+
+/* Format expected arguments into interp. */
+int
+Blt_FormatSpecOptions(interp, specs)
+    Tcl_Interp *interp;		/* Interpreter for error reporting. */
+    Blt_ConfigSpec *specs;	/* Describes legal options. */
+{
+    Blt_ConfigSpec *specPtr;
+    int cnt = 0;
+    for (specPtr = specs; specPtr->type != BLT_CONFIG_END; specPtr++) {
+        Tcl_AppendResult(interp, (cnt?", ":""), specPtr->switchName, 0);
+        cnt++;
+    }
+    return TCL_OK;
+}
+
 
 /*
  *----------------------------------------------------------------------
@@ -2067,6 +2276,7 @@ Blt_ConfigureValueFromObj(interp, tkwin, specs, widgRec, objPtr, flags)
     } else {
 	hateFlags = BLT_CONFIG_MONO_ONLY;
     }
+    specs = Blt_GetCachedBltSpecs(interp, specs);
     specPtr = FindConfigSpec(interp, specs, objPtr, needFlags, hateFlags);
     if (specPtr == NULL) {
 	return TCL_ERROR;
@@ -2094,7 +2304,8 @@ Blt_ConfigureValueFromObj(interp, tkwin, specs, widgRec, objPtr, flags)
  *----------------------------------------------------------------------
  */
 void
-Blt_FreeObjOptions(specs, widgRec, display, needFlags)
+Blt_FreeObjOptions(interp, specs, widgRec, display, needFlags)
+    Tcl_Interp *interp;		/* Interpreter for error reporting. */
     Blt_ConfigSpec *specs;	/* Describes legal options. */
     char *widgRec;		/* Record whose fields contain current
 				 * values for options. */
@@ -2107,6 +2318,7 @@ Blt_FreeObjOptions(specs, widgRec, display, needFlags)
     register Blt_ConfigSpec *specPtr;
     char *ptr;
 
+    specs = Blt_GetCachedBltSpecs(interp, specs);
     for (specPtr = specs; specPtr->type != BLT_CONFIG_END; specPtr++) {
 	if ((specPtr->specFlags & needFlags) != needFlags) {
 	    continue;
@@ -2120,6 +2332,16 @@ Blt_FreeObjOptions(specs, widgRec, display, needFlags)
 	    }
 	    break;
 
+	case BLT_CONFIG_SHADOW: {
+	    Shadow *shadPtr = (Shadow*)ptr;
+	    if (shadPtr->color != NULL) {
+		Tk_FreeColor(shadPtr->color);
+		shadPtr->color = NULL;
+	    }
+            shadPtr->offset = 0;
+	    break;
+	}
+	    
 	case BLT_CONFIG_COLOR:
 	    if (*((XColor **) ptr) != NULL) {
 		Tk_FreeColor(*((XColor **) ptr));
@@ -2154,9 +2376,14 @@ Blt_FreeObjOptions(specs, widgRec, display, needFlags)
 	    }
 	    break;
 
+	case BLT_CONFIG_OBJCMD:
+	case BLT_CONFIG_OBJ:
 	case BLT_CONFIG_LISTOBJ:
-	    Tcl_DecrRefCount(*(Tcl_Obj **)ptr);
-	    break;
+	    if ((*(Tcl_Obj **)ptr) != NULL) {
+                 Tcl_DecrRefCount(*(Tcl_Obj **)ptr);
+                 *((Tcl_Obj **) ptr) = NULL;
+            }
+            break;
 
 	case BLT_CONFIG_LIST:
 	    {
@@ -2167,12 +2394,13 @@ Blt_FreeObjOptions(specs, widgRec, display, needFlags)
 		    Blt_Free(argv);
 		    *(char ***)ptr = NULL;
 		}
+
 	    }
 	    break;
 
 	case BLT_CONFIG_TILE: 
-	    if ((Blt_Tile)ptr != NULL) {
-		Blt_FreeTile((Blt_Tile)ptr);
+	    if (*(Blt_Tile*)ptr != NULL) {
+		Blt_FreeTile(*(Blt_Tile*)ptr);
 		*(Blt_Tile *)ptr = NULL;
 	    }
 	    break;
@@ -2181,7 +2409,7 @@ Blt_FreeObjOptions(specs, widgRec, display, needFlags)
 	    if ((*(char **)ptr != NULL) && 
 		(specPtr->customPtr->freeProc != NULL)) {
 		(*specPtr->customPtr->freeProc)(specPtr->customPtr->clientData,
-			display, widgRec, specPtr->offset);
+                  display, widgRec, specPtr->offset, *(char **)ptr);
 		*(char **)ptr = NULL;
 	    }
 	    break;
@@ -2200,6 +2428,7 @@ Blt_FreeObjOptions(specs, widgRec, display, needFlags)
  *
  * Results:
  *      Returns 1 if one of the options has changed, 0 otherwise.
+ *      If no options specified, clears all modified flags.
  *
  *----------------------------------------------------------------------
  */
@@ -2210,9 +2439,14 @@ Blt_ObjConfigModified TCL_VARARGS_DEF(Blt_ConfigSpec *, arg1)
     Blt_ConfigSpec *specs;
     register Blt_ConfigSpec *specPtr;
     register char *option;
+    Tcl_Interp *interp;
+    int cnt=0;
 
     specs = TCL_VARARGS_START(Blt_ConfigSpec *, arg1, argList);
+    interp = va_arg(argList, Tcl_Interp *);
+    specs = Blt_GetCachedBltSpecs(interp, specs);
     while ((option = va_arg(argList, char *)) != NULL) {
+        cnt++;
 	for (specPtr = specs; specPtr->type != BLT_CONFIG_END; specPtr++) {
 	    if ((Tcl_StringMatch(specPtr->switchName, option)) &&
 		(specPtr->specFlags & BLT_CONFIG_OPTION_SPECIFIED)) {
@@ -2222,6 +2456,11 @@ Blt_ObjConfigModified TCL_VARARGS_DEF(Blt_ConfigSpec *, arg1)
 	}
     }
     va_end(argList);
+    if (cnt == 0) {
+        for (specPtr = specs; specPtr->type != BLT_CONFIG_END; specPtr++) {
+            specPtr->specFlags &= ~BLT_CONFIG_OPTION_SPECIFIED;
+        }
+    }
     return 0;
 }
 
@@ -2295,8 +2534,8 @@ Blt_ConfigureComponentFromObj(interp, parent, name, className, specsPtr,
     Blt_Free(tmpName);
 
     Tk_SetClass(tkwin, className);
-    result = Blt_ConfigureWidgetFromObj(interp, tkwin, specsPtr, objc, objv, 
-	widgRec, flags);
+    result = Blt_ConfigureWidgetFromObj(interp, parent, specsPtr, objc, objv, 
+	widgRec, flags, tkwin);
     if (isTemporary) {
 	Tk_DestroyWindow(tkwin);
     }
@@ -2317,7 +2556,8 @@ Blt_ConfigureComponentFromObj(interp, parent, name, className, specsPtr,
  *--------------------------------------------------------------
  */
 int
-Blt_ObjIsOption(specs, objPtr, flags)
+Blt_ObjIsOption(interp, specs, objPtr, flags)
+    Tcl_Interp *interp;
     Blt_ConfigSpec *specs;	/* Describes legal options. */
     Tcl_Obj *objPtr;		/* Command-line option name. */
     int flags;			/* Used to specify additional flags
@@ -2328,10 +2568,141 @@ Blt_ObjIsOption(specs, objPtr, flags)
     register Blt_ConfigSpec *specPtr;
     int needFlags;		/* Specs must contain this set of flags
 				 * or else they are not considered. */
-
+    specs = Blt_GetCachedBltSpecs(interp, specs);
     needFlags = flags & ~(BLT_CONFIG_USER_BIT - 1);
     specPtr = FindConfigSpec((Tcl_Interp *)NULL, specs, objPtr, needFlags, 0);
     return (specPtr != NULL);
+}
+
+/*
+*--------------------------------------------------------------
+*
+* DeleteSpecCacheTable --
+*
+*	Delete the per-interpreter copy of all the Blt_ConfigSpec tables which
+*	were stored in the interpreter's assoc-data store.
+*
+* Results:
+*	None
+*
+* Side effects:
+*	None
+*
+*--------------------------------------------------------------
+*/
+
+static void
+DeleteSpecCacheTable(clientData, interp)
+ClientData clientData;
+Tcl_Interp *interp;
+{
+    Tcl_HashTable *tablePtr = (Tcl_HashTable *) clientData;
+    Tcl_HashEntry *entryPtr;
+    Tcl_HashSearch search;
+
+    for (entryPtr = Tcl_FirstHashEntry(tablePtr,&search); entryPtr != NULL;
+    entryPtr = Tcl_NextHashEntry(&search)) {
+        /*
+        * Someone else deallocates the Tk_Uids themselves.
+        */
+
+        ckfree((char *) Tcl_GetHashValue(entryPtr));
+    }
+    Tcl_DeleteHashTable(tablePtr);
+    ckfree((char *) tablePtr);
+}
+
+
+Blt_ConfigSpec *
+Blt_GetCachedBltSpecs(interp, staticSpecs)
+Tcl_Interp *interp;
+const Blt_ConfigSpec *staticSpecs;
+{
+    return GetCachedBltSpecs(interp, staticSpecs);
+}
+
+static Blt_ConfigSpec *
+GetCachedBltSpecs(interp, staticSpecs)
+Tcl_Interp *interp;		/* Interpreter in which to store the cache. */
+const Blt_ConfigSpec *staticSpecs;
+/* Value to cache a copy of; it is also used
+* as a key into the cache. */
+{
+    Blt_ConfigSpec *cachedSpecs;
+    Tcl_HashTable *specCacheTablePtr;
+    Tcl_HashEntry *entryPtr;
+    int isNew;
+
+    /*
+    * Get (or allocate if it doesn't exist) the hash table that the writable
+    * copies of the widget specs are stored in. In effect, this is
+    * self-initializing code.
+    */
+
+    specCacheTablePtr = (Tcl_HashTable *)
+    Tcl_GetAssocData(interp, "bltConfigSpec.threadTable", NULL);
+    if (specCacheTablePtr == NULL) {
+        specCacheTablePtr = (Tcl_HashTable *) ckalloc(sizeof(Tcl_HashTable));
+        Tcl_InitHashTable(specCacheTablePtr, TCL_ONE_WORD_KEYS);
+        Tcl_SetAssocData(interp, "bltConfigSpec.threadTable",
+            DeleteSpecCacheTable, (ClientData) specCacheTablePtr);
+    }
+
+    /*
+    * Look up or create the hash entry that the constant specs are mapped to,
+        * which will have the writable specs as its associated value.
+        */
+
+        entryPtr = Tcl_CreateHashEntry(specCacheTablePtr, (char *) staticSpecs,
+        &isNew);
+        if (isNew) {
+        unsigned int entrySpace = sizeof(Blt_ConfigSpec);
+        const Blt_ConfigSpec *staticSpecPtr;
+        Blt_ConfigSpec *specPtr;
+
+        /*
+        * OK, no working copy in this interpreter so copy. Need to work out
+        * how much space to allocate first.
+        */
+
+        for (staticSpecPtr=staticSpecs; staticSpecPtr->type!=BLT_CONFIG_END;
+        staticSpecPtr++) {
+            entrySpace += sizeof(Blt_ConfigSpec);
+        }
+
+        /*
+        * Now allocate our working copy's space and copy over the contents
+        * from the master copy.
+        */
+
+        cachedSpecs = (Blt_ConfigSpec *) ckalloc(entrySpace);
+        memcpy((void *) cachedSpecs, (void *) staticSpecs, entrySpace);
+        Tcl_SetHashValue(entryPtr, (ClientData) cachedSpecs);
+
+        /*
+        * Finally, go through and replace database names, database classes
+        * and default values with Tk_Uids. This is the bit that has to be
+        * per-thread.
+        */
+
+        for (specPtr=cachedSpecs; specPtr->type!=BLT_CONFIG_END; specPtr++) {
+            if (specPtr->switchName != NULL) {
+                if (specPtr->dbName != NULL) {
+                    specPtr->dbName = Tk_GetUid((char*)specPtr->dbName);
+                }
+                if (specPtr->dbClass != NULL) {
+                    specPtr->dbClass = Tk_GetUid((char*)specPtr->dbClass);
+                }
+                if (specPtr->defValue != NULL) {
+                    specPtr->defValue = Tk_GetUid((char*)specPtr->defValue);
+                }
+            }
+        }
+    } else {
+        cachedSpecs = (Blt_ConfigSpec *) Tcl_GetHashValue(entryPtr);
+    }
+
+    return cachedSpecs;
 }
 
 

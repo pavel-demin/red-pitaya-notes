@@ -26,8 +26,8 @@
 
 
 #include "bltInt.h"
-#include "bltHash.h"
-#include "bltChain.h"
+#include <bltHash.h>
+#include <bltChain.h>
 
 #define VECTOR_THREAD_KEY	"BLT Vector Data"
 #define VECTOR_MAGIC		((unsigned int) 0x46170277)
@@ -40,7 +40,10 @@
 				 * separated by a colon */
 #define INDEX_CHECK	(1<<2)	/* Verify that the specified index or 
 				 * range of indices are within limits */
+#define INDEX_VAR_TRACE (1<<3)  /* Index lookup on array trace allow -1,-1. */
+
 #define INDEX_ALL_FLAGS    (INDEX_SPECIAL | INDEX_COLON | INDEX_CHECK)
+
 
 #define SPECIAL_INDEX		-2
 
@@ -51,6 +54,12 @@ typedef struct {
     Blt_HashTable indexProcTable;
     Tcl_Interp *interp;
     unsigned int nextId;
+    int bltNoCommand;
+    int bltNoVariable;
+    int bltMaxSize;
+    int bltFreeOnUnset;
+    int bltFlushArray;
+    int bltOldCreate;
 } VectorInterpData;
 
 /*
@@ -144,6 +153,9 @@ typedef struct {
 
     int first, last;		/* Selected region of vector. This is used
 				 * mostly for the math routines */
+    int numcols;                /* Matrix row size. */
+    Tcl_Obj *callback;          /* Command to call on notify. */
+				 
 } VectorObject;
 
 #define NOTIFY_UPDATED		((int)BLT_VECTOR_NOTIFY_UPDATE)
@@ -167,7 +179,23 @@ typedef struct {
 					 * Update the min and max limits when
 					 * they are needed */
 
-extern void Blt_VectorInstallSpecialIndices
+#define FindRange(array, first, last, min, max) \
+{ \
+    min = max = 0.0; \
+    if (first <= last) { \
+	register int i; \
+	min = max = array[first]; \
+	for (i = first + 1; i <= last; i++) { \
+	    if (min > array[i]) { \
+		min = array[i]; \
+	    } else if (max < array[i]) { \
+		max = array[i]; \
+	    } \
+	} \
+    } \
+}
+
+extern void Blt_VectorInstallSpecialIndices 
 	_ANSI_ARGS_((Blt_HashTable *tablePtr));
 
 extern void Blt_VectorInstallMathFunctions 
@@ -181,7 +209,7 @@ extern VectorInterpData *Blt_VectorGetInterpData
 
 extern VectorObject *Blt_VectorNew _ANSI_ARGS_((VectorInterpData *dataPtr));
 
-extern int Blt_VectorDuplicate _ANSI_ARGS_((VectorObject *destPtr,
+extern int Blt_VectorDuplicate _ANSI_ARGS_((VectorObject *destPtr, 
 	VectorObject *srcPtr));
 
 extern int Blt_VectorChangeLength _ANSI_ARGS_((VectorObject *vPtr, 

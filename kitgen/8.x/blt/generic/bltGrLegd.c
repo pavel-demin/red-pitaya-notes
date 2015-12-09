@@ -854,7 +854,7 @@ Blt_DrawLegend(legendPtr, drawable)
 	 * external window.  Draw either the solid or tiled background
 	 * with the the border.
 	 */
-	if (graphPtr->tile != NULL) {
+	if (Blt_HasTile(graphPtr->tile)) {
 	    Blt_SetTileOrigin(legendPtr->tkwin, graphPtr->tile, legendPtr->x, 
 			      legendPtr->y);
 	    Blt_TileRectangle(legendPtr->tkwin, pixmap, graphPtr->tile, 0, 0, 
@@ -1086,7 +1086,7 @@ ConfigureLegend(graphPtr, legendPtr)
 	 *  position, also indicate that a new layout is needed.
 	 *
 	 */
-	if (Blt_ConfigModified(configSpecs, "-*border*", "-*pad?",
+	if (Blt_ConfigModified(configSpecs, graphPtr->interp, "-*border*", "-*pad?",
 		"-position", "-hide", "-font", "-rows", (char *)NULL)) {
 	    graphPtr->flags |= MAP_WORLD;
 	}
@@ -1393,7 +1393,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;
     Tcl_Interp *interp;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     int flags = TK_CONFIG_ARGV_ONLY;
     Legend *legendPtr;
@@ -1406,7 +1406,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	return Tk_ConfigureInfo(interp, graphPtr->tkwin, configSpecs,
 		(char *)legendPtr, argv[3], flags);
     }
-    if (Tk_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 3,
+    if (Blt_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 3,
 	    argv + 3, (char *)legendPtr, flags) != TCL_OK) {
 	return TCL_ERROR;
     }

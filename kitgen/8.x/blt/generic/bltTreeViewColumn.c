@@ -25,6 +25,7 @@
  * software.
  *
  *	The "treeview" widget was created by George A. Howlett.
+ *      Extensive cleanups and enhancements by Peter MacDonald.
  */
 
 /*
@@ -49,6 +50,8 @@ static Blt_OptionParseProc ObjToColumn;
 static Blt_OptionPrintProc ColumnToObj;
 static Blt_OptionParseProc ObjToData;
 static Blt_OptionPrintProc DataToObj;
+static Blt_OptionParseProc ObjToColorPat;
+static Blt_OptionPrintProc ColorPatToObj;
 
 static char *sortTypeStrings[] = {
     "dictionary", "ascii", "integer", "real", "command", "none", NULL
@@ -61,7 +64,8 @@ enum SortTypeValues {
 
 #define DEF_SORT_COLUMN		(char *)NULL
 #define DEF_SORT_COMMAND	(char *)NULL
-#define DEF_SORT_DECREASING	"no"
+#define DEF_SORT_DECREASING	"0"
+#define DEF_SORT_SETFLAT	"0"
 #define DEF_SORT_TYPE		"dictionary"
 
 #ifdef WIN32
@@ -69,17 +73,15 @@ enum SortTypeValues {
 #else
 #define DEF_COLUMN_ACTIVE_TITLE_BG	RGB_GREY90
 #endif
+#define DEF_COLUMN_AUTOWIDTH			"0"
 #define DEF_COLUMN_ACTIVE_TITLE_FG	STD_ACTIVE_FOREGROUND
-#define DEF_COLUMN_BACKGROUND		(char *)NULL
 #define DEF_COLUMN_BIND_TAGS		"all"
 #define DEF_COLUMN_BORDERWIDTH		STD_BORDERWIDTH
 #define DEF_COLUMN_COLOR		RGB_BLACK
-#define DEF_COLUMN_EDIT			"yes"
+#define DEF_COLUMN_EDIT			"no"
 #define DEF_COLUMN_FONT			STD_FONT
-#define DEF_COLUMN_COMMAND		(char *)NULL
-#define DEF_COLUMN_FORMAT_COMMAND	(char *)NULL
 #define DEF_COLUMN_HIDE			"no"
-#define DEF_COLUMN_JUSTIFY		"center"
+#define DEF_COLUMN_JUSTIFY		"left"
 #define DEF_COLUMN_MAX			"0"
 #define DEF_COLUMN_MIN			"0"
 #define DEF_COLUMN_PAD			"2"
@@ -88,22 +90,34 @@ enum SortTypeValues {
 #define DEF_COLUMN_STYLE		"text"
 #define DEF_COLUMN_TITLE_BACKGROUND	STD_NORMAL_BACKGROUND
 #define DEF_COLUMN_TITLE_BORDERWIDTH	STD_BORDERWIDTH
-#define DEF_COLUMN_TITLE_FONT		STD_FONT
 #define DEF_COLUMN_TITLE_FOREGROUND	STD_NORMAL_FOREGROUND
 #define DEF_COLUMN_TITLE_RELIEF		"raised"
+#define DEF_COLUMN_UNDERLINE		"-1"
 #define DEF_COLUMN_WEIGHT		"1.0"
 #define DEF_COLUMN_WIDTH		"0"
 #define DEF_COLUMN_RULE_DASHES		"dot"
+#define DEF_COLUMN_SCROLL_TILE          "no"
+#define DEF_COLUMN_TITLEJUSTIFY		"center"
 
 extern Blt_OptionParseProc Blt_ObjToEnum;
 extern Blt_OptionPrintProc Blt_EnumToObj;
+
+static Blt_CustomOption patColorOption =
+{
+    ObjToColorPat, ColorPatToObj, NULL, (ClientData)0
+};
+
+static Blt_CustomOption regColorOption =
+{
+    ObjToColorPat, ColorPatToObj, NULL, (ClientData)1
+};
 
 static Blt_CustomOption typeOption =
 {
     Blt_ObjToEnum, Blt_EnumToObj, NULL, (ClientData)sortTypeStrings
 };
 
-static Blt_CustomOption columnOption =
+Blt_CustomOption bltTreeViewColumnOption =
 {
     ObjToColumn, ColumnToObj, NULL, (ClientData)0
 };
@@ -116,7 +130,7 @@ Blt_CustomOption bltTreeViewDataOption =
 static Blt_OptionParseProc ObjToStyle;
 static Blt_OptionPrintProc StyleToObj;
 static Blt_OptionFreeProc FreeStyle;
-static Blt_CustomOption styleOption =
+Blt_CustomOption bltTreeViewStyleOption =
 {
     /* Contains a pointer to the widget that's currently being
      * configured.  This is used in the custom configuration parse
@@ -124,8 +138,17 @@ static Blt_CustomOption styleOption =
     ObjToStyle, StyleToObj, FreeStyle, NULL,
 };
 
-extern Blt_CustomOption bltTreeViewUidOption;
-extern Blt_CustomOption bltTreeViewIconOption;
+static Blt_OptionParseProc ObjToStyles;
+static Blt_OptionPrintProc StylesToObj;
+static Blt_OptionFreeProc FreeStyles;
+Blt_CustomOption bltTreeViewStylesOption =
+{
+    /* Contains a pointer to the widget that's currently being
+    * configured.  This is used in the custom configuration parse
+    * routine for icons.  */
+    ObjToStyles, StylesToObj, FreeStyles, NULL,
+};
+
 static Blt_TreeApplyProc SortApplyProc;
 
 static Blt_ConfigSpec columnSpecs[] =
@@ -136,60 +159,98 @@ static Blt_ConfigSpec columnSpecs[] =
     {BLT_CONFIG_COLOR, "-activetitleforeground", "activeTitleForeground", 
 	"Foreground", DEF_COLUMN_ACTIVE_TITLE_FG, 
 	Blt_Offset(TreeViewColumn, activeTitleFgColor), 0},
-    {BLT_CONFIG_BORDER, "-background", "background", "Background",
-	DEF_COLUMN_BACKGROUND, Blt_Offset(TreeViewColumn, border), 
-	BLT_CONFIG_NULL_OK},
-    {BLT_CONFIG_SYNONYM, "-bd", "borderWidth", (char *)NULL, (char *)NULL, 
-	0, 0},
-    {BLT_CONFIG_SYNONYM, "-bg", "background", (char *)NULL, (char *)NULL, 
-	0, 0},
+    {BLT_CONFIG_DISTANCE, "-autowidth",(char *)NULL, (char *)NULL,
+	DEF_COLUMN_AUTOWIDTH, Blt_Offset(TreeViewColumn, autoWidth), 
+        0},
+    {BLT_CONFIG_BORDER, "-background", (char *)NULL, (char *)NULL,
+	(char *)NULL, Blt_Offset(TreeViewColumn, border), 
+        BLT_CONFIG_NULL_OK|BLT_CONFIG_DONT_SET_DEFAULT},
+    {BLT_CONFIG_SYNONYM, "-bd", (char *)NULL, (char *)NULL, (char *)NULL, 
+	0, 0, (ClientData)"-borderwidth"},
+    {BLT_CONFIG_SYNONYM, "-bg", (char *)NULL, (char *)NULL, (char *)NULL, 
+	0, 0, (ClientData)"-background"},
     {BLT_CONFIG_CUSTOM, "-bindtags", "bindTags", "BindTags",
 	DEF_COLUMN_BIND_TAGS, Blt_Offset(TreeViewColumn, tagsUid),
 	BLT_CONFIG_NULL_OK, &bltTreeViewUidOption},
-    {BLT_CONFIG_DISTANCE, "-borderwidth", "borderWidth", "BorderWidth",
+    {BLT_CONFIG_DISTANCE, "-borderwidth", (char *)NULL, (char *)NULL,
 	DEF_COLUMN_BORDERWIDTH, Blt_Offset(TreeViewColumn, borderWidth),
-	BLT_CONFIG_DONT_SET_DEFAULT},
-    {BLT_CONFIG_STRING, "-command", "command", "Command",
-	DEF_COLUMN_COMMAND, Blt_Offset(TreeViewColumn, titleCmd),
+	0},
+    {BLT_CONFIG_CUSTOM, "-colorpattern", "colorPattern", "ColorPattern",
+	NULL, Blt_Offset(TreeViewColumn, colorPats),
+        BLT_CONFIG_NULL_OK, &patColorOption},
+    {BLT_CONFIG_CUSTOM, "-colorregex", "colorRegex", "ColorRegex",
+	NULL, Blt_Offset(TreeViewColumn, colorRegex),
+        BLT_CONFIG_NULL_OK, &regColorOption},
+    {BLT_CONFIG_STRING, "-command",  (char *)NULL, (char *)NULL, 
+	(char *)NULL, Blt_Offset(TreeViewColumn, titleCmd),
 	BLT_CONFIG_DONT_SET_DEFAULT | BLT_CONFIG_NULL_OK}, 
+    {BLT_CONFIG_ARROW, "-titlearrow", "titleArrow", "TitleArrow",
+	"none", Blt_Offset(TreeViewColumn, drawArrow), 
+        0},
     {BLT_CONFIG_BOOLEAN, "-edit", "edit", "Edit",
-	DEF_COLUMN_STATE, Blt_Offset(TreeViewColumn, editable), 
-        BLT_CONFIG_DONT_SET_DEFAULT},
+	DEF_COLUMN_EDIT, Blt_Offset(TreeViewColumn, editable), 
+        0},
+    {BLT_CONFIG_STRING, "-editopts", "editOpts", "EditOpts",
+	(char *)NULL, Blt_Offset(TreeViewColumn, editOpts), 
+	BLT_CONFIG_NULL_OK},
+    {BLT_CONFIG_SYNONYM, "-fg", (char *)NULL, (char *)NULL, (char *)NULL, 0, 0,
+        (ClientData)"-foreground"},
+    {BLT_CONFIG_OBJCMD, "-fillcmd", "fillCmd", "FillCmd",
+	(char *)NULL, Blt_Offset(TreeViewColumn, fillCmd), 
+	BLT_CONFIG_NULL_OK},
+    {BLT_CONFIG_FONT, "-font", (char *)NULL, (char *)NULL,
+	(char *)NULL, Blt_Offset(TreeViewColumn, font),
+	BLT_CONFIG_NULL_OK|BLT_CONFIG_DONT_SET_DEFAULT},
+    {BLT_CONFIG_COLOR, "-foreground", (char *)NULL, (char *)NULL,
+	(char *)NULL, Blt_Offset(TreeViewColumn, fgColor), 
+        BLT_CONFIG_NULL_OK|BLT_CONFIG_DONT_SET_DEFAULT},
+    {BLT_CONFIG_OBJCMD, "-formatcmd", "formatCmd", "FormatCmd",
+	NULL, Blt_Offset(TreeViewColumn, formatCmd), 
+        BLT_CONFIG_NULL_OK},
     {BLT_CONFIG_BOOLEAN, "-hide", "hide", "Hide",
 	DEF_COLUMN_HIDE, Blt_Offset(TreeViewColumn, hidden),
 	BLT_CONFIG_DONT_SET_DEFAULT},
     {BLT_CONFIG_CUSTOM, "-icon", "icon", "icon",
 	(char *)NULL, Blt_Offset(TreeViewColumn, titleIcon),
-	BLT_CONFIG_DONT_SET_DEFAULT, &bltTreeViewIconOption},
+         BLT_CONFIG_DONT_SET_DEFAULT|BLT_CONFIG_NULL_OK,
+         &bltTreeViewIconOption},
     {BLT_CONFIG_JUSTIFY, "-justify", "justify", "Justify",
 	DEF_COLUMN_JUSTIFY, Blt_Offset(TreeViewColumn, justify), 
-        BLT_CONFIG_DONT_SET_DEFAULT},
+        0},
     {BLT_CONFIG_DISTANCE, "-max", "max", "Max",
 	DEF_COLUMN_MAX, Blt_Offset(TreeViewColumn, reqMax), 
-	BLT_CONFIG_DONT_SET_DEFAULT},
+	0},
     {BLT_CONFIG_DISTANCE, "-min", "min", "Min",
 	DEF_COLUMN_MIN, Blt_Offset(TreeViewColumn, reqMin), 
-	BLT_CONFIG_DONT_SET_DEFAULT},
+	0},
     {BLT_CONFIG_PAD, "-pad", "pad", "Pad",
 	DEF_COLUMN_PAD, Blt_Offset(TreeViewColumn, pad), 
-	BLT_CONFIG_DONT_SET_DEFAULT},
+	0},
     {BLT_CONFIG_RELIEF, "-relief", "relief", "Relief",
 	DEF_COLUMN_RELIEF, Blt_Offset(TreeViewColumn, relief), 
-        BLT_CONFIG_DONT_SET_DEFAULT},
+        0},
     {BLT_CONFIG_DASHES, "-ruledashes", "ruleDashes", "RuleDashes",
 	DEF_COLUMN_RULE_DASHES, Blt_Offset(TreeViewColumn, ruleDashes),
 	BLT_CONFIG_NULL_OK},
+    {BLT_CONFIG_BOOLEAN, "-scrolltile", "scrollTile", "ScrollTile",
+	DEF_COLUMN_SCROLL_TILE, Tk_Offset(TreeViewColumn, scrollTile),
+	0},
     {BLT_CONFIG_STRING, "-sortcommand", "sortCommand", "SortCommand",
 	DEF_SORT_COMMAND, Blt_Offset(TreeViewColumn, sortCmd), 
 	BLT_CONFIG_NULL_OK}, 
+    {BLT_CONFIG_LISTOBJ, "-sortaltcolumns", "sortAltColumns", "SortAltColumns",
+	DEF_SORT_COMMAND, Blt_Offset(TreeViewColumn, sortAltColumns), 
+	BLT_CONFIG_NULL_OK}, 
+    {BLT_CONFIG_CUSTOM, "-sortmode", "sortMode", "SortMode",
+	DEF_SORT_TYPE, Blt_Offset(TreeViewColumn, sortType), 0, &typeOption},
     {BLT_CONFIG_STATE, "-state", "state", "State",
 	DEF_COLUMN_STATE, Blt_Offset(TreeViewColumn, state), 
 	BLT_CONFIG_DONT_SET_DEFAULT},
     {BLT_CONFIG_CUSTOM, "-style", "style", "Style",
 	DEF_COLUMN_STYLE, Blt_Offset(TreeViewColumn, stylePtr), 
-        0, &styleOption},
-    {BLT_CONFIG_STRING, "-text", "text", "Text",
-	(char *)NULL, Blt_Offset(TreeViewColumn, title), 0},
+        0, &bltTreeViewStyleOption},
+    {BLT_CONFIG_TILE, "-tile", "columnTile", "ColumnTile",
+	(char *)NULL, Tk_Offset(TreeViewColumn, tile), BLT_CONFIG_NULL_OK, },
     {BLT_CONFIG_STRING, "-title", "title", "Title",
 	(char *)NULL, Blt_Offset(TreeViewColumn, title), 0},
     {BLT_CONFIG_BORDER, "-titlebackground", "titleBackground", 
@@ -198,23 +259,36 @@ static Blt_ConfigSpec columnSpecs[] =
     {BLT_CONFIG_DISTANCE, "-titleborderwidth", "BorderWidth", 
 	"TitleBorderWidth", DEF_COLUMN_TITLE_BORDERWIDTH, 
 	Blt_Offset(TreeViewColumn, titleBorderWidth),
-	BLT_CONFIG_DONT_SET_DEFAULT},
-    {BLT_CONFIG_FONT, "-titlefont", "titleFont", "Font",
-	DEF_COLUMN_TITLE_FONT, Blt_Offset(TreeViewColumn, titleFont), 0},
+	0},
+    {BLT_CONFIG_FONT, "-titlefont", (char *)NULL, (char *)NULL,
+	(char *)NULL, Blt_Offset(TreeViewColumn, titleFont),
+	BLT_CONFIG_NULL_OK|BLT_CONFIG_DONT_SET_DEFAULT},
     {BLT_CONFIG_COLOR, "-titleforeground", "titleForeground", "TitleForeground",
 	DEF_COLUMN_TITLE_FOREGROUND, 
 	Blt_Offset(TreeViewColumn, titleFgColor), 0},
+    {BLT_CONFIG_JUSTIFY, "-titlejustify", "titleJustify", "TitleJustify",
+	DEF_COLUMN_TITLEJUSTIFY, Blt_Offset(TreeViewColumn, titleJustify), 
+        0},
     {BLT_CONFIG_RELIEF, "-titlerelief", "titleRelief", "TitleRelief",
 	DEF_COLUMN_TITLE_RELIEF, Blt_Offset(TreeViewColumn, titleRelief), 
-        BLT_CONFIG_DONT_SET_DEFAULT},
+        0},
     {BLT_CONFIG_SHADOW, "-titleshadow", "titleShadow", "TitleShadow",
 	(char *)NULL, Blt_Offset(TreeViewColumn, titleShadow), 0},
+    {BLT_CONFIG_CUSTOM, "-titlestyle", "titleStyle", "TitleStyle",
+	DEF_COLUMN_STYLE, Blt_Offset(TreeViewColumn, titleStylePtr), 
+        0, &bltTreeViewStyleOption},
+    {BLT_CONFIG_STRING, "-validatecmd", (char *)NULL, (char *)NULL,
+        (char *)NULL, Blt_Offset(TreeViewColumn, validCmd), 
+	BLT_CONFIG_NULL_OK, 0},
+    {BLT_CONFIG_INT, "-underline", (char *)NULL, (char *)NULL,
+	DEF_COLUMN_UNDERLINE, Blt_Offset(TreeViewColumn, underline), 
+	0},
     {BLT_CONFIG_DOUBLE, "-weight", (char *)NULL, (char *)NULL,
 	DEF_COLUMN_WEIGHT, Blt_Offset(TreeViewColumn, weight), 
-	BLT_CONFIG_DONT_SET_DEFAULT},
-    {BLT_CONFIG_DISTANCE, "-width", "width", "Width",
+	0},
+    {BLT_CONFIG_DISTANCE, "-width",(char *)NULL, (char *)NULL,
 	DEF_COLUMN_WIDTH, Blt_Offset(TreeViewColumn, reqWidth), 
-        BLT_CONFIG_DONT_SET_DEFAULT},
+        0},
     {BLT_CONFIG_END, (char *)NULL, (char *)NULL, (char *)NULL,
 	(char *)NULL, 0, 0}
 };
@@ -226,10 +300,13 @@ static Blt_ConfigSpec sortSpecs[] =
 	BLT_CONFIG_DONT_SET_DEFAULT | BLT_CONFIG_NULL_OK},
     {BLT_CONFIG_CUSTOM, "-column", "column", "Column",
 	DEF_SORT_COLUMN, Blt_Offset(TreeView, sortColumnPtr),
-	BLT_CONFIG_DONT_SET_DEFAULT, &columnOption},
+	BLT_CONFIG_DONT_SET_DEFAULT, &bltTreeViewColumnOption},
     {BLT_CONFIG_BOOLEAN, "-decreasing", "decreasing", "Decreasing",
 	DEF_SORT_DECREASING, Blt_Offset(TreeView, sortDecreasing),
         BLT_CONFIG_DONT_SET_DEFAULT}, 
+    {BLT_CONFIG_BOOLEAN, "-setflat", "setFlat", "SetFlat",
+	DEF_SORT_SETFLAT, Blt_Offset(TreeView, setFlatView),
+	BLT_CONFIG_DONT_SET_DEFAULT},
     {BLT_CONFIG_CUSTOM, "-mode", "mode", "Mode",
 	DEF_SORT_TYPE, Blt_Offset(TreeView, sortType), 0, &typeOption},
     {BLT_CONFIG_END, (char *)NULL, (char *)NULL, (char *)NULL,
@@ -302,10 +379,7 @@ ColumnToObj(clientData, interp, tkwin, widgRec, offset)
 {
     TreeViewColumn *columnPtr = *(TreeViewColumn **)(widgRec + offset);
 
-    if (columnPtr == NULL) {
-	return bltEmptyStringObjPtr;
-    }
-    return Tcl_NewStringObj(columnPtr->key, -1);
+    return Tcl_NewStringObj(columnPtr?columnPtr->key:"", -1);
 }
 
 /*
@@ -313,7 +387,7 @@ ColumnToObj(clientData, interp, tkwin, widgRec, offset)
  *
  * ObjToData --
  *
- *	Convert the string reprsenting a scroll mode, to its numeric
+ *	Convert the string reprsenting a data, to its tree
  *	form.
  *
  * Results:
@@ -326,7 +400,7 @@ ColumnToObj(clientData, interp, tkwin, widgRec, offset)
 /*ARGSUSED*/
 static int
 ObjToData(clientData, interp, tkwin, objPtr, widgRec, offset)
-    ClientData clientData;	/* Node of entry. */
+    ClientData clientData;	/* Unused. */
     Tcl_Interp *interp;		/* Interpreter to send results back to */
     Tk_Window tkwin;		/* Not used. */
     Tcl_Obj *objPtr;		/* Tcl_Obj representing new data. */
@@ -339,6 +413,7 @@ ObjToData(clientData, interp, tkwin, objPtr, widgRec, offset)
     char *string;
     int objc;
     register int i;
+    TreeView *tvPtr;
 
     string = Tcl_GetString(objPtr);
     if (*string == '\0') {
@@ -355,20 +430,90 @@ ObjToData(clientData, interp, tkwin, objPtr, widgRec, offset)
 		 "\" must be in even name-value pairs", (char *)NULL);
 	return TCL_ERROR;
     }
+    tvPtr = entryPtr->tvPtr;
     for (i = 0; i < objc; i += 2) {
-	TreeView *tvPtr = entryPtr->tvPtr;
-
+        int result;
+        
 	if (Blt_TreeViewGetColumn(interp, tvPtr, objv[i], &columnPtr) 
 	    != TCL_OK) {
 	    return TCL_ERROR;
 	}
-	if (Blt_TreeSetValueByKey(tvPtr->interp, tvPtr->tree, entryPtr->node, 
-		columnPtr->key, objv[i + 1]) != TCL_OK) {
+        result = Blt_TreeSetValueByKey(tvPtr->interp, tvPtr->tree, entryPtr->node, 
+             columnPtr->key, objv[i + 1]);
+        if ((entryPtr->flags & ENTRY_DELETED) || (tvPtr->flags & TV_DELETED)) {
+            return TCL_ERROR;
+        }
+	if (result != TCL_OK) {
 	    return TCL_ERROR;
 	}
 	Blt_TreeViewAddValue(entryPtr, columnPtr);
     }
     return TCL_OK;
+}
+
+static int
+ObjToColorPat(clientData, interp, tkwin, objPtr, widgRec, offset)
+    ClientData clientData;	/* Unused. */
+    Tcl_Interp *interp;		/* Interpreter to send results back to */
+    Tk_Window tkwin;		/* Not used. */
+    Tcl_Obj *objPtr;		/* Tcl_Obj representing new data. */
+    char *widgRec;
+    int offset;
+{
+    Tcl_Obj **objv;
+    Tcl_Obj **objPtrPtr = (Tcl_Obj **)(widgRec + offset);
+    int objc, i;
+    XColor *color = NULL;
+    
+    if (objPtr != NULL && strlen(Tcl_GetString(objPtr))) {
+         
+        if (Tcl_ListObjGetElements(interp, objPtr, &objc, &objv) != TCL_OK) {
+            return TCL_ERROR;
+        }
+        if (objc%2) {
+            Tcl_AppendResult(interp, "odd length: ", Tcl_GetString(objPtr),0);
+            return TCL_ERROR;
+        }
+        for (i = 0; i < objc; i += 2) {
+            if (clientData != 0 && 
+                Tcl_RegExpMatchObj(interp, objv[i], objv[i]) < 0) {
+                return TCL_ERROR;
+            }
+            color = Tk_AllocColorFromObj(interp, tkwin, objv[i+1]);
+            if (color == NULL) {
+                Tcl_AppendResult(interp, "bad color: ", Tcl_GetString(objv[i+1]),0);
+                return TCL_ERROR;
+            }
+        }
+    }
+    if (*objPtrPtr != NULL) {
+        Tcl_DecrRefCount(*objPtrPtr);
+    }
+    Tcl_IncrRefCount(objPtr);
+    *objPtrPtr = objPtr;
+    return TCL_OK;
+}
+
+static Tcl_Obj *
+ColorPatToObj(clientData, interp, tkwin, widgRec, offset)
+    ClientData clientData;	/* Not used. */
+    Tcl_Interp *interp;
+    Tk_Window tkwin;		/* Not used. */
+    char *widgRec;
+    int offset;
+{
+    TreeViewColumn *columnPtr = (TreeViewColumn *)widgRec;
+    Tcl_Obj *objPtr;
+    if (clientData == 0) {
+        objPtr = columnPtr->colorPats;
+    } else {
+        objPtr = columnPtr->colorRegex;
+    }
+    if (objPtr == NULL) {
+        objPtr = Tcl_NewStringObj("", -1);
+    }
+    Tcl_IncrRefCount(objPtr);
+    return objPtr;
 }
 
 /*
@@ -402,7 +547,7 @@ DataToObj(clientData, interp, tkwin, widgRec, offset)
 	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
 	if (Blt_TreeViewGetData(entryPtr, valuePtr->columnPtr->key, &objPtr)
 	    != TCL_OK) {
-	    objPtr = bltEmptyStringObjPtr;
+	        objPtr = Tcl_NewStringObj("", -1);
 	} 
 	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
     }
@@ -417,25 +562,218 @@ Blt_TreeViewGetColumn(interp, tvPtr, objPtr, columnPtrPtr)
     TreeViewColumn **columnPtrPtr;
 {
     char *string;
+    Blt_TreeKey key;
 
     string = Tcl_GetString(objPtr);
-    if (strcmp(string, "treeView") == 0) {
-	*columnPtrPtr = &tvPtr->treeColumn;
+    if (strcmp(string, "BLT TreeView") == 0) {
+        *columnPtrPtr = &tvPtr->treeColumn;
     } else {
-	Blt_HashEntry *hPtr;
+        int cNum, n = 0;
+        Blt_HashEntry *hPtr;
     
-	hPtr = Blt_FindHashEntry(&tvPtr->columnTable, Blt_TreeGetKey(string));
-	if (hPtr == NULL) {
-	    if (interp != NULL) {
-		Tcl_AppendResult(interp, "can't find column \"", string, 
-			"\" in \"", Tk_PathName(tvPtr->tkwin), "\"", 
-			(char *)NULL);
-	    }
-	    return TCL_ERROR;
-	} 
-	*columnPtrPtr = Blt_GetHashValue(hPtr);
+        key = Blt_TreeKeyGet(interp, tvPtr->tree?tvPtr->tree->treeObject:NULL, string);
+        hPtr = Blt_FindHashEntry(&tvPtr->columnTable, key);
+        if (hPtr == NULL) {
+            if (Tcl_GetIntFromObj(NULL, objPtr, &cNum) == TCL_OK &&
+            cNum >= 0) {
+                Blt_ChainLink *linkPtr;
+                TreeViewColumn *columnPtr;
+
+                for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); linkPtr != NULL;
+                linkPtr = Blt_ChainNextLink(linkPtr)) {
+                    columnPtr = Blt_ChainGetValue(linkPtr);
+                    if (cNum == n) {
+                        *columnPtrPtr = columnPtr;
+                        return TCL_OK;
+                    }
+                    n++;
+                }
+            }
+            if (interp != NULL) {
+                Tcl_AppendResult(interp, "can't find column \"", string, 
+                    "\" in \"", Tk_PathName(tvPtr->tkwin), "\"", 
+                    (char *)NULL);
+            }
+            return TCL_ERROR;
+        } 
+        *columnPtrPtr = Blt_GetHashValue(hPtr);
     }
     return TCL_OK;
+}
+
+static int
+ParseParentheses(
+    Tcl_Interp *interp,
+    CONST char *string,
+    char **leftPtr, 
+    char **rightPtr)
+{
+    register char *p;
+    char *left, *right;
+
+    left = right = NULL;
+    for (p = (char *)string; *p != '\0'; p++) {
+	if (*p == '(') {
+	    left = p;
+	} else if (*p == ')') {
+	    right = p;
+	}
+    }
+    if (left != right) {
+	if (((left != NULL) && (right == NULL)) ||
+	    ((left == NULL) && (right != NULL)) ||
+	    (left > right) || (right != (p - 1))) {
+	    if (interp != NULL) {
+		Tcl_AppendResult(interp, "bad array specification \"", string,
+			     "\"", (char *)NULL);
+	    }
+	    return TCL_ERROR;
+	}
+    }
+    *leftPtr = left;
+    *rightPtr = right;
+    return TCL_OK;
+}
+
+
+
+int
+Blt_TreeViewGetColumnKey(interp, tvPtr, objPtr, columnPtrPtr, keyPtrPtr)
+    Tcl_Interp *interp;
+    TreeView *tvPtr;
+    Tcl_Obj *objPtr;
+    TreeViewColumn **columnPtrPtr;
+    char **keyPtrPtr;
+{
+    char *right = NULL;
+    char *string;
+    int cNum, n = 0;
+    Blt_HashEntry *hPtr;
+    Blt_TreeKey key;
+    Blt_TreeObject tree;
+
+    string = Tcl_GetString(objPtr);
+
+    if (strcmp(string, "BLT TreeView") == 0) {
+        *columnPtrPtr = &tvPtr->treeColumn;
+        return TCL_OK;
+    }
+
+    if (ParseParentheses(interp, string, keyPtrPtr, &right) != TCL_OK) {
+        return TCL_ERROR;
+    }
+    
+    tree = tvPtr->tree?tvPtr->tree->treeObject:NULL;
+    if (right == NULL) {
+        key = Blt_TreeKeyGet(interp, tree, string);
+    } else {
+        Tcl_DString dStr;
+        Tcl_DStringInit(&dStr);
+        Tcl_DStringAppend(&dStr, string, (*keyPtrPtr)-string);
+        key = Blt_TreeKeyGet(interp, tree,  Tcl_DStringValue(&dStr) );
+        Tcl_DStringFree(&dStr);
+    }
+    hPtr = Blt_FindHashEntry(&tvPtr->columnTable, key);
+    if (hPtr == NULL) {
+        if (Tcl_GetIntFromObj(NULL, objPtr, &cNum) == TCL_OK &&
+        cNum >= 0) {
+            Blt_ChainLink *linkPtr;
+            TreeViewColumn *columnPtr;
+
+            for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); linkPtr != NULL;
+            linkPtr = Blt_ChainNextLink(linkPtr)) {
+                columnPtr = Blt_ChainGetValue(linkPtr);
+                if (cNum == n) {
+                    *columnPtrPtr = columnPtr;
+                    return TCL_OK;
+                }
+                n++;
+            }
+        }
+        if (interp != NULL) {
+            Tcl_AppendResult(interp, "can't find column \"", string, 
+                "\" in \"", Tk_PathName(tvPtr->tkwin), "\"", 
+                (char *)NULL);
+        }
+        return TCL_ERROR;
+    } 
+    *columnPtrPtr = Blt_GetHashValue(hPtr);
+    return TCL_OK;
+}
+
+int
+Blt_TreeViewNumColumns(tvPtr)
+TreeView *tvPtr;
+{
+    int n = 0;
+    Blt_ChainLink *linkPtr;
+
+    for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); linkPtr != NULL;
+    linkPtr = Blt_ChainNextLink(linkPtr)) {
+        n++;
+    }
+    return n;
+}
+
+/*
+* Refresh the tree-local definition for column keys.
+*/
+void
+Blt_TreeViewColumnRekey(tvPtr)
+TreeView *tvPtr;
+{
+    Blt_ChainLink *linkPtr;
+    TreeViewColumn *columnPtr;
+
+    for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); linkPtr != NULL;
+    linkPtr = Blt_ChainNextLink(linkPtr)) {
+        columnPtr = Blt_ChainGetValue(linkPtr);
+        columnPtr->key = Blt_TreeKeyGet(tvPtr->interp, tvPtr->tree?tvPtr->tree->treeObject:NULL, columnPtr->name);
+    }
+}
+
+int
+Blt_TreeViewColumnNum(tvPtr, string)
+TreeView *tvPtr;
+char *string;
+{
+    int n = 0, m = -1, isTree;
+    Blt_ChainLink *linkPtr;
+    TreeViewColumn *columnPtr;
+
+
+    isTree = (!strcmp(string, "BLT TreeView"));
+    for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); linkPtr != NULL;
+        linkPtr = Blt_ChainNextLink(linkPtr)) {
+        columnPtr = Blt_ChainGetValue(linkPtr);
+        if (!strcmp(string, columnPtr->key)) {
+            return n;
+        } else if (isTree && columnPtr == &tvPtr->treeColumn) {
+            m = n;
+        }
+        n++;
+    }
+    return m;
+}
+
+int
+Blt_TreeViewColumnInd(tvPtr, columnPtr)
+    TreeView *tvPtr;
+    TreeViewColumn *columnPtr;
+{
+    int n = 0;
+    Blt_ChainLink *linkPtr;
+    TreeViewColumn *curPtr;
+
+    for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); linkPtr != NULL;
+        linkPtr = Blt_ChainNextLink(linkPtr)) {
+        curPtr = Blt_ChainGetValue(linkPtr);
+        if (curPtr == columnPtr) {
+            return n;
+        }
+        n++;
+    }
+    return -1;
 }
 
 
@@ -467,8 +805,9 @@ ObjToStyle(clientData, interp, tkwin, objPtr, widgRec, offset)
     TreeViewStyle **stylePtrPtr = (TreeViewStyle **)(widgRec + offset);
     TreeViewStyle *stylePtr;
 
-    if (Blt_TreeViewGetStyle(interp, tvPtr, Tcl_GetString(objPtr), 
-	     &stylePtr) != TCL_OK) {
+    if (Blt_TreeViewGetStyleMake(interp, tvPtr, Tcl_GetString(objPtr), 
+	     &stylePtr, NULL, NULL, NULL) != TCL_OK) {
+        *stylePtrPtr = tvPtr->stylePtr;
 	return TCL_ERROR;
     }
     stylePtr->flags |= STYLE_DIRTY;
@@ -500,24 +839,105 @@ StyleToObj(clientData, interp, tkwin, widgRec, offset)
 {
     TreeViewStyle *stylePtr = *(TreeViewStyle **)(widgRec + offset);
 
-    if (stylePtr == NULL) {
-	return bltEmptyStringObjPtr;
-    }
-    return Tcl_NewStringObj(stylePtr->name, -1);
+    return Tcl_NewStringObj(stylePtr?stylePtr->name:"", -1);
 }
 
 /*ARGSUSED*/
-static void
-FreeStyle(clientData, display, widgRec, offset)
+static int
+FreeStyle(clientData, display, widgRec, offset, oldPtr)
     ClientData clientData;
     Display *display;		/* Not used. */
     char *widgRec;
     int offset;
+    char *oldPtr;
 {
     TreeView *tvPtr = clientData;
-    TreeViewStyle *stylePtr = *(TreeViewStyle **)(widgRec + offset);
+    TreeViewStyle *stylePtr = (TreeViewStyle *)(oldPtr);
 
     Blt_TreeViewFreeStyle(tvPtr, stylePtr);
+    return TCL_OK;
+}
+
+static int
+ObjToStyles(clientData, interp, tkwin, objPtr, widgRec, offset)
+    ClientData clientData;	/* Not used. */
+    Tcl_Interp *interp;		/* Interpreter to send results back to */
+    Tk_Window tkwin;		/* Not used. */
+    Tcl_Obj *objPtr;		/* Tcl_Obj representing the new value. */
+    char *widgRec;
+    int offset;
+{
+    TreeView *tvPtr = clientData;
+    TreeViewStyle ***stylesPtrPtr = (TreeViewStyle ***)(widgRec + offset);
+    TreeViewStyle **sPtr = NULL;
+    Tcl_Obj **objv;
+    int objc, i;
+
+    if (Tcl_ListObjGetElements(interp, objPtr, &objc, &objv) != TCL_OK) {
+        return TCL_ERROR;
+    }
+    if (objc != 0) {
+        sPtr = Blt_Calloc(objc+1, sizeof(*sPtr));
+        for (i=0; i<objc; i++) {
+            if (Blt_TreeViewGetStyleMake(interp, tvPtr, Tcl_GetString(objv[i]), 
+                &sPtr[i], NULL, NULL, NULL) != TCL_OK) {
+                    Blt_Free(sPtr);
+                    return TCL_ERROR;
+            }
+            sPtr[i]->flags |= STYLE_DIRTY;
+        }
+    }
+    tvPtr->flags |= (TV_LAYOUT | TV_DIRTY);
+    *stylesPtrPtr = sPtr;
+    return TCL_OK;
+}
+
+/*ARGSUSED*/
+static Tcl_Obj *
+StylesToObj(clientData, interp, tkwin, widgRec, offset)
+    ClientData clientData;	/* Not used. */
+    Tcl_Interp *interp;
+    Tk_Window tkwin;		/* Not used. */
+    char *widgRec;
+    int offset;
+{
+    TreeViewStyle **sPtr = *(TreeViewStyle ***)(widgRec + offset);
+    Tcl_Obj *obj;
+    int i;
+    
+    if (sPtr == NULL) {
+        return Tcl_NewStringObj("", -1);
+    }
+    obj = Tcl_NewListObj(0,0);
+    i = 0;
+    while (sPtr[i]) {
+        Tcl_ListObjAppendElement(interp, obj, Tcl_NewStringObj(sPtr[i]->name, -1));
+        i++;
+    }
+    return obj;
+}
+
+/*ARGSUSED*/
+static int
+FreeStyles(clientData, display, widgRec, offset, oldPtr)
+    ClientData clientData;
+    Display *display;		/* Not used. */
+    char *widgRec;
+    int offset;
+    char *oldPtr;
+{
+    TreeView *tvPtr = clientData;
+    TreeViewStyle **sPtr = (TreeViewStyle **)(oldPtr);
+    int i;
+    
+    if (sPtr == NULL) { return TCL_OK; }
+    i = 0;
+    while (sPtr[i] != NULL) {
+        Blt_TreeViewFreeStyle(tvPtr, sPtr[i]);
+        i++;
+    }
+    Blt_Free(sPtr);
+    return TCL_OK;
 }
 
 void
@@ -533,9 +953,20 @@ Blt_TreeViewUpdateColumnGCs(tvPtr, columnPtr)
     unsigned long gcMask;
     int iconWidth, iconHeight;
     int textWidth, textHeight;
-
     gcMask = GCForeground | GCFont;
-    gcValues.font = Tk_FontId(columnPtr->titleFont);
+
+    gcValues.font = Tk_FontId((columnPtr->font?columnPtr->font: tvPtr->font));
+        
+    /* Normal text */
+    gcValues.foreground = CHOOSE(tvPtr->fgColor,columnPtr->fgColor)->pixel;
+    newGC = Tk_GetGC(tvPtr->tkwin, gcMask, &gcValues);
+    if (columnPtr->textGC != NULL) {
+        Tk_FreeGC(tvPtr->display, columnPtr->textGC);
+    }
+    columnPtr->textGC = newGC;
+
+    gcValues.font = Tk_FontId((columnPtr->titleFont?columnPtr->titleFont:
+        tvPtr->titleFont));
 
     /* Normal title text */
     gcValues.foreground = columnPtr->titleFgColor->pixel;
@@ -568,12 +999,16 @@ Blt_TreeViewUpdateColumnGCs(tvPtr, columnPtr)
     if (columnPtr->title != NULL) {
 	TextStyle ts;
 
-	memset(&ts, 0, sizeof(TextStyle));
-	ts.font = columnPtr->titleFont;
+        memset(&ts, 0, sizeof(TextStyle));
+	ts.font = (columnPtr->titleFont?columnPtr->titleFont:tvPtr->titleFont);
 	ts.justify = TK_JUSTIFY_LEFT;
+	ts.underline = columnPtr->underline;
 	ts.shadow.offset = columnPtr->titleShadow.offset;
 	columnPtr->titleTextPtr = Blt_GetTextLayout(columnPtr->title, &ts);
-	textHeight = columnPtr->titleTextPtr->height;
+	textHeight = columnPtr->titleTextPtr->height + tvPtr->titlePad*2;
+        if (columnPtr->underline>=0) {
+            textHeight += 2;
+        }
 	textWidth = columnPtr->titleTextPtr->width;
 	columnPtr->titleWidth += textWidth;
     }
@@ -601,7 +1036,7 @@ Blt_TreeViewUpdateColumnGCs(tvPtr, columnPtr)
     /* XOR-ed rule column divider */ 
     gcValues.line_width = LineWidth(columnPtr->ruleLineWidth);
     gcValues.foreground = 
-	Blt_TreeViewGetStyleFg(tvPtr, columnPtr->stylePtr)->pixel;
+	Blt_TreeViewGetStyleFg(tvPtr, columnPtr, columnPtr->stylePtr)->pixel;
     if (LineIsDashed(columnPtr->ruleDashes)) {
 	gcValues.line_style = LineOnOffDash;
     } else {
@@ -627,42 +1062,98 @@ Blt_TreeViewUpdateColumnGCs(tvPtr, columnPtr)
 }
 
 static void
+DestroyColumnNow(DestroyData data)
+{
+    TreeViewColumn *columnPtr = (TreeViewColumn *)data;
+    TreeView *tvPtr;
+    
+    tvPtr = columnPtr->tvPtr;
+    if (columnPtr->title != NULL) {
+        Blt_Free(columnPtr->title);
+        columnPtr->title = NULL;
+    }
+    if (columnPtr->titleTextPtr != NULL) {
+        Blt_Free(columnPtr->titleTextPtr);
+        columnPtr->titleTextPtr = NULL;
+    }
+    if (columnPtr->stylePtr != NULL) {
+	Blt_TreeViewFreeStyle(tvPtr, columnPtr->stylePtr);
+	columnPtr->stylePtr = NULL;
+    }
+    if (columnPtr->titleStylePtr != NULL) {
+        Blt_TreeViewFreeStyle(tvPtr, columnPtr->titleStylePtr);
+        columnPtr->titleStylePtr = NULL;
+    }
+    if (columnPtr->tile != NULL) {
+        Blt_FreeTile(columnPtr->tile);
+        columnPtr->tile = NULL;
+    }
+    if (columnPtr->defValue != NULL) {
+        Blt_PoolFreeItem(tvPtr->valuePool, columnPtr->defValue);
+        columnPtr->defValue = NULL;
+    }
+    if (columnPtr->trace != NULL) {
+        Blt_TreeDeleteTrace(columnPtr->trace);
+        columnPtr->trace = NULL;
+    }
+    Blt_Free(columnPtr->name);
+    if (columnPtr != &tvPtr->treeColumn) {
+        Blt_Free(columnPtr);
+    }
+}
+    
+static void
 DestroyColumn(tvPtr, columnPtr)
     TreeView *tvPtr;
     TreeViewColumn *columnPtr;
 {
+    ClientData object;
     Blt_HashEntry *hPtr;
+    
+    columnPtr->flags |= COLUMN_DELETED;
 
-    bltTreeViewUidOption.clientData = tvPtr;
-    bltTreeViewIconOption.clientData = tvPtr;
-    styleOption.clientData = tvPtr;
-    Blt_FreeObjOptions(columnSpecs, (char *)columnPtr, tvPtr->display, 0);
-
+    if (tvPtr->selAnchorCol == columnPtr) { tvPtr->selAnchorCol = NULL; }
+    if (tvPtr->activeColumnPtr == columnPtr) { tvPtr->activeColumnPtr = NULL; }
+    if (tvPtr->activeTitleColumnPtr == columnPtr) { tvPtr->activeTitleColumnPtr = NULL; }
+    if (tvPtr->resizeColumnPtr == columnPtr) { tvPtr->resizeColumnPtr = NULL; }
+    if (tvPtr->sortColumnPtr == columnPtr) { tvPtr->sortColumnPtr = NULL; }
+    Blt_TreeViewWindowRelease(NULL, columnPtr);
+    Blt_TreeViewOptsInit(tvPtr);
+    object = Blt_TreeViewColumnTag(tvPtr, columnPtr->key);
+    if (object) {
+        Blt_DeleteBindings(tvPtr->bindTable, object);
+    }
+    Blt_DeleteBindings(tvPtr->bindTable, columnPtr);
+    hPtr = Blt_FindHashEntry(&tvPtr->columnTagTable, columnPtr->key);
+    if (hPtr != NULL) {
+        Blt_DeleteHashEntry(&tvPtr->columnTagTable, hPtr);
+    }
+    Blt_FreeObjOptions(tvPtr->interp, columnSpecs, (char *)columnPtr, tvPtr->display, 0);
     if (columnPtr->titleGC != NULL) {
-	Tk_FreeGC(tvPtr->display, columnPtr->titleGC);
+        Tk_FreeGC(tvPtr->display, columnPtr->titleGC);
+        columnPtr->titleGC = NULL;
+    }
+    if (columnPtr->textGC != NULL) {
+        Tk_FreeGC(tvPtr->display, columnPtr->textGC);
+        columnPtr->textGC = NULL;
     }
     if (columnPtr->ruleGC != NULL) {
-	Blt_FreePrivateGC(tvPtr->display, columnPtr->ruleGC);
+        Blt_FreePrivateGC(tvPtr->display, columnPtr->ruleGC);
+        columnPtr->ruleGC = NULL;
+    }
+    if (columnPtr->activeTitleGC != NULL) {
+        Tk_FreeGC(tvPtr->display, columnPtr->activeTitleGC);
+        columnPtr->activeTitleGC = NULL;
     }
     hPtr = Blt_FindHashEntry(&tvPtr->columnTable, columnPtr->key);
     if (hPtr != NULL) {
-	Blt_DeleteHashEntry(&tvPtr->columnTable, hPtr);
+        Blt_DeleteHashEntry(&tvPtr->columnTable, hPtr);
     }
     if (columnPtr->linkPtr != NULL) {
-	Blt_ChainDeleteLink(tvPtr->colChainPtr, columnPtr->linkPtr);
+        Blt_ChainDeleteLink(tvPtr->colChainPtr, columnPtr->linkPtr);
+        columnPtr->linkPtr = NULL;
     }
-    if (columnPtr->title != NULL) {
-	Blt_Free(columnPtr->title);
-    }
-    if (columnPtr->titleTextPtr != NULL) {
-	Blt_Free(columnPtr->titleTextPtr);
-    }
-    if (columnPtr->stylePtr != NULL) {
-	Blt_TreeViewFreeStyle(tvPtr, columnPtr->stylePtr);
-    }
-    if (columnPtr != &tvPtr->treeColumn) {
-	Blt_Free(columnPtr);
-    }
+    Tcl_EventuallyFree(columnPtr, DestroyColumnNow);
 }
 
 void
@@ -685,6 +1176,44 @@ Blt_TreeViewDestroyColumns(tvPtr)
     Blt_DeleteHashTable(&tvPtr->columnTable);
 }
 
+void
+Blt_TreeViewConfigureColumns(tvPtr)
+TreeView *tvPtr;
+{
+    if (tvPtr->colChainPtr != NULL) {
+        Blt_ChainLink *linkPtr;
+        TreeViewColumn *columnPtr;
+	
+        for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); linkPtr != NULL;
+        linkPtr = Blt_ChainNextLink(linkPtr)) {
+            columnPtr = Blt_ChainGetValue(linkPtr);
+            Blt_TreeViewUpdateColumnGCs(tvPtr, columnPtr);
+        }
+    }
+}
+
+static void
+ColumnConfigChanges(tvPtr, interp, columnPtr)
+    TreeView *tvPtr;
+    Tcl_Interp *interp;
+    TreeViewColumn *columnPtr;
+{
+    if (Blt_ObjConfigModified(columnSpecs, interp, "-background", 0)) {
+        columnPtr->hasbg = 1;
+    }
+    if (Blt_ObjConfigModified(columnSpecs, tvPtr->interp, "-titlebackground", 0)) {
+        columnPtr->hasttlbg = 1;
+    }
+    if (columnPtr->tile != NULL) {
+        Blt_SetTileChangedProc(columnPtr->tile, Blt_TreeViewTileChangedProc, tvPtr);
+    }
+    if (columnPtr->stylePtr == NULL) {
+    }
+    if (Blt_ObjConfigModified(columnSpecs, tvPtr->interp, "-justify", "-hide", "-weight", "-formatcmd", "-font", 0)) {
+        Blt_TreeViewMakeStyleDirty(tvPtr);
+    }
+}
+
 int
 Blt_TreeViewCreateColumn(tvPtr, columnPtr, name, defTitle)
     TreeView *tvPtr;
@@ -693,10 +1222,24 @@ Blt_TreeViewCreateColumn(tvPtr, columnPtr, name, defTitle)
 {
     Blt_HashEntry *hPtr;
     int isNew;
+    Tcl_Interp *interp;
+    Blt_TreeObject treeObj;
+    char *left = NULL, *right = NULL;
 
-    columnPtr->key = Blt_TreeGetKey(name);
+    interp = tvPtr->interp;
+    if (ParseParentheses(interp, name, &left, &right) != TCL_OK ||
+        left != NULL || right != NULL) {
+        Blt_Free(columnPtr);
+        Tcl_AppendResult(interp, "column key may not use parens", 0);
+        return TCL_ERROR;
+    }
+    treeObj = tvPtr->tree?tvPtr->tree->treeObject:NULL;
+    columnPtr->tvPtr = tvPtr;
+    columnPtr->name = Blt_Strdup(name);
+    columnPtr->key = Blt_TreeKeyGet(interp, treeObj, name);
     columnPtr->title = Blt_Strdup(defTitle);
     columnPtr->justify = TK_JUSTIFY_CENTER;
+    columnPtr->titleJustify = TK_JUSTIFY_CENTER;
     columnPtr->relief = TK_RELIEF_FLAT;
     columnPtr->borderWidth = 1;
     columnPtr->pad.side1 = columnPtr->pad.side2 = 2;
@@ -707,19 +1250,37 @@ Blt_TreeViewCreateColumn(tvPtr, columnPtr, name, defTitle)
     columnPtr->titleBorderWidth = 2;
     columnPtr->titleRelief = TK_RELIEF_RAISED;
     columnPtr->titleIcon = NULL;
+    columnPtr->tile = NULL;
+    columnPtr->scrollTile = 0;
+    columnPtr->hasbg = 0;
+    columnPtr->hasttlbg = 0;
+    columnPtr->defValue = Blt_TreeViewMakeValue(tvPtr, columnPtr, NULL);
     hPtr = Blt_CreateHashEntry(&tvPtr->columnTable, columnPtr->key, &isNew);
     Blt_SetHashValue(hPtr, columnPtr);
 
-    bltTreeViewUidOption.clientData = tvPtr;
-    bltTreeViewIconOption.clientData = tvPtr;
-    styleOption.clientData = tvPtr;
+    Blt_TreeViewOptsInit(tvPtr);
     if (Blt_ConfigureComponentFromObj(tvPtr->interp, tvPtr->tkwin, name, 
 	"Column", columnSpecs, 0, (Tcl_Obj **)NULL, (char *)columnPtr, 0) 
 	!= TCL_OK) {
 	DestroyColumn(tvPtr, columnPtr);
 	return TCL_ERROR;
     }
+    if (Blt_ObjConfigModified(columnSpecs, tvPtr->interp, "-background", 0)) {
+        columnPtr->hasbg = 1;
+    }
+    if (Blt_ObjConfigModified(columnSpecs, tvPtr->interp, "-titlebackground", 0)) {
+        columnPtr->hasttlbg = 1;
+    }
+    if (columnPtr->tile != NULL) {
+        Blt_SetTileChangedProc(columnPtr->tile, Blt_TreeViewTileChangedProc, tvPtr);
+    }
+    if (Blt_ObjConfigModified(columnSpecs, tvPtr->interp, "-*font", "-foreground", "-titleborderwidth", "-titlerelief", "-titleshadow", 0)) {
+        Blt_TreeViewMakeStyleDirty(tvPtr);
+    }
+    ColumnConfigChanges(tvPtr, interp, columnPtr);
+    Blt_ObjConfigModified(columnSpecs, tvPtr->interp, 0);
     return TCL_OK;
+    
 }
 
 static TreeViewColumn *
@@ -730,21 +1291,47 @@ CreateColumn(tvPtr, nameObjPtr, objc, objv)
     Tcl_Obj *CONST *objv;
 {
     TreeViewColumn *columnPtr;
+    Tcl_DString dString;
+    char *string, *nStr;
+    int colIdx, len;
+
+    colIdx = 1;
+    nStr = string = Tcl_GetStringFromObj(nameObjPtr, &len);
 
     columnPtr = Blt_Calloc(1, sizeof(TreeViewColumn));
     assert(columnPtr);
-    if (Blt_TreeViewCreateColumn(tvPtr, columnPtr, Tcl_GetString(nameObjPtr), 
-	Tcl_GetString(nameObjPtr)) != TCL_OK) {
+    Tcl_DStringInit(&dString);
+    while (string[0] == 0 || (len>=5 && strncmp(string+len-5,"#auto", 5)==0)) {
+        Tcl_DStringSetLength(&dString, 0);
+        if (len <= 5) {
+            Tcl_DStringAppend(&dString, "Col", -1);
+        } else {
+            Tcl_DStringAppend(&dString, string, len-5);
+        }
+        Tcl_DStringAppend(&dString, Blt_Itoa(colIdx), -1);
+        colIdx++;
+        nStr = Tcl_DStringValue(&dString);
+        if (Blt_TreeViewColumnNum(tvPtr, nStr)<0) {
+            break;
+        }
+    }
+    if (Blt_TreeViewCreateColumn(tvPtr, columnPtr, nStr, nStr) != TCL_OK) {
+        Tcl_DStringFree(&dString);
 	return NULL;
     }
-    bltTreeViewUidOption.clientData = tvPtr;
-    bltTreeViewIconOption.clientData = tvPtr;
-    styleOption.clientData = tvPtr;
+    Tcl_DStringFree(&dString);
+    Blt_TreeViewOptsInit(tvPtr);
     if (Blt_ConfigureComponentFromObj(tvPtr->interp, tvPtr->tkwin, 
 	columnPtr->key, "Column", columnSpecs, objc, objv, (char *)columnPtr, 
 	BLT_CONFIG_OBJV_ONLY) != TCL_OK) {
 	DestroyColumn(tvPtr, columnPtr);
 	return NULL;
+    }
+    if (Blt_ObjConfigModified(columnSpecs, tvPtr->interp, "-background", 0)) {
+        columnPtr->hasbg = 1;
+    }
+    if (columnPtr->tile != NULL) {
+        Blt_SetTileChangedProc(columnPtr->tile, Blt_TreeViewTileChangedProc, tvPtr);
     }
     Blt_TreeViewUpdateColumnGCs(tvPtr, columnPtr);
     return columnPtr;
@@ -774,8 +1361,8 @@ Blt_TreeViewNearestColumn(tvPtr, x, y, contextPtr)
 		if (contextPtr != NULL) {
 		    *contextPtr = NULL;
 		    if ((tvPtr->flags & TV_SHOW_COLUMN_TITLES) && 
-			(y >= tvPtr->inset) &&
-			(y < (tvPtr->titleHeight + tvPtr->inset))) {
+			(y >= tvPtr->insetY) &&
+			(y < (tvPtr->titleHeight + tvPtr->insetY))) {
 			*contextPtr = (x >= (right - RULE_AREA)) 
 			    ? ITEM_COLUMN_RULE : ITEM_COLUMN_TITLE;
 		    } 
@@ -885,6 +1472,7 @@ ColumnCgetOp(tvPtr, interp, objc, objv)
     if (Blt_TreeViewGetColumn(interp, tvPtr, objv[3], &columnPtr) != TCL_OK) {
 	return TCL_ERROR;
     }
+    Blt_TreeViewOptsInit(tvPtr);
     return Blt_ConfigureValueFromObj(interp, tvPtr->tkwin, columnSpecs, 
 	(char *)columnPtr, objv[4], 0);
 }
@@ -919,12 +1507,12 @@ ColumnConfigureOp(tvPtr, interp, objc, objv)
     Tcl_Obj *CONST *objv;
 {
     TreeViewColumn *columnPtr;
-    int nOptions, start;
+    int nOptions, start, result;
     register int i;
 
     /* Figure out where the option value pairs begin */
-    for(i = 3; i < objc; i++) {
-	if (Blt_ObjIsOption(columnSpecs, objv[i], 0)) {
+    for(i = 4; i < objc; i++) {
+	if (Blt_ObjIsOption(tvPtr->interp, columnSpecs, objv[i], 0)) {
 	    break;
 	}
 	if (Blt_TreeViewGetColumn(interp, tvPtr, objv[i], &columnPtr) 
@@ -932,13 +1520,18 @@ ColumnConfigureOp(tvPtr, interp, objc, objv)
 	    return TCL_ERROR;
 	}
     }
+    if (i<=3) {
+        Tcl_AppendResult(interp, "column name missing", 0);
+        return TCL_ERROR;
+    }
     start = i;
     nOptions = objc - start;
     
-    bltTreeViewUidOption.clientData = tvPtr;
-    bltTreeViewIconOption.clientData = tvPtr;
-    styleOption.clientData = tvPtr;
+    Blt_TreeViewOptsInit(tvPtr);
     for (i = 3; i < start; i++) {
+        char *oldStyle;
+        int isdel;
+        
 	if (Blt_TreeViewGetColumn(interp, tvPtr, objv[i], &columnPtr) 
 	    != TCL_OK) {
 	    return TCL_ERROR;
@@ -950,12 +1543,56 @@ ColumnConfigureOp(tvPtr, interp, objc, objv)
 	    return Blt_ConfigureInfoFromObj(interp, tvPtr->tkwin, columnSpecs, 
 		(char *)columnPtr, objv[start], 0);
 	}
-	if (Blt_ConfigureWidgetFromObj(tvPtr->interp, tvPtr->tkwin, 
-	       columnSpecs, nOptions, objv + start, (char *)columnPtr, 
-		BLT_CONFIG_OBJV_ONLY) != TCL_OK) {
-	    return TCL_ERROR;
-	}
-	Blt_TreeViewUpdateColumnGCs(tvPtr, columnPtr);
+        oldStyle = (columnPtr->stylePtr ? columnPtr->stylePtr->name : NULL);
+        Tcl_Preserve(columnPtr);
+        result = Blt_ConfigureWidgetFromObj(tvPtr->interp, tvPtr->tkwin, 
+             columnSpecs, nOptions, objv + start, (char *)columnPtr, 
+             BLT_CONFIG_OBJV_ONLY, NULL);
+         isdel = (columnPtr->flags & ENTRY_DELETED);
+         Tcl_Release(columnPtr);
+         if (isdel) {
+             return TCL_ERROR;
+         }
+         if (columnPtr->sortAltColumns != NULL) {
+             
+             Tcl_Obj **sobjv;
+             int sobjc, n;
+             TreeViewColumn *acPtr;
+    
+             if (Tcl_ListObjGetElements(interp, columnPtr->sortAltColumns,
+                 &sobjc, &sobjv) != TCL_OK) {
+                     Tcl_DecrRefCount(columnPtr->sortAltColumns);
+                     columnPtr->sortAltColumns = NULL;
+                     return TCL_ERROR;
+             }
+             for (n = 0; n < sobjc; n++) {
+
+                 if (Blt_TreeViewGetColumn(interp, tvPtr, sobjv[n], &acPtr)
+                     != TCL_OK || acPtr == columnPtr || acPtr == &tvPtr->treeColumn) {
+                     if (acPtr == columnPtr) {
+                         Tcl_AppendResult(interp, "self reference", 0);
+                     }
+                     if (acPtr == &tvPtr->treeColumn) {
+                         Tcl_AppendResult(interp, "tree column not valid", 0);
+                     }
+                     Tcl_DecrRefCount(columnPtr->sortAltColumns);
+                     columnPtr->sortAltColumns = NULL;
+                     return TCL_ERROR;
+                 }
+             }
+        }
+         if (columnPtr->stylePtr == NULL && oldStyle) {
+             TreeViewStyle *stylePtr = NULL;
+             
+             Blt_TreeViewGetStyleMake(interp, tvPtr, oldStyle, &stylePtr, columnPtr,
+                NULL, NULL);
+             columnPtr->stylePtr = stylePtr;
+         }
+         if (result != TCL_OK) {
+            return TCL_ERROR;
+         }
+         ColumnConfigChanges(tvPtr, interp, columnPtr);
+         Blt_TreeViewUpdateColumnGCs(tvPtr, columnPtr);
     }
     /*FIXME: Makes every change redo everything. */
     tvPtr->flags |= (TV_LAYOUT | TV_DIRTY);
@@ -987,6 +1624,13 @@ ColumnDeleteOp(tvPtr, interp, objc, objv)
 	    != TCL_OK) {
 	    return TCL_ERROR;
 	}
+	if (columnPtr == &tvPtr->treeColumn) {
+	    /* Quietly ignore requests to delete tree. */
+	    continue;
+	}
+	if (columnPtr == tvPtr->sortColumnPtr) {
+	    tvPtr->sortColumnPtr = NULL;
+	}
 	/* Traverse the tree deleting values associated with the column.  */
 	for(entryPtr = tvPtr->rootPtr; entryPtr != NULL;
 	    entryPtr = Blt_TreeViewNextEntry(entryPtr, 0)) {
@@ -998,7 +1642,7 @@ ColumnDeleteOp(tvPtr, interp, objc, objv)
 		     valuePtr = nextPtr) {
 		    nextPtr = valuePtr->nextPtr;
 		    if (valuePtr->columnPtr == columnPtr) {
-			Blt_TreeViewDestroyValue(tvPtr, valuePtr);
+			Blt_TreeViewDestroyValue(tvPtr, entryPtr, valuePtr);
 			if (lastPtr == NULL) {
 			    entryPtr->values = nextPtr;
 			} else {
@@ -1021,9 +1665,178 @@ ColumnDeleteOp(tvPtr, interp, objc, objv)
 /*
  *----------------------------------------------------------------------
  *
+ * ColumnIssetOp --
+ *
+ *   Return columns that have data in the currently visible entries.
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+ColumnIssetOp(tvPtr, interp, objc, objv)
+    TreeView *tvPtr;
+    Tcl_Interp *interp;		/* Not used. */
+    int objc;
+    Tcl_Obj *CONST *objv;
+{
+    TreeViewColumn *columnPtr;
+    TreeViewEntry *entryPtr, **p;
+    TreeViewValue *valuePtr;
+    Blt_ChainLink *linkPtr;
+    Tcl_Obj *listObjPtr, *objPtr;
+
+    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **)NULL);
+    if (objc == 3) {
+        for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); 
+            linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
+            columnPtr = Blt_ChainGetValue(linkPtr);
+            if (columnPtr == &tvPtr->treeColumn) continue;
+
+            for (p = tvPtr->visibleArr; *p != NULL; p++) {
+                entryPtr = *p;
+                valuePtr = Blt_TreeViewFindValue(entryPtr, columnPtr);
+                if (valuePtr != NULL) {
+                    objPtr = Tcl_NewStringObj(columnPtr->key, -1);
+                    Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+                    break;
+                }
+            }
+        }
+    } else if (objc == 4) {
+        TreeViewTagInfo info = {0};
+
+        for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); 
+            linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
+            
+            columnPtr = Blt_ChainGetValue(linkPtr);
+            if (columnPtr == &tvPtr->treeColumn) continue;
+            if (Blt_TreeViewFindTaggedEntries(tvPtr, objv[3], &info) != TCL_OK) {
+                return TCL_ERROR;
+            }
+            for (entryPtr = Blt_TreeViewFirstTaggedEntry(&info); entryPtr != NULL; 
+                entryPtr = Blt_TreeViewNextTaggedEntry(&info)) {
+                
+                valuePtr = Blt_TreeViewFindValue(entryPtr, columnPtr);
+                if (valuePtr != NULL) {
+                    objPtr = Tcl_NewStringObj(columnPtr->key, -1);
+                    Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+                    break;
+                }
+            }
+            Blt_TreeViewDoneTaggedEntries(&info);
+        }
+
+    } else if (objc == 5) {
+        TreeViewEntry *ePtr, *entryPtr2;
+        if (Blt_TreeViewGetEntry(tvPtr, objv[3], &entryPtr) != TCL_OK) {
+            return TCL_ERROR;
+        }
+        if (Blt_TreeViewGetEntry(tvPtr, objv[4], &entryPtr2) != TCL_OK) {
+            return TCL_ERROR;
+        }
+        for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); 
+            linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
+            columnPtr = Blt_ChainGetValue(linkPtr);
+            if (columnPtr == &tvPtr->treeColumn) continue;
+            for (ePtr = entryPtr; ePtr;
+                ePtr = Blt_TreeViewNextEntry(ePtr, ENTRY_MASK)) {
+                valuePtr = Blt_TreeViewFindValue(ePtr, columnPtr);
+                if (valuePtr != NULL) {
+                    objPtr = Tcl_NewStringObj(columnPtr->key, -1);
+                    Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+                    break;
+                }
+                if (ePtr == entryPtr2) break;
+            }
+
+        }
+    }
+    Tcl_SetObjResult(interp, listObjPtr);
+
+    return TCL_OK;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * ColumnIndexOp --
+ *
+ *	Return column index.
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+ColumnIndexOp(tvPtr, interp, objc, objv)
+    TreeView *tvPtr;
+    Tcl_Interp *interp;
+    int objc;
+    Tcl_Obj *CONST *objv;
+{
+    int n, cnt;
+    char *string;
+    
+    string = Tcl_GetString(objv[3]);
+    
+    cnt = Blt_TreeViewNumColumns(tvPtr);
+    if (strncmp("end", string, 3) == 0 &&
+        Blt_GetPositionSize(interp, string, cnt, &n) == TCL_OK) {
+            Tcl_SetObjResult(interp, Tcl_NewIntObj(n));
+            return TCL_OK;
+    }
+    n = Blt_TreeViewColumnNum(tvPtr, string);
+    if (n<0) {
+        if ((Tcl_GetInt(NULL, string, &n) != TCL_OK)) {
+            goto err;
+        }
+        if (n>=cnt || n<0) {
+            goto err;
+        }
+    }
+    if (n<0) {
+err:
+        Tcl_AppendResult(interp, "unknown column: ", string, 0);
+        return TCL_ERROR;
+    }
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(n));
+    return TCL_OK;
+}
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * ColumnIstreeOp --
+ *
+ *	Return 1 if is the tree column.
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+ColumnIstreeOp(tvPtr, interp, objc, objv)
+    TreeView *tvPtr;
+    Tcl_Interp *interp;
+    int objc;
+    Tcl_Obj *CONST *objv;
+{
+    TreeViewColumn *columnPtr;
+    if (Blt_TreeViewGetColumn(interp, tvPtr, objv[3], &columnPtr) != TCL_OK) {
+        return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(columnPtr==&tvPtr->treeColumn));
+    return TCL_OK;
+}
+
+
+/*
+ *----------------------------------------------------------------------
+ *
  * ColumnInsertOp --
  *
  *	Add new columns to the tree.
+ *      .t col insert POS NAME ...
  *
  *----------------------------------------------------------------------
  */
@@ -1043,12 +1856,17 @@ ColumnInsertOp(tvPtr, interp, objc, objv)
     int nOptions;
     int start;
     register int i;
+    int maxCol = Blt_ChainGetLength(tvPtr->colChainPtr);
 
-    if (Blt_GetPositionFromObj(tvPtr->interp, objv[3], &insertPos) != TCL_OK) {
-	return TCL_ERROR;
+    if (Blt_GetPositionSizeFromObj(tvPtr->interp, objv[3], maxCol,
+        &insertPos) != TCL_OK) {
+        if ((insertPos = Blt_TreeViewColumnNum(tvPtr, Tcl_GetString(objv[3])))<0) {
+            return TCL_ERROR;
+        }
+        Tcl_ResetResult(interp);
     }
     if ((insertPos == -1) || 
-	(insertPos >= Blt_ChainGetLength(tvPtr->colChainPtr))) {
+	(insertPos >= maxCol)) {
 	beforePtr = NULL;
     } else {
 	beforePtr =  Blt_ChainGetNthLink(tvPtr->colChainPtr, insertPos);
@@ -1058,14 +1876,29 @@ ColumnInsertOp(tvPtr, interp, objc, objv)
      * spot one that looks like a configuration option (i.e. starts
      * with a minus ("-")).
      */
-    for (i = 4; i < objc; i++) {
-	if (Blt_ObjIsOption(columnSpecs, objv[i], 0)) {
-	    break;
-	}
+    for (i = 5; i < objc; i++) {
+        char *cp = Tcl_GetString(objv[i]);
+        if (cp[0] == '-') break;
     }
     start = i;
     nOptions = objc - i;
     options = objv + start;
+
+    if ((objc-nOptions) < 5) {
+        Tcl_AppendResult(interp, "column insert must have a name", 0);
+        return TCL_ERROR;
+    }
+    if ((objc-start)%2) {
+        Tcl_AppendResult(interp, "odd number of column options", 0);
+        return TCL_ERROR;
+    }
+    for (i = start; i < objc; i+=2) {
+        if (!Blt_ObjIsOption(tvPtr->interp, columnSpecs, objv[i], 0)) {
+            Tcl_AppendResult(interp, "unknown option \"", Tcl_GetString(objv[i]), "\", should be one of one: ", 0);
+            Blt_FormatSpecOptions(interp, columnSpecs);
+            return TCL_ERROR;
+        }
+    }
 
     for (i = 4; i < start; i++) {
 	if (Blt_TreeViewGetColumn(NULL, tvPtr, objv[i], &columnPtr) == TCL_OK) {
@@ -1085,6 +1918,7 @@ ColumnInsertOp(tvPtr, interp, objc, objv)
 	    Blt_ChainLinkBefore(tvPtr->colChainPtr, columnPtr->linkPtr, 
 		beforePtr);
 	}
+	Tcl_AppendResult(interp, i>4?" ":"", columnPtr->key, 0);
 	/* 
 	 * Traverse the tree adding column entries where needed.
 	 */
@@ -1136,6 +1970,70 @@ ColumnCurrentOp(tvPtr, interp, objc, objv)
     return TCL_OK;
 }
 
+static void
+ColumnPercentSubst(tvPtr, columnPtr, command, resultPtr)
+    TreeView *tvPtr;
+    TreeViewColumn *columnPtr;
+    char *command;
+    Tcl_DString *resultPtr;
+{
+    register char *last, *p;
+    int one = (command[0] == '%' && strlen(command)==2);
+
+    /*
+     * Get the full path name of the node, in case we need to
+     * substitute for it.
+     */
+    Tcl_DStringInit(resultPtr);
+    /* Append the widget name and the node .t 0 */
+    for (last = p = command; *p != '\0'; p++) {
+	if (*p == '%') {
+	    char *string;
+	    char buf[3];
+
+	    if (p > last) {
+		*p = '\0';
+		Tcl_DStringAppend(resultPtr, last, -1);
+		*p = '%';
+	    }
+	    switch (*(p + 1)) {
+	    case '%':		/* Percent sign */
+		string = "%";
+		break;
+	    case 'W':		/* Widget name */
+		string = Tk_PathName(tvPtr->tkwin);
+		break;
+	    case 'C':		/* Node identifier */
+		string = columnPtr->key;
+                if (one) {
+                    Tcl_DStringAppend(resultPtr, string, -1);
+                } else {
+                    Tcl_DStringAppendElement(resultPtr, string);
+                }
+                p++;
+                last = p + 1;
+                continue;
+                break;
+	    default:
+		if (*(p + 1) == '\0') {
+		    p--;
+		}
+		buf[0] = *p, buf[1] = *(p + 1), buf[2] = '\0';
+		string = buf;
+		break;
+	    }
+	    Tcl_DStringAppend(resultPtr, string, -1);
+	    p++;
+	    last = p + 1;
+	}
+    }
+    if (p > last) {
+	*p = '\0';
+	Tcl_DStringAppend(resultPtr, last, -1);
+    }
+}
+
+
 /*
  *----------------------------------------------------------------------
  *
@@ -1170,15 +2068,117 @@ ColumnInvokeOp(tvPtr, interp, objc, objv)
 	return TCL_ERROR;
     }
     if ((columnPtr->state == STATE_NORMAL) && (columnPtr->titleCmd != NULL)) {
-	int result;
+        Tcl_DString dString;
+        int result;
 
-	Tcl_Preserve(tvPtr);
+        Tcl_DStringInit(&dString);
+        ColumnPercentSubst(tvPtr, columnPtr, columnPtr->titleCmd, &dString);
+        Tcl_Preserve(tvPtr);
 	Tcl_Preserve(columnPtr);
-	result = Tcl_GlobalEval(interp, columnPtr->titleCmd);
+        result = Tcl_GlobalEval(interp, Tcl_DStringValue(&dString));
 	Tcl_Release(columnPtr);
 	Tcl_Release(tvPtr);
+	Tcl_DStringFree(&dString);
 	return result;
     }
+    return TCL_OK;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * ColumnValuesOp --
+ *
+ * 	This procedure is called to get all column values.
+ *
+ *	  .h column values ?-visible? ?-default value? columnName ?start? ?end?
+ *
+ * Results:
+ *	A standard Tcl result.  If TCL_ERROR is returned, then
+ *	interp->result contains an error message.
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+ColumnValuesOp(tvPtr, interp, objc, objv)
+    TreeView *tvPtr;
+    Tcl_Interp *interp;		/* Not used. */
+    int objc;
+    Tcl_Obj *CONST *objv;
+{
+    TreeViewColumn *columnPtr;
+    TreeViewEntry *entryPtr, *lastPtr = NULL, *firstPtr = NULL;
+    int isTree;
+    int mask;
+    Tcl_Obj *listObjPtr, *objPtr, *defObj;
+    char *string;
+
+    mask = 0;
+    defObj = NULL;
+    while (objc>4) {
+        string = Tcl_GetString(objv[3]);
+        if (string[0] == '-' && strcmp(string, "-visible") == 0) {
+            mask = ENTRY_MASK;
+            objv++;
+            objc--;
+        } else if (string[0] == '-' && strcmp(string, "-default") == 0) {
+            defObj = objv[4];
+            objv += 2;
+            objc -= 2;
+        } else {
+            break;
+        }
+    }
+    if (objc>6) {
+        Tcl_AppendResult(interp, "too many args", 0);
+        return TCL_ERROR;
+    }
+    if (Blt_TreeViewGetColumn(interp, tvPtr, objv[3], &columnPtr) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    isTree = (columnPtr == &tvPtr->treeColumn);
+
+    if (objc > 4 && Blt_TreeViewGetEntry(tvPtr, objv[4], &firstPtr) != TCL_OK) {
+        return TCL_ERROR;
+    }
+    if (objc > 5 && Blt_TreeViewGetEntry(tvPtr, objv[5], &lastPtr) != TCL_OK) {
+        return TCL_ERROR;
+    }
+    if (firstPtr == NULL) {
+        firstPtr = tvPtr->rootPtr;
+    }
+    if (mask && firstPtr == tvPtr->rootPtr) {
+        if ((tvPtr->flags & TV_HIDE_ROOT)) {
+            firstPtr = Blt_TreeViewNextEntry(firstPtr, mask);
+        }
+    } else if (mask  && (firstPtr->flags & mask)) {
+        firstPtr = Blt_TreeViewNextEntry(firstPtr, mask);
+    }
+    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **)NULL);
+    
+    for (entryPtr = firstPtr; entryPtr != NULL; ) {
+        if (!isTree) {
+            if (Blt_TreeGetValueByKey(NULL, tvPtr->tree, entryPtr->node, 
+                columnPtr->key, &objPtr) != TCL_OK) {
+                if (defObj == NULL) {
+                    objPtr = Tcl_NewStringObj("",0);
+                } else {
+                    objPtr = defObj;
+                }
+                Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+            } else {
+                Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+            }
+        } else {
+            objPtr = Tcl_NewStringObj(Blt_TreeNodeLabel(entryPtr->node),-1);
+            Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+        }
+        if (lastPtr && entryPtr == lastPtr) break;
+        entryPtr = Blt_TreeViewNextEntry(entryPtr, mask);
+    }
+    Tcl_SetObjResult(interp, listObjPtr);
+
     return TCL_OK;
 }
 
@@ -1190,8 +2190,44 @@ ColumnInvokeOp(tvPtr, interp, objc, objv)
  *	Move a column.
  *
  * .h column move field1 position
+ * NOT IMPLEMENTED;
  *----------------------------------------------------------------------
  */
+static int
+ColumnMoveOp(tvPtr, interp, objc, objv)
+    TreeView *tvPtr;
+    Tcl_Interp *interp;
+    int objc;			/* Not used. */
+    Tcl_Obj *CONST *objv;
+{
+    TreeViewColumn *columnPtr, *beforeColumn;
+    Blt_ChainLink *beforePtr;
+    char *string;
+    
+    if (Blt_TreeViewGetColumn(interp, tvPtr, objv[3], &columnPtr) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    if (columnPtr->linkPtr == NULL) {
+        return TCL_OK;
+    }
+    string = Tcl_GetString(objv[4]);
+    if (!strcmp(string, "end")) {
+        beforePtr = NULL;
+    } else if (Blt_TreeViewGetColumn(interp, tvPtr, objv[4], &beforeColumn) != TCL_OK) {
+        return TCL_ERROR;
+        
+    } else {
+        beforePtr = beforeColumn->linkPtr;
+    }
+    if (beforePtr == columnPtr->linkPtr) {
+        return TCL_OK;
+    }
+    Blt_ChainUnlinkLink(tvPtr->colChainPtr, columnPtr->linkPtr);
+    Blt_ChainLinkBefore(tvPtr->colChainPtr, columnPtr->linkPtr, beforePtr);
+    tvPtr->flags |= (TV_DIRTY | TV_LAYOUT);
+    Blt_TreeViewEventuallyRedraw(tvPtr);
+    return TCL_OK;
+}
 
 /*
  *----------------------------------------------------------------------
@@ -1211,11 +2247,35 @@ ColumnNamesOp(tvPtr, interp, objc, objv)
     Blt_ChainLink *linkPtr;
     Tcl_Obj *listObjPtr, *objPtr;
     TreeViewColumn *columnPtr;
+    int vis;
+    char *pattern = NULL;
 
+    vis = 0;
+    if (objc > 3) {
+        if (strcmp("-visible", Tcl_GetString(objv[3]))) {
+            if (objc>4) {
+                Tcl_AppendResult( interp, "expected -visible", (char*)NULL);
+                return TCL_ERROR;
+            } else {
+                pattern = Tcl_GetString(objv[3]);
+            }
+        } else {
+            vis =  1;
+            if (objc>4) {
+                pattern = Tcl_GetString(objv[4]);
+            }
+        }
+    }
     listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **)NULL);
     for(linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); linkPtr != NULL;
 	linkPtr = Blt_ChainNextLink(linkPtr)) {
 	columnPtr = Blt_ChainGetValue(linkPtr);
+	if (vis && columnPtr->hidden) {
+	    continue;
+	}
+	if (pattern != NULL && !Tcl_StringMatch(columnPtr->key, pattern)) {
+	    continue;
+	}
 	objPtr = Tcl_NewStringObj(columnPtr->key, -1);
 	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
     }
@@ -1269,8 +2329,224 @@ ColumnNearestOp(tvPtr, interp, objc, objv)
 	columnPtr = NULL;
     }
     if (columnPtr != NULL) {
-	Tcl_SetResult(interp, columnPtr->key, TCL_VOLATILE);
+	Tcl_SetObjResult(interp, Tcl_NewStringObj(columnPtr->key,-1));
     }
+    return TCL_OK;
+}
+
+/*ARGSUSED*/
+static int
+ColumnOffsetsOp(tvPtr, interp, objc, objv)
+    TreeView *tvPtr;
+    Tcl_Interp *interp;
+    int objc;			/* Not used. */
+    Tcl_Obj *CONST *objv;
+{
+    Tcl_Obj *listPtr;
+    Blt_ChainLink *linkPtr;
+    TreeViewColumn *columnPtr;
+    int x;
+    int vis;
+
+    vis = 0;
+    if (objc > 3) {
+        if (strcmp("-visible", Tcl_GetString(objv[3]))) {
+            Tcl_AppendResult( interp, "expected -visible", (char*)NULL);
+            return TCL_ERROR;
+        }
+        vis =  1;
+    }
+    
+    listPtr = Tcl_NewListObj(0,0);
+    for (linkPtr = Blt_ChainFirstLink(tvPtr->colChainPtr); 
+        linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
+        columnPtr = Blt_ChainGetValue(linkPtr);
+        if (vis && columnPtr->hidden) {
+            continue;
+        }
+        x = SCREENX(tvPtr, columnPtr->worldX);
+        Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewIntObj(x));
+    }
+    Tcl_SetObjResult(interp, listPtr);
+    return TCL_OK;
+
+}
+
+/* .t column bbox field entry */
+/*ARGSUSED*/
+static int
+ColumnBboxOp(tvPtr, interp, objc, objv)
+    TreeView *tvPtr;
+    Tcl_Interp *interp;
+    int objc;			/* Not used. */
+    Tcl_Obj *CONST *objv;
+{
+    Tcl_Obj *listPtr;
+    TreeViewColumn *colPtr;
+    TreeViewEntry *entryPtr = NULL;
+    int x, y, w, h, visible = 0;
+    const char *string;
+    int mw, mh;
+    mw = Tk_Width(tvPtr->tkwin) - tvPtr->padX;
+    mh = Tk_Height(tvPtr->tkwin) - tvPtr->padY;
+    
+    if (objc == 6) {
+        string = Tcl_GetString(objv[3]);
+        if (strcmp("-visible", string)) {
+            Tcl_AppendResult(interp, "expected -visible", 0);
+            return TCL_ERROR;
+        }
+        visible = 1;
+        objc--;
+        objv++;
+    }
+    if (objc != 5) {
+        Tcl_AppendResult(interp, "missing args", 0);
+        return TCL_ERROR;
+    }
+    if (Blt_TreeViewGetColumn(interp, tvPtr, objv[3], &colPtr) != TCL_OK ||
+        colPtr == NULL) {
+        return TCL_ERROR;
+    }
+    string = Tcl_GetString(objv[4]);
+    if (!strcmp(string, "-1")) {
+    } else if (Blt_TreeViewGetEntry(tvPtr, objv[4], &entryPtr) != TCL_OK ||
+        entryPtr == NULL) {
+        return TCL_ERROR;
+    }
+    if (tvPtr->flags & TV_LAYOUT) {
+        Blt_TreeViewComputeLayout(tvPtr);
+    }
+    if (entryPtr == NULL) {
+        if (!(tvPtr->flags & TV_SHOW_COLUMN_TITLES)) return TCL_OK;
+        listPtr = Tcl_NewListObj(0,0);
+        x = SCREENX(tvPtr, colPtr->worldX);
+        y = (tvPtr->yOffset + tvPtr->insetY);
+        w = colPtr->width;
+        h = tvPtr->titleHeight;
+        if (visible) {
+            if ((x+w) > mw) {
+                w = (mw-x-2);
+            }
+            if ((y+h) > mh) {
+                w = (mh-y-2);
+            }
+        }
+        Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewIntObj(x));
+        Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewIntObj(y));
+        Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewIntObj(w));
+        Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewIntObj(h));
+        Tcl_SetObjResult(interp, listPtr);
+        return TCL_OK;
+    }
+    if (Blt_TreeViewEntryIsHidden(entryPtr)) {
+        return TCL_OK;
+    }
+    listPtr = Tcl_NewListObj(0,0);
+    x = SCREENX(tvPtr, colPtr->worldX);
+    y = SCREENY(tvPtr, entryPtr->worldY);
+    w = colPtr->width;
+    h = entryPtr->height;
+    if (visible) {
+        if ((x+w) > mw) {
+            w = (mw-x-2);
+        }
+        if ((y+h) > mh) {
+            w = (mh-y-2);
+        }
+    }
+    Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewIntObj(x));
+    Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewIntObj(y));
+    Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewIntObj(w));
+    Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewIntObj(h));
+    Tcl_SetObjResult(interp, listPtr);
+    return TCL_OK;
+
+}
+
+/*ARGSUSED*/
+static int
+ColumnSeeOp(tvPtr, interp, objc, objv)
+    TreeView *tvPtr;
+    Tcl_Interp *interp;		/* Not used. */
+    int objc;
+    Tcl_Obj *CONST *objv;
+{
+    TreeViewColumn *colPtr;
+    int width;
+    Tk_Anchor anchor;
+    int left, right;
+    char *string;
+
+    string = Tcl_GetString(objv[3]);
+    anchor = TK_ANCHOR_W;	/* Default anchor is West */
+    if ((string[0] == '-') && (strcmp(string, "-anchor") == 0)) {
+	if (objc == 4) {
+	    Tcl_AppendResult(interp, "missing \"-anchor\" argument",
+		(char *)NULL);
+	    return TCL_ERROR;
+	}
+	if (Tk_GetAnchorFromObj(interp, objv[4], &anchor) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+	objc -= 2, objv += 2;
+    }
+    if (objc != 4) {
+        Tcl_AppendResult(interp, "wrong # args: should be \"",
+            "see ?-anchor anchor? tagOrId\"", (char *)NULL);
+            return TCL_ERROR;
+    }
+    if (Blt_TreeViewGetColumn(interp, tvPtr, objv[3], &colPtr) != TCL_OK ||
+        colPtr == NULL) {
+        return TCL_ERROR;
+    }
+    if (colPtr->hidden) {
+        return TCL_OK;
+    }
+    width = VPORTWIDTH(tvPtr);
+
+    left = tvPtr->xOffset;
+    right = tvPtr->xOffset + width;
+
+    if (colPtr->worldX >= left && (colPtr->worldX + colPtr->width) <= right) {
+        return TCL_OK;
+    }
+    if (colPtr->worldX < left) {
+        tvPtr->xOffset = colPtr->worldX;
+    } else {
+        tvPtr->xOffset = colPtr->worldX;
+    }
+    tvPtr->flags |= TV_XSCROLL;
+        
+#if 0
+    switch (anchor) {
+    case TK_ANCHOR_W:
+    case TK_ANCHOR_NW:
+    case TK_ANCHOR_SW:
+	x = 0;
+	break;
+    case TK_ANCHOR_E:
+    case TK_ANCHOR_NE:
+    case TK_ANCHOR_SE:
+	x = entryPtr->worldX + entryPtr->width + 
+	    ICONWIDTH(DEPTH(tvPtr, entryPtr->node)) - width;
+	break;
+    default:
+	if (entryPtr->worldX < left) {
+	    x = entryPtr->worldX;
+	} else if ((entryPtr->worldX + entryPtr->width) > right) {
+	    x = entryPtr->worldX + entryPtr->width - width;
+	} else {
+	    x = tvPtr->xOffset;
+	}
+	break;
+    }
+    if (x != tvPtr->xOffset) {
+	tvPtr->xOffset = x;
+	tvPtr->flags |= TV_XSCROLL;
+    }
+#endif
+    Blt_TreeViewEventuallyRedraw(tvPtr);
     return TCL_OK;
 }
 
@@ -1486,20 +2762,27 @@ ColumnResizeOp(tvPtr, interp, objc, objv)
 static Blt_OpSpec columnOps[] =
 {
     {"activate", 1, (Blt_Op)ColumnActivateOp, 3, 4, "?field?",},
-    {"bind", 1, (Blt_Op)ColumnBindOp, 4, 6, "tagName ?sequence command?",},
+    {"bbox", 2, (Blt_Op)ColumnBboxOp, 5, 6, "?-visible? field entry",},
+    {"bind", 2, (Blt_Op)ColumnBindOp, 4, 6, "tagName ?sequence command?",},
     {"cget", 2, (Blt_Op)ColumnCgetOp, 5, 5, "field option",},
     {"configure", 2, (Blt_Op)ColumnConfigureOp, 4, 0, 
 	"field ?option value?...",},
     {"current", 2, (Blt_Op)ColumnCurrentOp, 3, 3, "",},
     {"delete", 1, (Blt_Op)ColumnDeleteOp, 3, 0, "?field...?",},
-    {"highlight", 1, (Blt_Op)ColumnActivateOp, 3, 4, "?field?",},
+    {"index", 3, (Blt_Op)ColumnIndexOp, 4, 4, "field", },
     {"insert", 3, (Blt_Op)ColumnInsertOp, 5, 0, 
 	"position field ?field...? ?option value?...",},
     {"invoke", 3, (Blt_Op)ColumnInvokeOp, 4, 4, "field",},
-    {"names", 2, (Blt_Op)ColumnNamesOp, 3, 3, "",},
+    {"isset", 3, (Blt_Op)ColumnIssetOp, 3, 5, "?startOrTag? ?end?", },
+    {"istree", 3, (Blt_Op)ColumnIstreeOp, 4, 4, "field", },
+    {"move", 1, (Blt_Op)ColumnMoveOp, 5, 5, "src dest",},
+    {"names", 2, (Blt_Op)ColumnNamesOp, 3, 5, "?-visible? ?PATTERN?",},
     {"nearest", 2, (Blt_Op)ColumnNearestOp, 4, 5, "x ?y?",},
-    {"resize", 1, (Blt_Op)ColumnResizeOp, 3, 0, "arg",},
-};
+    {"offsets", 2, (Blt_Op)ColumnOffsetsOp, 3, 4, "?-visible?",},
+    {"resize", 1, (Blt_Op)ColumnResizeOp, 3, 0, "arg ...",},
+    {"see", 1, (Blt_Op)ColumnSeeOp, 4, 6, "field ?-anchor pos?",},
+    {"values", 1, (Blt_Op)ColumnValuesOp, 4, 9, "?-visible? ?-default value? field ?startOrTag? ?end?",},
+    };
 static int nColumnOps = sizeof(columnOps) / sizeof(Blt_OpSpec);
 
 /*
@@ -1572,23 +2855,43 @@ InvokeCompare(tvPtr, e1Ptr, e2Ptr, command)
 static TreeView *treeViewInstance;
 
 static int
-CompareEntries(a, b)
-    CONST void *a, *b;
+CompareEntry( CONST void *a, CONST void *b, Tcl_Obj *colName)
 {
     TreeView *tvPtr;
-    TreeViewEntry **e1PtrPtr = (TreeViewEntry **)a;
-    TreeViewEntry **e2PtrPtr = (TreeViewEntry **)b;
+    TreeViewColumn *columnPtr;
+    TreeViewEntry *e1Ptr, **e1PtrPtr = (TreeViewEntry **)a;
+    TreeViewEntry *e2Ptr, **e2PtrPtr = (TreeViewEntry **)b;
     Tcl_Obj *obj1, *obj2;
     char *s1, *s2;
-    int result;
+    int result, sType;
 
     tvPtr = (*e1PtrPtr)->tvPtr;
+    columnPtr = tvPtr->sortColumnPtr;
+    sType = tvPtr->sortType;
+    
     obj1 = (*e1PtrPtr)->dataObjPtr;
     obj2 = (*e2PtrPtr)->dataObjPtr;
+    if (colName != NULL) {
+        if (Blt_TreeViewGetColumn(NULL, tvPtr, colName, &columnPtr)
+            != TCL_OK) {
+            return 1;
+        }
+        e1Ptr = *e1PtrPtr;
+        e2Ptr = *e2PtrPtr;
+        if (Blt_TreeGetValueByKey(tvPtr->interp, tvPtr->tree,
+            e1Ptr->node, columnPtr->key, &obj1) != TCL_OK) {
+            return 1;
+        }
+        if (Blt_TreeGetValueByKey(tvPtr->interp, tvPtr->tree,
+            e2Ptr->node, columnPtr->key, &obj2) != TCL_OK) {
+                return 1;
+        }
+        sType = columnPtr->sortType;
+    }
     s1 = Tcl_GetString(obj1);
     s2 = Tcl_GetString(obj2);
     result = 0;
-    switch (tvPtr->sortType) {
+    switch (sType) {
     case SORT_TYPE_ASCII:
 	result = strcmp(s1, s2);
 	break;
@@ -1597,7 +2900,7 @@ CompareEntries(a, b)
 	{
 	    char *cmd;
 
-	    cmd = tvPtr->sortColumnPtr->sortCmd;
+	    cmd = columnPtr->sortCmd;
 	    if (cmd == NULL) {
 		cmd = tvPtr->sortCmd;
 	    }
@@ -1655,6 +2958,33 @@ CompareEntries(a, b)
     return result;
 }
 
+static int
+CompareEntries(a, b)
+    CONST void *a, *b;
+{
+    TreeView *tvPtr;
+    int result, i;
+    TreeViewEntry **e1PtrPtr = (TreeViewEntry **)a;
+    int objc;
+    Tcl_Obj **objv;
+    
+    result = CompareEntry(a, b, NULL);
+    
+    tvPtr = (*e1PtrPtr)->tvPtr;
+    if (result != 0) { return result; }
+    if (result != 0 || tvPtr->sortColumnPtr == NULL) return result;
+    if (tvPtr->sortColumnPtr->sortAltColumns == NULL) return result;
+		
+    if (Tcl_ListObjGetElements(NULL, tvPtr->sortColumnPtr->sortAltColumns,
+        &objc, &objv) != TCL_OK) {
+            return result;
+    }
+    for (i = 0; i < objc && result == 0; i++) {
+        result = CompareEntry(a, b, objv[i]);
+    }
+    
+    return result;
+}
 
 /*
  *----------------------------------------------------------------------
@@ -1670,20 +3000,21 @@ CompareEntries(a, b)
  *----------------------------------------------------------------------
  */
 static int
-CompareNodes(n1Ptr, n2Ptr)
-    Blt_TreeNode *n1Ptr, *n2Ptr;
+CompareNodes( Blt_TreeNode *n1Ptr, Blt_TreeNode *n2Ptr )
 {
     TreeView *tvPtr = treeViewInstance;
     TreeViewEntry *e1Ptr, *e2Ptr;
-
+    
     e1Ptr = Blt_NodeToEntry(tvPtr, *n1Ptr);
     e2Ptr = Blt_NodeToEntry(tvPtr, *n2Ptr);
+
+    TreeViewColumn *columnPtr = tvPtr->sortColumnPtr;
 
     /* Fetch the data for sorting. */
     if (tvPtr->sortType == SORT_TYPE_COMMAND) {
 	e1Ptr->dataObjPtr = Tcl_NewIntObj(Blt_TreeNodeId(*n1Ptr));
 	e2Ptr->dataObjPtr = Tcl_NewIntObj(Blt_TreeNodeId(*n2Ptr));
-    } else if (tvPtr->sortColumnPtr == &tvPtr->treeColumn) {
+    } else if (columnPtr == &tvPtr->treeColumn) {
 	Tcl_DString dString;
 
 	Tcl_DStringInit(&dString);
@@ -1702,14 +3033,14 @@ CompareNodes(n1Ptr, n2Ptr)
 	Blt_TreeKey key;
 	Tcl_Obj *objPtr;
 
-	key = tvPtr->sortColumnPtr->key;
+	key = columnPtr->key;
 	if (Blt_TreeViewGetData(e1Ptr, key, &objPtr) != TCL_OK) {
-	    e1Ptr->dataObjPtr = bltEmptyStringObjPtr;
+	    e1Ptr->dataObjPtr = Tcl_NewStringObj("",-1);
 	} else {
 	    e1Ptr->dataObjPtr = objPtr;
 	}
 	if (Blt_TreeViewGetData(e2Ptr, key, &objPtr) != TCL_OK) {
-	    e2Ptr->dataObjPtr = bltEmptyStringObjPtr;
+            e2Ptr->dataObjPtr = Tcl_NewStringObj("",-1);
 	} else {
 	    e2Ptr->dataObjPtr = objPtr;
 	}
@@ -1762,6 +3093,7 @@ SortCgetOp(tvPtr, interp, objc, objv)
     int objc;			/* Not used. */
     Tcl_Obj *CONST *objv;
 {
+    Blt_TreeViewOptsInit(tvPtr);
     return Blt_ConfigureValueFromObj(interp, tvPtr->tkwin, sortSpecs, 
 	(char *)tvPtr, objv[3], 0);
 }
@@ -1799,6 +3131,7 @@ SortConfigureOp(tvPtr, interp, objc, objv)
     char *oldCommand;
     TreeViewColumn *oldColumn;
 
+    Blt_TreeViewOptsInit(tvPtr);
     if (objc == 3) {
 	return Blt_ConfigureInfoFromObj(interp, tvPtr->tkwin, sortSpecs, 
 		(char *)tvPtr, (Tcl_Obj *)NULL, 0);
@@ -1810,7 +3143,7 @@ SortConfigureOp(tvPtr, interp, objc, objv)
     oldType = tvPtr->sortType;
     oldCommand = tvPtr->sortCmd;
     if (Blt_ConfigureWidgetFromObj(interp, tvPtr->tkwin, sortSpecs, 
-	objc - 3, objv + 3, (char *)tvPtr, BLT_CONFIG_OBJV_ONLY) != TCL_OK) {
+	objc - 3, objv + 3, (char *)tvPtr, BLT_CONFIG_OBJV_ONLY, NULL) != TCL_OK) {
 	return TCL_ERROR;
     }
     if ((oldColumn != tvPtr->sortColumnPtr) ||
@@ -1849,6 +3182,10 @@ SortOnceOp(tvPtr, interp, objc, objv)
 	    objv++, objc--;
 	    recurse = TRUE;
 	}
+    }
+    if (tvPtr->sortColumnPtr == NULL) {
+        Tcl_AppendResult(interp, "must select column to sort by", 0);
+        return TCL_ERROR;
     }
     for (i = 3; i < objc; i++) {
 	if (Blt_TreeViewGetEntry(tvPtr, objv[i], &entryPtr) != TCL_OK) {
@@ -1936,7 +3273,8 @@ SortApplyProc(node, clientData, order)
     TreeView *tvPtr = clientData;
 
     if (!Blt_TreeIsLeaf(node)) {
-	Blt_TreeSortNode(tvPtr->tree, node, CompareNodes);
+        treeViewInstance = tvPtr;
+        Blt_TreeSortNode(tvPtr->tree, node, CompareNodes);
     }
     return TCL_OK;
 }
@@ -1990,6 +3328,7 @@ Blt_TreeViewSortFlatView(tvPtr)
 	    if (entryPtr->fullName == NULL) {
 		Tcl_DString dString;
 
+		Tcl_DStringInit(&dString);
 		Blt_TreeViewGetFullName(tvPtr, entryPtr, TRUE, &dString);
 		entryPtr->fullName = Blt_Strdup(Tcl_DStringValue(&dString));
 		Tcl_DStringFree(&dString);
@@ -1998,15 +3337,33 @@ Blt_TreeViewSortFlatView(tvPtr)
 	    Tcl_IncrRefCount(entryPtr->dataObjPtr);
 	}
     } else {
-	Blt_TreeKey key;
+	/*Blt_TreeKey key;*/
 	Tcl_Obj *objPtr;
+	int isFmt;
 
-	key = tvPtr->sortColumnPtr->key;
-	for(p = tvPtr->flatArr; *p != NULL; p++) {
+	/*key = tvPtr->sortColumnPtr->key;*/
+	isFmt = Blt_TreeViewStyleIsFmt(tvPtr, tvPtr->sortColumnPtr->stylePtr);
+        for(p = tvPtr->flatArr; *p != NULL; p++) {
+            TreeViewValue *valuePtr;
+            TreeViewColumn *columnPtr = tvPtr->sortColumnPtr;
+             
 	    entryPtr = *p;
-	    if (Blt_TreeViewGetData(entryPtr, key, &objPtr) != TCL_OK) {
-		objPtr = bltEmptyStringObjPtr;
-	    }
+	   /* if (Blt_TreeViewGetData(entryPtr, key, &objPtr) != TCL_OK) {
+                objPtr =  Tcl_NewStringObj("",-1);
+	    }*/
+             if (isFmt &&
+                ((valuePtr = Blt_TreeViewFindValue(entryPtr, columnPtr))) &&
+                valuePtr->textPtr) {
+                 Tcl_DString dStr;
+                 Tcl_DStringInit(&dStr);
+                 Blt_TextLayoutValue( valuePtr->textPtr, &dStr);
+                 objPtr = Tcl_NewStringObj( Tcl_DStringValue(&dStr), -1);
+                 Tcl_DStringFree(&dStr);
+             } else if (Blt_TreeGetValueByKey(tvPtr->interp, tvPtr->tree,
+                entryPtr->node, columnPtr->key, &objPtr) != TCL_OK) {
+                     objPtr = Tcl_NewStringObj("",0);
+             }
+
 	    entryPtr->dataObjPtr = objPtr;
 	    Tcl_IncrRefCount(entryPtr->dataObjPtr);
 	}
@@ -2017,6 +3374,7 @@ Blt_TreeViewSortFlatView(tvPtr)
     /* Free all the Tcl_Objs used for comparison data. */
     for(p = tvPtr->flatArr; *p != NULL; p++) {
 	Tcl_DecrRefCount((*p)->dataObjPtr);
+         (*p)->dataObjPtr = NULL;
     }
     tvPtr->viewIsDecreasing = tvPtr->sortDecreasing;
     tvPtr->flags |= TV_SORTED;

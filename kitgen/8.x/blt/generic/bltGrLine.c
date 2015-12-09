@@ -896,30 +896,6 @@ static DistanceProc DistanceToX;
 static DistanceProc DistanceToLine;
 static Blt_TileChangedProc TileChangedProc;
 
-#ifdef WIN32
-
-static int tkpWinRopModes[] =
-{
-    R2_BLACK,			/* GXclear */
-    R2_MASKPEN,			/* GXand */
-    R2_MASKPENNOT,		/* GXandReverse */
-    R2_COPYPEN,			/* GXcopy */
-    R2_MASKNOTPEN,		/* GXandInverted */
-    R2_NOT,			/* GXnoop */
-    R2_XORPEN,			/* GXxor */
-    R2_MERGEPEN,		/* GXor */
-    R2_NOTMERGEPEN,		/* GXnor */
-    R2_NOTXORPEN,		/* GXequiv */
-    R2_NOT,			/* GXinvert */
-    R2_MERGEPENNOT,		/* GXorReverse */
-    R2_NOTCOPYPEN,		/* GXcopyInverted */
-    R2_MERGENOTPEN,		/* GXorInverted */
-    R2_NOTMASKPEN,		/* GXnand */
-    R2_WHITE			/* GXset */
-};
-
-#endif
-
 INLINE static int
 Round(x)
     register double x;
@@ -1566,6 +1542,11 @@ DestroyPen(graphPtr, penPtr)
     LinePen *lpPtr = (LinePen *)penPtr;
 
     Blt_FreeTextStyle(graphPtr->display, &(lpPtr->valueStyle));
+    /* TODO: Do this for all shadows.
+    if (lpPtr->valueStyle.shadow.color != NULL) {
+        Tk_FreeColor(lpPtr->valueStyle.shadow.color);
+    }
+    */
     if (lpPtr->symbol.outlineGC != NULL) {
 	Tk_FreeGC(graphPtr->display, lpPtr->symbol.outlineGC);
     }
@@ -2895,7 +2876,7 @@ MapLine(graphPtr, elemPtr)
 	if (linePtr->rTolerance > 0.0) {
 	    ReducePoints(&mapInfo, linePtr->rTolerance);
 	}
-	if ((linePtr->fillTile != NULL) || (linePtr->fillStipple != None)) {
+	if ((Blt_HasTile(linePtr->fillTile)) || (linePtr->fillStipple != None)) {
 	    MapFillArea(graphPtr, linePtr, &mapInfo);
 	}
 	if (graphPtr->classUid == bltStripElementUid) {
@@ -3080,8 +3061,9 @@ ClosestTrace(graphPtr, linePtr, searchPtr, distProc)
     register Point2D *pointPtr, *endPtr;
     int i;
 
-    i = -1;			/* Suppress compiler warning. */
+    i = searchPtr->index;
     minDist = searchPtr->dist;
+    closest = searchPtr->point;
     for (linkPtr = Blt_ChainFirstLink(linePtr->traces); linkPtr != NULL;
 	linkPtr = Blt_ChainNextLink(linkPtr)) {
 	tracePtr = Blt_ChainGetValue(linkPtr);
@@ -3135,8 +3117,9 @@ ClosestStrip(graphPtr, linePtr, searchPtr, distProc)
     int i;
     register Segment2D *s;
 
-    i = 0;
+    i = searchPtr->index;
     minDist = searchPtr->dist;
+    closest = searchPtr->point;
     s = linePtr->strips;
     for (count = 0; count < linePtr->nStrips; count++, s++) {
 	dist = (*distProc)(searchPtr->x, searchPtr->y, &(s->p), &(s->q), &b);
@@ -3452,11 +3435,11 @@ ConfigureLine(graphPtr, elemPtr)
     }
     linePtr->fillGC = newGC;
 
-    if (Blt_ConfigModified(linePtr->configSpecs, "-scalesymbols", 
+    if (Blt_ConfigModified(linePtr->configSpecs, graphPtr->interp, "-scalesymbols", 
 	(char *)NULL)) {
 	linePtr->flags |= (MAP_ITEM | SCALE_SYMBOL);
     }
-    if (Blt_ConfigModified(linePtr->configSpecs, "-pixels", "-trace", "-*data",
+    if (Blt_ConfigModified(linePtr->configSpecs, graphPtr->interp, "-pixels", "-trace", "-*data",
 	 "-smooth", "-map*", "-label", "-hide", "-x", "-y", "-areapattern",
 			   (char *)NULL)) {
 	linePtr->flags |= MAP_ITEM;
@@ -4533,7 +4516,7 @@ DrawNormalLine(graphPtr, drawable, elemPtr)
 	    points[count].y = (short int)pointPtr->y;
 	    count++;
 	}
-	if (linePtr->fillTile != NULL) {
+	if (Blt_HasTile(linePtr->fillTile)) {
 	    Blt_SetTileOrigin(graphPtr->tkwin, linePtr->fillTile, 0, 0);
 	    Blt_TilePolygon(graphPtr->tkwin, drawable, linePtr->fillTile, 
 			    points, linePtr->nFillPts);
@@ -4551,7 +4534,7 @@ DrawNormalLine(graphPtr, drawable, elemPtr)
 	     linkPtr = Blt_ChainNextLink(linkPtr)) {
 	    stylePtr = Blt_ChainGetValue(linkPtr);
 	    penPtr = stylePtr->penPtr;
-	    if ((stylePtr->nStrips > 0) && (penPtr->errorBarLineWidth > 0)) {
+	    if ((stylePtr->nStrips > 0) && (penPtr->traceWidth > 0)) {
 		Blt_Draw2DSegments(graphPtr->display, drawable, 
 			penPtr->traceGC, stylePtr->strips, stylePtr->nStrips);
 	    }
@@ -5030,7 +5013,7 @@ NormalLineToPostScript(graphPtr, psToken, elemPtr)
 	    Blt_AppendToPostScript(psToken, "Fill\n", (char *)NULL);
 	}
 	Blt_ForegroundToPostScript(psToken, linePtr->fillFgColor);
-	if (linePtr->fillTile != NULL) {
+	if (Blt_HasTile(linePtr->fillTile)) {
 	    /* TBA: Transparent tiling is the hard part. */
 	} else if ((linePtr->fillStipple != None) &&
 		   (linePtr->fillStipple != PATTERN_SOLID)) {

@@ -228,14 +228,14 @@ QuadCases(p, q, m1, m2, param, which)
     int which;
 {
     if ((which == 3) || (which == 4)) {	/* Parameters used in both 3 and 4 */
-	double mbar1, mbar2, mbar3, c1, d1, h1, j1, k1;
+	double mbar1, mbar2, mbar3, c1, d1, h1, j1a, k1;
 
 	c1 = p->x + (q->y - p->y) / m1;
 	d1 = q->x + (p->y - q->y) / m2;
 	h1 = c1 * 2.0 - p->x;
-	j1 = d1 * 2.0 - q->x;
+	j1a = d1 * 2.0 - q->x;
 	mbar1 = (q->y - p->y) / (h1 - p->x);
-	mbar2 = (p->y - q->y) / (j1 - q->x);
+	mbar2 = (p->y - q->y) / (j1a - q->x);
 
 	if (which == 4) {	/* Case 4. */
 	    Y1 = (p->x + c1) / 2.0;

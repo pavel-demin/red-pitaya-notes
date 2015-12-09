@@ -191,7 +191,8 @@ Blt_ColorImageToPhoto(src, photo)
     dest.offset[3] = Tk_Offset(Pix32, Alpha); 
     dest.pixelPtr = (unsigned char *)Blt_ColorImageBits(src);
     Tk_PhotoSetSize(photo, width, height);
-    Tk_PhotoPutBlock(photo, &dest, 0, 0, width, height);
+    /*Tk_PhotoPutBlock(photo, &dest, 0, 0, width, height); */
+    Tk_PhotoPutBlock_Panic(photo, &dest, 0, 0, width, height, TK_PHOTO_COMPOSITE_SET);
 }
 
 /*
@@ -936,6 +937,92 @@ ZoomImageHorizontally(src, dest, filterPtr)
     Blt_Free(samples);
 }
 
+/*
+ *----------------------------------------------------------------------
+ *
+ * Blt_BlurColorImage --
+ *
+ *	Blur an image.
+ *
+ * Results:
+ *      Returns the resampled color image. The original color image
+ *	is left intact.
+ *
+ *----------------------------------------------------------------------
+ */
+int
+Blt_BlurColorImage(srcPhoto, dstPhoto, radius)
+    Tk_PhotoHandle srcPhoto;
+    Tk_PhotoHandle dstPhoto;
+    int radius;
+{
+
+    int width, height;
+    register Pix32 *src, *dst;
+    unsigned* precalc;
+    double mul;
+    int channel;
+    int iteration;
+
+    Blt_ColorImage srcPtr, dstPtr;
+
+    srcPtr = Blt_PhotoToColorImage(srcPhoto);
+    dstPtr = Blt_PhotoToColorImage(dstPhoto);
+
+    width = Blt_ColorImageWidth(srcPtr);
+    height = Blt_ColorImageHeight(srcPtr);
+    precalc = (unsigned*)Blt_Malloc(width*height*sizeof(unsigned));
+
+    src = Blt_ColorImageBits(srcPtr);
+    dst = Blt_ColorImageBits(dstPtr);
+    
+    mul = 1.f/((radius*2)*(radius*2));
+
+    memcpy( dst, src, width*height*4 );
+
+    for ( iteration = 0; iteration < 3; iteration++ ) {
+        for( channel = 0; channel < 4; channel++ ) {
+            int x1,y1a;
+
+            int pind;
+            unsigned* pre;
+            pre = precalc;
+
+            pind = 0;
+            for (y1a=0;y1a<height;y1a++) {
+                for (x1=0;x1<width;x1++) {
+                    int tot;
+                    tot = src[pind].channel[channel];
+                    if (x1>0) tot+=pre[-1];
+                    if (y1a>0) tot+=pre[-width];
+                    if (x1>0 && y1a>0) tot-=pre[-width-1];
+                    *pre++=tot;
+                    pind ++;
+                }
+            }
+
+            pind = (int)radius * width + (int)radius;
+            for (y1a=radius;y1a<height-radius;y1a++) {
+                for (x1=radius;x1<width-radius;x1++) {
+                    int l, t, r, b, tot;
+                    l = x1 < radius ? 0 : x1 - radius;
+                    t = y1a < radius ? 0 : y1a - radius;
+                    r = x1 + radius >= width ? width - 1 : x1 + radius;
+                    b = y1a + radius >= height ? height - 1 : y1a + radius;
+                    tot = precalc[r+b*width] + precalc[l+t*width] - 
+                    precalc[l+b*width] - precalc[r+t*width];
+                    dst[pind].channel[channel] = (unsigned char)(tot*mul);
+                    pind++;
+                }
+                pind += (int)radius * 2;
+            }
+        }
+        memcpy( src, dst, width*height*4 );
+    }
+    Blt_Free(precalc);
+    Blt_ColorImageToPhoto(dstPtr, dstPhoto);
+    return TCL_OK;
+}
 /*
  *----------------------------------------------------------------------
  *
@@ -1749,7 +1836,7 @@ Rotate45(src, theta, bgColor)
 /* 
  * ---------------------------------------------------------------------------
  *
- * CopyColorImage --
+ * Blt_CopyColorImage --
  *
  *	Creates a copy of the given color image.  
  *
@@ -1758,8 +1845,8 @@ Rotate45(src, theta, bgColor)
  *
  * --------------------------------------------------------------------------- 
  */
-static Blt_ColorImage
-CopyColorImage(src)
+Blt_ColorImage
+Blt_CopyColorImage(src)
     Blt_ColorImage src;
 {
     unsigned int width, height;
@@ -1952,7 +2039,7 @@ Blt_RotateColorImage(src, angle)
 
     case ROTATE_0:		/* 0 degrees */
 	if (angle == 0.0) {
-	    tmp = CopyColorImage(src); /* Make a copy of the source. */
+	    tmp = Blt_CopyColorImage(src); /* Make a copy of the source. */
 	} 
 	break;
     }
@@ -2532,6 +2619,138 @@ Blt_QuantizeColorImage(src, dest, reduceColors)
     Blt_Free(cubes);
     MapColors(src, dest, lut);
     Blt_Free(lut);
+    return TCL_OK;
+}
+
+int
+Blt_TransColorImage(src, dest, color, alpha, flags)
+    Blt_ColorImage src, dest;	/* Source and destination images. */
+    Pix32 *color;		/* Color. */
+    int alpha;
+    int flags;
+{
+    int width, height;
+    int count, same;
+    Pix32 *srcPtr, *destPtr, *endPtr;
+    unsigned char origAlpha;
+
+    width = Blt_ColorImageWidth(src);
+    height = Blt_ColorImageHeight(src);
+    count = width * height;
+    
+    srcPtr = Blt_ColorImageBits(src);
+    destPtr = Blt_ColorImageBits(dest);
+    if (color != NULL) {
+        for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, destPtr++) {
+            origAlpha = srcPtr->Alpha;
+            destPtr->value = srcPtr->value;
+            same = (srcPtr->Red == color->Red && srcPtr->Green == color->Green &&
+                srcPtr->Blue == color->Blue);
+            if ((flags&1)) {
+                if ((!same) && (origAlpha != (unsigned char)-1)) {
+                    origAlpha = alpha;
+                }
+            } else {
+                if (same) {
+                    origAlpha = alpha;
+                }
+            }
+            destPtr->Alpha = origAlpha;
+        }
+    } else {
+        for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, destPtr++) {
+            origAlpha = srcPtr->Alpha;
+            destPtr->value = srcPtr->value;
+            if (origAlpha == (unsigned char)-1) {
+                destPtr->Alpha = alpha;
+            }
+        }
+    }
+    return TCL_OK;
+}
+
+int
+Blt_RecolorImage(src, dest, oldColor, newColor, alpha)
+    Blt_ColorImage src, dest;	/* Source and destination images. */
+    Pix32 *oldColor;
+    Pix32 *newColor;
+    int alpha;
+{
+    int width, height;
+    int count;
+    Pix32 *srcPtr, *destPtr, *endPtr;
+    
+    width = Blt_ColorImageWidth(src);
+    height = Blt_ColorImageHeight(src);
+    count = width * height;
+    
+    srcPtr = Blt_ColorImageBits(src);
+    destPtr = Blt_ColorImageBits(dest);
+    for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, destPtr++) {
+	destPtr->value = srcPtr->value;
+	if (srcPtr->Red == oldColor->Red && srcPtr->Green == oldColor->Green &&
+	    srcPtr->Blue == oldColor->Blue) {
+	    unsigned char oldAlpha;
+	    oldAlpha = srcPtr->Alpha;
+	    destPtr->value = newColor->value;
+            if (alpha>=0) {
+                destPtr->Alpha = alpha;
+            } else {
+                destPtr->Alpha = oldAlpha;
+            }
+	}
+    }
+    return TCL_OK;
+}
+
+int
+Blt_MergeColorImage(src, src2, dest, opacity, opacity2, withColor)
+    Blt_ColorImage src, src2, dest;	/* Source and destination images. */
+    double opacity;
+    double opacity2;
+    Pix32 *withColor;
+{
+    int width, height;
+    int count;
+    Pix32 *srcPtr, *src2Ptr, *destPtr, *endPtr;
+    double a1, a2;
+
+    width = Blt_ColorImageWidth(src);
+    height = Blt_ColorImageHeight(src);
+    count = width * height;
+    srcPtr = Blt_ColorImageBits(src);
+    src2Ptr = Blt_ColorImageBits(src2);
+    destPtr = Blt_ColorImageBits(dest);
+
+    if (withColor != NULL) {
+        for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, src2Ptr++, destPtr++) {
+            if (withColor->value == srcPtr->value) {
+                destPtr->value = src2Ptr->value;
+            } else {
+                destPtr->value = srcPtr->value;
+            }
+        }
+        return TCL_OK;
+    }
+
+    opacity = (opacity<0.0 ? 0.0 : (opacity>1.0?1.0:opacity));
+    a2 = opacity;
+    if (opacity2<0.0) {
+        a1 = (1.0 - a2);
+    } else {
+        a1 = (opacity2<0.0 ? 0.0 : (opacity2>1.0?1.0:opacity2));
+    }
+    
+    for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, src2Ptr++, destPtr++) {
+	if (src2Ptr->rgba.alpha == 0) {
+	  destPtr->value = srcPtr->value;
+	} else {
+	    destPtr->Red = (int)(0.5+srcPtr->rgba.red * a1 + src2Ptr->rgba.red * a2);
+	    destPtr->Green = (int)(0.5+srcPtr->rgba.green * a1 + src2Ptr->rgba.green * a2);
+	    destPtr->Blue = (int)(0.5+srcPtr->rgba.blue * a1 + src2Ptr->rgba.blue * a2);
+	    destPtr->rgba.alpha = -1;
+	}
+    }
     return TCL_OK;
 }
 

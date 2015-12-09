@@ -413,12 +413,12 @@ ConfigureBusy(interp, busyPtr, argc, argv)
     Tcl_Interp *interp;
     Busy *busyPtr;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     Tk_Cursor oldCursor;
 
     oldCursor = busyPtr->cursor;
-    if (Tk_ConfigureWidget(interp, busyPtr->tkRef, configSpecs, argc, argv,
+    if (Blt_ConfigureWidget(interp, busyPtr->tkRef, configSpecs, argc, argv,
 	    (char *)busyPtr, 0) != TCL_OK) {
 	return TCL_ERROR;
     }

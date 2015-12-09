@@ -27,7 +27,8 @@ typedef struct {
 typedef enum {
     BLT_SWITCH_BOOLEAN, BLT_SWITCH_INT, BLT_SWITCH_INT_POSITIVE,
     BLT_SWITCH_INT_NONNEGATIVE, BLT_SWITCH_DOUBLE, BLT_SWITCH_STRING, 
-    BLT_SWITCH_LIST, BLT_SWITCH_FLAG, BLT_SWITCH_VALUE, BLT_SWITCH_CUSTOM, 
+    BLT_SWITCH_LIST, BLT_SWITCH_FLAG, BLT_SWITCH_VALUE, 
+    BLT_SWITCH_OBJ, BLT_SWITCH_CUSTOM, 
     BLT_SWITCH_END
 } Blt_SwitchTypes;
 
@@ -53,6 +54,7 @@ typedef struct {
 #define BLT_SWITCH_OBJV_ONLY		(1<<0)
 #define BLT_SWITCH_ARGV_PARTIAL		(1<<1)
 #define BLT_SWITCH_OBJV_PARTIAL		(1<<1)
+#define BLT_SWITCH_EXACT		(1<<2)
 /*
  * Possible flag values for Blt_SwitchSpec structures.  Any bits at
  * or above BLT_SWITCH_USER_BIT may be used by clients for selecting
@@ -66,10 +68,13 @@ typedef struct {
 extern int Blt_ProcessSwitches _ANSI_ARGS_((Tcl_Interp *interp, 
 	Blt_SwitchSpec *specs, int argc, char **argv, char *record, int flags));
 
-extern void Blt_FreeSwitches _ANSI_ARGS_((Blt_SwitchSpec *specs, char *record, 
+extern void Blt_FreeSwitches _ANSI_ARGS_((Tcl_Interp *interp, Blt_SwitchSpec *specs, char *record, 
 	int flags));
 
 extern int Blt_SwitchChanged _ANSI_ARGS_(TCL_VARARGS(Blt_SwitchSpec *, specs));
+
+extern Blt_SwitchSpec *	Blt_GetCachedSwitchSpecs _ANSI_ARGS_((Tcl_Interp *interp,
+    const Blt_SwitchSpec *staticSpecs));
 
 #if (TCL_VERSION_NUMBER >= _VERSION(8,0,0)) 
 extern int Blt_ProcessObjSwitches _ANSI_ARGS_((Tcl_Interp *interp, 

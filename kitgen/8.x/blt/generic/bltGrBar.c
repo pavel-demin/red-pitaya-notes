@@ -812,7 +812,7 @@ ConfigureBar(graphPtr, elemPtr)
 	stylePtr = Blt_ChainGetValue(linkPtr);
 	stylePtr->penPtr = barPtr->normalPenPtr;
     }
-    if (Blt_ConfigModified(barPtr->specsPtr, "-barwidth", "-*data",
+    if (Blt_ConfigModified(barPtr->specsPtr, graphPtr->interp, "-barwidth", "-*data",
 	    "-map*", "-label", "-hide", "-x", "-y", (char *)NULL)) {
 	barPtr->flags |= MAP_ITEM;
     }
@@ -2197,13 +2197,13 @@ Blt_InitFreqTable(graphPtr)
 	    if (isNew) {
 		count = 1;
 	    } else {
-		count = (int)Blt_GetHashValue(hPtr);
+		count = (intptr_t)Blt_GetHashValue(hPtr);
 		if (count == 1) {
 		    nStacks++;
 		}
 		count++;
 	    }
-	    Blt_SetHashValue(hPtr, (ClientData)count);
+	    Blt_SetHashValue(hPtr, (ClientData)(intptr_t)count);
 	}
     }
     if (nSegs == 0) {
@@ -2219,12 +2219,12 @@ Blt_InitFreqTable(graphPtr)
 	infoPtr = graphPtr->freqArr;
 	for (hPtr = Blt_FirstHashEntry(&freqTable, &cursor); hPtr != NULL;
 	    hPtr = Blt_NextHashEntry(&cursor)) {
-	    count = (int)Blt_GetHashValue(hPtr);
+	    count = (intptr_t)Blt_GetHashValue(hPtr);
 	    keyPtr = (FreqKey *)Blt_GetHashKey(&freqTable, hPtr);
 	    if (count > 1) {
 		h2Ptr = Blt_CreateHashEntry(&(graphPtr->freqTable),
 		    (char *)keyPtr, &isNew);
-		count = (int)Blt_GetHashValue(hPtr);
+		count = (intptr_t)Blt_GetHashValue(hPtr);
 		infoPtr->freq = count;
 		infoPtr->axes = keyPtr->axes;
 		Blt_SetHashValue(h2Ptr, infoPtr);

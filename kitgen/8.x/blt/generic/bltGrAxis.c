@@ -669,7 +669,7 @@ StringToTicks(clientData, interp, tkwin, string, widgRec, offset)
     char *widgRec;		/* Pointer to structure record. */
     int offset;			/* Offset of field in structure. */
 {
-    unsigned int mask = (unsigned int)clientData;
+    unsigned int mask = (uintptr_t)clientData;
     Axis *axisPtr = (Axis *)widgRec;
     Ticks **ticksPtrPtr = (Ticks **) (widgRec + offset);
     int nTicks;
@@ -1268,39 +1268,39 @@ FixAxisRange(axisPtr)
  * ----------------------------------------------------------------------
  */
 static double
-NiceNum(x, round)
+NiceNum(x, doround)
     double x;
-    int round;			/* If non-zero, round. Otherwise take ceiling
+    int doround;			/* If non-zero, round. Otherwise take ceiling
 				 * of value. */
 {
     double expt;		/* Exponent of x */
     double frac;		/* Fractional part of x */
-    double nice;		/* Nice, rounded fraction */
+    double fnice;		/* Nice, rounded fraction */
 
     expt = floor(log10(x));
     frac = x / EXP10(expt);	/* between 1 and 10 */
-    if (round) {
+    if (doround) {
 	if (frac < 1.5) {
-	    nice = 1.0;
+	    fnice = 1.0;
 	} else if (frac < 3.0) {
-	    nice = 2.0;
+	    fnice = 2.0;
 	} else if (frac < 7.0) {
-	    nice = 5.0;
+	    fnice = 5.0;
 	} else {
-	    nice = 10.0;
+	    fnice = 10.0;
 	}
     } else {
 	if (frac <= 1.0) {
-	    nice = 1.0;
+	    fnice = 1.0;
 	} else if (frac <= 2.0) {
-	    nice = 2.0;
+	    fnice = 2.0;
 	} else if (frac <= 5.0) {
-	    nice = 5.0;
+	    fnice = 5.0;
 	} else {
-	    nice = 10.0;
+	    fnice = 10.0;
 	}
     }
-    return nice * EXP10(expt);
+    return fnice * EXP10(expt);
 }
 
 static Ticks *
@@ -1426,7 +1426,15 @@ LogScaleAxis(axisPtr, min, max)
 
     nMajor = nMinor = 0;
     majorStep = minorStep = 0.0;
-    if (min < max) {
+    if (min > max) {
+	double m;
+	m = min;
+	min = max;
+	max = m;
+    } else if (min == max) {
+	max = min + 1.0;
+    }
+    /* if (min < max) { */
 	min = (min != 0.0) ? log10(FABS(min)) : 0.0;
 	max = (max != 0.0) ? log10(FABS(max)) : 1.0;
 	
@@ -1474,7 +1482,7 @@ LogScaleAxis(axisPtr, min, max)
 	     (DEFINED(axisPtr->reqMax)))) {
 	    tickMax = max;
 	}
-    }
+    /* } */
     axisPtr->majorSweep.step = majorStep;
     axisPtr->majorSweep.initial = floor(tickMin);
     axisPtr->majorSweep.nSteps = nMajor;
@@ -1556,7 +1564,15 @@ LinearScaleAxis(axisPtr, min, max)
 
     nTicks = 0;
     tickMin = tickMax = 0.0;
-    if (min < max) {
+    if (min > max) {
+	double m;
+	m = min;
+	min = max;
+	max = m;
+    } else if (min == max) {
+	max = min + 1.0;
+    }
+    /* if (min < max) { */
 	range = max - min;
 	
 	/* Calculate the major tick stepping. */
@@ -1578,7 +1594,7 @@ LinearScaleAxis(axisPtr, min, max)
 	axisMax = tickMax = ceil(max / step) * step + 0.0;
 	
 	nTicks = Round((tickMax - tickMin) / step) + 1;
-    }
+    /* } */
     axisPtr->majorSweep.step = step;
     axisPtr->majorSweep.initial = tickMin;
     axisPtr->majorSweep.nSteps = nTicks;
@@ -2264,8 +2280,12 @@ GetAxisScrollInfo(interp, argc, argv, offsetPtr, windowSize, scrollUnits)
     c = argv[0][0];
     length = strlen(argv[0]);
     if ((c == 's') && (strncmp(argv[0], "scroll", length) == 0)) {
-	assert(argc == 3);
-	/* scroll number unit/page */
+	/* assert(argc == 3); */
+         if (argc != 3) {
+             Tcl_AppendResult(interp, "expected arg", 0);
+             return TCL_ERROR;
+         }
+         /* scroll number unit/page */
 	if (Tcl_GetInt(interp, argv[1], &count) != TCL_OK) {
 	    return TCL_ERROR;
 	}
@@ -2283,7 +2303,11 @@ GetAxisScrollInfo(interp, argc, argv, offsetPtr, windowSize, scrollUnits)
 	}
 	offset += fract;
     } else if ((c == 'm') && (strncmp(argv[0], "moveto", length) == 0)) {
-	assert(argc == 2);
+	/*assert(argc == 2);*/
+	if (argc != 2) {
+	    Tcl_AppendResult(interp, "expected arg", 0);
+	    return TCL_ERROR;
+	}
 	/* moveto fraction */
 	if (Tcl_GetDouble(interp, argv[1], &fract) != TCL_OK) {
 	    return TCL_ERROR;
@@ -3131,7 +3155,7 @@ ConfigureAxis(graphPtr, axisPtr)
      * options have changed.  
      */
     graphPtr->flags |= REDRAW_WORLD;
-    if (!Blt_ConfigModified(configSpecs, "-*color", "-background", "-bg",
+    if (!Blt_ConfigModified(configSpecs, graphPtr->interp, "-*color", "-background", "-bg",
 		    (char *)NULL)) {
 	graphPtr->flags |= (MAP_WORLD | RESET_AXES);
 	axisPtr->flags |= AXIS_DIRTY;
@@ -3300,6 +3324,21 @@ Blt_DestroyAxes(graphPtr)
     Blt_ChainDestroy(graphPtr->axes.displayList);
 }
 
+int Blt_ConfigureAxes(graphPtr)
+    Graph *graphPtr;
+{
+    Blt_HashEntry *hPtr;
+    Blt_HashSearch cursor;
+    Axis *axisPtr;
+    
+    for (hPtr = Blt_FirstHashEntry(&graphPtr->axes.table, &cursor);
+    hPtr != NULL; hPtr = Blt_NextHashEntry(&cursor)) {
+        axisPtr = (Axis *)Blt_GetHashValue(hPtr);
+        ConfigureAxis(graphPtr, axisPtr);
+    }
+    return TCL_OK;
+}
+
 int
 Blt_DefaultAxes(graphPtr)
     Graph *graphPtr;
@@ -3413,7 +3452,7 @@ ConfigureOp(graphPtr, axisPtr, argc, argv)
     Graph *graphPtr;
     Axis *axisPtr;
     int argc;
-    char *argv[];
+    CONST char *argv[];
 {
     int flags;
 
@@ -3425,7 +3464,7 @@ ConfigureOp(graphPtr, axisPtr, argc, argv)
 	return Tk_ConfigureInfo(graphPtr->interp, graphPtr->tkwin, configSpecs,
 	    (char *)axisPtr, argv[0], flags);
     }
-    if (Tk_ConfigureWidget(graphPtr->interp, graphPtr->tkwin, configSpecs,
+    if (Blt_ConfigureWidget(graphPtr->interp, graphPtr->tkwin, configSpecs,
 	    argc, argv, (char *)axisPtr, flags) != TCL_OK) {
 	return TCL_ERROR;
     }
@@ -3433,7 +3472,7 @@ ConfigureOp(graphPtr, axisPtr, argc, argv)
 	return TCL_ERROR;
     }
     if (axisPtr->flags & AXIS_ONSCREEN) {
-	if (!Blt_ConfigModified(configSpecs, "-*color", "-background", "-bg",
+	if (!Blt_ConfigModified(configSpecs, graphPtr->interp, "-*color", "-background", "-bg",
 				(char *)NULL)) {
 	    graphPtr->flags |= REDRAW_BACKING_STORE;
 	}
@@ -3647,7 +3686,8 @@ UseOp(graphPtr, axisPtr, argc, argv)
     Blt_Uid classUid;
     int margin;
 
-    margin = (int)argv[-1];
+    /* TODO: fix bug where "$g xaxis x2" leaves x unavailable. */
+    margin = (intptr_t)argv[-1];
     chainPtr = graphPtr->margins[margin].axes;
     if (argc == 0) {
 	for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr!= NULL;
@@ -4190,11 +4230,19 @@ Blt_AxisOp(graphPtr, margin, argc, argv)
     if (proc == NULL) {
 	return TCL_ERROR;
     }
-    argv[2] = (char *)margin; /* Hack. Slide a reference to the margin in 
-			       * the argument list. Needed only for UseOp.
-			       */
-    axisPtr = Blt_GetFirstAxis(graphPtr->margins[margin].axes);
-    result = (*proc)(graphPtr, axisPtr, argc - 3, argv + 3);
+    if (proc == UseOp) {
+ 	argv[2] = (char *)(intptr_t)margin; /* Hack. Slide a reference to the margin in 
+ 				   * the argument list. Needed only for UseOp.
+ 				   */
+ 	result = (*proc)(graphPtr, NULL, argc - 3, argv +3);
+     } else {
+ 	axisPtr = Blt_GetFirstAxis(graphPtr->margins[margin].axes);
+ 	if (axisPtr == NULL) {
+ 	    Tcl_AppendResult(graphPtr->interp, "bad axis", (char *)NULL);
+ 	    return TCL_ERROR;
+ 	}
+ 	result = (*proc)(graphPtr, axisPtr, argc - 3, argv + 3);
+    }
     return result;
 }
 

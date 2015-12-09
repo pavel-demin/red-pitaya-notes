@@ -191,6 +191,13 @@ AppendOp(vPtr, interp, argc, argv)
 	    return TCL_ERROR;
 	}
     }
+    if (vPtr->numcols && (vPtr->length%vPtr->numcols)) {
+        char *str = "0";
+        int add = (vPtr->numcols-(vPtr->length%vPtr->numcols));
+        for (i=0; i<add; i++) {
+            AppendList(vPtr, 1, &str);
+        }
+    }
     if (argc > 2) {
 	if (vPtr->flush) {
 	    Blt_VectorFlushCache(vPtr);
@@ -293,6 +300,13 @@ DeleteOp(vPtr, interp, argc, argv)
     }
     Blt_Free(unsetArr);
     vPtr->length = count;
+    if (vPtr->numcols && (vPtr->length%vPtr->numcols)) {
+        char *str = "0";
+        int add = (vPtr->numcols-(vPtr->length%vPtr->numcols));
+        for (i=0; i<add; i++) {
+            AppendList(vPtr, 1, &str);
+        }
+    }
     if (vPtr->flush) {
 	Blt_VectorFlushCache(vPtr);
     }
@@ -1872,8 +1886,13 @@ Blt_VectorVarTrace(clientData, interp, part1, part2, flags)
 	}
 	return NULL;
     }
-    if (Blt_VectorGetIndexRange(interp, vPtr, part2, INDEX_ALL_FLAGS, 
-		&indexProc) != TCL_OK) {
+    if (Blt_VectorGetIndexRange(interp, vPtr, part2,
+            INDEX_ALL_FLAGS|INDEX_VAR_TRACE,
+            &indexProc) != TCL_OK) {
+        if (!strcmp("active",part2)) {
+            /* TkTable stores active cell here. */
+            return TCL_OK;
+        }                    
 	goto error;
     }
     first = vPtr->first, last = vPtr->last;
@@ -1883,13 +1902,19 @@ Blt_VectorVarTrace(clientData, interp, part1, part2, flags)
 	char *newValue;
 
 	if (first == SPECIAL_INDEX) { /* Tried to set "min" or "max" */
-	    return "read-only index";
+	    if (indexProc != NULL) {
+                return "read-only index";
+            } else {
+                return TCL_OK;
+            }
 	}
 	newValue = Tcl_GetVar2(interp, part1, part2, varFlags);
 	if (newValue == NULL) {
 	    goto error;
 	}
-	if (Tcl_ExprDouble(interp, newValue, &value) != TCL_OK) {
+         if (!strlen(Tcl_GetString(objPtr))) {
+             value = 0.0;
+         } else if (Tcl_ExprDouble(interp, newValue, &value) != TCL_OK) {
 	    if ((last == first) && (first >= 0)) {
 		/* Single numeric index. Reset the array element to
 		 * its old value on errors */
@@ -1945,6 +1970,9 @@ Blt_VectorVarTrace(clientData, interp, part1, part2, flags)
     } else if (flags & TCL_TRACE_UNSETS) {
 	register int i, j;
 
+        if (vPtr->numcols) {
+            return NULL;
+        }
 	if ((first == vPtr->length) || (first == SPECIAL_INDEX)) {
 	    return "special vector index";
 	}

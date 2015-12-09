@@ -45,7 +45,6 @@ typedef struct {
     double min, max;		/* Minimum and maximum values in the vector */
     int dirty;			/* Indicates if the vector has been updated */
     int reserved;		/* Reserved for future use */
-
 } Blt_Vector;
 
 typedef double (Blt_VectorIndexProc) _ANSI_ARGS_((Blt_Vector * vecPtr));
@@ -53,7 +52,8 @@ typedef double (Blt_VectorIndexProc) _ANSI_ARGS_((Blt_Vector * vecPtr));
 typedef enum {
     BLT_MATH_FUNC_SCALAR = 1,	/* The function returns a single double
 				 * precision value. */
-    BLT_MATH_FUNC_VECTOR	/* The function processes the entire vector. */
+    BLT_MATH_FUNC_VECTOR,	/* The function processes the entire vector. */
+    BLT_MATH_FUNC_MATRIX	/* The function processes as a matrix. */
 } Blt_MathFuncType;
 
 /*
@@ -71,12 +71,14 @@ typedef enum {
  * break things by writing into the vector when other clients are
  * using it.  Use Blt_ResetVector to get around this.  At least the
  * macros are a reminder it isn't really safe to reset the data
- * fields, except by the API routines.
+ * fields, except by the API routines.  
  */
 #define Blt_VecData(v)		((v)->valueArr)
 #define Blt_VecLength(v)	((v)->numValues)
 #define Blt_VecSize(v)		((v)->arraySize)
 #define Blt_VecDirty(v)		((v)->dirty)
+
+#ifndef USE_BLT_STUBS
 
 EXTERN double Blt_VecMin _ANSI_ARGS_((Blt_Vector *vPtr));
 EXTERN double Blt_VecMax _ANSI_ARGS_((Blt_Vector *vPtr));
@@ -101,6 +103,9 @@ EXTERN int Blt_VectorNotifyPending _ANSI_ARGS_((Blt_VectorId clientId));
 EXTERN int Blt_CreateVector _ANSI_ARGS_((Tcl_Interp *interp, char *vecName,
 	int size, Blt_Vector ** vecPtrPtr));
 
+EXTERN int Blt_CreateVector2 _ANSI_ARGS_((Tcl_Interp *interp, char *vecName,
+	char *cmdName, char *varName, int size, Blt_Vector ** vecPtrPtr));
+
 EXTERN int Blt_GetVector _ANSI_ARGS_((Tcl_Interp *interp, char *vecName,
 	Blt_Vector **vecPtrPtr));
 
@@ -116,7 +121,13 @@ EXTERN int Blt_DeleteVectorByName _ANSI_ARGS_((Tcl_Interp *interp,
 
 EXTERN int Blt_DeleteVector _ANSI_ARGS_((Blt_Vector *vecPtr));
 
-EXTERN void Blt_InstallIndexProc _ANSI_ARGS_((Tcl_Interp *interp,
+EXTERN int Blt_ExprVector _ANSI_ARGS_((Tcl_Interp *interp, char *expression,
+	Blt_Vector *vecPtr));
+
+EXTERN void Blt_InstallIndexProc _ANSI_ARGS_((Tcl_Interp *interp, 
 	char *indexName, Blt_VectorIndexProc * procPtr));
 
+#else
+#include "bltDecls.h"
+#endif /* USE_BLT_STUBS */
 #endif /* _BLT_VECTOR_H */

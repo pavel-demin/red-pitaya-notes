@@ -17,7 +17,7 @@
  * 
  */
 
-#include "bltInt.h"
+#include <bltInt.h>
 
 #if (TCL_VERSION_NUMBER >= _VERSION(8,1,0))
 #include "bltInterp.h"

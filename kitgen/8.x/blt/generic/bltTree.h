@@ -42,40 +42,61 @@ typedef struct Blt_TreeTagTableStruct Blt_TreeTagTable;
 
 typedef char *Blt_TreeKey;
 
+/* FindData->order flags. */
 #define TREE_PREORDER		(1<<0)
 #define TREE_POSTORDER		(1<<1)
 #define TREE_INORDER		(1<<2)
 #define TREE_BREADTHFIRST	(1<<3)
 
+/* Flags set in node->flags (a short)  */
 #define TREE_TRACE_UNSET	(1<<3)
 #define TREE_TRACE_WRITE	(1<<4)
 #define TREE_TRACE_READ		(1<<5)
 #define TREE_TRACE_CREATE	(1<<6)
+#define TREE_TRACE_TAGMULTIPLE	(1<<7)
+#define TREE_TRACE_TAGADD	(1<<8)
+#define TREE_TRACE_TAGDELETE	(1<<9)
+#define TREE_TRACE_EXISTS	(1<<0x0A)
 #define TREE_TRACE_ALL		\
-    (TREE_TRACE_UNSET | TREE_TRACE_WRITE | TREE_TRACE_READ | TREE_TRACE_CREATE)
+    (TREE_TRACE_UNSET | TREE_TRACE_WRITE | TREE_TRACE_READ | TREE_TRACE_CREATE |TREE_TRACE_TAGMULTIPLE|TREE_TRACE_TAGADD|TREE_TRACE_TAGDELETE|TREE_TRACE_EXISTS)
 #define TREE_TRACE_MASK		(TREE_TRACE_ALL)
+#define TREE_TRACE_ACTIVE	(1<<0x0C)
+#define TREE_NODE_UNMODIFIED	(1<<0x0D)
+#define TREE_NODE_INSERT_FAIL	(1<<0x0E)
+#define TREE_NODE_FIXED_FIELDS	(1<<0x0F)
 
-#define TREE_TRACE_FOREIGN_ONLY	(1<<8)
-#define TREE_TRACE_ACTIVE	(1<<9)
+/* Flags set in tree->flags */
+#define TREE_TRACE_BGERROR	(1<<0x10)
+#define TREE_TRACE_FOREIGN_ONLY	(1<<0x11)
+#define TREE_FIXED_KEYS	(1<<0x0F)
+#define TREE_UNMODIFIED	(1<<0x13)
+#define TREE_DICT_KEYS	(1<<0x14)
 
+/* Flags set in tree->notifyFlags that used for tracing */
 #define TREE_NOTIFY_CREATE	(1<<0)
 #define TREE_NOTIFY_DELETE	(1<<1)
 #define TREE_NOTIFY_MOVE	(1<<2)
 #define TREE_NOTIFY_SORT	(1<<3)
 #define TREE_NOTIFY_RELABEL	(1<<4)
+#define TREE_NOTIFY_MOVEPOST	(1<<5)
+#define TREE_NOTIFY_RELABELPOST	(1<<6)
+#define TREE_NOTIFY_INSERT	(1<<7)
+#define TREE_NOTIFY_GET	(1<<8)
 #define TREE_NOTIFY_ALL		\
     (TREE_NOTIFY_CREATE | TREE_NOTIFY_DELETE | TREE_NOTIFY_MOVE | \
-	TREE_NOTIFY_SORT | TREE_NOTIFY_RELABEL)
+	TREE_NOTIFY_MOVEPOST | TREE_NOTIFY_SORT | TREE_NOTIFY_RELABEL | \
+        TREE_NOTIFY_RELABELPOST | TREE_NOTIFY_INSERT | TREE_NOTIFY_GET)
 #define TREE_NOTIFY_MASK	(TREE_NOTIFY_ALL)
-
-#define TREE_NOTIFY_WHENIDLE	 (1<<8)
-#define TREE_NOTIFY_FOREIGN_ONLY (1<<9)
-#define TREE_NOTIFY_ACTIVE	 (1<<10)
+#define TREE_NOTIFY_WHENIDLE	 (1<<0x10)
+#define TREE_NOTIFY_FOREIGN_ONLY (1<<0x11)
+#define TREE_NOTIFY_ACTIVE	 (1<<0x12)
+#define TREE_NOTIFY_BGERROR	 (1<<0x13)
+#define TREE_NOTIFY_TRACEACTIVE	 (1<<0x14)
 
 typedef struct {
     int type;
     Blt_Tree tree;
-    int inode;			/* Node of event */
+    unsigned int inode;			/* Node of event */
     Tcl_Interp *interp;
 } Blt_TreeNotifyEvent;
 
@@ -85,6 +106,7 @@ typedef struct {
 				 * enumerated after present one. */
     Blt_TreeValue nextValue;	/* Next entry to be enumerated in the
 				 * the current bucket. */
+    int cnt;
 } Blt_TreeKeySearch;
 
 /*
@@ -142,10 +164,13 @@ struct Blt_TreeObjectStruct {
     unsigned int depth;		/* Maximum depth of the tree. */
 
     unsigned int flags;		/* Internal flags. See definitions
-				 * below. */
+				 * above. */
     unsigned int notifyFlags;	/* Notification flags. See definitions
-				 * below. */
-
+				 * above. */
+    Blt_HashTable keyTable;   /* Per-tree keys. */
+    Blt_HashTable *interpKeyPtr; /* The local or interp-wide key table. */
+    int delete;
+    int maxKeyList;            /* Max key list length before hash (default 20). */
 };
 
 /*
@@ -201,7 +226,11 @@ struct Blt_TreeTagEntryStruct {
     char *tagName;
     Blt_HashEntry *hashPtr;
     Blt_HashTable nodeTable;
+    int refCount; /* Used to delay deletion while iterating. */
 };
+
+#define Blt_TreeTagRefDecr(tPtr) if (--(tPtr)->refCount > 0) ; else Blt_Free(tPtr)
+#define Blt_TreeTagRefIncr(tPtr)  ++(tPtr)->refCount
 
 struct Blt_TreeTagTableStruct {
     Blt_HashTable tagTable;
@@ -209,7 +238,7 @@ struct Blt_TreeTagTableStruct {
 };
 
 /*
- * Blt_TreeClientStruct --
+ * Blt_TreeStruct --
  *
  *	A tree can be shared by several clients.  Each client allocates
  *	this structure which acts as a ticket for using the tree.  Clients
@@ -235,6 +264,7 @@ struct Blt_TreeClientStruct {
     Blt_Chain *traces;		/* Chain of data field callbacks. */
     Blt_TreeNode root;		/* Designated root for this client */
     Blt_TreeTagTable *tagTablePtr;
+    Tcl_Obj *oldValue;   /* Value before last update */
 };
 
 
@@ -272,14 +302,23 @@ struct Blt_TreeKeySearchStruct {
 				 * enumerated after present one. */
     Blt_TreeValue nextValue;	/* Next entry to be enumerated in the
 				 * the current bucket. */
+    int cnt;
 };
 
-EXTERN Blt_TreeKey Blt_TreeGetKey _ANSI_ARGS_((CONST char *string));
+#ifndef USE_BLT_STUBS
 
+EXTERN void Blt_TreeOldValue _ANSI_ARGS_(( Tcl_Interp *interp, Blt_Tree tree,
+    Tcl_Obj **oldPtr, Tcl_Obj *newPtr));
+
+EXTERN Blt_TreeKey Blt_TreeGetKey _ANSI_ARGS_((CONST char *string));
+EXTERN Blt_TreeKey Blt_TreeKeyGet _ANSI_ARGS_((Tcl_Interp *interp, Blt_TreeObject treeObjPtr, CONST char *string));
+
+EXTERN Blt_TreeNode Blt_TreeInsertPost _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node));
+EXTERN int Blt_TreeNotifyGet _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node));
 EXTERN Blt_TreeNode Blt_TreeCreateNode _ANSI_ARGS_((Blt_Tree tree, 
 	Blt_TreeNode parent, CONST char *name, int position)); 
 EXTERN Blt_TreeNode Blt_TreeCreateNodeWithId _ANSI_ARGS_((Blt_Tree tree, 
-	Blt_TreeNode parent, CONST char *name, int position, int inode)); 
+	Blt_TreeNode parent, CONST char *name, unsigned int inode, int position)); 
 
 EXTERN int Blt_TreeDeleteNode _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node));
 
@@ -291,6 +330,9 @@ EXTERN Blt_TreeNode Blt_TreeGetNode _ANSI_ARGS_((Blt_Tree tree,
 
 EXTERN Blt_TreeNode Blt_TreeFindChild _ANSI_ARGS_((Blt_TreeNode parent, 
 	CONST char *name));
+
+EXTERN Blt_TreeNode Blt_TreeFindChildRev _ANSI_ARGS_((Blt_TreeNode parent, 
+	CONST char *name, int firstN));
 
 EXTERN Blt_TreeNode Blt_TreeFirstChild _ANSI_ARGS_((Blt_TreeNode parent));
 
@@ -333,6 +375,9 @@ EXTERN int Blt_TreeValueExists _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node,
 EXTERN int Blt_TreeSetValue _ANSI_ARGS_((Tcl_Interp *interp, Blt_Tree tree, 
 	Blt_TreeNode node, CONST char *string, Tcl_Obj *valuePtr));
 
+EXTERN int Blt_TreeUpdateValue _ANSI_ARGS_((Tcl_Interp *interp, Blt_Tree tree, 
+	Blt_TreeNode node, CONST char *string, Tcl_Obj *valuePtr));
+
 EXTERN int Blt_TreeUnsetValue _ANSI_ARGS_((Tcl_Interp *interp, Blt_Tree tree, 
 	Blt_TreeNode node, CONST char *string));
 
@@ -344,6 +389,10 @@ EXTERN int Blt_TreeSetArrayValue _ANSI_ARGS_((Tcl_Interp *interp,
 	Blt_Tree tree, Blt_TreeNode node, CONST char *arrayName, 
 	CONST char *elemName, Tcl_Obj *valueObjPtr));
 
+EXTERN int Blt_TreeUpdateArrayValue _ANSI_ARGS_((Tcl_Interp *interp, 
+	Blt_Tree tree, Blt_TreeNode node, CONST char *arrayName, 
+	CONST char *elemName, Tcl_Obj *valueObjPtr));
+
 EXTERN int Blt_TreeUnsetArrayValue _ANSI_ARGS_((Tcl_Interp *interp, 
 	Blt_Tree tree, Blt_TreeNode node, CONST char *arrayName, 
 	CONST char *elemName));
@@ -352,7 +401,10 @@ EXTERN int Blt_TreeArrayValueExists _ANSI_ARGS_((Blt_Tree tree,
 	Blt_TreeNode node, CONST char *arrayName, CONST char *elemName));
 
 EXTERN int Blt_TreeArrayNames _ANSI_ARGS_((Tcl_Interp *interp, Blt_Tree tree, 
-	Blt_TreeNode node, CONST char *arrayName, Tcl_Obj *listObjPtr));
+	Blt_TreeNode node, CONST char *arrayName, Tcl_Obj *listObjPtr, CONST char *pattern));
+EXTERN int Blt_TreeArrayValues _ANSI_ARGS_((Tcl_Interp *interp, Blt_Tree tree, 
+	Blt_TreeNode node, CONST char *arrayName, Tcl_Obj *listObjPtr,
+	int names));
 
 EXTERN int Blt_TreeGetValueByKey _ANSI_ARGS_((Tcl_Interp *interp, 
 	Blt_Tree tree, Blt_TreeNode node, Blt_TreeKey key, 
@@ -373,6 +425,8 @@ EXTERN Blt_TreeKey Blt_TreeFirstKey _ANSI_ARGS_((Blt_Tree tree,
 EXTERN Blt_TreeKey Blt_TreeNextKey _ANSI_ARGS_((Blt_Tree tree, 
 	Blt_TreeKeySearch *cursorPtr));
 
+EXTERN int Blt_TreeCountKeys _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node));
+
 EXTERN int Blt_TreeApply _ANSI_ARGS_((Blt_TreeNode root, 
 	Blt_TreeApplyProc *proc, ClientData clientData));
 
@@ -391,6 +445,8 @@ EXTERN int Blt_TreeCreate _ANSI_ARGS_((Tcl_Interp *interp, CONST char *name,
 EXTERN int Blt_TreeExists _ANSI_ARGS_((Tcl_Interp *interp, CONST char *name));
 
 EXTERN int Blt_TreeGetToken _ANSI_ARGS_((Tcl_Interp *interp, CONST char *name, 
+	Blt_Tree *treePtr));
+EXTERN int Blt_TreeGetTokenTag _ANSI_ARGS_((Tcl_Interp *interp, CONST char *name, 
 	Blt_Tree *treePtr));
 
 EXTERN void Blt_TreeReleaseToken _ANSI_ARGS_((Blt_Tree tree));
@@ -411,44 +467,57 @@ EXTERN void Blt_TreeDeleteEventHandler _ANSI_ARGS_((Blt_Tree tree,
 	unsigned int mask, Blt_TreeNotifyEventProc *proc, 
 	ClientData clientData));
 
-EXTERN void Blt_TreeRelabelNode _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node, 
+EXTERN int Blt_TreeRelabelNode _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node, 
 	CONST char *string));
-EXTERN void Blt_TreeRelabelNode2 _ANSI_ARGS_((Blt_TreeNode node, 
+EXTERN int Blt_TreeRelabelNode2 _ANSI_ARGS_((Blt_TreeNode node, 
 	CONST char *string));
 EXTERN char *Blt_TreeNodePath _ANSI_ARGS_((Blt_TreeNode node, 
 	Tcl_DString *resultPtr));	
+EXTERN char *Blt_TreeNodePathStr _ANSI_ARGS_((Blt_TreeNode node, 
+	Tcl_DString *resultPtr, char *prefix, char *delim));	
 EXTERN int Blt_TreeNodePosition _ANSI_ARGS_((Blt_TreeNode node));
 
 EXTERN void Blt_TreeClearTags _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node));
 EXTERN int Blt_TreeHasTag _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node, 
 	CONST char *tagName));
-EXTERN void Blt_TreeAddTag _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node, 
+EXTERN int Blt_TreeAddTag _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node, 
 	CONST char *tagName));
-EXTERN void Blt_TreeForgetTag _ANSI_ARGS_((Blt_Tree tree, CONST char *tagName));
+EXTERN int Blt_TreeTagDelTrace _ANSI_ARGS_((Blt_Tree tree, Blt_TreeNode node, 
+	CONST char *tagName));
+EXTERN int Blt_TreeForgetTag _ANSI_ARGS_((Blt_Tree tree, CONST char *tagName));
 EXTERN Blt_HashTable *Blt_TreeTagHashTable _ANSI_ARGS_((Blt_Tree tree, 
+	CONST char *tagName));
+EXTERN Blt_TreeTagEntry *Blt_TreeTagHashEntry _ANSI_ARGS_((Blt_Tree tree, 
 	CONST char *tagName));
 EXTERN int Blt_TreeTagTableIsShared _ANSI_ARGS_((Blt_Tree tree));
 EXTERN int Blt_TreeShareTagTable _ANSI_ARGS_((Blt_Tree src, Blt_Tree target));
 EXTERN Blt_HashEntry *Blt_TreeFirstTag _ANSI_ARGS_((Blt_Tree tree, 
 	Blt_HashSearch *searchPtr));
+EXTERN int Blt_TreeNotifyAttach _ANSI_ARGS_((Blt_Tree tree));
+	
+#define Blt_TreeFirstChild(node) ((node)->first)
+#define Blt_TreeLastChild(node) ((node)->last)
+#define Blt_TreeNextSibling(node) (((node) == NULL) ? NULL : (node)->next)
+#define Blt_TreePrevSibling(node) (((node) == NULL) ? NULL : (node)->prev)
+#define Blt_TreeChangeRoot(token, node) ((token)->root = (node))
+
+#else
+#include "bltDecls.h"
+#endif /* USE_BLT_STUBS */
 
 #define Blt_TreeName(token)	((token)->treeObject->name)
 #define Blt_TreeRootNode(token)	((token)->root)
-#define Blt_TreeChangeRoot(token, node) ((token)->root = (node))
 
 #define Blt_TreeNodeDepth(token, node)	((node)->depth - (token)->root->depth)
 #define Blt_TreeNodeLabel(node)	 ((node)->label)
 #define Blt_TreeNodeId(node)	 ((node)->inode)
 #define Blt_TreeNodeParent(node) ((node)->parent)
 #define Blt_TreeNodeDegree(node) ((node)->nChildren)
+#define Blt_TreeNodeDeleted(node) (((int)((node)->inode)) == -1)
 
 #define Blt_TreeIsLeaf(node)     ((node)->nChildren == 0)
 #define Blt_TreeNextNodeId(token)     ((token)->treeObject->nextInode)
 
-#define Blt_TreeFirstChild(node) ((node)->first)
-#define Blt_TreeLastChild(node) ((node)->last)
-#define Blt_TreeNextSibling(node) (((node) == NULL) ? NULL : (node)->next)
-#define Blt_TreePrevSibling(node) (((node) == NULL) ? NULL : (node)->prev)
 
 #endif /* _BLT_TREE_H */
 

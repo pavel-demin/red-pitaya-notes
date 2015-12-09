@@ -121,6 +121,7 @@ typedef struct {
     int nFrags;			/* # fragments of text */
     short int width, height;	/* Dimensions of text bounding box */
     TextFragment fragArr[1];	/* Information about each fragment of text */
+    int rotated;
 } TextLayout;
 
 typedef struct {
@@ -162,11 +163,25 @@ typedef struct {
 				 * its x and y coordinates. */
     Blt_Pad padX, padY;		/* # pixels padding of around text region */
     short int leader;		/* # pixels spacing between lines of text */
+    int underline;     /* Character to underline. */
 
 } TextStyle;
 
 
+typedef struct {
+    XColor *color;
+    XColor *color2;
+    int width;
+    XColor **grads; /* Generated list of colors. */
+    XColor *origColor; /* Saved copy to detect if changed.*/
+    XColor *origColor2;
+    int origWidth;
+} Gradient;
+
+
 extern TextLayout *Blt_GetTextLayout _ANSI_ARGS_((char *string,
+	TextStyle *stylePtr));
+extern TextLayout *Blt_GetTextLayoutStr _ANSI_ARGS_((char *string,
 	TextStyle *stylePtr));
 
 extern void Blt_GetTextExtents _ANSI_ARGS_((TextStyle *stylePtr,
@@ -197,6 +212,8 @@ extern void Blt_DrawTextLayout _ANSI_ARGS_((Tk_Window tkwin,
 	Drawable drawable, TextLayout *textPtr, TextStyle *stylePtr,
 	int x, int y));
 
+extern int Blt_TextLayoutValue _ANSI_ARGS_(( TextLayout *textPtr, Tcl_DString *dStr));
+
 extern void Blt_DrawText2 _ANSI_ARGS_((Tk_Window tkwin, Drawable drawable,
 	char *string, TextStyle *stylePtr, int x, int y,
 	Dim2D * dimPtr));
@@ -208,5 +225,12 @@ extern Pixmap Blt_CreateTextBitmap _ANSI_ARGS_((Tk_Window tkwin,
 extern int Blt_DrawRotatedText _ANSI_ARGS_((Display *display,
 	Drawable drawable, int x, int y, double theta,
 	TextStyle *stylePtr, TextLayout *textPtr));
+
+extern void Blt_DeleteAxisLabelsGC _ANSI_ARGS_((Tk_Window tkwin));
+
+extern int Blt_GetGradient(Tcl_Interp *interp, Tk_Window tkwin, Gradient *gradPtr);
+
+extern int Blt_FreeGradient(Gradient *gradPtr);
+
 
 #endif /* _BLT_TEXT_H */

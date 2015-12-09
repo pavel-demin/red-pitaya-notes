@@ -215,7 +215,7 @@ PenToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     Tcl_FreeProc **freeProcPtr;	/* Not used. */
 {
     Pen *penPtr = *(Pen **)(widgRec + offset);
-
+    if ( ! penPtr ) return NULL;
     return penPtr->name;
 }
 
@@ -475,13 +475,13 @@ ConfigureOp(interp, graphPtr, argc, argv)
     Tcl_Interp *interp;
     Graph *graphPtr;
     int argc;
-    char *argv[];
+    CONST char *argv[];
 {
     int flags;
     Pen *penPtr;
     int nNames, nOpts;
     int redraw;
-    char **options;
+    CONST char **options;
     register int i;
 
     /* Figure out where the option value pairs begin */
@@ -510,7 +510,7 @@ ConfigureOp(interp, graphPtr, argc, argv)
 	    return Tk_ConfigureInfo(interp, graphPtr->tkwin, 
 		    penPtr->configSpecs, (char *)penPtr, options[0], flags);
 	}
-	if (Tk_ConfigureWidget(interp, graphPtr->tkwin, penPtr->configSpecs,
+	if (Blt_ConfigureWidget(interp, graphPtr->tkwin, penPtr->configSpecs,
 		nOpts, options, (char *)penPtr, flags) != TCL_OK) {
 	    break;
 	}

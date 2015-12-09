@@ -379,7 +379,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;
     Tcl_Interp *interp;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     Crosshairs *chPtr = graphPtr->crosshairs;
 
@@ -390,7 +390,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	return Tk_ConfigureInfo(interp, graphPtr->tkwin, configSpecs,
 		(char *)chPtr, argv[3], 0);
     }
-    if (Tk_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 3,
+    if (Blt_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 3,
 	    argv + 3, (char *)chPtr, TK_CONFIG_ARGV_ONLY) != TCL_OK) {
 	return TCL_ERROR;
     }

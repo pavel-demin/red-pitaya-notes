@@ -37,10 +37,10 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * RCS: @(#) $Id: bltHash.c,v 1.10 2002/08/09 07:15:18 ghowlett Exp $
+ * RCS: @(#) $Id: bltHash.c,v 1.1.1.1 2009/05/09 16:27:09 pcmacdon Exp $
  */
 
-#include "bltInt.h"
+#include <bltInt.h>
 
 #include <stdio.h>
 #include <string.h>

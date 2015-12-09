@@ -2430,7 +2430,7 @@ GetWindowRectangle(tabPtr, parent, tearoff, rectPtr)
     int cavityWidth, cavityHeight;
     int width, height;
     int dx, dy;
-    int x, y;
+    int x = 0, y = 0;
 
     nbPtr = tabPtr->nbPtr;
     pad = nbPtr->inset + nbPtr->inset2;
@@ -2758,7 +2758,7 @@ ConfigureNotebook(interp, nbPtr, argc, argv, flags)
 			         * may not already have values for
 			         * some fields. */
     int argc;
-    char **argv;
+    CONST char **argv;
     int flags;
 {
     XGCValues gcValues;
@@ -2766,11 +2766,11 @@ ConfigureNotebook(interp, nbPtr, argc, argv, flags)
     GC newGC;
 
     lastNotebookInstance = nbPtr;
-    if (Tk_ConfigureWidget(interp, nbPtr->tkwin, configSpecs, argc, argv,
+    if (Blt_ConfigureWidget(interp, nbPtr->tkwin, configSpecs, argc, argv,
 	    (char *)nbPtr, flags) != TCL_OK) {
 	return TCL_ERROR;
     }
-    if (Blt_ConfigModified(configSpecs, "-width", "-height", "-side", "-gap",
+    if (Blt_ConfigModified(configSpecs, interp, "-width", "-height", "-side", "-gap",
 	    "-slant", (char *)NULL)) {
 	nbPtr->flags |= (TNB_LAYOUT | TNB_SCROLL);
     }
@@ -2821,7 +2821,7 @@ ConfigureNotebook(interp, nbPtr, argc, argv, flags)
 	nbPtr->defTabStyle.rotate += 360.0;
     }
     nbPtr->inset = nbPtr->highlightWidth + nbPtr->borderWidth + nbPtr->outerPad;
-    if (Blt_ConfigModified(configSpecs, "-font", "-*foreground", "-rotate",
+    if (Blt_ConfigModified(configSpecs, interp, "-font", "-*foreground", "-rotate",
 	    "-*background", "-side", (char *)NULL)) {
 	Blt_ChainLink *linkPtr;
 	Tab *tabPtr;
@@ -3155,7 +3155,7 @@ InsertOp(nbPtr, interp, argc, argv)
     Notebook *nbPtr;
     Tcl_Interp *interp;
     int argc;			/* Not used. */
-    char **argv;
+    CONST char **argv;
 {
     Tab *tabPtr;
     Blt_ChainLink *linkPtr, *beforeLinkPtr;
@@ -3193,7 +3193,7 @@ InsertOp(nbPtr, interp, argc, argv)
     }
     lastNotebookInstance = nbPtr;
     if (Blt_ConfigureWidgetComponent(interp, nbPtr->tkwin, tabPtr->name,
-	"Tab", tabConfigSpecs, argc - 3, argv + 3, (char *)tabPtr, 0) 
+	"Tab", tabConfigSpecs, argc - 3, (char **)argv + 3, (char *)tabPtr, 0) 
 	!= TCL_OK) {
 	DestroyTab(nbPtr, tabPtr);
 	return TCL_ERROR;
@@ -3658,10 +3658,10 @@ TabConfigureOp(nbPtr, interp, argc, argv)
     Notebook *nbPtr;
     Tcl_Interp *interp;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     int nTabs, nOpts, result;
-    char **options;
+    CONST char **options;
     register int i;
     Tab *tabPtr;
 
@@ -3691,7 +3691,7 @@ TabConfigureOp(nbPtr, interp, argc, argv)
 	}
 	Tcl_Preserve(tabPtr);
 	lastNotebookInstance = nbPtr;
-	result = Tk_ConfigureWidget(interp, nbPtr->tkwin, tabConfigSpecs,
+	result = Blt_ConfigureWidget(interp, nbPtr->tkwin, tabConfigSpecs,
 	    nOpts, options, (char *)tabPtr, TK_CONFIG_ARGV_ONLY);
 	if (result == TCL_OK) {
 	    result = ConfigureTab(nbPtr, tabPtr);

@@ -83,6 +83,7 @@ struct Blt_BindTableStruct {
     Blt_BindPickProc *pickProc;	/* Routine to report the item the mouse is
 				 * currently over. */
     Blt_BindTagProc *tagProc;	/* Routine to report tags picked items. */
+    Tcl_Interp *interp;
 };
 
 EXTERN void Blt_DestroyBindingTable _ANSI_ARGS_((Blt_BindTable table));

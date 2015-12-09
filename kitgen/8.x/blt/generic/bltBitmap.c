@@ -887,7 +887,7 @@ ComposeOp(clientData, interp, argc, argv)
     ClientData clientData;	/* Thread-specific data for bitmaps. */
     Tcl_Interp *interp;		/* Interpreter to report results to */
     int argc;			/* Number of arguments */
-    char **argv;		/* Argument list */
+    CONST char **argv;		/* Argument list */
 {
     BitmapInterpData *dataPtr = clientData;
     int width, height;		/* Dimensions of bitmap */
@@ -917,7 +917,7 @@ ComposeOp(clientData, interp, argc, argv)
     info.padLeft = info.padRight = 0;
     info.padTop = info.padBottom = 0;
     info.font = (Tk_Font)NULL;	/* Initialized by Tk_ConfigureWidget */
-    if (Tk_ConfigureWidget(interp, tkwin, composeConfigSpecs,
+    if (Blt_ConfigureWidget(interp, tkwin, composeConfigSpecs,
 	    argc - 4, argv + 4, (char *)&info, 0) != TCL_OK) {
 	return TCL_ERROR;
     }
@@ -934,7 +934,7 @@ ComposeOp(clientData, interp, argc, argv)
     ts.leader = 0;
     ts.anchor = TK_ANCHOR_CENTER;
 
-    textPtr = Blt_GetTextLayout(argv[3], &ts);
+    textPtr = Blt_GetTextLayout((char *)argv[3], &ts);
     bitmap = Blt_CreateTextBitmap(tkwin, textPtr, &ts, &width, &height);
     Blt_Free(textPtr);
     if (bitmap == None) {
@@ -1003,7 +1003,7 @@ DefineOp(clientData, interp, argc, argv)
     ClientData clientData;	/* Thread-specific data for bitmaps. */
     Tcl_Interp *interp;		/* Interpreter to report results to */
     int argc;			/* Number of arguments */
-    char **argv;		/* Argument list */
+    CONST char **argv;		/* Argument list */
 {
     BitmapInterpData *dataPtr = clientData;
     int width, height;		/* Dimensions of bitmap */
@@ -1027,12 +1027,12 @@ DefineOp(clientData, interp, argc, argv)
     /* Initialize info and then process flags */
     info.rotate = 0.0;		/* No rotation by default */
     info.scale = 1.0;		/* No scaling by default */
-    if (Tk_ConfigureWidget(interp, dataPtr->tkwin, defineConfigSpecs,
+    if (Blt_ConfigureWidget(interp, dataPtr->tkwin, defineConfigSpecs,
 	    argc - 4, argv + 4, (char *)&info, 0) != TCL_OK) {
 	return TCL_ERROR;
     }
     /* Skip leading spaces. */
-    for (p = argv[3]; isspace(UCHAR(*p)); p++) {
+    for (p = (char *)argv[3]; isspace(UCHAR(*p)); p++) {
 	/*empty*/
     }
     defn = Blt_Strdup(p);

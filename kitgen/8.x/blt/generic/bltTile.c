@@ -64,6 +64,8 @@ typedef struct {
 				 * will be changed and the clients of the
 				 * tile will be notified (if they supplied
 				 * a TileChangedProc routine. */
+#define FIXED_TS_ORIGIN	2	/* TsOrigin is alway the widget. */
+#define TILE_ALPHA	4	/* Always fill with border color as image has an alpha. */
 
 typedef struct Blt_TileClientStruct {
     unsigned int magic;
@@ -120,6 +122,7 @@ RedrawTile(tkwin, tilePtr)
     unsigned int gcMask;
     
     Tk_SizeOfImage(tilePtr->tkImage, &width, &height);
+    if (height<=0 || width<=0) return;
 
     Tk_MakeWindowExist(tkwin);
     if ((width != tilePtr->width) || (height != tilePtr->height)) {
@@ -345,6 +348,12 @@ CreateTile(
     tilePtr->name = Blt_Strdup(imageName);
     tilePtr->clients = Blt_ChainCreate();
     tilePtr->tkImage = tkImage;
+    if (strchr(imageName, '!')) {
+        tilePtr->flags |= FIXED_TS_ORIGIN;
+    }
+    if (strchr(imageName, '|')) {
+        tilePtr->flags |= TILE_ALPHA;
+    }
     RedrawTile(tkwin, tilePtr);
     return tilePtr;
 }
@@ -562,6 +571,26 @@ Blt_FreeTile(TileClient *clientPtr) /* Tile to be deleted */
     DestroyClient(clientPtr);
 }
 
+void
+Blt_FixedTile(TileClient *clientPtr) 
+{
+    if ((clientPtr == NULL) || (clientPtr->magic != TILE_MAGIC)) {
+        return;			/* No tile */
+    }
+    clientPtr->tilePtr->flags |= FIXED_TS_ORIGIN;
+}
+
+int
+Blt_TileFlags(TileClient *clientPtr)
+{
+    if ((clientPtr == NULL) || (clientPtr->magic != TILE_MAGIC)) {
+	return 0;			/* No tile */
+    }
+    return clientPtr->tilePtr->flags;
+}
+
+
+
 /*
  *----------------------------------------------------------------------
  *
@@ -609,6 +638,18 @@ Blt_PixmapOfTile(TileClient *clientPtr) /* Tile to query */
 	return None;
     }
     return clientPtr->tilePtr->pixmap;
+}
+
+/* Return 1 if has a non-zero size tile. */
+int
+Blt_HasTile( TileClient *clientPtr)
+{
+    if ((clientPtr == NULL) || (clientPtr->magic != TILE_MAGIC)) {
+	return 0;
+    }
+    if (clientPtr->tilePtr->width <= 1) return 0;
+    if (clientPtr->tilePtr->height <= 1) return 0;
+    return 1;
 }
 
 /*
@@ -695,11 +736,14 @@ Blt_SetTileOrigin(
     int x, int y)
 {
     while (!Tk_IsTopLevel(tkwin)) {
+        if (Tk_IsBgTileTop(tkwin)) break;
 	x += Tk_X(tkwin) + Tk_Changes(tkwin)->border_width;
 	y += Tk_Y(tkwin) + Tk_Changes(tkwin)->border_width;
 	tkwin = Tk_Parent(tkwin);
     }
-    XSetTSOrigin(Tk_Display(tkwin), clientPtr->tilePtr->gc, -x, -y);
+    if (clientPtr->tilePtr->gc) {
+        XSetTSOrigin(Tk_Display(tkwin), clientPtr->tilePtr->gc, -x, -y);
+    }
     clientPtr->xOrigin = -x;
     clientPtr->yOrigin = -y;
 }
@@ -710,31 +754,14 @@ Blt_SetTSOrigin(
     TileClient *clientPtr,
     int x, int y)
 {
-    XSetTSOrigin(Tk_Display(tkwin), clientPtr->tilePtr->gc, x, y);
+    if (clientPtr->tilePtr->gc) {
+        XSetTSOrigin(Tk_Display(tkwin), clientPtr->tilePtr->gc, x, y);
+    }
     clientPtr->xOrigin = x;
     clientPtr->yOrigin = y;
 }
 
 #ifdef WIN32
-static int tkpWinRopModes[] =
-{
-    R2_BLACK,			/* GXclear */
-    R2_MASKPEN,			/* GXand */
-    R2_MASKPENNOT,		/* GXandReverse */
-    R2_COPYPEN,			/* GXcopy */
-    R2_MASKNOTPEN,		/* GXandInverted */
-    R2_NOT,			/* GXnoop */
-    R2_XORPEN,			/* GXxor */
-    R2_MERGEPEN,		/* GXor */
-    R2_NOTMERGEPEN,		/* GXnor */
-    R2_NOTXORPEN,		/* GXequiv */
-    R2_NOT,			/* GXinvert */
-    R2_MERGEPENNOT,		/* GXorReverse */
-    R2_NOTCOPYPEN,		/* GXcopyInverted */
-    R2_MERGENOTPEN,		/* GXorInverted */
-    R2_NOTMASKPEN,		/* GXnand */
-    R2_WHITE			/* GXset */
-};
 #define MASKPAT		0x00E20746 /* dest = (src & pat) | (!src & dst) */
 #define COPYFG		0x00CA0749 /* dest = (pat & src) | (!pat & dst) */
 #define COPYBG		0x00AC0744 /* dest = (!pat & src) | (pat & dst) */
@@ -869,6 +896,7 @@ Blt_TilePolygon(
 	return;
     }
     tilePtr = clientPtr->tilePtr;
+    if (tilePtr->gc == NULL) return;
 
     /* Determine the bounding box of the polygon. */
     bbox.left = bbox.right = pointArr[0].x;
@@ -915,6 +943,10 @@ Blt_TilePolygon(
     memDC = CreateCompatibleDC(hDC);
     oldBitmap = SelectBitmap(memDC, twdPtr->bitmap.handle);
     
+    if (tilePtr->flags & FIXED_TS_ORIGIN) {
+        Blt_SetTSOrigin(tkwin, clientPtr, Tk_X(tkwin), Tk_Y(tkwin));
+    }
+    
     /* Tile the bounding box. */
     if (tilePtr->mask != None) {
 	TkWinDCState maskState;
@@ -938,6 +970,7 @@ Blt_TilePolygon(
     TkWinReleaseDrawableDC(drawable, hDC, &state);
 }
 
+
 void
 Blt_TileRectangle(
     Tk_Window tkwin,
@@ -957,6 +990,11 @@ Blt_TileRectangle(
 	return;
     }
     tilePtr = clientPtr->tilePtr;
+    if (tilePtr->gc == NULL) return;
+    if (tilePtr->flags & FIXED_TS_ORIGIN) {
+        Blt_SetTSOrigin(tkwin, clientPtr, x, y);
+       /* XSetTSOrigin(Tk_Display(tkwin), clientPtr->tilePtr->gc, x, y); */
+    }
     hDC = TkWinGetDrawableDC(Tk_Display(tkwin), drawable, &state);
     SetROP2(hDC, tkpWinRopModes[tilePtr->gc->function]);
 
@@ -1002,6 +1040,7 @@ Blt_TileRectangles(
 	return;
     }
     tilePtr = clientPtr->tilePtr;
+    if (tilePtr->gc == NULL) return;
     hDC = TkWinGetDrawableDC(Tk_Display(tkwin), drawable, &state);
     SetROP2(hDC, tkpWinRopModes[tilePtr->gc->function]);
 
@@ -1109,12 +1148,17 @@ Blt_TileRectangle(
     Tile *tilePtr;
     Display *display;
 
+    if (height==0 || width == 0) return;
     display = Tk_Display(tkwin);
     tilePtr = clientPtr->tilePtr;
+    if (tilePtr->gc == NULL) return;
+    if (tilePtr->flags & FIXED_TS_ORIGIN) {
+        XSetTSOrigin(display, clientPtr->tilePtr->gc, x, y);
+    }
     if (clientPtr->tilePtr->mask != None) {
 	Pixmap mask;
 
-	mask = RectangleMask(display, drawable, x, y, width, height,
+        mask = RectangleMask(display, drawable, x, y, width, height,
 		tilePtr->mask, clientPtr->xOrigin, clientPtr->yOrigin);
 	XSetClipMask(display, tilePtr->gc, mask);
 	XSetClipOrigin(display, tilePtr->gc, x, y);
@@ -1155,6 +1199,7 @@ Blt_TileRectangles(
     Tile *tilePtr;
 
     tilePtr = clientPtr->tilePtr;
+    if (tilePtr->gc == NULL) return;
     if (tilePtr->mask != None) {
 	XRectangle *rectPtr, *endPtr;
 
@@ -1255,12 +1300,16 @@ Blt_TilePolygon(
     
     display = Tk_Display(tkwin);
     tilePtr = clientPtr->tilePtr;
+    if (tilePtr->gc == NULL) return;
     if (tilePtr->mask != None) {
 	XPoint *pointPtr, *endPtr;
 	Region2D region;
 	Pixmap mask;
 
-	/* Determine the bounding box of the polygon. */
+        if (tilePtr->flags & FIXED_TS_ORIGIN) {
+            Blt_SetTSOrigin(tkwin, clientPtr, Tk_X(tkwin), Tk_Y(tkwin));
+        }
+         /* Determine the bounding box of the polygon. */
 	pointPtr = pointArr;
 	region.left = region.right = pointPtr->x;
 	region.top = region.bottom = pointPtr->y;
@@ -1293,3 +1342,37 @@ Blt_TilePolygon(
     }
 }
 #endif
+
+void
+Blt_Fill3DRectangleTile(tkwin, drawable, border, x, y, width, height, borderWidth, 
+	relief, tilePtr, scrollTile, flags)
+    Tk_Window tkwin;		/* Window for which border was allocated. */
+    Drawable drawable;		/* X window or pixmap in which to draw. */
+    Tk_3DBorder border;		/* Token for border to draw. */
+    int x, y, width, height;	/* Outside area of rectangular region. */
+    int borderWidth;		/* Desired width for border, in
+				 * pixels. Border will be *inside* region. */
+    int relief;			/* Indicates 3D effect: TK_RELIEF_FLAT,
+				 * TK_RELIEF_RAISED, or TK_RELIEF_SUNKEN. */
+    TileClient *tilePtr;
+    int scrollTile;
+    int flags;
+{
+
+    if (Blt_HasTile(tilePtr)==0 || (flags&1)) {
+        Blt_Fill3DRectangle(tkwin, drawable, border, x, y, width, height, borderWidth, relief);
+        return;
+    }
+    if (border && (tilePtr->tilePtr->flags & TILE_ALPHA)) {
+        Blt_Fill3DRectangle(tkwin, drawable, border, x, y, width, height, borderWidth, relief);
+    }
+    Blt_SetTileOrigin(tkwin, tilePtr, x, 0);
+    if (scrollTile) {
+        Blt_SetTSOrigin(tkwin, tilePtr, x, y);
+    } else {
+        Blt_SetTileOrigin(tkwin, tilePtr, x, 0);
+    }
+    Blt_TileRectangle(tkwin, drawable, tilePtr, x, y, width, height);
+    Blt_Draw3DRectangle(tkwin, drawable, border, x, y, width, height,
+        borderWidth, relief);
+}

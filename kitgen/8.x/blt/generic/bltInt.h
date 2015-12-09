@@ -49,7 +49,9 @@
 #include <stdio.h>
 #include <assert.h>
 
-#if defined(WIN32) && !defined(__GNUC__)
+#if defined(WIN32) && defined(__MINGW32__)
+#include "bltWinConfig.h"
+#elif defined(WIN32) && !defined(__GNUC__)
 #include "bltWinConfig.h"
 #else 
 #include "bltConfig.h"
@@ -66,7 +68,7 @@
 
 /* Misc. definitions */
 #define	NO_CUTBUFFER	1
-#define NO_TILESCROLLBAR	1
+/* #define NO_TILESCROLLBAR	1 */
 #define NO_DND		1
 
 #ifndef __GNUC__
@@ -351,10 +353,17 @@ extern void Blt_Fill3DRectangle _ANSI_ARGS_((Tk_Window tkwin, Drawable drawable,
 #define STD_ACTIVE_FOREGROUND	RGB_BLACK
 #define STD_ACTIVE_FG_MONO	RGB_WHITE
 #define STD_BORDERWIDTH 	"2"
+#ifdef OLD_TK_FONTS
 #define STD_FONT		"*-Helvetica-Medium-R-Normal-*-12-120-*"
 #define STD_FONT_HUGE		"*-Helvetica-Medium-R-Normal-*-18-180-*"
 #define STD_FONT_LARGE		"*-Helvetica-Medium-R-Normal-*-14-140-*"
 #define STD_FONT_SMALL		"*-Helvetica-Medium-R-Normal-*-10-100-*"
+#else
+#define STD_FONT		"Helvetica -12"
+#define STD_FONT_HUGE		"*Helvetica  -18"
+#define STD_FONT_LARGE		"Helvetica -14"
+#define STD_FONT_SMALL		"Helvetica -10"
+#endif
 #define STD_INDICATOR_COLOR	RGB_MAROON
 #define STD_NORMAL_BG_MONO	RGB_WHITE
 #define STD_NORMAL_FOREGROUND	RGB_BLACK
@@ -479,6 +488,16 @@ typedef struct {
 #define FILL_X		1
 #define FILL_Y		2
 #define FILL_BOTH	3
+
+#ifndef TK_BGTILE_TOP
+#define TK_BGTILE_TOP 0x2000000
+#endif
+
+#ifndef Tk_IsBgTileTop
+#define Tk_IsBgTileTop(tkwin) \
+    (((Tk_FakeWin *) (tkwin))->flags & TK_BGTILE_TOP)
+#endif
+
 
 /*
  * ----------------------------------------------------------------------
@@ -611,6 +630,7 @@ extern void Blt_FreeColorPair _ANSI_ARGS_((ColorPair *pairPtr));
 #define STATE_EMPHASIS	(1<<2)
 
 
+#define ARROW_NONE		(-1)
 #define ARROW_LEFT		(0)
 #define ARROW_UP		(1)
 #define ARROW_RIGHT		(2)
@@ -707,6 +727,8 @@ extern int Blt_GetPixels _ANSI_ARGS_((Tcl_Interp *interp, Tk_Window tkwin,
 	char *string, int check, int *valuePtr));
 extern int Blt_GetPosition _ANSI_ARGS_((Tcl_Interp *interp, char *string,
 	int *indexPtr));
+extern int Blt_GetPositionSize _ANSI_ARGS_((Tcl_Interp *interp, char *string,
+	int size, int *indexPtr));
 extern int Blt_GetCount _ANSI_ARGS_((Tcl_Interp *interp, char *string,
 	int check, int *valuePtr));
 
@@ -789,6 +811,8 @@ extern int Blt_AdjustViewport _ANSI_ARGS_((int offset, int worldSize,
 extern int Blt_GetScrollInfo _ANSI_ARGS_((Tcl_Interp *interp, int argc,
 	char **argv, int *offsetPtr, int worldSize, int windowSize,
 	int scrollUnits, int scrollMode));
+	
+extern int Blt_WinResizeAlways _ANSI_ARGS_((Tk_Window tkwin));
 
 #if (TK_MAJOR_VERSION >= 8) 
 extern int Blt_GetScrollInfoFromObj _ANSI_ARGS_((Tcl_Interp *interp, int objc,
@@ -936,7 +960,7 @@ extern Tcl_AppInitProc Blt_DdeInit;
 typedef void *(Blt_MallocProc) _ANSI_ARGS_((size_t size));
 typedef void *(Blt_CallocProc) _ANSI_ARGS_((int nElem, size_t size));
 typedef void *(Blt_ReallocProc) _ANSI_ARGS_((void *ptr, size_t size));
-typedef void *(Blt_FreeProc) _ANSI_ARGS_((void *ptr));
+typedef void (Blt_FreeProc) _ANSI_ARGS_((void *ptr));
 
 EXTERN Blt_MallocProc *Blt_MallocProcPtr;
 EXTERN Blt_FreeProc *Blt_FreeProcPtr;
@@ -948,6 +972,9 @@ EXTERN Blt_ReallocProc *Blt_ReallocProcPtr;
 
 EXTERN char *Blt_Strdup _ANSI_ARGS_((CONST char *ptr));
 EXTERN void *Blt_Calloc _ANSI_ARGS_((unsigned int nElem, size_t size));
+
+EXTERN Tk_CustomOption bltTileOption;
+EXTERN Tk_ObjCustomOption bltCustomTileOption;
 
 #ifdef WIN32
 #include "bltWin.h"

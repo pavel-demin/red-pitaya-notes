@@ -74,7 +74,6 @@ typedef struct {
     int index;
 } ColorInfo;
 
-
 /*
  *----------------------------------------------------------------------
  *
@@ -228,6 +227,19 @@ extern Blt_ColorImage Blt_PhotoToColorImage _ANSI_ARGS_((
 extern Blt_ColorImage Blt_PhotoRegionToColorImage _ANSI_ARGS_((
 	Tk_PhotoHandle photo, int x, int y, int width, int height));
 
+extern int Blt_TransColorImage _ANSI_ARGS_((Blt_ColorImage src, 
+        Blt_ColorImage dest, Pix32 *color, int alpha, int flags));
+
+extern int Blt_RecolorImage _ANSI_ARGS_((Blt_ColorImage src, 
+        Blt_ColorImage dest, Pix32 *oldColor,  Pix32 *newColor, int alpha));
+
+extern int Blt_MergeColorImage _ANSI_ARGS_((Blt_ColorImage src,
+        Blt_ColorImage src2,
+        Blt_ColorImage dest, double opacity,  double opacity2, Pix32 *withColor));
+        
+int Blt_ImageMergeInner  _ANSI_ARGS_((Tcl_Interp *interp, char *srcName, char *src2Name,
+    char * destName, XColor *maskColor, int leaveMsg));
+    
 extern int Blt_QuantizeColorImage _ANSI_ARGS_((Blt_ColorImage src, 
         Blt_ColorImage dest, int nColors));
 
@@ -239,6 +251,10 @@ extern void Blt_ResamplePhoto _ANSI_ARGS_((Tk_PhotoHandle srcPhoto,
 	int x, int y, int width, int height, Tk_PhotoHandle destPhoto,
 	ResampleFilter *horzFilterPtr, ResampleFilter *vertFilterPtr));
 
+	
+extern int Blt_BlurColorImage _ANSI_ARGS_((
+        Tk_PhotoHandle srcPhoto, Tk_PhotoHandle dstPhoto, int radius));
+        
 extern Blt_ColorImage Blt_ResizeColorImage _ANSI_ARGS_((Blt_ColorImage src,
 	int x, int y, int width, int height, int destWidth, int destHeight));
 
@@ -257,6 +273,8 @@ extern int Blt_SnapPhoto _ANSI_ARGS_((Tcl_Interp *interp, Tk_Window tkwin,
 
 extern void Blt_ImageRegion _ANSI_ARGS_((Blt_ColorImage image, 
 	Region2D *regionPtr));
+
+Blt_ColorImage Blt_CopyColorImage _ANSI_ARGS_(( Blt_ColorImage src));
 
 extern Region2D *Blt_ColorImageRegion _ANSI_ARGS_((Blt_ColorImage image, 
 	Region2D *regionPtr));
@@ -303,5 +321,11 @@ extern Pixmap Blt_ScaleRotateBitmapRegion _ANSI_ARGS_((Tk_Window tkwin,
 	int regionX, int regionY, unsigned int regionWidth, 
 	unsigned int regionHeight, unsigned int virtWidth, 
 	unsigned int virtHeight, double theta));
+	
+typedef enum {MIRROR_X=1, MIRROR_Y=2, MIRROR_XY=3, MIRROR_TILE=4, MIRROR_OUTER=5, MIRROR_INNER=6} BltMirrorEnum;
+
+extern int
+Blt_ImageMirror(Tcl_Interp *interp, char *srcImg, char *dstImg, int flip, int halo);
+
 
 #endif /*_BLT_IMAGE_H*/

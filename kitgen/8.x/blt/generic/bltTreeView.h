@@ -25,6 +25,7 @@
  * software.
  *
  *	The "treeview" widget was created by George A. Howlett.
+ *      Extensive cleanups and enhancements by Peter MacDonald.
  */
 
 /*
@@ -80,15 +81,15 @@ typedef char *UID;
 #define TOGGLE(x, mask) (((x) & (mask)) ? ((x) & ~(mask)) : ((x) | (mask)))
 
 
-#define SCREENX(h, wx)	((wx) - (h)->xOffset + (h)->inset)
-#define SCREENY(h, wy)	((wy) - (h)->yOffset + (h)->inset + (h)->titleHeight)
+#define SCREENX(h, wx)	((wx) - (h)->xOffset + (h)->insetX)
+#define SCREENY(h, wy)	((wy) - (h)->yOffset + (h)->insetY + (h)->titleHeight)
 
-#define WORLDX(h, sx)	((sx) - (h)->inset + (h)->xOffset)
-#define WORLDY(h, sy)	((sy) - ((h)->inset + (h)->titleHeight) + (h)->yOffset)
+#define WORLDX(h, sx)	((sx) - (h)->insetX + (h)->xOffset)
+#define WORLDY(h, sy)	((sy) - ((h)->insetY + (h)->titleHeight) + (h)->yOffset)
 
-#define VPORTWIDTH(h)	(Tk_Width((h)->tkwin) - 2 * (h)->inset)
+#define VPORTWIDTH(h)	(Tk_Width((h)->tkwin) - 2 * (h)->insetX)
 #define VPORTHEIGHT(h) \
-	(Tk_Height((h)->tkwin) - (h)->titleHeight - 2 * (h)->inset)
+	(Tk_Height((h)->tkwin) - (h)->titleHeight - 2 * (h)->insetY)
 
 #define ICONWIDTH(d)	(tvPtr->levelInfo[(d)].iconWidth)
 #define LEVELX(d)	(tvPtr->levelInfo[(d)].x)
@@ -103,8 +104,14 @@ typedef char *UID;
    (((((t)->flags & TV_FOCUS)) || ((t)->selOutFocusBorder == NULL)) \
 	? (t)->selInFocusBorder : (t)->selOutFocusBorder)
 
+#define FLATIND(tvPtr, n) ((tvPtr->flatArr == NULL) || (n) >= tvPtr->nEntries ? NULL : tvPtr->flatArr[n])
+
 #define SELECT_MODE_SINGLE	(1<<0)
 #define SELECT_MODE_MULTIPLE	(1<<1)
+#define SELECT_MODE_NONE	(1<<2)
+#define SELECT_MODE_CELL	(1<<3)
+#define SELECT_MODE_MCELL	(1<<4)
+#define SELECT_MODE_CELLMASK	(SELECT_MODE_CELL|SELECT_MODE_MCELL)
 
 /*
  * ----------------------------------------------------------------------------
@@ -155,6 +162,9 @@ typedef char *UID;
 #define TV_SORT_PENDING (1<<9)
 #define TV_BORDERS	(1<<10)
 #define TV_VIEWPORT	(1<<11)
+#define TV_DIRTYALL	(1<<12)
+#define TV_PICKING	(1<<13)
+#define TV_ATTACH	(1<<14)
 
 /*
  *  Rule related flags: Rules are XOR-ed lines. We need to track whether
@@ -223,10 +233,19 @@ typedef char *UID;
 #define TV_SHOW_COLUMN_TITLES	(1<<25)
 #define TV_SORT_AUTO		(1<<26)
 #define TV_NEW_TAGS		(1<<27)
-#define TV_HIGHLIGHT_CELLS	(1<<28)
+#define TV_NOAUTO_CLOSE_LEAF		(1<<28)
+/* #define TV_HIGHLIGHT_CELLS	(1<<28) */
+#define TV_HIDE_ICONS	(1<<29)
+#define TV_FILL_NULL	(1<<30)
+#define TV_DELETED	(1<<31)
 
 #define TV_ITEM_COLUMN	1
 #define TV_ITEM_RULE	2
+
+#define TV_WINDOW_CLEAR 1
+#define TV_WINDOW_UNMAP 2
+#define TV_WINDOW_DRAW 4
+
 
 /*
  * -------------------------------------------------------------------------
@@ -263,19 +282,35 @@ typedef char *UID;
 #define BUTTON_AUTO		(1<<8)
 #define BUTTON_SHOW		(1<<9)
 #define BUTTON_MASK		(BUTTON_AUTO | BUTTON_SHOW)
+#define ENTRY_ALTROW		(1<<10)
+#define ENTRY_IS_TREE		(1<<11)
+#define ENTRY_ONLYHIDDEN		(1<<12)
+#define ENTRY_DATA_WINDOW		(1<<13)
+#define ENTRY_WINDOW		(1<<14)
+#define ENTRY_DELETED		(1<<15)
 
 #define COLUMN_RULE_PICKED	(1<<1)
 #define COLUMN_DIRTY		(1<<2)
+#define COLUMN_DELETED		(1<<3)
 
 #define STYLE_TEXTBOX		(0)
 #define STYLE_COMBOBOX		(1)
 #define STYLE_CHECKBOX		(2)
-#define STYLE_TYPE		0x3
+#define STYLE_WINDOWBOX		(4)
+#define STYLE_BARBOX		(8)
+#define STYLE_TYPE		0x15
 
-#define STYLE_LAYOUT		(1<<3)
-#define STYLE_DIRTY		(1<<4)
-#define STYLE_HIGHLIGHT		(1<<5)
-#define STYLE_USER		(1<<6)
+#define STYLE_HIGHLIGHT		(1<<10)
+#define STYLE_USER		(1<<11)
+#define STYLE_LAYOUT		(1<<12)
+#define STYLE_DIRTY		(1<<13)
+
+#define STYLEFLAG_NOCLEAR (1<<0)
+#define STYLEFLAG_ALTSTYLE (1<<1)
+#define STYLEFLAG_EMPTYSTYLE (1<<2)
+#define STYLEFLAG_SUBSTYLE (1<<3)
+#define STYLEFLAG_TITLESTYLE (1<<4)
+
 
 typedef struct TreeViewColumnStruct TreeViewColumn;
 typedef struct TreeViewComboboxStruct TreeViewCombobox;
@@ -284,17 +319,26 @@ typedef struct TreeViewStruct TreeView;
 typedef struct TreeViewStyleClassStruct TreeViewStyleClass;
 typedef struct TreeViewStyleStruct TreeViewStyle;
 
-typedef int (TreeViewCompareProc) _ANSI_ARGS_((Tcl_Interp *interp, char *name,
-	char *pattern));
+typedef int (TreeViewCompareProc) _ANSI_ARGS_((Tcl_Interp *interp,
+        char  *name, Tcl_Obj *pattern, int nocase));
 
 typedef TreeViewEntry *(TreeViewIterProc) _ANSI_ARGS_((TreeViewEntry *entryPtr,
 	unsigned int mask));
 
 typedef struct {
+    int init;
     int tagType;
     TreeView *tvPtr;
     Blt_HashSearch cursor;
     TreeViewEntry *entryPtr;
+    char *tagName;
+    Tcl_Obj **objv, *objPtr;
+    int objc;
+    int idx;
+    int refCount;
+    Blt_TreeTagEntry* tPtr;
+    Blt_TreeNode node;
+    unsigned int inode;
 } TreeViewTagInfo;
 
 /*
@@ -323,13 +367,15 @@ typedef struct TreeViewIconStruct {
     short int width, height;	/* Dimensions of the cached image. */
 
     Blt_HashEntry *hashPtr;	/* Hash table pointer to the image. */
+    TreeView *tvPtr;
+    int count;  /* Count number of times displayed. */
 
 } *TreeViewIcon;
 
 #define TreeViewIconHeight(icon)	((icon)->height)
 #define TreeViewIconWidth(icon)	((icon)->width)
 #define TreeViewIconBits(icon)	((icon)->tkImage)
-
+struct TreeViewValueStruct;
 /*
  * TreeViewColumn --
  *
@@ -343,6 +389,7 @@ typedef struct TreeViewIconStruct {
 struct TreeViewColumnStruct {
     int type;			/* Always TV_COLUMN */
     Blt_TreeKey key;		/* Data cell identifier for current tree. */
+    char *name;		    /* Global key lookup */
     int position;		/* Position of column in list.  Used
 				 * to indicate the first and last
 				 * columns. */
@@ -366,9 +413,12 @@ struct TreeViewColumnStruct {
     Tk_3DBorder titleBorder;	/* Background color of the column's heading. */
 
     GC titleGC;
+    GC textGC;
 
     XColor *activeTitleFgColor;	/* Foreground color of text heading when 
 				 * the column is activated.*/
+    XColor *fgColor;		/* Foreground color. */
+    Tk_Font font;
     Tk_3DBorder activeTitleBorder;	
 
     int titleBorderWidth;
@@ -435,62 +485,103 @@ struct TreeViewColumnStruct {
     int ruleLineWidth;
     Blt_Dashes ruleDashes;
     GC ruleGC;
+    Blt_Tile tile;		/* Tiled background */
+    int scrollTile;		/* Adjust the tile along with viewport
+				 * offsets as the widget is
+				 * scrolled. */
+    int hasbg;                  /* A -bg was specified. */
+    int hasttlbg;               /* A -titlebackground was specified. */
+    struct TreeViewValueStruct * defValue;   /* Default empty value. */
+    char *validCmd;            /* Command for post checking edits */
+    char *editOpts;            /* Options used for builtin editing. */
+    Tk_Justify titleJustify;		/* Indicates how the text or icon is
+				 * justified within the title. */
+    short iX, iY, iW, iH;  /* Needed by "nearest" to determine if over icon/label*/
+    short tX, tY, tW, tH;
+    int underline;
+    Blt_TreeTrace trace;
+    Tcl_Obj *fillCmd;
+    TreeViewStyle *titleStylePtr;	/* Default style for column title. */
+    int drawArrow;
+    int autoWidth;    /* If contents exceed this then set as width, if width 0. */
+    int sortType;		/* Type of sorting to be performed. */
+    /* The following colorPats/colorRegex change the fg color by pattern match. */
+    Tcl_Obj *colorPats;  /* List of string match pattern/attribute pairs */
+    Tcl_Obj *colorRegex;  /* List of regex pattern/attribute pairs */
+    Tcl_Obj *formatCmd;
+    Tcl_Obj *sortAltColumns;
 };
 
 
+#define TREEVIEW_STYLE_COMMON \
+    int refCount;		/* Usage reference count.  A reference \
+				 * count of zero indicates that the \
+				 * style may be freed. */ \
+    unsigned int flags;		/* Bit field containing both the style \
+				 * type and various flags. */ \
+    char *name;			/* Instance name. */ \
+    TreeViewStyleClass *classPtr; \
+				/* Contains class-specific information such \
+				 * as configuration specifications and \
+				 * configure, draw, etc. routines. */ \
+    Blt_HashEntry *hashPtr;	/* If non-NULL, points to the hash \
+				 * table entry for the style.  A style \
+				 * that's been deleted, but still in \
+				 * use (non-zero reference count) will \
+				 * have no hash table entry. \
+				 */ \
+    /* General style fields. */ \
+    Tk_Cursor cursor;		/* X Cursor */ \
+    TreeViewIcon icon;		/* If non-NULL, is a Tk_Image to be drawn \
+				 * in the cell. */ \
+    int gap;			/* # pixels gap between icon and text. */ \
+    Tk_Font font; \
+    XColor *fgColor;		/* Normal foreground color of cell. */ \
+    Tk_3DBorder border;		/* Normal background color of cell. */ \
+    XColor *highlightFgColor;	/* Foreground color of cell when \
+				 * highlighted. */ \
+    Tk_3DBorder highlightBorder;/* Background color of cell when \
+				 * highlighted. */ \
+    XColor *activeFgColor;	/* Foreground color of cell when active. */ \
+    Tk_3DBorder activeBorder;	/* Background color of cell when active. */ \
+    int priority;       /* Priority order for bg/fg/font. */ \
+    Blt_Tile tile; \
+    Blt_Tile fillTile; \
+    Shadow shadow; \
+    int hidden;     /* Hidden value or subtext. */ \
+    GC gc; \
+    GC highlightGC; \
+    GC activeGC; \
+    int noteditable; \
+    char *editOpts;
+
+
 struct TreeViewStyleStruct {
-    int refCount;		/* Usage reference count.  A reference 
-				 * count of zero indicates that the 
-				 * style may be freed. */
-    unsigned int flags;		/* Bit field containing both the style
-				 * type and various flags. */
-    char *name;			/* Instance name. */
-    TreeViewStyleClass *classPtr; 
-				/* Contains class-specific information such
-				 * as configuration specifications and 
-				 * configure, draw, etc. routines. */
-    Blt_HashEntry *hashPtr;	/* If non-NULL, points to the hash
-				 * table entry for the style.  A style
-				 * that's been deleted, but still in
-				 * use (non-zero reference count) will
-				 * have no hash table entry.
-				 */
-    /* General style fields. */
-    Tk_Cursor cursor;		/* X Cursor */
-
-    TreeViewIcon icon;		/* If non-NULL, is a Tk_Image to be drawn
-				 * in the cell. */
-    int gap;			/* # pixels gap between icon and text. */
-    Tk_Font font;
-    XColor *fgColor;		/* Normal foreground color of cell. */
-    Tk_3DBorder border;		/* Normal background color of cell. */
-    XColor *highlightFgColor;	/* Foreground color of cell when
-				 * highlighted. */
-    Tk_3DBorder highlightBorder;/* Background color of cell when
-				 * highlighted. */
-    XColor *activeFgColor;	/* Foreground color of cell when active. */
-    Tk_3DBorder activeBorder;	/* Background color of cell when active. */
-
+    TREEVIEW_STYLE_COMMON
 };
 
 typedef struct TreeViewValueStruct {
     TreeViewColumn *columnPtr;	/* Column in which the value is located. */
+    TreeViewEntry *entryPtr;   /* Entry for value. */
     short int width, height;	/* Dimensions of value. */
     TreeViewStyle *stylePtr;	/* Style information for cell
 				 * displaying value. */
     char *string;		/* Raw text string. */
     TextLayout *textPtr;	/* Processes string to be displayed .*/
     struct TreeViewValueStruct *nextPtr;
+    short iX, iY, iW, iH;  /* Needed by "nearest" to determine if over icon/label*/
+    short tX, tY, tW, tH;
+    short selected;
 } TreeViewValue;
     
 typedef void (StyleConfigProc) _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewStyle *stylePtr));
 typedef void (StyleDrawProc) _ANSI_ARGS_((TreeView *tvPtr, Drawable drawable, 
 	TreeViewEntry *entryPtr, TreeViewValue *valuePtr, 
-	TreeViewStyle *stylePtr, int x, int y));
+         TreeViewStyle *stylePtr, TreeViewIcon icon, int x, int y));
 typedef int (StyleEditProc) _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewEntry *entryPtr, TreeViewValue *valuePtr, 
-	TreeViewStyle *stylePtr));
+	TreeViewStyle *stylePtr, int x, int y, int *retVal));
 typedef void (StyleFreeProc) _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewStyle *stylePtr));
 typedef void (StyleMeasureProc) _ANSI_ARGS_((TreeView *tvPtr, 
@@ -603,6 +694,15 @@ struct TreeViewEntryStruct {
 				 * for each data value in the node.
 				 * Non-NULL only if there are value
 				 * entries. */
+    TreeViewStyle *stylePtr;	/* Effective style for entry. */
+    int hide;                /* Entry is hidden. */
+    int underline;
+    Tk_3DBorder border;		/* Normal background color of entry. */
+    char *userData;		/* user data. */
+    TextLayout *subTextPtr;
+    char *subLabel;
+    TreeViewStyle *realStylePtr;	/* Default style for entry. */
+    int state;
 };
 
 /*
@@ -634,7 +734,7 @@ typedef struct {
     int width, height;
 
     TreeViewIcon *icons;
-
+    TreeViewIcon *activeicons;
 } TreeViewButton;
 
 /*
@@ -672,6 +772,7 @@ struct TreeViewStruct {
     Tcl_Command cmdToken;	/* Token for widget's Tcl command. */
 
     Blt_Tree tree;		/* Token holding internal tree. */
+    Blt_Tree freeTree;		/* Tree to free in configure. */
 
     Blt_HashEntry *hashPtr;
 
@@ -697,7 +798,7 @@ struct TreeViewStruct {
 
     unsigned int flags;		/* For bitfield definitions, see below */
 
-    int inset;			/* Total width of all borders,
+    int insetX, insetY;			/* Total width of all borders,
 				 * including traversal highlight and
 				 * 3-D border.  Indicates how much
 				 * interior stuff must be offset from
@@ -705,6 +806,7 @@ struct TreeViewStruct {
 				 * borders. */
 
     Tk_Font font;
+    Tk_Font titleFont;
     XColor *fgColor;
 
     Tk_3DBorder border;		/* 3D border surrounding the window
@@ -773,6 +875,7 @@ struct TreeViewStruct {
     TreeViewEntry *selAnchorPtr; /* Fixed end of selection (i.e. entry
 				  * at which selection was started.) */
     TreeViewEntry *selMarkPtr;
+    TreeViewColumn *selAnchorCol; /* Column for anchor */
     
     int	selectMode;		/* Selection style: "single" or
 				 * "multiple".  */
@@ -803,7 +906,10 @@ struct TreeViewStruct {
     GC lineGC;			/* GC for drawing dotted line between
 				 * entries. */
 
+    XColor *disabledColor;
+    GC disabledGC;			/* Graphics context for the disabled */
     XColor *focusColor;
+    Tk_3DBorder disabledBorder;
 
     Blt_Dashes focusDashes;	/* Dash on-off value. */
 
@@ -820,7 +926,7 @@ struct TreeViewStruct {
 
     TreeViewEntry *fromPtr;
 
-    TreeViewValue *activeValuePtr;/* Last active value. */ 
+    struct TreeViewValueStruct *activeValuePtr;/* Last active value. */ 
 
     int xScrollUnits, yScrollUnits; /* # of pixels per scroll unit. */
 
@@ -888,6 +994,8 @@ struct TreeViewStruct {
 				 * displayed to the left of the
 				 * entry's label. The second is icon
 				 * displayed when entry is "open". */
+    TreeViewIcon *leafIcons;	/* Tk images displayed for the leaf entry. */
+    TreeViewIcon *activeLeafIcons;/* Tk images displayed for the active leaf. */
     char *takeFocus;
 
     ClientData clientData;
@@ -943,6 +1051,45 @@ struct TreeViewStruct {
 
     Blt_Pool entryPool;
     Blt_Pool valuePool;
+    Blt_Tile tile;		/* Tiled background */
+    int scrollTile;		/* Adjust the tile along with viewport
+				 * offsets as the widget is
+				 * scrolled. */
+    int ruleWidth;		/* Width of rule under entries */
+    GC solidGC;
+    TreeViewStyle *altStylePtr;	/* Default style for odd row text cells */
+
+    int nAbove;
+    TreeViewStyle *emptyStylePtr;	/* Style for empty text cells */
+    int inlineImg;
+    int openAnchor;
+    int insertFirst;  /* Preceeding lookups before doing reverse search of tree. */
+    int actCol;      /* Show active column in active color on select. */
+    int actEntry;      /* Show entry in active color on select. */
+    int rootNodeNum;  /* Node in tree to act as root. */
+    Blt_TreeNode rootNode;  /* Node in tree to act as root. */
+    int reqMin;
+    Blt_HashTable winTable;	/* Table of all windows. */
+    Blt_HashTable winCellTable;	/* Table of windows indexed by cell. */
+    char *styleCmd;		/* Tcl script invoked when @style is created */
+    int hideStyleIcons;
+    int hideStyleText;
+    Blt_Tile selectTile;		/* Tiled background for selection. */
+    int nextIdx;
+    int nextSubIdx;
+    int focusHeight;
+    int showFull;
+    TreeViewStyle *subStylePtr;	/* Style for sublabel */
+    int titlePad;
+    int setFlatView;		/* Indicates sort auto-switched tree to flat. */
+    char *treePath;
+    int levelPad;
+    TreeViewStyle **levelStyles;	/* List of styles for entries begining at level 1. */
+    Tcl_Obj *imageCmd;
+    Tcl_Obj *formatCmd;
+    Tk_OptionTable buttonOptions;
+    int noScroll;
+    int padX, padY;
 };
 
 
@@ -959,22 +1106,25 @@ extern char *Blt_TreeViewGetFullName _ANSI_ARGS_((TreeView *tvPtr,
 extern void Blt_TreeViewSelectCmdProc _ANSI_ARGS_((ClientData clientData));
 extern void Blt_TreeViewInsertText _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewEntry *entryPtr, char *string, int extra, int insertPos));
-extern void Blt_TreeViewComputeLayout _ANSI_ARGS_((TreeView *tvPtr));
+extern int Blt_TreeViewComputeLayout _ANSI_ARGS_((TreeView *tvPtr));
 extern void Blt_TreeViewPercentSubst _ANSI_ARGS_((TreeView *tvPtr, 
-	TreeViewEntry *entryPtr, char *command, Tcl_DString *resultPtr));
-extern void Blt_TreeViewDrawButton _ANSI_ARGS_((TreeView *tvPtr, 
+	TreeViewEntry *entryPtr, TreeViewColumn *columnPtr,
+	char *command, char *value, Tcl_DString *resultPtr));
+extern int Blt_TreeViewDrawButton _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewEntry *entryPtr, Drawable drawable, int x, int y));
 extern void Blt_TreeViewDrawValue _ANSI_ARGS_((TreeView *tvPtr,
     TreeViewEntry *entryPtr, TreeViewValue *valuePtr, Drawable drawable,
-    int x, int y));
+    int x, int y, int altRow, int ishid));
 extern void Blt_TreeViewDrawOuterBorders _ANSI_ARGS_((TreeView *tvPtr, 
 	Drawable drawable));
 extern int Blt_TreeViewDrawIcon _ANSI_ARGS_((TreeView *tvPtr, 
-	TreeViewEntry *entryPtr, Drawable drawable, int x, int y));
+	TreeViewEntry *entryPtr, Drawable drawable, int x, int y, int clear));
 extern void Blt_TreeViewDrawHeadings _ANSI_ARGS_((TreeView *tvPtr, 
 	Drawable drawable));
 extern void Blt_TreeViewDrawRule _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewColumn *columnPtr, Drawable drawable));
+extern int Blt_TreeViewTextbox _ANSI_ARGS_((TreeView *tvPtr, 
+	TreeViewEntry *entryPtr, TreeViewColumn *columnPtr));
 
 extern void Blt_TreeViewConfigureButtons _ANSI_ARGS_((TreeView *tvPtr));
 extern int Blt_TreeViewUpdateWidget _ANSI_ARGS_((Tcl_Interp *interp, 
@@ -991,9 +1141,11 @@ extern void Blt_TreeViewAddValue _ANSI_ARGS_((TreeViewEntry *entryPtr,
 extern int Blt_TreeViewCreateColumn _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewColumn *columnPtr, char *name, char *defaultLabel));
 extern void Blt_TreeViewDestroyValue _ANSI_ARGS_((TreeView *tvPtr, 
-	TreeViewValue *valuePtr));
+	 TreeViewEntry *entryPtr, TreeViewValue *valuePtr));
+extern void Blt_TreeViewDeleteValue(TreeViewEntry* entryPtr, Blt_TreeKey key);
 extern TreeViewValue *Blt_TreeViewFindValue _ANSI_ARGS_((
 	TreeViewEntry *entryPtr, TreeViewColumn *columnPtr));
+extern void Blt_TreeViewConfigureColumns _ANSI_ARGS_((TreeView *tvPtr));
 extern void Blt_TreeViewDestroyColumns _ANSI_ARGS_((TreeView *tvPtr));
 extern void Blt_TreeViewAllocateColumnUids _ANSI_ARGS_((TreeView *tvPtr));
 extern void Blt_TreeViewFreeColumnUids _ANSI_ARGS_((TreeView *tvPtr));
@@ -1023,6 +1175,7 @@ extern TreeViewEntry *Blt_TreeViewPrevEntry _ANSI_ARGS_((
 extern int Blt_TreeViewGetEntry _ANSI_ARGS_((TreeView *tvPtr, Tcl_Obj *objPtr, 
 	TreeViewEntry **entryPtrPtr));
 extern int Blt_TreeViewEntryIsHidden _ANSI_ARGS_((TreeViewEntry *entryPtr));
+extern int Blt_TreeViewEntryIsMapped _ANSI_ARGS_((TreeViewEntry *entryPtr));
 extern TreeViewEntry *Blt_TreeViewNextSibling _ANSI_ARGS_((
 	TreeViewEntry *entryPtr, unsigned int mask));
 extern TreeViewEntry *Blt_TreeViewPrevSibling _ANSI_ARGS_((
@@ -1046,16 +1199,18 @@ extern int Blt_TreeViewSortOp _ANSI_ARGS_((TreeView *tvPtr, Tcl_Interp *interp,
 	int objc, Tcl_Obj *CONST *objv));
 extern int Blt_TreeViewGetColumn _ANSI_ARGS_((Tcl_Interp *interp, 
 	TreeView *tvPtr, Tcl_Obj *objPtr, TreeViewColumn **columnPtrPtr));
+extern int Blt_TreeViewGetColumnKey _ANSI_ARGS_((Tcl_Interp *interp, 
+	TreeView *tvPtr, Tcl_Obj *objPtr, TreeViewColumn **columnPtrPtr, char **keyPtrPtr));
 
 extern void Blt_TreeViewSortFlatView _ANSI_ARGS_((TreeView *tvPtr));
 extern void Blt_TreeViewSortTreeView _ANSI_ARGS_((TreeView *tvPtr));
 
 extern int Blt_TreeViewEntryIsSelected _ANSI_ARGS_((TreeView *tvPtr, 
-	TreeViewEntry *entryPtr));
+	TreeViewEntry *entryPtr, TreeViewColumn *columnPtr));
 extern void Blt_TreeViewSelectEntry _ANSI_ARGS_((TreeView *tvPtr, 
-	TreeViewEntry *entryPtr));
+	TreeViewEntry *entryPtr, TreeViewColumn *columnPtr));
 extern void Blt_TreeViewDeselectEntry _ANSI_ARGS_((TreeView *tvPtr, 
-	TreeViewEntry *entryPtr));
+	TreeViewEntry *entryPtr, TreeViewColumn *columnPtr));
 extern void Blt_TreeViewPruneSelection _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewEntry *entryPtr));
 extern void Blt_TreeViewClearSelection _ANSI_ARGS_((TreeView *tvPtr));
@@ -1063,6 +1218,7 @@ extern void Blt_TreeViewClearTags _ANSI_ARGS_((TreeView *tvPtr,
 	TreeViewEntry *entryPtr));
 extern int Blt_TreeViewFindTaggedEntries _ANSI_ARGS_((TreeView *tvPtr, 
 	Tcl_Obj *objPtr, TreeViewTagInfo *infoPtr));
+extern int Blt_TreeViewDoneTaggedEntries _ANSI_ARGS_((TreeViewTagInfo *infoPtr));
 extern TreeViewEntry *Blt_TreeViewFirstTaggedEntry _ANSI_ARGS_((
 	TreeViewTagInfo *infoPtr)); 
 extern TreeViewEntry *Blt_TreeViewNextTaggedEntry _ANSI_ARGS_((
@@ -1079,30 +1235,69 @@ extern void Blt_TreeViewTraceColumn _ANSI_ARGS_((TreeView *tvPtr,
 	TreeViewColumn *columnPtr));
 extern TreeViewIcon Blt_TreeViewGetEntryIcon _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewEntry *entryPtr));
+extern int Blt_TreeViewStyleIsFmt _ANSI_ARGS_((TreeView *tvPtr,
+	TreeViewStyle *stylePtr));
 extern void Blt_TreeViewSetStyleIcon _ANSI_ARGS_((TreeView *tvPtr,
 	TreeViewStyle *stylePtr, TreeViewIcon icon));
 extern int Blt_TreeViewGetStyle _ANSI_ARGS_((Tcl_Interp *interp, 
 	TreeView *tvPtr, char *styleName, TreeViewStyle **stylePtrPtr));
+extern int Blt_TreeViewGetStyleMake _ANSI_ARGS_((Tcl_Interp *interp, 
+	TreeView *tvPtr, char *styleName, TreeViewStyle **stylePtrPtr,
+	TreeViewColumn *columnPtr, TreeViewEntry *entryPtr, TreeViewValue *valuePtr));
 extern void Blt_TreeViewFreeStyle _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewStyle *stylePtr));
 extern TreeViewStyle *Blt_TreeViewCreateStyle _ANSI_ARGS_((Tcl_Interp *interp,
 	TreeView *tvPtr, int type, char *styleName));
 extern void Blt_TreeViewUpdateStyleGCs _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewStyle *stylePtr));
+extern void Blt_TreeViewUpdateStyles _ANSI_ARGS_((TreeView *tvPtr));
 extern Tk_3DBorder Blt_TreeViewGetStyleBorder _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewStyle *stylePtr));
-extern GC Blt_TreeViewGetStyleGC _ANSI_ARGS_((TreeViewStyle *stylePtr));
-extern Tk_Font Blt_TreeViewGetStyleFont _ANSI_ARGS_((TreeView *tvPtr, 
-	TreeViewStyle *stylePtr));
-extern XColor *Blt_TreeViewGetStyleFg _ANSI_ARGS_((TreeView *tvPtr, 
-	TreeViewStyle *stylePtr));
+extern GC Blt_TreeViewGetStyleGC _ANSI_ARGS_((TreeView *tvPtr,TreeViewStyle *stylePtr));
+extern Tk_Font Blt_TreeViewGetStyleFont _ANSI_ARGS_((TreeView *tvPtr,
+        TreeViewColumn *columnPtr, TreeViewStyle *stylePtr));
+extern XColor *Blt_TreeViewGetStyleFg _ANSI_ARGS_((TreeView *tvPtr,
+        TreeViewColumn *columnPtr, TreeViewStyle *stylePtr));
 extern TreeViewEntry *Blt_NodeToEntry _ANSI_ARGS_((TreeView *tvPtr, 
 	Blt_TreeNode node));
 extern int Blt_TreeViewStyleOp _ANSI_ARGS_((TreeView *tvPtr, Tcl_Interp *interp,
 	int objc, Tcl_Obj *CONST *objv));
+extern void Blt_TreeViewTileChangedProc( ClientData clientData, Blt_Tile tile);
+extern void Blt_TreeViewMakeStyleDirty(	TreeView *tvPtr );
+TreeViewValue * Blt_TreeViewMakeValue(TreeView *tvPtr, TreeViewColumn *columnPtr, TreeViewEntry *entryPtr);
+void Blt_TreeViewRelayout(TreeView *tvPtr);
+extern void Blt_TreeViewFill3DTile _ANSI_ARGS_((TreeView *tvPtr,
+    Drawable drawable, Tk_3DBorder border, int x, int y, int width, int height, 
+    int borderWidth, int relief, Blt_Tile tile, int scrollTile, int flags));
+extern int Blt_TreeViewIsLeaf(TreeViewEntry *entryPtr);
+extern void Blt_TreeViewFreeWindows( TreeView *tvPtr);
+extern void Blt_TreeViewMarkWindows( TreeView *tvPtr, int flag);
+extern void Blt_TreeViewWindowUpdate(TreeViewEntry *entryPtr, TreeViewColumn *columnPtr);
+extern void Blt_TreeViewWindowRelease(TreeViewEntry *entryPtr, TreeViewColumn *columnPtr);
+extern  void Blt_TreeViewColumnRekey(TreeView *tvPtr);
+extern  void Blt_TreeViewChanged(TreeView *tvPtr);
+extern int Blt_TreeViewRerawIcon(TreeView *tvPtr,  TreeViewEntry *entryPtr,
+    TreeViewColumn *columnPtr, TreeViewIcon icon, int imageX,
+    int imageY, int width, int height, Drawable drawable,
+    int drawableX, int drawableY);
+
+extern void Blt_GetPriorityStyle _ANSI_ARGS_(( TreeViewStyle *stylePtr,
+    TreeView *tvPtr, TreeViewColumn *columnPtr, TreeViewEntry *entryPtr,
+    TreeViewValue *valuePtr, TreeViewStyle *inStylePtr, int flags));
+extern int Blt_TreeViewRedrawIcon  _ANSI_ARGS_((TreeView *tvPtr, TreeViewEntry *entryPtr,
+    TreeViewColumn *columnPtr, TreeViewIcon icon, int imageX,
+    int imageY, int width, int height, Drawable drawable,
+    int drawableX, int drawableY));
+void Blt_TreeViewFreeEntry _ANSI_ARGS_((TreeView *tvPtr, TreeViewEntry *entryPtr));
 
 #define CHOOSE(default, override)	\
 	(((override) == NULL) ? (default) : (override))
+	
+#define CHOOSE3(default, override2, override1)	\
+         (((override1) == NULL) ? (CHOOSE(default, override2)) : (override1))
+         
+#define CHOOSE4(default, override3, override2, override1)	\
+         (((override1) == NULL) ? (CHOOSE3(default, override3, override2)) : (override1))
 
 #define GETLABEL(e)		\
 	(((e)->labelUid != NULL) ? (e)->labelUid : Blt_TreeNodeLabel((e)->node))
@@ -1110,5 +1305,17 @@ extern int Blt_TreeViewStyleOp _ANSI_ARGS_((TreeView *tvPtr, Tcl_Interp *interp,
 #define Blt_TreeViewGetData(entryPtr, key, objPtrPtr) \
 	Blt_TreeGetValueByKey((Tcl_Interp *)NULL, (entryPtr)->tvPtr->tree, \
 	      (entryPtr)->node, key, objPtrPtr)
+
+extern Blt_CustomOption bltTreeViewUidOption;
+extern Blt_CustomOption bltTreeViewIconOption;
+extern Blt_CustomOption bltTreeViewStyleOption;
+extern Blt_CustomOption bltTreeViewStylesOption;
+extern Blt_CustomOption bltTreeViewTreeOption;
+extern Blt_CustomOption bltTreeViewColumnOption;
+extern Blt_CustomOption bltTreeViewLabelOption;
+extern Blt_CustomOption bltTreeViewDataOption;
+extern void Blt_TreeViewOptsInit(TreeView* tvPtr);
+
+
 
 #endif /* BLT_TREEVIEW_H */

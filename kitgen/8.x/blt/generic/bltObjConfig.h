@@ -72,8 +72,8 @@ typedef int (Blt_OptionParseProc) _ANSI_ARGS_((ClientData clientData,
 	int offset));					       
 typedef Tcl_Obj *(Blt_OptionPrintProc) _ANSI_ARGS_((ClientData clientData, 
 	Tcl_Interp *interp, Tk_Window tkwin, char *widgRec, int offset));
-typedef void (Blt_OptionFreeProc) _ANSI_ARGS_((ClientData clientData,
-	Display *display, char *widgRec, int offset));
+typedef int (Blt_OptionFreeProc) _ANSI_ARGS_((ClientData clientData,
+	Display *display, char *widgRec, int offset, char *oldPtr));
 
 typedef struct Blt_CustomOption {
     Blt_OptionParseProc *parseProc;	/* Procedure to call to parse an
@@ -159,6 +159,9 @@ typedef enum {
     BLT_CONFIG_SIDE,
     BLT_CONFIG_STATE, 
     BLT_CONFIG_TILE,
+    BLT_CONFIG_OBJ,
+    BLT_CONFIG_OBJCMD,
+    BLT_CONFIG_ARROW,
     
     BLT_CONFIG_END
 } Blt_ConfigTypes;
@@ -203,20 +206,24 @@ EXTERN int Blt_ConfigureValueFromObj _ANSI_ARGS_((Tcl_Interp *interp,
 	Tcl_Obj *objPtr, int flags));
 EXTERN int Blt_ConfigureWidgetFromObj _ANSI_ARGS_((Tcl_Interp *interp, 
 	Tk_Window tkwin, Blt_ConfigSpec *specs, int objc, Tcl_Obj *CONST *objv,
-	char *widgRec, int flags));
+	char *widgRec, int flags, Tk_Window subwin));
 EXTERN int Blt_ConfigureComponentFromObj _ANSI_ARGS_((Tcl_Interp *interp, 
 	Tk_Window tkwin, char *name, char *className, Blt_ConfigSpec *specs,
 	int objc, Tcl_Obj *CONST *objv, char *widgRec, int flags));
+EXTERN int Blt_FormatSpecOptions _ANSI_ARGS_(( Tcl_Interp *interp, Blt_ConfigSpec *specs));
 
 EXTERN int Blt_ObjConfigModified _ANSI_ARGS_(TCL_VARARGS(Blt_ConfigSpec *, specs));
-EXTERN void Blt_FreeObjOptions _ANSI_ARGS_((Blt_ConfigSpec *specs, 
-	char *widgRec, Display *display, int needFlags));
+EXTERN void Blt_FreeObjOptions _ANSI_ARGS_((Tcl_Interp *interp, Blt_ConfigSpec *specs, 
+	char *widgetRec, Display *display, int needFlags));
 
-EXTERN int Blt_ObjIsOption _ANSI_ARGS_((Blt_ConfigSpec *specs, Tcl_Obj *objPtr,
+EXTERN int Blt_ObjIsOption _ANSI_ARGS_((Tcl_Interp* interp, Blt_ConfigSpec *specs, Tcl_Obj *objPtr,
 	int flags));
 
 EXTERN int Blt_GetPositionFromObj _ANSI_ARGS_((Tcl_Interp *interp, 
 	Tcl_Obj *objPtr, int *indexPtr));
+
+EXTERN int Blt_GetPositionSizeFromObj _ANSI_ARGS_((Tcl_Interp *interp, 
+	Tcl_Obj *objPtr, int size, int *indexPtr));
 
 EXTERN int Blt_GetPixelsFromObj _ANSI_ARGS_((Tcl_Interp *interp, 
 	Tk_Window tkwin, Tcl_Obj *objPtr, int flags, int *valuePtr));
@@ -235,7 +242,9 @@ EXTERN int Blt_GetFillFromObj  _ANSI_ARGS_((Tcl_Interp *interp,
 
 EXTERN int Blt_GetDashesFromObj  _ANSI_ARGS_((Tcl_Interp *interp, 
 	Tcl_Obj *objPtr, Blt_Dashes *dashesPtr));
-
+	
+EXTERN Blt_ConfigSpec *	Blt_GetCachedBltSpecs _ANSI_ARGS_((Tcl_Interp *interp,
+			    const Blt_ConfigSpec *staticSpecs));
 
 #if ((TK_VERSION_NUMBER >= _VERSION(8,0,0)) && \
      (TK_VERSION_NUMBER < _VERSION(8,1,0)))

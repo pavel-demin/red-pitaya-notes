@@ -101,7 +101,11 @@ DoEvent(bindPtr, eventPtr, item, context)
 
     if ((bindPtr->tkwin == NULL) || (bindPtr->bindingTable == NULL)) {
 	return;
-    }
+     }
+     if (Tcl_InterpDeleted(bindPtr->interp)) {
+         return;
+     }
+ 
     if ((eventPtr->type == KeyPress) || (eventPtr->type == KeyRelease)) {
 	item = bindPtr->focusItem;
 	context = bindPtr->focusContext;
@@ -180,6 +184,9 @@ PickCurrentItem(bindPtr, eventPtr)
     ClientData newItem;
     ClientData newContext;
 
+    if (Tcl_InterpDeleted(bindPtr->interp)) {
+        return;
+    }
     /*
      * Check whether or not a button is down.  If so, we'll log entry
      * and exit into and out of the current item, but not entry into
@@ -384,6 +391,9 @@ BindProc(clientData, eventPtr)
     struct Blt_BindTableStruct *bindPtr = clientData;
     int mask;
 
+    if (Tcl_InterpDeleted(bindPtr->interp)) {
+        return;
+    }
     Tcl_Preserve(bindPtr->clientData);
 
     /*
@@ -590,6 +600,7 @@ Blt_CreateBindingTable(interp, tkwin, clientData, pickProc, tagProc)
 
     bindPtr = Blt_Calloc(1, sizeof(struct Blt_BindTableStruct));
     assert(bindPtr);
+    bindPtr->interp = interp;
     bindPtr->clientData = clientData;
     bindPtr->pickProc = pickProc;
     bindPtr->tagProc = tagProc;

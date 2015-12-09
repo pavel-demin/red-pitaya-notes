@@ -77,7 +77,7 @@
 
 #define NCOLORS		256
 
-
+#if 0
 static void
 GetPaletteSizes(nColors, nRedsPtr, nGreensPtr, nBluesPtr)
     int nColors;		/* Number of colors requested. */
@@ -129,6 +129,7 @@ BuildColorRamp(palettePtr, nColors)
     }
 
 }
+#endif
 
 /*
  *----------------------------------------------------------------------
@@ -200,6 +201,7 @@ QueryColormap(display, colorMap, mapColors, numMapColorsPtr)
     return numAvail;
 }
 
+#if 0
 static void
 FindClosestColor(colorPtr, mapColors, numMapColors)
     ColorInfo *colorPtr;
@@ -342,6 +344,7 @@ AllocateColors(nImageColors, colorTabPtr, matchOnly)
     colorTabPtr->nPixels = nImageColors;
     return 1;
 }
+#endif
 
 ColorTable
 Blt_CreateColorTable(tkwin)
@@ -510,6 +513,7 @@ Blt_DirectColorTable(interp, tkwin, image)
     return colorTabPtr;
 }
 
+#if 0
 /*
  * First attempt:
  *	Allocate colors all the colors in the image (up to NCOLORS). Bail out
@@ -548,6 +552,7 @@ GetUniqueColors(image)
     Blt_DeleteHashTable(&colorTable);
     return nColors;
 }
+#endif
 
 #define Blt_DefaultColormap(tkwin)  \
 	DefaultColormap(Tk_Display(tkwin), Tk_ScreenNumber(tkwin))
@@ -563,11 +568,11 @@ PrivateColormap(interp, colorTabPtr, image, tkwin)
     int keepColors = 0;
     register int i;
     XColor usedColors[NCOLORS];
-    int nFreeColors, nUsedColors;
+    int nUsedColors;
     Colormap colorMap;
     int inUse[NCOLORS];
     XColor *colorPtr;
-    XColor *imageColors;
+    /* XColor *imageColors; */
 
     /*
      * Create a private colormap if one doesn't already exist for the
@@ -582,7 +587,7 @@ PrivateColormap(interp, colorTabPtr, image, tkwin)
 	XFreeColors(colorTabPtr->display, colorTabPtr->colorMap,
 	    colorTabPtr->pixelValues, colorTabPtr->nPixels, 0);
     }
-    nFreeColors = QueryColormap(colorTabPtr->display, colorMap, usedColors,
+    QueryColormap(colorTabPtr->display, colorMap, usedColors,
 	&nUsedColors);
     memset((char *)inUse, 0, sizeof(int) * NCOLORS);
     if ((nUsedColors == 0) && (keepColors > 0)) {
@@ -592,7 +597,7 @@ PrivateColormap(interp, colorTabPtr, image, tkwin)
 	 * have been used in the default colormap.
 	 */
 
-	nFreeColors = QueryColormap(colorTabPtr->display,
+	QueryColormap(colorTabPtr->display,
 	    Blt_DefaultColormap(tkwin), usedColors, &nUsedColors);
 
 	/*
@@ -622,7 +627,7 @@ PrivateColormap(interp, colorTabPtr, image, tkwin)
      * image as we can fit.  If necessary, we'll cheat and reduce the number
      * of colors by quantizing.
      */
-    imageColors = usedColors + nUsedColors;
+    /* imageColors = usedColors + nUsedColors; */
 
     Tk_SetWindowColormap(tkwin, colorMap);
 }

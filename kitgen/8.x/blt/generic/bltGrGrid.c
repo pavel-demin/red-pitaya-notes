@@ -77,6 +77,9 @@ static Tk_ConfigSpec configSpecs[] =
     {TK_CONFIG_BOOLEAN, "-minor", "minor", "Minor",
 	DEF_GRID_MINOR, Tk_Offset(Grid, minorGrid),
 	TK_CONFIG_DONT_SET_DEFAULT | ALL_GRAPHS},
+    {TK_CONFIG_BOOLEAN, "-raised", "raised", "Raised",
+	"0", Tk_Offset(Grid, raised),
+	TK_CONFIG_DONT_SET_DEFAULT | ALL_GRAPHS},
     {TK_CONFIG_END, NULL, NULL, NULL, NULL, 0, 0}
 };
 
@@ -352,7 +355,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;
     Tcl_Interp *interp;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     Grid *gridPtr = (Grid *)graphPtr->gridPtr;
     int flags;
@@ -365,7 +368,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	return Tk_ConfigureInfo(interp, graphPtr->tkwin, configSpecs,
 	    (char *)gridPtr, argv[3], flags);
     }
-    if (Tk_ConfigureWidget(graphPtr->interp, graphPtr->tkwin, configSpecs,
+    if (Blt_ConfigureWidget(graphPtr->interp, graphPtr->tkwin, configSpecs,
 	    argc - 3, argv + 3, (char *)gridPtr, flags) != TCL_OK) {
 	return TCL_ERROR;
     }

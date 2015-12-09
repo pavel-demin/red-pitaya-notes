@@ -113,6 +113,16 @@ Tk_CustomOption bltShadowOption =
     StringToShadow, ShadowToString, (ClientData)0
 };
 
+static int StringToGradient _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp,
+	Tk_Window tkwin, char *string, char *widgRec, int offset));
+static char *GradientToString _ANSI_ARGS_((ClientData clientData, Tk_Window tkwin,
+	char *widgRec, int offset, Tcl_FreeProc **freeProcPtr));
+
+Tk_CustomOption bltGradientOption =
+{
+    StringToGradient, GradientToString, (ClientData)0
+};
+
 static int StringToUid _ANSI_ARGS_((ClientData clientData,
 	Tcl_Interp *interp, Tk_Window tkwin, char *string, char *widgRec,
 	int flags));
@@ -155,6 +165,163 @@ Tk_CustomOption bltTileOption =
     StringToTile, TileToString, (ClientData)0
 };
 
+static int	SetObjTile _ANSI_ARGS_((ClientData clientData,
+			Tcl_Interp *interp, Tk_Window tkwin,
+			Tcl_Obj **value, char *recordPtr, int internalOffset,
+			char *oldInternalPtr, int flags));
+static Tcl_Obj *GetObjTile _ANSI_ARGS_((ClientData clientData, Tk_Window tkwin,
+			char *recordPtr, int internalOffset));
+static void	RestoreObjTile _ANSI_ARGS_((ClientData clientData,
+			Tk_Window tkwin, char *internalPtr,
+			char *oldInternalPtr));
+static void	FreeObjTile _ANSI_ARGS_((ClientData clientData, Tk_Window tkwin,
+			char *internalPtr));
+
+Tk_ObjCustomOption bltCustomTileOption = {
+    "tile",				/* name */
+    SetObjTile,				/* setProc */
+    GetObjTile,				/* getProc */
+    RestoreObjTile,			/* restoreProc */
+    FreeObjTile,               	        /* freeProc */
+    0
+};
+
+
+static void
+FreeObjTile(clientData, tkwin, internalPtr)
+ClientData clientData;
+Tk_Window tkwin;
+char *internalPtr;
+{
+    Blt_Tile tilePtr = (Blt_Tile)internalPtr;
+    if (tilePtr != NULL) Blt_FreeTile(tilePtr);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * GetObjTile -
+ *
+ *	Converts an internal boolean combination of "tile"into a
+ *	a Tcl string obj.
+ *
+ * Results:
+ *	Tcl_Obj containing the string representation of the tile value.
+ *
+ * Side effects:
+ *	Creates a new Tcl_Obj.
+ *
+ *----------------------------------------------------------------------
+ */
+
+static Tcl_Obj *
+GetObjTile(clientData, tkwin, recordPtr, internalOffset)
+    ClientData clientData;
+    Tk_Window tkwin;
+    char *recordPtr;		/* Pointer to widget record. */
+    int internalOffset;		/* Offset within *recordPtr containing the
+				 * tile value. */
+{
+    Blt_Tile tile = *(Blt_Tile *)(recordPtr + internalOffset);
+    char * name;
+    name = Blt_NameOfTile(tile);
+    return Tcl_NewStringObj(name?name:"", -1);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * SetObjTile --
+ *
+ *	Converts a Tcl_Obj representing a widgets tile.
+ *
+ * Results:
+ *	Standard Tcl result.
+ *
+ * Side effects:
+ *	May store the integer value into the internal representation
+ *	pointer.  May change the pointer to the Tcl_Obj to NULL to indicate
+ *	that the specified string was empty and that is acceptable.
+ *
+ *----------------------------------------------------------------------
+ */
+
+static int
+SetObjTile(clientData, interp, tkwin, value, recordPtr, internalOffset,
+	oldInternalPtr, flags)
+    ClientData clientData;
+    Tcl_Interp *interp;		/* Current interp; may be used for errors. */
+    Tk_Window tkwin;		/* Window for which option is being set. */
+    Tcl_Obj **value;		/* Pointer to the pointer to the value object.
+				 * We use a pointer to the pointer because
+				 * we may need to return a value (NULL). */
+    char *recordPtr;		/* Pointer to storage for the widget record. */
+    int internalOffset;		/* Offset within *recordPtr at which the
+				   internal value is to be stored. */
+    char *oldInternalPtr;	/* Pointer to storage for the old value. */
+    int flags;			/* Flags for the option, set Tk_SetOptions. */
+{
+    int length = 0;
+    char *string, *internalPtr;
+    Blt_Tile *tilePtr;
+    Blt_Tile tile, oldTile;
+    
+    if (internalOffset<0 || *value == NULL) { return TCL_ERROR; }
+    string = Tcl_GetStringFromObj(*value, &length);
+
+    internalPtr = recordPtr+internalOffset;
+    
+    if (length<=0 && (!(flags & TK_OPTION_NULL_OK))) {    
+        return TCL_ERROR;
+    }
+    tilePtr = (Blt_Tile*)internalPtr;
+
+    oldTile = *tilePtr;
+    tile = NULL;
+    if ((string != NULL) && (*string != '\0')) {
+        if (Blt_GetTile(interp, tkwin, string, &tile) != TCL_OK) {
+            return TCL_ERROR;
+        }
+    }
+    if (oldTile != NULL && oldTile != *((Blt_Tile*)oldInternalPtr)) {
+        /* multiple -tile options. */
+        Blt_FreeTile(oldTile);
+    }
+    *tilePtr = tile;
+
+    return TCL_OK;
+}		
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * RestoreObjTile --
+ *
+ *	Restore a tile option value from a saved value.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *	Restores the old value.
+ *
+ *----------------------------------------------------------------------
+ */
+
+static void
+RestoreObjTile(clientData, tkwin, internalPtr, oldInternalPtr)
+    ClientData clientData;
+    Tk_Window tkwin;
+    char *internalPtr;		/* Pointer to storage for value. */
+    char *oldInternalPtr;	/* Pointer to old value. */
+{
+    Blt_Tile *tilePtr = (Blt_Tile *)internalPtr;
+    Blt_Tile *oldTilePtr = (Blt_Tile *)oldInternalPtr;
+    if (*tilePtr != NULL && *oldTilePtr != *tilePtr) {
+        Blt_FreeTile(*tilePtr);
+    }
+    *tilePtr = *oldTilePtr;
+}
 /*
  *----------------------------------------------------------------------
  *
@@ -275,7 +442,7 @@ Blt_StringToFlag(clientData, interp, tkwin, string, widgRec, offset)
     char *widgRec;		/* Cubicle structure record */
     int offset;			/* Offset of style in record */
 {
-    unsigned int mask = (unsigned int)clientData;	/* Bit to be tested */
+    unsigned int mask = (uintptr_t)clientData;	/* Bit to be tested */
     int *flagPtr = (int *)(widgRec + offset);
     int bool;
 
@@ -311,7 +478,7 @@ Blt_FlagToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     int offset;			/* Offset of fill in widget record */
     Tcl_FreeProc **freeProcPtr;	/* Not Used. */
 {
-    unsigned int mask = (unsigned int)clientData;	/* Bit to be tested */
+    unsigned int mask = (uintptr_t)clientData;	/* Bit to be tested */
     unsigned int bool = *(unsigned int *)(widgRec + offset);
 
     return (bool & mask) ? "1" : "0";
@@ -392,7 +559,7 @@ StringToDistance(clientData, interp, tkwin, string, widgRec, offset)
     int offset;			/* Offset of pixel size in record */
 {
     int *valuePtr = (int *)(widgRec + offset);
-    return Blt_GetPixels(interp, tkwin, string, (int)clientData, valuePtr);
+    return Blt_GetPixels(interp, tkwin, string, (intptr_t)clientData, valuePtr);
 }
 
 /*
@@ -481,7 +648,7 @@ StringToCount(clientData, interp, tkwin, string, widgRec, offset)
     int offset;			/* Offset of pixel size in record */
 {
     int *valuePtr = (int *)(widgRec + offset);
-    return Blt_GetInt(interp, string, (int)clientData, valuePtr);
+    return Blt_GetInt(interp, string, (intptr_t)clientData, valuePtr);
 }
 
 /*
@@ -637,6 +804,7 @@ PadToString(clientData, tkwin, widgRec, offset, freeProcPtr)
  * Side Effects:
  *	The padding structure passed is updated with the new values.
  *
+ *      TODO: all users of this need to free color on widget exit.
  *----------------------------------------------------------------------
  */
 /*ARGSUSED*/
@@ -692,6 +860,7 @@ StringToShadow(clientData, interp, tkwin, string, widgRec, offset)
     return TCL_OK;
 }
 
+
 /*
  *----------------------------------------------------------------------
  *
@@ -729,6 +898,130 @@ ShadowToString(clientData, tkwin, widgRec, offset, freeProcPtr)
 	*freeProcPtr = (Tcl_FreeProc *)Blt_Free;
     }
     return result;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * GradientToString --
+ *
+ *	Converts the two pad values into a Tcl list.  Each pad has two
+ *	pixel values.  For vertical pads, they represent the top and bottom
+ *	margins.  For horizontal pads, they're the left and right margins.
+ *	All pad values are non-negative integers.
+ *
+ * Results:
+ *	The padding list is returned.
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static char *
+GradientToString(clientData, tkwin, widgRec, offset, freeProcPtr)
+    ClientData clientData;	/* Not used. */
+    Tk_Window tkwin;		/* Not used. */
+    char *widgRec;		/* Structure record */
+    int offset;			/* Offset of pad in record */
+    Tcl_FreeProc **freeProcPtr;	/* Not used. */
+{
+    Gradient *gradientPtr = (Gradient *) (widgRec + offset);
+    char *result;
+
+    result = "";
+    if (gradientPtr->color != NULL) {
+	char string[200];
+
+         sprintf(string, "%s %s %d", Tk_NameOfColor(gradientPtr->color), Tk_NameOfColor(gradientPtr->color2), gradientPtr->width);
+	result = Blt_Strdup(string);
+	*freeProcPtr = (Tcl_FreeProc *)Blt_Free;
+    }
+    return result;
+}
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * StringToGradient --
+ *
+ *	Convert a string into two pad values.  The string may be in one of
+ *	the following forms:
+ *
+ *	    n    - n is a non-negative integer. This sets both
+ *		   pad values to n.
+ *	  {n m}  - both n and m are non-negative integers. side1
+ *		   is set to n, side2 is set to m.
+ *
+ * Results:
+ *	If the string is successfully converted, TCL_OK is returned.
+ *	Otherwise, TCL_ERROR is returned and an error message is left in
+ *	interp->result.
+ *
+ * Side Effects:
+ *	The padding structure passed is updated with the new values.
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+StringToGradient(clientData, interp, tkwin, string, widgRec, offset)
+    ClientData clientData;	/* Not used. */
+    Tcl_Interp *interp;		/* Interpreter to send results back to */
+    Tk_Window tkwin;		/* Window */
+    char *string;		/* Pixel value string */
+    char *widgRec;		/* Widget record */
+    int offset;			/* Offset of pad in widget */
+{
+    Gradient *gradientPtr = (Gradient *) (widgRec + offset);
+    XColor *colorPtr, *color2Ptr;
+    int dropOffset;
+
+    colorPtr = NULL;
+    color2Ptr = NULL;
+    dropOffset = 0;
+    if ((string != NULL) && (string[0] != '\0')) {
+	int nElem;
+	char **elemArr;
+
+	if (Tcl_SplitList(interp, string, &nElem, &elemArr) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+	if (nElem != 3) {
+	    Tcl_AppendResult(interp, "expected \"color1 color2 length\"  for gradient value",
+		(char *)NULL);
+	    Blt_Free(elemArr);
+	    return TCL_ERROR;
+	}
+	colorPtr = Tk_GetColor(interp, tkwin, Tk_GetUid(elemArr[0]));
+	if (colorPtr == NULL) {
+	    Blt_Free(elemArr);
+	    return TCL_ERROR;
+	}
+	color2Ptr = Tk_GetColor(interp, tkwin, Tk_GetUid(elemArr[1]));
+	if (color2Ptr == NULL) {
+	    Blt_Free(elemArr);
+	    return TCL_ERROR;
+	}
+	dropOffset = 1;
+        if (Blt_GetPixels(interp, tkwin, elemArr[2], PIXELS_NONNEGATIVE,
+            &dropOffset) != TCL_OK) {
+             Tk_FreeColor(colorPtr);
+             Tk_FreeColor(color2Ptr);
+             Blt_Free(elemArr);
+             return TCL_ERROR;
+         }
+	Blt_Free(elemArr);
+    }
+    if (gradientPtr->color != NULL) {
+	Tk_FreeColor(gradientPtr->color);
+    }
+    if (gradientPtr->color2 != NULL) {
+        Tk_FreeColor(gradientPtr->color2);
+    }
+    gradientPtr->color = colorPtr;
+    gradientPtr->color2 = color2Ptr;
+    gradientPtr->width = dropOffset;
+    return TCL_OK;
 }
 
 /*
@@ -1190,8 +1483,11 @@ TCL_VARARGS_DEF(Tk_ConfigSpec *, arg1)
     Tk_ConfigSpec *specs;
     register Tk_ConfigSpec *specPtr;
     register char *option;
+    Tcl_Interp *interp;
 
     specs = TCL_VARARGS_START(Tk_ConfigSpec *, arg1, argList);
+    interp = va_arg(argList, Tcl_Interp *);
+    specs = Blt_GetCachedSpecs(interp, specs);
     while ((option = va_arg(argList, char *)) != NULL) {
 	for (specPtr = specs; specPtr->type != TK_CONFIG_END; specPtr++) {
 	    if ((Tcl_StringMatch(specPtr->argvName, option)) &&
@@ -1250,6 +1546,7 @@ Blt_ConfigureWidgetComponent(interp, parent, resName, className, specsPtr,
     Tk_Window tkwin;
     int result;
     char *tempName;
+    CONST char *oldClass;
     int isTemporary = FALSE;
 
     tempName = Blt_Strdup(resName);
@@ -1265,7 +1562,9 @@ Blt_ConfigureWidgetComponent(interp, parent, resName, className, specsPtr,
     if (tkwin == NULL) {
 	tkwin = Tk_CreateWindow(interp, parent, tempName, (char *)NULL);
 	isTemporary = TRUE;
-    }
+     } else {
+        oldClass = Tk_Class(tkwin);
+     }
     if (tkwin == NULL) {
 	Tcl_AppendResult(interp, "can't find window in \"", 
 		 Tk_PathName(parent), "\"", (char *)NULL);
@@ -1275,10 +1574,12 @@ Blt_ConfigureWidgetComponent(interp, parent, resName, className, specsPtr,
     Blt_Free(tempName);
 
     Tk_SetClass(tkwin, className);
-    result = Tk_ConfigureWidget(interp, tkwin, specsPtr, argc, argv, widgRec,
+    result = Blt_ConfigureWidget(interp, tkwin, specsPtr, argc, (CONST char **)argv, widgRec,
 	flags);
     if (isTemporary) {
 	Tk_DestroyWindow(tkwin);
+    } else if (oldClass != NULL) {
+        Tk_SetClass(tkwin, oldClass);
     }
     return result;
 }
@@ -1368,3 +1669,4 @@ Blt_EnumToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     return p[value];
 }
 
+#include "bltOldConfig.c"

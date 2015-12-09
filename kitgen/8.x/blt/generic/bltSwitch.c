@@ -34,6 +34,11 @@
 
 #include "bltSwitch.h"
 
+static Blt_SwitchSpec *	GetCachedSwitchSpecs _ANSI_ARGS_((Tcl_Interp *interp,
+    const Blt_SwitchSpec *staticSpecs));
+    static void		DeleteSpecCacheTable _ANSI_ARGS_((
+    ClientData clientData, Tcl_Interp *interp));
+
 /*
  *--------------------------------------------------------------
  *
@@ -53,7 +58,7 @@
  *--------------------------------------------------------------
  */
 static Blt_SwitchSpec *
-FindSwitchSpec(interp, specs, name, needFlags, hateFlags)
+FindSwitchSpec(interp, specs, name, needFlags, hateFlags, flags)
     Tcl_Interp *interp;		/* Used for reporting errors. */
     Blt_SwitchSpec *specs;	/* Pointer to table of configuration
 				 * specifications for a widget. */
@@ -63,6 +68,7 @@ FindSwitchSpec(interp, specs, name, needFlags, hateFlags)
 				 * entry. */
     int hateFlags;		/* Flags that must NOT be present in
 				 * matching entry. */
+    int flags;
 {
     register Blt_SwitchSpec *specPtr;
     register char c;		/* First character of current argument. */
@@ -72,7 +78,7 @@ FindSwitchSpec(interp, specs, name, needFlags, hateFlags)
     c = name[1];
     length = strlen(name);
     matchPtr = NULL;
-    
+    specs = Blt_GetCachedSwitchSpecs(interp, specs);
     for (specPtr = specs; specPtr->type != BLT_SWITCH_END; specPtr++) {
 	if (specPtr->switchName == NULL) {
 	    continue;
@@ -81,6 +87,9 @@ FindSwitchSpec(interp, specs, name, needFlags, hateFlags)
 	    || (strncmp(specPtr->switchName, name, length) != 0)) {
 	    continue;
 	}
+	if ((flags&BLT_SWITCH_EXACT) && specPtr->switchName[length] != 0) {
+	    continue;
+        }
 	if (((specPtr->flags & needFlags) != needFlags)
 	    || (specPtr->flags & hateFlags)) {
 	    continue;
@@ -97,8 +106,31 @@ FindSwitchSpec(interp, specs, name, needFlags, hateFlags)
     }
 
     if (matchPtr == NULL) {
-	Tcl_AppendResult(interp, "unknown option \"", name, "\"", (char *)NULL);
-	return (Blt_SwitchSpec *) NULL;
+	Tcl_AppendResult(interp, "unknown option \"", name, "\" not one of: ", (char *)NULL);
+        for (specPtr = specs; specPtr->type != BLT_SWITCH_END; specPtr++) {
+            if (specPtr->switchName == NULL) {
+                continue;
+            }
+            if (name[1] != '?' || specPtr->type < 0 || specPtr->type >= BLT_SWITCH_END) {
+                Tcl_AppendResult(interp, specPtr->switchName, " ", 0);
+            } else {
+                static char *typenames[BLT_SWITCH_END+10] = {
+                    "bool", "int", "posint", "nonneg", "double", "string",
+                    "list", "flag", "value", "custom", "END"
+                };
+                if (typenames[BLT_SWITCH_END] == 0 ||
+                strcmp(typenames[BLT_SWITCH_END],"END")) {
+                    fprintf(stderr, "Blt_SwitchTypes changed\n");
+                    continue;
+                }
+                Tcl_AppendResult(interp, "?", specPtr->switchName, 0);
+                if (specPtr->type != BLT_SWITCH_FLAG) {
+                    Tcl_AppendResult(interp, " ", typenames[specPtr->type], 0);
+                }
+                Tcl_AppendResult(interp, "? ", 0);
+            }
+        }
+        return (Blt_SwitchSpec *) NULL;
     }
     return matchPtr;
 }
@@ -122,13 +154,14 @@ FindSwitchSpec(interp, specs, name, needFlags, hateFlags)
  *--------------------------------------------------------------
  */
 static int
-DoSwitch(interp, specPtr, string, record)
+DoSwitch(interp, specPtr, string, record, obj)
     Tcl_Interp *interp;		/* Interpreter for error reporting. */
     Blt_SwitchSpec *specPtr;	/* Specifier to apply. */
     char *string;		/* Value to use to fill in widgRec. */
     ClientData record;		/* Record whose fields are to be
 				 * modified.  Values must be properly
 				 * initialized. */
+    Tcl_Obj *obj;
 {
     char *ptr;
     int isNull;
@@ -178,6 +211,9 @@ DoSwitch(interp, specPtr, string, record)
 	    if (Tcl_GetDouble(interp, string, (double *)ptr) != TCL_OK) {
 		return TCL_ERROR;
 	    }
+	    break;
+	case BLT_SWITCH_OBJ:
+	    (*((Tcl_Obj **)ptr)) = obj;
 	    break;
 
 	case BLT_SWITCH_STRING: 
@@ -275,6 +311,7 @@ Blt_ProcessSwitches(interp, specs, argc, argv, record, flags)
      * Pass 1:  Clear the change flags on all the specs so that we 
      *          can check it later.
      */
+    specs = Blt_GetCachedSwitchSpecs(interp, specs);
     for (specPtr = specs; specPtr->type != BLT_SWITCH_END; specPtr++) {
 	specPtr->flags &= ~BLT_SWITCH_SPECIFIED;
     }
@@ -294,7 +331,7 @@ Blt_ProcessSwitches(interp, specs, argc, argv, record, flags)
 		return count;
 	    }
 	}
-	specPtr = FindSwitchSpec(interp, specs, arg, needFlags, hateFlags);
+	specPtr = FindSwitchSpec(interp, specs, arg, needFlags, hateFlags, flags);
 	if (specPtr == NULL) {
 	    return -1;
 	}
@@ -315,7 +352,7 @@ Blt_ProcessSwitches(interp, specs, argc, argv, record, flags)
 		return -1;
 	    }
 	    count++;
-	    if (DoSwitch(interp, specPtr, argv[count], record) != TCL_OK) {
+	    if (DoSwitch(interp, specPtr, argv[count], record, NULL) != TCL_OK) {
 		char msg[100];
 
 		sprintf(msg, "\n    (processing \"%.40s\" option)", 
@@ -381,6 +418,7 @@ Blt_ProcessObjSwitches(interp, specs, objc, objv, record, flags)
      * Pass 1:  Clear the change flags on all the specs so that we 
      *          can check it later.
      */
+    specs = Blt_GetCachedSwitchSpecs(interp, specs);
     for (specPtr = specs; specPtr->type != BLT_SWITCH_END; specPtr++) {
 	specPtr->flags &= ~BLT_SWITCH_SPECIFIED;
     }
@@ -402,7 +440,7 @@ Blt_ProcessObjSwitches(interp, specs, objc, objv, record, flags)
 		return count;
 	    }
 	}
-	specPtr = FindSwitchSpec(interp, specs, arg, needFlags, hateFlags);
+	specPtr = FindSwitchSpec(interp, specs, arg, needFlags, hateFlags, flags);
 	if (specPtr == NULL) {
 	    return -1;
 	}
@@ -424,7 +462,7 @@ Blt_ProcessObjSwitches(interp, specs, objc, objv, record, flags)
 		return -1;
 	    }
 	    arg = Tcl_GetString(objv[count]);
-	    if (DoSwitch(interp, specPtr, arg, record) != TCL_OK) {
+	    if (DoSwitch(interp, specPtr, arg, record, objv[count]) != TCL_OK) {
 		char msg[100];
 
 		sprintf(msg, "\n    (processing \"%.40s\" option)", 
@@ -454,7 +492,8 @@ Blt_ProcessObjSwitches(interp, specs, objc, objv, record, flags)
 
 /* ARGSUSED */
 void
-Blt_FreeSwitches(specs, record, needFlags)
+Blt_FreeSwitches(interp, specs, record, needFlags)
+    Tcl_Interp *interp;
     Blt_SwitchSpec *specs;	/* Describes legal options. */
     char *record;		/* Record whose fields contain current
 				 * values for options. */
@@ -464,6 +503,7 @@ Blt_FreeSwitches(specs, record, needFlags)
 {
     register Blt_SwitchSpec *specPtr;
 
+    specs = Blt_GetCachedSwitchSpecs(interp, specs);
     for (specPtr = specs; specPtr->type != BLT_SWITCH_END; specPtr++) {
 	if ((specPtr->flags & needFlags) == needFlags) {
 	    char *ptr;
@@ -515,8 +555,11 @@ TCL_VARARGS_DEF(Blt_SwitchSpec *, arg1)
     Blt_SwitchSpec *specs;
     register Blt_SwitchSpec *specPtr;
     register char *switchName;
+    Tcl_Interp *interp;
 
     specs = TCL_VARARGS_START(Blt_SwitchSpec *, arg1, argList);
+    interp = va_arg(argList, Tcl_Interp *);
+    specs = Blt_GetCachedSwitchSpecs(interp, specs);
     while ((switchName = va_arg(argList, char *)) != NULL) {
 	for (specPtr = specs; specPtr->type != BLT_SWITCH_END; specPtr++) {
 	    if ((Tcl_StringMatch(specPtr->switchName, switchName)) &&
@@ -528,4 +571,115 @@ TCL_VARARGS_DEF(Blt_SwitchSpec *, arg1)
     }
     va_end(argList);
     return 0;
+}
+
+/*
+*--------------------------------------------------------------
+*
+* DeleteSpecCacheTable --
+*
+*	Delete the per-interpreter copy of all the Blt_SwitchSpec tables which
+*	were stored in the interpreter's assoc-data store.
+*
+* Results:
+*	None
+*
+* Side effects:
+*	None
+*
+*--------------------------------------------------------------
+*/
+
+static void
+DeleteSpecCacheTable(clientData, interp)
+ClientData clientData;
+Tcl_Interp *interp;
+{
+    Tcl_HashTable *tablePtr = (Tcl_HashTable *) clientData;
+    Tcl_HashEntry *entryPtr;
+    Tcl_HashSearch search;
+
+    for (entryPtr = Tcl_FirstHashEntry(tablePtr,&search); entryPtr != NULL;
+    entryPtr = Tcl_NextHashEntry(&search)) {
+        /*
+        * Someone else deallocates the Tk_Uids themselves.
+        */
+
+        ckfree((char *) Tcl_GetHashValue(entryPtr));
+    }
+    Tcl_DeleteHashTable(tablePtr);
+    ckfree((char *) tablePtr);
+}
+
+
+Blt_SwitchSpec *
+Blt_GetCachedSwitchSpecs(interp, staticSpecs)
+Tcl_Interp *interp;
+const Blt_SwitchSpec *staticSpecs;
+{
+    return GetCachedSwitchSpecs(interp, staticSpecs);
+}
+
+static Blt_SwitchSpec *
+GetCachedSwitchSpecs(interp, staticSpecs)
+Tcl_Interp *interp;		/* Interpreter in which to store the cache. */
+const Blt_SwitchSpec *staticSpecs;
+/* Value to cache a copy of; it is also used
+* as a key into the cache. */
+{
+    Blt_SwitchSpec *cachedSpecs;
+    Tcl_HashTable *specCacheTablePtr;
+    Tcl_HashEntry *entryPtr;
+    int isNew;
+
+    /*
+    * Get (or allocate if it doesn't exist) the hash table that the writable
+    * copies of the widget specs are stored in. In effect, this is
+    * self-initializing code.
+    */
+
+    specCacheTablePtr = (Tcl_HashTable *)
+    Tcl_GetAssocData(interp, "bltSwitchSpec.threadTable", NULL);
+    if (specCacheTablePtr == NULL) {
+        specCacheTablePtr = (Tcl_HashTable *) ckalloc(sizeof(Tcl_HashTable));
+        Tcl_InitHashTable(specCacheTablePtr, TCL_ONE_WORD_KEYS);
+        Tcl_SetAssocData(interp, "bltSwitchSpec.threadTable",
+            DeleteSpecCacheTable, (ClientData) specCacheTablePtr);
+    }
+
+    /*
+    * Look up or create the hash entry that the constant specs are mapped to,
+        * which will have the writable specs as its associated value.
+        */
+
+        entryPtr = Tcl_CreateHashEntry(specCacheTablePtr, (char *) staticSpecs,
+        &isNew);
+        if (isNew) {
+        unsigned int entrySpace = sizeof(Blt_SwitchSpec);
+        const Blt_SwitchSpec *staticSpecPtr;
+
+        /*
+        * OK, no working copy in this interpreter so copy. Need to work out
+        * how much space to allocate first.
+        */
+
+        for (staticSpecPtr=staticSpecs; staticSpecPtr->type!=BLT_SWITCH_END;
+        staticSpecPtr++) {
+            entrySpace += sizeof(Blt_SwitchSpec);
+        }
+
+        /*
+        * Now allocate our working copy's space and copy over the contents
+        * from the master copy.
+        */
+
+        cachedSpecs = (Blt_SwitchSpec *) ckalloc(entrySpace);
+        memcpy((void *) cachedSpecs, (void *) staticSpecs, entrySpace);
+        Tcl_SetHashValue(entryPtr, (ClientData) cachedSpecs);
+
+    } else {
+        cachedSpecs = (Blt_SwitchSpec *) Tcl_GetHashValue(entryPtr);
+    }
+
+    return cachedSpecs;
 }

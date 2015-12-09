@@ -34,27 +34,191 @@
 static Blt_HashTable bitmapGCTable;
 static int initialized;
 
+int Blt_TextLayoutValue( TextLayout *textPtr, Tcl_DString *dStr) {
+    register TextFragment *fragPtr;
+    register int i;
+    
+    fragPtr = textPtr->fragArr;
+    for (i = 0; i < textPtr->nFrags; i++, fragPtr++) {
+        if (i) {
+            Tcl_DStringAppend(dStr, "\n", -1);
+        }
+        Tcl_DStringAppend(dStr, fragPtr->text, fragPtr->count);
+    }
+    return i;
+}
+
+void
+Blt_AverageImage(im, w, h, d)
+    XImage *im;
+    unsigned int w, h, d;
+{
+    /* the image will end up with 1 or 0 in the first plane, rest zero */
+    int i, j, k;
+    unsigned int d2;
+    unsigned long pixel, pixelave;
+
+    d2 = (3*d)/4;
+    for (i=0 ; i<w ; i++) {
+        for (j=0 ; j<h ; j++) {
+            pixel = XGetPixel(im, i, j);
+            pixelave = pixel & 1;
+            for (k=1 ; k<d ; k++) {
+                pixel >>= 1;
+                pixelave += pixel & 1;
+            }
+            pixelave = (pixelave + d2)/d;
+            XPutPixel(im, i, j, pixelave);
+        }
+    }
+    return;
+}
+
+#ifndef WIN32
 static void
-DrawTextLayout(display, drawable, gc, font, x, y, textPtr)
+Blt_DrawCharsBitmap(display, bitmap, w, width, height, gc, font, x, y, textPtr)
+    Display *display;
+    Drawable bitmap;
+    Window w;
+    unsigned int width, height;
+    GC gc;
+    Tk_Font font;
+    register int x, y;
+    TextLayout *textPtr;
+{
+    register TextFragment *fragPtr;
+    register int i, j;
+
+    XImage *bitmapimage, *pixmapimage;
+    GC gcsave, gcp;
+    Window winr;
+    int xr, yr;
+    unsigned int wr, hr, br, dr;
+    Pixmap pixmap;
+    unsigned long whitepixel;
+    XGCValues gcvalues ;
+    unsigned long valuemask, pixel ;
+
+    /* save the GC */
+    gcsave = XCreateGC(display, bitmap, 0, NULL);
+    XCopyGC(display, gc, 0, gcsave);
+    /* create a pixmap to draw chars to */
+    XGetGeometry(display, w, &winr, &xr, &yr, &wr, &hr, &br, &dr);
+    pixmap = Tk_GetPixmap(display, winr, width, height, dr);
+    /* get a GC for the pixmap, black(0) background, white(1) chars */
+    valuemask = (GCForeground|GCBackground) ;
+    gcvalues.foreground = gcvalues.background = 0 ;
+    gcp = XCreateGC(display, pixmap, valuemask, &gcvalues);
+    XSetForeground(display, gcp, 0) ;
+    XFillRectangle(display, pixmap, gcp, 0, 0, width, height);
+    whitepixel = XWhitePixel(display, 0);
+    XSetForeground(display, gcp, whitepixel) ;
+    /* draw white chars to the pixmap */
+    fragPtr = textPtr->fragArr;
+    for (i = 0; i < textPtr->nFrags; i++, fragPtr++) {
+        Tk_DrawChars(display, pixmap, gcp, font, fragPtr->text,
+            fragPtr->count, x + fragPtr->x, y + fragPtr->y);
+    }
+    XFlush(display);
+    /* get the pixmap image */
+    pixmapimage = XGetImage(display, pixmap, 0, 0, width, height,
+        AllPlanes, XYPixmap);
+    /* average the image to get the char in a single bit plane */
+    Blt_AverageImage(pixmapimage, width, height, dr);
+    /* get an image for the bitmap */
+    bitmapimage = XGetImage(display, bitmap, 0, 0, width, height,
+	 1, XYPixmap);
+    /* copy the first bit plane from the averaged pixmap to the bitmap */
+    for (i=0 ; i<width ; i++) {
+        for(j=0 ; j<height ; j++) {
+            pixel = XGetPixel(pixmapimage, i, j);
+            XPutPixel(bitmapimage, i, j, pixel);
+        }
+    }
+    /* but the bitmapimage into the bitmap with gc fg=1 bg=0 clipmask=None */
+    XSetForeground(display, gc, 1);
+    XSetBackground(display, gc, 0);
+    XSetClipMask(display, gc, None);
+    XPutImage(display, bitmap, gc, bitmapimage, 0, 0, 0, 0, width, height);
+    /* reset gc and clean up */
+    XCopyGC(display, gcsave, 0, gc);
+    XFreeGC(display, gcp);
+    XFreeGC(display, gcsave);
+    XDestroyImage(bitmapimage);
+    XDestroyImage(pixmapimage);
+    Tk_FreePixmap(display, pixmap);
+    return;
+}
+#endif
+
+static void
+DrawTextLayout(display, drawable, gc, font, x, y, textPtr, tsPtr)
     Display *display;
     Drawable drawable;
     GC gc;
     Tk_Font font;
     register int x, y;		/* Origin of text */
     TextLayout *textPtr;
+    TextStyle *tsPtr;
 {
     register TextFragment *fragPtr;
     register int i;
+    int n, u, ml, noxft = 0;
+    
+    n = 0, ml = 3000;
+    fragPtr = textPtr->fragArr;
+    /* TODO: Windows Tk_DrawChars() uses only gc font!!! */
+    for (i = 0; i < textPtr->nFrags; i++, fragPtr++) {
+       /* extern int tclWarnVar[];
+       noxft = tclWarnVar[23]; */
+#if HAVE_UTF
+        if (textPtr->rotated == 0  || noxft ) {
+            Tk_DrawChars(display, drawable, gc, font, fragPtr->text,
+	       fragPtr->count, x + fragPtr->x, y + fragPtr->y);
+	} else {
+#ifdef WIN32
+        Tk_DrawChars(display, drawable, gc, font, fragPtr->text,
+	    fragPtr->count, x + fragPtr->x, y + fragPtr->y);
+#else
+	   /*XDrawString(display, drawable, gc, x + fragPtr->x, y + fragPtr->y,
+	       fragPtr->text, fragPtr->count);*/
 
+    /*
+     * Tk_DrawChars no longer works on bitmaps for antialiased fonts
+     * Fix this by checking for a bitmap and calling code that
+     * DrawChars to bitmap
+     */
+    Window w;
+    int xd, yd;
+    unsigned int wd, hd, bd, dd;
+    XGetGeometry(display, drawable, &w, &xd, &yd, &wd, &hd, &bd, &dd);
+    if ( dd == 1 ) {
+      Blt_DrawCharsBitmap(display, drawable, w, wd, hd, gc, font,
+			  x, y, textPtr);
+      return;
+    }
     fragPtr = textPtr->fragArr;
     for (i = 0; i < textPtr->nFrags; i++, fragPtr++) {
-#if HAVE_UTF
-	Tk_DrawChars(display, drawable, gc, font, fragPtr->text,
-	    fragPtr->count, x + fragPtr->x, y + fragPtr->y);
+        Tk_DrawChars(display, drawable, gc, font, fragPtr->text,
+		     fragPtr->count, x + fragPtr->x, y + fragPtr->y);
+     }
+#endif   
+   }
 #else
 	XDrawString(display, drawable, gc, x + fragPtr->x, y + fragPtr->y,
 	    fragPtr->text, fragPtr->count);
 #endif /*HAVE_UTF*/
+        u = tsPtr->underline;
+        if (u >= 0 && u < (n + fragPtr->count) && fragPtr->count>0) {
+            int cw = (fragPtr->width / fragPtr->count);
+            int x1a = x + fragPtr->x + (cw * (u - n));
+            int y1a = y + fragPtr->y + 2;
+            int x2a = x1a + cw;
+            int y2a = y1a;
+            XDrawLine(display, drawable, gc, x1a, y1a, x2a, y2a);
+        }
+        if (i>ml) break;
+        n += fragPtr->count;
     }
 }
 
@@ -71,10 +235,11 @@ DrawTextLayout(display, drawable, gc, font, x, y, textPtr)
  *
  * -----------------------------------------------------------------
  */
-TextLayout *
-Blt_GetTextLayout(string, tsPtr)
+static TextLayout *
+bltGetTextLayoutStr(string, tsPtr, store)
     char string[];
     TextStyle *tsPtr;
+    int store; /* Store a copy of string. */
 {
     int maxHeight, maxWidth;
     int count;			/* Count # of characters on each line */
@@ -83,11 +248,14 @@ Blt_GetTextLayout(string, tsPtr)
     TextFragment *fragPtr;
     TextLayout *textPtr;
     int lineHeight;
-    int size;
+    int size, len, maxW, maxH, maxC;
     register char *p;
     register int i;
     Tk_FontMetrics fontMetrics;
 
+    maxW = ((1<<(8*sizeof(fragPtr->width)))/2-101);
+    maxH = ((1<<(8*sizeof(textPtr->height)))/2-101);
+    maxC = ((1<<(8*sizeof(fragPtr->count)))/2-101);
     Tk_GetFontMetrics(tsPtr->font, &fontMetrics);
     lineHeight = fontMetrics.linespace + 
 	tsPtr->leader + tsPtr->shadow.offset;
@@ -100,8 +268,23 @@ Blt_GetTextLayout(string, tsPtr)
     if ((p != string) && (*(p - 1) != '\n')) {
 	nFrags++;
     }
+    len = strlen(string);
     size = sizeof(TextLayout) + (sizeof(TextFragment) * (nFrags - 1));
+    if (store) {
+        size += len+1;
+    }
     textPtr = Blt_Calloc(1, size);
+    if (store) {
+        p = (char*)textPtr;
+        strcpy(p+size-len-1, string);
+        string = p+size-len-1;
+    }
+    if (tsPtr->theta != 0.0) {
+#ifndef WIN32
+        /* XFT bug crashes X with rotated text. */
+        textPtr->rotated = 1;
+#endif
+    }
     textPtr->nFrags = nFrags;
     nFrags = count = 0;
     width = maxWidth = 0;
@@ -112,12 +295,15 @@ Blt_GetTextLayout(string, tsPtr)
 	    if (count > 0) {
 		width = Tk_TextWidth(tsPtr->font, string, count) +
 		    tsPtr->shadow.offset;
+		if (width >= maxW) {
+		    width = maxW;
+		}
 		if (width > maxWidth) {
 		    maxWidth = width;
 		}
 	    }
 	    fragPtr->width = width;
-	    fragPtr->count = count;
+	    fragPtr->count = (count>maxC?maxC:count);
 	    fragPtr->y = maxHeight + fontMetrics.ascent;
 	    fragPtr->text = string;
 	    fragPtr++;
@@ -125,17 +311,21 @@ Blt_GetTextLayout(string, tsPtr)
 	    maxHeight += lineHeight;
 	    string = p + 1;	/* Start the string on the next line */
 	    count = 0;		/* Reset to indicate the start of a new line */
+	    if (maxHeight>0xff00 && (sizeof(tsPtr->height)==2)) break;
 	    continue;
 	}
 	count++;
     }
     if (nFrags < textPtr->nFrags) {
 	width = Tk_TextWidth(tsPtr->font, string, count) + tsPtr->shadow.offset;
+        if (width >= maxW) {
+            width = maxW;
+        }
 	if (width > maxWidth) {
 	    maxWidth = width;
 	}
 	fragPtr->width = width;
-	fragPtr->count = count;
+	fragPtr->count = (count>maxC?maxC:count);
 	fragPtr->y = maxHeight + fontMetrics.ascent;
 	fragPtr->text = string;
 	maxHeight += lineHeight;
@@ -160,8 +350,27 @@ Blt_GetTextLayout(string, tsPtr)
 	}
     }
     textPtr->width = maxWidth;
+    if (maxHeight >= maxH) {
+        maxHeight = maxH;
+    }
     textPtr->height = maxHeight - tsPtr->leader;
     return textPtr;
+}
+
+TextLayout *
+Blt_GetTextLayoutStr(string, tsPtr)
+    char string[];
+    TextStyle *tsPtr;
+{
+    return bltGetTextLayoutStr(string, tsPtr, 1);
+}
+
+TextLayout *
+Blt_GetTextLayout(string, tsPtr)
+    char string[];
+    TextStyle *tsPtr;
+{
+    return bltGetTextLayoutStr(string, tsPtr, 0);
 }
 
 /*
@@ -538,7 +747,7 @@ Blt_CreateTextBitmap(tkwin, textPtr, tsPtr, bmWidthPtr, bmHeightPtr)
 
     XSetFont(display, gc, Tk_FontId(tsPtr->font));
     XSetForeground(display, gc, 1);
-    DrawTextLayout(display, bitmap, gc, tsPtr->font, 0, 0, textPtr);
+    DrawTextLayout(display, bitmap, gc, tsPtr->font, 0, 0, textPtr, tsPtr);
 
 #ifdef WIN32
     /*
@@ -584,6 +793,7 @@ Blt_InitTextStyle(tsPtr)
     tsPtr->shadow.offset = 0;
     tsPtr->state = 0;
     tsPtr->theta = 0.0;
+    tsPtr->underline = -1;
 }
 
 void
@@ -693,7 +903,7 @@ Blt_DrawTextLayout(tkwin, drawable, textPtr, tsPtr, x, y)
 	    TkBorder *borderPtr = (TkBorder *) tsPtr->border;
 	    XColor *color1, *color2;
 
-	    color1 = borderPtr->lightColor, color2 = borderPtr->darkColor;
+	    color1 = borderPtr->lightColorPtr, color2 = borderPtr->darkColorPtr;
 	    if (tsPtr->state & STATE_EMPHASIS) {
 		XColor *hold;
 
@@ -703,12 +913,12 @@ Blt_DrawTextLayout(tkwin, drawable, textPtr, tsPtr, x, y)
 		XSetForeground(display, tsPtr->gc, color1->pixel);
 	    }
 	    DrawTextLayout(display, drawable, tsPtr->gc, tsPtr->font, x + 1, 
-		y + 1, textPtr);
+		y + 1, textPtr, tsPtr);
 	    if (color2 != NULL) {
 		XSetForeground(display, tsPtr->gc, color2->pixel);
 	    }
 	    DrawTextLayout(display, drawable, tsPtr->gc, tsPtr->font, x, y, 
-		textPtr);
+		textPtr, tsPtr);
 
 	    /* Reset the foreground color back to its original setting,
 	     * so not to invalidate the GC cache. */
@@ -719,14 +929,15 @@ Blt_DrawTextLayout(tkwin, drawable, textPtr, tsPtr, x, y)
 	if ((tsPtr->shadow.offset > 0) && (tsPtr->shadow.color != NULL)) {
 	    XSetForeground(display, tsPtr->gc, tsPtr->shadow.color->pixel);
 	    DrawTextLayout(display, drawable, tsPtr->gc, tsPtr->font, 
-		   x + tsPtr->shadow.offset, y + tsPtr->shadow.offset, textPtr);
+		   x + tsPtr->shadow.offset, y + tsPtr->shadow.offset, textPtr,
+		   tsPtr);
 	    XSetForeground(display, tsPtr->gc, tsPtr->color->pixel);
 	}
 	if (active) {
 	    XSetForeground(display, tsPtr->gc, tsPtr->activeColor->pixel);
 	}
 	DrawTextLayout(display, drawable, tsPtr->gc, tsPtr->font, x, y, 
-		textPtr);
+		textPtr, tsPtr);
 	if (active) {
 	    XSetForeground(display, tsPtr->gc, tsPtr->color->pixel);
 	}
@@ -757,7 +968,7 @@ Blt_DrawTextLayout(tkwin, drawable, textPtr, tsPtr, x, y)
 	TkBorder *borderPtr = (TkBorder *) tsPtr->border;
 	XColor *color1, *color2;
 
-	color1 = borderPtr->lightColor, color2 = borderPtr->darkColor;
+	color1 = borderPtr->lightColorPtr, color2 = borderPtr->darkColorPtr;
 	if (tsPtr->state & STATE_EMPHASIS) {
 	    XColor *hold;
 
@@ -851,6 +1062,8 @@ Blt_DrawText(tkwin, drawable, string, tsPtr, x, y)
     }
     textPtr = Blt_GetTextLayout(string, tsPtr);
     Blt_DrawTextLayout(tkwin, drawable, textPtr, tsPtr, x, y);
+    tsPtr->width = textPtr->width;
+    tsPtr->height = textPtr->height;
     Blt_Free(textPtr);
 }
 
@@ -868,7 +1081,11 @@ Blt_GetBitmapGC(tkwin)
 	initialized = TRUE;
     }
     display = Tk_Display(tkwin);
-    hPtr = Blt_CreateHashEntry(&bitmapGCTable, (char *)display, &isNew);
+
+    /* Changed "(char *)display" to "Tk_PathName(tkwin)"  to create a   */
+    /* unique key in the bitmapGCTable hash table.                      */
+    hPtr = Blt_CreateHashEntry(&bitmapGCTable, Tk_PathName(tkwin), &isNew);
+
     if (isNew) {
 	Pixmap bitmap;
 	XGCValues gcValues;
@@ -917,5 +1134,40 @@ Blt_FreeTextStyle(display, tsPtr)
 {
     if (tsPtr->gc != NULL) {
 	Tk_FreeGC(display, tsPtr->gc);
+    }
+}
+
+void
+Blt_DeleteAxisLabelsGC(tkwin)
+    Tk_Window tkwin;
+{
+    /* int isNew; */
+    Display *display;
+    GC gc;
+    Blt_HashEntry *hPtr;
+
+    /* This routine is called by GraphEventProc when a        */
+    /* "destroy" command is issued to destroy a graph window. */
+
+    /* Initialize hashtable "bitmapGCTable" if not done already.      */ 
+    /* (Note: Aborts in "Blt_FindHashEntry" if table does not exist.) */
+    if (!initialized) {
+	Blt_InitHashTable(&bitmapGCTable, BLT_ONE_WORD_KEYS);
+	initialized = TRUE;
+    }
+
+    /* Search for entry in table. */
+    hPtr = Blt_FindHashEntry(&bitmapGCTable, Tk_PathName(tkwin));
+
+    /* If entry found, free GC resource and delete entry in hash table. */
+    if (hPtr) {
+       display = Tk_Display(tkwin);
+       gc = (GC)Blt_GetHashValue(hPtr);
+       XFreeGC(display,gc);
+       /* This needs to be done when the toplevel window is destroyed  */
+       /* to prevent "X-Window err: BadMatch 70 (X_PolyFillRectangle)" */
+       /* if the same toplevel window is displayed on a different      */
+       /* screen of the same workstation.                              */
+       Blt_DeleteHashEntry(&bitmapGCTable, hPtr);
     }
 }

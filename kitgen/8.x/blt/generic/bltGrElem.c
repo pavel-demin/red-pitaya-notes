@@ -25,7 +25,6 @@
  * software.
  */
 
-#include "bltVecInt.h"
 #include "bltGraph.h"
 #include "bltChain.h"
 #include <X11/Xutil.h>
@@ -111,63 +110,6 @@ GetPenStyle(graphPtr, string, type, stylePtr)
     return TCL_OK;
 }
 
-double
-Blt_VecMin(vecPtr)
-    Blt_Vector *vecPtr;
-{
-    VectorObject *vPtr = (VectorObject *)vecPtr;
-
-    if (!FINITE(vPtr->min)) {
-        double min;
-        register int i;
-
-        min = bltNaN;
-        for (i = 0; i < vPtr->length; i++) {
-            if (FINITE(vPtr->valueArr[i])) {
-                min = vPtr->valueArr[i];
-                break;
-            }
-        }
-        for (/* empty */; i < vPtr->length; i++) {
-            if (FINITE(vPtr->valueArr[i])) {
-                if (min > vPtr->valueArr[i]) {
-                    min = vPtr->valueArr[i];
-                }
-            }
-        }
-        vPtr->min = min;
-    }
-    return vPtr->min;
-}
-
-double
-Blt_VecMax(vecPtr)
-    Blt_Vector *vecPtr;
-{
-    VectorObject *vPtr = (VectorObject *)vecPtr;
-
-    if (!FINITE(vPtr->max)) {
-        double max;
-        register int i;
-
-        max = bltNaN;
-        for (i = 0; i < vPtr->length; i++) {
-            if (FINITE(vPtr->valueArr[i])) {
-                max = vPtr->valueArr[i];
-                break;
-            }
-        }
-        for (/* empty */; i < vPtr->length; i++) {
-            if (FINITE(vPtr->valueArr[i])) {
-                if (max < vPtr->valueArr[i]) {
-                    max = vPtr->valueArr[i];
-                }
-            }
-        }
-        vPtr->max = max;
-    }
-    return vPtr->max;
-}
 
 static void
 SyncElemVector(vPtr)
@@ -832,7 +774,10 @@ Blt_StylesToString(clientData, tkwin, widgRec, offset, freeProcPtr)
 	    Tcl_DStringEndSublist(&dString);
 	}
     }
-    result = Blt_Strdup(Tcl_DStringValue(&dString));
+    result = Tcl_DStringValue(&dString);
+    if (result == dString.staticSpace) {
+        result = Blt_Strdup(result);
+    }
     *freeProcPtr = (Tcl_FreeProc *)Blt_Free;
     return result;
 }
@@ -1713,7 +1658,7 @@ ClosestOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;		/* Graph widget */
     Tcl_Interp *interp;		/* Interpreter to report results to */
     int argc;			/* Number of element names */
-    char **argv;		/* List of element names */
+    CONST char **argv;		/* List of element names */
 {
     Element *elemPtr;
     ClosestSearch search;
@@ -1754,7 +1699,7 @@ ClosestOp(graphPtr, interp, argc, argv)
     search.x = x;
     search.y = y;
 
-    if (Tk_ConfigureWidget(interp, graphPtr->tkwin, closestSpecs, i - 6,
+    if (Blt_ConfigureWidget(interp, graphPtr->tkwin, closestSpecs, i - 6,
 	    argv + 6, (char *)&search, TK_CONFIG_ARGV_ONLY) != TCL_OK) {
 	return TCL_ERROR;	/* Error occurred processing an option. */
     }
@@ -1779,10 +1724,11 @@ ClosestOp(graphPtr, interp, argc, argv)
 		}
 	    }
 	    if ((!found) || (elemPtr->hidden)) {
-		Tcl_AppendResult(interp, "element \"", argv[i], "\" is hidden",
-			(char *)NULL);
-		return TCL_ERROR;	/* Element isn't visible */
-	    }
+ 		Tcl_AppendResult(interp, "element \"", argv[i],
+ 			"\" is hidden", (char *)NULL);
+  		return TCL_ERROR;	/* Element isn't visible */
+ 	    }
+
 	    /* Check if the X or Y vectors have notifications pending */
 	    if ((elemPtr->flags & MAP_ITEM) ||
 		(Blt_VectorNotifyPending(elemPtr->x.clientId)) ||
@@ -1875,12 +1821,12 @@ ConfigureOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;
     Tcl_Interp *interp;
     int argc;
-    char *argv[];
+    CONST char *argv[];
 {
     Element *elemPtr;
     int flags;
     int numNames, numOpts;
-    char **options;
+    CONST char **options;
     register int i;
 
     /* Figure out where the option value pairs begin */
@@ -1908,14 +1854,14 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	    return Tk_ConfigureInfo(interp, graphPtr->tkwin, 
 		elemPtr->specsPtr, (char *)elemPtr, options[0], flags);
 	}
-	if (Tk_ConfigureWidget(interp, graphPtr->tkwin, elemPtr->specsPtr, 
+	if (Blt_ConfigureWidget(interp, graphPtr->tkwin, elemPtr->specsPtr, 
 		numOpts, options, (char *)elemPtr, flags) != TCL_OK) {
 	    return TCL_ERROR;
 	}
 	if ((*elemPtr->procsPtr->configProc) (graphPtr, elemPtr) != TCL_OK) {
 	    return TCL_ERROR;	/* Failed to configure element */
 	}
-	if (Blt_ConfigModified(elemPtr->specsPtr, "-hide", (char *)NULL)) {
+	if (Blt_ConfigModified(elemPtr->specsPtr, graphPtr->interp, "-hide", (char *)NULL)) {
 	    graphPtr->flags |= RESET_AXES;
 	    elemPtr->flags |= MAP_ITEM;
 	}
@@ -1923,13 +1869,13 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	 * affect autoscaling) and recalculate the screen points of
 	 * the element. */
 
-	if (Blt_ConfigModified(elemPtr->specsPtr, "-*data", "-map*", "-x",
+	if (Blt_ConfigModified(elemPtr->specsPtr, graphPtr->interp, "-*data", "-map*", "-x",
 		       "-y", (char *)NULL)) {
 	    graphPtr->flags |= RESET_WORLD;
 	    elemPtr->flags |= MAP_ITEM;
 	}
 	/* The new label may change the size of the legend */
-	if (Blt_ConfigModified(elemPtr->specsPtr, "-label", (char *)NULL)) {
+	if (Blt_ConfigModified(elemPtr->specsPtr, graphPtr->interp, "-label", (char *)NULL)) {
 	    graphPtr->flags |= (MAP_WORLD | REDRAW_WORLD);
 	}
     }

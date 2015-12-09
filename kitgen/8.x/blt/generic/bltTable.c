@@ -1181,7 +1181,7 @@ ConfigureEntry(tablePtr, interp, entryPtr, argc, argv)
     Tcl_Interp *interp;
     Entry *entryPtr;
     int argc;			/* Option-value arguments */
-    char **argv;
+    CONST char **argv;
 {
     int oldRowSpan, oldColSpan;
 
@@ -1201,7 +1201,7 @@ ConfigureEntry(tablePtr, interp, entryPtr, argc, argv)
     oldRowSpan = entryPtr->row.span;
     oldColSpan = entryPtr->column.span;
 
-    if (Tk_ConfigureWidget(interp, entryPtr->tkwin, entryConfigSpecs,
+    if (Blt_ConfigureWidget(interp, entryPtr->tkwin, entryConfigSpecs,
 	    argc, argv, (char *)entryPtr, TK_CONFIG_ARGV_ONLY) != TCL_OK) {
 	return TCL_ERROR;
     }
@@ -1533,7 +1533,7 @@ ConfigureRowColumn(tablePtr, infoPtr, pattern, argc, argv)
     PartitionInfo *infoPtr;
     char *pattern;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     RowColumn *rcPtr;
     register Blt_ChainLink *linkPtr;
@@ -1553,7 +1553,7 @@ ConfigureRowColumn(tablePtr, infoPtr, pattern, argc, argv)
 		return Tk_ConfigureInfo(tablePtr->interp, tablePtr->tkwin,
 		    infoPtr->configSpecs, (char *)rcPtr, argv[0], 0);
 	    } else {
-		if (Tk_ConfigureWidget(tablePtr->interp, tablePtr->tkwin,
+		if (Blt_ConfigureWidget(tablePtr->interp, tablePtr->tkwin,
 			infoPtr->configSpecs, argc, argv, (char *)rcPtr,
 			TK_CONFIG_ARGV_ONLY) != TCL_OK) {
 		    return TCL_ERROR;
@@ -1578,7 +1578,7 @@ ConfigureRowColumn(tablePtr, infoPtr, pattern, argc, argv)
 	}
 	rcPtr = GetRowColumn(infoPtr, n);
 	assert(rcPtr);
-	if (Tk_ConfigureWidget(tablePtr->interp, tablePtr->tkwin,
+	if (Blt_ConfigureWidget(tablePtr->interp, tablePtr->tkwin,
 	       infoPtr->configSpecs, argc, argv, (char *)rcPtr,
 	       TK_CONFIG_ARGV_ONLY) != TCL_OK) {
 	    return TCL_ERROR;
@@ -1852,7 +1852,7 @@ ConfigureTable(tablePtr, interp, argc, argv)
     Table *tablePtr;		/* Table to be configured */
     Tcl_Interp *interp;		/* Interpreter to report results back to */
     int argc;
-    char **argv;		/* Option-value pairs */
+    CONST char **argv;		/* Option-value pairs */
 {
     if (argc == 0) {
 	return Tk_ConfigureInfo(interp, tablePtr->tkwin, tableConfigSpecs,
@@ -1861,7 +1861,7 @@ ConfigureTable(tablePtr, interp, argc, argv)
 	return Tk_ConfigureInfo(interp, tablePtr->tkwin, tableConfigSpecs,
 	    (char *)tablePtr, argv[0], 0);
     }
-    if (Tk_ConfigureWidget(interp, tablePtr->tkwin, tableConfigSpecs,
+    if (Blt_ConfigureWidget(interp, tablePtr->tkwin, tableConfigSpecs,
 	    argc, argv, (char *)tablePtr, TK_CONFIG_ARGV_ONLY) != TCL_OK) {
 	return TCL_ERROR;
     }
@@ -2034,7 +2034,7 @@ BinEntry(tablePtr, entryPtr)
     key = 0;			/* Initialize key to bogus span */
     for (node = Blt_ListFirstNode(list); node != NULL;
 	node = Blt_ListNextNode(node)) {
-	key = (int)Blt_ListGetKey(node);
+	key = (intptr_t)Blt_ListGetKey(node);
 	if (entryPtr->row.span <= key) {
 	    break;
 	}
@@ -2046,7 +2046,7 @@ BinEntry(tablePtr, entryPtr)
 	 * Create a new list (bucket) to hold entries of that size
 	 * span and and link it into the list of buckets.
 	 */
-	newNode = Blt_ListCreateNode(list, (char *)entryPtr->row.span);
+	newNode = Blt_ListCreateNode(list, (char *)(intptr_t)entryPtr->row.span);
 	Blt_ListSetValue(newNode, (char *)Blt_ChainCreate());
 	Blt_ListLinkBefore(list, newNode, node);
 	node = newNode;
@@ -2063,7 +2063,7 @@ BinEntry(tablePtr, entryPtr)
     key = 0;
     for (node = Blt_ListFirstNode(list); node != NULL;
 	node = Blt_ListNextNode(node)) {
-	key = (int)Blt_ListGetKey(node);
+	key = (intptr_t)Blt_ListGetKey(node);
 	if (entryPtr->column.span <= key) {
 	    break;
 	}
@@ -2075,7 +2075,7 @@ BinEntry(tablePtr, entryPtr)
 	 * Create a new list (bucket) to hold entries of that size
 	 * span and and link it into the list of buckets.
 	 */
-	newNode = Blt_ListCreateNode(list, (char *)entryPtr->column.span);
+	newNode = Blt_ListCreateNode(list, (char *)(intptr_t)entryPtr->column.span);
 	Blt_ListSetValue(newNode, (char *)Blt_ChainCreate());
 	Blt_ListLinkBefore(list, newNode, node);
 	node = newNode;
@@ -2179,7 +2179,7 @@ ManageEntry(interp, tablePtr, tkwin, row, column, argc, argv)
     Tk_Window tkwin;
     int row, column;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     Entry *entryPtr;
     int result = TCL_OK;
@@ -2198,7 +2198,7 @@ ManageEntry(interp, tablePtr, tkwin, row, column, argc, argv)
 	}
     }
     if (argc > 0) {
-	result = Tk_ConfigureWidget(tablePtr->interp, entryPtr->tkwin,
+	result = Blt_ConfigureWidget(tablePtr->interp, entryPtr->tkwin,
 	    entryConfigSpecs, argc, argv, (char *)entryPtr,
 	    TK_CONFIG_ARGV_ONLY);
     }
