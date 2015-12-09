@@ -44,24 +44,24 @@ kit-gui$(EXE): build/tcl build/tk build/blt build/Tktable build/tclvfs \
 	build/zlib build/tcllib build/sqlite $(GUIOBJ)
 	$(CC) -o $@ $(CFLAGS) ../../kitInit.c $(GUIOBJ) \
 	  -Ibuild/include -DKIT_LITE -DSTATIC_BUILD \
-	  build/lib/libz$A build/lib/vfs1*/*vfs1*$A \
+	  build/lib/vfs1*/*vfs1*$A \
 	  -DKIT_INCLUDES_TK build/lib/Tktable2*/*Tktable2*$A \
 	  build/lib/*tkstub8*$A build/lib/*tk8*$A \
 	  build/lib/*tclstub8*$A build/lib/*tcl8*$A \
 	  build/lib/BLT2*/*BLT2*$A \
-	  build/lib/sqlite3*/*sqlite3*$A \
+	  build/lib/sqlite3*/*sqlite3*$A build/lib/libz$A \
 	  $(LDFLAGS) $(GUI_OPTS)
 else
 kit-gui$(EXE): build/tcl build/tk build/blt build/Tktable build/tclvfs \
 	build/zlib build/tcllib build/sqlite $(GUIOBJ)
 	$(CC) -o $@ $(CFLAGS) ../../kitInit.c $(GUIOBJ) \
 	  -Ibuild/include -DKIT_LITE -DSTATIC_BUILD \
-	  build/lib/libz$A build/lib/vfs1*/*vfs1*$A \
+	  build/lib/vfs1*/*vfs1*$A \
 	  -DKIT_INCLUDES_TK build/lib/Tktable2*/*Tktable2*$A \
 	  build/lib/*tkstub8*$A build/lib/*tk8*$A \
 	  build/lib/*tclstub8*$A build/lib/*tcl8*$A \
 	  build/lib/BLT2*/*BLT2*$A \
-	  build/lib/sqlite3*/*sqlite3*$A \
+	  build/lib/sqlite3*/*sqlite3*$A build/lib/libz$A \
 	  $(LDFLAGS) $(GUI_OPTS)
 endif
 
