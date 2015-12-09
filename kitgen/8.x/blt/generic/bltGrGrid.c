@@ -77,6 +77,9 @@ static Tk_ConfigSpec configSpecs[] =
     {TK_CONFIG_BOOLEAN, "-minor", "minor", "Minor",
 	DEF_GRID_MINOR, Tk_Offset(Grid, minorGrid),
 	TK_CONFIG_DONT_SET_DEFAULT | ALL_GRAPHS},
+    {TK_CONFIG_BOOLEAN, "-raised", "raised", "Raised",
+	"0", Tk_Offset(Grid, raised),
+	TK_CONFIG_DONT_SET_DEFAULT | ALL_GRAPHS},
     {TK_CONFIG_END, NULL, NULL, NULL, NULL, 0, 0}
 };
 
@@ -192,7 +195,7 @@ Blt_DrawGrid(graphPtr, drawable)
 	return;
     }
     if (gridPtr->x.nSegments > 0) {
-	Blt_Draw2DSegments(graphPtr->display, drawable, gridPtr->gc, 
+	Blt_Draw2DSegments(graphPtr->display, drawable, gridPtr->gc,
 			 gridPtr->x.segments, gridPtr->x.nSegments);
     }
     if (gridPtr->y.nSegments > 0) {
@@ -226,11 +229,11 @@ Blt_GridToPostScript(graphPtr, psToken)
     Blt_LineAttributesToPostScript(psToken, gridPtr->colorPtr,
 	gridPtr->lineWidth, &(gridPtr->dashes), CapButt, JoinMiter);
     if (gridPtr->x.nSegments > 0) {
-	Blt_2DSegmentsToPostScript(psToken, gridPtr->x.segments, 
+	Blt_2DSegmentsToPostScript(psToken, gridPtr->x.segments,
 			gridPtr->x.nSegments);
     }
     if (gridPtr->y.nSegments > 0) {
-	Blt_2DSegmentsToPostScript(psToken, gridPtr->y.segments, 
+	Blt_2DSegmentsToPostScript(psToken, gridPtr->y.segments,
 			gridPtr->y.nSegments);
     }
 }
@@ -352,7 +355,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;
     Tcl_Interp *interp;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     Grid *gridPtr = (Grid *)graphPtr->gridPtr;
     int flags;
@@ -365,7 +368,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	return Tk_ConfigureInfo(interp, graphPtr->tkwin, configSpecs,
 	    (char *)gridPtr, argv[3], flags);
     }
-    if (Tk_ConfigureWidget(graphPtr->interp, graphPtr->tkwin, configSpecs,
+    if (Blt_ConfigureWidget(graphPtr->interp, graphPtr->tkwin, configSpecs,
 	    argc - 3, argv + 3, (char *)gridPtr, flags) != TCL_OK) {
 	return TCL_ERROR;
     }

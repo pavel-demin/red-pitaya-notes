@@ -102,7 +102,7 @@ MinMathProc(clientData, interp, argsPtr, resultPtr)
     } else {
 	double a, b;
 
-	a = (op1Ptr->type == TCL_INT) 
+	a = (op1Ptr->type == TCL_INT)
 	    ? (double)op1Ptr->intValue : op1Ptr->doubleValue;
 	b = (op2Ptr->type == TCL_INT)
 	    ? (double)op2Ptr->intValue : op2Ptr->doubleValue;
@@ -147,7 +147,7 @@ Blt_Init(interp)
     Tcl_AppInitProc **p;
     Tcl_Namespace *nsPtr;
     Tcl_ValueType args[2];
-    
+
     /*
      * Check that the versions of Tcl that have been loaded are
      * the same ones that BLT was compiled against.
@@ -159,9 +159,9 @@ Blt_Init(interp)
 
     /* Set the "blt_version", "blt_patchLevel", and "blt_libPath" Tcl
      * variables. We'll use them in the following script. */
-    if ((Tcl_SetVar(interp, "blt_version", BLT_VERSION, 
+    if ((Tcl_SetVar(interp, "blt_version", BLT_VERSION,
     		TCL_GLOBAL_ONLY) == NULL) ||
-        (Tcl_SetVar(interp, "blt_patchLevel", BLT_PATCH_LEVEL, 
+        (Tcl_SetVar(interp, "blt_patchLevel", BLT_PATCH_LEVEL,
     		TCL_GLOBAL_ONLY) == NULL)) {
         return TCL_ERROR;
     }
@@ -309,9 +309,9 @@ Blt_InitObjCmd(interp, nsName, specPtr)
 	Tcl_DStringFree(&dString);
 	return cmdToken;	/* Assume command was already initialized */
     }
-    cmdToken = Tcl_CreateObjCommand(interp, cmdPath, 
-		(Tcl_ObjCmdProc *)specPtr->cmdProc, 
-		specPtr->clientData, 
+    cmdToken = Tcl_CreateObjCommand(interp, cmdPath,
+		(Tcl_ObjCmdProc *)specPtr->cmdProc,
+		specPtr->clientData,
 		specPtr->cmdDeleteProc);
     Tcl_DStringFree(&dString);
 

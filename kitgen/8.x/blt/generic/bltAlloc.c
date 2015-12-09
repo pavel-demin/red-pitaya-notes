@@ -26,7 +26,7 @@ Blt_ReallocProc *Blt_ReallocProcPtr = TclpRealloc;
 
 void *
 Blt_Calloc(nElems, sizeOfElem)
-    unsigned int nElems; 
+    unsigned int nElems;
     size_t sizeOfElem;
 {
     char *ptr;

@@ -1,4 +1,4 @@
-package ifneeded BLT 2.4 [list BLT_load $dir]
+package ifneeded BLT 2.5 [list BLT_load $dir]
 
 proc BLT_load {dir} {
     global blt_library

@@ -90,6 +90,9 @@
 #define DBL_MIN		2.2250738585072014E-308
 #define DBL_EPSILON	2.2204460492503131e-16
 #else
+#ifndef DBL_EPSILON
+#define DBL_EPSILON	BLT_DBL_EPSILON
+#endif
 #ifdef HUGE_VAL
 #define DBL_MAX		HUGE_VAL
 #define DBL_MIN		(1/HUGE_VAL)
@@ -106,21 +109,6 @@
 #endif /*HUGE*/
 #endif /*HUGE_VAL*/
 #endif /*sun*/
-
-#ifndef BLT_DBL_EPSILON
-#  define BLT_DBL_EPSILON 2.2204460492503131e-16
-#endif
-#ifndef BLT_FLT_EPSILON
-#  define BLT_FLT_EPSILON 1.19209290e-07F
-#endif
-
-#ifndef DBL_EPSILON
-#  define DBL_EPSILON	BLT_DBL_EPSILON
-#endif
-#ifndef FLT_EPSILON
-#  define FLT_EPSILON	BLT_FLT_EPSILON
-#endif
-
 #endif /*!HAVE_FLOAT_H*/
 
 /*

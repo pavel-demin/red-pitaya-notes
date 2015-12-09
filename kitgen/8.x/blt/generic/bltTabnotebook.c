@@ -416,10 +416,10 @@ typedef struct {
 static Tk_ConfigSpec tabConfigSpecs[] =
 {
     {TK_CONFIG_BORDER, "-activebackground", "activeBackground",
-	"ActiveBackground", DEF_TAB_ACTIVE_BG, 
+	"ActiveBackground", DEF_TAB_ACTIVE_BG,
 	Tk_Offset(Tab, activeBorder), TK_CONFIG_NULL_OK},
     {TK_CONFIG_COLOR, "-activeforeground", "activeForeground",
-	"ActiveForeground", DEF_TAB_ACTIVE_FG, 
+	"ActiveForeground", DEF_TAB_ACTIVE_FG,
 	Tk_Offset(Tab, activeFgColor), TK_CONFIG_NULL_OK},
     {TK_CONFIG_ANCHOR, "-anchor", "anchor", "Anchor",
 	DEF_TAB_ANCHOR, Tk_Offset(Tab, anchor), TK_CONFIG_DONT_SET_DEFAULT},
@@ -456,7 +456,7 @@ static Tk_ConfigSpec tabConfigSpecs[] =
 	DEF_TAB_PAD, Tk_Offset(Tab, padX), 0, &bltPadOption},
     {TK_CONFIG_CUSTOM, "-pady", "padY", "PadY",
 	DEF_TAB_PAD, Tk_Offset(Tab, padY), 0, &bltPadOption},
-    {TK_CONFIG_CUSTOM, "-perforationcommand", "perforationcommand", 
+    {TK_CONFIG_CUSTOM, "-perforationcommand", "perforationcommand",
 	"PerforationCommand",
 	DEF_TAB_PERF_COMMAND, Tk_Offset(Tab, perfCommand),
 	TK_CONFIG_NULL_OK, &bltUidOption},
@@ -468,7 +468,7 @@ static Tk_ConfigSpec tabConfigSpecs[] =
 	DEF_TAB_SHADOW, Tk_Offset(Tab, shadow),
 	TK_CONFIG_NULL_OK, &bltShadowOption},
     {TK_CONFIG_CUSTOM, "-state", "state", "State",
-	DEF_TAB_STATE, Tk_Offset(Tab, state), 
+	DEF_TAB_STATE, Tk_Offset(Tab, state),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltStateOption},
     {TK_CONFIG_BITMAP, "-stipple", "stipple", "Stipple",
 	DEF_TAB_STIPPLE, Tk_Offset(Tab, stipple), 0},
@@ -668,10 +668,10 @@ static Tk_ConfigSpec configSpecs[] =
 	DEF_TNB_ACTIVE_BG_MONO, Tk_Offset(Notebook, defTabStyle.activeBorder),
 	TK_CONFIG_MONO_ONLY},
     {TK_CONFIG_COLOR, "-activeforeground", "activeForeground",
-	"activeForeground", DEF_TNB_ACTIVE_FOREGROUND, 
+	"activeForeground", DEF_TNB_ACTIVE_FOREGROUND,
 	Tk_Offset(Notebook, defTabStyle.activeFgColor), TK_CONFIG_COLOR_ONLY},
     {TK_CONFIG_COLOR, "-activeforeground", "activeForeground",
-	"activeForeground", DEF_TNB_ACTIVE_FG_MONO, 
+	"activeForeground", DEF_TNB_ACTIVE_FG_MONO,
 	Tk_Offset(Notebook, defTabStyle.activeFgColor), TK_CONFIG_MONO_ONLY},
     {TK_CONFIG_BORDER, "-background", "background", "Background",
 	DEF_TNB_BG_MONO, Tk_Offset(Notebook, border), TK_CONFIG_MONO_ONLY},
@@ -687,11 +687,11 @@ static Tk_ConfigSpec configSpecs[] =
     {TK_CONFIG_CUSTOM, "-dashes", "dashes", "Dashes",
 	DEF_TNB_DASHES, Tk_Offset(Notebook, defTabStyle.dashes),
 	TK_CONFIG_NULL_OK, &bltDashesOption},
-    {TK_CONFIG_SYNONYM, "-fg", "tabForeground", (char *)NULL, 
+    {TK_CONFIG_SYNONYM, "-fg", "tabForeground", (char *)NULL,
 	(char *)NULL, 0, 0},
     {TK_CONFIG_FONT, "-font", "font", "Font",
 	DEF_TNB_FONT, Tk_Offset(Notebook, defTabStyle.font), 0},
-    {TK_CONFIG_SYNONYM, "-foreground", "tabForeground", (char *)NULL, 
+    {TK_CONFIG_SYNONYM, "-foreground", "tabForeground", (char *)NULL,
 	(char *)NULL, 0, 0},
     {TK_CONFIG_PIXELS, "-gap", "gap", "Gap",
 	DEF_TNB_GAP, Tk_Offset(Notebook, gap),
@@ -722,7 +722,7 @@ static Tk_ConfigSpec configSpecs[] =
     {TK_CONFIG_CUSTOM, "-pagewidth", "pageWidth", "PageWidth",
 	DEF_TNB_PAGE_WIDTH, Tk_Offset(Notebook, reqPageWidth),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltDistanceOption},
-    {TK_CONFIG_STRING, "-perforationcommand", "perforationcommand", 
+    {TK_CONFIG_STRING, "-perforationcommand", "perforationcommand",
 	"PerforationCommand",
 	DEF_TAB_PERF_COMMAND, Tk_Offset(Notebook, defTabStyle.perfCommand),
 	TK_CONFIG_NULL_OK, &bltUidOption},
@@ -829,7 +829,7 @@ static void ArrangeWindow _ANSI_ARGS_((Tk_Window tkwin, XRectangle *rectPtr,
 static void EventuallyRedraw _ANSI_ARGS_((Notebook *nbPtr));
 static void EventuallyRedrawTearoff _ANSI_ARGS_((Tab *tabPtr));
 static void ComputeLayout _ANSI_ARGS_((Notebook *nbPtr));
-static void DrawOuterBorders _ANSI_ARGS_((Notebook *nbPtr, 
+static void DrawOuterBorders _ANSI_ARGS_((Notebook *nbPtr,
 	Drawable drawable));
 
 static Tk_ImageChangedProc ImageChangedProc;
@@ -882,8 +882,8 @@ WorldToScreen(nbPtr, x, y, xScreenPtr, yScreenPtr)
      * 0.0 and 1.0, rather adding/subtracting the pad in various locations.
      * It may be changed back in the future.
      */
-    x += (nbPtr->inset + 
-	  nbPtr->xSelectPad - 
+    x += (nbPtr->inset +
+	  nbPtr->xSelectPad -
 	  nbPtr->scrollOffset);
     y += nbPtr->inset + nbPtr->yPad;
 
@@ -1198,7 +1198,7 @@ StringToWindow(clientData, interp, parent, string, widgRec, offset)
 	    return TCL_ERROR;
 	}
 	Tk_ManageGeometry(tkwin, &tabMgrInfo, tabPtr);
-	Tk_CreateEventHandler(tkwin, StructureNotifyMask, 
+	Tk_CreateEventHandler(tkwin, StructureNotifyMask,
 		EmbeddedWidgetEventProc, tabPtr);
 
 	/*
@@ -1213,7 +1213,7 @@ StringToWindow(clientData, interp, parent, string, widgRec, offset)
 	if (tabPtr->container != NULL) {
 	    Tcl_EventuallyFree(tabPtr, DestroyTearoff);
 	}
-	Tk_DeleteEventHandler(old, StructureNotifyMask, 
+	Tk_DeleteEventHandler(old, StructureNotifyMask,
 	      EmbeddedWidgetEventProc, tabPtr);
 	Tk_ManageGeometry(old, (Tk_GeomMgr *) NULL, tabPtr);
 	Tk_UnmapWindow(old);
@@ -1433,14 +1433,14 @@ WorldY(tabPtr)
 }
 
 static int
-TabIndex(nbPtr, tabPtr) 
+TabIndex(nbPtr, tabPtr)
     Notebook *nbPtr;
     Tab *tabPtr;
 {
     Tab *t2Ptr;
     int count;
     Blt_ChainLink *linkPtr;
-    
+
     count = 0;
     for (linkPtr = Blt_ChainFirstLink(nbPtr->chainPtr); linkPtr != NULL;
 	linkPtr = Blt_ChainNextLink(linkPtr)) {
@@ -1532,7 +1532,7 @@ static ClientData
 PickTab(clientData, x, y, contextPtr)
     ClientData clientData;
     int x, y;			/* Screen coordinates to test. */
-    ClientData *contextPtr;	
+    ClientData *contextPtr;
 {
     Notebook *nbPtr = clientData;
     Tab *tabPtr;
@@ -1542,13 +1542,13 @@ PickTab(clientData, x, y, contextPtr)
 	*contextPtr = NULL;
     }
     tabPtr = nbPtr->selectPtr;
-    if ((nbPtr->tearoff) && (tabPtr != NULL) && 
+    if ((nbPtr->tearoff) && (tabPtr != NULL) &&
 	(tabPtr->container == NULL) && (tabPtr->tkwin != NULL)) {
 	int top, bottom, left, right;
 	int sx, sy;
 
 	/* Check first for perforation on the selected tab. */
-	WorldToScreen(nbPtr, tabPtr->worldX + 2, 
+	WorldToScreen(nbPtr, tabPtr->worldX + 2,
 	      tabPtr->worldY + tabPtr->worldHeight + 4, &sx, &sy);
 	if (nbPtr->side & SIDE_HORIZONTAL) {
 	    left = sx - 2;
@@ -1567,7 +1567,7 @@ PickTab(clientData, x, y, contextPtr)
 	    }
 	    return nbPtr->selectPtr;
 	}
-    } 
+    }
     for (linkPtr = Blt_ChainFirstLink(nbPtr->chainPtr); linkPtr != NULL;
 	linkPtr = Blt_ChainNextLink(linkPtr)) {
 	tabPtr = Blt_ChainGetValue(linkPtr);
@@ -1632,12 +1632,12 @@ TabUp(tabPtr)
 	Notebook *nbPtr;
 	int x, y;
 	int worldX, worldY;
-	
+
 	nbPtr = tabPtr->nbPtr;
 	worldX = tabPtr->worldX + (tabPtr->worldWidth / 2);
 	worldY = tabPtr->worldY - (nbPtr->tabHeight / 2);
 	WorldToScreen(nbPtr, worldX, worldY, &x, &y);
-	
+
 	tabPtr = (Tab *)PickTab(nbPtr, x, y, NULL);
 	if (tabPtr == NULL) {
 	    /*
@@ -1744,7 +1744,7 @@ GetTab(nbPtr, string, tabPtrPtr, allowNull)
 	linkPtr = Blt_ChainGetNthLink(nbPtr->chainPtr, position);
 	if (linkPtr == NULL) {
 	    Tcl_AppendResult(nbPtr->interp, "can't find tab \"", string,
-		"\" in \"", Tk_PathName(nbPtr->tkwin), 
+		"\" in \"", Tk_PathName(nbPtr->tkwin),
 		"\": no such index", (char *)NULL);
 	    return TCL_ERROR;
 	}
@@ -1763,11 +1763,11 @@ GetTab(nbPtr, string, tabPtrPtr, allowNull)
 	case SIDE_RIGHT:
 	    tabPtr = TabLeft(nbPtr->focusPtr);
 	    break;
-	    
+
 	case SIDE_BOTTOM:
 	    tabPtr = TabDown(nbPtr->focusPtr);
 	    break;
-	    
+
 	case SIDE_TOP:
 	    tabPtr = TabUp(nbPtr->focusPtr);
 	    break;
@@ -1778,11 +1778,11 @@ GetTab(nbPtr, string, tabPtrPtr, allowNull)
 	case SIDE_RIGHT:
 	    tabPtr = TabRight(nbPtr->focusPtr);
 	    break;
-	    
+
 	case SIDE_BOTTOM:
 	    tabPtr = TabUp(nbPtr->focusPtr);
 	    break;
-	    
+
 	case SIDE_TOP:
 	    tabPtr = TabDown(nbPtr->focusPtr);
 	    break;
@@ -1792,11 +1792,11 @@ GetTab(nbPtr, string, tabPtrPtr, allowNull)
 	case SIDE_LEFT:
 	    tabPtr = TabUp(nbPtr->focusPtr);
 	    break;
-	    
+
 	case SIDE_RIGHT:
 	    tabPtr = TabDown(nbPtr->focusPtr);
 	    break;
-	    
+
 	case SIDE_BOTTOM:
 	case SIDE_TOP:
 	    tabPtr = TabLeft(nbPtr->focusPtr);
@@ -1807,11 +1807,11 @@ GetTab(nbPtr, string, tabPtrPtr, allowNull)
 	case SIDE_LEFT:
 	    tabPtr = TabDown(nbPtr->focusPtr);
 	    break;
-	    
+
 	case SIDE_RIGHT:
 	    tabPtr = TabUp(nbPtr->focusPtr);
 	    break;
-	    
+
 	case SIDE_BOTTOM:
 	case SIDE_TOP:
 	    tabPtr = TabRight(nbPtr->focusPtr);
@@ -1825,7 +1825,7 @@ GetTab(nbPtr, string, tabPtrPtr, allowNull)
     } else if (c == '@') {
 	int x, y;
 
-	if (Blt_GetXY(nbPtr->interp, nbPtr->tkwin, string, &x, &y) 
+	if (Blt_GetXY(nbPtr->interp, nbPtr->tkwin, string, &x, &y)
 	    != TCL_OK) {
 	    return TCL_ERROR;
 	}
@@ -1845,7 +1845,7 @@ GetTab(nbPtr, string, tabPtrPtr, allowNull)
 	Tcl_AppendResult(nbPtr->interp, "can't find tab \"", string,
 	    "\" in \"", Tk_PathName(nbPtr->tkwin), "\"", (char *)NULL);
 	return TCL_ERROR;
-    }	
+    }
     return TCL_OK;
 }
 
@@ -2032,7 +2032,7 @@ DestroyTab(nbPtr, tabPtr)
     }
     if (tabPtr->tkwin != NULL) {
 	Tk_ManageGeometry(tabPtr->tkwin, (Tk_GeomMgr *)NULL, tabPtr);
-	Tk_DeleteEventHandler(tabPtr->tkwin, StructureNotifyMask, 
+	Tk_DeleteEventHandler(tabPtr->tkwin, StructureNotifyMask,
 		EmbeddedWidgetEventProc, tabPtr);
 	if (Tk_IsMapped(tabPtr->tkwin)) {
 	    Tk_UnmapWindow(tabPtr->tkwin);
@@ -2430,7 +2430,7 @@ GetWindowRectangle(tabPtr, parent, tearoff, rectPtr)
     int cavityWidth, cavityHeight;
     int width, height;
     int dx, dy;
-    int x, y;
+    int x = 0, y = 0;
 
     nbPtr = tabPtr->nbPtr;
     pad = nbPtr->inset + nbPtr->inset2;
@@ -2519,11 +2519,11 @@ ArrangeWindow(tkwin, rectPtr, force)
     int force;
 {
     if ((force) ||
-	(rectPtr->x != Tk_X(tkwin)) || 
+	(rectPtr->x != Tk_X(tkwin)) ||
 	(rectPtr->y != Tk_Y(tkwin)) ||
 	(rectPtr->width != Tk_Width(tkwin)) ||
 	(rectPtr->height != Tk_Height(tkwin))) {
-	Tk_MoveResizeWindow(tkwin, rectPtr->x, rectPtr->y, 
+	Tk_MoveResizeWindow(tkwin, rectPtr->x, rectPtr->y,
 			    rectPtr->width, rectPtr->height);
     }
     if (!Tk_IsMapped(tkwin)) {
@@ -2552,14 +2552,14 @@ GetTags(table, object, context, list)
 	    int nNames;
 	    char **names;
 	    register char **p;
-	    
-	    /* 
+
+	    /*
 	     * This is a space/time trade-off in favor of space.  The tags
 	     * are stored as character strings in a hash table.  That way,
 	     * tabs can share the strings. It's likely that they will.  The
-	     * down side is that the same string is split over and over again. 
+	     * down side is that the same string is split over and over again.
 	     */
-	    if (Tcl_SplitList((Tcl_Interp *)NULL, tabPtr->tags, &nNames, 
+	    if (Tcl_SplitList((Tcl_Interp *)NULL, tabPtr->tags, &nNames,
 		&names) == TCL_OK) {
 		for (p = names; *p != NULL; p++) {
 		    Blt_ListAppend(list, MakeTag(nbPtr, *p), 0);
@@ -2719,7 +2719,7 @@ CreateNotebook(interp, tkwin)
     nbPtr->slant = SLANT_NONE;
     nbPtr->overlap = 0;
     nbPtr->tearoff = TRUE;
-    nbPtr->bindTable = Blt_CreateBindingTable(interp, tkwin, nbPtr, PickTab, 
+    nbPtr->bindTable = Blt_CreateBindingTable(interp, tkwin, nbPtr, PickTab,
 	GetTags);
     nbPtr->chainPtr = Blt_ChainCreate();
     Blt_InitHashTable(&(nbPtr->tabTable), BLT_STRING_KEYS);
@@ -2758,7 +2758,7 @@ ConfigureNotebook(interp, nbPtr, argc, argv, flags)
 			         * may not already have values for
 			         * some fields. */
     int argc;
-    char **argv;
+    CONST char **argv;
     int flags;
 {
     XGCValues gcValues;
@@ -2766,16 +2766,16 @@ ConfigureNotebook(interp, nbPtr, argc, argv, flags)
     GC newGC;
 
     lastNotebookInstance = nbPtr;
-    if (Tk_ConfigureWidget(interp, nbPtr->tkwin, configSpecs, argc, argv,
+    if (Blt_ConfigureWidget(interp, nbPtr->tkwin, configSpecs, argc, argv,
 	    (char *)nbPtr, flags) != TCL_OK) {
 	return TCL_ERROR;
     }
-    if (Blt_ConfigModified(configSpecs, "-width", "-height", "-side", "-gap",
+    if (Blt_ConfigModified(configSpecs, interp, "-width", "-height", "-side", "-gap",
 	    "-slant", (char *)NULL)) {
 	nbPtr->flags |= (TNB_LAYOUT | TNB_SCROLL);
     }
     if ((nbPtr->reqHeight > 0) && (nbPtr->reqWidth > 0)) {
-	Tk_GeometryRequest(nbPtr->tkwin, nbPtr->reqWidth, 
+	Tk_GeometryRequest(nbPtr->tkwin, nbPtr->reqWidth,
 		nbPtr->reqHeight);
     }
     /*
@@ -2811,7 +2811,7 @@ ConfigureNotebook(interp, nbPtr, argc, argv, flags)
 	Blt_SetDashes(nbPtr->display, newGC, &(nbPtr->defTabStyle.dashes));
     }
     if (nbPtr->defTabStyle.activeGC != NULL) {
-	Blt_FreePrivateGC(nbPtr->display, 
+	Blt_FreePrivateGC(nbPtr->display,
 			  nbPtr->defTabStyle.activeGC);
     }
     nbPtr->defTabStyle.activeGC = newGC;
@@ -2821,12 +2821,12 @@ ConfigureNotebook(interp, nbPtr, argc, argv, flags)
 	nbPtr->defTabStyle.rotate += 360.0;
     }
     nbPtr->inset = nbPtr->highlightWidth + nbPtr->borderWidth + nbPtr->outerPad;
-    if (Blt_ConfigModified(configSpecs, "-font", "-*foreground", "-rotate",
+    if (Blt_ConfigModified(configSpecs, interp, "-font", "-*foreground", "-rotate",
 	    "-*background", "-side", (char *)NULL)) {
 	Blt_ChainLink *linkPtr;
 	Tab *tabPtr;
 
-	for (linkPtr = Blt_ChainFirstLink(nbPtr->chainPtr); 
+	for (linkPtr = Blt_ChainFirstLink(nbPtr->chainPtr);
 	     linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
 	    tabPtr = Blt_ChainGetValue(linkPtr);
 	    ConfigureTab(nbPtr, tabPtr);
@@ -3000,7 +3000,7 @@ DeleteOp(nbPtr, interp, argc, argv)
     if (GetTab(nbPtr, argv[2], &firstPtr, INVALID_FAIL) != TCL_OK) {
 	return TCL_ERROR;
     }
-    if ((argc == 4) && 
+    if ((argc == 4) &&
 	(GetTab(nbPtr, argv[3], &lastPtr, INVALID_FAIL) != TCL_OK)) {
 	return TCL_ERROR;
     }
@@ -3088,7 +3088,7 @@ static int
 IndexOp(nbPtr, interp, argc, argv)
     Notebook *nbPtr;
     Tcl_Interp *interp;
-    int argc;			
+    int argc;
     char **argv;
 {
     Tab *tabPtr;
@@ -3097,7 +3097,7 @@ IndexOp(nbPtr, interp, argc, argv)
 	return TCL_ERROR;
     }
     if (tabPtr != NULL) {
-	Tcl_SetResult(interp, Blt_Itoa(TabIndex(nbPtr, tabPtr)), 
+	Tcl_SetResult(interp, Blt_Itoa(TabIndex(nbPtr, tabPtr)),
 		TCL_VOLATILE);
     }
     return TCL_OK;
@@ -3155,7 +3155,7 @@ InsertOp(nbPtr, interp, argc, argv)
     Notebook *nbPtr;
     Tcl_Interp *interp;
     int argc;			/* Not used. */
-    char **argv;
+    CONST char **argv;
 {
     Tab *tabPtr;
     Blt_ChainLink *linkPtr, *beforeLinkPtr;
@@ -3193,7 +3193,7 @@ InsertOp(nbPtr, interp, argc, argv)
     }
     lastNotebookInstance = nbPtr;
     if (Blt_ConfigureWidgetComponent(interp, nbPtr->tkwin, tabPtr->name,
-	"Tab", tabConfigSpecs, argc - 3, argv + 3, (char *)tabPtr, 0) 
+	"Tab", tabConfigSpecs, argc - 3, (char **)argv + 3, (char *)tabPtr, 0)
 	!= TCL_OK) {
 	DestroyTab(nbPtr, tabPtr);
 	return TCL_ERROR;
@@ -3317,7 +3317,7 @@ InvokeOp(nbPtr, interp, argc, argv)
 	int result;
 
 	PercentSubst(nbPtr, tabPtr, command, &dString);
-	result = Tcl_GlobalEval(nbPtr->interp, 
+	result = Tcl_GlobalEval(nbPtr->interp,
 		Tcl_DStringValue(&dString));
 	Tcl_DStringFree(&dString);
 	if (result != TCL_OK) {
@@ -3371,10 +3371,10 @@ MoveOp(nbPtr, interp, argc, argv)
     }
     Blt_ChainUnlinkLink(nbPtr->chainPtr, tabPtr->linkPtr);
     if (before) {
-	Blt_ChainLinkBefore(nbPtr->chainPtr, tabPtr->linkPtr, 
+	Blt_ChainLinkBefore(nbPtr->chainPtr, tabPtr->linkPtr,
 	    linkPtr->linkPtr);
     } else {
-	Blt_ChainLinkAfter(nbPtr->chainPtr, tabPtr->linkPtr, 
+	Blt_ChainLinkAfter(nbPtr->chainPtr, tabPtr->linkPtr,
 	    linkPtr->linkPtr);
     }
     nbPtr->flags |= (TNB_LAYOUT | TNB_SCROLL);
@@ -3491,7 +3491,7 @@ ViewOp(nbPtr, interp, argc, argv)
 	return TCL_OK;
     }
     if (Blt_GetScrollInfo(interp, argc - 2, argv + 2, &(nbPtr->scrollOffset),
-	    nbPtr->worldWidth, width, nbPtr->scrollUnits, 
+	    nbPtr->worldWidth, width, nbPtr->scrollUnits,
 	    BLT_SCROLL_MODE_CANVAS) != TCL_OK) {
 	return TCL_ERROR;
     }
@@ -3658,10 +3658,10 @@ TabConfigureOp(nbPtr, interp, argc, argv)
     Notebook *nbPtr;
     Tcl_Interp *interp;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     int nTabs, nOpts, result;
-    char **options;
+    CONST char **options;
     register int i;
     Tab *tabPtr;
 
@@ -3691,7 +3691,7 @@ TabConfigureOp(nbPtr, interp, argc, argv)
 	}
 	Tcl_Preserve(tabPtr);
 	lastNotebookInstance = nbPtr;
-	result = Tk_ConfigureWidget(interp, nbPtr->tkwin, tabConfigSpecs,
+	result = Blt_ConfigureWidget(interp, nbPtr->tkwin, tabConfigSpecs,
 	    nOpts, options, (char *)tabPtr, TK_CONFIG_ARGV_ONLY);
 	if (result == TCL_OK) {
 	    result = ConfigureTab(nbPtr, tabPtr);
@@ -3850,7 +3850,7 @@ static Blt_OpSpec tabOps[] =
     {"cget", 2, (Blt_Op)TabCgetOp, 5, 5, "nameOrIndex option",},
     {"configure", 2, (Blt_Op)TabConfigureOp, 4, 0,
 	"nameOrIndex ?option value?...",},
-    {"dockall", 1, (Blt_Op)TabDockallOp, 3, 3, "" }, 
+    {"dockall", 1, (Blt_Op)TabDockallOp, 3, 3, "" },
     {"names", 1, (Blt_Op)TabNamesOp, 3, 0, "?pattern...?",},
     {"tearoff", 1, (Blt_Op)TabTearoffOp, 4, 5, "index ?parent?",},
 };
@@ -3938,12 +3938,12 @@ PerforationInvokeOp(nbPtr, interp, argc, argv)
 
     if (nbPtr->selectPtr != NULL) {
 	char *cmd;
-	
+
 	cmd = GETATTR(nbPtr->selectPtr, perfCommand);
 	if (cmd != NULL) {
 	    Tcl_DString dString;
 	    int result;
-	    
+
 	    PercentSubst(nbPtr, nbPtr->selectPtr, cmd, &dString);
 	    Tcl_Preserve(nbPtr);
 	    result = Tcl_GlobalEval(interp, Tcl_DStringValue(&dString));
@@ -3971,7 +3971,7 @@ PerforationInvokeOp(nbPtr, interp, argc, argv)
  */
 static Blt_OpSpec perforationOps[] =
 {
-    {"activate", 1, (Blt_Op)PerforationActivateOp, 4, 4, "boolean" }, 
+    {"activate", 1, (Blt_Op)PerforationActivateOp, 4, 4, "boolean" },
     {"invoke", 1, (Blt_Op)PerforationInvokeOp, 3, 3, "",},
 };
 
@@ -3987,7 +3987,7 @@ PerforationOp(nbPtr, interp, argc, argv)
     Blt_Op proc;
     int result;
 
-    proc = Blt_GetOp(interp, nPerforationOps, perforationOps, BLT_OP_ARG2, 
+    proc = Blt_GetOp(interp, nPerforationOps, perforationOps, BLT_OP_ARG2,
 		     argc, argv, 0);
     if (proc == NULL) {
 	return TCL_ERROR;
@@ -4092,7 +4092,7 @@ SeeOp(nbPtr, interp, argc, argv)
 
 	    nbPtr->scrollOffset = tabPtr->worldX + tabPtr->worldWidth -
 		(width - 2 * nbPtr->xSelectPad);
-	    linkPtr = Blt_ChainNextLink(tabPtr->linkPtr); 
+	    linkPtr = Blt_ChainNextLink(tabPtr->linkPtr);
 	    if (linkPtr != NULL) {
 		Tab *nextPtr;
 
@@ -4423,7 +4423,7 @@ ComputeLayout(nbPtr)
     }
 
     if (nbPtr->side & SIDE_VERTICAL) {
-        width = Tk_Height(nbPtr->tkwin) - 2 * 
+        width = Tk_Height(nbPtr->tkwin) - 2 *
 	    (nbPtr->corner + nbPtr->xSelectPad);
     } else {
         width = Tk_Width(nbPtr->tkwin) - (2 * nbPtr->inset) -
@@ -4655,8 +4655,8 @@ Draw3DFolder(nbPtr, tabPtr, drawable, side, pointArr, nPoints)
 		    gc = Tk_GCForColor(nbPtr->shadowColor, drawable);
 		}  else {
 		    gc = Tk_3DBorderGC(nbPtr->tkwin, border, TK_3D_FLAT_GC);
-		}		    
-		XDrawLines(nbPtr->display, drawable, gc, pointArr + start, 
+		}
+		XDrawLines(nbPtr->display, drawable, gc, pointArr + start,
 			   i - start, CoordModeOrigin);
 		start = i - 1;
 		oldType = newType;
@@ -4667,14 +4667,14 @@ Draw3DFolder(nbPtr, tabPtr, drawable, side, pointArr, nPoints)
 		gc = Tk_GCForColor(nbPtr->shadowColor, drawable);
 	    }  else {
 		gc = Tk_3DBorderGC(nbPtr->tkwin, border, TK_3D_FLAT_GC);
-	    }		    
-	    XDrawLines(nbPtr->display, drawable, gc, pointArr + start, 
+	    }
+	    XDrawLines(nbPtr->display, drawable, gc, pointArr + start,
 		       i - start, CoordModeOrigin);
 	}
 #else
 	/* Draw the outline of the folder. */
 	gc = Tk_GCForColor(nbPtr->shadowColor, drawable);
-	XDrawLines(nbPtr->display, drawable, gc, pointArr, nPoints, 
+	XDrawLines(nbPtr->display, drawable, gc, pointArr, nPoints,
 		   CoordModeOrigin);
 #endif
     }
@@ -4684,7 +4684,7 @@ Draw3DFolder(nbPtr, tabPtr, drawable, side, pointArr, nPoints)
 	Tk_Fill3DPolygon(nbPtr->tkwin, drawable, border, pointArr, nPoints,
 	    borderWidth, relief);
 #endif
-	Blt_TilePolygon(nbPtr->tkwin, drawable, tabPtr->tile, pointArr, 
+	Blt_TilePolygon(nbPtr->tkwin, drawable, tabPtr->tile, pointArr,
 			nPoints);
 #ifdef notdef
 	Tk_Draw3DPolygon(nbPtr->tkwin, drawable, border, pointArr, nPoints,
@@ -4863,7 +4863,7 @@ DrawPerforation(nbPtr, tabPtr, drawable)
     if ((tabPtr->container != NULL) || (tabPtr->tkwin == NULL)) {
 	return;
     }
-    WorldToScreen(nbPtr, tabPtr->worldX + 2, 
+    WorldToScreen(nbPtr, tabPtr->worldX + 2,
 	  tabPtr->worldY + tabPtr->worldHeight + 2, &x, &y);
     border = GETATTR(tabPtr, selBorder);
     segmentWidth = 3;
@@ -4871,7 +4871,7 @@ DrawPerforation(nbPtr, tabPtr, drawable)
 	perfBorder = GETATTR(tabPtr, activeBorder);
     } else {
 	perfBorder = GETATTR(tabPtr, selBorder);
-    }	
+    }
     if (nbPtr->side & SIDE_HORIZONTAL) {
 	pointArr[0].x = x;
 	pointArr[0].y = pointArr[1].y = y;
@@ -5015,7 +5015,7 @@ DrawFolder(nbPtr, tabPtr, drawable)
 	 *   0+ . . +7
 	 *
 	 */
-	
+
 	if (nbPtr->slant & SLANT_LEFT) {
 	    NextPoint(x, yBot);
 	    NextPoint(x, yTop);
@@ -5288,7 +5288,7 @@ DrawOuterBorders(nbPtr, drawable)
 	color = (nbPtr->flags & TNB_FOCUS)
 	    ? nbPtr->highlightColor : nbPtr->highlightBgColor;
 	gc = Tk_GCForColor(color, drawable);
-	Tk_DrawFocusHighlight(nbPtr->tkwin, gc, nbPtr->highlightWidth, 
+	Tk_DrawFocusHighlight(nbPtr->tkwin, gc, nbPtr->highlightWidth,
 	      drawable);
     }
 }
@@ -5362,7 +5362,7 @@ DisplayNotebook(clientData)
     if (nbPtr->flags & TNB_SCROLL) {
 	width = VPORTWIDTH(nbPtr);
 	nbPtr->scrollOffset = Blt_AdjustViewport(nbPtr->scrollOffset,
-	    nbPtr->worldWidth, width, nbPtr->scrollUnits, 
+	    nbPtr->worldWidth, width, nbPtr->scrollUnits,
 	    BLT_SCROLL_MODE_CANVAS);
 	if (nbPtr->scrollCmdPrefix != NULL) {
 	    Blt_UpdateScrollbar(nbPtr->interp, nbPtr->scrollCmdPrefix,
@@ -5495,10 +5495,10 @@ DisplayTearoff(clientData)
      */
     if (nbPtr->tile != NULL) {
 	Blt_SetTileOrigin(tkwin, nbPtr->tile, 0, 0);
-	Blt_TileRectangle(tkwin, drawable, nbPtr->tile, 0, 0, Tk_Width(tkwin), 
+	Blt_TileRectangle(tkwin, drawable, nbPtr->tile, 0, 0, Tk_Width(tkwin),
 		Tk_Height(tkwin));
     } else {
-	Blt_Fill3DRectangle(tkwin, drawable, nbPtr->border, 0, 0, 
+	Blt_Fill3DRectangle(tkwin, drawable, nbPtr->border, 0, 0,
 		Tk_Width(tkwin), Tk_Height(tkwin), 0, TK_RELIEF_FLAT);
     }
 
@@ -5608,7 +5608,7 @@ NotebookInstCmd(clientData, interp, argc, argv)
     Notebook *nbPtr = clientData;
     int result;
 
-    proc = Blt_GetOp(interp, nNotebookOps, notebookOps, BLT_OP_ARG1, argc, 
+    proc = Blt_GetOp(interp, nNotebookOps, notebookOps, BLT_OP_ARG1, argc,
 	argv, 0);
     if (proc == NULL) {
 	return TCL_ERROR;
@@ -5718,7 +5718,7 @@ NotebookCmd(clientData, interp, argc, argv)
      * script.
      */
     if (!Tcl_GetCommandInfo(interp, "blt::TabnotebookInit", &cmdInfo)) {
-	static char initCmd[] = 
+	static char initCmd[] =
 	    "source [file join $blt_library tabnotebook.tcl]";
 
 	if (Tcl_GlobalEval(interp, initCmd) != TCL_OK) {

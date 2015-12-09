@@ -25,6 +25,23 @@
 #ifndef BLT_NS_UTIL_H
 #define BLT_NS_UTIL_H 1
 
+#if defined(ITCL_NAMESPACES) || (TCL_MAJOR_VERSION >= 8)
+#define HAVE_NAMESPACES 1
+#else
+#define HAVE_NAMESPACES 0
+#endif
+
+#if (TCL_MAJOR_VERSION <= 7)
+
+/*
+ * Namespaces and callframes don't exist before Tcl version 8.0.
+ * We'll define them as opaque pointers.  In reality, they
+ * point to the interpreter token.
+ */
+typedef struct Tcl_NamespaceStruct Tcl_Namespace;
+typedef struct Tcl_CallFrameStruct *Tcl_CallFrame;
+#endif
+
 #ifndef TCL_NAMESPACE_ONLY
 #define TCL_NAMESPACE_ONLY TCL_GLOBAL_ONLY
 #endif
@@ -33,6 +50,47 @@
 #define NS_SEARCH_CURRENT	(1<<0)
 #define NS_SEARCH_GLOBAL	(1<<1)
 #define NS_SEARCH_BOTH		(NS_SEARCH_GLOBAL | NS_SEARCH_CURRENT)
+
+#ifndef WIN32
+#if 0
+EXTERN Tcl_Command Tcl_FindCommand _ANSI_ARGS_((Tcl_Interp *interp,
+	CONST char *name, Tcl_Namespace *nsPtr, int flags));
+
+
+/*
+ * Namespace procedures not prototyped defined in Tcl.h
+ */
+EXTERN Tcl_Namespace *Tcl_GetCurrentNamespace _ANSI_ARGS_((Tcl_Interp *interp));
+
+EXTERN Tcl_Namespace *Tcl_GetGlobalNamespace _ANSI_ARGS_((Tcl_Interp *interp));
+
+#if (TCL_MAJOR_VERSION >= 8)
+EXTERN Tcl_Namespace *Tcl_CreateNamespace _ANSI_ARGS_((Tcl_Interp *interp,
+	CONST char *name, ClientData clientData, Tcl_NamespaceDeleteProc *nsDelProc));
+
+EXTERN void Tcl_DeleteNamespace _ANSI_ARGS_((Tcl_Namespace *nsPtr));
+
+EXTERN Tcl_Namespace *Tcl_FindNamespace _ANSI_ARGS_((Tcl_Interp *interp,
+	CONST char *name, Tcl_Namespace *context, int flags));
+
+EXTERN int Tcl_Export _ANSI_ARGS_((Tcl_Interp *interp, Tcl_Namespace *nsPtr,
+	CONST char *name, int resetFlag));
+
+EXTERN Tcl_Var Tcl_FindNamespaceVar _ANSI_ARGS_((Tcl_Interp *interp, char *name,
+	Tcl_Namespace *contextNsPtr, int flags));
+
+EXTERN void Tcl_PopCallFrame _ANSI_ARGS_((Tcl_Interp *interp));
+
+EXTERN int Tcl_PushCallFrame _ANSI_ARGS_((Tcl_Interp *interp,
+	Tcl_CallFrame * framePtr, Tcl_Namespace *nsPtr, int isProcCallFrame));
+#endif /* 0 */
+
+extern Tcl_HashTable *Blt_GetArrayVariableTable _ANSI_ARGS_((
+	Tcl_Interp *interp, CONST char *varName, int flags));
+
+#endif /* TCL_MAJOR_VERSION >= 8 */
+#endif /* WIN32 */
+
 
 /*
  * Auxillary procedures
@@ -49,10 +107,10 @@ EXTERN Tcl_CallFrame *Blt_EnterNamespace _ANSI_ARGS_((Tcl_Interp *interp,
 EXTERN void Blt_LeaveNamespace _ANSI_ARGS_((Tcl_Interp *interp,
 	Tcl_CallFrame * framePtr));
 
-EXTERN int Blt_ParseQualifiedName _ANSI_ARGS_((Tcl_Interp *interp, 
+EXTERN int Blt_ParseQualifiedName _ANSI_ARGS_((Tcl_Interp *interp,
 	CONST char *name, Tcl_Namespace **nsPtrPtr, CONST char **namePtr));
 
-EXTERN char *Blt_GetQualifiedName _ANSI_ARGS_((Tcl_Namespace *nsPtr, 
+EXTERN char *Blt_GetQualifiedName _ANSI_ARGS_((Tcl_Namespace *nsPtr,
 	CONST char *name, Tcl_DString *resultPtr));
 
 EXTERN Tcl_Command Blt_CreateCommand _ANSI_ARGS_((Tcl_Interp *interp,

@@ -60,12 +60,12 @@ static int buttonMasks[] =
 /*
  * How to make drag&drop work?
  *
- *	Right now we generate pseudo <Enter> <Leave> events within 
- *	button grab on an object.  They're marked NotifyVirtual instead 
- *	of NotifyAncestor.  A better solution: generate new-style 
- *	virtual <<DragEnter>> <<DragMotion>> <<DragLeave>> events.  
- *	These virtual events don't have to exist as "real" event 
- *	sequences, like virtual events do now.  
+ *	Right now we generate pseudo <Enter> <Leave> events within
+ *	button grab on an object.  They're marked NotifyVirtual instead
+ *	of NotifyAncestor.  A better solution: generate new-style
+ *	virtual <<DragEnter>> <<DragMotion>> <<DragLeave>> events.
+ *	These virtual events don't have to exist as "real" event
+ *	sequences, like virtual events do now.
  */
 
 /*
@@ -101,7 +101,11 @@ DoEvent(bindPtr, eventPtr, item, context)
 
     if ((bindPtr->tkwin == NULL) || (bindPtr->bindingTable == NULL)) {
 	return;
-    }
+     }
+     if (Tcl_InterpDeleted(bindPtr->interp)) {
+         return;
+     }
+
     if ((eventPtr->type == KeyPress) || (eventPtr->type == KeyRelease)) {
 	item = bindPtr->focusItem;
 	context = bindPtr->focusContext;
@@ -125,18 +129,18 @@ DoEvent(bindPtr, eventPtr, item, context)
 	ClientData *idArray;
 	ClientData tags[32];
 	register Blt_ListNode node;
-	
+
 	idArray = tags;
 	if (nIds >= 32) {
 	    idArray = Blt_Malloc(sizeof(ClientData) * nIds);
-	    
-	} 
+
+	}
 	nIds = 0;
 	for (node = Blt_ListFirstNode(bindIds); node != NULL;
 	     node = Blt_ListNextNode(node)) {
 	    idArray[nIds++] = (ClientData)Blt_ListGetKey(node);
 	}
-	Tk_BindEvent(bindPtr->bindingTable, eventPtr, bindPtr->tkwin, nIds, 
+	Tk_BindEvent(bindPtr->bindingTable, eventPtr, bindPtr->tkwin, nIds,
 		idArray);
 	if (nIds >= 32) {
 	    Blt_Free(idArray);
@@ -161,9 +165,9 @@ DoEvent(bindPtr, eventPtr, item, context)
  *
  * Side effects:
  *	The current item may change.  If it does, then the commands
- *	associated with item entry and exit could do just about 
- *	anything.  A binding script could delete the legend, so 
- *	callers should protect themselves with Tcl_Preserve and 
+ *	associated with item entry and exit could do just about
+ *	anything.  A binding script could delete the legend, so
+ *	callers should protect themselves with Tcl_Preserve and
  *	Tcl_Release.
  *
  *--------------------------------------------------------------
@@ -180,6 +184,9 @@ PickCurrentItem(bindPtr, eventPtr)
     ClientData newItem;
     ClientData newContext;
 
+    if (Tcl_InterpDeleted(bindPtr->interp)) {
+        return;
+    }
     /*
      * Check whether or not a button is down.  If so, we'll log entry
      * and exit into and out of the current item, but not entry into
@@ -253,8 +260,8 @@ PickCurrentItem(bindPtr, eventPtr)
     } else {
 	newItem = NULL;
     }
-    if (((newItem == bindPtr->currentItem) && 
-	 (newContext == bindPtr->currentContext)) && 
+    if (((newItem == bindPtr->currentItem) &&
+	 (newContext == bindPtr->currentContext)) &&
 	(!(bindPtr->flags & LEFT_GRABBED_ITEM))) {
 	/*
 	 * Nothing to do:  the current item hasn't changed.
@@ -262,8 +269,8 @@ PickCurrentItem(bindPtr, eventPtr)
 	return;
     }
 #ifndef FULLY_SIMULATE_GRAB
-    if (((newItem != bindPtr->currentItem) || 
-	 (newContext != bindPtr->currentContext)) && 
+    if (((newItem != bindPtr->currentItem) ||
+	 (newContext != bindPtr->currentContext)) &&
 	(buttonDown)) {
 	bindPtr->flags |= LEFT_GRABBED_ITEM;
 	return;
@@ -276,8 +283,8 @@ PickCurrentItem(bindPtr, eventPtr)
      * item.
      */
     if ((bindPtr->currentItem != NULL) &&
-	((newItem != bindPtr->currentItem) || 
-	 (newContext != bindPtr->currentContext)) && 
+	((newItem != bindPtr->currentItem) ||
+	 (newContext != bindPtr->currentContext)) &&
 	!(bindPtr->flags & LEFT_GRABBED_ITEM)) {
 	XEvent event;
 
@@ -300,14 +307,14 @@ PickCurrentItem(bindPtr, eventPtr)
 	 * item was deleted.
 	 */
     }
-    if (((newItem != bindPtr->currentItem) || 
-	 (newContext != bindPtr->currentContext)) && 
+    if (((newItem != bindPtr->currentItem) ||
+	 (newContext != bindPtr->currentContext)) &&
 	(buttonDown)) {
 	XEvent event;
 
 	bindPtr->flags |= LEFT_GRABBED_ITEM;
 	event = bindPtr->pickEvent;
-	if ((newItem != bindPtr->newItem) || 
+	if ((newItem != bindPtr->newItem) ||
 	    (newContext != bindPtr->newContext)) {
 	    ClientData savedItem;
 	    ClientData savedContext;
@@ -384,6 +391,9 @@ BindProc(clientData, eventPtr)
     struct Blt_BindTableStruct *bindPtr = clientData;
     int mask;
 
+    if (Tcl_InterpDeleted(bindPtr->interp)) {
+        return;
+    }
     Tcl_Preserve(bindPtr->clientData);
 
     /*
@@ -418,7 +428,7 @@ BindProc(clientData, eventPtr)
 	    bindPtr->state = eventPtr->xbutton.state;
 	    PickCurrentItem(bindPtr, eventPtr);
 	    bindPtr->state ^= mask;
-	    DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
+	    DoEvent(bindPtr, eventPtr, bindPtr->currentItem,
 		bindPtr->currentContext);
 
 	} else {
@@ -429,7 +439,7 @@ BindProc(clientData, eventPtr)
 	     * item under the assumption that the button is no longer down.
 	     */
 	    bindPtr->state = eventPtr->xbutton.state;
-	    DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
+	    DoEvent(bindPtr, eventPtr, bindPtr->currentItem,
 		bindPtr->currentContext);
 	    eventPtr->xbutton.state ^= mask;
 	    bindPtr->state = eventPtr->xbutton.state;
@@ -447,7 +457,7 @@ BindProc(clientData, eventPtr)
     case MotionNotify:
 	bindPtr->state = eventPtr->xmotion.state;
 	PickCurrentItem(bindPtr, eventPtr);
-	DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
+	DoEvent(bindPtr, eventPtr, bindPtr->currentItem,
 		bindPtr->currentContext);
 	break;
 
@@ -455,7 +465,7 @@ BindProc(clientData, eventPtr)
     case KeyRelease:
 	bindPtr->state = eventPtr->xkey.state;
 	PickCurrentItem(bindPtr, eventPtr);
-	DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
+	DoEvent(bindPtr, eventPtr, bindPtr->currentItem,
 		bindPtr->currentContext);
 	break;
     }
@@ -540,7 +550,7 @@ Blt_ConfigureBindingsFromObj(interp, bindPtr, item, objc, objv)
 	command = Tk_GetBinding(interp, bindPtr->bindingTable, item, string);
 	if (command == NULL) {
 	    Tcl_ResetResult(interp);
-	    Tcl_AppendResult(interp, "invalid binding event \"", string, "\"", 
+	    Tcl_AppendResult(interp, "invalid binding event \"", string, "\"",
 		(char *)NULL);
 	    return TCL_ERROR;
 	}
@@ -590,6 +600,7 @@ Blt_CreateBindingTable(interp, tkwin, clientData, pickProc, tagProc)
 
     bindPtr = Blt_Calloc(1, sizeof(struct Blt_BindTableStruct));
     assert(bindPtr);
+    bindPtr->interp = interp;
     bindPtr->clientData = clientData;
     bindPtr->pickProc = pickProc;
     bindPtr->tagProc = tagProc;

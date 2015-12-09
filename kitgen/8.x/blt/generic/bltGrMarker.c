@@ -103,16 +103,16 @@ extern Tk_CustomOption bltXAxisOption;
 extern Tk_CustomOption bltYAxisOption;
 
 typedef Marker *(MarkerCreateProc) _ANSI_ARGS_((void));
-typedef void (MarkerDrawProc) _ANSI_ARGS_((Marker *markerPtr, 
+typedef void (MarkerDrawProc) _ANSI_ARGS_((Marker *markerPtr,
 	Drawable drawable));
 typedef void (MarkerFreeProc) _ANSI_ARGS_((Graph *graphPtr, Marker *markerPtr));
 typedef int (MarkerConfigProc) _ANSI_ARGS_((Marker *markerPtr));
 typedef void (MarkerMapProc) _ANSI_ARGS_((Marker *markerPtr));
 typedef void (MarkerPostScriptProc) _ANSI_ARGS_((Marker *markerPtr,
 	PsToken psToken));
-typedef int (MarkerPointProc) _ANSI_ARGS_((Marker *markerPtr, 
+typedef int (MarkerPointProc) _ANSI_ARGS_((Marker *markerPtr,
 	Point2D *samplePtr));
-typedef int (MarkerRegionProc) _ANSI_ARGS_((Marker *markerPtr, 
+typedef int (MarkerRegionProc) _ANSI_ARGS_((Marker *markerPtr,
 	Extents2D *extsPtr, int enclosed));
 
 typedef struct {
@@ -142,7 +142,7 @@ typedef struct {
  *	Don't change this structure without changing the individual
  *	marker structures of each type below.
  *
- * ------------------------------------------------------------------- 
+ * -------------------------------------------------------------------
  */
 struct MarkerStruct {
     char *name;			/* Identifier for marker in list */
@@ -308,7 +308,7 @@ static Tk_ConfigSpec textConfigSpecs[] =
 	DEF_MARKER_SHADOW_MONO, Tk_Offset(TextMarker, style.shadow),
 	TK_CONFIG_MONO_ONLY, &bltShadowOption},
     {TK_CONFIG_CUSTOM, "-state", "state", "State",
-	DEF_MARKER_STATE, Tk_Offset(Marker, state), 
+	DEF_MARKER_STATE, Tk_Offset(Marker, state),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltStateOption},
     {TK_CONFIG_STRING, "-text", "text", "Text",
 	DEF_MARKER_TEXT, Tk_Offset(TextMarker, string), TK_CONFIG_NULL_OK},
@@ -368,7 +368,7 @@ typedef struct {
      */
     char *pathName;		/* Name of child widget to be displayed. */
     Tk_Window tkwin;		/* Window to display. */
-    int reqWidth, reqHeight;	/* If non-zero, this overrides the size 
+    int reqWidth, reqHeight;	/* If non-zero, this overrides the size
 				 * requested by the child widget. */
 
     Tk_Anchor anchor;		/* Indicates how to translate the given
@@ -404,7 +404,7 @@ static Tk_ConfigSpec windowConfigSpecs[] =
     {TK_CONFIG_STRING, "-name", (char *)NULL, (char *)NULL,
 	DEF_MARKER_NAME, Tk_Offset(Marker, name), TK_CONFIG_NULL_OK},
     {TK_CONFIG_CUSTOM, "-state", "state", "State",
-	DEF_MARKER_STATE, Tk_Offset(Marker, state), 
+	DEF_MARKER_STATE, Tk_Offset(Marker, state),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltStateOption},
     {TK_CONFIG_BOOLEAN, "-under", "under", "Under",
 	DEF_MARKER_UNDER, Tk_Offset(Marker, drawUnder),
@@ -490,7 +490,7 @@ typedef struct {
     Pixmap destBitmap;		/* Bitmap to be drawn. */
     int destWidth, destHeight;	/* Dimensions of the final bitmap */
 
-    Point2D outline[MAX_OUTLINE_POINTS]; 
+    Point2D outline[MAX_OUTLINE_POINTS];
 				/* Polygon representing the background
 				 * of the bitmap. */
     int nOutlinePts;
@@ -512,7 +512,7 @@ static Tk_ConfigSpec bitmapConfigSpecs[] =
 	DEF_MARKER_BITMAP_TAGS, Tk_Offset(Marker, tags),
 	TK_CONFIG_NULL_OK, &bltListOption},
     {TK_CONFIG_BITMAP, "-bitmap", "bitmap", "Bitmap",
-	DEF_MARKER_BITMAP, Tk_Offset(BitmapMarker, srcBitmap), 
+	DEF_MARKER_BITMAP, Tk_Offset(BitmapMarker, srcBitmap),
 	TK_CONFIG_NULL_OK},
     {TK_CONFIG_CUSTOM, "-coords", "coords", "Coords",
 	DEF_MARKER_COORDS, Tk_Offset(Marker, worldPts),
@@ -544,7 +544,7 @@ static Tk_ConfigSpec bitmapConfigSpecs[] =
 	DEF_MARKER_ROTATE, Tk_Offset(BitmapMarker, rotate),
 	TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_CUSTOM, "-state", "state", "State",
-	DEF_MARKER_STATE, Tk_Offset(Marker, state), 
+	DEF_MARKER_STATE, Tk_Offset(Marker, state),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltStateOption},
     {TK_CONFIG_BOOLEAN, "-under", "under", "Under",
 	DEF_MARKER_UNDER, Tk_Offset(Marker, drawUnder),
@@ -640,7 +640,7 @@ static Tk_ConfigSpec imageConfigSpecs[] =
     {TK_CONFIG_STRING, "-name", (char *)NULL, (char *)NULL,
 	DEF_MARKER_NAME, Tk_Offset(Marker, name), TK_CONFIG_NULL_OK},
     {TK_CONFIG_CUSTOM, "-state", "state", "State",
-	DEF_MARKER_STATE, Tk_Offset(Marker, state), 
+	DEF_MARKER_STATE, Tk_Offset(Marker, state),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltStateOption},
     {TK_CONFIG_BOOLEAN, "-under", "under", "Under",
 	DEF_MARKER_UNDER, Tk_Offset(Marker, drawUnder),
@@ -759,7 +759,7 @@ static Tk_ConfigSpec lineConfigSpecs[] =
 	DEF_MARKER_OUTLINE_MONO, Tk_Offset(LineMarker, outlineColor),
 	TK_CONFIG_MONO_ONLY | TK_CONFIG_NULL_OK},
     {TK_CONFIG_CUSTOM, "-state", "state", "State",
-	DEF_MARKER_STATE, Tk_Offset(Marker, state), 
+	DEF_MARKER_STATE, Tk_Offset(Marker, state),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltStateOption},
     {TK_CONFIG_BOOLEAN, "-under", "under", "Under",
 	DEF_MARKER_UNDER, Tk_Offset(Marker, drawUnder),
@@ -835,7 +835,7 @@ typedef struct {
 				 * values are provided, or the first value
 				 * is zero, then the line is drawn solid. */
 
-    GC outlineGC;		/* Graphics context to draw the outline of 
+    GC outlineGC;		/* Graphics context to draw the outline of
 				 * the polygon. */
     GC fillGC;			/* Graphics context to draw the filled
 				 * polygon. */
@@ -906,7 +906,7 @@ static Tk_ConfigSpec polygonConfigSpecs[] =
 	DEF_MARKER_OUTLINE_MONO, Tk_Offset(PolygonMarker, outline),
 	TK_CONFIG_MONO_ONLY | TK_CONFIG_NULL_OK, &bltColorPairOption},
     {TK_CONFIG_CUSTOM, "-state", "state", "State",
-	DEF_MARKER_STATE, Tk_Offset(Marker, state), 
+	DEF_MARKER_STATE, Tk_Offset(Marker, state),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltStateOption},
     {TK_CONFIG_BITMAP, "-stipple", "stipple", "Stipple",
 	DEF_MARKER_STIPPLE, Tk_Offset(PolygonMarker, stipple),
@@ -918,7 +918,7 @@ static Tk_ConfigSpec polygonConfigSpecs[] =
 	DEF_MARKER_X_OFFSET, Tk_Offset(Marker, xOffset),
 	TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_BOOLEAN, "-xor", "xor", "Xor",
-	DEF_MARKER_XOR, Tk_Offset(PolygonMarker, xor), 
+	DEF_MARKER_XOR, Tk_Offset(PolygonMarker, xor),
 	TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_PIXELS, "-yoffset", "yOffset", "YOffset",
 	DEF_MARKER_Y_OFFSET, Tk_Offset(Marker, yOffset),
@@ -932,26 +932,26 @@ static MarkerCreateProc CreateBitmapMarker, CreateLineMarker, CreateImageMarker,
 static MarkerDrawProc DrawBitmapMarker, DrawLineMarker, DrawImageMarker,
 	DrawPolygonMarker, DrawTextMarker, DrawWindowMarker;
 
-static MarkerFreeProc FreeBitmapMarker, FreeLineMarker, FreeImageMarker, 
+static MarkerFreeProc FreeBitmapMarker, FreeLineMarker, FreeImageMarker,
 	FreePolygonMarker, FreeTextMarker, FreeWindowMarker;
 
-static MarkerConfigProc ConfigureBitmapMarker, ConfigureLineMarker, 
-	ConfigureImageMarker, ConfigurePolygonMarker, ConfigureTextMarker, 
+static MarkerConfigProc ConfigureBitmapMarker, ConfigureLineMarker,
+	ConfigureImageMarker, ConfigurePolygonMarker, ConfigureTextMarker,
 	ConfigureWindowMarker;
 
-static MarkerMapProc MapBitmapMarker, MapLineMarker, MapImageMarker, 
+static MarkerMapProc MapBitmapMarker, MapLineMarker, MapImageMarker,
 	MapPolygonMarker, MapTextMarker, MapWindowMarker;
 
-static MarkerPostScriptProc BitmapMarkerToPostScript, LineMarkerToPostScript, 
-	ImageMarkerToPostScript, PolygonMarkerToPostScript, 
+static MarkerPostScriptProc BitmapMarkerToPostScript, LineMarkerToPostScript,
+	ImageMarkerToPostScript, PolygonMarkerToPostScript,
 	TextMarkerToPostScript, WindowMarkerToPostScript;
 
-static MarkerPointProc PointInBitmapMarker, PointInLineMarker, 
-	PointInImageMarker, PointInPolygonMarker, PointInTextMarker, 
+static MarkerPointProc PointInBitmapMarker, PointInLineMarker,
+	PointInImageMarker, PointInPolygonMarker, PointInTextMarker,
 	PointInWindowMarker;
 
-static MarkerRegionProc RegionInBitmapMarker, RegionInLineMarker, 
-	RegionInImageMarker, RegionInPolygonMarker, RegionInTextMarker, 
+static MarkerRegionProc RegionInBitmapMarker, RegionInLineMarker,
+	RegionInImageMarker, RegionInPolygonMarker, RegionInTextMarker,
 	RegionInWindowMarker;
 
 static Tk_ImageChangedProc ImageChangedProc;
@@ -1055,7 +1055,7 @@ static MarkerClass ovalMarkerClass = {
  *	area in any way.  If so, the marker will be drawn.  Just do a
  *	min/max test on the extents of both boxes.
  *
- *	Note: It's assumed that the extents of the bounding box lie 
+ *	Note: It's assumed that the extents of the bounding box lie
  *	      within the area.  So for a 10x10 rectangle, bottom and
  *	      left would be 9.
  *
@@ -1070,12 +1070,17 @@ BoxesDontOverlap(graphPtr, extsPtr)
     Graph *graphPtr;
     Extents2D *extsPtr;
 {
-/*
+     /*if(extsPtr->right >= extsPtr->left || extsPtr->bottom >= extsPtr->top ||
+	 graphPtr->right >= graphPtr->left || graphPtr->bottom >= graphPtr->top)*/
+     if(extsPtr->right <= extsPtr->left || extsPtr->bottom <= extsPtr->top ||
+	 graphPtr->right <= graphPtr->left || graphPtr->bottom <= graphPtr->top)
+    {
+	return 1;
+    }
     assert(extsPtr->right >= extsPtr->left);
     assert(extsPtr->bottom >= extsPtr->top);
     assert(graphPtr->right >= graphPtr->left);
     assert(graphPtr->bottom >= graphPtr->top);
-*/
 
     return (((double)graphPtr->right < extsPtr->left) ||
 	    ((double)graphPtr->bottom < extsPtr->top) ||
@@ -1267,7 +1272,7 @@ ParseCoordinates(interp, markerPtr, nExprs, exprArr)
  *	The return value is a standard Tcl result.  The vector is
  *	passed back via the vecPtr.
  *
- * ---------------------------------------------------------------------- 
+ * ----------------------------------------------------------------------
  */
 /*ARGSUSED*/
 static int
@@ -1367,7 +1372,7 @@ CoordinatesToString(clientData, tkwin, widgRec, offset, freeProcPtr)
  *	Returns a floating point number representing the window
  *	coordinate position on the given axis.
  *
- * ---------------------------------------------------------------------- 
+ * ----------------------------------------------------------------------
  */
 static double
 HMap(graphPtr, axisPtr, x)
@@ -1476,8 +1481,8 @@ static Marker *
 CreateMarker(graphPtr, name, classUid)
     Graph *graphPtr;
     char *name;
-    Blt_Uid classUid;    
-{    
+    Blt_Uid classUid;
+{
     Marker *markerPtr;
 
     /* Create the new marker based upon the given type */
@@ -1662,20 +1667,20 @@ MapBitmapMarker(markerPtr)
 	Tk_FreePixmap(graphPtr->display, bmPtr->destBitmap);
 	bmPtr->destBitmap = None;
     }
-    /* 
+    /*
      * Collect the coordinates.  The number of coordinates will determine
      * the calculations to be made.
-     * 
+     *
      *	   x1 y1	A single pair of X-Y coordinates.  They represent
-     *			the anchor position of the bitmap.  
+     *			the anchor position of the bitmap.
      *
      *	x1 y1 x2 y2	Two pairs of X-Y coordinates.  They represent
      *			two opposite corners of a bounding rectangle. The
      *			bitmap is possibly rotated and scaled to fit into
      *			this box.
      *
-     */   
-    Tk_SizeOfBitmap(graphPtr->display, bmPtr->srcBitmap, &srcWidth, 
+     */
+    Tk_SizeOfBitmap(graphPtr->display, bmPtr->srcBitmap, &srcWidth,
 		    &srcHeight);
     corner1 = MapPoint(graphPtr, bmPtr->worldPts, &bmPtr->axes);
     if (bmPtr->nWorldPts > 1) {
@@ -1697,7 +1702,7 @@ MapBitmapMarker(markerPtr)
     destHeight = (int)(corner2.y - corner1.y) + 1;
 
     if (bmPtr->nWorldPts == 1) {
-	anchorPos = Blt_TranslatePoint(&corner1, destWidth, destHeight, 
+	anchorPos = Blt_TranslatePoint(&corner1, destWidth, destHeight,
 		bmPtr->anchor);
     } else {
 	anchorPos = corner1;
@@ -1717,12 +1722,12 @@ MapBitmapMarker(markerPtr)
 				 * rotated or scaled bitmaps. */
     }
 
-    /*  
+    /*
      * Scale the bitmap if necessary. It's a little tricky because we
      * only want to scale what's visible on the screen, not the entire
-     * bitmap.  
+     * bitmap.
      */
-    if ((bmPtr->theta != 0.0) || (destWidth != srcWidth) || 
+    if ((bmPtr->theta != 0.0) || (destWidth != srcWidth) ||
 	(destHeight != srcHeight)) {
 	int regionWidth, regionHeight;
 	Region2D region;	/* Indicates the portion of the scaled
@@ -1743,17 +1748,17 @@ MapBitmapMarker(markerPtr)
 	}
 	if (graphPtr->top > exts.top) {
 	    region.top = (int)(graphPtr->top - exts.top);
-	}	    
+	}
 	regionWidth = (int)(right - left) + 1;
 	regionHeight = (int)(bottom - top) + 1;
 	region.right = region.left + (int)(right - left);
 	region.bottom = region.top + (int)(bottom - top);
-	
+
 	anchorPos.x = left;
 	anchorPos.y = top;
-	bmPtr->destBitmap = Blt_ScaleRotateBitmapRegion(graphPtr->tkwin, 
-		bmPtr->srcBitmap, srcWidth, srcHeight, 
-		region.left, region.top, regionWidth, regionHeight, 
+	bmPtr->destBitmap = Blt_ScaleRotateBitmapRegion(graphPtr->tkwin,
+		bmPtr->srcBitmap, srcWidth, srcHeight,
+		region.left, region.top, regionWidth, regionHeight,
 		destWidth, destHeight, bmPtr->theta);
 	bmPtr->destWidth = regionWidth;
 	bmPtr->destHeight = regionHeight;
@@ -1770,17 +1775,17 @@ MapBitmapMarker(markerPtr)
 	Point2D polygon[5];
 	int n;
 
-	/* 
-	 * Compute a polygon to represent the background area of the bitmap.  
-	 * This is needed for backgrounds of arbitrarily rotated bitmaps.  
-	 * We also use it to print a background in PostScript. 
+	/*
+	 * Compute a polygon to represent the background area of the bitmap.
+	 * This is needed for backgrounds of arbitrarily rotated bitmaps.
+	 * We also use it to print a background in PostScript.
 	 */
-	Blt_GetBoundingBox(srcWidth, srcHeight, bmPtr->theta, &rotWidth, 
+	Blt_GetBoundingBox(srcWidth, srcHeight, bmPtr->theta, &rotWidth,
 			   &rotHeight, polygon);
 	xScale = (double)destWidth / rotWidth;
 	yScale = (double)destHeight / rotHeight;
-	
-	/* 
+
+	/*
 	 * Adjust each point of the polygon. Both scale it to the new size
 	 * and translate it to the actual screen position of the bitmap.
 	 */
@@ -1791,9 +1796,9 @@ MapBitmapMarker(markerPtr)
 	    polygon[i].y = (polygon[i].y * yScale) + ty;
 	}
 	Blt_GraphExtents(graphPtr, &exts);
-	n = Blt_PolyRectClip(&exts, polygon, 4, bmPtr->outline); 
+	n = Blt_PolyRectClip(&exts, polygon, 4, bmPtr->outline);
 	assert(n <= MAX_OUTLINE_POINTS);
-	if (n < 3) { 
+	if (n < 3) {
 	    memcpy(&bmPtr->outline, polygon, sizeof(Point2D) * 4);
 	    bmPtr->nOutlinePts = 4;
 	} else {
@@ -1829,9 +1834,9 @@ PointInBitmapMarker(markerPtr, samplePtr)
 	Point2D points[MAX_OUTLINE_POINTS];
 	register int i;
 
-	/*  
+	/*
 	 * Generate the bounding polygon (isolateral) for the bitmap
-	 * and see if the point is inside of it.  
+	 * and see if the point is inside of it.
 	 */
 	for (i = 0; i < bmPtr->nOutlinePts; i++) {
 	    points[i].x = bmPtr->outline[i].x + bmPtr->anchorPos.x;
@@ -1839,9 +1844,9 @@ PointInBitmapMarker(markerPtr, samplePtr)
 	}
 	return Blt_PointInPolygon(samplePtr, points, bmPtr->nOutlinePts);
     }
-    return ((samplePtr->x >= bmPtr->anchorPos.x) && 
+    return ((samplePtr->x >= bmPtr->anchorPos.x) &&
 	    (samplePtr->x < (bmPtr->anchorPos.x + bmPtr->destWidth)) &&
-	    (samplePtr->y >= bmPtr->anchorPos.y) && 
+	    (samplePtr->y >= bmPtr->anchorPos.y) &&
 	    (samplePtr->y < (bmPtr->anchorPos.y + bmPtr->destHeight)));
 }
 
@@ -1867,21 +1872,21 @@ RegionInBitmapMarker(markerPtr, extsPtr, enclosed)
     if (bmPtr->theta != 0.0) {
 	Point2D points[MAX_OUTLINE_POINTS];
 	register int i;
-	
-	/*  
+
+	/*
 	 * Generate the bounding polygon (isolateral) for the bitmap
-	 * and see if the point is inside of it.  
+	 * and see if the point is inside of it.
 	 */
 	for (i = 0; i < bmPtr->nOutlinePts; i++) {
 	    points[i].x = bmPtr->outline[i].x + bmPtr->anchorPos.x;
 	    points[i].y = bmPtr->outline[i].y + bmPtr->anchorPos.y;
 	}
-	return Blt_RegionInPolygon(extsPtr, points, bmPtr->nOutlinePts, 
+	return Blt_RegionInPolygon(extsPtr, points, bmPtr->nOutlinePts,
 		   enclosed);
     }
     if (enclosed) {
 	return ((bmPtr->anchorPos.x >= extsPtr->left) &&
-		(bmPtr->anchorPos.y >= extsPtr->top) && 
+		(bmPtr->anchorPos.y >= extsPtr->top) &&
 		((bmPtr->anchorPos.x + bmPtr->destWidth) <= extsPtr->right) &&
 		((bmPtr->anchorPos.y + bmPtr->destHeight) <= extsPtr->bottom));
     }
@@ -1897,7 +1902,7 @@ RegionInBitmapMarker(markerPtr, extsPtr, enclosed)
  * DrawBitmapMarker --
  *
  *	Draws the bitmap marker that have a transparent of filled
- *	background.  
+ *	background.
  *
  * Results:
  *	None.
@@ -1926,10 +1931,10 @@ DrawBitmapMarker(markerPtr, drawable)
     theta = FMOD(bmPtr->theta, (double)90.0);
     if ((bmPtr->fillColor == NULL) || (theta != 0.0)) {
 
-	/* 
+	/*
 	 * If the bitmap is rotated and a filled background is
 	 * required, then a filled polygon is drawn before the
-	 * bitmap. 
+	 * bitmap.
 	 */
 
 	if (bmPtr->fillColor != NULL) {
@@ -1944,14 +1949,14 @@ DrawBitmapMarker(markerPtr, drawable)
 		 polygon, bmPtr->nOutlinePts, Convex, CoordModeOrigin);
 	}
 	XSetClipMask(graphPtr->display, bmPtr->gc, bitmap);
-	XSetClipOrigin(graphPtr->display, bmPtr->gc, (int)bmPtr->anchorPos.x, 
+	XSetClipOrigin(graphPtr->display, bmPtr->gc, (int)bmPtr->anchorPos.x,
 	       (int)bmPtr->anchorPos.y);
     } else {
 	XSetClipMask(graphPtr->display, bmPtr->gc, None);
 	XSetClipOrigin(graphPtr->display, bmPtr->gc, 0, 0);
     }
     XCopyPlane(graphPtr->display, bitmap, drawable, bmPtr->gc, 0, 0,
-	bmPtr->destWidth, bmPtr->destHeight, (int)bmPtr->anchorPos.x, 
+	bmPtr->destWidth, bmPtr->destHeight, (int)bmPtr->anchorPos.x,
 	(int)bmPtr->anchorPos.y, 1);
 }
 
@@ -1987,11 +1992,11 @@ BitmapMarkerToPostScript(markerPtr, psToken)
     Blt_ForegroundToPostScript(psToken, bmPtr->outlineColor);
 
     Blt_FormatToPostScript(psToken,
-	"  gsave\n    %g %g translate\n    %d %d scale\n", 
-	   bmPtr->anchorPos.x, bmPtr->anchorPos.y + bmPtr->destHeight, 
+	"  gsave\n    %g %g translate\n    %d %d scale\n",
+	   bmPtr->anchorPos.x, bmPtr->anchorPos.y + bmPtr->destHeight,
 	   bmPtr->destWidth, -bmPtr->destHeight);
     Blt_FormatToPostScript(psToken, "    %d %d true [%d 0 0 %d 0 %d] {",
-	bmPtr->destWidth, bmPtr->destHeight, bmPtr->destWidth, 
+	bmPtr->destWidth, bmPtr->destHeight, bmPtr->destWidth,
 	-bmPtr->destHeight, bmPtr->destHeight);
     Blt_BitmapDataToPostScript(psToken, graphPtr->display, bitmap,
 	bmPtr->destWidth, bmPtr->destHeight);
@@ -2081,7 +2086,7 @@ ImageChangedProc(clientData, x, y, width, height, imageWidth, imageHeight)
 {
     ImageMarker *imPtr = clientData;
     Tk_PhotoHandle photo;
-    
+
     photo = Blt_FindPhoto(imPtr->graphPtr->interp, imPtr->imageName);
     if (photo != NULL) {
 	if (imPtr->srcImage != NULL) {
@@ -2123,7 +2128,7 @@ ConfigureImageMarker(markerPtr)
     ImageMarker *imPtr = (ImageMarker *)markerPtr;
     Graph *graphPtr = markerPtr->graphPtr;
 
-    if (Blt_ConfigModified(markerPtr->classPtr->configSpecs, "-image", 
+    if (Blt_ConfigModified(markerPtr->classPtr->configSpecs, graphPtr->interp, "-image",
 			   (char *)NULL)) {
 	Tcl_Interp *interp = graphPtr->interp;
 
@@ -2207,14 +2212,16 @@ MapImageMarker(markerPtr)
     graphPtr = imPtr->graphPtr;
     corner1 = MapPoint(graphPtr, imPtr->worldPts, &imPtr->axes);
     if (imPtr->srcImage == NULL) {
-	/* 
+	/*
 	 * Don't scale or rotate non-photo images.
 	 */
 	Tk_SizeOfImage(imPtr->tkImage, &srcWidth, &srcHeight);
 	imPtr->width = srcWidth;
 	imPtr->height = srcHeight;
-	imPtr->anchorPos.x = corner1.x + imPtr->xOffset;
-	imPtr->anchorPos.y = corner1.y + imPtr->yOffset;
+        imPtr->anchorPos = Blt_TranslatePoint(&corner1,
+             srcWidth, srcHeight, imPtr->anchor);
+        imPtr->anchorPos.x += imPtr->xOffset;
+        imPtr->anchorPos.y += imPtr->yOffset;
 	exts.left = imPtr->anchorPos.x;
 	exts.top = imPtr->anchorPos.y;
 	exts.right = exts.left + srcWidth - 1;
@@ -2222,7 +2229,7 @@ MapImageMarker(markerPtr)
 	imPtr->clipped = BoxesDontOverlap(graphPtr, &exts);
 	return;
     }
-	
+
     imPtr->width = srcWidth = Blt_ColorImageWidth(imPtr->srcImage);
     imPtr->height = srcHeight = Blt_ColorImageHeight(imPtr->srcImage);
     if ((srcWidth == 0) && (srcHeight == 0)) {
@@ -2248,7 +2255,7 @@ MapImageMarker(markerPtr)
     scaledHeight = (int)(corner2.y - corner1.y) + 1;
 
     if (imPtr->nWorldPts == 1) {
-	anchorPos = Blt_TranslatePoint(&corner1, scaledWidth, scaledHeight, 
+	anchorPos = Blt_TranslatePoint(&corner1, scaledWidth, scaledHeight,
 		imPtr->anchor);
     } else {
 	anchorPos = corner1;
@@ -2287,14 +2294,14 @@ MapImageMarker(markerPtr)
 	x = y = 0;
 	if (graphPtr->left > (int)exts.left) {
 	    x = graphPtr->left - (int)exts.left;
-	} 
+	}
 	if (graphPtr->top > (int)exts.top) {
 	    y = graphPtr->top - (int)exts.top;
-	} 
+	}
 	width = (int)(right - left + 1);
 	height = (int)(bottom - top + 1);
 
-	destImage = Blt_ResizeColorSubimage(imPtr->srcImage, x, y, width, 
+	destImage = Blt_ResizeColorSubimage(imPtr->srcImage, x, y, width,
 		height, scaledWidth, scaledHeight);
 #ifdef notyet
 	/* Now convert the color image into a pixmap */
@@ -2308,14 +2315,14 @@ MapImageMarker(markerPtr)
 #else
 	imPtr->pixmap = None;
 	if (imPtr->tmpImage == NULL) {
-	    imPtr->tmpImage = Blt_CreateTemporaryImage(graphPtr->interp, 
+	    imPtr->tmpImage = Blt_CreateTemporaryImage(graphPtr->interp,
 		     graphPtr->tkwin, imPtr);
 	    if (imPtr->tmpImage == NULL) {
 		return;
 	    }
-	}	    
+	}
 	/* Put the scaled colorimage into the photo. */
-	photo = Blt_FindPhoto(graphPtr->interp, 
+	photo = Blt_FindPhoto(graphPtr->interp,
 			      Blt_NameOfImage(imPtr->tmpImage));
 	Blt_ColorImageToPhoto(destImage, photo);
 #endif
@@ -2346,9 +2353,9 @@ PointInImageMarker(markerPtr, samplePtr)
 {
     ImageMarker *imPtr = (ImageMarker *)markerPtr;
 
-    return ((samplePtr->x >= imPtr->anchorPos.x) && 
+    return ((samplePtr->x >= imPtr->anchorPos.x) &&
 	    (samplePtr->x < (imPtr->anchorPos.x + imPtr->width)) &&
-	    (samplePtr->y >= imPtr->anchorPos.y) && 
+	    (samplePtr->y >= imPtr->anchorPos.y) &&
 	    (samplePtr->y < (imPtr->anchorPos.y + imPtr->height)));
 }
 
@@ -2372,10 +2379,10 @@ RegionInImageMarker(markerPtr, extsPtr, enclosed)
     }
     if (enclosed) {
 	return ((imPtr->anchorPos.x >= extsPtr->left) &&
-		(imPtr->anchorPos.y >= extsPtr->top) && 
+		(imPtr->anchorPos.y >= extsPtr->top) &&
 		((imPtr->anchorPos.x + imPtr->width) <= extsPtr->right) &&
 		((imPtr->anchorPos.y + imPtr->height) <= extsPtr->bottom));
-    } 
+    }
     return !((imPtr->anchorPos.x >= extsPtr->right) ||
 	     (imPtr->anchorPos.y >= extsPtr->bottom) ||
 	     ((imPtr->anchorPos.x + imPtr->width) <= extsPtr->left) ||
@@ -2422,7 +2429,7 @@ DrawImageMarker(markerPtr, drawable)
 			   (int)imPtr->anchorPos.x, (int)imPtr->anchorPos.y);
 	} else {
 	    XCopyArea(imPtr->graphPtr->display, pixmap, drawable,
-		      imPtr->gc, 0, 0, width, height, (int)imPtr->anchorPos.x, 
+		      imPtr->gc, 0, 0, width, height, (int)imPtr->anchorPos.x,
 			(int)imPtr->anchorPos.y);
 	}
     } else {
@@ -2456,13 +2463,13 @@ ImageMarkerToPostScript(markerPtr, psToken)
     if ((imPtr->tkImage == NULL) || (Tk_ImageIsDeleted(imPtr->tkImage))) {
 	return;			/* Image doesn't exist anymore */
     }
-    imageName = (imPtr->tmpImage == NULL) 
+    imageName = (imPtr->tmpImage == NULL)
 	? Blt_NameOfImage(imPtr->tkImage) : Blt_NameOfImage(imPtr->tmpImage);
     photo = Blt_FindPhoto(markerPtr->graphPtr->interp, imageName);
     if (photo == NULL) {
 	return;			/* Image isn't a photo image */
     }
-    Blt_PhotoToPostScript(psToken, photo, imPtr->anchorPos.x, 
+    Blt_PhotoToPostScript(psToken, photo, imPtr->anchorPos.x,
 			  imPtr->anchorPos.y);
 }
 
@@ -2499,7 +2506,7 @@ FreeImageMarker(graphPtr, markerPtr)
     }
     if (imPtr->tmpImage != NULL) {
 	Blt_DestroyTemporaryImage(graphPtr->interp, imPtr->tmpImage);
-    }	
+    }
     if (imPtr->srcImage != NULL) {
 	Blt_FreeColorImage(imPtr->srcImage);
     }
@@ -2581,7 +2588,7 @@ ConfigureTextMarker(markerPtr)
     tmPtr->fillGC = newGC;
     Blt_ResetTextStyle(graphPtr->tkwin, &tmPtr->style);
 
-    if (Blt_ConfigModified(tmPtr->classPtr->configSpecs, "-text", 
+    if (Blt_ConfigModified(tmPtr->classPtr->configSpecs, graphPtr->interp, "-text",
 	(char *)NULL)) {
 	if (tmPtr->textPtr != NULL) {
 	    Blt_Free(tmPtr->textPtr);
@@ -2593,7 +2600,7 @@ ConfigureTextMarker(markerPtr)
 	    double rotWidth, rotHeight;
 
 	    tmPtr->textPtr = Blt_GetTextLayout(tmPtr->string, &tmPtr->style);
-	    Blt_GetBoundingBox(tmPtr->textPtr->width, tmPtr->textPtr->height, 
+	    Blt_GetBoundingBox(tmPtr->textPtr->width, tmPtr->textPtr->height,
 	       tmPtr->style.theta, &rotWidth, &rotHeight, tmPtr->outline);
 	    tmPtr->width = ROUND(rotWidth);
 	    tmPtr->height = ROUND(rotHeight);
@@ -2646,7 +2653,7 @@ MapTextMarker(markerPtr)
 	return;
     }
     anchorPos = MapPoint(graphPtr, tmPtr->worldPts, &tmPtr->axes);
-    anchorPos = Blt_TranslatePoint(&anchorPos, tmPtr->width, tmPtr->height, 
+    anchorPos = Blt_TranslatePoint(&anchorPos, tmPtr->width, tmPtr->height,
 	tmPtr->anchor);
     anchorPos.x += tmPtr->xOffset;
     anchorPos.y += tmPtr->yOffset;
@@ -2677,7 +2684,7 @@ PointInTextMarker(markerPtr, samplePtr)
 	Point2D points[5];
 	register int i;
 
-	/* 
+	/*
 	 * Figure out the bounding polygon (isolateral) for the text
 	 * and see if the point is inside of it.
 	 */
@@ -2687,10 +2694,10 @@ PointInTextMarker(markerPtr, samplePtr)
 	    points[i].y = tmPtr->outline[i].y + tmPtr->anchorPos.y;
 	}
 	return Blt_PointInPolygon(samplePtr, points, 5);
-    } 
-    return ((samplePtr->x >= tmPtr->anchorPos.x) && 
+    }
+    return ((samplePtr->x >= tmPtr->anchorPos.x) &&
 	    (samplePtr->x < (tmPtr->anchorPos.x + tmPtr->width)) &&
-	    (samplePtr->y >= tmPtr->anchorPos.y) && 
+	    (samplePtr->y >= tmPtr->anchorPos.y) &&
 	    (samplePtr->y < (tmPtr->anchorPos.y + tmPtr->height)));
 }
 
@@ -2715,20 +2722,20 @@ RegionInTextMarker(markerPtr, extsPtr, enclosed)
     if (tmPtr->style.theta != 0.0) {
 	Point2D points[5];
 	register int i;
-	
-	/*  
+
+	/*
 	 * Generate the bounding polygon (isolateral) for the bitmap
-	 * and see if the point is inside of it.  
+	 * and see if the point is inside of it.
 	 */
 	for (i = 0; i < 4; i++) {
 	    points[i].x = tmPtr->outline[i].x + tmPtr->anchorPos.x;
 	    points[i].y = tmPtr->outline[i].y + tmPtr->anchorPos.y;
 	}
 	return Blt_RegionInPolygon(extsPtr, points, 4, enclosed);
-    } 
+    }
     if (enclosed) {
 	return ((tmPtr->anchorPos.x >= extsPtr->left) &&
-		(tmPtr->anchorPos.y >= extsPtr->top) && 
+		(tmPtr->anchorPos.y >= extsPtr->top) &&
 		((tmPtr->anchorPos.x + tmPtr->width) <= extsPtr->right) &&
 		((tmPtr->anchorPos.y + tmPtr->height) <= extsPtr->bottom));
     }
@@ -2829,7 +2836,7 @@ TextMarkerToPostScript(markerPtr, psToken)
 	Blt_BackgroundToPostScript(psToken, tmPtr->fillColor);
 	Blt_PolygonToPostScript(psToken, polygon, 4);
     }
-    Blt_TextToPostScript(psToken, tmPtr->string, &tmPtr->style, 
+    Blt_TextToPostScript(psToken, tmPtr->string, &tmPtr->style,
 		 tmPtr->anchorPos.x, tmPtr->anchorPos.y);
 }
 
@@ -2943,7 +2950,7 @@ ConfigureWindowMarker(markerPtr)
     if (wmPtr->pathName == NULL) {
 	return TCL_OK;
     }
-    tkwin = Tk_NameToWindow(graphPtr->interp, wmPtr->pathName, 
+    tkwin = Tk_NameToWindow(graphPtr->interp, wmPtr->pathName,
 	    graphPtr->tkwin);
     if (tkwin == NULL) {
 	return TCL_ERROR;
@@ -2961,7 +2968,7 @@ ConfigureWindowMarker(markerPtr)
 	    Tk_ManageGeometry(wmPtr->tkwin, (Tk_GeomMgr *) 0, (ClientData)0);
 	    Tk_UnmapWindow(wmPtr->tkwin);
 	}
-	Tk_CreateEventHandler(tkwin, StructureNotifyMask, ChildEventProc, 
+	Tk_CreateEventHandler(tkwin, StructureNotifyMask, ChildEventProc,
 		wmPtr);
 	Tk_ManageGeometry(tkwin, &winMarkerMgrInfo, wmPtr);
     }
@@ -3010,7 +3017,7 @@ MapWindowMarker(markerPtr)
     if (wmPtr->reqHeight > 0) {
 	height = wmPtr->reqHeight;
     }
-    wmPtr->anchorPos = Blt_TranslatePoint(&wmPtr->anchorPos, width, height, 
+    wmPtr->anchorPos = Blt_TranslatePoint(&wmPtr->anchorPos, width, height,
 	wmPtr->anchor);
     wmPtr->anchorPos.x += wmPtr->xOffset;
     wmPtr->anchorPos.y += wmPtr->yOffset;
@@ -3042,9 +3049,9 @@ PointInWindowMarker(markerPtr, samplePtr)
 {
     WindowMarker *wmPtr = (WindowMarker *)markerPtr;
 
-    return ((samplePtr->x >= wmPtr->anchorPos.x) && 
+    return ((samplePtr->x >= wmPtr->anchorPos.x) &&
 	    (samplePtr->x < (wmPtr->anchorPos.x + wmPtr->width)) &&
-	    (samplePtr->y >= wmPtr->anchorPos.y) && 
+	    (samplePtr->y >= wmPtr->anchorPos.y) &&
 	    (samplePtr->y < (wmPtr->anchorPos.y + wmPtr->height)));
 }
 
@@ -3068,7 +3075,7 @@ RegionInWindowMarker(markerPtr, extsPtr, enclosed)
     }
     if (enclosed) {
 	return ((wmPtr->anchorPos.x >= extsPtr->left) &&
-		(wmPtr->anchorPos.y >= extsPtr->top) && 
+		(wmPtr->anchorPos.y >= extsPtr->top) &&
 		((wmPtr->anchorPos.x + wmPtr->width) <= extsPtr->right) &&
 		((wmPtr->anchorPos.y + wmPtr->height) <= extsPtr->bottom));
     }
@@ -3100,7 +3107,7 @@ DrawWindowMarker(markerPtr, drawable)
 	(wmPtr->width != Tk_Width(wmPtr->tkwin)) ||
 	((int)wmPtr->anchorPos.x != Tk_X(wmPtr->tkwin)) ||
 	((int)wmPtr->anchorPos.y != Tk_Y(wmPtr->tkwin))) {
-	Tk_MoveResizeWindow(wmPtr->tkwin, (int)wmPtr->anchorPos.x, 
+	Tk_MoveResizeWindow(wmPtr->tkwin, (int)wmPtr->anchorPos.x,
 	    (int)wmPtr->anchorPos.y, wmPtr->width, wmPtr->height);
     }
     if (!Tk_IsMapped(wmPtr->tkwin)) {
@@ -3126,7 +3133,7 @@ WindowMarkerToPostScript(markerPtr, psToken)
 	return;
     }
     if (Tk_IsMapped(wmPtr->tkwin)) {
-	Blt_WindowToPostScript(psToken, wmPtr->tkwin, wmPtr->anchorPos.x, 
+	Blt_WindowToPostScript(psToken, wmPtr->tkwin, wmPtr->anchorPos.x,
 	       wmPtr->anchorPos.y);
     }
 }
@@ -3324,7 +3331,7 @@ MapLineMarker(markerPtr)
     }
     Blt_GraphExtents(graphPtr, &exts);
 
-    /* 
+    /*
      * Allow twice the number of world coordinates. The line will
      * represented as series of line segments, not one continous
      * polyline.  This is because clipping against the plot area may
@@ -3337,7 +3344,7 @@ MapLineMarker(markerPtr)
     p.y += lmPtr->yOffset;
 
     segPtr = segments;
-    for (srcPtr++, endPtr = lmPtr->worldPts + lmPtr->nWorldPts; 
+    for (srcPtr++, endPtr = lmPtr->worldPts + lmPtr->nWorldPts;
 	 srcPtr < endPtr; srcPtr++) {
 	next = MapPoint(graphPtr, srcPtr, &lmPtr->axes);
 	next.x += lmPtr->xOffset;
@@ -3362,7 +3369,7 @@ PointInLineMarker(markerPtr, samplePtr)
 {
     LineMarker *lmPtr = (LineMarker *)markerPtr;
 
-    return Blt_PointInSegments(samplePtr, lmPtr->segments, lmPtr->nSegments, 
+    return Blt_PointInSegments(samplePtr, lmPtr->segments, lmPtr->nSegments,
 	   (double)lmPtr->graphPtr->halo);
 }
 
@@ -3388,7 +3395,7 @@ RegionInLineMarker(markerPtr, extsPtr, enclosed)
 	Point2D p;
 	Point2D *pointPtr, *endPtr;
 
-	for (pointPtr = lmPtr->worldPts, 
+	for (pointPtr = lmPtr->worldPts,
 		 endPtr = lmPtr->worldPts + lmPtr->nWorldPts;
 	     pointPtr < endPtr; pointPtr++) {
 	    p = MapPoint(lmPtr->graphPtr, pointPtr, &lmPtr->axes);
@@ -3404,7 +3411,7 @@ RegionInLineMarker(markerPtr, extsPtr, enclosed)
 	Point2D *pointPtr, *endPtr;
 
 	count = 0;
-	for (pointPtr = lmPtr->worldPts, 
+	for (pointPtr = lmPtr->worldPts,
 		 endPtr = lmPtr->worldPts + (lmPtr->nWorldPts - 1);
 	     pointPtr < endPtr; pointPtr++) {
 	    p = MapPoint(lmPtr->graphPtr, pointPtr, &lmPtr->axes);
@@ -3434,7 +3441,7 @@ DrawLineMarker(markerPtr, drawable)
     if (lmPtr->nSegments > 0) {
 	Graph *graphPtr = markerPtr->graphPtr;
 
-	Blt_Draw2DSegments(graphPtr->display, drawable, lmPtr->gc, 
+	Blt_Draw2DSegments(graphPtr->display, drawable, lmPtr->gc,
 		lmPtr->segments, lmPtr->nSegments);
 	if (lmPtr->xor) {	/* Toggle the drawing state */
 	    lmPtr->xorState = (lmPtr->xorState == 0);
@@ -3489,7 +3496,7 @@ ConfigureLineMarker(markerPtr)
     gcValues.line_width = LineWidth(lmPtr->lineWidth);
     gcValues.line_style = LineSolid;
     if (LineIsDashed(lmPtr->dashes)) {
-	gcValues.line_style = 
+	gcValues.line_style =
 	    (gcMask & GCBackground) ? LineDoubleDash : LineOnOffDash;
     }
     if (lmPtr->xor) {
@@ -3685,9 +3692,9 @@ MapPolygonMarker(markerPtr)
 	return;			/* Too few points */
     }
 
-    /* 
+    /*
      * Allocate and fill a temporary array to hold the screen
-     * coordinates of the polygon. 
+     * coordinates of the polygon.
      */
     nScreenPts = pmPtr->nWorldPts + 1;
     screenPts = Blt_Malloc((nScreenPts + 1) * sizeof(Point2D));
@@ -3710,7 +3717,7 @@ MapPolygonMarker(markerPtr)
 	fillPts = Blt_Malloc(sizeof(Point2D) * nScreenPts * 3);
 	assert(fillPts);
 	n = Blt_PolyRectClip(&exts, screenPts, pmPtr->nWorldPts, fillPts);
-	if (n < 3) { 
+	if (n < 3) {
 	    Blt_Free(fillPts);
 	} else {
 	    pmPtr->nFillPts = n;
@@ -3718,21 +3725,21 @@ MapPolygonMarker(markerPtr)
 	    pmPtr->clipped = FALSE;
 	}
     }
-    if ((pmPtr->outline.fgColor != NULL) && (pmPtr->lineWidth > 0)) { 
+    if ((pmPtr->outline.fgColor != NULL) && (pmPtr->lineWidth > 0)) {
 	Segment2D *outlinePts;
 	register Segment2D *segPtr;
-	/* 
+	/*
 	 * Generate line segments representing the polygon outline.
 	 * The resulting outline may or may not be closed from
-	 * viewport clipping.  
+	 * viewport clipping.
 	 */
 	outlinePts = Blt_Malloc(nScreenPts * sizeof(Segment2D));
 	if (outlinePts == NULL) {
 	    return;		/* Can't allocate point array */
 	}
-	/* 
+	/*
 	 * Note that this assumes that the point array contains an
-	 * extra point that closes the polygon. 
+	 * extra point that closes the polygon.
 	 */
 	segPtr = outlinePts;
 	for (srcPtr = screenPts, endPtr = screenPts + (nScreenPts - 1);
@@ -3760,7 +3767,7 @@ PointInPolygonMarker(markerPtr, samplePtr)
     PolygonMarker *pmPtr = (PolygonMarker *)markerPtr;
 
     if ((pmPtr->nWorldPts >= 3) && (pmPtr->screenPts != NULL)) {
-	return Blt_PointInPolygon(samplePtr, pmPtr->screenPts, 
+	return Blt_PointInPolygon(samplePtr, pmPtr->screenPts,
 		  pmPtr->nWorldPts + 1);
     }
     return FALSE;
@@ -3780,7 +3787,7 @@ RegionInPolygonMarker(markerPtr, extsPtr, enclosed)
     int enclosed;
 {
     PolygonMarker *pmPtr = (PolygonMarker *)markerPtr;
-    
+
     if ((pmPtr->nWorldPts >= 3) && (pmPtr->screenPts != NULL)) {
 	return Blt_RegionInPolygon(extsPtr, pmPtr->screenPts, pmPtr->nWorldPts,
 	       enclosed);
@@ -3800,14 +3807,14 @@ DrawPolygonMarker(markerPtr, drawable)
     if ((pmPtr->nFillPts > 0) && (pmPtr->fill.fgColor != NULL)) {
 	XPoint *destPtr, *pointArr;
 	Point2D *srcPtr, *endPtr;
-	
+
 	pointArr = Blt_Malloc(pmPtr->nFillPts * sizeof(XPoint));
 	if (pointArr == NULL) {
 	    return;
 	}
 	destPtr = pointArr;
-	for (srcPtr = pmPtr->fillPts, 
-		 endPtr = pmPtr->fillPts + pmPtr->nFillPts; srcPtr < endPtr; 
+	for (srcPtr = pmPtr->fillPts,
+		 endPtr = pmPtr->fillPts + pmPtr->nFillPts; srcPtr < endPtr;
 	     srcPtr++) {
 	    destPtr->x = (short int)srcPtr->x;
 	    destPtr->y = (short int)srcPtr->y;
@@ -3818,7 +3825,7 @@ DrawPolygonMarker(markerPtr, drawable)
 	Blt_Free(pointArr);
     }
     /* and then the outline */
-    if ((pmPtr->nOutlinePts > 0) && (pmPtr->lineWidth > 0) && 
+    if ((pmPtr->nOutlinePts > 0) && (pmPtr->lineWidth > 0) &&
 	(pmPtr->outline.fgColor != NULL)) {
 	Blt_Draw2DSegments(graphPtr->display, drawable, pmPtr->outlineGC,
 	    pmPtr->outlinePts, pmPtr->nOutlinePts);
@@ -3856,7 +3863,7 @@ PolygonMarkerToPostScript(markerPtr, psToken)
 	Blt_ForegroundToPostScript(psToken, pmPtr->fill.fgColor);
 	if (pmPtr->stipple != None) {
 	    /* Draw the stipple in the foreground color. */
-	    Blt_StippleToPostScript(psToken, graphPtr->display, 
+	    Blt_StippleToPostScript(psToken, graphPtr->display,
 				    pmPtr->stipple);
 	} else {
 	    Blt_AppendToPostScript(psToken, "Fill\n", (char *)NULL);
@@ -3871,11 +3878,11 @@ PolygonMarkerToPostScript(markerPtr, psToken)
 	    pmPtr->lineWidth, &pmPtr->dashes, pmPtr->capStyle,
 	    pmPtr->joinStyle);
 
-	/*  
+	/*
 	 * Define on-the-fly a PostScript macro "DashesProc" that
 	 * will be executed for each call to the Polygon drawing
 	 * routine.  If the line isn't dashed, simply make this an
-	 * empty definition.  
+	 * empty definition.
 	 */
 	if ((pmPtr->outline.bgColor != NULL) && (LineIsDashed(pmPtr->dashes))) {
 	    Blt_AppendToPostScript(psToken,
@@ -3892,7 +3899,7 @@ PolygonMarkerToPostScript(markerPtr, psToken)
 	    Blt_AppendToPostScript(psToken, "/DashesProc {} def\n",
 		(char *)NULL);
 	}
-	Blt_2DSegmentsToPostScript(psToken, pmPtr->outlinePts, 
+	Blt_2DSegmentsToPostScript(psToken, pmPtr->outlinePts,
 		   pmPtr->nOutlinePts);
     }
 }
@@ -3916,7 +3923,7 @@ PolygonMarkerToPostScript(markerPtr, psToken)
  *	freed, if there were any.  The marker is eventually
  *	redisplayed.
  *
- * ---------------------------------------------------------------------- 
+ * ----------------------------------------------------------------------
  */
 /*ARGSUSED*/
 static int
@@ -4070,7 +4077,7 @@ FreePolygonMarker(graphPtr, markerPtr)
  * Side effects:
  *	Memory is allocated for the polygon marker structure.
  *
- * ---------------------------------------------------------------------- 
+ * ----------------------------------------------------------------------
  */
 static Marker *
 CreatePolygonMarker()
@@ -4094,13 +4101,13 @@ NameToMarker(graphPtr, name, markerPtrPtr)
     Marker **markerPtrPtr;
 {
     Blt_HashEntry *hPtr;
-    
+
     hPtr = Blt_FindHashEntry(&graphPtr->markers.table, name);
     if (hPtr != NULL) {
 	*markerPtrPtr = (Marker *)Blt_GetHashValue(hPtr);
 	return TCL_OK;
     }
-    Tcl_AppendResult(graphPtr->interp, "can't find marker \"", name, 
+    Tcl_AppendResult(graphPtr->interp, "can't find marker \"", name,
 	     "\" in \"", Tk_PathName(graphPtr->tkwin), (char *)NULL);
     return TCL_ERROR;
 }
@@ -4242,8 +4249,8 @@ CgetOp(graphPtr, interp, argc, argv)
     if (NameToMarker(graphPtr, argv[3], &markerPtr) != TCL_OK) {
 	return TCL_ERROR;
     }
-    if (Tk_ConfigureValue(interp, graphPtr->tkwin, 
-	markerPtr->classPtr->configSpecs, (char *)markerPtr, argv[4], 0) 
+    if (Tk_ConfigureValue(interp, graphPtr->tkwin,
+	markerPtr->classPtr->configSpecs, (char *)markerPtr, argv[4], 0)
 	!= TCL_OK) {
 	return TCL_ERROR;
     }
@@ -4267,13 +4274,13 @@ ConfigureOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;
     Tcl_Interp *interp;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     Marker *markerPtr;
     int flags = TK_CONFIG_ARGV_ONLY;
     char *oldName;
     int nNames, nOpts;
-    char **options;
+    CONST char **options;
     register int i;
     int under;
 
@@ -4295,24 +4302,24 @@ ConfigureOp(graphPtr, interp, argc, argv)
     for (i = 0; i < nNames; i++) {
 	NameToMarker(graphPtr, argv[i], &markerPtr);
 	if (nOpts == 0) {
-	    return Tk_ConfigureInfo(interp, graphPtr->tkwin, 
-		markerPtr->classPtr->configSpecs, (char *)markerPtr, 
+	    return Tk_ConfigureInfo(interp, graphPtr->tkwin,
+		markerPtr->classPtr->configSpecs, (char *)markerPtr,
 		(char *)NULL, flags);
 	} else if (nOpts == 1) {
 	    return Tk_ConfigureInfo(interp, graphPtr->tkwin,
-		markerPtr->classPtr->configSpecs, (char *)markerPtr, 
+		markerPtr->classPtr->configSpecs, (char *)markerPtr,
 		options[0], flags);
 	}
 	/* Save the old marker. */
 	oldName = markerPtr->name;
 	under = markerPtr->drawUnder;
-	if (Tk_ConfigureWidget(interp, graphPtr->tkwin, 
-		markerPtr->classPtr->configSpecs, nOpts, options, 
+	if (Blt_ConfigureWidget(interp, graphPtr->tkwin,
+		markerPtr->classPtr->configSpecs, nOpts, options,
 		(char *)markerPtr, flags) != TCL_OK) {
 	    return TCL_ERROR;
 	}
 	if (oldName != markerPtr->name) {
-	    if (RenameMarker(graphPtr, markerPtr, oldName, markerPtr->name) 
+	    if (RenameMarker(graphPtr, markerPtr, oldName, markerPtr->name)
 		!= TCL_OK) {
 		markerPtr->name = oldName;
 		return TCL_ERROR;
@@ -4361,7 +4368,6 @@ CreateOp(graphPtr, interp, argc, argv)
     char string[200];
     unsigned int length;
     char c;
-    register Tk_ConfigSpec *specPtr;
 
     c = argv[3][0];
     /* Create the new marker based upon the given type */
@@ -4397,23 +4403,17 @@ CreateOp(graphPtr, interp, argc, argv)
 	sprintf(string, "marker%d", graphPtr->nextMarkerId++);
 	name = string;
     } else if (name[0] == '-') {
-	Tcl_AppendResult(interp, "name of marker \"", name, 
+	Tcl_AppendResult(interp, "name of marker \"", name,
 		"\" can't start with a '-'", (char *)NULL);
 	return TCL_ERROR;
     }
     markerPtr = CreateMarker(graphPtr, name, classUid);
-    if (Blt_ConfigureWidgetComponent(interp, graphPtr->tkwin, name, 
+    if (Blt_ConfigureWidgetComponent(interp, graphPtr->tkwin, name,
 	     markerPtr->classUid, markerPtr->classPtr->configSpecs,
 	    argc - 4, argv + 4, (char *)markerPtr, 0) != TCL_OK) {
 	DestroyMarker(markerPtr);
 	return TCL_ERROR;
     }
-
-    for (argc -= 4, argv += 4 ; argc > 0; argc -= 2, argv += 2)
-      for (specPtr = markerPtr->classPtr->configSpecs; specPtr->type != TK_CONFIG_END; specPtr++)
-      	if ((Tcl_StringMatch(specPtr->argvName, *argv)))
-          specPtr->specFlags |= TK_CONFIG_OPTION_SPECIFIED;
-
     if ((*markerPtr->classPtr->configProc) (markerPtr) != TCL_OK) {
 	DestroyMarker(markerPtr);
 	return TCL_ERROR;
@@ -4431,7 +4431,7 @@ CreateOp(graphPtr, interp, argc, argv)
     }
     Blt_SetHashValue(hPtr, markerPtr);
     markerPtr->hashPtr = hPtr;
-    markerPtr->linkPtr = 
+    markerPtr->linkPtr =
 	Blt_ChainAppend(graphPtr->markers.displayList, markerPtr);
     if (markerPtr->drawUnder) {
 	graphPtr->flags |= REDRAW_BACKING_STORE;
@@ -4619,7 +4619,7 @@ FindOp(graphPtr, interp, argc, argv)
     } else if (strcmp(argv[3], "overlapping") == 0) {
 	mode = FIND_OVERLAPPING;
     } else {
-	Tcl_AppendResult(interp, "bad search type \"", argv[3], 
+	Tcl_AppendResult(interp, "bad search type \"", argv[3],
 		": should be \"enclosed\", or \"overlapping\"", (char *)NULL);
 	return TCL_ERROR;
     }
@@ -4653,12 +4653,12 @@ FindOp(graphPtr, interp, argc, argv)
 	}
 	if (markerPtr->elemName != NULL) {
 	    Blt_HashEntry *hPtr;
-	    
-	    hPtr = Blt_FindHashEntry(&graphPtr->elements.table, 
+
+	    hPtr = Blt_FindHashEntry(&graphPtr->elements.table,
 				     markerPtr->elemName);
 	    if (hPtr != NULL) {
 		Element *elemPtr;
-		
+
 		elemPtr = (Element *)Blt_GetHashValue(hPtr);
 		if (elemPtr->hidden) {
 		    continue;
@@ -4809,7 +4809,7 @@ Blt_MarkersToPostScript(graphPtr, psToken, under)
     for (linkPtr = Blt_ChainFirstLink(graphPtr->markers.displayList);
 	linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
 	markerPtr = Blt_ChainGetValue(linkPtr);
-	if ((markerPtr->classPtr->postscriptProc == NULL) || 
+	if ((markerPtr->classPtr->postscriptProc == NULL) ||
 	    (markerPtr->nWorldPts == 0)) {
 	    continue;
 	}
@@ -4822,7 +4822,7 @@ Blt_MarkersToPostScript(graphPtr, psToken, under)
 	if (markerPtr->elemName != NULL) {
 	    Blt_HashEntry *hPtr;
 
-	    hPtr = Blt_FindHashEntry(&graphPtr->elements.table, 
+	    hPtr = Blt_FindHashEntry(&graphPtr->elements.table,
 			     markerPtr->elemName);
 	    if (hPtr != NULL) {
 		Element *elemPtr;
@@ -4849,7 +4849,7 @@ Blt_MarkersToPostScript(graphPtr, psToken, under)
  *
  *	A marker will not be drawn if
  *
- *	1) An element linked to the marker (indicated by elemName) 
+ *	1) An element linked to the marker (indicated by elemName)
  *	   is currently hidden.
  *
  *	2) No coordinates have been specified for the marker.
@@ -4884,9 +4884,9 @@ Blt_DrawMarkers(graphPtr, drawable, under)
 	linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
 	markerPtr = Blt_ChainGetValue(linkPtr);
 
-	if ((markerPtr->nWorldPts == 0) || 
+	if ((markerPtr->nWorldPts == 0) ||
 	    (markerPtr->drawUnder != under) ||
-	    (markerPtr->hidden) || 
+	    (markerPtr->hidden) ||
 	    (markerPtr->clipped)) {
 	    continue;
 	}
@@ -4894,7 +4894,7 @@ Blt_DrawMarkers(graphPtr, drawable, under)
 	    Blt_HashEntry *hPtr;
 
 	    /* Look up the named element and see if it's hidden */
-	    hPtr = Blt_FindHashEntry(&graphPtr->elements.table, 
+	    hPtr = Blt_FindHashEntry(&graphPtr->elements.table,
 				     markerPtr->elemName);
 	    if (hPtr != NULL) {
 		Element *elemPtr;
@@ -4969,14 +4969,14 @@ Blt_NearestMarker(graphPtr, x, y, under)
     for (linkPtr = Blt_ChainLastLink(graphPtr->markers.displayList);
 	linkPtr != NULL; linkPtr = Blt_ChainPrevLink(linkPtr)) {
 	markerPtr = Blt_ChainGetValue(linkPtr);
-	/* 
+	/*
 	 * Don't consider markers that are pending to be mapped. Even
 	 * if the marker has already been mapped, the coordinates
 	 * could be invalid now.  Better to pick no marker than the
 	 * wrong marker.
 	 */
-	if ((markerPtr->drawUnder == under) && (markerPtr->nWorldPts > 0) && 
-	    ((markerPtr->flags & MAP_ITEM) == 0) && 
+	if ((markerPtr->drawUnder == under) && (markerPtr->nWorldPts > 0) &&
+	    ((markerPtr->flags & MAP_ITEM) == 0) &&
 	    (!markerPtr->hidden) && (markerPtr->state == STATE_NORMAL)) {
 	    if ((*markerPtr->classPtr->pointProc) (markerPtr, &point)) {
 		return markerPtr;

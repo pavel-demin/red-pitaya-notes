@@ -3,7 +3,7 @@
  *
  *	Contains a collection of procedures that are used to parse Tcl
  *	commands or parts of commands (like quoted strings or nested
- *	sub-commands).  
+ *	sub-commands).
  *
  *	Since Tcl 8.1.0 these routines have been replaced by ones that
  *	generate byte-codes.  But since these routines are used in
@@ -14,10 +14,10 @@
  *
  * Copyright (c) 1987-1993 The Regents of the University of California.
  * Copyright (c) 19941998 Sun Microsystems, Inc.
- * 
+ *
  */
 
-#include "bltInt.h"
+#include <bltInt.h>
 
 #if (TCL_VERSION_NUMBER >= _VERSION(8,1,0))
 #include "bltInterp.h"

@@ -1,6 +1,6 @@
 /*
   Remember row,column where string was acquired.
-  postcombobox x y 
+  postcombobox x y
 	icon?, text, row, column position, fg, bg button?
 	based upon style.
   grab set
@@ -9,7 +9,7 @@
   SetBg
   SetFg
   SetFont
-  SetButton  
+  SetButton
  */
 
 /*
@@ -223,27 +223,27 @@ static Blt_ConfigSpec textboxConfigSpecs[] =
 {
     {BLT_CONFIG_BORDER, "-background", "background", "Background",
 	DEF_TEXTBOX_BACKGROUND, Blt_Offset(Textbox, border), 0},
-    {BLT_CONFIG_SYNONYM, "-bd", "borderWidth", (char *)NULL, (char *)NULL, 0,0},
-    {BLT_CONFIG_SYNONYM, "-bg", "background", (char *)NULL, (char *)NULL, 0,0},
+    {BLT_CONFIG_SYNONYM, "-bd",  (char *)NULL, (char *)NULL, (char *)NULL, 0,0, (ClientData)"-borderwidth"},
+    {BLT_CONFIG_SYNONYM, "-bg",  (char *)NULL, (char *)NULL, (char *)NULL, 0,0, (ClientData)"-background"},
     {BLT_CONFIG_ACTIVE_CURSOR, "-cursor", "cursor", "Cursor",
-	DEF_TEXTBOX_CURSOR, Blt_Offset(Textbox, cursor), 
+	DEF_TEXTBOX_CURSOR, Blt_Offset(Textbox, cursor),
 	BLT_CONFIG_NULL_OK},
     {BLT_CONFIG_DISTANCE, "-borderwidth", "borderWidth", "BorderWidth",
 	DEF_TEXTBOX_BORDERWIDTH, Blt_Offset(Textbox, borderWidth),
 	BLT_CONFIG_DONT_SET_DEFAULT},
-    {BLT_CONFIG_BORDER, "-buttonbackground", "buttonBackground", 
+    {BLT_CONFIG_BORDER, "-buttonbackground", "buttonBackground",
 	"ButtonBackground", DEF_TEXTBOX_BUTTON_BACKGROUND,
 	Blt_Offset(Textbox, buttonBorder), 0},
     {BLT_CONFIG_RELIEF, "-buttonrelief", "buttonRelief", "ButtonRelief",
 	DEF_TEXTBOX_BUTTON_RELIEF, Blt_Offset(Textbox, buttonRelief),
 	BLT_CONFIG_DONT_SET_DEFAULT},
-    {BLT_CONFIG_DISTANCE, "-buttonborderwidth", "buttonBorderWidth", 
-	"ButtonBorderWidth", DEF_TEXTBOX_BUTTON_BORDERWIDTH, 
+    {BLT_CONFIG_DISTANCE, "-buttonborderwidth", "buttonBorderWidth",
+	"ButtonBorderWidth", DEF_TEXTBOX_BUTTON_BORDERWIDTH,
 	Blt_Offset(Textbox, buttonBorderWidth),
 	BLT_CONFIG_DONT_SET_DEFAULT},
     {BLT_CONFIG_BOOLEAN, "-exportselection", "exportSelection",
-	"ExportSelection", DEF_TEXTBOX_EXPORT_SELECTION, 
-	Blt_Offset(Textbox, exportSelection), 
+	"ExportSelection", DEF_TEXTBOX_EXPORT_SELECTION,
+	Blt_Offset(Textbox, exportSelection),
 	BLT_CONFIG_DONT_SET_DEFAULT},
     {BLT_CONFIG_RELIEF, "-relief", "relief", "Relief",
 	DEF_TEXTBOX_RELIEF, Blt_Offset(Textbox, relief), 0},
@@ -253,9 +253,9 @@ static Blt_ConfigSpec textboxConfigSpecs[] =
     {BLT_CONFIG_BORDER, "-selectbackground", "selectBackground", "Background",
 	DEF_TEXTBOX_SELECT_BACKGROUND, Blt_Offset(Textbox, selBorder),
 	BLT_CONFIG_COLOR_ONLY},
-    {BLT_CONFIG_DISTANCE, "-selectborderwidth", "selectBorderWidth", 
-        "BorderWidth", DEF_TEXTBOX_SELECT_BORDERWIDTH, 
-	Blt_Offset(Textbox, selBorderWidth), 
+    {BLT_CONFIG_DISTANCE, "-selectborderwidth", "selectBorderWidth",
+        "BorderWidth", DEF_TEXTBOX_SELECT_BORDERWIDTH,
+	Blt_Offset(Textbox, selBorderWidth),
 	BLT_CONFIG_DONT_SET_DEFAULT},
     {BLT_CONFIG_COLOR, "-selectforeground", "selectForeground", "Foreground",
 
@@ -267,7 +267,7 @@ static Blt_ConfigSpec textboxConfigSpecs[] =
     {BLT_CONFIG_RELIEF, "-selectrelief", "selectRelief", "Relief",
 	DEF_TEXTBOX_SELECT_RELIEF, Blt_Offset(Textbox, selRelief),
 	BLT_CONFIG_DONT_SET_DEFAULT},
-    {BLT_CONFIG_END, (char *)NULL, (char *)NULL, (char *)NULL, (char *)NULL, 
+    {BLT_CONFIG_END, (char *)NULL, (char *)NULL, (char *)NULL, (char *)NULL,
 	0, 0}
 };
 
@@ -295,7 +295,7 @@ static void
 EventuallyRedraw(tbPtr)
     Textbox *tbPtr;
 {
-    if ((tbPtr->tkwin != NULL) && 
+    if ((tbPtr->tkwin != NULL) &&
 	((tbPtr->flags & TEXTBOX_REDRAW) == 0)) {
 	tbPtr->flags |= TEXTBOX_REDRAW;
 	Tcl_DoWhenIdle(DisplayTextbox, tbPtr);
@@ -332,7 +332,7 @@ BlinkCursorProc(clientData)
     if (tbPtr->active) {
 	tbPtr->cursorOn ^= 1;
 	interval = (tbPtr->cursorOn) ? tbPtr->onTime : tbPtr->offTime;
-	tbPtr->timerToken = 
+	tbPtr->timerToken =
 	    Tcl_CreateTimerHandler(interval, BlinkCursorProc, tbPtr);
 	EventuallyRedraw(tbPtr);
     }
@@ -381,7 +381,7 @@ TextboxEventProc(clientData, eventPtr)
 	if ((tbPtr->active) && (tbPtr->flags & TEXTBOX_FOCUS)) {
 	    tbPtr->cursorOn = TRUE;
 	    if (tbPtr->offTime != 0) {
-		tbPtr->timerToken = Tcl_CreateTimerHandler(tbPtr->onTime, 
+		tbPtr->timerToken = Tcl_CreateTimerHandler(tbPtr->onTime,
 		   BlinkCursorProc, tbPtr);
 	    }
 	} else {
@@ -459,10 +459,10 @@ PointerToIndex(tbPtr, x, y)
     } else if (y >= textPtr->height) {
 	y = textPtr->height - 1;
     }
-    /* 
-     * Compute the line that contains the y-coordinate. 
+    /*
+     * Compute the line that contains the y-coordinate.
      *
-     * FIXME: This assumes that segments are distributed 
+     * FIXME: This assumes that segments are distributed
      *	     line-by-line.  This may change in the future.
      */
     Tk_GetFontMetrics(tbPtr->font, &fontMetrics);
@@ -480,7 +480,7 @@ PointerToIndex(tbPtr, x, y)
 	int newX;
 
 	/* Find the character underneath the pointer. */
-	nBytes = Tk_MeasureChars(tbPtr->font, fragPtr->text, fragPtr->count, 
+	nBytes = Tk_MeasureChars(tbPtr->font, fragPtr->text, fragPtr->count,
 		 x, 0, &newX);
 	if ((newX < x) && (nBytes < fragPtr->count)) {
 	    double fract;
@@ -534,7 +534,7 @@ IndexToPointer(tbPtr)
 	/* Total the number of bytes on each line.  Include newlines. */
 	nBytes = fragPtr->count + 1;
 	if ((sum + nBytes) > tbPtr->insertPos) {
-	    x += Tk_TextWidth(tbPtr->font, fragPtr->text, 
+	    x += Tk_TextWidth(tbPtr->font, fragPtr->text,
 		tbPtr->insertPos - sum);
 	    break;
 	}
@@ -589,7 +589,7 @@ UpdateLayout(tbPtr)
     tbPtr->width = width + (2 * tbPtr->borderWidth);
     tbPtr->height = height + (2 * tbPtr->borderWidth);
     IndexToPointer(tbPtr);
-    Tk_MoveResizeWindow(tbPtr->tkwin, tbPtr->x, tbPtr->y, 
+    Tk_MoveResizeWindow(tbPtr->tkwin, tbPtr->x, tbPtr->y,
 	      tbPtr->width, tbPtr->height);
     Tk_MapWindow(tbPtr->tkwin);
     XRaiseWindow(tbPtr->display, Tk_WindowId(tbPtr->tkwin));
@@ -617,7 +617,7 @@ InsertText(tbPtr, insertText, insertPos, nBytes)
 	strcat(newText, oldText);
     } else {			/* Insert into existing. */
 	char *p;
-	
+
 	p = newText;
 	strncpy(p, oldText, insertPos);
 	p += insertPos;
@@ -626,10 +626,10 @@ InsertText(tbPtr, insertText, insertPos, nBytes)
 	strcpy(p, oldText + insertPos);
     }
 
-    /* 
+    /*
      * All indices from the start of the insertion to the end of the
      * string need to be updated.  Simply move the indices down by the
-     * number of characters added.  
+     * number of characters added.
      */
     if (tbPtr->selFirst >= insertPos) {
 	tbPtr->selFirst += nBytes;
@@ -709,7 +709,7 @@ DeleteText(tbPtr, firstPos, lastPos)
     }
     if (tbPtr->selLast <= tbPtr->selFirst) {
 	tbPtr->selFirst = tbPtr->selLast = -1; /* Cut away the entire
-						    * selection. */ 
+						    * selection. */
     }
     if (tbPtr->selAnchor >= firstPos) {
 	if (tbPtr->selAnchor >= lastPos) {
@@ -781,11 +781,11 @@ AcquireText(tvPtr, tbPtr, entryPtr, columnPtr)
     tbPtr->columnPtr = columnPtr;
     tbPtr->x = x - tbPtr->borderWidth;
     tbPtr->y = y - tbPtr->borderWidth;
-    
+
     tbPtr->gap = stylePtr->gap;
     tbPtr->string = Blt_Strdup(string);
-    tbPtr->gc = Blt_TreeViewGetStyleGC(stylePtr);
-    tbPtr->font = Blt_TreeViewGetStyleFont(tvPtr, stylePtr);
+    tbPtr->gc = Blt_TreeViewGetStyleGC(tvPtr, stylePtr);
+    tbPtr->font = Blt_TreeViewGetStyleFont(tvPtr, columnPtr, stylePtr);
     tbPtr->selFirst = tbPtr->selLast = -1;
     UpdateLayout(tbPtr);
     Tk_MapWindow(tbPtr->tkwin);
@@ -880,7 +880,7 @@ GetIndexFromObj(interp, tbPtr, objPtr, indexPtr)
 	} else if (number > maxChars) {
 	    textPos = strlen(tbPtr->string);
 	} else {
-	    textPos = Tcl_UtfAtIndex(tbPtr->string, number) - 
+	    textPos = Tcl_UtfAtIndex(tbPtr->string, number) -
 		tbPtr->string;
 	}
     } else {
@@ -923,7 +923,7 @@ SelectText(tbPtr, textPos)
      * Grab the selection if we don't own it already.
      */
     if ((tbPtr->exportSelection) && (tbPtr->selFirst == -1)) {
-	Tk_OwnSelection(tbPtr->tkwin, XA_PRIMARY, 
+	Tk_OwnSelection(tbPtr->tkwin, XA_PRIMARY,
 			TextboxLostSelectionProc, tbPtr);
     }
     /*  If the anchor hasn't been set yet, assume the beginning of the text*/
@@ -995,7 +995,7 @@ DestroyTextbox(data)
 {
     Textbox *tbPtr = (Textbox *)data;
 
-    Blt_FreeObjOptions(textboxConfigSpecs, (char *)tbPtr, 
+    Blt_FreeObjOptions(tbPtr->interp, textboxConfigSpecs, (char *)tbPtr,
 	tbPtr->display, 0);
 
     if (tbPtr->string != NULL) {
@@ -1032,11 +1032,11 @@ ConfigureTextbox(tbPtr)
 	Tk_FreeGC(tbPtr->display, tbPtr->gc);
     }
     tbPtr->gc = newGC;
-    tbPtr->width = tbPtr->textPtr->width + 
+    tbPtr->width = tbPtr->textPtr->width +
 	2 * (tbPtr->borderWidth + tbPtr->highlightWidth);
-    tbPtr->height = tbPtr->textPtr->height + 
+    tbPtr->height = tbPtr->textPtr->height +
 	2 * (tbPtr->borderWidth + tbPtr->highlightWidth);
-    
+
     if (Tk_IsMapped(tbPtr->tkwin)) {
 	if ((tbPtr->height != Tk_Height(tbPtr->tkwin)) ||
 	    (tbPtr->width != Tk_Width(tbPtr->tkwin))) {
@@ -1067,7 +1067,7 @@ Blt_TreeViewTextbox(tvPtr, entryPtr, columnPtr)
     Tk_MakeWindowExist(tkwin);
 
     sprintf(editClass, "%sEditor", Tk_Class(tvPtr->tkwin));
-    Tk_SetClass(tkwin, editClass); 
+    Tk_SetClass(tkwin, editClass);
 
     tbPtr = Blt_Calloc(1, sizeof(Textbox));
     assert(tbPtr);
@@ -1091,21 +1091,21 @@ Blt_TreeViewTextbox(tvPtr, entryPtr, columnPtr)
 #if (TK_MAJOR_VERSION > 4)
     Blt_SetWindowInstanceData(tkwin, tbPtr);
 #endif
-    Tk_CreateSelHandler(tkwin, XA_PRIMARY, XA_STRING, 
+    Tk_CreateSelHandler(tkwin, XA_PRIMARY, XA_STRING,
 	TextboxSelectionProc, tbPtr, XA_STRING);
     Tk_CreateEventHandler(tkwin, ExposureMask | StructureNotifyMask |
 	FocusChangeMask, TextboxEventProc, tbPtr);
-    Tcl_CreateObjCommand(tvPtr->interp, Tk_PathName(tkwin), 
+    Tcl_CreateObjCommand(tvPtr->interp, Tk_PathName(tkwin),
 	TextboxCmd, tbPtr, NULL);
-    if (Blt_ConfigureWidgetFromObj(tvPtr->interp, tkwin, textboxConfigSpecs, 0, 
-	(Tcl_Obj **)NULL, (char *)tbPtr, 0) != TCL_OK) {
+    if (Blt_ConfigureWidgetFromObj(tvPtr->interp, tkwin, textboxConfigSpecs, 0,
+	(Tcl_Obj **)NULL, (char *)tbPtr, 0, NULL) != TCL_OK) {
 	Tk_DestroyWindow(tkwin);
 	return TCL_ERROR;
     }
     AcquireText(tvPtr, tbPtr, entryPtr, columnPtr);
     tbPtr->insertPos = strlen(tbPtr->string);
-    
-    Tk_MoveResizeWindow(tkwin, tbPtr->x, tbPtr->y, tbPtr->width, 
+
+    Tk_MoveResizeWindow(tkwin, tbPtr->x, tbPtr->y, tbPtr->width,
 	tbPtr->height);
     Tk_MapWindow(tkwin);
     Tk_MakeWindowExist(tkwin);
@@ -1138,32 +1138,32 @@ DisplayTextbox(clientData)
     if (tbPtr->columnPtr == NULL) {
 	return;
     }
-    drawable = Tk_GetPixmap(tbPtr->display, Tk_WindowId(tbPtr->tkwin), 
-	Tk_Width(tbPtr->tkwin), Tk_Height(tbPtr->tkwin), 
+    drawable = Tk_GetPixmap(tbPtr->display, Tk_WindowId(tbPtr->tkwin),
+	Tk_Width(tbPtr->tkwin), Tk_Height(tbPtr->tkwin),
 	Tk_Depth(tbPtr->tkwin));
 
     Blt_Fill3DRectangle(tbPtr->tkwin, drawable, tbPtr->border, 0, 0,
-	Tk_Width(tbPtr->tkwin), Tk_Height(tbPtr->tkwin), 
+	Tk_Width(tbPtr->tkwin), Tk_Height(tbPtr->tkwin),
 	tbPtr->borderWidth, tbPtr->relief);
 
     x = tbPtr->borderWidth + tbPtr->gap;
     y = tbPtr->borderWidth;
 
 #ifdef notdef
-    buttonX = Tk_Width(tbPtr->tkwin) - 
+    buttonX = Tk_Width(tbPtr->tkwin) -
 	(tbPtr->borderWidth + tbPtr->gap + 1);
     buttonY = tbPtr->borderWidth + 1;
 #endif
 
     if (tbPtr->icon != NULL) {
 	y += (tbPtr->height - TreeViewIconHeight(tbPtr->icon)) / 2;
-	Tk_RedrawImage(TreeViewIconBits(tbPtr->icon), 0, 0, 
-		       TreeViewIconWidth(tbPtr->icon), 
-		       TreeViewIconHeight(tbPtr->icon), 
+	Tk_RedrawImage(TreeViewIconBits(tbPtr->icon), 0, 0,
+		       TreeViewIconWidth(tbPtr->icon),
+		       TreeViewIconHeight(tbPtr->icon),
 		       drawable, x, y);
 	x += TreeViewIconWidth(tbPtr->icon) + tbPtr->gap;
     }
-    
+
     Tk_GetFontMetrics(tbPtr->font, &fontMetrics);
     fragPtr = tbPtr->textPtr->fragArr;
     count = 0;
@@ -1177,9 +1177,15 @@ DisplayTextbox(clientData)
 	rightPos = count;
 	if ((rightPos < tbPtr->selFirst) || (leftPos > tbPtr->selLast)) {
 	    /* No part of the text fragment is selected. */
-	    Tk_DrawChars(tbPtr->display, drawable, tbPtr->gc, 
-			 tbPtr->font, fragPtr->text, fragPtr->count, 
+#ifdef TK_DRAWCHARS_ANGLE
+	    Tk_DrawChars(tbPtr->display, drawable, tbPtr->gc,
+			 tbPtr->font, fragPtr->text, fragPtr->count,
+			 x + fragPtr->x, y + fragPtr->y, 0.);
+#else
+	    Tk_DrawChars(tbPtr->display, drawable, tbPtr->gc,
+			 tbPtr->font, fragPtr->text, fragPtr->count,
 			 x + fragPtr->x, y + fragPtr->y);
+#endif
 	    continue;
 	}
 
@@ -1217,13 +1223,19 @@ DisplayTextbox(clientData)
 	    x2 += x;
 	    width = (x2 - x1) + 1;
 	    Blt_Fill3DRectangle(tbPtr->tkwin, drawable, tbPtr->selBorder,
-		x1, y + fragPtr->y - fontMetrics.ascent, 
+		x1, y + fragPtr->y - fontMetrics.ascent,
 	        width, fontMetrics.linespace,
 		tbPtr->selBorderWidth, tbPtr->selRelief);
 	}
-	Tk_DrawChars(Tk_Display(tbPtr->tkwin), drawable, tbPtr->gc, 
-	     tbPtr->font, fragPtr->text, fragPtr->count, 
+#ifdef TK_DRAWCHARS_ANGLE
+	Tk_DrawChars(Tk_Display(tbPtr->tkwin), drawable, tbPtr->gc,
+	     tbPtr->font, fragPtr->text, fragPtr->count,
+		     fragPtr->x + x, fragPtr->y + y, 0.);
+#else
+	Tk_DrawChars(Tk_Display(tbPtr->tkwin), drawable, tbPtr->gc,
+	     tbPtr->font, fragPtr->text, fragPtr->count,
 	     fragPtr->x + x, fragPtr->y + y);
+#endif
     }
     if ((tbPtr->flags & TEXTBOX_FOCUS) && (tbPtr->cursorOn)) {
 	int left, top, right, bottom;
@@ -1240,27 +1252,27 @@ DisplayTextbox(clientData)
 		bottom);
 	XDrawLine(tbPtr->display, drawable, tbPtr->gc, left - 1, top, right,
 		top);
-	XDrawLine(tbPtr->display, drawable, tbPtr->gc, left - 1, bottom, 
+	XDrawLine(tbPtr->display, drawable, tbPtr->gc, left - 1, bottom,
 		right, bottom);
     }
 #ifdef notdef
     buttonWidth = STD_ARROW_WIDTH + 6 + 2 * tbPtr->buttonBorderWidth;
     buttonX -= buttonWidth;
     buttonHeight = Tk_Height(tbPtr->tkwin) - 4;
-    Blt_Fill3DRectangle(tbPtr->tkwin, drawable, tbPtr->buttonBorder, 
+    Blt_Fill3DRectangle(tbPtr->tkwin, drawable, tbPtr->buttonBorder,
 	       buttonX, buttonY, buttonWidth, buttonHeight,
-	       tbPtr->buttonBorderWidth, tbPtr->buttonRelief); 
-    
+	       tbPtr->buttonBorderWidth, tbPtr->buttonRelief);
+
     buttonX += buttonWidth / 2;
     buttonY = tbPtr->height / 2;
     Blt_DrawArrow(tbPtr->display, drawable, tbPtr->gc, buttonX,
 		  buttonY, STD_ARROW_HEIGHT, ARROW_DOWN);
 #endif
     Blt_Draw3DRectangle(tbPtr->tkwin, drawable, tbPtr->border, 0, 0,
-	Tk_Width(tbPtr->tkwin), Tk_Height(tbPtr->tkwin), 
+	Tk_Width(tbPtr->tkwin), Tk_Height(tbPtr->tkwin),
 	tbPtr->borderWidth, tbPtr->relief);
     XCopyArea(tbPtr->display, drawable, Tk_WindowId(tbPtr->tkwin),
-	tbPtr->gc, 0, 0, Tk_Width(tbPtr->tkwin), 
+	tbPtr->gc, 0, 0, Tk_Width(tbPtr->tkwin),
 	Tk_Height(tbPtr->tkwin), 0, 0);
     Tk_FreePixmap(tbPtr->display, drawable);
 }
@@ -1269,7 +1281,7 @@ DisplayTextbox(clientData)
 static int
 ApplyOp(tbPtr, interp, objc, objv)
     Textbox *tbPtr;
-    Tcl_Interp *interp;		
+    Tcl_Interp *interp;
     int objc;			/* Not used. */
     Tcl_Obj *CONST *objv;	/* Not used. */
 {
@@ -1292,15 +1304,15 @@ ApplyOp(tbPtr, interp, objc, objv)
 
 	columnPtr = tbPtr->columnPtr;
 	objPtr = Tcl_NewStringObj(tbPtr->string, -1);
-	if (Blt_TreeSetValueByKey(interp, tvPtr->tree, entryPtr->node, 
+	if (Blt_TreeSetValueByKey(interp, tvPtr->tree, entryPtr->node,
 		columnPtr->key, objPtr) != TCL_OK) {
 	    Tcl_DecrRefCount(objPtr);
 	    return TCL_ERROR;
 	}
 	entryPtr->flags |= ENTRY_DIRTY;
-    }	
+    }
     if (tvPtr != NULL) {
-	Blt_TreeViewConfigureEntry(tvPtr, entryPtr, 0, NULL, 
+	Blt_TreeViewConfigureEntry(tvPtr, entryPtr, 0, NULL,
 		BLT_CONFIG_OBJV_ONLY);
 	tvPtr->flags |= (TV_LAYOUT | TV_DIRTY | TV_RESORT);
 	Blt_TreeViewEventuallyRedraw(tvPtr);
@@ -1336,7 +1348,7 @@ CgetOp(tbPtr, interp, objc, objv)
     int objc;			/* Not used. */
     Tcl_Obj *CONST *objv;
 {
-    return Blt_ConfigureValueFromObj(interp, tbPtr->tkwin, 
+    return Blt_ConfigureValueFromObj(interp, tbPtr->tkwin,
 	textboxConfigSpecs, (char *)tbPtr, objv[2], 0);
 }
 
@@ -1370,15 +1382,15 @@ ConfigureOp(tbPtr, interp, objc, objv)
     Tcl_Obj *CONST *objv;
 {
     if (objc == 2) {
-	return Blt_ConfigureInfoFromObj(interp, tbPtr->tkwin, 
+	return Blt_ConfigureInfoFromObj(interp, tbPtr->tkwin,
 		textboxConfigSpecs, (char *)tbPtr, (Tcl_Obj *)NULL, 0);
     } else if (objc == 3) {
-	return Blt_ConfigureInfoFromObj(interp, tbPtr->tkwin, 
-		textboxConfigSpecs, (char *)tbPtr, objv[3], 0);
+	return Blt_ConfigureInfoFromObj(interp, tbPtr->tkwin,
+		textboxConfigSpecs, (char *)tbPtr, objv[2], 0);
     }
-    if (Blt_ConfigureWidgetFromObj(interp, tbPtr->tkwin, 
-	textboxConfigSpecs, objc - 2, objv + 2, (char *)tbPtr, 
-	BLT_CONFIG_OBJV_ONLY) != TCL_OK) {
+    if (Blt_ConfigureWidgetFromObj(interp, tbPtr->tkwin,
+	textboxConfigSpecs, objc - 2, objv + 2, (char *)tbPtr,
+	BLT_CONFIG_OBJV_ONLY, NULL) != TCL_OK) {
 	return TCL_ERROR;
     }
     ConfigureTextbox(tbPtr);
@@ -1419,7 +1431,7 @@ DeleteOp(tbPtr, interp, objc, objv)
 	return TCL_ERROR;
     }
     lastPos = firstPos;
-    if ((objc == 4) && 
+    if ((objc == 4) &&
 	(GetIndexFromObj(interp, tbPtr, objv[3], &lastPos) != TCL_OK)) {
 	return TCL_ERROR;
     }
@@ -1623,7 +1635,7 @@ SelectionFromOp(tbPtr, interp, objc, objv)
 static int
 SelectionPresentOp(tbPtr, interp, objc, objv)
     Textbox *tbPtr;
-    Tcl_Interp *interp;		
+    Tcl_Interp *interp;
     int objc;			/* Not used. */
     Tcl_Obj *CONST *objv;	/* Not used. */
 {
@@ -1710,7 +1722,7 @@ SelectionOp(tbPtr, interp, objc, objv)
     Blt_Op proc;
     int result;
 
-    proc = Blt_GetOpFromObj(interp, nSelectionOps, selectionOps, BLT_OP_ARG2, 
+    proc = Blt_GetOpFromObj(interp, nSelectionOps, selectionOps, BLT_OP_ARG2,
 	objc, objv, 0);
     if (proc == NULL) {
 	return TCL_ERROR;
@@ -1756,7 +1768,7 @@ TextboxCmd(clientData, interp, objc, objv)
     Blt_Op proc;
     int result;
 
-    proc = Blt_GetOpFromObj(interp, nComboOps, comboOps, BLT_OP_ARG1, objc, 
+    proc = Blt_GetOpFromObj(interp, nComboOps, comboOps, BLT_OP_ARG1, objc,
 	objv, 0);
     if (proc == NULL) {
 	return TCL_ERROR;

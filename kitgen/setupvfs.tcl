@@ -159,15 +159,15 @@ set guifiles {
   lib/tk8@/tkfbox.tcl
   lib/tk8@/unsupported.tcl
   lib/tk8@/xmfbox.tcl
-  lib/BLT2.4/pkgIndex.tcl
-  lib/BLT2.4/graph.tcl
-  lib/BLT2.4/tabnotebook.tcl
-  lib/BLT2.4/treeview.cur
-  lib/BLT2.4/treeview.xbm
-  lib/BLT2.4/treeview.tcl
-  lib/BLT2.4/treeview_m.xbm
-  lib/BLT2.4/bltCanvEps.pro
-  lib/BLT2.4/bltGraph.pro
+  lib/BLT2.5/pkgIndex.tcl
+  lib/BLT2.5/graph.tcl
+  lib/BLT2.5/tabnotebook.tcl
+  lib/BLT2.5/treeview.cur
+  lib/BLT2.5/treeview.xbm
+  lib/BLT2.5/treeview.tcl
+  lib/BLT2.5/treeview_m.xbm
+  lib/BLT2.5/bltCanvEps.pro
+  lib/BLT2.5/bltGraph.pro
   lib/Tktable2.10/pkgIndex.tcl
   lib/Tktable2.10/tkTable.tcl
 }

@@ -27,10 +27,10 @@
 #define _BLT_H
 
 #define BLT_MAJOR_VERSION 	2
-#define BLT_MINOR_VERSION 	4
-#define BLT_VERSION		"2.4"
-#define BLT_PATCH_LEVEL		"2.4z"
-#define BLT_RELEASE_SERIAL	0
+#define BLT_MINOR_VERSION 	5
+#define BLT_VERSION		"2.5"
+#define BLT_PATCH_LEVEL		"2.5.3"
+#define BLT_RELEASE_SERIAL	29
 
 #include <tcl.h>
 
@@ -58,13 +58,16 @@ typedef char *Blt_Uid;
 EXTERN Blt_Uid Blt_GetUid _ANSI_ARGS_((char *string));
 EXTERN void Blt_FreeUid _ANSI_ARGS_((Blt_Uid uid));
 EXTERN Blt_Uid Blt_FindUid _ANSI_ARGS_((char *string));
+EXTERN CONST char *Blt_InitStubs _ANSI_ARGS_((Tcl_Interp *interp, char *version, int exact));
 
 #if (TCL_MAJOR_VERSION >= 8)
-EXTERN int Blt_GetArrayFromObj _ANSI_ARGS_((Tcl_Interp *interp, 
+EXTERN int Blt_GetArrayFromObj _ANSI_ARGS_((Tcl_Interp *interp,
 	Tcl_Obj *objPtr, Blt_HashTable **tablePtrPtr));
 EXTERN Tcl_Obj *Blt_NewArrayObj _ANSI_ARGS_((int objc, Tcl_Obj *objv[]));
 EXTERN void Blt_RegisterArrayObj _ANSI_ARGS_((Tcl_Interp *interp));
 EXTERN int Blt_IsArrayObj _ANSI_ARGS_((Tcl_Obj *obj));
 #endif /* TCL_MAJOR_VERSION >= 8 */
+
+#include "bltOldConfig.h"
 
 #endif /*_BLT_H*/

@@ -188,10 +188,11 @@ Blt_ColorImageToPhoto(src, photo)
     dest.offset[0] = Tk_Offset(Pix32, Red);
     dest.offset[1] = Tk_Offset(Pix32, Green);
     dest.offset[2] = Tk_Offset(Pix32, Blue);
-    dest.offset[3] = Tk_Offset(Pix32, Alpha); 
+    dest.offset[3] = Tk_Offset(Pix32, Alpha);
     dest.pixelPtr = (unsigned char *)Blt_ColorImageBits(src);
     Tk_PhotoSetSize(photo, width, height);
-    Tk_PhotoPutBlock(photo, &dest, 0, 0, width, height);
+    /*Tk_PhotoPutBlock(photo, &dest, 0, 0, width, height); */
+    Tk_PhotoPutBlock_Panic(photo, &dest, 0, 0, width, height, TK_PHOTO_COMPOSITE_SET);
 }
 
 /*
@@ -222,7 +223,7 @@ Blt_PhotoRegionToColorImage(photo, x, y, width, height)
     Tk_PhotoGetImage(photo, &src);
     if (x < 0) {
 	x = 0;
-    } 
+    }
     if (y < 0) {
 	y = 0;
     }
@@ -287,7 +288,7 @@ Blt_PhotoRegionToColorImage(photo, x, y, width, height)
 	    }
 	    offset += src.pitch;
         }
-    } 
+    }
     return image;
 }
 
@@ -353,7 +354,7 @@ Blt_PhotoToColorImage(photo)
         for (y = 0; y < height; y++) {
 	    srcData = src.pixelPtr + offset;
 	    for (x = 0; x < width; x++) {
-	        destPtr->Red = destPtr->Green = destPtr->Blue = 
+	        destPtr->Red = destPtr->Green = destPtr->Blue =
 		    srcData[src.offset[0]];
 		/* No transparency information */
 	        destPtr->Alpha = (unsigned char)-1;
@@ -362,7 +363,7 @@ Blt_PhotoToColorImage(photo)
 	    }
 	    offset += src.pitch;
         }
-    } 
+    }
     return image;
 }
 
@@ -678,10 +679,10 @@ Blt_GetResampleFilter(interp, name, filterPtrPtr)
 /*
  * Scaled integers are fixed point values.  The upper 18 bits is the integer
  * portion, the lower 14 bits the fractional remainder.  Must be careful
- * not to overflow the values (especially during multiplication). 
+ * not to overflow the values (especially during multiplication).
  *
  * The following operations are defined:
- * 
+ *
  *	S * n		Scaled integer times an integer.
  *	S1 + S2		Scaled integer plus another scaled integer.
  *
@@ -830,9 +831,9 @@ ComputeWeights(srcWidth, destWidth, filterPtr, samplePtrPtr)
     return size;
 }
 
-/* 
+/*
  * The following macro converts a fixed-point scaled integer to a
- * byte, clamping the value between 0 and 255.  
+ * byte, clamping the value between 0 and 255.
  */
 #define SICLAMP(s) \
     (unsigned char)(((s) < 0) ? 0 : ((s) > 4177920) ? 255 : (si2int(s)))
@@ -939,6 +940,92 @@ ZoomImageHorizontally(src, dest, filterPtr)
 /*
  *----------------------------------------------------------------------
  *
+ * Blt_BlurColorImage --
+ *
+ *	Blur an image.
+ *
+ * Results:
+ *      Returns the resampled color image. The original color image
+ *	is left intact.
+ *
+ *----------------------------------------------------------------------
+ */
+int
+Blt_BlurColorImage(srcPhoto, dstPhoto, radius)
+    Tk_PhotoHandle srcPhoto;
+    Tk_PhotoHandle dstPhoto;
+    int radius;
+{
+
+    int width, height;
+    register Pix32 *src, *dst;
+    unsigned* precalc;
+    double mul;
+    int channel;
+    int iteration;
+
+    Blt_ColorImage srcPtr, dstPtr;
+
+    srcPtr = Blt_PhotoToColorImage(srcPhoto);
+    dstPtr = Blt_PhotoToColorImage(dstPhoto);
+
+    width = Blt_ColorImageWidth(srcPtr);
+    height = Blt_ColorImageHeight(srcPtr);
+    precalc = (unsigned*)Blt_Malloc(width*height*sizeof(unsigned));
+
+    src = Blt_ColorImageBits(srcPtr);
+    dst = Blt_ColorImageBits(dstPtr);
+
+    mul = 1.f/((radius*2)*(radius*2));
+
+    memcpy( dst, src, width*height*4 );
+
+    for ( iteration = 0; iteration < 3; iteration++ ) {
+        for( channel = 0; channel < 4; channel++ ) {
+            int x1,y1a;
+
+            int pind;
+            unsigned* pre;
+            pre = precalc;
+
+            pind = 0;
+            for (y1a=0;y1a<height;y1a++) {
+                for (x1=0;x1<width;x1++) {
+                    int tot;
+                    tot = src[pind].channel[channel];
+                    if (x1>0) tot+=pre[-1];
+                    if (y1a>0) tot+=pre[-width];
+                    if (x1>0 && y1a>0) tot-=pre[-width-1];
+                    *pre++=tot;
+                    pind ++;
+                }
+            }
+
+            pind = (int)radius * width + (int)radius;
+            for (y1a=radius;y1a<height-radius;y1a++) {
+                for (x1=radius;x1<width-radius;x1++) {
+                    int l, t, r, b, tot;
+                    l = x1 < radius ? 0 : x1 - radius;
+                    t = y1a < radius ? 0 : y1a - radius;
+                    r = x1 + radius >= width ? width - 1 : x1 + radius;
+                    b = y1a + radius >= height ? height - 1 : y1a + radius;
+                    tot = precalc[r+b*width] + precalc[l+t*width] -
+                    precalc[l+b*width] - precalc[r+t*width];
+                    dst[pind].channel[channel] = (unsigned char)(tot*mul);
+                    pind++;
+                }
+                pind += (int)radius * 2;
+            }
+        }
+        memcpy( src, dst, width*height*4 );
+    }
+    Blt_Free(precalc);
+    Blt_ColorImageToPhoto(dstPtr, dstPhoto);
+    return TCL_OK;
+}
+/*
+ *----------------------------------------------------------------------
+ *
  * Blt_ResampleColorImage --
  *
  *      Resamples a given color image using 1-D filters and returns
@@ -958,7 +1045,7 @@ Blt_ResampleColorImage(src, width, height, horzFilterPtr, vertFilterPtr)
 {
     Blt_ColorImage tmp, dest;
 
-    /* 
+    /*
      * It's usually faster to zoom vertically last.  This has to do
      * with the fact that images are stored in contiguous rows.
      */
@@ -984,10 +1071,10 @@ Blt_ResampleColorImage(src, width, height, horzFilterPtr, vertFilterPtr)
  *      The designated destination photo will contain the resampled
  *	color image. The original photo is left intact.
  *
- *---------------------------------------------------------------------- 
+ *----------------------------------------------------------------------
  */
 void
-Blt_ResamplePhoto(srcPhoto, x, y, width, height, destPhoto, horzFilterPtr, 
+Blt_ResamplePhoto(srcPhoto, x, y, width, height, destPhoto, horzFilterPtr,
 	vertFilterPtr)
     Tk_PhotoHandle srcPhoto;	/* Source photo image to scale */
     int x, y;
@@ -1097,13 +1184,13 @@ Blt_ResizePhoto(srcPhoto, x, y, width, height, destPhoto)
 	    srcRowPtr = src.pixelPtr + (mapY[y] * src.pitch);
 	    for (x = 0; x < dest.width; x++) {
 		srcPtr = srcRowPtr + (mapX[x] * src.pixelSize);
-		destPtr->Red = destPtr->Green = destPtr->Blue = 
+		destPtr->Red = destPtr->Green = destPtr->Blue =
 		    srcPtr[src.offset[0]];
 		destPtr->Alpha = (unsigned char)-1;
 		destPtr++;
 	    }
 	}
-    }	
+    }
     Blt_Free(mapX);
     Blt_Free(mapY);
     Blt_ColorImageToPhoto(destImage, destPhoto);
@@ -1152,19 +1239,19 @@ Blt_ResizeColorImage(src, x, y, width, height, destWidth, destHeight)
 	sx = (int)(xScale * (double)(x + left));
 	if (sx > right) {
 	    sx = right;
-	} 
+	}
 	mapX[x] = sx;
     }
     for(y = 0; y < destHeight; y++) {
 	sy = (int)(yScale * (double)(y + top));
 	if (sy > bottom) {
 	    sy = bottom;
-	} 
+	}
 	mapY[y] = sy;
     }
     destPtr = Blt_ColorImageBits(dest);
     for (y = 0; y < destHeight; y++) {
-	srcRowPtr = Blt_ColorImageBits(src) + 
+	srcRowPtr = Blt_ColorImageBits(src) +
 	    (Blt_ColorImageWidth(src) * mapY[y]);
 	for (x = 0; x < destWidth; x++) {
 	    srcPtr = srcRowPtr + mapX[x];
@@ -1196,11 +1283,11 @@ Blt_ResizeColorImage(src, x, y, width, height, destWidth, destHeight)
 Blt_ColorImage
 Blt_ResizeColorSubimage(
     Blt_ColorImage src,		/* Source color image to be scaled. */
-    int regionX, 
+    int regionX,
     int regionY,		/* Offset of subimage in destination. */
     int regionWidth,		/* Dimension of subimage. */
     int regionHeight,
-    int destWidth, 
+    int destWidth,
     int destHeight)		/* Dimensions of the entire scaled
 				   image. */
 {
@@ -1225,21 +1312,21 @@ Blt_ResizeColorSubimage(
 	sx = (int)(xScale * (double)(x + regionX));
 	if (sx >= srcWidth) {
 	    sx = srcWidth - 1;
-	} 
+	}
 	mapX[x] = sx;
     }
     for(y = 0; y < regionHeight; y++) {
 	sy = (int)(yScale * (double)(y + regionY));
 	if (sy > srcHeight) {
 	    sy = srcHeight - 1;
-	} 
+	}
 	mapY[y] = sy;
     }
 
     dest = Blt_CreateColorImage(regionWidth, regionHeight);
     destPtr = Blt_ColorImageBits(dest);
     for (y = 0; y < regionHeight; y++) {
-	srcRowPtr = Blt_ColorImageBits(src) + 
+	srcRowPtr = Blt_ColorImageBits(src) +
 	    (Blt_ColorImageWidth(src) * mapY[y]);
 	for (x = 0; x < regionWidth; x++) {
 	    srcPtr = srcRowPtr + mapX[x];
@@ -1340,7 +1427,7 @@ Blt_ConvolveColorImage(src, filterPtr)
  *----------------------------------------------------------------------
  */
 int
-Blt_SnapPhoto(interp, tkwin, drawable, x, y, width, height, destWidth, 
+Blt_SnapPhoto(interp, tkwin, drawable, x, y, width, height, destWidth,
 	destHeight, photoName, inputGamma)
     Tcl_Interp *interp;		/* Interpreter to report errors back to */
     Tk_Window tkwin;
@@ -1356,11 +1443,11 @@ Blt_SnapPhoto(interp, tkwin, drawable, x, y, width, height, destWidth,
 
     photo = Blt_FindPhoto(interp, photoName);
     if (photo == NULL) {
-	Tcl_AppendResult(interp, "can't find photo \"", photoName, "\"", 
+	Tcl_AppendResult(interp, "can't find photo \"", photoName, "\"",
 		(char *)NULL);
 	return TCL_ERROR;
     }
-    image = Blt_DrawableToColorImage(tkwin, drawable, x, y, width, height, 
+    image = Blt_DrawableToColorImage(tkwin, drawable, x, y, width, height,
 	inputGamma);
     if (image == NULL) {
 	Tcl_AppendResult(interp,
@@ -1376,7 +1463,7 @@ Blt_SnapPhoto(interp, tkwin, drawable, x, y, width, height, destWidth,
 	 * We'll use a cheap box filter. I'm assuming that the destination
 	 * image will typically be smaller than the original.
 	 */
-	destImage = Blt_ResampleColorImage(image, destWidth, destHeight, 
+	destImage = Blt_ResampleColorImage(image, destWidth, destHeight,
 		bltBoxFilterPtr, bltBoxFilterPtr);
 	Blt_FreeColorImage(image);
 	image = destImage;
@@ -1420,7 +1507,7 @@ Blt_JPEGToPhoto(interp, fileName, photo)
 }
 #endif /* HAVE_JPEG */
 
-/* 
+/*
  * --------------------------------------------------------------------------
  *
  * ShearY --
@@ -1428,8 +1515,8 @@ Blt_JPEGToPhoto(interp, fileName, photo)
  *	Shears a row horizontally. Antialiasing limited to filtering
  *	two adjacent pixels.  So the shear angle must be between +-45
  *	degrees.
- *	
- * Results:   
+ *
+ * Results:
  *	None.
  *
  * Side Effects:
@@ -1437,7 +1524,7 @@ Blt_JPEGToPhoto(interp, fileName, photo)
  *
  * --------------------------------------------------------------------------
  */
-static void 
+static void
 ShearY(src, dest, y, offset, frac, bgColor)
     Blt_ColorImage src, dest;
     int y;			/* Designates the row to be sheared */
@@ -1462,7 +1549,7 @@ ShearY(src, dest, y, offset, frac, bgColor)
     srcRowPtr = Blt_ColorImageBits(src) + (y * srcWidth);
 
     destPtr = destRowPtr;
-    for (x = 0; x < offset; x++) { 
+    for (x = 0; x < offset; x++) {
         *destPtr++ = bgColor;
     }
     destPtr = destRowPtr + offset;
@@ -1496,7 +1583,7 @@ ShearY(src, dest, y, offset, frac, bgColor)
 	oldLeftAlpha = leftAlpha;
 	srcPtr++, destPtr++;
     }
-    x = srcWidth + offset;  
+    x = srcWidth + offset;
     destPtr = Blt_ColorImageBits(dest) + (y * destWidth) + x;
     if (x < destWidth) {
 	leftRed = uchar2si(bgColor.Red);
@@ -1517,9 +1604,9 @@ ShearY(src, dest, y, offset, frac, bgColor)
     for (x++; x < destWidth; x++) {
         *destPtr++ = bgColor;
     }
-}  
+}
 
-/* 
+/*
  * --------------------------------------------------------------------------
  *
  * ShearX --
@@ -1527,14 +1614,14 @@ ShearY(src, dest, y, offset, frac, bgColor)
  *	Shears a column. Antialiasing is limited to filtering two
  *	adjacent pixels.  So the shear angle must be between +-45
  *	degrees.
- *	
- * Results:   
+ *
+ * Results:
  *	None.
  *
  * Side Effects:
  *	The sheared image is drawn into the destination color image.
  *
- * -------------------------------------------------------------------------- 
+ * --------------------------------------------------------------------------
  */
 static void
 ShearX(src, dest, x, offset, frac, bgColor)
@@ -1606,11 +1693,11 @@ ShearX(src, dest, x, offset, frac, bgColor)
 	oldLeftBlue = leftBlue;
 	oldLeftAlpha = leftAlpha;
 #ifdef notdef
-	srcPtr += srcWidth; 
+	srcPtr += srcWidth;
 	destPtr += destWidth;
 #endif
     }
-    y = srcHeight + offset;  
+    y = srcHeight + offset;
 #ifdef notdef
     destPtr = Blt_ColorImageBits(dest) + (y * destWidth) + x + offset;
 #endif
@@ -1633,17 +1720,17 @@ ShearX(src, dest, x, offset, frac, bgColor)
 	destPtr += destWidth;
 #endif
     }
-    
+
     for (y++; y < destHeight; y++) {
 	destPtr = Blt_ColorImagePixel(dest, x, y);
 	*destPtr = bgColor;
 #ifdef notdef
-	destPtr += destWidth; 
+	destPtr += destWidth;
 #endif
     }
-}  
+}
 
-/* 
+/*
  * ---------------------------------------------------------------------------
  *
  * Rotate45 --
@@ -1655,13 +1742,13 @@ ShearX(src, dest, x, offset, frac, bgColor)
  *	pixels.  Performs a three shear rotation described below.
  *
  *	Reference: Alan W. Paeth, "A Fast Algorithm for General Raster
- *		   Rotation", Graphics Gems, pp 179-195.  
+ *		   Rotation", Graphics Gems, pp 179-195.
  *
  *
- * Results:  
+ * Results:
  *	Returns a newly allocated rotated image.
  *
- * --------------------------------------------------------------------------- 
+ * ---------------------------------------------------------------------------
  */
 static Blt_ColorImage
 Rotate45(src, theta, bgColor)
@@ -1680,7 +1767,7 @@ Rotate45(src, theta, bgColor)
     sinTheta = sin(theta);
     cosTheta = cos(theta);
     tanTheta = tan(theta * 0.5);
-    
+
     srcWidth = Blt_ColorImageWidth(src);
     srcHeight = Blt_ColorImageHeight(src);
 
@@ -1693,13 +1780,13 @@ Rotate45(src, theta, bgColor)
     assert(tmp1);
 
     if (tanTheta >= 0.0) {	/* Positive angle */
-	for (y = 0; y < tmpHeight; y++) {  
+	for (y = 0; y < tmpHeight; y++) {
 	    skewf = (y + 0.5) * tanTheta;
 	    skewi = (int)floor(skewf);
 	    ShearY(src, tmp1, y, skewi, skewf - skewi, bgColor);
 	}
     } else {			/* Negative angle */
-	for (y = 0; y < tmpHeight; y++) {  
+	for (y = 0; y < tmpHeight; y++) {
 	    skewf = ((y - srcHeight) + 0.5) * tanTheta;
 	    skewi = (int)floor(skewf);
 	    ShearY(src, tmp1, y, skewi, skewf - skewi, bgColor);
@@ -1743,23 +1830,23 @@ Rotate45(src, theta, bgColor)
 	skewf += tanTheta;
     }
     Blt_FreeColorImage(tmp2);
-    return dest;      
+    return dest;
 }
 
-/* 
+/*
  * ---------------------------------------------------------------------------
  *
- * CopyColorImage --
+ * Blt_CopyColorImage --
  *
- *	Creates a copy of the given color image.  
+ *	Creates a copy of the given color image.
  *
- * Results:  
+ * Results:
  *	Returns the new copy.
  *
- * --------------------------------------------------------------------------- 
+ * ---------------------------------------------------------------------------
  */
-static Blt_ColorImage
-CopyColorImage(src)
+Blt_ColorImage
+Blt_CopyColorImage(src)
     Blt_ColorImage src;
 {
     unsigned int width, height;
@@ -1775,7 +1862,7 @@ CopyColorImage(src)
     return dest;
 }
 
-/* 
+/*
  * ---------------------------------------------------------------------------
  *
  * Rotate90 --
@@ -1784,10 +1871,10 @@ CopyColorImage(src)
  *	of the special case right-angle rotations that do not create
  *	subpixel aliasing.
  *
- * Results:  
+ * Results:
  *	Returns a newly allocated, rotated color image.
  *
- * --------------------------------------------------------------------------- 
+ * ---------------------------------------------------------------------------
  */
 static Blt_ColorImage
 Rotate90(src)
@@ -1815,7 +1902,7 @@ Rotate90(src)
     return dest;
 }
 
-/* 
+/*
  * ---------------------------------------------------------------------------
  *
  * Rotate180 --
@@ -1824,10 +1911,10 @@ Rotate90(src)
  *	the special case orthogonal rotations that do not create
  *	subpixel aliasing.
  *
- * Results:  
+ * Results:
  *	Returns a newly allocated, rotated color image.
  *
- * --------------------------------------------------------------------------- 
+ * ---------------------------------------------------------------------------
  */
 static Blt_ColorImage
 Rotate180(src)
@@ -1854,7 +1941,7 @@ Rotate180(src)
     return dest;
 }
 
-/* 
+/*
  * ---------------------------------------------------------------------------
  *
  * Rotate270 --
@@ -1863,10 +1950,10 @@ Rotate180(src)
  *	of the special case right-angle rotations that do not create
  *	subpixel aliasing.
  *
- * Results:  
+ * Results:
  *	Returns a newly allocated, rotated color image.
  *
- * --------------------------------------------------------------------------- 
+ * ---------------------------------------------------------------------------
  */
 static Blt_ColorImage
 Rotate270(src)
@@ -1911,10 +1998,10 @@ Blt_RotateColorImage(src, angle)
 {
     Blt_ColorImage dest, tmp;
     int quadrant;
-    
+
     tmp = src;			/* Suppress compiler warning. */
 
-    /* Make the angle positive between 0 and 360 degrees. */ 
+    /* Make the angle positive between 0 and 360 degrees. */
     angle = FMOD(angle, 360.0);
     if (angle < 0.0) {
 	angle += 360.0;
@@ -1923,19 +2010,19 @@ Blt_RotateColorImage(src, angle)
     if ((angle > 45.0) && (angle <= 135.0)) {
         quadrant = ROTATE_90;
         angle -= 90.0;
-    } else if ((angle > 135.0) && (angle <= 225.0)) { 
+    } else if ((angle > 135.0) && (angle <= 225.0)) {
         quadrant = ROTATE_180;
         angle -= 180.0;
-    } else if ((angle > 225.0) && (angle <= 315.0)) { 
+    } else if ((angle > 225.0) && (angle <= 315.0)) {
         quadrant = ROTATE_270;
         angle -= 270.0;
     } else if (angle > 315.0) {
 	angle -= 360.0;
     }
-    /* 
+    /*
      * If necessary, create a temporary image that's been rotated
      * by a right-angle.  We'll then rotate this color image between
-     * -45 to 45 degrees to arrive at its final angle.  
+     * -45 to 45 degrees to arrive at its final angle.
      */
     switch (quadrant) {
     case ROTATE_270:		/* 270 degrees */
@@ -1952,8 +2039,8 @@ Blt_RotateColorImage(src, angle)
 
     case ROTATE_0:		/* 0 degrees */
 	if (angle == 0.0) {
-	    tmp = CopyColorImage(src); /* Make a copy of the source. */
-	} 
+	    tmp = Blt_CopyColorImage(src); /* Make a copy of the source. */
+	}
 	break;
     }
 
@@ -1975,7 +2062,7 @@ Blt_RotateColorImage(src, angle)
 	if (tmp != src) {
 	    Blt_FreeColorImage(tmp);
 	}
-    } 
+    }
     return dest;
 }
 
@@ -1990,7 +2077,7 @@ enum ColorIndices { RED, GREEN, BLUE };
 #define B1	(cubePtr->b1)
 
 typedef struct {
-    int r0, r1;			/* min, max values: 
+    int r0, r1;			/* min, max values:
 				 * min exclusive max inclusive */
     int g0, g1;
     int b0, b1;
@@ -2051,7 +2138,7 @@ GetColorImageStatistics(image)
 	s->mR[r][g][b] += srcPtr->Red;
 	s->mG[r][g][b] += srcPtr->Green;
 	s->mB[r][g][b] += srcPtr->Blue;
-	s->gm2[r][g][b] += sqr[srcPtr->Red] + sqr[srcPtr->Green] + 
+	s->gm2[r][g][b] += sqr[srcPtr->Red] + sqr[srcPtr->Green] +
 	    sqr[srcPtr->Blue];
     }
     return s;
@@ -2123,7 +2210,7 @@ M3d(s)	/* compute cumulative moments. */
  *
  *----------------------------------------------------------------------
  */
-static INLINE 
+static INLINE
 long int
 Volume(cubePtr, m)
     Cube *cubePtr;
@@ -2181,11 +2268,11 @@ Top(cubePtr, dir, pos, m)
 {
     switch (dir) {
     case RED:
-	return (m[pos][G1][B1] - m[pos][G1][B0] - 
+	return (m[pos][G1][B1] - m[pos][G1][B0] -
 		m[pos][G0][B1] + m[pos][G0][B0]);
 
     case GREEN:
-	return (m[R1][pos][B1] - m[R1][pos][B0] - 
+	return (m[R1][pos][B1] - m[R1][pos][B0] -
 		m[R0][pos][B1] + m[R0][pos][B0]);
 
     case BLUE:
@@ -2359,7 +2446,7 @@ SplitColorSpace(s, cubes, nColors)
 
     vv = Blt_Malloc(sizeof(double) * nColors);
     assert(vv);
-    
+
     cubes[0].r0 = cubes[0].g0 = cubes[0].b0 = 0;
     cubes[0].r1 = cubes[0].g1 = cubes[0].b1 = 32;
     for (i = 1, n = 0; i < nColors; i++) {
@@ -2378,7 +2465,7 @@ SplitColorSpace(s, cubes, nColors)
 	    vv[n] = 0.0;	/* don't try to split this box again */
 	    i--;		/* didn't create box i */
 	}
-	
+
 	n = 0;
 	temp = vv[0];
 	for (k = 1; k <= i; k++) {
@@ -2454,7 +2541,7 @@ CreateColorLookupTable(s, cubes, nColors)
 }
 
 static void
-MapColors(src, dest, lut) 
+MapColors(src, dest, lut)
      Blt_ColorImage src, dest;
      unsigned int lut[33][33][33];
 {
@@ -2463,11 +2550,11 @@ MapColors(src, dest, lut)
     int count;
     Pix32 *srcPtr, *destPtr, *endPtr;
     unsigned char alpha;
-    
+
     width = Blt_ColorImageWidth(src);
     height = Blt_ColorImageHeight(src);
     count = width * height;
-    
+
     srcPtr = Blt_ColorImageBits(src);
     destPtr = Blt_ColorImageBits(dest);
     for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, destPtr++) {
@@ -2535,10 +2622,142 @@ Blt_QuantizeColorImage(src, dest, reduceColors)
     return TCL_OK;
 }
 
+int
+Blt_TransColorImage(src, dest, color, alpha, flags)
+    Blt_ColorImage src, dest;	/* Source and destination images. */
+    Pix32 *color;		/* Color. */
+    int alpha;
+    int flags;
+{
+    int width, height;
+    int count, same;
+    Pix32 *srcPtr, *destPtr, *endPtr;
+    unsigned char origAlpha;
+
+    width = Blt_ColorImageWidth(src);
+    height = Blt_ColorImageHeight(src);
+    count = width * height;
+
+    srcPtr = Blt_ColorImageBits(src);
+    destPtr = Blt_ColorImageBits(dest);
+    if (color != NULL) {
+        for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, destPtr++) {
+            origAlpha = srcPtr->Alpha;
+            destPtr->value = srcPtr->value;
+            same = (srcPtr->Red == color->Red && srcPtr->Green == color->Green &&
+                srcPtr->Blue == color->Blue);
+            if ((flags&1)) {
+                if ((!same) && (origAlpha != (unsigned char)-1)) {
+                    origAlpha = alpha;
+                }
+            } else {
+                if (same) {
+                    origAlpha = alpha;
+                }
+            }
+            destPtr->Alpha = origAlpha;
+        }
+    } else {
+        for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, destPtr++) {
+            origAlpha = srcPtr->Alpha;
+            destPtr->value = srcPtr->value;
+            if (origAlpha == (unsigned char)-1) {
+                destPtr->Alpha = alpha;
+            }
+        }
+    }
+    return TCL_OK;
+}
+
+int
+Blt_RecolorImage(src, dest, oldColor, newColor, alpha)
+    Blt_ColorImage src, dest;	/* Source and destination images. */
+    Pix32 *oldColor;
+    Pix32 *newColor;
+    int alpha;
+{
+    int width, height;
+    int count;
+    Pix32 *srcPtr, *destPtr, *endPtr;
+
+    width = Blt_ColorImageWidth(src);
+    height = Blt_ColorImageHeight(src);
+    count = width * height;
+
+    srcPtr = Blt_ColorImageBits(src);
+    destPtr = Blt_ColorImageBits(dest);
+    for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, destPtr++) {
+	destPtr->value = srcPtr->value;
+	if (srcPtr->Red == oldColor->Red && srcPtr->Green == oldColor->Green &&
+	    srcPtr->Blue == oldColor->Blue) {
+	    unsigned char oldAlpha;
+	    oldAlpha = srcPtr->Alpha;
+	    destPtr->value = newColor->value;
+            if (alpha>=0) {
+                destPtr->Alpha = alpha;
+            } else {
+                destPtr->Alpha = oldAlpha;
+            }
+	}
+    }
+    return TCL_OK;
+}
+
+int
+Blt_MergeColorImage(src, src2, dest, opacity, opacity2, withColor)
+    Blt_ColorImage src, src2, dest;	/* Source and destination images. */
+    double opacity;
+    double opacity2;
+    Pix32 *withColor;
+{
+    int width, height;
+    int count;
+    Pix32 *srcPtr, *src2Ptr, *destPtr, *endPtr;
+    double a1, a2;
+
+    width = Blt_ColorImageWidth(src);
+    height = Blt_ColorImageHeight(src);
+    count = width * height;
+    srcPtr = Blt_ColorImageBits(src);
+    src2Ptr = Blt_ColorImageBits(src2);
+    destPtr = Blt_ColorImageBits(dest);
+
+    if (withColor != NULL) {
+        for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, src2Ptr++, destPtr++) {
+            if (withColor->value == srcPtr->value) {
+                destPtr->value = src2Ptr->value;
+            } else {
+                destPtr->value = srcPtr->value;
+            }
+        }
+        return TCL_OK;
+    }
+
+    opacity = (opacity<0.0 ? 0.0 : (opacity>1.0?1.0:opacity));
+    a2 = opacity;
+    if (opacity2<0.0) {
+        a1 = (1.0 - a2);
+    } else {
+        a1 = (opacity2<0.0 ? 0.0 : (opacity2>1.0?1.0:opacity2));
+    }
+
+    for (endPtr = destPtr + count; destPtr < endPtr; srcPtr++, src2Ptr++, destPtr++) {
+	if (src2Ptr->rgba.alpha == 0) {
+	  destPtr->value = srcPtr->value;
+	} else {
+	    destPtr->Red = (int)(0.5+srcPtr->rgba.red * a1 + src2Ptr->rgba.red * a2);
+	    destPtr->Green = (int)(0.5+srcPtr->rgba.green * a1 + src2Ptr->rgba.green * a2);
+	    destPtr->Blue = (int)(0.5+srcPtr->rgba.blue * a1 + src2Ptr->rgba.blue * a2);
+	    destPtr->rgba.alpha = -1;
+	}
+    }
+    return TCL_OK;
+}
+
 Region2D *
 Blt_SetRegion(x, y, width, height, regionPtr)
     int x, y, width, height;
-    Region2D *regionPtr;	
+    Region2D *regionPtr;
 {
     regionPtr->left = x;
     regionPtr->top = y;
@@ -2716,7 +2935,7 @@ Tk_ImageGetPhotoGC(photoImage)
  * Results:
  *	None.
  *
- *---------------------------------------------------------------------- 
+ *----------------------------------------------------------------------
  */
 /* ARGSUSED */
 static void
@@ -2730,7 +2949,7 @@ TempImageChangedProc(clientData, x, y, width, height, imageWidth, imageHeight)
 #endif
 }
 
-Tk_Image 
+Tk_Image
 Blt_CreateTemporaryImage(interp, tkwin, clientData)
     Tcl_Interp *interp;
     Tk_Window tkwin;
@@ -2756,7 +2975,7 @@ Blt_DestroyTemporaryImage(interp, tkImage)
     Tk_Image tkImage;
 {
     if (tkImage != NULL) {
-	if (Tcl_VarEval(interp, "image delete ", Blt_NameOfImage(tkImage), 
+	if (Tcl_VarEval(interp, "image delete ", Blt_NameOfImage(tkImage),
 			(char *)NULL) != TCL_OK) {
 	    return TCL_ERROR;
 	}

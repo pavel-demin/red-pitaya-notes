@@ -701,11 +701,11 @@ SubstituteFile(
 	    }
 	}
 #endif
-	
+
 	/*
 	 * Run the substitutions over each line of the input
 	 */
-	
+
 	while (fgets(szBuffer, cbBuffer, fp) != NULL) {
 	    list_item_t *p = NULL;
 	    for (p = substPtr; p != NULL; p = p->nextPtr) {
@@ -725,7 +725,7 @@ SubstituteFile(
 	    }
 	    printf(szBuffer);
 	}
-	
+
 	list_free(&substPtr);
     }
     fclose(fp);

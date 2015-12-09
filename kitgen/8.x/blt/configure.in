@@ -21,7 +21,7 @@ dnl	to configure the system for the local environment.
 # this case) so that we create the export library with the dll.
 #-----------------------------------------------------------------------
 
-AC_INIT([BLT], [2.4])
+AC_INIT([BLT], [2.5])
 
 #--------------------------------------------------------------------
 # Call TEA_INIT as the first TEA_ macro to set up initial vars.
@@ -73,7 +73,7 @@ TEA_SETUP_COMPILER
 # and PKG_TCL_SOURCES.
 #-----------------------------------------------------------------------
 
-TEA_ADD_SOURCES([bltAlloc.c bltArrayObj.c bltBind.c bltBitmap.c bltBusy.c bltChain.c bltColor.c bltConfig.c bltGrAxis.c bltGrBar.c bltGrElem.c bltGrGrid.c bltGrHairs.c bltGrLegd.c bltGrLine.c bltGrMarker.c bltGrMisc.c bltGrPen.c bltGrPs.c bltGraph.c bltHash.c bltImage.c bltInit.c bltList.c bltNsUtil.c bltParse.c bltPool.c bltPs.c bltSpline.c bltSwitch.c bltTable.c bltTabnotebook.c bltText.c bltTile.c bltObjConfig.c bltTree.h bltTreeView.h bltTreeViewEdit.c bltObjConfig.h bltTreeCmd.c bltTreeViewCmd.c bltTreeViewStyle.c bltTree.c bltTreeView.c bltTreeViewColumn.c bltUtil.c bltVecCmd.c bltVecObjCmd.c bltVector.c bltWindow.c])
+TEA_ADD_SOURCES([bltAlloc.c bltArrayObj.c bltBind.c bltBitmap.c bltBusy.c bltChain.c bltColor.c bltConfig.c bltGrAxis.c bltGrBar.c bltGrElem.c bltGrGrid.c bltGrHairs.c bltGrLegd.c bltGrLine.c bltGrMarker.c bltGrMisc.c bltGrPen.c bltGrPs.c bltGraph.c bltHash.c bltImage.c bltInit.c bltList.c bltNsUtil.c bltParse.c bltPool.c bltPs.c bltSpline.c bltSwitch.c bltTable.c bltTabnotebook.c bltText.c bltTile.c bltObjConfig.c bltOldConfig.c bltTree.h bltTreeView.h bltTreeViewEdit.c bltObjConfig.h bltOldConfig.h bltTreeCmd.c bltTreeViewCmd.c bltTreeViewStyle.c bltTree.c bltTreeView.c bltTreeViewColumn.c bltUtil.c bltVecCmd.c bltVecMath.c bltVecObjCmd.c bltVector.c bltWindow.c])
 TEA_ADD_HEADERS([generic/blt.h  generic/bltHash.h  generic/bltPool.h  generic/bltVector.h])
 TEA_ADD_INCLUDES([-I. -I\"$(${CYGPATH} ${srcdir}/generic)\"])
 TEA_ADD_LIBS([])

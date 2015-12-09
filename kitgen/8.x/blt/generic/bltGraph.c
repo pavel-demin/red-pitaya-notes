@@ -84,7 +84,7 @@ extern Tk_CustomOption bltShadowOption;
 #define DEF_GRAPH_HIGHLIGHT_BACKGROUND	STD_NORMAL_BACKGROUND
 #define DEF_GRAPH_HIGHLIGHT_BG_MONO	STD_NORMAL_BG_MONO
 #define DEF_GRAPH_HIGHLIGHT_COLOR	RGB_BLACK
-#define DEF_GRAPH_HIGHLIGHT_WIDTH	"2"
+#define DEF_GRAPH_HIGHLIGHT_WIDTH	"0"
 #define DEF_GRAPH_INVERT_XY		"0"
 #define DEF_GRAPH_JUSTIFY		"center"
 #define DEF_GRAPH_MARGIN		"0"
@@ -137,7 +137,7 @@ static Tk_ConfigSpec configSpecs[] =
 	DEF_GRAPH_MARGIN, Tk_Offset(Graph, bottomMargin.reqSize), 0,
 	&bltDistanceOption},
     {TK_CONFIG_STRING, "-bottomvariable", "bottomVariable", "BottomVariable",
-	DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, bottomMargin.varName), 
+	DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, bottomMargin.varName),
 	TK_CONFIG_NULL_OK},
     {TK_CONFIG_BOOLEAN, "-bufferelements", "bufferElements", "BufferElements",
 	DEF_GRAPH_BUFFER_ELEMENTS, Tk_Offset(Graph, backingStore),
@@ -147,18 +147,18 @@ static Tk_ConfigSpec configSpecs[] =
 	TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_ACTIVE_CURSOR, "-cursor", "cursor", "Cursor",
 	DEF_GRAPH_CURSOR, Tk_Offset(Graph, cursor), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_STRING, "-data", "data", "Data", 
+    {TK_CONFIG_STRING, "-data", "data", "Data",
         (char *)NULL, Tk_Offset(Graph, data), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_STRING, "-datacommand", "dataCommand", "DataCommand", 
-        (char *)NULL, Tk_Offset(Graph, dataCmd), TK_CONFIG_DONT_SET_DEFAULT},
+    {TK_CONFIG_STRING, "-redrawcmd", "redrawCmd", "RedrawCmd",
+        (char *)NULL, Tk_Offset(Graph, redrawCmd), TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_SYNONYM, "-fg", "foreground", (char *)NULL, (char *)NULL, 0, 0},
     {TK_CONFIG_FONT, "-font", "font", "Font",
 	DEF_GRAPH_FONT, Tk_Offset(Graph, titleTextStyle.font), 0},
     {TK_CONFIG_COLOR, "-foreground", "foreground", "Foreground",
-	DEF_GRAPH_TITLE_COLOR, Tk_Offset(Graph, titleTextStyle.color), 
+	DEF_GRAPH_TITLE_COLOR, Tk_Offset(Graph, titleTextStyle.color),
 	TK_CONFIG_COLOR_ONLY},
     {TK_CONFIG_COLOR, "-foreground", "foreground", "Foreground",
-	DEF_GRAPH_TITLE_MONO, Tk_Offset(Graph, titleTextStyle.color), 
+	DEF_GRAPH_TITLE_MONO, Tk_Offset(Graph, titleTextStyle.color),
 	TK_CONFIG_MONO_ONLY},
     {TK_CONFIG_CUSTOM, "-halo", "halo", "Halo",
 	DEF_GRAPH_HALO, Tk_Offset(Graph, halo), 0, &bltDistanceOption},
@@ -188,7 +188,7 @@ static Tk_ConfigSpec configSpecs[] =
 	DEF_GRAPH_MARGIN, Tk_Offset(Graph, leftMargin.reqSize),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltDistanceOption},
     {TK_CONFIG_STRING, "-leftvariable", "leftVariable", "LeftVariable",
-	DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, leftMargin.varName), 
+	DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, leftMargin.varName),
 	TK_CONFIG_NULL_OK},
     {TK_CONFIG_SYNONYM, "-lm", "leftMargin", (char *)NULL, (char *)NULL, 0, 0},
     {TK_CONFIG_COLOR, "-plotbackground", "plotBackground", "Background",
@@ -218,7 +218,7 @@ static Tk_ConfigSpec configSpecs[] =
 	DEF_GRAPH_MARGIN, Tk_Offset(Graph, rightMargin.reqSize),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltDistanceOption},
     {TK_CONFIG_STRING, "-rightvariable", "rightVariable", "RightVariable",
-	DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, rightMargin.varName), 
+	DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, rightMargin.varName),
 	TK_CONFIG_NULL_OK},
     {TK_CONFIG_SYNONYM, "-rm", "rightMargin", (char *)NULL, (char *)NULL, 0, 0},
     {TK_CONFIG_CUSTOM, "-shadow", "shadow", "Shadow",
@@ -228,12 +228,12 @@ static Tk_ConfigSpec configSpecs[] =
 	DEF_GRAPH_SHADOW_MONO, Tk_Offset(Graph, titleTextStyle.shadow),
 	TK_CONFIG_MONO_ONLY, &bltShadowOption},
     {TK_CONFIG_COLOR, "-foreground", "foreground", "Foreground",
-	DEF_GRAPH_TITLE_MONO, Tk_Offset(Graph, titleTextStyle.color), 
+	DEF_GRAPH_TITLE_MONO, Tk_Offset(Graph, titleTextStyle.color),
 	TK_CONFIG_MONO_ONLY},
     {TK_CONFIG_STRING, "-takefocus", "takeFocus", "TakeFocus",
 	DEF_GRAPH_TAKE_FOCUS, Tk_Offset(Graph, takeFocus), TK_CONFIG_NULL_OK},
     {TK_CONFIG_CUSTOM, "-tile", "tile", "Tile",
-	(char *)NULL, Tk_Offset(Graph, tile), 
+	(char *)NULL, Tk_Offset(Graph, tile),
 	TK_CONFIG_NULL_OK, &bltTileOption},
     {TK_CONFIG_STRING, "-title", "title", "Title",
 	DEF_GRAPH_TITLE, Tk_Offset(Graph, title), TK_CONFIG_NULL_OK},
@@ -242,7 +242,7 @@ static Tk_ConfigSpec configSpecs[] =
 	DEF_GRAPH_MARGIN, Tk_Offset(Graph, topMargin.reqSize),
 	TK_CONFIG_DONT_SET_DEFAULT, &bltDistanceOption},
     {TK_CONFIG_STRING, "-topvariable", "topVariable", "TopVariable",
-	DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, topMargin.varName), 
+	DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, topMargin.varName),
 	TK_CONFIG_NULL_OK},
     {TK_CONFIG_CUSTOM, "-width", "width", "Width",
 	DEF_GRAPH_WIDTH, Tk_Offset(Graph, reqWidth),
@@ -264,11 +264,11 @@ typedef struct {
 
 enum SnapFormats { FORMAT_PHOTO, FORMAT_EMF, FORMAT_WMF };
 
-static Blt_SwitchSpec snapSwitches[] = 
+static Blt_SwitchSpec snapSwitches[] =
 {
     {BLT_SWITCH_INT_POSITIVE, "-width", Blt_Offset(SnapData, width), 0},
     {BLT_SWITCH_INT_POSITIVE, "-height", Blt_Offset(SnapData, height), 0},
-    {BLT_SWITCH_CUSTOM, "-format", Blt_Offset(SnapData, format), 0, 
+    {BLT_SWITCH_CUSTOM, "-format", Blt_Offset(SnapData, format), 0,
 	&formatSwitch},
     {BLT_SWITCH_END, NULL, 0, 0}
 };
@@ -284,6 +284,14 @@ static Tcl_CmdProc BarchartCmd;
 static Tcl_CmdProc GraphCmd;
 static Tcl_CmdDeleteProc GraphInstCmdDeleteProc;
 static Blt_TileChangedProc TileChangedProc;
+
+static void widgetWorldChanged(ClientData clientData);
+
+static Tk_ClassProcs graphClass = {
+    sizeof(Tk_ClassProcs),	/* size */
+    widgetWorldChanged,		/* worldChangedProc */
+};
+
 
 /*
  *--------------------------------------------------------------
@@ -311,6 +319,14 @@ Blt_EventuallyRedrawGraph(graphPtr)
     }
 }
 
+static void widgetWorldChanged(ClientData clientData) {
+    Graph *graphPtr = (Graph*)clientData;
+
+    graphPtr->flags |= (REDRAW_WORLD | RESET_WORLD | REDRAW_BACKING_STORE | RESET_AXES | MAP_WORLD );
+    Blt_ConfigureAxes(graphPtr);
+    Blt_EventuallyRedrawGraph(graphPtr);
+}
+
 /*
  *--------------------------------------------------------------
  *
@@ -334,7 +350,7 @@ GraphEventProc(clientData, eventPtr)
     ClientData clientData;	/* Graph widget record */
     register XEvent *eventPtr;	/* Event which triggered call to routine */
 {
-    Graph *graphPtr = clientData;
+    Graph *graphPtr = (Graph *)clientData;
 
     if (eventPtr->type == Expose) {
 	if (eventPtr->xexpose.count == 0) {
@@ -353,6 +369,7 @@ GraphEventProc(clientData, eventPtr)
 	}
     } else if (eventPtr->type == DestroyNotify) {
 	if (graphPtr->tkwin != NULL) {
+            Blt_DeleteAxisLabelsGC(graphPtr->tkwin);
 	    Blt_DeleteWindowInstanceData(graphPtr->tkwin);
 	    graphPtr->tkwin = NULL;
 	    Tcl_DeleteCommandFromToken(graphPtr->interp, graphPtr->cmdToken);
@@ -387,7 +404,7 @@ static void
 GraphInstCmdDeleteProc(clientData)
     ClientData clientData;	/* Pointer to widget record. */
 {
-    Graph *graphPtr = clientData;
+    Graph *graphPtr = (Graph *)clientData;
 
     if (graphPtr->tkwin != NULL) {	/* NULL indicates window has
 					 * already been destroyed. */
@@ -421,7 +438,7 @@ TileChangedProc(clientData, tile)
     ClientData clientData;
     Blt_Tile tile;		/* Not used. */
 {
-    Graph *graphPtr = clientData;
+    Graph *graphPtr = (Graph *)clientData;
 
     if (graphPtr->tkwin != NULL) {
 	graphPtr->flags |= REDRAW_WORLD;
@@ -463,12 +480,12 @@ static int
 InitPens(graphPtr)
     Graph *graphPtr;
 {
-    Blt_InitHashTable(&graphPtr->penTable, BLT_STRING_KEYS);
-    if (Blt_CreatePen(graphPtr, "activeLine", bltLineElementUid, 0, 
+    Blt_InitHashTable(&(graphPtr->penTable), BLT_STRING_KEYS);
+    if (Blt_CreatePen(graphPtr, "activeLine", bltLineElementUid, 0,
 	      (char **)NULL) == NULL) {
   	return TCL_ERROR;
     }
-    if (Blt_CreatePen(graphPtr, "activeBar", bltBarElementUid, 0, 
+    if (Blt_CreatePen(graphPtr, "activeBar", bltBarElementUid, 0,
 	      (char **)NULL) == NULL) {
   	return TCL_ERROR;
     }
@@ -520,12 +537,12 @@ Blt_GraphTags(table, object, context, list)
     Graph *graphPtr;
 
     graphPtr = (Graph *)Blt_GetBindingData(table);
-    /* 
+    /*
      * Trick:   Markers, elements, and axes have the same first few
      *		fields in their structures, such as "type", "name", or
      *		"tags".  This is so we can look at graph objects
      *		interchangably.  It doesn't matter what we cast the
-     *		object to.  
+     *		object to.
      */
     elemPtr = (Element *)object;
 
@@ -566,7 +583,7 @@ PickEntry(clientData, x, y, contextPtr)
     int x, y;
     ClientData *contextPtr;	/* Not used. */
 {
-    Graph *graphPtr = clientData;
+    Graph *graphPtr = (Graph *)clientData;
     Blt_ChainLink *linkPtr;
     Element *elemPtr;
     Marker *markerPtr;
@@ -580,14 +597,14 @@ PickEntry(clientData, x, y, contextPtr)
 
     if ((x > exts.right) || (x < exts.left) || (y > exts.bottom) ||
 	(y < exts.top)) {
-	/* 
+	/*
 	 * Sample coordinate is in one of the graph margins.  Can only
 	 * pick an axis.
 	 */
-	return Blt_NearestAxis(graphPtr, x, y);
+	return (int *)Blt_NearestAxis(graphPtr, x, y);
     }
 
-    /* 
+    /*
      * From top-to-bottom check:
      *	1. markers drawn on top (-under false).
      *	2. elements using its display list back to front.
@@ -595,7 +612,7 @@ PickEntry(clientData, x, y, contextPtr)
      */
     markerPtr = (Marker *)Blt_NearestMarker(graphPtr, x, y, FALSE);
     if (markerPtr != NULL) {
-	return markerPtr;	/* Found a marker (-under false). */
+	return (int *)markerPtr;	/* Found a marker (-under false). */
     }
     {
 	ClosestSearch search;
@@ -607,10 +624,10 @@ PickEntry(clientData, x, y, contextPtr)
 	search.y = y;
 	search.dist = (double)(search.halo + 1);
 	search.mode = SEARCH_AUTO;
-	
+
 	for (linkPtr = Blt_ChainLastLink(graphPtr->elements.displayList);
 	     linkPtr != NULL; linkPtr = Blt_ChainPrevLink(linkPtr)) {
-	    elemPtr = Blt_ChainGetValue(linkPtr);
+	    elemPtr = (Element *)Blt_ChainGetValue(linkPtr);
 	    if ((elemPtr->flags & MAP_ITEM) ||
 		(Blt_VectorNotifyPending(elemPtr->x.clientId)) ||
 		(Blt_VectorNotifyPending(elemPtr->y.clientId))) {
@@ -621,13 +638,13 @@ PickEntry(clientData, x, y, contextPtr)
 	    }
 	}
 	if (search.dist <= (double)search.halo) {
-	    return search.elemPtr;	/* Found an element within the
+	    return (int *)search.elemPtr;	/* Found an element within the
 					 * minimum halo distance. */
 	}
     }
     markerPtr = (Marker *)Blt_NearestMarker(graphPtr, x, y, TRUE);
     if (markerPtr != NULL) {
-	return markerPtr;	/* Found a marker (-under true) */
+	return (int *)markerPtr;	/* Found a marker (-under true) */
     }
     return NULL;		/* Nothing found. */
 }
@@ -657,6 +674,7 @@ ConfigureGraph(graphPtr)
     GC newGC;
     XGCValues gcValues;
     unsigned long gcMask;
+    Tcl_Interp *interp = graphPtr->interp;
 
     /* Don't allow negative bar widths. Reset to an arbitrary value (0.1) */
     if (graphPtr->barWidth <= 0.0) {
@@ -720,7 +738,7 @@ ConfigureGraph(graphPtr)
 
     Blt_ResetTextStyle(graphPtr->tkwin, &graphPtr->titleTextStyle);
 
-    if (Blt_ConfigModified(configSpecs, "-invertxy", (char *)NULL)) {
+    if (Blt_ConfigModified(configSpecs, interp, "-invertxy", (char *)NULL)) {
 
 	/*
 	 * If the -inverted option changed, we need to readjust the pointers
@@ -759,12 +777,12 @@ ConfigureGraph(graphPtr)
      *	    -bottommargin, -leftmargin, -rightmargin, -topmargin,
      *	    -barmode, -barwidth
      */
-    if (Blt_ConfigModified(configSpecs, "-invertxy", "-title", "-font",
+    if (Blt_ConfigModified(configSpecs, interp, "-invertxy", "-title", "-font",
 	    "-*margin", "-*width", "-height", "-barmode", "-*pad*", "-aspect",
 	    (char *)NULL)) {
 	graphPtr->flags |= RESET_WORLD;
     }
-    if (Blt_ConfigModified(configSpecs, "-plotbackground", (char *)NULL)) {
+    if (Blt_ConfigModified(configSpecs, interp, "-plotbackground", (char *)NULL)) {
 	graphPtr->flags |= REDRAW_BACKING_STORE;
     }
     graphPtr->flags |= REDRAW_WORLD;
@@ -869,13 +887,13 @@ static Graph *
 CreateGraph(interp, argc, argv, classUid)
     Tcl_Interp *interp;
     int argc;
-    char **argv;
+    CONST char **argv;
     Blt_Uid classUid;
 {
     Graph *graphPtr;
     Tk_Window tkwin;
 
-    tkwin = Tk_CreateWindowFromPath(interp, Tk_MainWindow(interp), argv[1], 
+    tkwin = Tk_CreateWindowFromPath(interp, Tk_MainWindow(interp), argv[1],
 	    (char *)NULL);
     if (tkwin == NULL) {
 	return NULL;
@@ -891,7 +909,7 @@ CreateGraph(interp, argc, argv, classUid)
     graphPtr->classUid = classUid;
     graphPtr->backingStore = TRUE;
     graphPtr->doubleBuffer = TRUE;
-    graphPtr->highlightWidth = 2;
+    graphPtr->highlightWidth = 0;
     graphPtr->plotRelief = TK_RELIEF_SUNKEN;
     graphPtr->relief = TK_RELIEF_FLAT;
     graphPtr->flags = (RESET_WORLD);
@@ -926,7 +944,7 @@ CreateGraph(interp, argc, argv, classUid)
     if (InitPens(graphPtr) != TCL_OK) {
 	goto error;
     }
-    if (Tk_ConfigureWidget(interp, tkwin, configSpecs, argc - 2, argv + 2,
+    if (Blt_ConfigureWidget(interp, tkwin, configSpecs, argc - 2, argv + 2,
 	    (char *)graphPtr, 0) != TCL_OK) {
 	goto error;
     }
@@ -947,18 +965,20 @@ CreateGraph(interp, argc, argv, classUid)
     if (Blt_CreateGrid(graphPtr) != TCL_OK) {
 	goto error;
     }
-    Tk_CreateEventHandler(graphPtr->tkwin, 
-	ExposureMask | StructureNotifyMask | FocusChangeMask, GraphEventProc, 
+    Tk_CreateEventHandler(graphPtr->tkwin,
+	ExposureMask | StructureNotifyMask | FocusChangeMask, GraphEventProc,
 	graphPtr);
 
-    graphPtr->cmdToken = Tcl_CreateCommand(interp, argv[1], 
+    graphPtr->cmdToken = Tcl_CreateCommand(interp, argv[1],
 	Blt_GraphInstCmdProc, graphPtr, GraphInstCmdDeleteProc);
 #ifdef ITCL_NAMESPACES
     Itk_SetWidgetCommand(graphPtr->tkwin, graphPtr->cmdToken);
 #endif
     ConfigureGraph(graphPtr);
-    graphPtr->bindTable = Blt_CreateBindingTable(interp, tkwin, graphPtr, 
+    graphPtr->bindTable = Blt_CreateBindingTable(interp, tkwin, graphPtr,
 	PickEntry, Blt_GraphTags);
+    Tk_SetClassProcs(tkwin, &graphClass, (ClientData)graphPtr);
+
     return graphPtr;
 
  error:
@@ -1062,7 +1082,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
     Graph *graphPtr;
     Tcl_Interp *interp;
     int argc;
-    char **argv;
+    CONST char **argv;
 {
     int flags;
 
@@ -1074,7 +1094,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	return Tk_ConfigureInfo(interp, graphPtr->tkwin, configSpecs,
 	    (char *)graphPtr, argv[2], flags);
     } else {
-	if (Tk_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 2,
+	if (Blt_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 2,
 		argv + 2, (char *)graphPtr, flags) != TCL_OK) {
 	    return TCL_ERROR;
 	}
@@ -1147,25 +1167,25 @@ ExtentsOp(graphPtr, interp, argc, argv)
 	Tcl_SetResult(interp, string, TCL_VOLATILE);
     } else if ((c == 'l') && (length > 2) &&
 	(strncmp("legend", argv[2], length) == 0)) {
-	sprintf(string, "%d %d %d %d", Blt_LegendX(graphPtr->legend), 
-		Blt_LegendY(graphPtr->legend), 
-		Blt_LegendWidth(graphPtr->legend), 
+	sprintf(string, "%d %d %d %d", Blt_LegendX(graphPtr->legend),
+		Blt_LegendY(graphPtr->legend),
+		Blt_LegendWidth(graphPtr->legend),
 		Blt_LegendHeight(graphPtr->legend));
 	Tcl_SetResult(interp, string, TCL_VOLATILE);
     } else if ((c == 'l') && (length > 2) &&
 	(strncmp("leftmargin", argv[2], length) == 0)) {
-	Tcl_SetResult(interp, Blt_Itoa(graphPtr->leftMargin.width), 
+	Tcl_SetResult(interp, Blt_Itoa(graphPtr->leftMargin.width),
 		      TCL_VOLATILE);
     } else if ((c == 'r') && (length > 1) &&
 	(strncmp("rightmargin", argv[2], length) == 0)) {
-	Tcl_SetResult(interp, Blt_Itoa(graphPtr->rightMargin.width), 
+	Tcl_SetResult(interp, Blt_Itoa(graphPtr->rightMargin.width),
 		      TCL_VOLATILE);
     } else if ((c == 't') && (length > 1) &&
 	(strncmp("topmargin", argv[2], length) == 0)) {
 	Tcl_SetResult(interp, Blt_Itoa(graphPtr->topMargin.height), TCL_VOLATILE);
     } else if ((c == 'b') && (length > 1) &&
 	(strncmp("bottommargin", argv[2], length) == 0)) {
-	Tcl_SetResult(interp, Blt_Itoa(graphPtr->bottomMargin.height), 
+	Tcl_SetResult(interp, Blt_Itoa(graphPtr->bottomMargin.height),
 		      TCL_VOLATILE);
     } else {
 	Tcl_AppendResult(interp, "bad extent item \"", argv[2],
@@ -1376,10 +1396,10 @@ Print1Op(graphPtr, interp, argc, argv)
 	    return TCL_ERROR;
 	}
     }
-    /*  
+    /*
      * This is a taken from Blt_SnapPhoto.  The difference is that
-     * here we're using the DIBSection directly, without converting 
-     * the section into a ColorImage.  
+     * here we're using the DIBSection directly, without converting
+     * the section into a ColorImage.
      */
     ZeroMemory(&info, sizeof(info));
     info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -1392,17 +1412,17 @@ Print1Op(graphPtr, interp, argc, argv)
 		&state);
     hBitmap = CreateDIBSection(hDC, &info, DIB_RGB_COLORS, &data, NULL, 0);
     TkWinReleaseDrawableDC(Tk_WindowId(graphPtr->tkwin), hDC, &state);
-    
+
     /*
      * Create our own drawable by hand using the DIB we just created.
      * We'll then draw into it using the standard drawing functions.
      */
     bd.type = TWD_BITMAP;
     bd.handle = hBitmap;
-    bd.colormap = DefaultColormap(graphPtr->display, 
+    bd.colormap = DefaultColormap(graphPtr->display,
 	DefaultScreen(graphPtr->display));
     bd.depth = Tk_Depth(graphPtr->tkwin);
-    
+
     graphPtr->flags |= RESET_WORLD;
     Blt_DrawGraph(graphPtr, (Drawable)&bd, noBackingStore);
 
@@ -1439,8 +1459,8 @@ Print1Op(graphPtr, interp, argc, argv)
 	    (char *)NULL);
 	goto done;
     }
-    StretchDIBits(hDC, 0, 0, ROUND(pageWidth), ROUND(pageHeight), 0, 0, 
-	graphPtr->width, graphPtr->height, ds.dsBm.bmBits, 
+    StretchDIBits(hDC, 0, 0, ROUND(pageWidth), ROUND(pageHeight), 0, 0,
+	graphPtr->width, graphPtr->height, ds.dsBm.bmBits,
 	(LPBITMAPINFO)&ds.dsBmih, DIB_RGB_COLORS, SRCCOPY);
     EndPage(hDC);
     EndDoc(hDC);
@@ -1500,7 +1520,7 @@ Print2Op(graphPtr, interp, argc, argv)
 	HDC hDC;
 	double xRatio, yRatio;
 	TkWinDC *drawPtr;
-	double vportWidth, vportHeight; 
+	double vportWidth, vportHeight;
 
 	drawPtr = (TkWinDC *) drawable;
 	hDC = drawPtr->hdc;
@@ -1564,10 +1584,10 @@ StringToFormat(clientData, interp, switchName, string, record, offset)
 #endif /* WIN32 */
     } else {
 #ifdef WIN32
-	Tcl_AppendResult(interp, "bad format \"", string, 
+	Tcl_AppendResult(interp, "bad format \"", string,
 		 "\": should be photo, emf, or wmf.", (char *)NULL);
 #else
-	Tcl_AppendResult(interp, "bad format \"", string, 
+	Tcl_AppendResult(interp, "bad format \"", string,
 		 "\": should be photo.", (char *)NULL);
 #endif /* WIN32 */
 	return TCL_ERROR;
@@ -1600,7 +1620,7 @@ static int InitMetaFileHeader(
     mfhPtr->bbox.Right = (SHORT)((height * 1440) / dpiY);
     mfhPtr->reserved = 0;
     sum = 0;
-    for (p = (unsigned int *)mfhPtr; 
+    for (p = (unsigned int *)mfhPtr;
 	 p < (unsigned int *)&(mfhPtr->checksum); p++) {
 	sum ^= *p;
     }
@@ -1633,32 +1653,32 @@ CreateAPMetaFile(
        FILE_ATTRIBUTE_NORMAL,
        NULL);			/* No template file */
     if (hFile == INVALID_HANDLE_VALUE) {
-	Tcl_AppendResult(interp, "can't create metafile \"", fileName, 
+	Tcl_AppendResult(interp, "can't create metafile \"", fileName,
 		"\":", Blt_LastError(), (char *)NULL);
 	return TCL_ERROR;
     }
-    if ((!WriteFile(hFile, (LPVOID)mfhPtr, sizeof(APMHEADER), &count, 
+    if ((!WriteFile(hFile, (LPVOID)mfhPtr, sizeof(APMHEADER), &count,
 		NULL)) || (count != sizeof(APMHEADER))) {
-	Tcl_AppendResult(interp, "can't create metafile header to \"", 
+	Tcl_AppendResult(interp, "can't create metafile header to \"",
 			 fileName, "\":", Blt_LastError(), (char *)NULL);
 	goto error;
     }
     nBytes = GetWinMetaFileBits(hMetaFile, 0, NULL, MM_ANISOTROPIC, hDC);
     hMem = GlobalAlloc(GHND, nBytes);
     if (hMem == NULL) {
-	Tcl_AppendResult(interp, "can't create allocate global memory:", 
+	Tcl_AppendResult(interp, "can't create allocate global memory:",
 		Blt_LastError(), (char *)NULL);
 	goto error;
     }
     buffer = (LPVOID)GlobalLock(hMem);
     if (!GetWinMetaFileBits(hMetaFile, nBytes, buffer, MM_ANISOTROPIC, hDC)) {
-	Tcl_AppendResult(interp, "can't get metafile bits:", 
+	Tcl_AppendResult(interp, "can't get metafile bits:",
 		Blt_LastError(), (char *)NULL);
 	goto error;
     }
     if ((!WriteFile(hFile, buffer, nBytes, &count, NULL)) ||
 	(count != nBytes)) {
-	Tcl_AppendResult(interp, "can't write metafile bits:", 
+	Tcl_AppendResult(interp, "can't write metafile bits:",
 		Blt_LastError(), (char *)NULL);
 	goto error;
     }
@@ -1707,7 +1727,7 @@ SnapOp(graphPtr, interp, argc, argv)
     data.width = Tk_Width(graphPtr->tkwin);
     data.format = FORMAT_PHOTO;
     /* Process switches  */
-    i = Blt_ProcessSwitches(interp, snapSwitches, argc - 2, argv + 2, 
+    i = Blt_ProcessSwitches(interp, snapSwitches, argc - 2, argv + 2,
 	    (char *)&data, BLT_SWITCH_OBJV_PARTIAL);
     if (i < 0) {
 	return TCL_ERROR;
@@ -1732,14 +1752,14 @@ SnapOp(graphPtr, interp, argc, argv)
 
     drawable = Tk_WindowId(graphPtr->tkwin);
     if (data.format == FORMAT_PHOTO) {
-	drawable = Tk_GetPixmap(graphPtr->display, drawable, graphPtr->width, 
+	drawable = Tk_GetPixmap(graphPtr->display, drawable, graphPtr->width,
 		graphPtr->height, Tk_Depth(graphPtr->tkwin));
 #ifdef WIN32
 	assert(drawable != None);
 #endif
 	graphPtr->flags |= RESET_WORLD;
 	Blt_DrawGraph(graphPtr, drawable, noBackingStore);
-	result = Blt_SnapPhoto(interp, graphPtr->tkwin, drawable, 0, 0, 
+	result = Blt_SnapPhoto(interp, graphPtr->tkwin, drawable, 0, 0,
 	    data.width, data.height, data.width, data.height, data.name, 1.0);
 	Tk_FreePixmap(graphPtr->display, drawable);
 #ifdef WIN32
@@ -1762,7 +1782,7 @@ SnapOp(graphPtr, interp, argc, argv)
 	title = Tcl_DStringValue(&dString);
 	hDC = CreateEnhMetaFile(hRefDC, NULL, NULL, title);
 	Tcl_DStringFree(&dString);
-	
+
 	if (hDC == NULL) {
 	    Tcl_AppendResult(interp, "can't create metafile: ",
 		     Blt_LastError(), (char *)NULL);
@@ -1779,7 +1799,7 @@ SnapOp(graphPtr, interp, argc, argv)
 	hMetaFile = CloseEnhMetaFile(hDC);
 	if (strcmp(data.name, "CLIPBOARD") == 0) {
 	    HWND hWnd;
-	    
+
 	    hWnd = Tk_GetHWND(drawable);
 	    OpenClipboard(hWnd);
 	    EmptyClipboard();
@@ -1792,9 +1812,9 @@ SnapOp(graphPtr, interp, argc, argv)
 		APMHEADER mfh;
 
 		assert(sizeof(mfh) == 22);
-		InitMetaFileHeader(graphPtr->tkwin, data.width, data.height, 
+		InitMetaFileHeader(graphPtr->tkwin, data.width, data.height,
 			&mfh);
-		result = CreateAPMetaFile(interp, hMetaFile, hRefDC, &mfh, 
+		result = CreateAPMetaFile(interp, hMetaFile, hRefDC, &mfh,
 			data.name);
 	    } else {
 		HENHMETAFILE hMetaFile2;
@@ -1802,10 +1822,10 @@ SnapOp(graphPtr, interp, argc, argv)
 		hMetaFile2 = CopyEnhMetaFile(hMetaFile, data.name);
 		if (hMetaFile2 != NULL) {
 		    result = TCL_OK;
-		    DeleteEnhMetaFile(hMetaFile2); 
+		    DeleteEnhMetaFile(hMetaFile2);
 		}
 	    }
-	    DeleteEnhMetaFile(hMetaFile); 
+	    DeleteEnhMetaFile(hMetaFile);
 	}
 	TkWinReleaseDrawableDC(drawable, hRefDC, &state);
 #endif /*WIN32*/
@@ -1874,7 +1894,7 @@ Blt_GraphInstCmdProc(clientData, interp, argc, argv)
 {
     Blt_Op proc;
     int result;
-    Graph *graphPtr = clientData;
+    Graph *graphPtr = (Graph *)clientData;
 
     proc = Blt_GetOp(interp, nGraphOps, graphOps, BLT_OP_ARG1, argc, argv, 0);
     if (proc == NULL) {
@@ -2063,19 +2083,19 @@ DrawMargins(graphPtr, drawable)
     rects[0].x = rects[0].y = rects[3].x = rects[1].x = 0;
     rects[0].width = rects[3].width = (short int)graphPtr->width;
     rects[0].height = (short int)graphPtr->top;
-    rects[3].y = graphPtr->bottom;
+    rects[3].y = graphPtr->bottom + 1;
     rects[3].height = graphPtr->height - graphPtr->bottom;
     rects[2].y = rects[1].y = graphPtr->top;
     rects[1].width = graphPtr->left;
-    rects[2].height = rects[1].height = graphPtr->bottom - graphPtr->top;
-    rects[2].x = graphPtr->right;
+    rects[2].height = rects[1].height = graphPtr->bottom - graphPtr->top + 1;
+    rects[2].x = graphPtr->right + 1;
     rects[2].width = graphPtr->width - graphPtr->right;
 
-    if (graphPtr->tile != NULL) {
+    if (Blt_HasTile(graphPtr->tile)) {
 	Blt_SetTileOrigin(graphPtr->tkwin, graphPtr->tile, 0, 0);
 	Blt_TileRectangles(graphPtr->tkwin, drawable, graphPtr->tile, rects, 4);
     } else {
-	XFillRectangles(graphPtr->display, drawable, graphPtr->fillGC, rects, 
+	XFillRectangles(graphPtr->display, drawable, graphPtr->fillGC, rects,
 			4);
     }
 
@@ -2086,11 +2106,11 @@ DrawMargins(graphPtr, drawable)
 
 	x = graphPtr->left - graphPtr->plotBorderWidth;
 	y = graphPtr->top - graphPtr->plotBorderWidth;
-	width = (graphPtr->right - graphPtr->left) + 
+	width = (graphPtr->right - graphPtr->left + 1) +
 	    (2 * graphPtr->plotBorderWidth);
-	height = (graphPtr->bottom - graphPtr->top) + 
+	height = (graphPtr->bottom - graphPtr->top + 1) +
 	    (2 * graphPtr->plotBorderWidth);
-	Blt_Draw3DRectangle(graphPtr->tkwin, drawable, graphPtr->border, x, y, 
+	Blt_Draw3DRectangle(graphPtr->tkwin, drawable, graphPtr->border, x, y,
 	    width, height, graphPtr->plotBorderWidth, graphPtr->plotRelief);
     }
     if (Blt_LegendSite(graphPtr->legend) & LEGEND_IN_MARGIN) {
@@ -2137,7 +2157,7 @@ DrawPlotRegion(graphPtr, drawable)
 	Blt_DrawGrid(graphPtr, drawable);
     }
     Blt_DrawMarkers(graphPtr, drawable, MARKER_UNDER);
-    if ((Blt_LegendSite(graphPtr->legend) & LEGEND_IN_PLOT) && 
+    if ((Blt_LegendSite(graphPtr->legend) & LEGEND_IN_PLOT) &&
 	(!Blt_LegendIsRaised(graphPtr->legend))) {
 	Blt_DrawLegend(graphPtr->legend, drawable);
     }
@@ -2188,7 +2208,7 @@ Blt_DrawGraph(graphPtr, drawable, backingStore)
 		Tk_FreePixmap(graphPtr->display, graphPtr->backPixmap);
 	    }
 	    graphPtr->backPixmap = Tk_GetPixmap(graphPtr->display,
-		Tk_WindowId(graphPtr->tkwin), graphPtr->width, 
+		Tk_WindowId(graphPtr->tkwin), graphPtr->width,
 		graphPtr->height, Tk_Depth(graphPtr->tkwin));
 	    graphPtr->backWidth = graphPtr->width;
 	    graphPtr->backHeight = graphPtr->height;
@@ -2220,16 +2240,19 @@ Blt_DrawGraph(graphPtr, drawable, backingStore)
     if (graphPtr->flags & DRAW_MARGINS) {
 	DrawMargins(graphPtr, drawable);
     }
-    if ((Blt_LegendSite(graphPtr->legend) & LEGEND_IN_PLOT) && 
+    if (graphPtr->gridPtr->hidden == 0 && graphPtr->gridPtr->raised) {
+        Blt_DrawGrid(graphPtr, drawable);
+    }
+    if ((Blt_LegendSite(graphPtr->legend) & LEGEND_IN_PLOT) &&
 	(Blt_LegendIsRaised(graphPtr->legend))) {
 	Blt_DrawLegend(graphPtr->legend, drawable);
     }
     /* Draw 3D border just inside of the focus highlight ring. */
     if ((graphPtr->borderWidth > 0) && (graphPtr->relief != TK_RELIEF_FLAT)) {
-	Blt_Draw3DRectangle(graphPtr->tkwin, drawable, graphPtr->border, 
+	Blt_Draw3DRectangle(graphPtr->tkwin, drawable, graphPtr->border,
 	    graphPtr->highlightWidth, graphPtr->highlightWidth,
-	    graphPtr->width - 2 * graphPtr->highlightWidth, 
-	    graphPtr->height - 2 * graphPtr->highlightWidth, 
+	    graphPtr->width - 2 * graphPtr->highlightWidth,
+	    graphPtr->height - 2 * graphPtr->highlightWidth,
 	    graphPtr->borderWidth, graphPtr->relief);
     }
     /* Draw focus highlight ring. */
@@ -2249,17 +2272,22 @@ UpdateMarginTraces(graphPtr)
     Margin *marginPtr;
     int size;
     register int i;
+    char *oldVal, *newVal;
 
     for (i = 0; i < 4; i++) {
 	marginPtr = graphPtr->margins + i;
 	if (marginPtr->varName != NULL) {	/* Trigger variable traces */
-	    if ((marginPtr->site == MARGIN_LEFT) || 
+	    if ((marginPtr->site == MARGIN_LEFT) ||
 		(marginPtr->site == MARGIN_RIGHT)) {
 		size = marginPtr->width;
 	    } else {
 		size = marginPtr->height;
 	    }
-	    Tcl_SetVar(graphPtr->interp, marginPtr->varName, Blt_Itoa(size), 
+            newVal = Blt_Itoa(size);
+            oldVal = Tcl_GetVar(graphPtr->interp, marginPtr->varName,
+		TCL_GLOBAL_ONLY);
+            if (oldVal && !strcmp(oldVal,newVal)) continue;
+	    Tcl_SetVar(graphPtr->interp, marginPtr->varName, newVal,
 		TCL_GLOBAL_ONLY);
 	}
     }
@@ -2285,7 +2313,7 @@ static void
 DisplayGraph(clientData)
     ClientData clientData;
 {
-    Graph *graphPtr = clientData;
+    Graph *graphPtr = (Graph *)clientData;
     Pixmap drawable;
 
     graphPtr->flags &= ~REDRAW_PENDING;
@@ -2306,6 +2334,29 @@ DisplayGraph(clientData)
 	 */
 	return;
     }
+
+    /*
+      Process the 'redrawcmd' callback as a REDRAW_BACKING_STORE
+      event had been triggered.
+
+      This callback can be used to generate a stream of postcript
+      frames safely.
+     */
+    if ((graphPtr->flags & REDRAW_BACKING_STORE)
+	&& !(graphPtr->flags & EXEC_REDRAWCMD)
+ 	&& (graphPtr->redrawCmd != NULL) ) {
+        Tcl_Interp *interp = graphPtr->interp;
+        Tk_Window tkwin = graphPtr->tkwin;
+
+	graphPtr->flags |= EXEC_REDRAWCMD;
+        if (Tcl_VarEval(interp, graphPtr->redrawCmd, " ",
+		      Tk_PathName(tkwin), (char *)NULL) != TCL_OK) {
+  	    Tcl_BackgroundError(interp);
+	    return;		/* Error in after data changed proc */
+        }
+    }
+
+
     graphPtr->width = Tk_Width(graphPtr->tkwin);
     graphPtr->height = Tk_Height(graphPtr->tkwin);
     Blt_LayoutGraph(graphPtr);
@@ -2331,7 +2382,7 @@ DisplayGraph(clientData)
 #ifdef WIN32
     assert(drawable != None);
 #endif
-    Blt_DrawGraph(graphPtr, drawable, 
+    Blt_DrawGraph(graphPtr, drawable,
 		  graphPtr->backingStore && graphPtr->doubleBuffer);
     if (graphPtr->flags & DRAW_MARGINS) {
 	XCopyArea(graphPtr->display, drawable, Tk_WindowId(graphPtr->tkwin),
@@ -2339,13 +2390,14 @@ DisplayGraph(clientData)
     } else {
 	XCopyArea(graphPtr->display, drawable, Tk_WindowId(graphPtr->tkwin),
 		  graphPtr->drawGC, graphPtr->left, graphPtr->top,
-		  (graphPtr->right - graphPtr->left + 1), 
+		  (graphPtr->right - graphPtr->left + 1),
 		  (graphPtr->bottom - graphPtr->top + 1),
 		  graphPtr->left, graphPtr->top);
     }
     if (graphPtr->doubleBuffer) {
 	Tk_FreePixmap(graphPtr->display, drawable);
     }
+    graphPtr->flags &= ~EXEC_REDRAWCMD;
     Blt_EnableCrosshairs(graphPtr);
     graphPtr->flags &= ~RESET_WORLD;
     UpdateMarginTraces(graphPtr);
@@ -2397,7 +2449,7 @@ Blt_GetGraphFromWindowData(tkwin)
 }
 
 int
-Blt_GraphType(graphPtr)	
+Blt_GraphType(graphPtr)
     Graph *graphPtr;
 {
     if (graphPtr->classUid == bltLineElementUid) {
