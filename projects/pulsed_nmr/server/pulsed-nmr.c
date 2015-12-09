@@ -6,38 +6,27 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <math.h>
-#include <pthread.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-uint32_t *rx_freq, *rx_rate;
-uint16_t *rx_cntr;
-uint8_t *rx_rst;
-void *rx_data, *tx_data;
-
-int sock_thread[2] = {-1, -1};
-
-void *rx_ctrl_handler(void *arg);
-void *rx_data_handler(void *arg);
-
 int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
-  pthread_t thread;
-  void *(*handler[2])(void *) =
-  {
-    rx_ctrl_handler,
-    rx_data_handler
-  };
   void *cfg, *sts;
   char *end, *name = "/dev/mem";
+  uint32_t *rx_freq, *rx_rate;
+  uint16_t *rx_cntr, *tx_size;
+  uint8_t *rx_rst, *tx_rst;
+  void *rx_data, *tx_data;
   struct sockaddr_in addr;
-  uint16_t port;
-  uint32_t command;
+  uint32_t command, value;
+  float tx_freq;
+  int16_t pulse[32768];
+  char buffer[65536];
   ssize_t result;
-  int yes = 1;
+  int i, size, yes = 1;
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -45,7 +34,6 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  port = 1001;
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
@@ -56,10 +44,23 @@ int main(int argc, char *argv[])
   rx_rate = ((uint32_t *)(cfg + 8));
   rx_cntr = ((uint16_t *)(sts + 0));
 
+  tx_rst = ((uint8_t *)(cfg + 1));
+  tx_size = ((uint16_t *)(cfg + 12));
+
   /* set default rx phase increment */
-  *rx_freq = (uint32_t)floor(19000000/125.0e6*(1<<30)+0.5);
+  *rx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
   /* set default rx sample rate */
   *rx_rate = 250;
+
+  /* fill tx buffer with zeros */
+  memset(tx_data, 0, 65536);
+
+  /* local oscillator for the excitation pulse */
+  tx_freq = 19.0e6;
+  for(i = 0; i < 32768; ++i)
+  {
+    pulse[i] = (int16_t)floor(8000.0 * sin(i * 2.0 * M_PI * tx_freq / 125.0e6) + 0.5);
+  }
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  addr.sin_port = htons(port);
+  addr.sin_port = htons(1001);
 
   if(bind(sock_server, (struct sockaddr *)&addr, sizeof(addr)) < 0)
   {
@@ -91,115 +92,66 @@ int main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-    result = recv(sock_client, (char *)&command, 4, MSG_WAITALL);
-    if(result <= 0 || command > 3 || sock_thread[command] > -1)
+    while(1)
     {
-      close(sock_client);
-      continue;
+      if(recv(sock_client, (char *)&command, 4, MSG_WAITALL) <= 0) break;
+      value = command & 0xfffffff;
+      switch(command >> 28)
+      {
+        case 0:
+          /* set rx phase increment */
+          if(value < 0 || value > 60000000) continue;
+          *rx_freq = (uint32_t)floor(value/125.0e6*(1<<30)+0.5);
+          break;
+        case 1:
+          /* set rx sample rate */
+          switch(command & 7)
+          {
+            case 0:
+              *rx_rate = 2500;
+              break;
+            case 1:
+              *rx_rate = 1250;
+              break;
+            case 2:
+              *rx_rate = 250;
+              break;
+            case 3:
+              *rx_rate = 125;
+              break;
+            case 4:
+              *rx_rate = 25;
+              break;
+          }
+          break;
+        case 2:
+          /* set A width */
+          size = (uint32_t)floor(125.0e6 * value / (10.0 * tx_freq) + 0.5);
+          if(size > 32768) continue;
+          *tx_size = size - 1;
+          memset(tx_data, 0, 65536);
+          memcpy(tx_data, pulse, 2 * size);
+          break;
+        case 3:
+          /* fire */
+          *rx_rst |= 1; *rx_rst &= ~1;
+          *tx_rst &= ~1; *tx_rst |= 1;
+          while(*rx_cntr < 16384) usleep(500);
+          memcpy(buffer, rx_data, 65536);
+          if(send(sock_client, buffer, 65536, MSG_NOSIGNAL) < 0) break;
+          break;
+      }
     }
 
-    sock_thread[command] = sock_client;
+    /* set default rx phase increment */
+    *rx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
+    /* set default rx sample rate */
+    *rx_rate = 250;
 
-    if(pthread_create(&thread, NULL, handler[command], NULL) < 0)
-    {
-      perror("pthread_create");
-      return EXIT_FAILURE;
-    }
-    pthread_detach(thread);
+    close(sock_client);
   }
 
   close(sock_server);
 
   return EXIT_SUCCESS;
-}
-
-void *rx_ctrl_handler(void *arg)
-{
-  int sock_client = sock_thread[0];
-  uint32_t command, freq;
-  uint32_t freq_min = 0;
-  uint32_t freq_max = 60000000;
-
-  /* set default rx phase increment */
-  *rx_freq = (uint32_t)floor(19000000/125.0e6*(1<<30)+0.5);
-  /* set default rx sample rate */
-  *rx_rate = 250;
-
-  while(1)
-  {
-    if(recv(sock_client, (char *)&command, 4, MSG_WAITALL) <= 0) break;
-    switch(command >> 28)
-    {
-      case 0:
-        /* set rx phase increment */
-        freq = command & 0xfffffff;
-        if(freq < freq_min || freq > freq_max) continue;
-        *rx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
-        break;
-      case 1:
-        /* set rx sample rate */
-        switch(command & 7)
-        {
-          case 0:
-            freq_min = 0;
-            *rx_rate = 2500;
-            break;
-          case 1:
-            freq_min = 0;
-            *rx_rate = 1250;
-            break;
-          case 2:
-            freq_min = 0;
-            *rx_rate = 250;
-            break;
-          case 3:
-            freq_min = 0;
-            *rx_rate = 125;
-            break;
-          case 4:
-            freq_min = 0;
-            *rx_rate = 25;
-            break;
-        }
-        break;
-    }
-  }
-
-  /* set default rx phase increment */
-  *rx_freq = (uint32_t)floor(19000000/125.0e6*(1<<30)+0.5);
-  /* set default rx sample rate */
-  *rx_rate = 250;
-
-  close(sock_client);
-  sock_thread[0] = -1;
-
-  return NULL;
-}
-
-void *rx_data_handler(void *arg)
-{
-  int sock_client = sock_thread[1];
-  char buffer[32768];
-
-  *rx_rst |= 1;
-  *rx_rst &= ~1;
-
-  while(1)
-  {
-    if(*rx_cntr >= 16384)
-    {
-      *rx_rst |= 1;
-      *rx_rst &= ~1;
-    }
-
-    while(*rx_cntr < 8192) usleep(500);
-
-    memcpy(buffer, rx_data, 32768);
-    if(send(sock_client, buffer, 32768, MSG_NOSIGNAL) < 0) break;
-  }
-
-  close(sock_client);
-  sock_thread[1] = -1;
-
-  return NULL;
 }
