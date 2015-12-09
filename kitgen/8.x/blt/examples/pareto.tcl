@@ -11,55 +11,49 @@ package require BLT
 # blt::graph .g
 # blt::table . .g -resize both
 #
-# or you can import all the command into the global namespace.
-#
-# namespace import blt::*
-# graph .g
-# table . .g -resize both
-#
 # --------------------------------------------------------------------------
-
-namespace import blt::*
 
 #
 # Example of a pareto chart.
 #
-barchart .b \
--title "Defects Found During Inspection" \
--font {Helvetica 12} \
--plotpady { 12 4 }
-table . .b -fill both
+blt::barchart .b \
+  -title "Defects Found During Inspection" \
+  -font {Helvetica 12} \
+  -plotpady { 12 4 }
+
+blt::table . .b -fill both
+
 set data {
-"Spot Weld" 82 yellow
-"Lathe" 49 orange
-"Gear Cut" 38 green
-"Drill" 24 blue
-"Grind" 17 red
-"Lapping" 12 brown
-"Press" 8 purple
-"De-burr" 4 pink
-"Packaging" 3 cyan
-"Other" 12 magenta
+  "Spot Weld" 82 yellow
+  "Lathe" 49 orange
+  "Gear Cut" 38 green
+  "Drill" 24 blue
+  "Grind" 17 red
+  "Lapping" 12 brown
+  "Press" 8 purple
+  "De-burr" 4 pink
+  "Packaging" 3 cyan
+  "Other" 12 magenta
 }
 
 # Create an X-Y graph line element to trace the accumulated defects.
 .b line create accum -label "" -symbol none -color red
 # Define a bitmap to be used to stipple the background of each bar.
-bitmap define pattern1 { {4 4} {01 02 04 08} }
+blt::bitmap define pattern1 { {4 4} {01 02 04 08} }
 # For each process, create a bar element to display the magnitude.
 set count 0
 set sum 0
 set ydata 0
 set xdata 0
 foreach { label value color } $data {
-incr count
-.b element create $label -xdata $count -ydata $value \
--fg $color -relief solid -bd 1 -stipple pattern1 -bg lightblue
-set labels($count) $label
-# Keep a running total of defects
-set sum [expr $value + $sum]
-lappend ydata $sum
-lappend xdata $count
+  incr count
+  .b element create $label -xdata $count -ydata $value \
+  -fg $color -relief solid -bd 1 -stipple pattern1 -bg lightblue
+  set labels($count) $label
+  # Keep a running total of defects
+  set sum [expr $value + $sum]
+  lappend ydata $sum
+  lappend xdata $count
 }
 
 # Configure the coordinates of the accumulated defects,
@@ -67,43 +61,43 @@ lappend xdata $count
 .b line configure accum -xdata $xdata -ydata $ydata
 # Add text markers to label the percentage of total at each point.
 foreach x $xdata y $ydata {
-set percent [expr ($y * 100.0) / $sum]
-if { $x == 0 } {
-set text "0%"
-} else {
-set text [format %.1f $percent]
-}
+  set percent [expr ($y * 100.0) / $sum]
+  if { $x == 0 } {
+    set text "0%"
+  } else {
+    set text [format %.1f $percent]
+  }
 
-.b marker create text \
--coords "$x $y" \
--text $text \
--anchor c \
--yoffset -5
+  .b marker create text \
+    -coords "$x $y" \
+    -text $text \
+    -anchor c \
+    -yoffset -5
 }
 
 # Display an auxillary y-axis for percentages.
 .b axis configure y2 \
--hide no \
--min 0.0 \
--max 100.0 \
--title "Percentage"
+  -hide no \
+  -min 0.0 \
+  -max 100.0 \
+  -title "Percentage"
 # Title the y-axis
 .b axis configure y -title "Defects"
 # Configure the x-axis to display the process names, instead of numbers.
 .b axis configure x \
--title "Process" \
--command FormatLabels \
--rotate 90 \
--subdivisions 0
+  -title "Process" \
+  -command FormatLabels \
+  -rotate 90 \
+  -subdivisions 0
 
 proc FormatLabels { widget value } {
-global labels
-set value [expr round($value)]
-if {[info exists labels($value)] } {
-return $labels($value)
-}
+  global labels
+  set value [expr round($value)]
+  if {[info exists labels($value)] } {
+    return $labels($value)
+  }
 
-return $value
+  return $value
 }
 
 # No legend needed.
