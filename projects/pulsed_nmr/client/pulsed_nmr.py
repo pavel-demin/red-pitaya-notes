@@ -35,9 +35,6 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     # buffer and offset for the incoming samples
     self.buffer = bytearray(8 * self.size)
     self.offset = 0
-    # time axis
-    self.rate = 25.0e3
-    self.time = np.linspace(0.0, (self.size - 1) * 1000.0 / self.rate, self.size)
     # create figure
     figure = Figure()
     figure.set_facecolor('none')
@@ -46,6 +43,9 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     self.plotLayout.addWidget(self.canvas)
     # create navigation toolbar
     self.toolbar = NavigationToolbar(self.canvas, self.plotWidget, False)
+    # remove subplots action
+    actions = self.toolbar.actions()
+    self.toolbar.removeAction(actions[7])
     self.plotLayout.addWidget(self.toolbar)
     # create TCP socket
     self.socket = QTcpSocket(self)
@@ -112,21 +112,25 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     self.socket.write(struct.pack('<I', 0<<28 | int(1.0e6 * value)))
 
   def set_rate(self, index):
-    self.rate = float(PulsedNMR.rates[index])
-    self.time = np.linspace(0.0, (self.size - 1) * 1000.0 / self.rate, self.size)
+    # time axis
+    rate = float(PulsedNMR.rates[index])
+    time = np.linspace(0.0, (self.size - 1) * 1000.0 / rate, self.size)
+    # reset toolbar
     self.toolbar.home()
     self.toolbar._views.clear()
     self.toolbar._positions.clear()
+    # reset plot
     self.axes.clear()
     self.axes.grid()
     # plot zeros and get store the returned Line2D object
-    self.curve, = self.axes.plot(self.time, np.zeros(self.size))
+    self.curve, = self.axes.plot(time, np.zeros(self.size))
     x1, x2, y1, y2 = self.axes.axis()
     # set y axis limits
     self.axes.axis((x1, x2, -0.1, 0.4))
     self.axes.set_xlabel('time, ms')
     self.canvas.draw()
-    minimum = self.size / self.rate * 2000.0
+    # set repetition time
+    minimum = self.size / rate * 2000.0
     if minimum < 100.0: minimum = 100.0
     self.deltaValue.setMinimum(minimum)
     self.deltaValue.setValue(minimum)

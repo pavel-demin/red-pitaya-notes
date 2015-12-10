@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
@@ -15,17 +14,16 @@ int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
   void *cfg, *sts;
-  char *end, *name = "/dev/mem";
+  char *name = "/dev/mem";
   uint32_t *rx_freq, *rx_rate;
   uint16_t *rx_cntr, *tx_size;
   uint8_t *rx_rst, *tx_rst;
   void *rx_data, *tx_data;
+  float tx_freq;
   struct sockaddr_in addr;
   uint32_t command, value;
-  float tx_freq;
   int16_t pulse[32768];
   char buffer[65536];
-  ssize_t result;
   int i, size, yes = 1;
 
   if((fd = open(name, O_RDWR)) < 0)
@@ -101,7 +99,7 @@ int main(int argc, char *argv[])
         case 0:
           /* set rx phase increment */
           if(value < 0 || value > 60000000) continue;
-          *rx_freq = (uint32_t)floor(value/125.0e6*(1<<30)+0.5);
+          *rx_freq = (uint32_t)floor(value / 125.0e6 * (1<<30) + 0.5);
           break;
         case 1:
           /* set rx sample rate */
@@ -141,7 +139,7 @@ int main(int argc, char *argv[])
           {
             while(*rx_cntr < 10000) usleep(500);
             memcpy(buffer, rx_data, 40000);
-            if(send(sock_client, buffer, 40000, MSG_NOSIGNAL) < 0) break;
+            send(sock_client, buffer, 40000, MSG_NOSIGNAL);
           }
           break;
       }
