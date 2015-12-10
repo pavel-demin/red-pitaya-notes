@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>PulsedNMR</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
+  <widget class="QWidget" name="centralWidget">
    <property name="minimumSize">
     <size>
      <width>800</width>
@@ -22,7 +22,7 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QWidget" name="plotwidget" native="true">
+     <widget class="QWidget" name="plotWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -35,11 +35,11 @@
         <height>0</height>
        </size>
       </property>
-      <layout class="QVBoxLayout" name="plot"/>
+      <layout class="QVBoxLayout" name="plotLayout"/>
      </widget>
     </item>
     <item>
-     <widget class="QWidget" name="ctrl" native="true">
+     <widget class="QWidget" name="controlWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
         <horstretch>0</horstretch>
