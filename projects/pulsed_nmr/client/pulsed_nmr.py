@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 
 from PyQt5.uic import loadUiType
@@ -19,36 +20,49 @@ from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 Ui_PulsedNMR, QMainWindow = loadUiType('pulsed_nmr.ui')
 
 class PulsedNMR(QMainWindow, Ui_PulsedNMR):
+  rates = {0:25.0e3, 1:50.0e3, 2:250.0e3, 3:500.0e3, 4:2500.0e3}
   def __init__(self):
     super(PulsedNMR, self).__init__()
     self.setupUi(self)
     self.rateValue.addItems(['25', '50', '250', '500', '2500'])
+    # IP address validator
     rx = QRegExp('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
     self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
-    fig = Figure()
-    fig.set_facecolor('none')
-    self.axes = fig.add_subplot(111)
-    self.axes.grid()
-    self.curve, = self.axes.plot(np.zeros(8192))
-    x1, x2, y1, y2 = self.axes.axis()
-    self.axes.axis((x1, x2, -0.1, 0.4))
-    self.canvas = FigureCanvas(fig)
-    self.plot.addWidget(self.canvas)
-    self.canvas.draw()
+    # state variable
     self.idle = True
+    # number of samples to show on the plot
+    self.size = 50000
+    # buffer and offset for the incoming samples
+    self.buffer = bytearray(8 * self.size)
+    self.offset = 0
+    # time axis
+    self.rate = 25.0e3
+    self.time = np.linspace(0.0, (self.size - 1) * 1000.0 / self.rate, self.size)
+    # create figure
+    figure = Figure()
+    figure.set_facecolor('none')
+    self.axes = figure.add_subplot(111)
+    self.canvas = FigureCanvas(figure)
+    self.plotLayout.addWidget(self.canvas)
+    # create navigation toolbar
+    self.toolbar = NavigationToolbar(self.canvas, self.plotWidget, False)
+    self.plotLayout.addWidget(self.toolbar)
+    # create TCP socket
     self.socket = QTcpSocket(self)
     self.socket.connected.connect(self.connected)
     self.socket.readyRead.connect(self.read_data)
     self.socket.error.connect(self.display_error)
+    # connect signals from buttons and boxes
     self.startButton.clicked.connect(self.start)
     self.freqValue.valueChanged.connect(self.set_freq)
     self.awidthValue.valueChanged.connect(self.set_awidth)
     self.deltaValue.valueChanged.connect(self.set_delta)
     self.rateValue.currentIndexChanged.connect(self.set_rate)
+    # set rate
+    self.rateValue.setCurrentIndex(2)
+    # create timer for the repetitions
     self.timer = QTimer(self)
     self.timer.timeout.connect(self.fire)
-    self.buffer = bytearray(65536)
-    self.offset = 0
 
   def start(self):
     if self.idle:
@@ -58,6 +72,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
       self.idle = True
       self.timer.stop()
       self.socket.close()
+      self.offset = 0
       self.startButton.setText('Start')
       self.startButton.setEnabled(True)
 
@@ -73,12 +88,13 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
 
   def read_data(self):
     size = self.socket.bytesAvailable()
-    if self.offset + size < 65536:
+    if self.offset + size < 8 * self.size:
       self.buffer[self.offset:self.offset + size] = self.socket.read(size)
       self.offset += size
     else:
-      self.buffer[self.offset:65536] = self.socket.read(65536 - self.offset)
+      self.buffer[self.offset:8 * self.size] = self.socket.read(8 * self.size - self.offset)
       self.offset = 0
+      # plot the signal envelope
       data = np.frombuffer(self.buffer, np.complex64)
       self.curve.set_ydata(np.abs(data))
       self.canvas.draw()
@@ -96,6 +112,24 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     self.socket.write(struct.pack('<I', 0<<28 | int(1.0e6 * value)))
 
   def set_rate(self, index):
+    self.rate = float(PulsedNMR.rates[index])
+    self.time = np.linspace(0.0, (self.size - 1) * 1000.0 / self.rate, self.size)
+    self.toolbar.home()
+    self.toolbar._views.clear()
+    self.toolbar._positions.clear()
+    self.axes.clear()
+    self.axes.grid()
+    # plot zeros and get store the returned Line2D object
+    self.curve, = self.axes.plot(self.time, np.zeros(self.size))
+    x1, x2, y1, y2 = self.axes.axis()
+    # set y axis limits
+    self.axes.axis((x1, x2, -0.1, 0.4))
+    self.axes.set_xlabel('time, ms')
+    self.canvas.draw()
+    minimum = self.size / self.rate * 2000.0
+    if minimum < 100.0: minimum = 100.0
+    self.deltaValue.setMinimum(minimum)
+    self.deltaValue.setValue(minimum)
     if self.idle: return
     self.socket.write(struct.pack('<I', 1<<28 | index))
 

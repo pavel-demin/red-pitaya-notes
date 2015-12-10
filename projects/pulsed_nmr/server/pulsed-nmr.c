@@ -136,9 +136,13 @@ int main(int argc, char *argv[])
           /* fire */
           *rx_rst |= 1; *rx_rst &= ~1;
           *tx_rst &= ~1; *tx_rst |= 1;
-          while(*rx_cntr < 16384) usleep(500);
-          memcpy(buffer, rx_data, 65536);
-          if(send(sock_client, buffer, 65536, MSG_NOSIGNAL) < 0) break;
+          /* transfer 10 * 5k = 50k samples */
+          for(i = 0; i < 10; ++i)
+          {
+            while(*rx_cntr < 10000) usleep(500);
+            memcpy(buffer, rx_data, 40000);
+            if(send(sock_client, buffer, 40000, MSG_NOSIGNAL) < 0) break;
+          }
           break;
       }
     }
