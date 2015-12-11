@@ -51,6 +51,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     # buffer and offset for the incoming samples
     self.buffer = bytearray(8 * self.size)
     self.offset = 0
+    self.data = np.frombuffer(self.buffer, np.complex64)
     # create figure
     figure = Figure()
     figure.set_facecolor('none')
@@ -111,8 +112,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
       self.buffer[self.offset:8 * self.size] = self.socket.read(8 * self.size - self.offset)
       self.offset = 0
       # plot the signal envelope
-      data = np.frombuffer(self.buffer, np.complex64)
-      self.curve.set_ydata(np.abs(data))
+      self.curve.set_ydata(np.abs(self.data))
       self.canvas.draw()
 
   def display_error(self, socketError):
