@@ -29,7 +29,7 @@ from matplotlib.figure import Figure
 
 from PyQt5.uic import loadUiType
 from PyQt5.QtCore import QRegExp, QTimer
-from PyQt5.QtGui import QRegExpValidator
+from PyQt5.QtGui import QRegExpValidator, QPalette, QColor
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 
@@ -60,14 +60,27 @@ class MCPHAScope(QWidget, Ui_MCPHAScope):
   def __init__(self):
     super(MCPHAScope, self).__init__()
     self.setupUi(self)
+    palette = QPalette(self.ch1Label.palette())
+    palette.setColor(QPalette.Background, QColor('yellow'))
+    palette.setColor(QPalette.Foreground, QColor('black'))
+    self.ch1Label.setAutoFillBackground(True)
+    self.ch1Label.setPalette(palette)
+    self.ch1Value.setAutoFillBackground(True)
+    self.ch1Value.setPalette(palette)
+    palette.setColor(QPalette.Background, QColor('cyan'))
+    palette.setColor(QPalette.Foreground, QColor('black'))
+    self.ch2Label.setAutoFillBackground(True)
+    self.ch2Label.setPalette(palette)
+    self.ch2Value.setAutoFillBackground(True)
+    self.ch2Value.setPalette(palette)
 
 app = QApplication(sys.argv)
 window = MCPHA()
-hist1 = MCPHAHist()
-window.hist1Layout.addWidget(hist1)
-hist2 = MCPHAHist()
-window.hist2Layout.addWidget(hist2)
-scope = MCPHAScope()
-window.scopeLayout.addWidget(scope)
 window.show()
+hist1 = MCPHAHist()
+hist2 = MCPHAHist()
+scope = MCPHAScope()
+window.hist1Layout.addWidget(hist1)
+window.hist2Layout.addWidget(hist2)
+window.scopeLayout.addWidget(scope)
 sys.exit(app.exec_())
