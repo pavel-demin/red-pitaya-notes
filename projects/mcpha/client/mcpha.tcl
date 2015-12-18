@@ -52,6 +52,13 @@ namespace eval ::mcpha {
     }
   }
 
+  proc addrvalidate {value} {
+    set ipnum {\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]}
+    set rx {^(($ipnum)\.){0,3}($ipnum)?$}
+    set rx [subst -nocommands -nobackslashes $rx]
+    return [regexp -- $rx $value]
+  }
+
 # -------------------------------------------------------------------------
 
   proc legendLabel {master row key title} {
@@ -113,8 +120,9 @@ namespace eval ::mcpha {
   oo::define CfgDisplay method setup {} {
     my variable master host port
 
-    label ${master}.addess_label -text {IP address:}
-    entry ${master}.addess_field -width 15 -textvariable [my varname host]
+    label ${master}.addr_label -text {IP address:}
+    entry ${master}.address_field -width 15 -textvariable [my varname host] \
+      -validate all -vcmd {::mcpha::addrvalidate %P}
     button ${master}.connect -text Connect \
       -bg lightgreen -activebackground lightgreen -command [mymethod connect]
 
@@ -127,7 +135,7 @@ namespace eval ::mcpha {
     radiobutton ${master}.rate_3 -variable [my varname rate] -text 6.25 -value 3
     radiobutton ${master}.rate_4 -variable [my varname rate] -text 12.5 -value 4
 
-    grid ${master}.addess_label ${master}.addess_field ${master}.connect \
+    grid ${master}.addr_label ${master}.address_field ${master}.connect \
       ${master}.spc1 ${master}.rate_label ${master}.rate_0 ${master}.rate_1 \
       ${master}.rate_2 ${master}.rate_3 ${master}.rate_4 -padx 5
   }
@@ -141,7 +149,16 @@ namespace eval ::mcpha {
 
     if {$connected} return
 
-    ${master}.addess_field configure -state disabled
+    set ipnum {\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]}
+    set rx {^(($ipnum)\.){3}($ipnum)$}
+    set rx [subst -nocommands -nobackslashes $rx]
+
+    if {![regexp -- $rx $host]} {
+      tk_messageBox -icon error -message "IP address is incomplete"
+      return
+    }
+
+    ${master}.address_field configure -state disabled
     ${master}.connect configure -state disabled
 
     set socket [socket -async $host $port]
@@ -164,7 +181,7 @@ namespace eval ::mcpha {
       return
     }
 
-    ${master}.addess_field configure -state normal
+    ${master}.address_field configure -state normal
     ${master}.connect configure -state active
   }
 
@@ -187,7 +204,7 @@ namespace eval ::mcpha {
     set connected false
     catch {close $socket}
 
-    ${master}.addess_field configure -state normal
+    ${master}.address_field configure -state normal
     ${master}.connect configure -state active -text Connect \
       -bg lightgreen -activebackground lightgreen -command [mymethod connect]
   }
@@ -1019,8 +1036,8 @@ namespace eval ::mcpha {
     set config [frame ${master}.config -width 170]
 
     frame ${config}.chan_frame -width 170
-    mcpha::legendButton ${config}.chan_frame 0 chan1 {Channel 1} [my varname chan(1)] blue1 white
-    mcpha::legendButton ${config}.chan_frame 1 chan2 {Channel 2} [my varname chan(2)] orchid2
+    mcpha::legendButton ${config}.chan_frame 0 chan1 {Channel 1} [my varname chan(1)] turquoise3
+    mcpha::legendButton ${config}.chan_frame 1 chan2 {Channel 2} [my varname chan(2)] SpringGreen3
     mcpha::legendLabel  ${config}.chan_frame 6 axisx {Time axis}
 
     frame ${config}.spc1 -width 170 -height 30
