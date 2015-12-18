@@ -3,7 +3,7 @@ package require oo::util
 package require BLT
 load [file join [pwd] mcpha.so]
 
-wm minsize . 990 660
+wm minsize . 880 660
 
 image create bitmap leftarrow -data "
 #define leftarrow_width 5\n
@@ -629,11 +629,11 @@ namespace eval ::mcpha {
 
   oo::define HstDisplay method xmin_val_update args {
     my variable config graph xmin_val xmax_val
-    if {$xmin_val > 4075} {
-      set xmin_val 4075
+    if {$xmin_val > 16283} {
+      set xmin_val 16283
     }
-    if {$xmin_val > $xmax_val - 20} {
-      set xmax_val [expr {$xmin_val + 20}]
+    if {$xmin_val > $xmax_val - 100} {
+      set xmax_val [expr {$xmin_val + 100}]
     }
     $graph marker configure xmin -coords "$xmin_val -Inf $xmin_val Inf"
     my stat_update
@@ -643,11 +643,11 @@ namespace eval ::mcpha {
 
   oo::define HstDisplay method xmax_val_update args {
     my variable config graph xmin_val xmax_val
-    if {$xmax_val < 20} {
-      set xmax_val 20
+    if {$xmax_val < 100} {
+      set xmax_val 100
     }
-    if {$xmax_val < $xmin_val + 20} {
-      set xmin_val [expr {$xmax_val - 20}]
+    if {$xmax_val < $xmin_val + 100} {
+      set xmin_val [expr {$xmax_val - 100}]
     }
     $graph marker configure xmax -coords "$xmax_val -Inf $xmax_val Inf"
     my stat_update
