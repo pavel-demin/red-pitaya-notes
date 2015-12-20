@@ -56,23 +56,68 @@ class SoapyRedPitaya : public SoapySDR::Device
 {
 public:
     SoapyRedPitaya(const SoapySDR::Kwargs &args):
-        _addr("192.168.1.100"), _port(1001),
-        _freq(6.0e5), _rate(1.0e5), _corr(0.0)
+        _addr("192.168.1.100"), _port(1001)
     {
+        stringstream message;
+        struct sockaddr_in addr;
+        uint32_t command;
+        size_t i;
+
         #if defined(_WIN32) || defined (__CYGWIN__)
         WSADATA wsaData;
         WSAStartup(MAKEWORD(2, 2), &wsaData);
         #endif
 
-        _sockets[0] = -1;
-        _sockets[1] = -1;
+        for(i = 0; i < 2; ++i)
+        {
+            _freq[i] = 6.0e5;
+            _rate[i] = 1.0e5;
+        }
+
+        for(i = 0; i < 4; ++i)
+        {
+            _sockets[i] = -1;
+        }
 
         if(args.count("addr")) _addr = args.at("addr");
         if(args.count("port")) stringstream(args.at("port")) >> _port;
+
+        for(i = 0; i < 4; i += 2)
+        {
+            if((_sockets[i] = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
+            {
+                throw runtime_error("SoapyRedPitaya could not create TCP socket");
+            }
+
+            memset(&addr, 0, sizeof(addr));
+            addr.sin_family = AF_INET;
+            addr.sin_addr.s_addr = inet_addr(_addr.c_str());
+            addr.sin_port = htons(_port);
+
+            if(::connect(_sockets[i], (struct sockaddr *)&addr, sizeof(addr)) < 0)
+            {
+                message << "SoapyRedPitaya could not connect to " << _addr << ":" << _port;
+                throw runtime_error(message.str());
+            }
+
+            command = i;
+            sendCommand(_sockets[i], command);
+        }
     }
 
     ~SoapyRedPitaya()
     {
+        _sockets[0] = -1;
+        _sockets[2] = -1;
+
+        #if defined(_WIN32) || defined (__CYGWIN__)
+        ::closesocket(_sockets[0]);
+        ::closesocket(_sockets[2]);
+        #else
+        ::close(_sockets[0]);
+        ::close(_sockets[2]);
+        #endif
+
         #if defined(_WIN32) || defined (__CYGWIN__)
         WSACleanup();
         #endif
@@ -144,51 +189,67 @@ public:
         stringstream message;
         struct sockaddr_in addr;
         uint32_t command;
+        size_t i;
 
         if(format != "CF32") throw runtime_error("setupStream invalid format " + format);
 
         if(direction == SOAPY_SDR_RX)
         {
-            command = 0;
+            i = 1;
         }
 
         if(direction == SOAPY_SDR_TX)
         {
-            command = 2;
+            i = 3;
         }
 
-        for(size_t i = 0; i < 2; ++i)
+        if((_sockets[i] = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
         {
-            if((_sockets[i] = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
-            {
-                throw runtime_error("SoapyRedPitaya could not create TCP socket");
-            }
-
-            memset(&addr, 0, sizeof(addr));
-            addr.sin_family = AF_INET;
-            addr.sin_addr.s_addr = inet_addr(_addr.c_str());
-            addr.sin_port = htons(_port);
-
-            if(::connect(_sockets[i], (struct sockaddr *)&addr, sizeof(addr)) < 0)
-            {
-                message << "SoapyRedPitaya could not connect to " << _addr << ":" << _port;
-                throw runtime_error(message.str());
-            }
-
-            sendCommand(_sockets[i], command);
-
-            ++command;
+            throw runtime_error("SoapyRedPitaya could not create TCP socket");
         }
 
-        return 0;
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = inet_addr(_addr.c_str());
+        addr.sin_port = htons(_port);
+
+        if(::connect(_sockets[i], (struct sockaddr *)&addr, sizeof(addr)) < 0)
+        {
+            message << "SoapyRedPitaya could not connect to " << _addr << ":" << _port;
+            throw runtime_error(message.str());
+        }
+
+        command = i;
+        sendCommand(_sockets[i], command);
+
+        return (SoapySDR::Stream *)(new int(direction));
     }
 
     void closeStream(SoapySDR::Stream *stream)
     {
-        ::close(_sockets[1]);
-        _sockets[1] = -1;
-        ::close(_sockets[0]);
-        _sockets[0] = -1;
+        int direction = *(int *)stream;
+
+        if(direction == SOAPY_SDR_RX)
+        {
+            _sockets[1] = -1;
+
+            #if defined(_WIN32) || defined (__CYGWIN__)
+            ::closesocket(_sockets[1]);
+            #else
+            ::close(_sockets[1]);
+            #endif
+        }
+
+        if(direction == SOAPY_SDR_TX)
+        {
+            _sockets[3] = -1;
+
+            #if defined(_WIN32) || defined (__CYGWIN__)
+            ::closesocket(_sockets[3]);
+            #else
+            ::close(_sockets[3]);
+            #endif
+        }
     }
 
     size_t getStreamMTU(SoapySDR::Stream *stream) const
@@ -247,10 +308,12 @@ public:
         if(size < 8 * numElems) return SOAPY_SDR_TIMEOUT;
 
         #if defined(_WIN32) || defined (__CYGWIN__)
-        return ::recv(_sockets[1], (char *)buffs[0], 8 * numElems, MSG_WAITALL) / 8;
+        ::recv(_sockets[1], (char *)buffs[0], 8 * numElems, MSG_WAITALL) / 8;
         #else
-        return ::recv(_sockets[1], buffs[0], 8 * numElems, MSG_WAITALL) / 8;
+        ::recv(_sockets[1], buffs[0], 8 * numElems, MSG_WAITALL) / 8;
         #endif
+
+        return numElems;
     }
 
     int writeStream(
@@ -262,16 +325,20 @@ public:
         const long timeoutUs = 100000)
     {
         ssize_t size;
+        size_t n = 0;
+        size_t total = 8 * numElems;
 
-        #if defined(_WIN32) || defined (__CYGWIN__)
-        size = ::send(_sockets[1], (char *)buffs[0], 8 * numElems, 0);
-        #else
-        size = ::send(_sockets[1], buffs[0], 8 * numElems, MSG_NOSIGNAL);
-        #endif
-
-        if(size != 8 * numElems)
+        while(n < total)
         {
-            throw runtime_error("writeStream failed");
+            #if defined(_WIN32) || defined (__CYGWIN__)
+            size = ::send(_sockets[3], (char *)(buffs[0] + n), total - n, 0);
+            #else
+            size = ::send(_sockets[3], buffs[0] + n, total - n, MSG_NOSIGNAL);
+            #endif
+
+            if(size < 0) throw runtime_error("writeStream failed");
+
+            n += size;
         }
 
         return numElems;
@@ -298,20 +365,45 @@ public:
         if(name == "BB") return;
         if(name != "RF") throw runtime_error("setFrequency invalid name " + name);
 
-        if(frequency < _rate / 2.0 || frequency > 6.0e7) return;
+        command = (uint32_t)floor(frequency + 0.5);
 
-        command = (uint32_t)floor(frequency * (1.0 + _corr * 1.0e-6) + 0.5);
+        if(direction == SOAPY_SDR_RX)
+        {
+            if(frequency < _rate[0] / 2.0 || frequency > 6.0e7) return;
 
-        sendCommand(_sockets[0], command);
+            sendCommand(_sockets[0], command);
 
-        _freq = frequency;
+            _freq[0] = frequency;
+        }
+
+        if(direction == SOAPY_SDR_TX)
+        {
+            if(frequency < _rate[1] / 2.0 || frequency > 6.0e7) return;
+
+            sendCommand(_sockets[2], command);
+
+            _freq[1] = frequency;
+        }
     }
 
     double getFrequency(const int direction, const size_t channel, const string &name) const
     {
+        double frequency = 0.0;
+
         if(name == "BB") return 0.0;
         if(name != "RF") throw runtime_error("getFrequency invalid name " + name);
-        return _freq;
+
+        if(direction == SOAPY_SDR_RX)
+        {
+            frequency = _freq[0];
+        }
+
+        if(direction == SOAPY_SDR_TX)
+        {
+            frequency = _freq[1];
+        }
+
+        return frequency;
     }
 
     vector<string> listFrequencies(const int direction, const size_t channel) const
@@ -323,9 +415,22 @@ public:
 
     SoapySDR::RangeList getFrequencyRange(const int direction, const size_t channel, const string &name) const
     {
+        double rate = 0.0;
+
         if (name == "BB") return SoapySDR::RangeList(1, SoapySDR::Range(0.0, 0.0));
         if (name != "RF") throw runtime_error("getFrequencyRange invalid name " + name);
-        return SoapySDR::RangeList(1, SoapySDR::Range(_rate / 2.0, 60.0e6));
+
+        if(direction == SOAPY_SDR_RX)
+        {
+            rate = _rate[0];
+        }
+
+        if(direction == SOAPY_SDR_TX)
+        {
+            rate = _rate[1];
+        }
+
+        return SoapySDR::RangeList(1, SoapySDR::Range(rate / 2.0, 60.0e6));
     }
 
     /*******************************************************************
@@ -344,14 +449,37 @@ public:
         else if(1.25e6 == rate) command = 5;
 
         command |= 1<<28;
-        sendCommand(_sockets[0], command);
 
-        _rate = rate;
+        if(direction == SOAPY_SDR_RX)
+        {
+            sendCommand(_sockets[0], command);
+
+            _rate[0] = rate;
+        }
+
+        if(direction == SOAPY_SDR_TX)
+        {
+            sendCommand(_sockets[2], command);
+
+            _rate[1] = rate;
+        }
     }
 
     double getSampleRate(const int direction, const size_t channel) const
     {
-        return _rate;
+        double rate = 0.0;
+
+        if(direction == SOAPY_SDR_RX)
+        {
+            rate = _rate[0];
+        }
+
+        if(direction == SOAPY_SDR_TX)
+        {
+            rate = _rate[1];
+        }
+
+        return rate;
     }
 
     vector<double> listSampleRates(const int direction, const size_t channel) const
@@ -369,8 +497,8 @@ public:
 private:
     string _addr;
     unsigned short _port;
-    double _freq, _rate, _corr;
-    int _sockets[2];
+    double _freq[2], _rate[2];
+    int _sockets[4];
 
     void sendCommand(int socket, uint32_t command)
     {
