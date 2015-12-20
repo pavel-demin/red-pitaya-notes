@@ -39,6 +39,12 @@
 #include "SoapySDR/Device.hpp"
 #include "SoapySDR/Registry.hpp"
 
+#if defined(__APPLE__) || defined(__MACH__)
+#ifndef MSG_NOSIGNAL
+#define MSG_NOSIGNAL SO_NOSIGPIPE
+#endif
+#endif
+
 using namespace std;
 
 /***********************************************************************
