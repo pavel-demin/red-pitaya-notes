@@ -49,7 +49,7 @@ class SoapyRedPitaya : public SoapySDR::Device
 {
 public:
     SoapyRedPitaya(const SoapySDR::Kwargs &args):
-        _host("192.168.1.100"), _port(1001),
+        _addr("192.168.1.100"), _port(1001),
         _freq(6.0e5), _rate(1.0e5), _corr(0.0)
     {
         #ifdef _WIN32
@@ -60,7 +60,7 @@ public:
         _sockets[0] = -1;
         _sockets[1] = -1;
 
-        if(args.count("host")) _host = args.at("host");
+        if(args.count("addr")) _addr = args.at("addr");
         if(args.count("port")) stringstream(args.at("port")) >> _port;
     }
 
@@ -159,12 +159,12 @@ public:
 
             memset(&addr, 0, sizeof(addr));
             addr.sin_family = AF_INET;
-            addr.sin_addr.s_addr = inet_addr(_host.c_str());
+            addr.sin_addr.s_addr = inet_addr(_addr.c_str());
             addr.sin_port = htons(_port);
 
             if(::connect(_sockets[i], (struct sockaddr *)&addr, sizeof(addr)) < 0)
             {
-                message << "SoapyRedPitaya could not connect to " << _host << ":" << _port;
+                message << "SoapyRedPitaya could not connect to " << _addr << ":" << _port;
                 throw std::runtime_error(message.str());
             }
 
@@ -348,7 +348,7 @@ public:
     }
 
 private:
-    string _host;
+    string _addr;
     unsigned short _port;
     double _freq, _rate, _corr;
     int _sockets[2];
@@ -388,4 +388,4 @@ SoapySDR::Device *makeSoapyRedPitaya(const SoapySDR::Kwargs &args)
 /***********************************************************************
  * Registration
  **********************************************************************/
-static SoapySDR::Registry registerSoapyRedPitaya("RedPitaya", &findSoapyRedPitaya, &makeSoapyRedPitaya, SOAPY_SDR_ABI_VERSION);
+static SoapySDR::Registry registerSoapyRedPitaya("redpitaya", &findSoapyRedPitaya, &makeSoapyRedPitaya, SOAPY_SDR_ABI_VERSION);
