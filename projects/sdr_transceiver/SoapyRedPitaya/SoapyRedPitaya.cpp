@@ -83,12 +83,12 @@ public:
 
     string getDriverKey() const
     {
-        return "RedPitaya";
+        return "redpitaya";
     }
 
     string getHardwareKey() const
     {
-        return "RedPitaya";
+        return "redpitaya";
     }
 
     SoapySDR::Kwargs getHardwareInfo() const
