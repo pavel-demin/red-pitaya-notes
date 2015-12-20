@@ -82,7 +82,7 @@ public:
         if(args.count("addr")) _addr = args.at("addr");
         if(args.count("port")) stringstream(args.at("port")) >> _port;
 
-        for(i = 0; i < 4; i += 2)
+        for(i = 0; i < 3; i += 2)
         {
             if((_sockets[i] = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
             {
@@ -308,9 +308,9 @@ public:
         if(size < 8 * numElems) return SOAPY_SDR_TIMEOUT;
 
         #if defined(_WIN32) || defined (__CYGWIN__)
-        ::recv(_sockets[1], (char *)buffs[0], 8 * numElems, MSG_WAITALL) / 8;
+        ::recv(_sockets[1], (char *)buffs[0], 8 * numElems, MSG_WAITALL);
         #else
-        ::recv(_sockets[1], buffs[0], 8 * numElems, MSG_WAITALL) / 8;
+        ::recv(_sockets[1], buffs[0], 8 * numElems, MSG_WAITALL);
         #endif
 
         return numElems;
