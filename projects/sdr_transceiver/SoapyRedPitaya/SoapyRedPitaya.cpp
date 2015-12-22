@@ -58,9 +58,6 @@ public:
     SoapyRedPitaya(const SoapySDR::Kwargs &args):
         _addr("192.168.1.100"), _port(1001)
     {
-        stringstream message;
-        struct sockaddr_in addr;
-        uint32_t command;
         size_t i;
 
         #if defined(_WIN32)
@@ -160,7 +157,7 @@ public:
             rate = _rate[1];
         }
 
-        for(size_t i = 0; i < 2; ++i)
+        for(i = 0; i < 2; ++i)
         {
             if((_sockets[i] = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
             {
@@ -230,7 +227,7 @@ public:
         long long &timeNs,
         const long timeoutUs = 100000)
     {
-        ssize_t total = 8 * numElems;
+        size_t total = 8 * numElems;
         unsigned long size = 0;
         struct timeval timeout;
 
