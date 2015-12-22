@@ -24,7 +24,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#if defined(_WIN32) || defined (__CYGWIN__)
+#if defined(_WIN32)
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
@@ -63,7 +63,7 @@ public:
         uint32_t command;
         size_t i;
 
-        #if defined(_WIN32) || defined (__CYGWIN__)
+        #if defined(_WIN32)
         WSADATA wsaData;
         WSAStartup(MAKEWORD(2, 2), &wsaData);
         #endif
@@ -81,44 +81,11 @@ public:
 
         if(args.count("addr")) _addr = args.at("addr");
         if(args.count("port")) stringstream(args.at("port")) >> _port;
-
-        for(i = 0; i < 3; i += 2)
-        {
-            if((_sockets[i] = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
-            {
-                throw runtime_error("SoapyRedPitaya could not create TCP socket");
-            }
-
-            memset(&addr, 0, sizeof(addr));
-            addr.sin_family = AF_INET;
-            addr.sin_addr.s_addr = inet_addr(_addr.c_str());
-            addr.sin_port = htons(_port);
-
-            if(::connect(_sockets[i], (struct sockaddr *)&addr, sizeof(addr)) < 0)
-            {
-                message << "SoapyRedPitaya could not connect to " << _addr << ":" << _port;
-                throw runtime_error(message.str());
-            }
-
-            command = i;
-            sendCommand(_sockets[i], command);
-        }
     }
 
     ~SoapyRedPitaya()
     {
-        _sockets[0] = -1;
-        _sockets[2] = -1;
-
-        #if defined(_WIN32) || defined (__CYGWIN__)
-        ::closesocket(_sockets[0]);
-        ::closesocket(_sockets[2]);
-        #else
-        ::close(_sockets[0]);
-        ::close(_sockets[2]);
-        #endif
-
-        #if defined(_WIN32) || defined (__CYGWIN__)
+        #if defined(_WIN32)
         WSACleanup();
         #endif
     }
@@ -137,24 +104,14 @@ public:
         return "redpitaya";
     }
 
-    SoapySDR::Kwargs getHardwareInfo() const
-    {
-        SoapySDR::Kwargs info;
-        return info;
-    }
-
     /*******************************************************************
      * Channels API
      ******************************************************************/
 
     size_t getNumChannels(const int direction) const
     {
-        return 1;
-    }
-
-    bool getFullDuplex(const int direction, const size_t channel) const
-    {
-        return true;
+        if(direction == SOAPY_SDR_RX || direction == SOAPY_SDR_TX) return 1;
+        return SoapySDR::Device::getNumChannels(direction);
     }
 
     /*******************************************************************
@@ -174,12 +131,6 @@ public:
         return "CF32";
     }
 
-    SoapySDR::ArgInfoList getStreamArgsInfo(const int direction, const size_t channel) const
-    {
-        SoapySDR::ArgInfoList streamArgs;
-        return streamArgs;
-    }
-
     SoapySDR::Stream *setupStream(
         const int direction,
         const string &format,
@@ -189,38 +140,51 @@ public:
         stringstream message;
         struct sockaddr_in addr;
         uint32_t command;
+        double frequency = 0.0, rate = 0.0;
         size_t i;
 
         if(format != "CF32") throw runtime_error("setupStream invalid format " + format);
 
+
         if(direction == SOAPY_SDR_RX)
         {
-            i = 1;
+            command = 0;
+            frequency = _freq[0];
+            rate = _rate[0];
         }
 
         if(direction == SOAPY_SDR_TX)
         {
-            i = 3;
+            command = 2;
+            frequency = _freq[1];
+            rate = _rate[1];
         }
 
-        if((_sockets[i] = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        for(size_t i = 0; i < 2; ++i)
         {
-            throw runtime_error("SoapyRedPitaya could not create TCP socket");
+            if((_sockets[i] = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
+            {
+                throw runtime_error("SoapyRedPitaya could not create TCP socket");
+            }
+
+            memset(&addr, 0, sizeof(addr));
+            addr.sin_family = AF_INET;
+            addr.sin_addr.s_addr = inet_addr(_addr.c_str());
+            addr.sin_port = htons(_port);
+
+            if(::connect(_sockets[i], (struct sockaddr *)&addr, sizeof(addr)) < 0)
+            {
+                message << "SoapyRedPitaya could not connect to " << _addr << ":" << _port;
+                throw runtime_error(message.str());
+            }
+
+            sendCommand(_sockets[i], command);
+
+            ++command;
         }
 
-        memset(&addr, 0, sizeof(addr));
-        addr.sin_family = AF_INET;
-        addr.sin_addr.s_addr = inet_addr(_addr.c_str());
-        addr.sin_port = htons(_port);
-
-        if(::connect(_sockets[i], (struct sockaddr *)&addr, sizeof(addr)) < 0)
-        {
-            message << "SoapyRedPitaya could not connect to " << _addr << ":" << _port;
-            throw runtime_error(message.str());
-        }
-
-        command = i;
-        sendCommand(_sockets[i], command);
+        setFrequency(direction, 0, "RF", frequency);
+        setSampleRate(direction, 0, rate);
 
         return (SoapySDR::Stream *)(new int(direction));
     }
@@ -231,47 +195,31 @@ public:
 
         if(direction == SOAPY_SDR_RX)
         {
-            _sockets[1] = -1;
-
-            #if defined(_WIN32) || defined (__CYGWIN__)
+            #if defined(_WIN32)
             ::closesocket(_sockets[1]);
+            ::closesocket(_sockets[0]);
             #else
             ::close(_sockets[1]);
+            ::close(_sockets[0]);
             #endif
+
+            _sockets[1] = -1;
+            _sockets[0] = -1;
         }
 
         if(direction == SOAPY_SDR_TX)
         {
-            _sockets[3] = -1;
-
-            #if defined(_WIN32) || defined (__CYGWIN__)
+            #if defined(_WIN32)
             ::closesocket(_sockets[3]);
+            ::closesocket(_sockets[2]);
             #else
             ::close(_sockets[3]);
+            ::close(_sockets[2]);
             #endif
+
+            _sockets[3] = -1;
+            _sockets[2] = -1;
         }
-    }
-
-    size_t getStreamMTU(SoapySDR::Stream *stream) const
-    {
-        return 2048;
-    }
-
-    int activateStream(
-        SoapySDR::Stream *stream,
-        const int flags = 0,
-        const long long timeNs = 0,
-        const size_t numElems = 0)
-    {
-        return 0;
-    }
-
-    int deactivateStream(
-        SoapySDR::Stream *stream,
-        const int flags = 0,
-        const long long timeNs = 0)
-    {
-        return 0;
     }
 
     int readStream(
@@ -282,35 +230,36 @@ public:
         long long &timeNs,
         const long timeoutUs = 100000)
     {
+        ssize_t total = 8 * numElems;
         unsigned long size = 0;
         struct timeval timeout;
 
-        #if defined(_WIN32) || defined (__CYGWIN__)
+        #if defined(_WIN32)
         ::ioctlsocket(_sockets[1], FIONREAD, &size);
         #else
         ::ioctl(_sockets[1], FIONREAD, &size);
         #endif
 
-        if(size < 8 * numElems)
+        if(size < total)
         {
             timeout.tv_sec = timeoutUs / 1000000;
             timeout.tv_usec = timeoutUs % 1000000;
 
             ::select(0, 0, 0, 0, &timeout);
 
-            #if defined(_WIN32) || defined (__CYGWIN__)
+            #if defined(_WIN32)
             ::ioctlsocket(_sockets[1], FIONREAD, &size);
             #else
             ::ioctl(_sockets[1], FIONREAD, &size);
             #endif
         }
 
-        if(size < 8 * numElems) return SOAPY_SDR_TIMEOUT;
+        if(size < total) return SOAPY_SDR_TIMEOUT;
 
-        #if defined(_WIN32) || defined (__CYGWIN__)
-        ::recv(_sockets[1], (char *)buffs[0], 8 * numElems, MSG_WAITALL);
+        #if defined(_WIN32)
+        ::recv(_sockets[1], (char *)buffs[0], total, MSG_WAITALL);
         #else
-        ::recv(_sockets[1], buffs[0], 8 * numElems, MSG_WAITALL);
+        ::recv(_sockets[1], buffs[0], total, MSG_WAITALL);
         #endif
 
         return numElems;
@@ -324,34 +273,18 @@ public:
         const long long timeNs = 0,
         const long timeoutUs = 100000)
     {
+        ssize_t total = 8 * numElems;
         ssize_t size;
-        size_t n = 0;
-        size_t total = 8 * numElems;
 
-        while(n < total)
-        {
-            #if defined(_WIN32) || defined (__CYGWIN__)
-            size = ::send(_sockets[3], (char *)(buffs[0] + n), total - n, 0);
-            #else
-            size = ::send(_sockets[3], buffs[0] + n, total - n, MSG_NOSIGNAL);
-            #endif
+        #if defined(_WIN32)
+        size = ::send(_sockets[3], (char *)buffs[0], total, 0);
+        #else
+        size = ::send(_sockets[3], buffs[0], total, MSG_NOSIGNAL);
+        #endif
 
-            if(size < 0) throw runtime_error("writeStream failed");
-
-            n += size;
-        }
+        if(size < total) return SOAPY_SDR_TIMEOUT;
 
         return numElems;
-    }
-
-    int readStreamStatus(
-        SoapySDR::Stream *stream,
-        size_t &chanMask,
-        int &flags,
-        long long &timeNs,
-        const long timeoutUs)
-    {
-        return SOAPY_SDR_NOT_SUPPORTED;
     }
 
     /*******************************************************************
@@ -502,16 +435,19 @@ private:
 
     void sendCommand(int socket, uint32_t command)
     {
+        ssize_t total = sizeof(command);
         ssize_t size;
         stringstream message;
 
-        #if defined(_WIN32) || defined (__CYGWIN__)
-        size = ::send(socket, (char *)&command, sizeof(command), 0);
+        if(socket < 0) return;
+
+        #if defined(_WIN32)
+        size = ::send(socket, (char *)&command, total, 0);
         #else
-        size = ::send(socket, &command, sizeof(command), MSG_NOSIGNAL);
+        size = ::send(socket, &command, total, MSG_NOSIGNAL);
         #endif
 
-        if(size != sizeof(command))
+        if(size < total)
         {
             message << "sendCommand failed: " << hex << command;
             throw runtime_error(message.str());
