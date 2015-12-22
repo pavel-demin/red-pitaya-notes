@@ -138,26 +138,25 @@ public:
         struct sockaddr_in addr;
         uint32_t command;
         double frequency = 0.0, rate = 0.0;
-        size_t i;
+        size_t i, start = 0;
 
         if(format != "CF32") throw runtime_error("setupStream invalid format " + format);
 
-
-        if(direction == SOAPY_SDR_RX)
+        if(direction == SOAPY_SDR_RX && _sockets[0] < 0)
         {
-            command = 0;
+            start = 0;
             frequency = _freq[0];
             rate = _rate[0];
         }
-
-        if(direction == SOAPY_SDR_TX)
+        else if(direction == SOAPY_SDR_TX && _sockets[2] < 0)
         {
-            command = 2;
+            start = 2;
             frequency = _freq[1];
             rate = _rate[1];
         }
+        else return 0;
 
-        for(i = 0; i < 2; ++i)
+        for(i = start; i < start + 2; ++i)
         {
             if((_sockets[i] = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
             {
@@ -175,9 +174,8 @@ public:
                 throw runtime_error(message.str());
             }
 
+            command = i;
             sendCommand(_sockets[i], command);
-
-            ++command;
         }
 
         setFrequency(direction, 0, "RF", frequency);
@@ -203,8 +201,7 @@ public:
             _sockets[1] = -1;
             _sockets[0] = -1;
         }
-
-        if(direction == SOAPY_SDR_TX)
+        else if(direction == SOAPY_SDR_TX)
         {
             #if defined(_WIN32)
             ::closesocket(_sockets[3]);
@@ -305,8 +302,7 @@ public:
 
             _freq[0] = frequency;
         }
-
-        if(direction == SOAPY_SDR_TX)
+        else if(direction == SOAPY_SDR_TX)
         {
             if(frequency < _rate[1] / 2.0 || frequency > 6.0e7) return;
 
@@ -327,8 +323,7 @@ public:
         {
             frequency = _freq[0];
         }
-
-        if(direction == SOAPY_SDR_TX)
+        else if(direction == SOAPY_SDR_TX)
         {
             frequency = _freq[1];
         }
@@ -354,8 +349,7 @@ public:
         {
             rate = _rate[0];
         }
-
-        if(direction == SOAPY_SDR_TX)
+        else if(direction == SOAPY_SDR_TX)
         {
             rate = _rate[1];
         }
@@ -386,8 +380,7 @@ public:
 
             _rate[0] = rate;
         }
-
-        if(direction == SOAPY_SDR_TX)
+        else if(direction == SOAPY_SDR_TX)
         {
             sendCommand(_sockets[2], command);
 
@@ -403,8 +396,7 @@ public:
         {
             rate = _rate[0];
         }
-
-        if(direction == SOAPY_SDR_TX)
+        else if(direction == SOAPY_SDR_TX)
         {
             rate = _rate[1];
         }
