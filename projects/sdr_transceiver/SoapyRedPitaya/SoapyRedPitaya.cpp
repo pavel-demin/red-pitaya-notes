@@ -448,7 +448,7 @@ private:
         ioctlsocket(socket, FIONBIO, &mode);
         #else
         int flags = fcntl(socket, F_GETFL, 0);
-		    fcntl(socket, F_SETFL, flags | O_NONBLOCK);
+        fcntl(socket, F_SETFL, flags | O_NONBLOCK);
         #endif
 
         memset(&addr, 0, sizeof(addr));
@@ -477,7 +477,7 @@ private:
         ioctlsocket(socket, FIONBIO, &mode);
         #else
         flags = fcntl(socket, F_GETFL, 0);
-		    fcntl(socket, F_SETFL, flags & ~O_NONBLOCK);
+        fcntl(socket, F_SETFL, flags & ~O_NONBLOCK);
         #endif
 
         return socket;
