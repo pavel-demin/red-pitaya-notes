@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #if defined(_WIN32)
 #include <winsock2.h>
@@ -134,13 +135,27 @@ public:
         const vector<size_t> &channels = vector<size_t>(),
         const SoapySDR::Kwargs &args = SoapySDR::Kwargs())
     {
-        stringstream message;
-        struct sockaddr_in addr;
+        if(format != "CF32") throw runtime_error("setupStream invalid format " + format);
+
+        return (SoapySDR::Stream *)(new int(direction));
+    }
+
+    void closeStream(SoapySDR::Stream *stream)
+    {
+        delete (int *)stream;
+    }
+
+    int activateStream(
+        SoapySDR::Stream *stream,
+        const int flags = 0,
+        const long long timeNs = 0,
+        const size_t numElems = 0)
+    {
+        int direction = *(int *)stream;
+
         uint32_t command;
         double frequency = 0.0, rate = 0.0;
         size_t i, start = 0;
-
-        if(format != "CF32") throw runtime_error("setupStream invalid format " + format);
 
         if(direction == SOAPY_SDR_RX && _sockets[0] < 0)
         {
@@ -158,21 +173,7 @@ public:
 
         for(i = start; i < start + 2; ++i)
         {
-            if((_sockets[i] = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
-            {
-                throw runtime_error("SoapyRedPitaya could not create TCP socket");
-            }
-
-            memset(&addr, 0, sizeof(addr));
-            addr.sin_family = AF_INET;
-            addr.sin_addr.s_addr = inet_addr(_addr.c_str());
-            addr.sin_port = htons(_port);
-
-            if(::connect(_sockets[i], (struct sockaddr *)&addr, sizeof(addr)) < 0)
-            {
-                message << "SoapyRedPitaya could not connect to " << _addr << ":" << _port;
-                throw runtime_error(message.str());
-            }
+            _sockets[i] = openConnection();
 
             command = i;
             sendCommand(_sockets[i], command);
@@ -181,10 +182,13 @@ public:
         setFrequency(direction, 0, "RF", frequency);
         setSampleRate(direction, 0, rate);
 
-        return (SoapySDR::Stream *)(new int(direction));
+        return 0;
     }
 
-    void closeStream(SoapySDR::Stream *stream)
+    int deactivateStream(
+        SoapySDR::Stream *stream,
+        const int flags = 0,
+        const long long timeNs = 0)
     {
         int direction = *(int *)stream;
 
@@ -214,6 +218,8 @@ public:
             _sockets[3] = -1;
             _sockets[2] = -1;
         }
+
+        return 0;
     }
 
     int readStream(
@@ -421,6 +427,61 @@ private:
     unsigned short _port;
     double _freq[2], _rate[2];
     int _sockets[4];
+
+    int openConnection()
+    {
+        stringstream message;
+        struct sockaddr_in addr;
+        fd_set writefds;
+        struct timeval timeout;
+        int socket;
+
+        if((socket = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        {
+            throw runtime_error("SoapyRedPitaya could not create TCP socket");
+        }
+
+        /* enable non-blocking mode */
+
+        #if defined(_WIN32)
+        u_long mode = 1;
+        ioctlsocket(socket, FIONBIO, &mode);
+        #else
+        int flags = fcntl(socket, F_GETFL, 0);
+		    fcntl(socket, F_SETFL, flags | O_NONBLOCK);
+        #endif
+
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = inet_addr(_addr.c_str());
+        addr.sin_port = htons(_port);
+
+        ::connect(socket, (struct sockaddr *)&addr, sizeof(addr));
+
+        timeout.tv_sec = 5;
+        timeout.tv_usec = 0;
+
+        FD_ZERO(&writefds);
+        FD_SET(socket, &writefds);
+
+        if(::select(socket + 1, 0, &writefds, 0, &timeout) <= 0)
+        {
+            message << "SoapyRedPitaya could not connect to " << _addr << ":" << _port;
+            throw runtime_error(message.str());
+        }
+
+        /* disable non-blocking mode */
+
+        #if defined(_WIN32)
+        mode = 0;
+        ioctlsocket(socket, FIONBIO, &mode);
+        #else
+        flags = fcntl(socket, F_GETFL, 0);
+		    fcntl(socket, F_SETFL, flags & ~O_NONBLOCK);
+        #endif
+
+        return socket;
+    }
 
     void sendCommand(int socket, uint32_t command)
     {
