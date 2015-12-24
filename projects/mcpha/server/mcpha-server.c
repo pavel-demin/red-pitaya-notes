@@ -32,12 +32,10 @@ int main(int argc, char *argv[])
   struct sockaddr_in addr;
   int yes = 1;
   uint32_t start, pre, tot;
-  char command[12];
-  uint8_t *code = (uint8_t *)(command + 0);
-  uint8_t *chan = (uint8_t *)(command + 1);
-  uint16_t *data16 = (uint16_t *)(command + 2);
-  uint32_t *data32 = (uint32_t *)(command + 2);
-  uint64_t *data64 = (uint64_t *)(command + 2);
+  uint64_t command, data64;
+  uint32_t data32;
+  uint16_t data16;
+  uint8_t code, chan;
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -78,7 +76,7 @@ int main(int argc, char *argv[])
   while(!interrupted)
   {
     /* enter reset mode */
-    *(uint32_t *)(cfg + 0) &= ~7;
+    *(uint16_t *)(cfg + 0) &= ~63;
 
     signal(SIGINT, SIG_DFL);
 
@@ -91,183 +89,214 @@ int main(int argc, char *argv[])
     signal(SIGINT, signal_handler);
 
     /* enter normal operating mode */
-    *(uint32_t *)(cfg + 0) |= 7;
+    *(uint16_t *)(cfg + 0) |= 63;
 
     while(!interrupted)
     {
-      if(recv(sock_client, command, 12, MSG_WAITALL) <= 0) break;
-      if(*code == 0)
+      if(recv(sock_client, &command, 8, MSG_WAITALL) <= 0) break;
+      code = (uint8_t)(command >> 56) & 0xff;
+      chan = (uint8_t)(command >> 52) & 0xf;
+      data64 = (uint64_t)(command & 0xfffffffffffffULL);
+      data32 = (uint32_t)(command & 0xffffffffULL);
+      data16 = (uint16_t)(command & 0xffffULL);
+
+      if(code == 0)
       {
-        /* reset */
-        *(uint32_t *)(cfg + 0) &= ~7;
-        *(uint32_t *)(cfg + 0) |= 7;
+        /* reset all */
+        *(uint16_t *)(cfg + 0) &= ~63;
+        *(uint16_t *)(cfg + 0) |= 63;
       }
-      else if(*code == 1)
-      {
-        /* set pha delay */
-        if(*chan == 0)
-        {
-          *(uint16_t *)(cfg + 4) = *data16;
-        }
-        else if(*chan == 1)
-        {
-          *(uint16_t *)(cfg + 10) = *data16;
-        }
-      }
-      else if(*code == 2)
-      {
-        /* set pha min threshold */
-        if(*chan == 0)
-        {
-          *(int16_t *)(cfg + 6) = *data16;
-        }
-        else if(*chan == 1)
-        {
-          *(int16_t *)(cfg + 12) = *data16;
-        }
-      }
-      else if(*code == 3)
-      {
-        /* set pha max threshold */
-        if(*chan == 0)
-        {
-          *(int16_t *)(cfg + 8) = *data16;
-        }
-        else if(*chan == 1)
-        {
-          *(int16_t *)(cfg + 14) = *data16;
-        }
-      }
-      else if(*code == 4)
-      {
-        /* set timer */
-        if(*chan == 0)
-        {
-          *(uint64_t *)(cfg + 16) = *data64;
-          *(uint16_t *)(cfg + 0) |= 16;
-          *(uint16_t *)(cfg + 0) &= ~16;
-        }
-        else if(*chan == 1)
-        {
-          *(uint64_t *)(cfg + 24) = *data64;
-          *(uint16_t *)(cfg + 0) |= 64;
-          *(uint16_t *)(cfg + 0) &= ~64;
-        }
-      }
-      else if(*code == 5)
-      {
-        /* start timer */
-        if(*chan == 0)
-        {
-          *(uint16_t *)(cfg + 0) |= 8;
-        }
-        else if(*chan == 1)
-        {
-          *(uint16_t *)(cfg + 0) |= 32;
-        }
-      }
-      else if(*code == 6)
-      {
-        /* stop timer */
-        if(*chan == 0)
-        {
-          *(uint16_t *)(cfg + 0) &= ~8;
-        }
-        else if(*chan == 1)
-        {
-          *(uint16_t *)(cfg + 0) &= ~32;
-        }
-      }
-      else if(*code == 7)
+      else if(code == 1)
       {
         /* reset histogram */
-        if(*chan == 0)
+        if(chan == 0)
         {
           *(uint16_t *)(cfg + 0) &= ~1;
           *(uint16_t *)(cfg + 0) |= 1;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
           *(uint16_t *)(cfg + 0) &= ~2;
           *(uint16_t *)(cfg + 0) |= 2;
         }
       }
-      else if(*code == 8)
+      else if(code == 2)
+      {
+        /* reset timer */
+        if(chan == 0)
+        {
+          *(uint16_t *)(cfg + 0) &= ~4;
+          *(uint16_t *)(cfg + 0) |= 4;
+        }
+        else if(chan == 1)
+        {
+          *(uint16_t *)(cfg + 0) &= ~8;
+          *(uint16_t *)(cfg + 0) |= 8;
+        }
+      }
+      else if(code == 3)
+      {
+        /* reset scope */
+        *(uint16_t *)(cfg + 0) &= ~48;
+        *(uint16_t *)(cfg + 0) |= 48;
+      }
+      else if(code == 4)
+      {
+        /* set rate */
+        *(uint16_t *)(cfg + 2) = data16;
+      }
+      else if(code == 5)
+      {
+        /* set pha delay */
+        if(chan == 0)
+        {
+          *(uint16_t *)(cfg + 4) = data16;
+        }
+        else if(chan == 1)
+        {
+          *(uint16_t *)(cfg + 10) = data16;
+        }
+      }
+      else if(code == 6)
+      {
+        /* set pha min threshold */
+        if(chan == 0)
+        {
+          *(int16_t *)(cfg + 6) = data16;
+        }
+        else if(chan == 1)
+        {
+          *(int16_t *)(cfg + 12) = data16;
+        }
+      }
+      else if(code == 7)
+      {
+        /* set pha max threshold */
+        if(chan == 0)
+        {
+          *(int16_t *)(cfg + 8) = data16;
+        }
+        else if(chan == 1)
+        {
+          *(int16_t *)(cfg + 14) = data16;
+        }
+      }
+      else if(code == 8)
+      {
+        /* set timer */
+        if(chan == 0)
+        {
+          *(uint64_t *)(cfg + 16) = data64;
+          *(uint16_t *)(cfg + 0) |= 128;
+          *(uint16_t *)(cfg + 0) &= ~128;
+        }
+        else if(chan == 1)
+        {
+          *(uint64_t *)(cfg + 24) = data64;
+          *(uint16_t *)(cfg + 0) |= 512;
+          *(uint16_t *)(cfg + 0) &= ~512;
+        }
+      }
+      else if(code == 9)
+      {
+        /* start timer */
+        if(chan == 0)
+        {
+          *(uint16_t *)(cfg + 0) |= 64;
+        }
+        else if(chan == 1)
+        {
+          *(uint16_t *)(cfg + 0) |= 256;
+        }
+      }
+      else if(code == 10)
+      {
+        /* stop timer */
+        if(chan == 0)
+        {
+          *(uint16_t *)(cfg + 0) &= ~64;
+        }
+        else if(chan == 1)
+        {
+          *(uint16_t *)(cfg + 0) &= ~256;
+        }
+      }
+      else if(code == 11)
       {
         /* read timer */
-        if(*chan == 0)
+        if(chan == 0)
         {
           memcpy(buf, sts + 0, 8);
           if(send(sock_client, buf, 8, MSG_NOSIGNAL) < 0) break;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
           memcpy(buf, sts + 8, 8);
           if(send(sock_client, buf, 8, MSG_NOSIGNAL) < 0) break;
         }
       }
-      else if(*code == 9)
+      else if(code == 12)
       {
         /* read histogram */
-        if(*chan == 0)
+        if(chan == 0)
         {
           memcpy(buf, hst[0], 65536);
           if(send(sock_client, buf, 65536, MSG_NOSIGNAL) < 0) break;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
           memcpy(buf, hst[1], 65536);
           if(send(sock_client, buf, 65536, MSG_NOSIGNAL) < 0) break;
         }
       }
-      else if(*code == 10)
+      else if(code == 13)
       {
         /* set trigger channel */
-        if(*chan == 0)
+        if(chan == 0)
         {
           *(uint32_t *)(trg + 64) = 0;
           *(uint32_t *)(trg + 0) = 2;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
           *(uint32_t *)(trg + 64) = 1;
           *(uint32_t *)(trg + 0) = 2;
         }
       }
-      else if(*code == 11)
+      else if(code == 14)
       {
         /* set trigger edge (0 for negative, 1 for positive) */
-        if(*chan == 0)
+        if(chan == 0)
         {
-          *(uint16_t *)(cfg + 0) &= ~128;
+          *(uint16_t *)(cfg + 0) &= ~256;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
-          *(uint16_t *)(cfg + 0) |= 128;
+          *(uint16_t *)(cfg + 0) |= 256;
         }
       }
-      else if(*code == 12)
+      else if(code == 15)
       {
         /* set trigger threshold */
-        *(int16_t *)(cfg + 40) = *data16;
+        *(int16_t *)(cfg + 40) = data16;
       }
-      else if(*code == 13)
+      else if(code == 16)
       {
         /* set number of samples before trigger */
-        *(uint32_t *)(cfg + 32) = *data32 - 1;
+        *(uint32_t *)(cfg + 32) = data32 - 1;
       }
-      else if(*code == 14)
+      else if(code == 17)
       {
         /* set total number of samples */
-        *(uint16_t *)(cfg + 36) = *data32 - 1;
+        *(uint16_t *)(cfg + 36) = data32 - 1;
       }
-      else if(*code == 15)
+      else if(code == 18)
       {
         /* read oscilloscope status */
         *(uint32_t *)buf = *(uint32_t *)(sts + 16) & 1;
         if(send(sock_client, buf, 4, MSG_NOSIGNAL) < 0) break;
       }
-      else if(*code == 16)
+      else if(code == 19)
       {
         /* read oscilloscope data */
         pre = *(uint32_t *)(cfg + 32) + 1;
@@ -295,7 +324,7 @@ int main(int argc, char *argv[])
   close(sock_server);
 
   /* enter reset mode */
-  *(uint32_t *)(cfg + 0) &= ~7;
+  *(uint16_t *)(cfg + 0) &= ~63;
 
   return EXIT_SUCCESS;
 }
