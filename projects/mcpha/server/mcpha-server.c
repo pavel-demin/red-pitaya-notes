@@ -25,16 +25,12 @@ void signal_handler(int sig)
 int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
-  pid_t pid;
   void *cfg, *sts, *trg, *hst[2], *ram, *buf;
   char *name = "/dev/mem";
-  int size = 0;
   struct sockaddr_in addr;
   int yes = 1;
   uint32_t start, pre, tot;
-  uint64_t command, data64;
-  uint32_t data32;
-  uint16_t data16;
+  uint64_t command, data;
   uint8_t code, chan;
 
   if((fd = open(name, O_RDWR)) < 0)
@@ -46,8 +42,8 @@ int main(int argc, char *argv[])
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   trg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-  hst[0] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
-  hst[1] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+  hst[0] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+  hst[1] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
   ram = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
   buf = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 
@@ -96,9 +92,7 @@ int main(int argc, char *argv[])
       if(recv(sock_client, &command, 8, MSG_WAITALL) <= 0) break;
       code = (uint8_t)(command >> 56) & 0xff;
       chan = (uint8_t)(command >> 52) & 0xf;
-      data64 = (uint64_t)(command & 0xfffffffffffffULL);
-      data32 = (uint32_t)(command & 0xffffffffULL);
-      data16 = (uint16_t)(command & 0xffffULL);
+      data = (uint64_t)(command & 0xfffffffffffffULL);
 
       if(code == 0)
       {
@@ -143,18 +137,18 @@ int main(int argc, char *argv[])
       else if(code == 4)
       {
         /* set rate */
-        *(uint16_t *)(cfg + 2) = data16;
+        *(uint16_t *)(cfg + 2) = data;
       }
       else if(code == 5)
       {
         /* set pha delay */
         if(chan == 0)
         {
-          *(uint16_t *)(cfg + 4) = data16;
+          *(uint16_t *)(cfg + 4) = data;
         }
         else if(chan == 1)
         {
-          *(uint16_t *)(cfg + 10) = data16;
+          *(uint16_t *)(cfg + 10) = data;
         }
       }
       else if(code == 6)
@@ -162,11 +156,11 @@ int main(int argc, char *argv[])
         /* set pha min threshold */
         if(chan == 0)
         {
-          *(int16_t *)(cfg + 6) = data16;
+          *(int16_t *)(cfg + 6) = data;
         }
         else if(chan == 1)
         {
-          *(int16_t *)(cfg + 12) = data16;
+          *(int16_t *)(cfg + 12) = data;
         }
       }
       else if(code == 7)
@@ -174,11 +168,11 @@ int main(int argc, char *argv[])
         /* set pha max threshold */
         if(chan == 0)
         {
-          *(int16_t *)(cfg + 8) = data16;
+          *(int16_t *)(cfg + 8) = data;
         }
         else if(chan == 1)
         {
-          *(int16_t *)(cfg + 14) = data16;
+          *(int16_t *)(cfg + 14) = data;
         }
       }
       else if(code == 8)
@@ -186,13 +180,13 @@ int main(int argc, char *argv[])
         /* set timer */
         if(chan == 0)
         {
-          *(uint64_t *)(cfg + 16) = data64;
+          *(uint64_t *)(cfg + 16) = data;
           *(uint16_t *)(cfg + 0) |= 128;
           *(uint16_t *)(cfg + 0) &= ~128;
         }
         else if(chan == 1)
         {
-          *(uint64_t *)(cfg + 24) = data64;
+          *(uint64_t *)(cfg + 24) = data;
           *(uint16_t *)(cfg + 0) |= 512;
           *(uint16_t *)(cfg + 0) &= ~512;
         }
@@ -278,17 +272,17 @@ int main(int argc, char *argv[])
       else if(code == 15)
       {
         /* set trigger threshold */
-        *(int16_t *)(cfg + 40) = data16;
+        *(int16_t *)(cfg + 40) = data;
       }
       else if(code == 16)
       {
         /* set number of samples before trigger */
-        *(uint32_t *)(cfg + 32) = data32 - 1;
+        *(uint32_t *)(cfg + 32) = data - 1;
       }
       else if(code == 17)
       {
         /* set total number of samples */
-        *(uint16_t *)(cfg + 36) = data32 - 1;
+        *(uint16_t *)(cfg + 36) = data - 1;
       }
       else if(code == 18)
       {
