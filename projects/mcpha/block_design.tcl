@@ -105,16 +105,12 @@ cell xilinx.com:ip:xlslice:1.0 slice_4 {
   Din cfg_0/cfg_data
 }
 
-# timer_0/run_flag
-
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 352 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
-
-# timer_0/cfg_flag
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
@@ -123,7 +119,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_6 {
   Din cfg_0/cfg_data
 }
 
-# timer_1/run_flag
+# timer_0/run_flag
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_7 {
@@ -132,7 +128,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_7 {
   Din cfg_0/cfg_data
 }
 
-# timer_1/cfg_flag
+# timer_0/cfg_flag
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_8 {
@@ -141,7 +137,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_8 {
   Din cfg_0/cfg_data
 }
 
-# trig_0/pol_data
+# timer_1/run_flag
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_9 {
@@ -150,7 +146,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_9 {
   Din cfg_0/cfg_data
 }
 
-# scope_0/run_flag
+# timer_1/cfg_flag
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_10 {
@@ -159,10 +155,28 @@ cell xilinx.com:ip:xlslice:1.0 slice_10 {
   Din cfg_0/cfg_data
 }
 
-# rate_*/cfg_data
+# trig_0/pol_data
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_11 {
+  DIN_WIDTH 352 DIN_FROM 10 DIN_TO 10 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# scope_0/run_flag
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_12 {
+  DIN_WIDTH 352 DIN_FROM 11 DIN_TO 11 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# rate_*/cfg_data
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_13 {
   DIN_WIDTH 352 DIN_FROM 31 DIN_TO 16 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
@@ -171,7 +185,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_11 {
 # pha_0/cfg_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_12 {
+cell xilinx.com:ip:xlslice:1.0 slice_14 {
   DIN_WIDTH 352 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
@@ -180,7 +194,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_12 {
 # pha_0/min_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_13 {
+cell xilinx.com:ip:xlslice:1.0 slice_15 {
   DIN_WIDTH 352 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
@@ -189,7 +203,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_13 {
 # pha_0/max_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_14 {
+cell xilinx.com:ip:xlslice:1.0 slice_16 {
   DIN_WIDTH 352 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
@@ -198,7 +212,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_14 {
 # pha_1/cfg_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_15 {
+cell xilinx.com:ip:xlslice:1.0 slice_17 {
   DIN_WIDTH 352 DIN_FROM 95 DIN_TO 80 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
@@ -207,7 +221,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_15 {
 # pha_1/min_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_16 {
+cell xilinx.com:ip:xlslice:1.0 slice_18 {
   DIN_WIDTH 352 DIN_FROM 111 DIN_TO 96 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
@@ -216,7 +230,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_16 {
 # pha_1/max_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_17 {
+cell xilinx.com:ip:xlslice:1.0 slice_19 {
   DIN_WIDTH 352 DIN_FROM 127 DIN_TO 112 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
@@ -225,7 +239,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_17 {
 # timer_0/cfg_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_18 {
+cell xilinx.com:ip:xlslice:1.0 slice_20 {
   DIN_WIDTH 352 DIN_FROM 191 DIN_TO 128 DOUT_WIDTH 64
 } {
   Din cfg_0/cfg_data
@@ -234,7 +248,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_18 {
 # timer_1/cfg_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_19 {
+cell xilinx.com:ip:xlslice:1.0 slice_21 {
   DIN_WIDTH 352 DIN_FROM 255 DIN_TO 192 DOUT_WIDTH 64
 } {
   Din cfg_0/cfg_data
@@ -243,7 +257,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_19 {
 # scope_0/pre_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_20 {
+cell xilinx.com:ip:xlslice:1.0 slice_22 {
   DIN_WIDTH 352 DIN_FROM 287 DIN_TO 256 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
@@ -252,7 +266,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_20 {
 # scope_0/tot_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_21 {
+cell xilinx.com:ip:xlslice:1.0 slice_23 {
   DIN_WIDTH 352 DIN_FROM 319 DIN_TO 288 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
@@ -261,7 +275,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_21 {
 # trig_0/lvl_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_22 {
+cell xilinx.com:ip:xlslice:1.0 slice_24 {
   DIN_WIDTH 352 DIN_FROM 335 DIN_TO 320 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
@@ -303,7 +317,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 cell pavel-demin:user:axis_variable:1.0 rate_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_11/Dout
+  cfg_data slice_13/Dout
   aclk /ps_0/FCLK_CLK0
   aresetn rst_0/peripheral_aresetn
 }
@@ -312,7 +326,7 @@ cell pavel-demin:user:axis_variable:1.0 rate_0 {
 cell pavel-demin:user:axis_variable:1.0 rate_1 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_11/Dout
+  cfg_data slice_13/Dout
   aclk /ps_0/FCLK_CLK0
   aresetn rst_0/peripheral_aresetn
 }
@@ -416,9 +430,9 @@ cell pavel-demin:user:axis_pulse_height_analyzer:1.0 pha_0 {
   CNTR_WIDTH 16
 } {
   S_AXIS bcast_1/M00_AXIS
-  cfg_data slice_12/Dout
-  min_data slice_13/Dout
-  max_data slice_14/Dout
+  cfg_data slice_14/Dout
+  min_data slice_15/Dout
+  max_data slice_16/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_1/Dout
 }
@@ -430,9 +444,9 @@ cell pavel-demin:user:axis_pulse_height_analyzer:1.0 pha_1 {
   CNTR_WIDTH 16
 } {
   S_AXIS bcast_1/M01_AXIS
-  cfg_data slice_15/Dout
-  min_data slice_16/Dout
-  max_data slice_17/Dout
+  cfg_data slice_17/Dout
+  min_data slice_18/Dout
+  max_data slice_19/Dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_2/Dout
 }
@@ -442,10 +456,11 @@ cell pavel-demin:user:axis_timer:1.0 timer_0 {
   CNTR_WIDTH 64
 } {
   S_AXIS bcast_0/M02_AXIS
-  run_flag slice_5/Dout
-  cfg_flag slice_6/Dout
-  cfg_data slice_18/Dout
+  run_flag slice_7/Dout
+  cfg_flag slice_8/Dout
+  cfg_data slice_20/Dout
   aclk ps_0/FCLK_CLK0
+  aresetn slice_3/Dout
 }
 
 # Create axis_validator
@@ -453,10 +468,11 @@ cell pavel-demin:user:axis_timer:1.0 timer_1 {
   CNTR_WIDTH 64
 } {
   S_AXIS bcast_0/M03_AXIS
-  run_flag slice_7/Dout
-  cfg_flag slice_8/Dout
-  cfg_data slice_19/Dout
+  run_flag slice_9/Dout
+  cfg_flag slice_10/Dout
+  cfg_data slice_21/Dout
   aclk ps_0/FCLK_CLK0
+  aresetn slice_4/Dout
 }
 
 # Create axis_validator
@@ -604,9 +620,9 @@ cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   AXIS_TDATA_SIGNED FALSE
 } {
   S_AXIS switch_0/M00_AXIS
-  pol_data slice_9/Dout
+  pol_data slice_11/Dout
   msk_data const_1/dout
-  lvl_data slice_22/Dout
+  lvl_data slice_24/Dout
   aclk ps_0/FCLK_CLK0
 }
 
@@ -627,12 +643,12 @@ cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
   CNTR_WIDTH 23
 } {
   S_AXIS comb_1/M_AXIS
-  run_flag slice_10/Dout
+  run_flag slice_12/Dout
   trg_flag trig_0/trg_flag
-  pre_data slice_20/Dout
-  tot_data slice_21/Dout
+  pre_data slice_22/Dout
+  tot_data slice_23/Dout
   aclk ps_0/FCLK_CLK0
-  aresetn slice_3/Dout
+  aresetn slice_5/Dout
 }
 
 # Create axis_dwidth_converter
@@ -643,7 +659,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
 } {
   S_AXIS scope_0/M_AXIS
   aclk ps_0/FCLK_CLK0
-  aresetn slice_4/Dout
+  aresetn slice_6/Dout
 }
 
 # Create xlconstant
@@ -660,7 +676,7 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
   M_AXI ps_0/S_AXI_HP0
   cfg_data const_2/dout
   aclk ps_0/FCLK_CLK0
-  aresetn slice_4/Dout
+  aresetn slice_6/Dout
 }
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
