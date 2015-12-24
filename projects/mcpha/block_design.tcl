@@ -637,7 +637,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_1 {
   aresetn rst_0/peripheral_aresetn
 }
 
-# Create axis_packetizer
+# Create axis_oscilloscope
 cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
   AXIS_TDATA_WIDTH 32
   CNTR_WIDTH 23
