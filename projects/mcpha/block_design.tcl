@@ -221,7 +221,6 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 16
   USE_XTREME_DSP_SLICE false
-  HAS_DOUT_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M00_AXIS
@@ -245,7 +244,6 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 16
   USE_XTREME_DSP_SLICE false
-  HAS_DOUT_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M01_AXIS
@@ -280,7 +278,6 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Non_Symmetric_Rounding_Up
   OUTPUT_WIDTH 16
-  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA comb_0/M_AXIS
