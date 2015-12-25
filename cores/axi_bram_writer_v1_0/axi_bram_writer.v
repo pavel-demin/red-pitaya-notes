@@ -73,8 +73,8 @@ module axi_bram_writer #
 
   assign s_axi_bresp = 2'd0;
 
-  assign s_axi_awready = 1'b1;
-  assign s_axi_wready = 1'b1;
+  assign s_axi_awready = int_wvalid_wire;
+  assign s_axi_wready = int_wvalid_wire;
   assign s_axi_bvalid = int_bvalid_reg;
 
   assign bram_porta_clk = aclk;

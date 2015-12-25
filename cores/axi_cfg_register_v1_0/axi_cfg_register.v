@@ -130,8 +130,8 @@ module axi_cfg_register #
   assign s_axi_bresp = 2'd0;
   assign s_axi_rresp = 2'd0;
 
-  assign s_axi_awready = 1'b1;
-  assign s_axi_wready = 1'b1;
+  assign s_axi_awready = int_wvalid_wire;
+  assign s_axi_wready = int_wvalid_wire;
   assign s_axi_bvalid = int_bvalid_reg;
   assign s_axi_arready = 1'b1;
   assign s_axi_rdata = int_rdata_reg;
