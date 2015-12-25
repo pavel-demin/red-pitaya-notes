@@ -66,7 +66,7 @@ cell pavel-demin:user:axis_timer:1.0 timer_0 {
 }
 # Create axis_pulse_height_analyzer
 cell pavel-demin:user:axis_pulse_height_analyzer:1.0 pha_0 {
-  AXIS_TDATA_WIDTH 14
+  AXIS_TDATA_WIDTH 16
   AXIS_TDATA_SIGNED TRUE
   CNTR_WIDTH 16
 } {
@@ -79,7 +79,7 @@ cell pavel-demin:user:axis_pulse_height_analyzer:1.0 pha_0 {
 
 # Create axis_validator
 cell pavel-demin:user:axis_validator:1.0 vldtr_0 {
-  AXIS_TDATA_WIDTH 14
+  AXIS_TDATA_WIDTH 16
 } {
   S_AXIS pha_0/M_AXIS
   trg_flag timer_0/trg_flag
@@ -106,7 +106,7 @@ cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
 cell pavel-demin:user:axis_histogram:1.0 hist_0 {
   BRAM_ADDR_WIDTH 14
   BRAM_DATA_WIDTH 32
-  AXIS_TDATA_WIDTH 14
+  AXIS_TDATA_WIDTH 16
 } {
   S_AXIS vldtr_0/M_AXIS
   BRAM_PORTA bram_0/BRAM_PORTA

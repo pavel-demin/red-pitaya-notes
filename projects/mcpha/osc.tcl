@@ -59,14 +59,14 @@ cell xilinx.com:ip:axis_switch:1.1 switch_0 {
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0 {
-  CONST_WIDTH 14
-  CONST_VAL 16383
+  CONST_WIDTH 16
+  CONST_VAL 65535
 }
 
 # Create axis_trigger
 cell pavel-demin:user:axis_trigger:1.0 trig_0 {
-  AXIS_TDATA_WIDTH 14
-  AXIS_TDATA_SIGNED FALSE
+  AXIS_TDATA_WIDTH 16
+  AXIS_TDATA_SIGNED TRUE
 } {
   S_AXIS switch_0/M00_AXIS
   pol_data slice_2/Dout
