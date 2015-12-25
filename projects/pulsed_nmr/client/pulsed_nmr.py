@@ -42,7 +42,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     self.setupUi(self)
     self.rateValue.addItems(['25', '50', '250', '500', '2500'])
     # IP address validator
-    rx = QRegExp('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
+    rx = QRegExp('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
     self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
     # state variable
     self.idle = True
@@ -51,6 +51,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     # buffer and offset for the incoming samples
     self.buffer = bytearray(8 * self.size)
     self.offset = 0
+    self.data = np.frombuffer(self.buffer, np.complex64)
     # create figure
     figure = Figure()
     figure.set_facecolor('none')
@@ -111,8 +112,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
       self.buffer[self.offset:8 * self.size] = self.socket.read(8 * self.size - self.offset)
       self.offset = 0
       # plot the signal envelope
-      data = np.frombuffer(self.buffer, np.complex64)
-      self.curve.set_ydata(np.abs(data))
+      self.curve.set_ydata(np.abs(self.data))
       self.canvas.draw()
 
   def display_error(self, socketError):

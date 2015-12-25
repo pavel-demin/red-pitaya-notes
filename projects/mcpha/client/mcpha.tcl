@@ -3,7 +3,7 @@ package require oo::util
 package require BLT
 load [file join [pwd] mcpha.so]
 
-wm minsize . 990 660
+wm minsize . 880 660
 
 image create bitmap leftarrow -data "
 #define leftarrow_width 5\n
@@ -52,6 +52,13 @@ namespace eval ::mcpha {
     }
   }
 
+  proc addrvalidate {value} {
+    set ipnum {\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]}
+    set rx {^(($ipnum)\.){0,3}($ipnum)?$}
+    set rx [subst -nocommands -nobackslashes $rx]
+    return [regexp -- $rx $value]
+  }
+
 # -------------------------------------------------------------------------
 
   proc legendLabel {master row key title} {
@@ -72,6 +79,18 @@ namespace eval ::mcpha {
     grid ${master}.${key}_check -row ${row} -column 0 -sticky w
     grid ${master}.${key}_label -row ${row} -column 1 -sticky w
     grid ${master}.${key}_value -row ${row} -column 2 -sticky ew
+  }
+
+# -------------------------------------------------------------------------
+  proc reverse {str} {
+    set res {}
+    set i [string length $str]
+    while {$i > 0} {
+      set last [incr i -1]
+      set first [incr i -1]
+      append res [string range $str $first $last]
+    }
+    set res
   }
 
 # -------------------------------------------------------------------------
@@ -113,8 +132,9 @@ namespace eval ::mcpha {
   oo::define CfgDisplay method setup {} {
     my variable master host port
 
-    label ${master}.addess_label -text {IP address:}
-    entry ${master}.addess_field -width 15 -textvariable [my varname host]
+    label ${master}.addr_label -text {IP address:}
+    entry ${master}.address_field -width 15 -textvariable [my varname host] \
+      -validate all -vcmd {::mcpha::addrvalidate %P}
     button ${master}.connect -text Connect \
       -bg lightgreen -activebackground lightgreen -command [mymethod connect]
 
@@ -127,7 +147,7 @@ namespace eval ::mcpha {
     radiobutton ${master}.rate_3 -variable [my varname rate] -text 6.25 -value 3
     radiobutton ${master}.rate_4 -variable [my varname rate] -text 12.5 -value 4
 
-    grid ${master}.addess_label ${master}.addess_field ${master}.connect \
+    grid ${master}.addr_label ${master}.address_field ${master}.connect \
       ${master}.spc1 ${master}.rate_label ${master}.rate_0 ${master}.rate_1 \
       ${master}.rate_2 ${master}.rate_3 ${master}.rate_4 -padx 5
   }
@@ -141,7 +161,16 @@ namespace eval ::mcpha {
 
     if {$connected} return
 
-    ${master}.addess_field configure -state disabled
+    set ipnum {\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]}
+    set rx {^(($ipnum)\.){3}($ipnum)$}
+    set rx [subst -nocommands -nobackslashes $rx]
+
+    if {![regexp -- $rx $host]} {
+      tk_messageBox -icon error -message "IP address is incomplete"
+      return
+    }
+
+    ${master}.address_field configure -state disabled
     ${master}.connect configure -state disabled
 
     set socket [socket -async $host $port]
@@ -164,16 +193,18 @@ namespace eval ::mcpha {
       return
     }
 
-    ${master}.addess_field configure -state normal
+    ${master}.address_field configure -state normal
     ${master}.connect configure -state active
   }
 
 # -------------------------------------------------------------------------
 
   oo::define CfgDisplay method connected {} {
-    my variable master connected after
+    my variable master connected socket after
 
     after cancel $after
+    fileevent $socket writable {}
+    fconfigure $socket -translation binary -encoding binary
     set connected true
     ${master}.connect configure -state active -text Disconnect \
       -bg yellow -activebackground yellow -command [mymethod disconnect]
@@ -187,18 +218,25 @@ namespace eval ::mcpha {
     set connected false
     catch {close $socket}
 
-    ${master}.addess_field configure -state normal
+    ${master}.address_field configure -state normal
     ${master}.connect configure -state active -text Connect \
       -bg lightgreen -activebackground lightgreen -command [mymethod connect]
   }
 
 # -------------------------------------------------------------------------
 
-  oo::define CfgDisplay method command {command} {
+  oo::define CfgDisplay method command {code chan {data 0}} {
     my variable connected socket
     if {!$connected} return
-    set code [catch {puts -nonewline $socket [binary decode hex $command]} result]
-    switch -- $code {
+
+    set buffer [format {%02x} $code][format {%01x} $chan][format {%013x} $data]
+
+    set rc [catch {
+      puts -nonewline $socket [binary decode hex [::mcpha::reverse $buffer]]
+      flush $socket
+    } result]
+
+    switch -- $rc {
       1 {
         puts $result
       }
@@ -207,14 +245,15 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
-  oo::define CfgDisplay method commandReadRaw {command size data} {
+  oo::define CfgDisplay method commandReadRaw {code chan size data} {
     my variable connected socket
     if {!$connected} return
 
-    my command $command
+    my command $code $chan
 
-    set code [catch {read $socket $size} result]
-    switch -- $code {
+    set rc [catch {read $socket $size} result]
+
+    switch -- $rc {
       0 {
         set $data $result
       }
@@ -226,10 +265,22 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
-  oo::define CfgDisplay method commandReadHex {command size data} {
-    set temp {}
-    my commandReadRaw $command $size temp
-    set $data [binary encode hex $temp]
+  oo::define CfgDisplay method commandReadHex {code chan size data} {
+    my variable connected socket
+    if {!$connected} return
+
+    my command $code $chan
+
+    set rc [catch {read $socket $size} result]
+
+    switch -- $rc {
+      0 {
+        set $data 0x[::mcpha::reverse [binary encode hex $result]]
+      }
+      1 {
+        puts $result
+      }
+    }
   }
 
 # -------------------------------------------------------------------------
@@ -237,7 +288,7 @@ namespace eval ::mcpha {
   oo::define CfgDisplay method rate_update args {
     my variable rate
 
-    my command 00[format {%02x} $rate]
+    my command 4 0 $rate
   }
 
 # -------------------------------------------------------------------------
@@ -303,7 +354,7 @@ namespace eval ::mcpha {
 
     my stat_update
 
-    set cntr_tmp 1200000000
+    set cntr_tmp 7500000000
     set cntr_val $cntr_tmp
     set cntr_bak $cntr_tmp
     set cntr_old $cntr_tmp
@@ -583,13 +634,13 @@ namespace eval ::mcpha {
 
     if {$thrs} {
       ${config}.thrs_field configure -state normal
-      set value [format {%04x} $thrs_val]
+      set value $thrs_val
     } else {
       ${config}.thrs_field configure -state disabled
-      set value 0000
+      set value 0
     }
 
-    $controller command 02[format {%02x} $number]${value}
+    $controller command 6 $number $value
   }
 
 # -------------------------------------------------------------------------
@@ -612,11 +663,11 @@ namespace eval ::mcpha {
 
   oo::define HstDisplay method xmin_val_update args {
     my variable config graph xmin_val xmax_val
-    if {$xmin_val > 4075} {
-      set xmin_val 4075
+    if {$xmin_val > 16283} {
+      set xmin_val 16283
     }
-    if {$xmin_val > $xmax_val - 20} {
-      set xmax_val [expr {$xmin_val + 20}]
+    if {$xmin_val > $xmax_val - 100} {
+      set xmax_val [expr {$xmin_val + 100}]
     }
     $graph marker configure xmin -coords "$xmin_val -Inf $xmin_val Inf"
     my stat_update
@@ -626,11 +677,11 @@ namespace eval ::mcpha {
 
   oo::define HstDisplay method xmax_val_update args {
     my variable config graph xmin_val xmax_val
-    if {$xmax_val < 20} {
-      set xmax_val 20
+    if {$xmax_val < 100} {
+      set xmax_val 100
     }
-    if {$xmax_val < $xmin_val + 20} {
-      set xmin_val [expr {$xmax_val - 20}]
+    if {$xmax_val < $xmin_val + 100} {
+      set xmin_val [expr {$xmax_val - 100}]
     }
     $graph marker configure xmax -coords "$xmax_val -Inf $xmax_val Inf"
     my stat_update
@@ -649,7 +700,7 @@ namespace eval ::mcpha {
   oo::define HstDisplay method cntr_val_update args {
     my variable cntr_val cntr_h cntr_m cntr_s
 
-    set cntr_tmp [expr {${cntr_val}/20000}]
+    set cntr_tmp [expr {${cntr_val}/125000}]
     set cntr_h [expr {${cntr_tmp}/3600000}]
     set cntr_m [expr {${cntr_tmp}%3600000/60000}]
     set cntr_s [expr {${cntr_tmp}%3600000%60000/1000.0}]
@@ -661,7 +712,7 @@ namespace eval ::mcpha {
     my variable controller number cntr_val
 
     # send counter value
-    $controller command 04[format {%02x} $number][format {%016x} $cntr_val]
+    $controller command 8 $number $cntr_val
   }
 
 # -------------------------------------------------------------------------
@@ -672,7 +723,7 @@ namespace eval ::mcpha {
 
     my cntr_stop
 
-    $controller command 07[format {%02x} $number]
+    $controller command 2 $number
 
     set cntr_val $cntr_bak
     my cntr_setup
@@ -733,7 +784,7 @@ namespace eval ::mcpha {
     }
 
     set cntr_tmp [expr {${h}*3600000 + ${m}*60000 + ${s}*1000}]
-    set cntr_tmp [expr {entier(20000 * ${cntr_tmp})}]
+    set cntr_tmp [expr {entier(125000 * ${cntr_tmp})}]
 
     if {$cntr_tmp > 0} {
       ${config}.cntr_frame.h_field configure -state disabled
@@ -771,7 +822,7 @@ namespace eval ::mcpha {
     ${config}.start configure -text Pause -command [mymethod cntr_pause]
 #    ${config}.reset configure -state disabled
 
-    $controller command 05[format {%02x} $number]
+    $controller command 9 $number
 
     set auto 1
 
@@ -785,7 +836,7 @@ namespace eval ::mcpha {
 
     set date_val(stop) [clock format [clock seconds] -format {%d/%m/%Y %H:%M:%S}]
 
-    $controller command 06[format {%02x} $number]
+    $controller command 10 $number
 
     set auto 0
 
@@ -822,15 +873,15 @@ namespace eval ::mcpha {
 
     set size 16384
 
-    $controller commandReadRaw 09[format {%02x} $number] [expr {$size * 4}] [my varname data]
+    $controller commandReadRaw 12 $number [expr {$size * 4}] [my varname data]
     set yvec_new [mcpha::integrateBlt [my varname yvec] 0 16383 0]
 
-    $controller commandReadHex 08[format {%02x} $number] 8 [my varname cntr_val]
+    $controller commandReadHex 11 $number 8 [my varname cntr_val]
     set cntr_new $cntr_val
 
     if {$cntr_new < $cntr_old} {
-      set rate_val(inst) [expr {($yvec_new - $yvec_old)*20000000/($cntr_old - $cntr_new)}]
-      set rate_val(mean) [expr {($yvec_new - $yvec_bak)*20000000/($cntr_bak - $cntr_new)}]
+      set rate_val(inst) [expr {($yvec_new - $yvec_old)*125000000/($cntr_old - $cntr_new)}]
+      set rate_val(mean) [expr {($yvec_new - $yvec_bak)*125000000/($cntr_bak - $cntr_new)}]
       ${config}.chan_frame.entr_value configure -text $yvec_new
       my stat_update
 
@@ -1019,8 +1070,8 @@ namespace eval ::mcpha {
     set config [frame ${master}.config -width 170]
 
     frame ${config}.chan_frame -width 170
-    mcpha::legendButton ${config}.chan_frame 0 chan1 {Channel 1} [my varname chan(1)] blue1 white
-    mcpha::legendButton ${config}.chan_frame 1 chan2 {Channel 2} [my varname chan(2)] orchid2
+    mcpha::legendButton ${config}.chan_frame 0 chan1 {Channel 1} [my varname chan(1)] turquoise3
+    mcpha::legendButton ${config}.chan_frame 1 chan2 {Channel 2} [my varname chan(2)] SpringGreen3
     mcpha::legendLabel  ${config}.chan_frame 6 axisx {Time axis}
 
     frame ${config}.spc1 -width 170 -height 30
@@ -1171,13 +1222,18 @@ namespace eval ::mcpha {
 
     if {$thrs} {
       ${config}.thrs_field configure -state normal
-      set value [format {%04x} $thrs_val]
+      set value $thrs_val
     } else {
-        ${config}.thrs_field configure -state disabled
-      set value 0000
+      ${config}.thrs_field configure -state disabled
+      set value 0
     }
 
-    $controller command 0C[format {%02x} $reset]${value}
+    $controller command 15 0 $value
+
+    if {$reset} {
+      $controller command 3 0
+    }
+
   }
 
 # -------------------------------------------------------------------------
@@ -1215,6 +1271,8 @@ namespace eval ::mcpha {
 
     set waiting 1
 
+    $controller command 17 0 10000
+
     after 200 [mymethod acquire_loop]
   }
 
@@ -1226,7 +1284,13 @@ namespace eval ::mcpha {
 #    set size 262144
     set size 10000
 
-    $controller commandReadRaw 12 [expr {$size * 8}] [my varname data]
+    set status 0
+    $controller commandReadHex 18 0 4 status
+    puts $status
+
+    if {$status == 0} {
+      $controller commandReadRaw 19 0 [expr {$size * 4}] [my varname data]
+    }
 
     if {$waiting} {
       after 200 [mymethod acquire_loop]

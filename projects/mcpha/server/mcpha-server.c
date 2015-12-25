@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include <signal.h>
 #include <fcntl.h>
 #include <math.h>
 #include <sys/mman.h>
@@ -15,29 +14,16 @@
 
 #define TCP_PORT 1001
 
-int interrupted = 0;
-
-void signal_handler(int sig)
-{
-  interrupted = 1;
-}
-
 int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
-  pid_t pid;
-  void *cfg, *sts, *trg, *hst[2], *ram, *buf;
+  void *cfg, *sts, *trg, *hst[2], *gen, *ram, *buf;
   char *name = "/dev/mem";
-  int size = 0;
   struct sockaddr_in addr;
   int yes = 1;
   uint32_t start, pre, tot;
-  char command[12];
-  uint8_t *code = (uint8_t *)(command + 0);
-  uint8_t *chan = (uint8_t *)(command + 1);
-  uint16_t *data16 = (uint16_t *)(command + 2);
-  uint32_t *data32 = (uint32_t *)(command + 2);
-  uint64_t *data64 = (uint64_t *)(command + 2);
+  uint64_t command, data;
+  uint8_t code, chan;
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -48,10 +34,32 @@ int main(int argc, char *argv[])
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   trg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-  hst[0] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
-  hst[1] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+  hst[0] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+  hst[1] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+  gen = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40030000);
   ram = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
   buf = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+
+  /* set sample rate */
+  *(uint16_t *)(cfg + 4) = 125;
+
+  /* set trigger channel */
+  *(uint32_t *)(trg + 64) = 0;
+  *(uint32_t *)(trg + 0) = 2;
+
+  /* reset timers and histograms */
+  *(uint8_t *)(cfg + 0) &= ~3;
+  *(uint8_t *)(cfg + 0) |= 3;
+  *(uint8_t *)(cfg + 1) &= ~3;
+  *(uint8_t *)(cfg + 1) |= 3;
+
+  /* reset oscilloscope */
+  *(uint8_t *)(cfg + 2) &= ~3;
+  *(uint8_t *)(cfg + 2) |= 3;
+
+  /* reset generator */
+  *(uint8_t *)(cfg + 3) &= ~1;
+  *(uint8_t *)(cfg + 3) |= 1;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -75,203 +83,242 @@ int main(int argc, char *argv[])
 
   listen(sock_server, 1024);
 
-  while(!interrupted)
+  while(1)
   {
-    /* enter reset mode */
-    *(uint32_t *)(cfg + 0) &= ~7;
-
-    signal(SIGINT, SIG_DFL);
-
     if((sock_client = accept(sock_server, NULL, NULL)) < 0)
     {
       perror("accept");
       return EXIT_FAILURE;
     }
 
-    signal(SIGINT, signal_handler);
-
-    /* enter normal operating mode */
-    *(uint32_t *)(cfg + 0) |= 7;
-
-    while(!interrupted)
+    while(1)
     {
-      if(recv(sock_client, command, 12, MSG_WAITALL) <= 0) break;
-      if(*code == 0)
+      if(recv(sock_client, &command, 8, MSG_WAITALL) <= 0) break;
+      code = (uint8_t)(command >> 56) & 0xff;
+      chan = (uint8_t)(command >> 52) & 0xf;
+      data = (uint64_t)(command & 0xfffffffffffffULL);
+
+      if(code == 0)
       {
-        /* reset */
-        *(uint32_t *)(cfg + 0) &= ~7;
-        *(uint32_t *)(cfg + 0) |= 7;
+        /* reset timer */
+        if(chan == 0)
+        {
+          *(uint8_t *)(cfg + 0) &= ~1;
+          *(uint8_t *)(cfg + 0) |= 1;
+        }
+        else if(chan == 1)
+        {
+          *(uint8_t *)(cfg + 1) &= ~1;
+          *(uint8_t *)(cfg + 1) |= 1;
+        }
       }
-      else if(*code == 1)
+      else if(code == 1)
+      {
+        /* reset histogram*/
+        if(chan == 0)
+        {
+          *(uint8_t *)(cfg + 0) &= ~2;
+          *(uint8_t *)(cfg + 0) |= 2;
+        }
+        else if(chan == 1)
+        {
+          *(uint8_t *)(cfg + 1) &= ~2;
+          *(uint8_t *)(cfg + 1) |= 2;
+        }
+      }
+      else if(code == 2)
+      {
+        /* reset oscilloscope */
+        *(uint8_t *)(cfg + 2) &= ~3;
+        *(uint8_t *)(cfg + 2) |= 3;
+      }
+      else if(code == 3)
+      {
+        /* reset generator */
+        *(uint8_t *)(cfg + 3) &= ~1;
+        *(uint8_t *)(cfg + 3) |= 1;
+      }
+      else if(code == 4)
+      {
+        /* set sample rate */
+        switch(data)
+        {
+          case 0:
+            *(uint16_t *)(cfg + 4) = 125;
+            break;
+          case 1:
+            *(uint16_t *)(cfg + 4) = 50;
+            break;
+          case 2:
+            *(uint16_t *)(cfg + 4) = 25;
+            break;
+          case 3:
+            *(uint16_t *)(cfg + 4) = 5;
+            break;
+        }
+      }
+      else if(code == 5)
       {
         /* set pha delay */
-        if(*chan == 0)
+        if(chan == 0)
         {
-          *(uint16_t *)(cfg + 4) = *data16;
+          *(uint16_t *)(cfg + 16) = data;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
-          *(uint16_t *)(cfg + 10) = *data16;
+          *(uint16_t *)(cfg + 32) = data;
         }
       }
-      else if(*code == 2)
+      else if(code == 6)
       {
         /* set pha min threshold */
-        if(*chan == 0)
+        if(chan == 0)
         {
-          *(int16_t *)(cfg + 6) = *data16;
+          *(int16_t *)(cfg + 18) = data;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
-          *(int16_t *)(cfg + 12) = *data16;
+          *(int16_t *)(cfg + 34) = data;
         }
       }
-      else if(*code == 3)
+      else if(code == 7)
       {
         /* set pha max threshold */
-        if(*chan == 0)
+        if(chan == 0)
         {
-          *(int16_t *)(cfg + 8) = *data16;
+          *(int16_t *)(cfg + 20) = data;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
-          *(int16_t *)(cfg + 14) = *data16;
+          *(int16_t *)(cfg + 36) = data;
         }
       }
-      else if(*code == 4)
+      else if(code == 8)
       {
         /* set timer */
-        if(*chan == 0)
+        if(chan == 0)
         {
-          *(uint64_t *)(cfg + 16) = *data64;
-          *(uint16_t *)(cfg + 0) |= 16;
-          *(uint16_t *)(cfg + 0) &= ~16;
+          *(uint64_t *)(cfg + 8) = data;
+          *(uint8_t *)(cfg + 0) |= 8;
+          *(uint8_t *)(cfg + 0) &= ~8;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
-          *(uint64_t *)(cfg + 24) = *data64;
-          *(uint16_t *)(cfg + 0) |= 64;
-          *(uint16_t *)(cfg + 0) &= ~64;
+          *(uint64_t *)(cfg + 24) = data;
+          *(uint8_t *)(cfg + 1) |= 8;
+          *(uint8_t *)(cfg + 1) &= ~8;
         }
       }
-      else if(*code == 5)
+      else if(code == 9)
       {
         /* start timer */
-        if(*chan == 0)
+        if(chan == 0)
         {
-          *(uint16_t *)(cfg + 0) |= 8;
+          *(uint8_t *)(cfg + 0) |= 4;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
-          *(uint16_t *)(cfg + 0) |= 32;
+          *(uint8_t *)(cfg + 1) |= 4;
         }
       }
-      else if(*code == 6)
+      else if(code == 10)
       {
         /* stop timer */
-        if(*chan == 0)
+        if(chan == 0)
         {
-          *(uint16_t *)(cfg + 0) &= ~8;
+          *(uint8_t *)(cfg + 0) &= ~4;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
-          *(uint16_t *)(cfg + 0) &= ~32;
-        }
-      }
-      else if(*code == 7)
-      {
-        /* reset histogram */
-        if(*chan == 0)
-        {
-          *(uint16_t *)(cfg + 0) &= ~1;
-          *(uint16_t *)(cfg + 0) |= 1;
-        }
-        else if(*chan == 1)
-        {
-          *(uint16_t *)(cfg + 0) &= ~2;
-          *(uint16_t *)(cfg + 0) |= 2;
+          *(uint8_t *)(cfg + 1) &= ~4;
         }
       }
-      else if(*code == 8)
+      else if(code == 11)
       {
         /* read timer */
-        if(*chan == 0)
+        if(chan == 0)
         {
           memcpy(buf, sts + 0, 8);
           if(send(sock_client, buf, 8, MSG_NOSIGNAL) < 0) break;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
           memcpy(buf, sts + 8, 8);
           if(send(sock_client, buf, 8, MSG_NOSIGNAL) < 0) break;
         }
       }
-      else if(*code == 9)
+      else if(code == 12)
       {
         /* read histogram */
-        if(*chan == 0)
+        if(chan == 0)
         {
           memcpy(buf, hst[0], 65536);
           if(send(sock_client, buf, 65536, MSG_NOSIGNAL) < 0) break;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
           memcpy(buf, hst[1], 65536);
           if(send(sock_client, buf, 65536, MSG_NOSIGNAL) < 0) break;
         }
       }
-      else if(*code == 10)
+      else if(code == 13)
       {
         /* set trigger channel */
-        if(*chan == 0)
+        if(chan == 0)
         {
           *(uint32_t *)(trg + 64) = 0;
           *(uint32_t *)(trg + 0) = 2;
         }
-        else if(*chan == 1)
+        else if(chan == 1)
         {
           *(uint32_t *)(trg + 64) = 1;
           *(uint32_t *)(trg + 0) = 2;
         }
       }
-      else if(*code == 11)
+      else if(code == 14)
       {
         /* set trigger edge (0 for negative, 1 for positive) */
-        if(*chan == 0)
+        if(data == 0)
         {
-          *(uint16_t *)(cfg + 0) &= ~128;
+          *(uint8_t *)(cfg + 2) &= ~4;
         }
-        else if(*chan == 1)
+        else if(data == 1)
         {
-          *(uint16_t *)(cfg + 0) |= 128;
+          *(uint8_t *)(cfg + 2) |= 4;
         }
       }
-      else if(*code == 12)
+      else if(code == 15)
       {
         /* set trigger threshold */
-        *(int16_t *)(cfg + 40) = *data16;
+        *(int16_t *)(cfg + 48) = data;
       }
-      else if(*code == 13)
+      else if(code == 16)
       {
         /* set number of samples before trigger */
-        *(uint32_t *)(cfg + 32) = *data32 - 1;
+        *(uint32_t *)(cfg + 40) = data - 1;
       }
-      else if(*code == 14)
+      else if(code == 17)
       {
         /* set total number of samples */
-        *(uint16_t *)(cfg + 36) = *data32 - 1;
+        *(uint32_t *)(cfg + 44) = data - 1;
       }
-      else if(*code == 15)
+      else if(code == 18)
+      {
+        /* start oscilloscope */
+        *(uint8_t *)(cfg + 2) |= 8;
+        *(uint8_t *)(cfg + 2) &= ~8;
+      }
+      else if(code == 19)
       {
         /* read oscilloscope status */
         *(uint32_t *)buf = *(uint32_t *)(sts + 16) & 1;
         if(send(sock_client, buf, 4, MSG_NOSIGNAL) < 0) break;
       }
-      else if(*code == 16)
+      else if(code == 20)
       {
         /* read oscilloscope data */
-        pre = *(uint32_t *)(cfg + 32) + 1;
-        tot = *(uint32_t *)(cfg + 36) + 1;
+        pre = *(uint32_t *)(cfg + 40) + 1;
+        tot = *(uint32_t *)(cfg + 44) + 1;
         start = *(uint32_t *)(sts + 16) >> 1;
         start = (start - pre) & 0x007FFFC0;
         if(start + tot <= 0x007FFFFF)
@@ -293,9 +340,6 @@ int main(int argc, char *argv[])
   }
 
   close(sock_server);
-
-  /* enter reset mode */
-  *(uint32_t *)(cfg + 0) &= ~7;
 
   return EXIT_SUCCESS;
 }
