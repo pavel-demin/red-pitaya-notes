@@ -153,6 +153,9 @@ int main(int argc, char *argv[])
             *(uint16_t *)(cfg + 4) = 25;
             break;
           case 3:
+            *(uint16_t *)(cfg + 4) = 10;
+            break;
+          case 4:
             *(uint16_t *)(cfg + 4) = 5;
             break;
         }
@@ -320,7 +323,7 @@ int main(int argc, char *argv[])
         pre = *(uint32_t *)(cfg + 40) + 1;
         tot = *(uint32_t *)(cfg + 44) + 1;
         start = *(uint32_t *)(sts + 16) >> 1;
-        start = (start - pre) & 0x007FFFC0;
+        start = (start - pre) & 0x007FFFFF;
         if(start + tot <= 0x007FFFFF)
         {
           memcpy(buf, ram + start * 4, tot * 4);

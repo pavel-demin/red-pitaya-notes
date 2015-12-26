@@ -98,7 +98,6 @@ cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   WRITE_DEPTH_B 16384
   ENABLE_A Always_Enabled
   ENABLE_B Always_Enabled
-  REGISTER_PORTA_OUTPUT_OF_MEMORY_PRIMITIVES false
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
 }
 

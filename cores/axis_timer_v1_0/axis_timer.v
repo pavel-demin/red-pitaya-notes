@@ -53,7 +53,7 @@ module axis_timer #
     end
   end
 
-  assign trg_data = int_enbl_wire;
+  assign trg_flag = int_enbl_wire;
   assign sts_data = int_cntr_reg;
 
   assign s_axis_tready = 1'b1;
