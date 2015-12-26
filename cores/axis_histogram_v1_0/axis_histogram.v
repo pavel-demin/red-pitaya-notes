@@ -90,11 +90,15 @@ module axis_histogram #
       end
       3:
       begin
-        int_data_next = bram_porta_rddata + 1'b1;
-        int_wren_next = ~&bram_porta_rddata;
         int_case_next = 3'd4;
       end
       4:
+      begin
+        int_data_next = bram_porta_rddata + 1'b1;
+        int_wren_next = ~&bram_porta_rddata;
+        int_case_next = 3'd5;
+      end
+      5:
       begin
         int_tready_next = 1'b1;
         int_wren_next = 1'b0;
