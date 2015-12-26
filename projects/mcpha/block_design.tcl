@@ -348,6 +348,7 @@ module osc_0 {
   switch_0/S01_AXIS bcast_1/M03_AXIS
   comb_0/S00_AXIS bcast_1/M04_AXIS
   comb_0/S01_AXIS bcast_1/M05_AXIS
+  writer_0/M_AXI ps_0/S_AXI_HP0
 }
 
 module gen_0 {
@@ -434,3 +435,5 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 
 set_property RANGE 64K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 set_property OFFSET 0x40030000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+
+assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]

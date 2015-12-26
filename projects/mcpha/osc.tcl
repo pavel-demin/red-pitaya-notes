@@ -120,7 +120,6 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
   ADDR_WIDTH 22
 } {
   S_AXIS conv_0/M_AXIS
-  M_AXI /ps_0/S_AXI_HP0
   cfg_data const_1/dout
   aclk /ps_0/FCLK_CLK0
   aresetn slice_1/Dout
