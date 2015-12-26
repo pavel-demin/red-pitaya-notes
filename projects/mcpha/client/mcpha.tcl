@@ -1,7 +1,7 @@
 package require TclOO
 package require oo::util
 package require BLT
-load [file join [pwd] mcpha.so]
+package require mcpha
 
 wm minsize . 880 660
 
@@ -150,14 +150,14 @@ namespace eval ::mcpha {
     grid ${master}.addr_label ${master}.address_field ${master}.connect \
       ${master}.spc1 ${master}.rate_label ${master}.rate_0 ${master}.rate_1 \
       ${master}.rate_2 ${master}.rate_3 ${master}.rate_4 -padx 5
+
+    grid columnconfigure ${master} 3 -weight 1
   }
 
 # -------------------------------------------------------------------------
 
   oo::define CfgDisplay method connect {} {
     my variable master connected host port socket after
-
-    puts connect
 
     if {$connected} return
 
@@ -206,8 +206,11 @@ namespace eval ::mcpha {
     fileevent $socket writable {}
     fconfigure $socket -translation binary -encoding binary
     set connected true
+
     ${master}.connect configure -state active -text Disconnect \
       -bg yellow -activebackground yellow -command [mymethod disconnect]
+
+    my rate_update
   }
 
 # -------------------------------------------------------------------------
@@ -227,9 +230,10 @@ namespace eval ::mcpha {
 
   oo::define CfgDisplay method command {code chan {data 0}} {
     my variable connected socket
+
     if {!$connected} return
 
-    set buffer [format {%02x} $code][format {%01x} $chan][format {%013x} $data]
+    set buffer [format {%02x} $code][format {%01x} $chan][string range [format {%016lx} $data] 3 15]
 
     set rc [catch {
       puts -nonewline $socket [binary decode hex [::mcpha::reverse $buffer]]
@@ -247,6 +251,7 @@ namespace eval ::mcpha {
 
   oo::define CfgDisplay method commandReadRaw {code chan size data} {
     my variable connected socket
+
     if {!$connected} return
 
     my command $code $chan
@@ -255,7 +260,7 @@ namespace eval ::mcpha {
 
     switch -- $rc {
       0 {
-        set $data $result
+        uplevel 1 [list set $data $result]
       }
       1 {
         puts $result
@@ -266,21 +271,13 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   oo::define CfgDisplay method commandReadHex {code chan size data} {
-    my variable connected socket
+    my variable connected
+
     if {!$connected} return
 
-    my command $code $chan
-
-    set rc [catch {read $socket $size} result]
-
-    switch -- $rc {
-      0 {
-        set $data 0x[::mcpha::reverse [binary encode hex $result]]
-      }
-      1 {
-        puts $result
-      }
-    }
+    set result {}
+    my commandReadRaw $code $chan $size result
+    uplevel 1 [list set $data 0x[::mcpha::reverse [binary encode hex $result]]]
   }
 
 # -------------------------------------------------------------------------
@@ -641,6 +638,7 @@ namespace eval ::mcpha {
     }
 
     $controller command 6 $number $value
+    $controller command 7 $number 16383
   }
 
 # -------------------------------------------------------------------------
@@ -723,7 +721,8 @@ namespace eval ::mcpha {
 
     my cntr_stop
 
-    $controller command 2 $number
+    $controller command 0 $number
+    $controller command 1 $number
 
     set cntr_val $cntr_bak
     my cntr_setup
@@ -822,6 +821,7 @@ namespace eval ::mcpha {
     ${config}.start configure -text Pause -command [mymethod cntr_pause]
 #    ${config}.reset configure -state disabled
 
+    my thrs_update
     $controller command 9 $number
 
     set auto 1
@@ -873,11 +873,18 @@ namespace eval ::mcpha {
 
     set size 16384
 
+    set result {}
+    $controller commandReadHex 11 $number 8 result
+
+    if {[string length $result] == 0} {
+      set result 0
+    }
+
+    set cntr_val $result
+    set cntr_new $result
+
     $controller commandReadRaw 12 $number [expr {$size * 4}] [my varname data]
     set yvec_new [mcpha::integrateBlt [my varname yvec] 0 16383 0]
-
-    $controller commandReadHex 11 $number 8 [my varname cntr_val]
-    set cntr_new $cntr_val
 
     if {$cntr_new < $cntr_old} {
       set rate_val(inst) [expr {($yvec_new - $yvec_old)*125000000/($cntr_old - $cntr_new)}]
@@ -1006,14 +1013,14 @@ namespace eval ::mcpha {
 
     set sequence 0
 
-    set xvec [blt::vector create #auto(10000)]
+    set xvec [blt::vector create #auto(50000)]
 
     for {set i 1} {$i <= 9} {incr i} {
-      dict set yvec $i [blt::vector create #auto(10000)]
+      dict set yvec $i [blt::vector create #auto(50000)]
     }
 
     # fill one vector for the x axis
-    $xvec seq 0 10000
+    $xvec seq 0 50000
 
     my setup
   }
@@ -1021,11 +1028,9 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   oo::define OscDisplay method start {} {
-    my variable config
-    my variable recs_val directory
+    my variable config directory
 
     set directory $::env(HOME)
-    set recs_val 100
 
     trace add variable [my varname chan] write [mymethod chan_update]
 
@@ -1033,8 +1038,8 @@ namespace eval ::mcpha {
 
     trace add variable [my varname auto] write [mymethod auto_update]
 
-    trace add variable [my varname thrs] write [mymethod thrs_update 0]
-    trace add variable [my varname thrs_val] write [mymethod thrs_update 0]
+    trace add variable [my varname thrs] write [mymethod thrs_update]
+    trace add variable [my varname thrs_val] write [mymethod thrs_update]
 
     trace add variable [my varname recs_val] write [mymethod recs_val_update]
 
@@ -1048,6 +1053,8 @@ namespace eval ::mcpha {
 
     ${config}.thrs_check select
     ${config}.thrs_field set 100
+
+    ${config}.recs_field set 100
   }
 
 # -------------------------------------------------------------------------
@@ -1062,7 +1069,7 @@ namespace eval ::mcpha {
     $graph crosshairs configure -hide no -linewidth 1 -color darkblue -dashes {2 2}
     $graph grid configure -hide no
     $graph legend configure -hide yes
-    $graph axis configure x -min 0 -max 10000
+    $graph axis configure x -min 0 -max 50000
     $graph axis configure y -min -8200 -max 8200
 
 #    scale ${master}.last -orient horizontal -from 1 -to 27 -tickinterval 0 -showvalue no -variable [my varname last]
@@ -1195,10 +1202,11 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   oo::define OscDisplay method recs_val_update args {
-    my variable recs_val
+    my variable recs_val recs_bak
     if {[string equal $recs_val {}]} {
       set recs_val 0
     }
+    set recs_bak $recs_val
   }
 
 # -------------------------------------------------------------------------
@@ -1213,7 +1221,7 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
-  oo::define OscDisplay method thrs_update {reset args} {
+  oo::define OscDisplay method thrs_update args {
     my variable controller config thrs thrs_val
 
     if {[string equal $thrs_val {}]} {
@@ -1229,11 +1237,6 @@ namespace eval ::mcpha {
     }
 
     $controller command 15 0 $value
-
-    if {$reset} {
-      $controller command 3 0
-    }
-
   }
 
 # -------------------------------------------------------------------------
@@ -1266,12 +1269,14 @@ namespace eval ::mcpha {
       $graph pen configure pen${key} -dashes dot
     }
 
-    # restart
-    my thrs_update 1
+    my thrs_update
+    $controller command 2 0
 
     set waiting 1
 
-    $controller command 17 0 10000
+    $controller command 16 0 5000
+    $controller command 17 0 65536
+    $controller command 18 0
 
     after 200 [mymethod acquire_loop]
   }
@@ -1279,17 +1284,21 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   oo::define OscDisplay method acquire_loop {} {
-    my variable controller waiting
+    my variable controller waiting auto
 
-#    set size 262144
-    set size 10000
+    set size 65536
 
-    set status 0
-    $controller commandReadHex 18 0 4 status
-    puts $status
+    set status {}
+    $controller commandReadHex 19 0 4 status
+
+    if {[string length $status] == 0} {
+      set auto 0
+      my sequence_stop
+      return
+    }
 
     if {$status == 0} {
-      $controller commandReadRaw 19 0 [expr {$size * 4}] [my varname data]
+      $controller commandReadRaw 20 0 [expr {$size * 4}] [my varname data]
     }
 
     if {$waiting} {
