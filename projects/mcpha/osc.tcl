@@ -19,31 +19,38 @@ cell xilinx.com:ip:xlslice:1.0 slice_2 {
   DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
 }
 
-# scope_0/run_flag
+# or_0/Op1
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
   DIN_WIDTH 8 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
 }
 
-# scope_0/pre_data
+# scope_0/run_flag
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_4 {
+  DIN_WIDTH 8 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
+}
+
+# scope_0/pre_data
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 96 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
 }
 
 # scope_0/tot_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_5 {
+cell xilinx.com:ip:xlslice:1.0 slice_6 {
   DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 }
 
 # trig_0/lvl_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_6 {
+cell xilinx.com:ip:xlslice:1.0 slice_7 {
   DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
 }
 
@@ -71,8 +78,17 @@ cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   S_AXIS switch_0/M00_AXIS
   pol_data slice_2/Dout
   msk_data const_0/dout
-  lvl_data slice_6/Dout
+  lvl_data slice_7/Dout
   aclk /ps_0/FCLK_CLK0
+}
+
+# Create util_vector_logic
+cell xilinx.com:ip:util_vector_logic:2.0 or_0 {
+  C_SIZE 1
+  C_OPERATION or
+} {
+  Op1 slice_3/Dout
+  Op2 trig_0/trg_flag
 }
 
 # Create axis_combiner
@@ -90,10 +106,10 @@ cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
   CNTR_WIDTH 23
 } {
   S_AXIS comb_0/M_AXIS
-  run_flag slice_3/Dout
-  trg_flag trig_0/trg_flag
-  pre_data slice_4/Dout
-  tot_data slice_5/Dout
+  run_flag slice_4/Dout
+  trg_flag or_0/Res
+  pre_data slice_5/Dout
+  tot_data slice_6/Dout
   aclk /ps_0/FCLK_CLK0
   aresetn slice_0/Dout
 }
