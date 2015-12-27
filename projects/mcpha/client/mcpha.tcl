@@ -1,3 +1,5 @@
+lappend auto_path [pwd]
+
 package require TclOO
 package require oo::util
 package require BLT
