@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
       }
       else if(code == 13)
       {
-        /* set trigger channel */
+        /* set trigger source (0 for channel 1, 1 for channel 2) */
         if(chan == 0)
         {
           *(uint32_t *)(trg + 64) = 0;
@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
       }
       else if(code == 14)
       {
-        /* set trigger edge (0 for negative, 1 for positive) */
+        /* set trigger slope (0 for rising, 1 for falling) */
         if(data == 0)
         {
           *(uint8_t *)(cfg + 2) &= ~4;
@@ -292,32 +292,44 @@ int main(int argc, char *argv[])
       }
       else if(code == 15)
       {
-        /* set trigger threshold */
-        *(int16_t *)(cfg + 48) = data;
+        /* set trigger mode (0 for normal, 1 for auto) */
+        if(data == 0)
+        {
+          *(uint8_t *)(cfg + 2) &= ~8;
+        }
+        else if(data == 1)
+        {
+          *(uint8_t *)(cfg + 2) |= 8;
+        }
       }
       else if(code == 16)
+      {
+        /* set trigger level */
+        *(int16_t *)(cfg + 48) = data;
+      }
+      else if(code == 17)
       {
         /* set number of samples before trigger */
         *(uint32_t *)(cfg + 40) = data - 1;
       }
-      else if(code == 17)
+      else if(code == 18)
       {
         /* set total number of samples */
         *(uint32_t *)(cfg + 44) = data - 1;
       }
-      else if(code == 18)
+      else if(code == 19)
       {
         /* start oscilloscope */
-        *(uint8_t *)(cfg + 2) |= 8;
-        *(uint8_t *)(cfg + 2) &= ~8;
+        *(uint8_t *)(cfg + 2) |= 16;
+        *(uint8_t *)(cfg + 2) &= ~16;
       }
-      else if(code == 19)
+      else if(code == 20)
       {
         /* read oscilloscope status */
         *(uint32_t *)buf = *(uint32_t *)(sts + 16) & 1;
         if(send(sock_client, buf, 4, MSG_NOSIGNAL) < 0) break;
       }
-      else if(code == 20)
+      else if(code == 21)
       {
         /* read oscilloscope data */
         pre = *(uint32_t *)(cfg + 40) + 1;

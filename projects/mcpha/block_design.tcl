@@ -341,9 +341,10 @@ module osc_0 {
   slice_1/Din rst_slice_2/Dout
   slice_2/Din rst_slice_2/Dout
   slice_3/Din rst_slice_2/Dout
-  slice_4/Din cfg_slice_2/Dout
+  slice_4/Din rst_slice_2/Dout
   slice_5/Din cfg_slice_2/Dout
   slice_6/Din cfg_slice_2/Dout
+  slice_7/Din cfg_slice_2/Dout
   switch_0/S00_AXIS bcast_1/M02_AXIS
   switch_0/S01_AXIS bcast_1/M03_AXIS
   comb_0/S00_AXIS bcast_1/M04_AXIS

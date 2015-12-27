@@ -1,3 +1,5 @@
+lappend auto_path [pwd]
+
 package require TclOO
 package require oo::util
 package require BLT
@@ -444,7 +446,7 @@ namespace eval ::mcpha {
 
     frame ${config}.spc5 -width 170 -height 20
 
-    label ${config}.cntr -text {time of exposure}
+    label ${config}.cntr_label -text {time of exposure}
     frame ${config}.cntr_frame -borderwidth 0 -width 170
 
     label ${config}.cntr_frame.h -width 3 -anchor w -text {h}
@@ -460,7 +462,7 @@ namespace eval ::mcpha {
     grid ${config}.cntr_frame.h_field ${config}.cntr_frame.h \
       ${config}.cntr_frame.m_field ${config}.cntr_frame.m ${config}.cntr_frame.s_field ${config}.cntr_frame.s
 
-    frame ${config}.spc6 -width 170 -height 20
+    frame ${config}.spc6 -width 170 -height 10
 
     button ${config}.start -text Start \
       -bg yellow -activebackground yellow -command [mymethod cntr_start]
@@ -479,18 +481,18 @@ namespace eval ::mcpha {
 
     grid ${config}.axis_check -sticky w
     grid ${config}.spc1
-    grid ${config}.rate_frame -sticky ew -padx 5
+    grid ${config}.rate_frame -sticky ew -padx 3
     grid ${config}.spc2
-    grid ${config}.chan_frame -sticky ew -padx 5
+    grid ${config}.chan_frame -sticky ew -padx 3
     grid ${config}.spc3
-    grid ${config}.roi -sticky w -pady 1 -padx 5
-    grid ${config}.roi_frame -sticky ew -padx 5
-    grid ${config}.stat_frame -sticky ew -padx 5
+    grid ${config}.roi -sticky w -pady 1 -padx 3
+    grid ${config}.roi_frame -sticky ew -padx 3
+    grid ${config}.stat_frame -sticky ew -padx 3
     grid ${config}.spc4
     grid ${config}.thrs_check -sticky w
     grid ${config}.thrs_field -sticky ew -pady 1 -padx 5
     grid ${config}.spc5
-    grid ${config}.cntr -sticky w -pady 1 -padx 3
+    grid ${config}.cntr_label -sticky w -pady 1 -padx 3
     grid ${config}.cntr_frame -sticky ew -padx 5
     grid ${config}.spc6
     grid ${config}.start -sticky ew -pady 3 -padx 5
@@ -1038,8 +1040,10 @@ namespace eval ::mcpha {
 
     trace add variable [my varname auto] write [mymethod auto_update]
 
-    trace add variable [my varname thrs] write [mymethod thrs_update]
-    trace add variable [my varname thrs_val] write [mymethod thrs_update]
+    trace add variable [my varname mode] write [mymethod mode_update]
+    trace add variable [my varname source] write [mymethod source_update]
+    trace add variable [my varname slope] write [mymethod slope_update]
+    trace add variable [my varname level] write [mymethod level_update]
 
     trace add variable [my varname recs_val] write [mymethod recs_val_update]
 
@@ -1051,8 +1055,10 @@ namespace eval ::mcpha {
     }
     ${config}.chan_frame.axisx_value configure -text 0.0
 
-    ${config}.thrs_check select
-    ${config}.thrs_field set 100
+    ${config}.trig_frame.mode_0 select
+    ${config}.trig_frame.source_0 select
+    ${config}.trig_frame.slope_0 select
+    ${config}.level_field set 100
 
     ${config}.recs_field set 100
   }
@@ -1081,25 +1087,48 @@ namespace eval ::mcpha {
     mcpha::legendButton ${config}.chan_frame 1 chan2 {Channel 2} [my varname chan(2)] SpringGreen3
     mcpha::legendLabel  ${config}.chan_frame 6 axisx {Time axis}
 
-    frame ${config}.spc1 -width 170 -height 30
+    frame ${config}.spc1 -width 170 -height 20
 
     checkbutton ${config}.auto_check -text {auto update} -variable [my varname auto]
 
-    frame ${config}.spc2 -width 170 -height 30
+    frame ${config}.spc2 -width 170 -height 20
 
-    checkbutton ${config}.thrs_check -text threshold -variable [my varname thrs]
-    spinbox ${config}.thrs_field -from -8190 -to 8190 \
-      -increment 5 -width 10 -textvariable [my varname thrs_val] \
+    frame ${config}.trig_frame -borderwidth 0 -width 170
+
+    label ${config}.trig_frame.mode_label -text {trigger mode}
+    radiobutton ${config}.trig_frame.mode_0 -variable [my varname mode] -text {normal} -value 0
+    radiobutton ${config}.trig_frame.mode_1 -variable [my varname mode] -text {auto} -value 1
+    grid ${config}.trig_frame.mode_label -row 0 -column 0 -columnspan 2 -sticky w
+    grid ${config}.trig_frame.mode_0 -row 1 -column 0 -sticky w
+    grid ${config}.trig_frame.mode_1 -row 1 -column 1 -sticky w
+
+    label ${config}.trig_frame.source_label -text {trigger source}
+    radiobutton ${config}.trig_frame.source_0 -variable [my varname source] -text {channel 1} -value 0
+    radiobutton ${config}.trig_frame.source_1 -variable [my varname source] -text {channel 2} -value 1
+    grid ${config}.trig_frame.source_label -row 2 -column 0 -columnspan 2 -sticky w
+    grid ${config}.trig_frame.source_0 -row 3 -column 0 -sticky w
+    grid ${config}.trig_frame.source_1 -row 3 -column 1 -sticky w
+
+    label ${config}.trig_frame.slope_label -text {trigger slope}
+    radiobutton ${config}.trig_frame.slope_0 -variable [my varname slope] -text {rising} -value 0
+    radiobutton ${config}.trig_frame.slope_1 -variable [my varname slope] -text {falling} -value 1
+    grid ${config}.trig_frame.slope_label -row 4 -column 0 -columnspan 2 -sticky w
+    grid ${config}.trig_frame.slope_0 -row 5 -column 0 -sticky w
+    grid ${config}.trig_frame.slope_1 -row 5 -column 1 -sticky w
+
+    label ${config}.level_label -text {trigger level}
+    spinbox ${config}.level_field -from -8190 -to 8190 \
+      -increment 5 -width 10 -textvariable [my varname level] \
       -validate all -vcmd {::mcpha::validate -8190 8190 5 %P}
 
-    frame ${config}.spc3 -width 170 -height 30
+    frame ${config}.spc3 -width 170 -height 20
 
     button ${config}.acquire -text Acquire \
       -bg lightgreen -activebackground lightgreen -command [mymethod acquire_start]
     button ${config}.register -text Register \
       -bg lightblue -activebackground lightblue -command [mymethod register]
 
-    frame ${config}.spc4 -width 170 -height 30
+    frame ${config}.spc4 -width 170 -height 20
 
     label ${config}.recs -text {number of records}
     spinbox ${config}.recs_field -from 0 -to 10000 \
@@ -1111,7 +1140,7 @@ namespace eval ::mcpha {
     button ${config}.sequence -text {Start Recording} -command [mymethod sequence_start] \
       -bg yellow -activebackground yellow
 
-    frame ${config}.spc6 -width 170 -height 30
+    frame ${config}.spc6 -width 170 -height 20
 
     button ${config}.recover -text {Read file} \
       -bg lightblue -activebackground lightblue -command [mymethod recover]
@@ -1120,8 +1149,9 @@ namespace eval ::mcpha {
     grid ${config}.spc1
     grid ${config}.auto_check -sticky w
     grid ${config}.spc2
-    grid ${config}.thrs_check -sticky w
-    grid ${config}.thrs_field -sticky ew -pady 1 -padx 5
+    grid ${config}.trig_frame -sticky ew -padx 3
+    grid ${config}.level_label -sticky w -padx 3
+    grid ${config}.level_field -sticky ew -pady 1 -padx 5
     grid ${config}.spc3
     grid ${config}.acquire -sticky ew -pady 3 -padx 5
     grid ${config}.register -sticky ew -pady 3 -padx 5
@@ -1135,8 +1165,6 @@ namespace eval ::mcpha {
 
     grid ${graph} -row 0 -column 0 -sticky news
     grid ${config} -row 0 -column 1
-
-#    grid ${master}.last -row 1 -column 0 -columnspan 2 -sticky ew
 
     grid rowconfigure ${master} 0 -weight 1
     grid columnconfigure ${master} 0 -weight 1
@@ -1221,22 +1249,34 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
-  oo::define OscDisplay method thrs_update args {
-    my variable controller config thrs thrs_val
+  oo::define OscDisplay method mode_update args {
+    my variable controller mode
 
-    if {[string equal $thrs_val {}]} {
-      set thrs_val 0
-    }
+    $controller command 15 0 $mode
+  }
 
-    if {$thrs} {
-      ${config}.thrs_field configure -state normal
-      set value $thrs_val
-    } else {
-      ${config}.thrs_field configure -state disabled
-      set value 0
-    }
+# -------------------------------------------------------------------------
 
-    $controller command 15 0 $value
+  oo::define OscDisplay method source_update args {
+    my variable controller source
+
+    $controller command 13 $source
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define OscDisplay method slope_update args {
+    my variable controller slope
+
+    $controller command 14 0 $slope
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define OscDisplay method level_update args {
+    my variable controller level
+
+    $controller command 16 0 $level
   }
 
 # -------------------------------------------------------------------------
@@ -1269,14 +1309,18 @@ namespace eval ::mcpha {
       $graph pen configure pen${key} -dashes dot
     }
 
-    my thrs_update
+    my mode_update
+    my source_update
+    my slope_update
+    my level_update
+
     $controller command 2 0
 
     set waiting 1
 
-    $controller command 16 0 5000
-    $controller command 17 0 65536
-    $controller command 18 0
+    $controller command 17 0 5000
+    $controller command 18 0 65536
+    $controller command 19 0
 
     after 200 [mymethod acquire_loop]
   }
@@ -1289,7 +1333,7 @@ namespace eval ::mcpha {
     set size 65536
 
     set status {}
-    $controller commandReadHex 19 0 4 status
+    $controller commandReadHex 20 0 4 status
 
     if {[string length $status] == 0} {
       set auto 0
@@ -1298,7 +1342,7 @@ namespace eval ::mcpha {
     }
 
     if {$status == 0} {
-      $controller commandReadRaw 20 0 [expr {$size * 4}] [my varname data]
+      $controller commandReadRaw 21 0 [expr {$size * 4}] [my varname data]
     }
 
     if {$waiting} {
