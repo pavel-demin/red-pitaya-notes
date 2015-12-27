@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"></meta>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Red Pitaya</title>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+<script src="js/jquery-2.1.4.min.js"></script>
+<script>
+  var app_id = 'mcpha';
+  var root_url = '';
+  var start_app_url = root_url + '/bazaar?start=' + app_id;
+  var stop_app_url = root_url + '/bazaar?stop=' + app_id;
+  function start_app() {
+    $.ajax({
+      url: start_app_url,
+      async: true
+    });
+  }
+  function stop_app() {
+    $.ajax({
+      url: stop_app_url,
+      async: false
+    });
+  }
+</script>
+</head>
+<body onload="start_app()" onunload="stop_app()">
+<div class="container-fluid">
+<div class="navbar navbar-inverse" role="navigation">
+<div class="container">
+<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+</button>
+<a class="navbar-brand" href="/">
+<img class="back-btn" src="img/arrow_nav_left.png">
+</a>
+<img class="logo" width=110 src="img/logo.png">
+</div>
+</div>
+<div id="main">
+<h1>Multichannel Pulse Height Analyzer</h1>
+<p>The Red Pitaya MCPHA application is ready.</p>
+<p>Now you can run the control program.</p>
+<p>More details about this application can be found at <a href="http://pavel-demin.github.io/red-pitaya-notes/mcpha/" target="_blank">this link</a>.
+<h3>Getting started with MS Windows</h3>
+<ul>
+<li>Requirements:
+<ul>
+<li>Computer running MS Windows.</li>
+<li>Wired or wireless Ethernet connection between the computer and the Red Pitaya board.</li>
+</ul>
+</li>
+<li>Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.</li>
+<li>Download and unpack the <a href="https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/mcpha/mcpha-win32-20151272.zip">control program</a>.</li>
+<li>Run the control program.</li>
+<li>Type in the IP address of the Red Pitaya board and press Connect button.</li>
+<li>Select Spectrum histogram 1 or Spectrum histogram 2 tab.</li>
+<li>Adjust amplitude threshold and time of exposure.</li>
+<li>Press Start button.</li>
+</ul>
+<h3>Getting started with GNU/Linux</h3>
+<ul>
+<li>Requirements:
+<ul>
+<li>Computer running Debian 8.</li>
+<li>Wired or wireless Ethernet connection between the computer and the Red Pitaya board.</li>
+</ul>
+</li>
+<li>Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.</li>
+<li>Install Tcl 8.6 and all the required libraries:</li>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo apt-get install tcl8.6-dev tk8.6-dev blt-dev tk8.6-blt2.5 tcllib</code></pre></div>
+<li>Clone the source code repository:</li>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">git clone https://github.com/pavel-demin/red-pitaya-notes</code></pre></div>
+<li>Run the control program:</li>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">cd red-pitaya-notes/projects/mcpha/client
+gcc -shared -fPIC -I /usr/include/tcl8.6 mcpha.c -o mcpha.so -lBLT
+wish8.6 mcpha.tcl</code></pre></div>
+<li>Type in the IP address of the Red Pitaya board and press Connect button.</li>
+<li>Select Spectrum histogram 1 or Spectrum histogram 2 tab.</li>
+<li>Adjust amplitude threshold and time of exposure.</li>
+<li>Press Start button.</li>
+</ul>
+</div>
+</div>
+</body>
+</html>
