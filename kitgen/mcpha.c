@@ -19,7 +19,7 @@ McphaConvertObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
   if(objc != 2)
   {
     Tcl_WrongNumArgs(interp, 1, objv, "data");
-		return TCL_ERROR;
+    return TCL_ERROR;
   }
 
   data = Tcl_GetStringFromObj(objv[1], &size);
@@ -33,7 +33,7 @@ McphaConvertObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
   {
     tmp[0] = data[i - 1];
     tmp[1] = data[i];
-  	buffer[length++] = strtoul(tmp, 0, 16);
+    buffer[length++] = strtoul(tmp, 0, 16);
   }
 
   result = Tcl_NewByteArrayObj(buffer, length);
@@ -59,7 +59,7 @@ McphaConvertBltObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_O
   if(objc != 4)
   {
     Tcl_WrongNumArgs(interp, 1, objv, "data width vector");
-		return TCL_ERROR;
+    return TCL_ERROR;
   }
 
   data = Tcl_GetByteArrayFromObj(objv[1], &size);
@@ -119,7 +119,7 @@ McphaConvertOscObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_O
   if(objc != 3)
   {
     Tcl_WrongNumArgs(interp, 1, objv, "data dict");
-		return TCL_ERROR;
+    return TCL_ERROR;
   }
 
   data = (int16_t *)Tcl_GetByteArrayFromObj(objv[1], &size);
@@ -179,7 +179,7 @@ McphaFormatOscCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *
   if(objc != 4)
   {
     Tcl_WrongNumArgs(interp, 1, objv, "dict first last");
-		return TCL_ERROR;
+    return TCL_ERROR;
   }
 
   if(TCL_OK != Tcl_DictObjFirst(interp, objv[1], &search, &key, &object, &done))
@@ -273,7 +273,7 @@ McphaIntegrateBltObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl
   if(objc != 5)
   {
     Tcl_WrongNumArgs(interp, 1, objv, "vector xmin xmax flag");
-		return TCL_ERROR;
+    return TCL_ERROR;
   }
 
   name =  Tcl_GetString(objv[1]);
@@ -343,7 +343,7 @@ Mcpha_Init(Tcl_Interp *interp)
   Tcl_CreateObjCommand(interp, "mcpha::convertOsc", McphaConvertOscObjCmd,
     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
 
-	Tcl_CreateObjCommand(interp, "mcpha::formatOsc", McphaFormatOscCmd,
+  Tcl_CreateObjCommand(interp, "mcpha::formatOsc", McphaFormatOscCmd,
     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
 
   Tcl_CreateObjCommand(interp, "mcpha::integrateBlt", McphaIntegrateBltObjCmd,
