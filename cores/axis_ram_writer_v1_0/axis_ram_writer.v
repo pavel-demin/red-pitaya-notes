@@ -72,7 +72,7 @@ module axis_ram_writer #
     .WREN(int_tready_wire & s_axis_tvalid),
     .DI({{(72-AXIS_TDATA_WIDTH){1'b0}}, s_axis_tdata}),
     .RDCLK(aclk),
-    .RDEN(m_axi_wready & int_wvalid_reg),
+    .RDEN(int_rden_wire),
     .DO(int_wdata_wire)
   );
 
