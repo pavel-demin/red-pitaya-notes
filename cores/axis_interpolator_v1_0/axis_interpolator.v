@@ -25,32 +25,38 @@ module axis_interpolator #
 );
 
   reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg, int_tdata_next;
+  reg int_tvalid_reg, int_tvalid_next;
+
   reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
   reg int_enbl_reg, int_enbl_next;
 
-  wire int_comp_wire;
+  wire int_comp_wire, int_tready_wire;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
       int_tdata_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
+      int_tvalid_reg <= 1'b0;
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
       int_enbl_reg <= 1'b0;
     end
     else
     begin
       int_tdata_reg <= int_tdata_next;
+      int_tvalid_reg <= int_tvalid_next;
       int_cntr_reg <= int_cntr_next;
       int_enbl_reg <= int_enbl_next;
     end
   end
 
   assign int_comp_wire = int_cntr_reg > 0;
+  assign int_tready_wire = int_enbl_reg & ~int_comp_wire;
 
   always @*
   begin
     int_tdata_next = int_tdata_reg;
+    int_tvalid_next = int_tvalid_reg;
     int_cntr_next = int_cntr_reg;
     int_enbl_next = int_enbl_reg;
 
@@ -59,10 +65,15 @@ module axis_interpolator #
       int_enbl_next = 1'b1;
     end
 
-    if(int_enbl_reg & s_axis_tvalid & ~int_comp_wire)
+    if(int_tready_wire & s_axis_tvalid)
     begin
       int_tdata_next = s_axis_tdata;
       int_cntr_next = cfg_data;
+    end
+
+    if(int_tready_wire)
+    begin
+      int_tvalid_next = s_axis_tvalid;
     end
 
     if(int_enbl_reg & m_axis_tready & int_comp_wire)
@@ -71,8 +82,8 @@ module axis_interpolator #
     end
   end
 
-  assign s_axis_tready = int_enbl_reg & ~int_comp_wire;
-  assign m_axis_tdata = int_comp_wire ? int_tdata_reg : s_axis_tdata;
-  assign m_axis_tvalid = int_comp_wire ? 1'b1 : s_axis_tvalid;
+  assign s_axis_tready = int_tready_wire;
+  assign m_axis_tdata = int_tdata_reg;
+  assign m_axis_tvalid = int_tvalid_reg;
 
 endmodule
