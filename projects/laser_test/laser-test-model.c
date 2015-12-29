@@ -19,13 +19,11 @@ int main()
     last_comb[i] = 0;
   }
 
-  for(i = 0; i < (int64_t)24416 * (int64_t)256 * (int64_t)1026; ++i)
+  for(i = 0; i < (int64_t)24416 * (int64_t)256 * (int64_t)1025; ++i)
   {
-    if(i < (int64_t)24416 * (int64_t)256) integrator[0] = 0;
-    else if(i < (int64_t)24416 * (int64_t)256 * (int64_t)1025)
+    if(i < (int64_t)24416 * (int64_t)256 * (int64_t)1024)
     {
-      a = i - (int64_t)24416 * (int64_t)256;
-      a = a / 24416;
+      a = i / 24416;
       b = a % 1024;
       integrator[0] = ((b < 512) ? b : 1023 - b) * 16;
     }
