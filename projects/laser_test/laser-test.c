@@ -37,15 +37,15 @@ int main()
   *((uint16_t *)(cfg + 0)) &= ~1;
 
   // set number of ADC samples
-  *((uint32_t *)(cfg + 8)) = 2050 * 1024 - 1;
+  *((uint32_t *)(cfg + 8)) = 4098 * 512 - 1;
 
   // enter normal mode (start recording ADC samples)
   *((uint16_t *)(cfg + 0)) |= 1;
 
   // wait for RAM writer
-  while(*((uint32_t *)(sts + 0)) < 512)
+  while(*((uint32_t *)(sts + 0)) < 32)
   {
-    usleep(10000);
+    usleep(500);
   }
 
   // write OUT1 and OUT2 samples to DAC FIFO
@@ -74,14 +74,22 @@ int main()
     }
   }
 
+  // hold last position slightly longer
+  for(i = 0; i < 3; ++i)
+  {
+    value[0] = 0;
+    value[1] = 8176;
+    memcpy(dac, value, 4);
+  }
+
   // wait for RAM writer
-  while(*((uint32_t *)(sts + 0)) < 1025 * 1024)
+  while(*((uint32_t *)(sts + 0)) < 2049 * 512)
   {
     usleep(10000);
   }
 
   // print IN1 and IN2 samples
-  for(i = 0; i < 4 * 2050 * 1024; i += 4)
+  for(i = 0; i < 4 * 4098 * 512; i += 4)
   {
     memcpy(value, adc + i, 4);
     printf("%8d %8d\n", value[0], value[1]);
