@@ -155,11 +155,11 @@ int main()
             if(*(uint16_t *)(sts + 2) >= 2048 && counter < 256)
             {
               memcpy(buffer, adc, 8192);
-              for(j = 256; j < 512; ++j)
+              for(j = 512; j < 768; ++j)
               {
                 tmp = buffer[j];
-                buffer[j] = buffer[511 - j];
-                buffer[511 - j] = tmp;
+                buffer[j] = buffer[1535 - j];
+                buffer[1535 - j] = tmp;
               }
               send(sock_client, buffer, 8192, MSG_NOSIGNAL);
               ++counter;
@@ -203,11 +203,11 @@ int main()
             if(*(uint16_t *)(sts + 2) >= 2048 && counter < 256)
             {
               memcpy(buffer, adc, 8192);
-              for(j = 256; j < 512; ++j)
+              for(j = 512; j < 768; ++j)
               {
                 tmp = buffer[j];
-                buffer[j] = buffer[511 - j];
-                buffer[511 - j] = tmp;
+                buffer[j] = buffer[1535 - j];
+                buffer[1535 - j] = tmp;
               }
               send(sock_client, buffer, 8192, MSG_NOSIGNAL);
               ++counter;
