@@ -304,7 +304,7 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   aclk ps_0/FCLK_CLK0
 }
 
-# Create axis_decimator
+# Create axis_interpolator
 cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   AXIS_TDATA_WIDTH 32
   CNTR_WIDTH 16
