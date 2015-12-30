@@ -105,7 +105,6 @@ class Scanner(QMainWindow, Ui_Scanner):
     self.scanButton.setEnabled(True)
 
   def timeout(self):
-    self.startTimer.stop()
     self.display_error('timeout')
 
   def connected(self):
@@ -134,6 +133,7 @@ class Scanner(QMainWindow, Ui_Scanner):
       self.scanButton.setEnabled(True)
 
   def display_error(self, socketError):
+    self.startTimer.stop()
     if socketError == 'timeout':
       QMessageBox.information(self, 'Scanner', 'Error: connection timeout.')
     else:
