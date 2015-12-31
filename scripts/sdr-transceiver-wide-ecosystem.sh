@@ -6,7 +6,7 @@ test -f ${ecosystem}.zip || curl -O http://archives.redpitaya.com/devel/${ecosys
 
 unzip -d ${ecosystem}-sdr-transceiver-wide ${ecosystem}.zip
 
-arm-xilinx-linux-gnueabi-gcc -static projects/sdr_transceiver_wide/server/sdr-transceiver-wide.c -D_GNU_SOURCE -lm -lpthread -o ${ecosystem}-sdr-transceiver-wide/bin/sdr-transceiver-wide
+arm-xilinx-linux-gnueabi-gcc -static projects/sdr_transceiver_wide/server/sdr-transceiver-wide.c -lm -lpthread -o ${ecosystem}-sdr-transceiver-wide/bin/sdr-transceiver-wide
 cp boot.bin devicetree.dtb uImage tmp/sdr_transceiver_wide.bit ${ecosystem}-sdr-transceiver-wide
 
 cat <<- EOF_CAT > ${ecosystem}-sdr-transceiver-wide/uEnv.txt

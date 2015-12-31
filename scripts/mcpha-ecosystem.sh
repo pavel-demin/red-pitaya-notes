@@ -6,7 +6,7 @@ test -f ${ecosystem}.zip || curl -O http://archives.redpitaya.com/devel/${ecosys
 
 unzip -d ${ecosystem}-mcpha ${ecosystem}.zip
 
-arm-xilinx-linux-gnueabi-gcc -static projects/mcpha/server/mcpha-server.c -D_GNU_SOURCE -lm -lpthread -o ${ecosystem}-mcpha/bin/mcpha-server
+arm-xilinx-linux-gnueabi-gcc -static projects/mcpha/server/mcpha-server.c -lm -o ${ecosystem}-mcpha/bin/mcpha-server
 cp boot.bin devicetree.dtb uImage tmp/mcpha.bit ${ecosystem}-mcpha
 
 cat <<- EOF_CAT > ${ecosystem}-mcpha/uEnv.txt

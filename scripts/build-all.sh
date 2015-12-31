@@ -30,3 +30,16 @@ source scripts/sdr-transceiver-hpsdr-bazaar.sh
 
 source scripts/sdr-transceiver-wide-ecosystem.sh
 source scripts/sdr-transceiver-wide-bazaar.sh
+
+make NAME=mcpha tmp/mcpha.bit
+
+source scripts/mcpha-ecosystem.sh
+source scripts/mcpha-bazaar.sh
+
+make NAME=pulsed_nmr tmp/pulsed_nmr.bit
+
+source scripts/pulsed-nmr-ecosystem.sh
+
+make NAME=scanner tmp/scanner.bit
+
+source scripts/scanner-ecosystem.sh

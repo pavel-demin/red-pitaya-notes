@@ -1,15 +1,15 @@
 ecosystem=ecosystem-0.92-65-35575ed
 
-rm -rf ${ecosystem}-sdr-transceiver
+rm -rf ${ecosystem}-scanner
 
 test -f ${ecosystem}.zip || curl -O http://archives.redpitaya.com/devel/${ecosystem}.zip
 
-unzip -d ${ecosystem}-sdr-transceiver ${ecosystem}.zip
+unzip -d ${ecosystem}-scanner ${ecosystem}.zip
 
-arm-xilinx-linux-gnueabi-gcc -static projects/sdr_transceiver/server/sdr-transceiver.c -lm -lpthread -o ${ecosystem}-sdr-transceiver/bin/sdr-transceiver
-cp boot.bin devicetree.dtb uImage tmp/sdr_transceiver.bit ${ecosystem}-sdr-transceiver
+arm-xilinx-linux-gnueabi-gcc -static projects/scanner/server/scanner.c -lm -o ${ecosystem}-scanner/bin/scanner
+cp boot.bin devicetree.dtb uImage tmp/scanner.bit ${ecosystem}-scanner
 
-cat <<- EOF_CAT > ${ecosystem}-sdr-transceiver/uEnv.txt
+cat <<- EOF_CAT > ${ecosystem}-scanner/uEnv.txt
 
 kernel_image=uImage
 
@@ -29,17 +29,16 @@ bootargs=console=ttyPS0,115200 root=/dev/ram rw earlyprintk
 
 EOF_CAT
 
-cat <<- EOF_CAT >> ${ecosystem}-sdr-transceiver/etc/init.d/rcS
+cat <<- EOF_CAT >> ${ecosystem}-scanner/etc/init.d/rcS
 
-# start SDR transceiver
+# start MCPHA server
 
-cat /opt/sdr_transceiver.bit > /dev/xdevcfg
+cat /opt/scanner.bit > /dev/xdevcfg
 
-/opt/bin/sdr-transceiver 1 &
-/opt/bin/sdr-transceiver 2 &
+/opt/bin/scanner &
 
 EOF_CAT
 
-cd ${ecosystem}-sdr-transceiver
-zip -r ../${ecosystem}-sdr-transceiver.zip .
+cd ${ecosystem}-scanner
+zip -r ../${ecosystem}-scanner.zip .
 cd ..
