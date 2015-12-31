@@ -168,7 +168,7 @@ int main()
             /* wait if there is not enough free space in DAC FIFO */
             while(*(uint16_t *)(sts + 0) > 15000)
             {
-              if(*(uint16_t *)(sts + 2) < 1024) usleep(500);
+              if(*(uint16_t *)(sts + 2) < 2048) usleep(500);
               continue;
             }
 
