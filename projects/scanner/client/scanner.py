@@ -87,6 +87,8 @@ class Scanner(QMainWindow, Ui_Scanner):
     self.startTimer.timeout.connect(self.timeout)
     self.meshTimer = QTimer(self)
     self.meshTimer.timeout.connect(self.update_mesh)
+    # set default values
+    self.periodValue.setValue(200.0)
 
   def start(self):
     if self.idle:
@@ -141,6 +143,18 @@ class Scanner(QMainWindow, Ui_Scanner):
     self.stop()
 
   def set_period(self, value):
+    # set maximum delays and times to half period
+    maximum = int(value * 5.0 + 0.5) / 10.0
+    self.trgtimeValue.setMaximum(maximum)
+    self.shdelayValue.setMaximum(maximum)
+    self.shtimeValue.setMaximum(maximum)
+    self.acqdelayValue.setMaximum(maximum)
+    # set maximum number of samples per pixel
+    maximum = int(value * 500.0 + 0.5) / 10.0
+    if maximum > 10000.0: maximum = 10000.0
+    self.samplesValue.setMaximum(maximum)
+    shdelay = value * 0.25
+    samples = value * 0.5
     if self.idle: return
     self.socket.write(struct.pack('<I', 0<<28 | int(value * self.freq)))
 
