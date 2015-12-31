@@ -161,7 +161,7 @@ int main()
                 buffer[j] = buffer[1535 - j];
                 buffer[1535 - j] = tmp;
               }
-              send(sock_client, buffer, 8192, MSG_NOSIGNAL);
+              if(send(sock_client, buffer, 8192, MSG_NOSIGNAL) < 0) break;
               ++counter;
             }
 
@@ -200,7 +200,7 @@ int main()
           /* read remaining IN1 and IN2 samples from ADC FIFO */
           while(counter < 256)
           {
-            if(*(uint16_t *)(sts + 2) >= 2048 && counter < 256)
+            if(*(uint16_t *)(sts + 2) >= 2048)
             {
               memcpy(buffer, adc, 8192);
               for(j = 512; j < 768; ++j)
@@ -209,7 +209,7 @@ int main()
                 buffer[j] = buffer[1535 - j];
                 buffer[1535 - j] = tmp;
               }
-              send(sock_client, buffer, 8192, MSG_NOSIGNAL);
+              if(send(sock_client, buffer, 8192, MSG_NOSIGNAL) < 0) break;
               ++counter;
             }
             usleep(500);
