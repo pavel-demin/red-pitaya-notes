@@ -16,4 +16,5 @@ layout: default
 1. [Wideband SDR transceiver]({{ "/sdr-transceiver-wide/" | prepend: site.baseurl }})
 1. [Pulsed Nuclear Magnetic Resonance]({{ "/pulsed-nmr/" | prepend: site.baseurl }})
 1. [Multichannel Pulse Height Analyzer]({{ "/mcpha/" | prepend: site.baseurl }})
+1. [Scanning system]({{ "/scanner/" | prepend: site.baseurl }})
 1. [Debian with Red Pitaya ecosystem]({{ "/debian-ecosystem/" | prepend: site.baseurl }})
