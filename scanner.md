@@ -7,12 +7,12 @@ permalink: /scanner/
 Introduction
 -----
 
-This configuration may be useful for building a galvanometer controller for an optical scanner.
+This configuration may be useful for building a galvanometer controller for an optical scanner or a scanning coil controller for a scanning electron microscope.
 
 Hardware
 -----
 
-The system outputs the line scan signal to OUT1 and the raster scan signal to OUT2. The trigger and S&H pulses are available from the pins DIO0_N and DIO1_N on the E1 connector.
+The system outputs the line scan signal to OUT1 and the raster scan signal to OUT2. The trigger and S&H pulses are available from the pins DIO0_N and DIO1_N on the E1 connector. The analog signals corresponding to each pixel are input to IN1 and IN2.
 
 The basic blocks of the system are shown on the following diagram:
 
