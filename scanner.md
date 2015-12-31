@@ -29,7 +29,32 @@ The [projects/scanner/client](https://github.com/pavel-demin/red-pitaya-notes/tr
 
 ![Scanner client]({{ "/img/scanner-client.png" | prepend: site.baseurl }})
 
-Getting started
+Getting started with MS Windows
+-----
+
+ - Requirements:
+   - Computer running MS Windows.
+   - Wired Ethernet connection between the computer and the Red Pitaya board.
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/scanner/ecosystem-0.92-65-35575ed-scanner.zip).
+ - Copy the content of the SD card image zip file to an SD card.
+ - Insert the SD card in Red Pitaya and connect the power.
+ - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
+ - Download and install [NumPy 1.10](http://heanet.dl.sourceforge.net/project/numpy/NumPy/1.10.2/numpy-1.10.2-win32-superpack-python3.4.exe).
+ - Download and install [PyQt 5.5](http://heanet.dl.sourceforge.net/project/pyqt/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe).
+ - Start a command prompt using the `cmd.exe` program and run the `pip` command to install `matplotlib`:
+{% highlight winbatch %}
+C:\Python34\Scripts\pip.exe install matplotlib
+{% endhighlight %}
+ - Download [scanner.py](https://raw.githubusercontent.com/pavel-demin/red-pitaya-notes/master/projects/scanner/client/scanner.py) and [scanner.ui](https://raw.githubusercontent.com/pavel-demin/red-pitaya-notes/master/projects/scanner/client/scanner.ui).
+ - Start a command prompt using the `cmd.exe` program and run the control program:
+{% highlight winbatch %}
+C:\Python34\pythonw.exe scanner.py
+{% endhighlight %}
+ - Type in the IP address of the Red Pitaya board and press Connect button.
+ - Adjust trigger and S&H pulses and number of samples per pixel.
+ - Press Scan button.
+
+Getting started with GNU/Linux
 -----
 
  - Requirements:
