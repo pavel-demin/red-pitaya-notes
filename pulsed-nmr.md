@@ -94,7 +94,7 @@ make NAME=pulsed_nmr tmp/pulsed_nmr.bit
 
 Building `pulsed-nmr`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/pulsed_nmr/server/pulsed-nmr.c -o pulsed-nmr -lm -lpthread -static
+arm-xilinx-linux-gnueabi-gcc projects/pulsed_nmr/server/pulsed-nmr.c -o pulsed-nmr -lm -static
 {% endhighlight %}
 
 Building `boot.bin`, `devicetree.dtb` and `uImage`:

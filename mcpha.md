@@ -103,7 +103,7 @@ make NAME=mcpha tmp/mcpha.bit
 
 Building `mcpha-server`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/mcpha/server/mcpha-server.c -o mcpha-server -lm -lpthread -static
+arm-xilinx-linux-gnueabi-gcc projects/mcpha/server/mcpha-server.c -o mcpha-server -lm -static
 {% endhighlight %}
 
 Building `boot.bin`, `devicetree.dtb` and `uImage`:
