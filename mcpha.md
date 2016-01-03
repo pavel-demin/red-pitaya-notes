@@ -22,6 +22,8 @@ The basic blocks of the system are shown on the following diagram:
 
 The [projects/mcpha](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha) directory contains four Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/block_design.tcl), [hst.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/hst.tcl), [osc.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/osc.tcl), [gen.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/gen.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
+The source code of the [R](http://www.r-project.org) script used to calculate the coefficients of the FIR filter can be found in [projects/mcpha/fir_0.r](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/fir_0.r).
+
 Software
 -----
 
