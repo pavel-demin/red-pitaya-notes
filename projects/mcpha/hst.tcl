@@ -40,25 +40,32 @@ cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 128 DIN_FROM 63 DIN_TO 0 DOUT_WIDTH 64
 }
 
-# pha_0/cfg_data
+# pha_0/bln_data
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
   DIN_WIDTH 128 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
 }
 
-# pha_0/min_data
+# pha_0/cfg_data
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_7 {
   DIN_WIDTH 128 DIN_FROM 95 DIN_TO 80 DOUT_WIDTH 16
 }
 
-# pha_0/max_data
+# pha_0/min_data
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_8 {
   DIN_WIDTH 128 DIN_FROM 111 DIN_TO 96 DOUT_WIDTH 16
+}
+
+# pha_0/max_data
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_9 {
+  DIN_WIDTH 128 DIN_FROM 127 DIN_TO 112 DOUT_WIDTH 16
 }
 
 # Create axis_validator
@@ -78,9 +85,10 @@ cell pavel-demin:user:axis_pulse_height_analyzer:1.0 pha_0 {
   CNTR_WIDTH 16
 } {
   bln_flag slice_2/Dout
-  cfg_data slice_6/Dout
-  min_data slice_7/Dout
-  max_data slice_8/Dout
+  bln_data slice_6/Dout
+  cfg_data slice_7/Dout
+  min_data slice_8/Dout
+  max_data slice_9/Dout
   aclk /ps_0/FCLK_CLK0
   aresetn slice_1/Dout
 }
