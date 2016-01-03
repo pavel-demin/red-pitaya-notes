@@ -126,7 +126,7 @@ namespace eval ::mcpha {
 
     trace add variable [my varname rate] write [mymethod rate_update]
 
-    ${master}.rate_4 select
+    ${master}.rate_field set 5
   }
 
 # -------------------------------------------------------------------------
@@ -142,16 +142,13 @@ namespace eval ::mcpha {
 
     frame ${master}.spc1 -width 10
 
-    label ${master}.rate_label -text {Sample rate, MSPS:}
-    radiobutton ${master}.rate_0 -variable [my varname rate] -text 0.5 -value 0
-    radiobutton ${master}.rate_1 -variable [my varname rate] -text 1.25 -value 1
-    radiobutton ${master}.rate_2 -variable [my varname rate] -text 2.5 -value 2
-    radiobutton ${master}.rate_3 -variable [my varname rate] -text 6.25 -value 3
-    radiobutton ${master}.rate_4 -variable [my varname rate] -text 12.5 -value 4
+    label ${master}.rate_label -text {Decimation factor:}
+    spinbox ${master}.rate_field -from 5 -to 6250 \
+      -increment 5 -width 10 -textvariable [my varname rate] \
+      -validate all -vcmd {::mcpha::validate 5 6250 4 %P}
 
     grid ${master}.addr_label ${master}.address_field ${master}.connect \
-      ${master}.spc1 ${master}.rate_label ${master}.rate_0 ${master}.rate_1 \
-      ${master}.rate_2 ${master}.rate_3 ${master}.rate_4 -padx 5
+      ${master}.spc1 ${master}.rate_label ${master}.rate_field -padx 5
 
     grid columnconfigure ${master} 3 -weight 1
   }
@@ -337,6 +334,7 @@ namespace eval ::mcpha {
     trace add variable [my varname rate_val] write [mymethod rate_val_update]
 
     trace add variable [my varname axis] write [mymethod axis_update]
+    trace add variable [my varname base] write [mymethod base_update]
     trace add variable [my varname thrs] write [mymethod thrs_update]
     trace add variable [my varname thrs_val] write [mymethod thrs_update]
 
@@ -403,7 +401,7 @@ namespace eval ::mcpha {
 
     checkbutton ${config}.axis_check -text {log scale} -variable [my varname axis]
 
-    frame ${config}.spc1 -width 170 -height 20
+    frame ${config}.spc1 -width 170 -height 10
 
     frame ${config}.rate_frame -borderwidth 0 -width 170
     mcpha::legendLabel ${config}.rate_frame 0 inst {Inst. rate, 1/s}
@@ -438,6 +436,8 @@ namespace eval ::mcpha {
     mcpha::legendLabel ${config}.stat_frame 1 bkg {bkg entries}
 
     frame ${config}.spc4 -width 170 -height 20
+
+    checkbutton ${config}.base_check -text {baseline subtraction} -variable [my varname base]
 
     checkbutton ${config}.thrs_check -text {amplitude threshold} -variable [my varname thrs]
     spinbox ${config}.thrs_field -from 0 -to 16380 \
@@ -474,7 +474,7 @@ namespace eval ::mcpha {
     button ${config}.register -text Register \
       -bg lightblue -activebackground lightblue -command [mymethod register]
 
-    frame ${config}.spc8 -width 170 -height 20
+    frame ${config}.spc8 -width 170 -height 10
 
     button ${config}.recover -text {Read file} \
       -bg lightblue -activebackground lightblue -command [mymethod recover]
@@ -489,6 +489,7 @@ namespace eval ::mcpha {
     grid ${config}.roi_frame -sticky ew -padx 3
     grid ${config}.stat_frame -sticky ew -padx 3
     grid ${config}.spc4
+    grid ${config}.base_check -sticky w
     grid ${config}.thrs_check -sticky w
     grid ${config}.thrs_field -sticky ew -pady 1 -padx 5
     grid ${config}.spc5
@@ -624,6 +625,14 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
+  oo::define HstDisplay method base_update args {
+    my variable controller number base
+
+    $controller command 5 $number $base
+  }
+
+# -------------------------------------------------------------------------
+
   oo::define HstDisplay method thrs_update args {
     my variable controller config number thrs thrs_val
 
@@ -639,8 +648,8 @@ namespace eval ::mcpha {
       set value 0
     }
 
-    $controller command 6 $number $value
-    $controller command 7 $number 16383
+    $controller command 7 $number $value
+    $controller command 8 $number 16383
   }
 
 # -------------------------------------------------------------------------
@@ -712,7 +721,7 @@ namespace eval ::mcpha {
     my variable controller number cntr_val
 
     # send counter value
-    $controller command 8 $number $cntr_val
+    $controller command 9 $number $cntr_val
   }
 
 # -------------------------------------------------------------------------
@@ -823,8 +832,9 @@ namespace eval ::mcpha {
     ${config}.start configure -text Pause -command [mymethod cntr_pause]
 #    ${config}.reset configure -state disabled
 
+    my base_update
     my thrs_update
-    $controller command 9 $number
+    $controller command 10 $number 1
 
     set auto 1
 
@@ -838,7 +848,7 @@ namespace eval ::mcpha {
 
     set date_val(stop) [clock format [clock seconds] -format {%d/%m/%Y %H:%M:%S}]
 
-    $controller command 10 $number
+    $controller command 10 $number 0
 
     set auto 0
 

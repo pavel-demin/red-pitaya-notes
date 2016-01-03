@@ -141,26 +141,35 @@ int main(int argc, char *argv[])
       else if(code == 4)
       {
         /* set sample rate */
-        switch(data)
-        {
-          case 0:
-            *(uint16_t *)(cfg + 4) = 125;
-            break;
-          case 1:
-            *(uint16_t *)(cfg + 4) = 50;
-            break;
-          case 2:
-            *(uint16_t *)(cfg + 4) = 25;
-            break;
-          case 3:
-            *(uint16_t *)(cfg + 4) = 10;
-            break;
-          case 4:
-            *(uint16_t *)(cfg + 4) = 5;
-            break;
-        }
+        *(uint16_t *)(cfg + 4) = data;
       }
       else if(code == 5)
+      {
+        /* set baseline mode (0 for none, 1 for auto) */
+        if(chan == 0)
+        {
+          if(data == 0)
+          {
+            *(uint8_t *)(cfg + 0) &= ~4;
+          }
+          else if(data == 1)
+          {
+            *(uint8_t *)(cfg + 0) |= 4;
+          }
+        }
+        else if(chan == 1)
+        {
+          if(data == 0)
+          {
+            *(uint8_t *)(cfg + 1) &= ~4;
+          }
+          else if(data == 1)
+          {
+            *(uint8_t *)(cfg + 1) |= 4;
+          }
+        }
+      }
+      else if(code == 6)
       {
         /* set pha delay */
         if(chan == 0)
@@ -172,7 +181,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 32) = data;
         }
       }
-      else if(code == 6)
+      else if(code == 7)
       {
         /* set pha min threshold */
         if(chan == 0)
@@ -184,7 +193,7 @@ int main(int argc, char *argv[])
           *(int16_t *)(cfg + 34) = data;
         }
       }
-      else if(code == 7)
+      else if(code == 8)
       {
         /* set pha max threshold */
         if(chan == 0)
@@ -196,44 +205,46 @@ int main(int argc, char *argv[])
           *(int16_t *)(cfg + 36) = data;
         }
       }
-      else if(code == 8)
+      else if(code == 9)
       {
         /* set timer */
         if(chan == 0)
         {
           *(uint64_t *)(cfg + 8) = data;
-          *(uint8_t *)(cfg + 0) |= 8;
-          *(uint8_t *)(cfg + 0) &= ~8;
+          *(uint8_t *)(cfg + 0) |= 16;
+          *(uint8_t *)(cfg + 0) &= ~16;
         }
         else if(chan == 1)
         {
           *(uint64_t *)(cfg + 24) = data;
-          *(uint8_t *)(cfg + 1) |= 8;
-          *(uint8_t *)(cfg + 1) &= ~8;
-        }
-      }
-      else if(code == 9)
-      {
-        /* start timer */
-        if(chan == 0)
-        {
-          *(uint8_t *)(cfg + 0) |= 4;
-        }
-        else if(chan == 1)
-        {
-          *(uint8_t *)(cfg + 1) |= 4;
+          *(uint8_t *)(cfg + 1) |= 16;
+          *(uint8_t *)(cfg + 1) &= ~16;
         }
       }
       else if(code == 10)
       {
-        /* stop timer */
+        /* set timer mode (0 for stop, 1 for running) */
         if(chan == 0)
         {
-          *(uint8_t *)(cfg + 0) &= ~4;
+          if(data == 0)
+          {
+            *(uint8_t *)(cfg + 0) &= ~8;
+          }
+          else if(data == 1)
+          {
+            *(uint8_t *)(cfg + 0) |= 8;
+          }
         }
         else if(chan == 1)
         {
-          *(uint8_t *)(cfg + 1) &= ~4;
+          if(data == 0)
+          {
+            *(uint8_t *)(cfg + 1) &= ~8;
+          }
+          else if(data == 1)
+          {
+            *(uint8_t *)(cfg + 1) |= 8;
+          }
         }
       }
       else if(code == 11)
