@@ -141,28 +141,37 @@ int main(int argc, char *argv[])
       else if(code == 4)
       {
         /* set sample rate */
-        switch(data)
-        {
-          case 0:
-            *(uint16_t *)(cfg + 4) = 125;
-            break;
-          case 1:
-            *(uint16_t *)(cfg + 4) = 50;
-            break;
-          case 2:
-            *(uint16_t *)(cfg + 4) = 25;
-            break;
-          case 3:
-            *(uint16_t *)(cfg + 4) = 10;
-            break;
-          case 4:
-            *(uint16_t *)(cfg + 4) = 5;
-            break;
-        }
+        *(uint16_t *)(cfg + 4) = data;
       }
       else if(code == 5)
       {
-        /* set pha delay */
+        /* set baseline mode (0 for none, 1 for auto) */
+        if(chan == 0)
+        {
+          if(data == 0)
+          {
+            *(uint8_t *)(cfg + 0) &= ~4;
+          }
+          else if(data == 1)
+          {
+            *(uint8_t *)(cfg + 0) |= 4;
+          }
+        }
+        else if(chan == 1)
+        {
+          if(data == 0)
+          {
+            *(uint8_t *)(cfg + 1) &= ~4;
+          }
+          else if(data == 1)
+          {
+            *(uint8_t *)(cfg + 1) |= 4;
+          }
+        }
+      }
+      else if(code == 6)
+      {
+        /* set baseline level */
         if(chan == 0)
         {
           *(uint16_t *)(cfg + 16) = data;
@@ -172,71 +181,85 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 32) = data;
         }
       }
-      else if(code == 6)
+      else if(code == 7)
+      {
+        /* set pha delay */
+        if(chan == 0)
+        {
+          *(uint16_t *)(cfg + 18) = data;
+        }
+        else if(chan == 1)
+        {
+          *(uint16_t *)(cfg + 34) = data;
+        }
+      }
+      else if(code == 8)
       {
         /* set pha min threshold */
         if(chan == 0)
         {
-          *(int16_t *)(cfg + 18) = data;
+          *(uint16_t *)(cfg + 20) = data;
         }
         else if(chan == 1)
         {
-          *(int16_t *)(cfg + 34) = data;
+          *(uint16_t *)(cfg + 36) = data;
         }
       }
-      else if(code == 7)
+      else if(code == 9)
       {
         /* set pha max threshold */
         if(chan == 0)
         {
-          *(int16_t *)(cfg + 20) = data;
+          *(uint16_t *)(cfg + 22) = data;
         }
         else if(chan == 1)
         {
-          *(int16_t *)(cfg + 36) = data;
+          *(uint16_t *)(cfg + 38) = data;
         }
       }
-      else if(code == 8)
+      else if(code == 10)
       {
         /* set timer */
         if(chan == 0)
         {
           *(uint64_t *)(cfg + 8) = data;
-          *(uint8_t *)(cfg + 0) |= 8;
-          *(uint8_t *)(cfg + 0) &= ~8;
+          *(uint8_t *)(cfg + 0) |= 16;
+          *(uint8_t *)(cfg + 0) &= ~16;
         }
         else if(chan == 1)
         {
           *(uint64_t *)(cfg + 24) = data;
-          *(uint8_t *)(cfg + 1) |= 8;
-          *(uint8_t *)(cfg + 1) &= ~8;
-        }
-      }
-      else if(code == 9)
-      {
-        /* start timer */
-        if(chan == 0)
-        {
-          *(uint8_t *)(cfg + 0) |= 4;
-        }
-        else if(chan == 1)
-        {
-          *(uint8_t *)(cfg + 1) |= 4;
-        }
-      }
-      else if(code == 10)
-      {
-        /* stop timer */
-        if(chan == 0)
-        {
-          *(uint8_t *)(cfg + 0) &= ~4;
-        }
-        else if(chan == 1)
-        {
-          *(uint8_t *)(cfg + 1) &= ~4;
+          *(uint8_t *)(cfg + 1) |= 16;
+          *(uint8_t *)(cfg + 1) &= ~16;
         }
       }
       else if(code == 11)
+      {
+        /* set timer mode (0 for stop, 1 for running) */
+        if(chan == 0)
+        {
+          if(data == 0)
+          {
+            *(uint8_t *)(cfg + 0) &= ~8;
+          }
+          else if(data == 1)
+          {
+            *(uint8_t *)(cfg + 0) |= 8;
+          }
+        }
+        else if(chan == 1)
+        {
+          if(data == 0)
+          {
+            *(uint8_t *)(cfg + 1) &= ~8;
+          }
+          else if(data == 1)
+          {
+            *(uint8_t *)(cfg + 1) |= 8;
+          }
+        }
+      }
+      else if(code == 12)
       {
         /* read timer */
         if(chan == 0)
@@ -250,7 +273,7 @@ int main(int argc, char *argv[])
           if(send(sock_client, buf, 8, MSG_NOSIGNAL) < 0) break;
         }
       }
-      else if(code == 12)
+      else if(code == 13)
       {
         /* read histogram */
         if(chan == 0)
@@ -264,7 +287,7 @@ int main(int argc, char *argv[])
           if(send(sock_client, buf, 65536, MSG_NOSIGNAL) < 0) break;
         }
       }
-      else if(code == 13)
+      else if(code == 14)
       {
         /* set trigger source (0 for channel 1, 1 for channel 2) */
         if(chan == 0)
@@ -278,7 +301,7 @@ int main(int argc, char *argv[])
           *(uint32_t *)(trg + 0) = 2;
         }
       }
-      else if(code == 14)
+      else if(code == 15)
       {
         /* set trigger slope (0 for rising, 1 for falling) */
         if(data == 0)
@@ -290,7 +313,7 @@ int main(int argc, char *argv[])
           *(uint8_t *)(cfg + 2) |= 4;
         }
       }
-      else if(code == 15)
+      else if(code == 16)
       {
         /* set trigger mode (0 for normal, 1 for auto) */
         if(data == 0)
@@ -302,34 +325,34 @@ int main(int argc, char *argv[])
           *(uint8_t *)(cfg + 2) |= 8;
         }
       }
-      else if(code == 16)
+      else if(code == 17)
       {
         /* set trigger level */
-        *(int16_t *)(cfg + 48) = data;
+        *(uint16_t *)(cfg + 48) = data;
       }
-      else if(code == 17)
+      else if(code == 18)
       {
         /* set number of samples before trigger */
         *(uint32_t *)(cfg + 40) = data - 1;
       }
-      else if(code == 18)
+      else if(code == 19)
       {
         /* set total number of samples */
         *(uint32_t *)(cfg + 44) = data - 1;
       }
-      else if(code == 19)
+      else if(code == 20)
       {
         /* start oscilloscope */
         *(uint8_t *)(cfg + 2) |= 16;
         *(uint8_t *)(cfg + 2) &= ~16;
       }
-      else if(code == 20)
+      else if(code == 21)
       {
         /* read oscilloscope status */
         *(uint32_t *)buf = *(uint32_t *)(sts + 16) & 1;
         if(send(sock_client, buf, 4, MSG_NOSIGNAL) < 0) break;
       }
-      else if(code == 21)
+      else if(code == 22)
       {
         /* read oscilloscope data */
         pre = *(uint32_t *)(cfg + 40) + 1;

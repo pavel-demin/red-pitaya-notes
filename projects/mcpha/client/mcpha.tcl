@@ -5,7 +5,7 @@ package require oo::util
 package require BLT
 package require mcpha
 
-wm minsize . 880 660
+wm minsize . 880 680
 
 image create bitmap leftarrow -data "
 #define leftarrow_width 5\n
@@ -126,7 +126,7 @@ namespace eval ::mcpha {
 
     trace add variable [my varname rate] write [mymethod rate_update]
 
-    ${master}.rate_4 select
+    ${master}.rate_field set 4
   }
 
 # -------------------------------------------------------------------------
@@ -142,16 +142,13 @@ namespace eval ::mcpha {
 
     frame ${master}.spc1 -width 10
 
-    label ${master}.rate_label -text {Sample rate, MSPS:}
-    radiobutton ${master}.rate_0 -variable [my varname rate] -text 0.5 -value 0
-    radiobutton ${master}.rate_1 -variable [my varname rate] -text 1.25 -value 1
-    radiobutton ${master}.rate_2 -variable [my varname rate] -text 2.5 -value 2
-    radiobutton ${master}.rate_3 -variable [my varname rate] -text 6.25 -value 3
-    radiobutton ${master}.rate_4 -variable [my varname rate] -text 12.5 -value 4
+    label ${master}.rate_label -text {Decimation factor:}
+    spinbox ${master}.rate_field -from 4 -to 8192 \
+      -increment 4 -width 10 -textvariable [my varname rate] \
+      -validate all -vcmd {::mcpha::validate 4 8192 4 %P}
 
     grid ${master}.addr_label ${master}.address_field ${master}.connect \
-      ${master}.spc1 ${master}.rate_label ${master}.rate_0 ${master}.rate_1 \
-      ${master}.rate_2 ${master}.rate_3 ${master}.rate_4 -padx 5
+      ${master}.spc1 ${master}.rate_label ${master}.rate_field -padx 5
 
     grid columnconfigure ${master} 3 -weight 1
   }
@@ -337,13 +334,17 @@ namespace eval ::mcpha {
     trace add variable [my varname rate_val] write [mymethod rate_val_update]
 
     trace add variable [my varname axis] write [mymethod axis_update]
+    trace add variable [my varname base] write [mymethod base_update]
+    trace add variable [my varname base_val] write [mymethod base_val_update]
     trace add variable [my varname thrs] write [mymethod thrs_update]
-    trace add variable [my varname thrs_val] write [mymethod thrs_update]
+    trace add variable [my varname thrs_min] write [mymethod thrs_update]
+    trace add variable [my varname thrs_max] write [mymethod thrs_update]
 
     ${config}.axis_check select
 
     ${config}.thrs_check select
-    ${config}.thrs_field set 25
+    ${config}.thrs_frame.min_field set 50
+    ${config}.thrs_frame.max_field set 16380
 
     set xmin_val 0
     set xmax_val 16383
@@ -375,6 +376,9 @@ namespace eval ::mcpha {
     ${config}.stat_frame.tot_value configure -text 0.0
     ${config}.stat_frame.bkg_value configure -text 0.0
 
+    ${config}.base_frame.mode_0 select
+    ${config}.base_field set 0
+
 #    my cntr_reset
   }
 
@@ -383,8 +387,7 @@ namespace eval ::mcpha {
   oo::define HstDisplay method setup {} {
     my variable number master
     my variable xvec yvec graph
-    my variable config thrs thrs_val
-    my variable cntr_h cntr_m cntr_s
+    my variable config
 
     # create a graph widget and show a grid
     set graph [blt::graph ${master}.graph -height 250 -leftmargin 80]
@@ -403,7 +406,7 @@ namespace eval ::mcpha {
 
     checkbutton ${config}.axis_check -text {log scale} -variable [my varname axis]
 
-    frame ${config}.spc1 -width 170 -height 20
+    frame ${config}.spc1 -width 170 -height 10
 
     frame ${config}.rate_frame -borderwidth 0 -width 170
     mcpha::legendLabel ${config}.rate_frame 0 inst {Inst. rate, 1/s}
@@ -424,27 +427,55 @@ namespace eval ::mcpha {
     frame ${config}.roi_frame -borderwidth 0 -width 170
     label ${config}.roi_frame.min_title -anchor w -text {start:}
     label ${config}.roi_frame.min_value -width 5 -anchor e -text {}
-    label ${config}.roi_frame.spc1 -width 5 -anchor w -text {}
+    frame ${config}.roi_frame.spc1 -width 10
     label ${config}.roi_frame.max_title -anchor w -text {end:}
     label ${config}.roi_frame.max_value -width 5 -anchor e -text {}
 
     grid ${config}.roi_frame.min_title ${config}.roi_frame.min_value \
       ${config}.roi_frame.spc1 ${config}.roi_frame.max_title \
       ${config}.roi_frame.max_value
+    grid columnconfigure ${config}.roi_frame 3 -weight 1
 
     frame ${config}.stat_frame -borderwidth 0 -width 17
 
     mcpha::legendLabel ${config}.stat_frame 0 tot {total entries}
     mcpha::legendLabel ${config}.stat_frame 1 bkg {bkg entries}
 
-    frame ${config}.spc4 -width 170 -height 20
+    frame ${config}.spc4 -width 170 -height 10
+
+    frame ${config}.base_frame -borderwidth 0 -width 170
+
+    label ${config}.base_frame.mode_label -text {baseline subtraction mode}
+    radiobutton ${config}.base_frame.mode_0 -variable [my varname base] -text {manual} -value 0
+    radiobutton ${config}.base_frame.mode_1 -variable [my varname base] -text {auto} -value 1
+    grid ${config}.base_frame.mode_label -columnspan 2 -sticky w
+    grid ${config}.base_frame.mode_0 -row 1 -column 0 -sticky w
+    grid ${config}.base_frame.mode_1 -row 1 -column 1 -sticky w
+
+    label ${config}.base_label -text {baseline level}
+    spinbox ${config}.base_field -from -16380 -to 16380 \
+      -increment 5 -width 10 -textvariable [my varname base_val] \
+      -validate all -vcmd {::mcpha::validate -16380 16380 6 %P}
+
+    frame ${config}.spc5 -width 170 -height 10
 
     checkbutton ${config}.thrs_check -text {amplitude threshold} -variable [my varname thrs]
-    spinbox ${config}.thrs_field -from 0 -to 16380 \
-      -increment 5 -width 10 -textvariable [my varname thrs_val] \
-      -validate all -vcmd {::mcpha::validate 0 16380 5 %P}
 
-    frame ${config}.spc5 -width 170 -height 20
+    frame ${config}.thrs_frame -borderwidth 0 -width 170
+
+    label ${config}.thrs_frame.min_title -anchor w -text {min:}
+    spinbox ${config}.thrs_frame.min_field -from 0 -to 16380 \
+      -increment 5 -width 5 -textvariable [my varname thrs_min] \
+      -validate all -vcmd {::mcpha::validate 0 16380 5 %P}
+    frame ${config}.thrs_frame.spc1 -width 10
+    label ${config}.thrs_frame.max_title -anchor w -text {max:}
+    spinbox ${config}.thrs_frame.max_field -from 0 -to 16380 \
+      -increment 5 -width 5 -textvariable [my varname thrs_max] \
+      -validate all -vcmd {::mcpha::validate 0 16380 5 %P}
+    grid ${config}.thrs_frame.min_title ${config}.thrs_frame.min_field \
+      ${config}.thrs_frame.spc1 ${config}.thrs_frame.max_title \
+      ${config}.thrs_frame.max_field
+    grid columnconfigure ${config}.thrs_frame 3 -weight 1
 
     label ${config}.cntr_label -text {time of exposure}
     frame ${config}.cntr_frame -borderwidth 0 -width 170
@@ -469,12 +500,10 @@ namespace eval ::mcpha {
     button ${config}.reset -text Reset \
       -bg red -activebackground red -command [mymethod cntr_reset]
 
-    frame ${config}.spc7 -width 170 -height 20
+    frame ${config}.spc7 -width 170 -height 10
 
     button ${config}.register -text Register \
       -bg lightblue -activebackground lightblue -command [mymethod register]
-
-    frame ${config}.spc8 -width 170 -height 20
 
     button ${config}.recover -text {Read file} \
       -bg lightblue -activebackground lightblue -command [mymethod recover]
@@ -485,21 +514,23 @@ namespace eval ::mcpha {
     grid ${config}.spc2
     grid ${config}.chan_frame -sticky ew -padx 3
     grid ${config}.spc3
-    grid ${config}.roi -sticky w -pady 1 -padx 3
+    grid ${config}.roi -sticky w -padx 3
     grid ${config}.roi_frame -sticky ew -padx 3
     grid ${config}.stat_frame -sticky ew -padx 3
     grid ${config}.spc4
-    grid ${config}.thrs_check -sticky w
-    grid ${config}.thrs_field -sticky ew -pady 1 -padx 5
+    grid ${config}.base_frame -sticky ew -padx 3
+    grid ${config}.base_label -sticky w -padx 3
+    grid ${config}.base_field -sticky ew -padx 5
     grid ${config}.spc5
-    grid ${config}.cntr_label -sticky w -pady 1 -padx 3
-    grid ${config}.cntr_frame -sticky ew -padx 5
+    grid ${config}.thrs_check -sticky w
+    grid ${config}.thrs_frame -sticky ew -padx 5
     grid ${config}.spc6
+    grid ${config}.cntr_label -sticky w -padx 3
+    grid ${config}.cntr_frame -sticky ew -padx 5
     grid ${config}.start -sticky ew -pady 3 -padx 5
     grid ${config}.reset -sticky ew -pady 3 -padx 5
     grid ${config}.spc7
     grid ${config}.register -sticky ew -pady 3 -padx 5
-    grid ${config}.spc8
     grid ${config}.recover -sticky ew -pady 3 -padx 5
 
     grid ${graph} -row 0 -column 0 -sticky news
@@ -624,23 +655,63 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
+  oo::define HstDisplay method base_update args {
+    my variable controller config number base
+
+    switch -- $base {
+      1 {
+        ${config}.base_field configure -state disabled
+      }
+      0 {
+        ${config}.base_field configure -state normal
+      }
+    }
+
+    $controller command 5 $number $base
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define HstDisplay method base_val_update args {
+    my variable controller number base_typ base_val
+
+    if {[string equal $base_val {}]} {
+      set base_val 0
+    }
+
+    $controller command 6 $number $base_val
+  }
+
+# -------------------------------------------------------------------------
+
   oo::define HstDisplay method thrs_update args {
-    my variable controller config number thrs thrs_val
+    my variable controller config number thrs thrs_min thrs_max
 
-    if {[string equal $thrs_val {}]} {
-      set thrs_val 0
+    if {[string equal $thrs_min {}]} {
+      set thrs_min 0
     }
 
-    if {$thrs} {
-      ${config}.thrs_field configure -state normal
-      set value $thrs_val
-    } else {
-      ${config}.thrs_field configure -state disabled
-      set value 0
+    if {[string equal $thrs_max {}]} {
+      set thrs_max 0
     }
 
-    $controller command 6 $number $value
-    $controller command 7 $number 16383
+    switch -- $thrs {
+      1 {
+        ${config}.thrs_frame.min_field configure -state normal
+        set min $thrs_min
+        ${config}.thrs_frame.max_field configure -state normal
+        set max $thrs_max
+      }
+      0 {
+        ${config}.thrs_frame.min_field configure -state disabled
+        set min 0
+        ${config}.thrs_frame.max_field configure -state disabled
+        set max 16380
+      }
+    }
+
+    $controller command 8 $number $min
+    $controller command 9 $number $max
   }
 
 # -------------------------------------------------------------------------
@@ -712,7 +783,7 @@ namespace eval ::mcpha {
     my variable controller number cntr_val
 
     # send counter value
-    $controller command 8 $number $cntr_val
+    $controller command 10 $number $cntr_val
   }
 
 # -------------------------------------------------------------------------
@@ -823,8 +894,10 @@ namespace eval ::mcpha {
     ${config}.start configure -text Pause -command [mymethod cntr_pause]
 #    ${config}.reset configure -state disabled
 
+    my base_update
+    my base_val_update
     my thrs_update
-    $controller command 9 $number
+    $controller command 11 $number 1
 
     set auto 1
 
@@ -838,7 +911,7 @@ namespace eval ::mcpha {
 
     set date_val(stop) [clock format [clock seconds] -format {%d/%m/%Y %H:%M:%S}]
 
-    $controller command 10 $number
+    $controller command 11 $number 0
 
     set auto 0
 
@@ -876,7 +949,7 @@ namespace eval ::mcpha {
     set size 16384
 
     set result {}
-    $controller commandReadHex 11 $number 8 result
+    $controller commandReadHex 12 $number 8 result
 
     if {[string length $result] == 0} {
       set result 0
@@ -885,7 +958,7 @@ namespace eval ::mcpha {
     set cntr_val $result
     set cntr_new $result
 
-    $controller commandReadRaw 12 $number [expr {$size * 4}] [my varname data]
+    $controller commandReadRaw 13 $number [expr {$size * 4}] [my varname data]
     set yvec_new [mcpha::integrateBlt [my varname yvec] 0 16383 0]
 
     if {$cntr_new < $cntr_old} {
@@ -1058,7 +1131,7 @@ namespace eval ::mcpha {
     ${config}.trig_frame.mode_0 select
     ${config}.trig_frame.source_0 select
     ${config}.trig_frame.slope_0 select
-    ${config}.level_field set 100
+    ${config}.level_field set 200
 
     ${config}.recs_field set 100
   }
@@ -1076,7 +1149,7 @@ namespace eval ::mcpha {
     $graph grid configure -hide no
     $graph legend configure -hide yes
     $graph axis configure x -min 0 -max 50000
-    $graph axis configure y -min -8200 -max 8200
+    $graph axis configure y -min -16400 -max 16400
 
 #    scale ${master}.last -orient horizontal -from 1 -to 27 -tickinterval 0 -showvalue no -variable [my varname last]
 
@@ -1117,9 +1190,9 @@ namespace eval ::mcpha {
     grid ${config}.trig_frame.slope_1 -row 5 -column 1 -sticky w
 
     label ${config}.level_label -text {trigger level}
-    spinbox ${config}.level_field -from -8190 -to 8190 \
+    spinbox ${config}.level_field -from -16380 -to 16380 \
       -increment 5 -width 10 -textvariable [my varname level] \
-      -validate all -vcmd {::mcpha::validate -8190 8190 5 %P}
+      -validate all -vcmd {::mcpha::validate -16380 16380 6 %P}
 
     frame ${config}.spc3 -width 170 -height 20
 
@@ -1151,13 +1224,13 @@ namespace eval ::mcpha {
     grid ${config}.spc2
     grid ${config}.trig_frame -sticky ew -padx 3
     grid ${config}.level_label -sticky w -padx 3
-    grid ${config}.level_field -sticky ew -pady 1 -padx 5
+    grid ${config}.level_field -sticky ew -padx 5
     grid ${config}.spc3
     grid ${config}.acquire -sticky ew -pady 3 -padx 5
     grid ${config}.register -sticky ew -pady 3 -padx 5
     grid ${config}.spc4
-    grid ${config}.recs -sticky w -pady 1 -padx 3
-    grid ${config}.recs_field -sticky ew -pady 1 -padx 5
+    grid ${config}.recs -sticky w -padx 3
+    grid ${config}.recs_field -sticky ew -padx 5
     grid ${config}.spc5
     grid ${config}.sequence -sticky ew -pady 3 -padx 5
     grid ${config}.spc6
@@ -1250,9 +1323,18 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   oo::define OscDisplay method mode_update args {
-    my variable controller mode
+    my variable controller config mode
 
-    $controller command 15 0 $mode
+    switch -- $mode {
+      1 {
+        ${config}.level_field configure -state disabled
+      }
+      0 {
+        ${config}.level_field configure -state normal
+      }
+    }
+
+    $controller command 16 0 $mode
   }
 
 # -------------------------------------------------------------------------
@@ -1260,7 +1342,7 @@ namespace eval ::mcpha {
   oo::define OscDisplay method source_update args {
     my variable controller source
 
-    $controller command 13 $source
+    $controller command 14 $source
   }
 
 # -------------------------------------------------------------------------
@@ -1268,7 +1350,7 @@ namespace eval ::mcpha {
   oo::define OscDisplay method slope_update args {
     my variable controller slope
 
-    $controller command 14 0 $slope
+    $controller command 15 0 $slope
   }
 
 # -------------------------------------------------------------------------
@@ -1276,7 +1358,7 @@ namespace eval ::mcpha {
   oo::define OscDisplay method level_update args {
     my variable controller level
 
-    $controller command 16 0 $level
+    $controller command 17 0 $level
   }
 
 # -------------------------------------------------------------------------
@@ -1318,9 +1400,9 @@ namespace eval ::mcpha {
 
     set waiting 1
 
-    $controller command 17 0 5000
-    $controller command 18 0 65536
-    $controller command 19 0
+    $controller command 18 0 5000
+    $controller command 19 0 65536
+    $controller command 20 0
 
     after 200 [mymethod acquire_loop]
   }
@@ -1333,7 +1415,7 @@ namespace eval ::mcpha {
     set size 65536
 
     set status {}
-    $controller commandReadHex 20 0 4 status
+    $controller commandReadHex 21 0 4 status
 
     if {[string length $status] == 0} {
       set auto 0
@@ -1342,7 +1424,7 @@ namespace eval ::mcpha {
     }
 
     if {$status == 0} {
-      $controller commandReadRaw 21 0 [expr {$size * 4}] [my varname data]
+      $controller commandReadRaw 22 0 [expr {$size * 4}] [my varname data]
     }
 
     if {$waiting} {

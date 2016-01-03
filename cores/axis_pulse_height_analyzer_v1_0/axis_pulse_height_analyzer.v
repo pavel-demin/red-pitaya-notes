@@ -12,6 +12,8 @@ module axis_pulse_height_analyzer #
   input  wire                           aclk,
   input  wire                           aresetn,
 
+  input  wire                           bln_flag,
+  input  wire [AXIS_TDATA_WIDTH-1:0]    bln_data,
   input  wire [CNTR_WIDTH-1:0]          cfg_data,
   input  wire [AXIS_TDATA_WIDTH-1:0]    min_data,
   input  wire [AXIS_TDATA_WIDTH-1:0]    max_data,
@@ -108,7 +110,7 @@ module axis_pulse_height_analyzer #
     // minimum after delay
     if(s_axis_tvalid & ~int_delay_wire & ~int_rising_reg & int_rising_wire)
     begin
-      int_min_next = int_data_reg[1];
+      int_min_next = bln_flag ? int_data_reg[1] : bln_data;
       int_enbl_next = 1'b1;
     end
 

@@ -31,7 +31,7 @@ EOF_CAT
 
 cat <<- EOF_CAT >> ${ecosystem}-pulsed-nmr/etc/init.d/rcS
 
-# start MCPHA server
+# start pulsed NMR server
 
 cat /opt/pulsed_nmr.bit > /dev/xdevcfg
 

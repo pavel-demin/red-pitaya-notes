@@ -31,7 +31,7 @@ EOF_CAT
 
 cat <<- EOF_CAT >> ${ecosystem}-scanner/etc/init.d/rcS
 
-# start MCPHA server
+# start scanner server
 
 cat /opt/scanner.bit > /dev/xdevcfg
 
