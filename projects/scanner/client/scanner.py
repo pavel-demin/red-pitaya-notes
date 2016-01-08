@@ -29,7 +29,7 @@ from matplotlib.figure import Figure
 import matplotlib.cm as cm
 
 from PyQt5.uic import loadUiType
-from PyQt5.QtCore import QRegExp, QTimer
+from PyQt5.QtCore import QRegExp, QTimer, Qt
 from PyQt5.QtGui import QRegExpValidator
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
@@ -78,10 +78,13 @@ class Scanner(QMainWindow, Ui_Scanner):
     self.scanButton.clicked.connect(self.scan)
     self.periodValue.valueChanged.connect(self.set_period)
     self.trgtimeValue.valueChanged.connect(self.set_trgtime)
+    self.trginvCheck.stateChanged.connect(self.set_trginv)
     self.shdelayValue.valueChanged.connect(self.set_shdelay)
     self.shtimeValue.valueChanged.connect(self.set_shtime)
+    self.shinvCheck.stateChanged.connect(self.set_shinv)
     self.acqdelayValue.valueChanged.connect(self.set_acqdelay)
     self.samplesValue.valueChanged.connect(self.set_samples)
+    self.pulsesValue.valueChanged.connect(self.set_pulses)
     # create timers
     self.startTimer = QTimer(self)
     self.startTimer.timeout.connect(self.timeout)
@@ -114,10 +117,15 @@ class Scanner(QMainWindow, Ui_Scanner):
     self.idle = False
     self.set_period(self.periodValue.value())
     self.set_trgtime(self.trgtimeValue.value())
+    self.set_trginv(self.trginvCheck.checkState())
     self.set_shdelay(self.shdelayValue.value())
     self.set_shtime(self.shtimeValue.value())
+    self.set_shinv(self.shinvCheck.checkState())
     self.set_acqdelay(self.acqdelayValue.value())
     self.set_samples(self.samplesValue.value())
+    self.set_pulses(self.pulsesValue.value())
+    # start pulse generators
+    self.socket.write(struct.pack('<I', 9<<28))
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
     self.scanButton.setEnabled(True)
@@ -149,9 +157,9 @@ class Scanner(QMainWindow, Ui_Scanner):
     self.shdelayValue.setMaximum(maximum)
     self.shtimeValue.setMaximum(maximum)
     self.acqdelayValue.setMaximum(maximum)
-    # set maximum number of samples per pixel
+    # set maximum number of samples per pulse
     maximum = int(value * 500.0 + 0.5) / 10.0
-    if maximum > 10000.0: maximum = 10000.0
+    if maximum > 256.0: maximum = 256.0
     self.samplesValue.setMaximum(maximum)
     shdelay = value * 0.25
     samples = value * 0.5
@@ -162,32 +170,44 @@ class Scanner(QMainWindow, Ui_Scanner):
     if self.idle: return
     self.socket.write(struct.pack('<I', 1<<28 | int(value * self.freq)))
 
-  def set_shdelay(self, value):
+  def set_trginv(self, checked):
     if self.idle: return
-    self.socket.write(struct.pack('<I', 2<<28 | int(value * self.freq)))
+    self.socket.write(struct.pack('<I', 2<<28 | int(checked == Qt.Checked)))
 
-  def set_shtime(self, value):
+  def set_shdelay(self, value):
     if self.idle: return
     self.socket.write(struct.pack('<I', 3<<28 | int(value * self.freq)))
 
-  def set_acqdelay(self, value):
+  def set_shtime(self, value):
     if self.idle: return
     self.socket.write(struct.pack('<I', 4<<28 | int(value * self.freq)))
 
+  def set_shinv(self, checked):
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 5<<28 | int(checked == Qt.Checked)))
+
+  def set_acqdelay(self, value):
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 6<<28 | int(value * self.freq)))
+
   def set_samples(self, value):
     if self.idle: return
-    self.socket.write(struct.pack('<I', 5<<28 | int(value)))
+    self.socket.write(struct.pack('<I', 7<<28 | int(value)))
+
+  def set_pulses(self, value):
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 8<<28 | int(value)))
 
   def scan(self):
     if self.idle: return
     self.scanButton.setEnabled(False)
     self.data[:] = np.zeros(2 * 512 * 512, np.int32)
     self.update_mesh()
-    self.socket.write(struct.pack('<I', 6<<28))
+    self.socket.write(struct.pack('<I', 10<<28))
     self.meshTimer.start(1000)
 
   def update_mesh(self):
-    self.mesh.set_array(self.data[0::2]/self.samplesValue.value()/8192.0)
+    self.mesh.set_array(self.data[0::2]/(self.samplesValue.value() * self.pulsesValue.value() * 8192.0))
     self.canvas.draw()
 
 app = QApplication(sys.argv)
