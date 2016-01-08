@@ -34,7 +34,7 @@ module axis_accumulator #
   reg int_tready_reg, int_tready_next;
 
   wire [M_AXIS_TDATA_WIDTH-1:0] sum_accu_wire;
-  wire int_comp_wire, int_tvalid_wire, int_tlast_wire;
+  wire int_comp_wire, int_tvalid_wire;
 
   always @(posedge aclk)
   begin
@@ -58,7 +58,6 @@ module axis_accumulator #
 
   assign int_comp_wire = int_cntr_reg < cfg_data;
   assign int_tvalid_wire = int_tready_reg & s_axis_tvalid;
-  assign int_tlast_wire = ~int_comp_wire;
 
   generate
     if(AXIS_TDATA_SIGNED == "TRUE")
@@ -93,7 +92,7 @@ module axis_accumulator #
           int_accu_next = sum_accu_wire;
         end
 
-        if(int_tvalid_wire & int_tlast_wire)
+        if(int_tvalid_wire & ~int_comp_wire)
         begin
           int_cntr_next = {(CNTR_WIDTH){1'b0}};
           int_accu_next = {(M_AXIS_TDATA_WIDTH){1'b0}};
@@ -128,7 +127,7 @@ module axis_accumulator #
           int_accu_next = sum_accu_wire;
         end
 
-        if(int_tvalid_wire & int_tlast_wire)
+        if(int_tvalid_wire & ~int_comp_wire)
         begin
           int_tready_next = 1'b0;
           int_tdata_next = sum_accu_wire;

@@ -29,7 +29,7 @@ module axis_decimator #
   reg int_tvalid_reg, int_tvalid_next;
   reg int_tready_reg, int_tready_next;
 
-  wire int_comp_wire, int_tvalid_wire, int_tlast_wire;
+  wire int_comp_wire, int_tvalid_wire;
 
   always @(posedge aclk)
   begin
@@ -51,7 +51,6 @@ module axis_decimator #
 
   assign int_comp_wire = int_cntr_reg < cfg_data;
   assign int_tvalid_wire = int_tready_reg & s_axis_tvalid;
-  assign int_tlast_wire = ~int_comp_wire;
 
   always @*
   begin
@@ -70,7 +69,7 @@ module axis_decimator #
       int_cntr_next = int_cntr_reg + 1'b1;
     end
 
-    if(int_tvalid_wire & int_tlast_wire)
+    if(int_tvalid_wire & ~int_comp_wire)
     begin
       int_cntr_next = {(CNTR_WIDTH){1'b0}};
       int_tdata_next = s_axis_tdata;
