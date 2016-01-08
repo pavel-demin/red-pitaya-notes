@@ -33,14 +33,17 @@ int main()
   dac = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   adc = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
-  /* set number of ADC samples per pulse */
-  *(uint8_t *)(cfg + 2) = 25;
-
   /* stop pulse generators */
   *(uint8_t *)(cfg + 0) &= ~1;
 
+  /* set number of ADC samples per pulse */
+  *(uint8_t *)(cfg + 2) = 25;
+
+  /* set number of pulses per pixel */
+  pulses = 1;
+  *(uint8_t *)(cfg + 3) = pulses - 1;
+
   period = 29000;
-  pulses = 2;
 
   /* trigger pulse generator */
   /* number of clocks before 1 */
@@ -156,7 +159,7 @@ int main()
           *(uint8_t *)(cfg + 2) = data - 1;
           break;
         case 8:
-          /* set number of pulses per pulse */
+          /* set number of pulses per pixel */
           pulses = data;
           *(uint8_t *)(cfg + 3) = pulses - 1;
           *(uint32_t *)(cfg + 36) = pulses * period - 1;
