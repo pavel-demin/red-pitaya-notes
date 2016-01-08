@@ -31,7 +31,7 @@ module pulse_generator
   always @*
   begin
     int_out_next = int_out_reg;
-    int_cntr_next = int_cntr_reg + 1'b1;
+    int_cntr_next = int_cntr_reg;
 
     if(int_cntr_reg == cfg[31:0])
     begin
@@ -43,7 +43,11 @@ module pulse_generator
       int_out_next = 1'b0;
     end
 
-    if(int_cntr_reg == cfg[95:64])
+    if(int_cntr_reg < cfg[95:64])
+    begin
+      int_cntr_next = int_cntr_reg + 1'b1;
+    end
+    else
     begin
       int_cntr_next = 32'd0;
     end
