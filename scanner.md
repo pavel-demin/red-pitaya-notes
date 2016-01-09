@@ -9,6 +9,15 @@ Introduction
 
 This configuration may be useful for building a galvanometer controller for an optical scanner or a scanning coil controller for a scanning electron microscope.
 
+Interesting links
+-----
+
+Some interesting links on scanning and imaging techniques:
+
+ - [Scanning and Image Reconstruction Techniques in Confocal Laser Scanning Microscopy](http://www.intechopen.com/books/laser-scanning-theory-and-applications/scanning-and-image-reconstruction-techniques-in-confocal-laser-scanning-microscopy)
+
+ - [Spectral Imaging: Active hyperspectral sensing and imaging for remote spectroscopy applications](http://www.laserfocusworld.com/articles/print/volume-49/issue-11/features/spectral-imaging-active-hyperspectral-sensing-and-imaging-for-remote-spectroscopy-applications.html)
+
 Hardware
 -----
 
