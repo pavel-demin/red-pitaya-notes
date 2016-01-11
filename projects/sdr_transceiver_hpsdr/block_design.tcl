@@ -109,7 +109,7 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 192
+  CFG_DATA_WIDTH 256
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -124,7 +124,7 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 192 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+  DIN_WIDTH 256 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
   Dout exp_p_tri_io
@@ -134,14 +134,14 @@ cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 192 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+  DIN_WIDTH 256 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 192 DIN_FROM 95 DIN_TO 32 DOUT_WIDTH 64
+  DIN_WIDTH 256 DIN_FROM 95 DIN_TO 32 DOUT_WIDTH 64
 } {
   Din cfg_0/cfg_data
 }
@@ -159,14 +159,14 @@ module rx_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 192 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+  DIN_WIDTH 256 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 192 DIN_FROM 159 DIN_TO 96 DOUT_WIDTH 64
+  DIN_WIDTH 256 DIN_FROM 159 DIN_TO 96 DOUT_WIDTH 64
 } {
   Din cfg_0/cfg_data
 }
@@ -184,14 +184,14 @@ module rx_1 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
-  DIN_WIDTH 192 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+  DIN_WIDTH 256 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
-  DIN_WIDTH 192 DIN_FROM 191 DIN_TO 160 DOUT_WIDTH 32
+  DIN_WIDTH 256 DIN_FROM 255 DIN_TO 160 DOUT_WIDTH 96
 } {
   Din cfg_0/cfg_data
 }
@@ -200,7 +200,9 @@ module tx_0 {
   source projects/sdr_transceiver_hpsdr/tx.tcl
 } {
   slice_0/Din rst_slice_2/Dout
-  slice_1/Din cfg_slice_2/Dout
+  slice_1/Din rst_slice_2/Dout
+  slice_2/Din cfg_slice_2/Dout
+  slice_3/Din cfg_slice_2/Dout
   fifo_1/M_AXIS dac_0/S_AXIS
 }
 
