@@ -31,6 +31,8 @@ struct sockaddr_in addr_ep6;
 int enable_thread = 0;
 int active_thread = 0;
 
+int vna = 0;
+
 void process_ep2(char *frame);
 void *handler_ep6(void *arg);
 
@@ -74,8 +76,12 @@ int main(int argc, char *argv[])
   rx_rate[1] = ((uint32_t *)(cfg + 16));
   rx_cntr[1] = ((uint16_t *)(sts + 2));
 
-  tx_freq = ((uint32_t *)(cfg + 20));
+  tx_freq = ((uint32_t *)(cfg + 28));
   tx_cntr = ((uint16_t *)(sts + 4));
+
+  /* set I/Q data for the VNA mode */
+  *((uint64_t *)(cfg + 20)) = 2000000;
+  *tx_rst &= ~2;
 
   /* set PTT pin to low */
   *gpio = 0;
@@ -89,6 +95,9 @@ int main(int argc, char *argv[])
 
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+
+  *tx_rst |= 1;
+  *tx_rst &= ~1;
 
   if((sock_ep2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
   {
@@ -112,9 +121,6 @@ int main(int argc, char *argv[])
     perror("bind");
     return EXIT_FAILURE;
   }
-
-  *tx_rst |= 1;
-  *tx_rst &= ~1;
 
   while(1)
   {
@@ -217,7 +223,7 @@ void process_ep2(char *frame)
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
       *tx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
-      break;
+      if(!vna) break;
     case 4:
     case 5:
       /* set rx phase increment */
@@ -231,6 +237,13 @@ void process_ep2(char *frame)
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[1] = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+      break;
+    case 18:
+    case 19:
+      /* set VNA mode */
+      vna = frame[2] & 128;
+      if(vna) *tx_rst |= 2;
+      else *tx_rst &= ~2;
       break;
   }
 }
