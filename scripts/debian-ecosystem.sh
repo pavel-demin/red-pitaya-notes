@@ -56,6 +56,7 @@ tar -zxf $ecosystem_tar --directory=$root_dir
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
+export LC_ALL=C
 
 /debootstrap/debootstrap --second-stage
 
