@@ -1,0 +1,159 @@
+# -*- Makefile -*-
+# NOTE: this file requires GNU Make.
+#
+#PLAT = unix
+#PRIV = install-private-headers
+#
+# Linux:
+#LDFLAGS = -L/usr/X11R6/lib -lX11 -ldl -lm # -lpthread
+#
+# Mac OS X:
+#LDFLAGS = -framework CoreFoundation -L/usr/X11R6/lib -lX11 -weak-lXss -lXext
+#LDFLAGS = -framework CoreFoundation -framework Carbon -framework IOKit
+#LDSTRIP = -x
+
+EXTDIR = ../../../../8.x
+STATIC = --disable-shared --enable-static
+OUTDIR = $(shell pwd)/build
+OBJ    = $(OUTDIR)/zvfs$O $(OUTDIR)/g2lite$O $(OUTDIR)/mcpha$O
+GUIOBJ ?= $(OBJ) $(OUTDIR)/tclAppInit$O
+TCLDIR = --with-tcl=$(OUTDIR)/lib --prefix=$(OUTDIR) --exec-prefix=$(OUTDIR)
+STRIP ?= strip
+UPX   ?= :
+O     ?=.o
+A     ?=.a
+SO    ?=.so
+
+TCL_OPTS = --disable-threads
+TK_OPTS = --disable-threads
+BLT_OPTS = --disable-threads
+TKTABLE_OPTS = --disable-threads
+VFS_OPTS = --disable-threads
+SQLITE_OPTS = --disable-threads
+ZLIB_OPTS = --prefix=$(OUTDIR)
+
+tclkit-gui$(EXE): kit-gui$(EXE) ../../setupvfs.tcl build/files
+	cp kit-gui$(EXE) $@
+	sleep 3
+	$(STRIP) $@
+	$(UPX) $@
+	./kit-gui -init- ../../setupvfs.tcl $(KIT_OPTS) $@ gui
+
+ifeq ($(PLAT), win)
+kit-gui$(EXE): build/tcl build/tk build/blt build/Tktable build/tclvfs \
+	build/zlib build/tcllib build/sqlite $(GUIOBJ)
+	$(CC) -o $@ $(CFLAGS) ../../kitInit.c $(GUIOBJ) \
+	  -Ibuild/include -DKIT_LITE -DSTATIC_BUILD \
+	  build/lib/vfs1*/*vfs1*$A \
+	  -DKIT_INCLUDES_TK build/lib/Tktable2*/*Tktable2*$A \
+	  build/lib/*tkstub8*$A build/lib/*tk8*$A \
+	  build/lib/*tclstub8*$A build/lib/*tcl8*$A \
+	  build/lib/BLT2*/*BLT2*$A \
+	  build/lib/sqlite3*/*sqlite3*$A build/lib/libz$A \
+	  $(LDFLAGS) $(GUI_OPTS)
+else
+kit-gui$(EXE): build/tcl build/tk build/blt build/Tktable build/tclvfs \
+	build/zlib build/tcllib build/sqlite $(GUIOBJ)
+	$(CC) -o $@ $(CFLAGS) ../../kitInit.c $(GUIOBJ) \
+	  -Ibuild/include -DKIT_LITE -DSTATIC_BUILD \
+	  build/lib/vfs1*/*vfs1*$A \
+	  -DKIT_INCLUDES_TK build/lib/Tktable2*/*Tktable2*$A \
+	  build/lib/*tkstub8*$A build/lib/*tk8*$A \
+	  build/lib/*tclstub8*$A build/lib/*tcl8*$A \
+	  build/lib/BLT2*/*BLT2*$A \
+	  build/lib/sqlite3*/*sqlite3*$A build/lib/libz$A \
+	  $(LDFLAGS) $(GUI_OPTS)
+endif
+
+build/files:
+	mkdir -p $@ && cd $@ && ln -s ../../../../files/* .
+
+build/tcl:
+	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
+	  sh ../../../tcl/$(PLAT)/configure $(STATIC) $(TCL_OPTS) \
+	    --prefix=$(OUTDIR) --exec-prefix=$(OUTDIR) && \
+	  $(MAKE) install-binaries install-libraries install-headers $(PRIV)
+
+build/tk: build/tcl
+	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
+	  sh ../../../tk/$(PLAT)/configure $(STATIC) $(TCLDIR) $(TK_OPTS) && \
+	  $(MAKE) install-binaries install-libraries install-headers $(PRIV) && \
+	  cp ../../../tk/generic/tk3d.h ../include && \
+	  cp ../../../tk/generic/tkFont.h ../include
+
+build/blt: build/tk
+	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
+	  sh $(EXTDIR)/blt/configure $(STATIC) $(TCLDIR) $(BLT_OPTS) && \
+	  $(MAKE) install-binaries install-libraries
+
+build/Tktable: build/tk
+	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
+	  sh $(EXTDIR)/Tktable/configure $(STATIC) $(TCLDIR) $(TKTABLE_OPTS) && \
+	  $(MAKE) install-binaries install-libraries
+
+build/tclvfs: build/tcl
+	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
+	  sh $(EXTDIR)/tclvfs/configure $(STATIC) $(TCLDIR) $(VFS_OPTS) && \
+	  $(MAKE) install
+
+build/zlib: build/tcl
+	cp -R ../../8.x/zlib/. $@
+	cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
+	  sh $(EXTDIR)/zlib/configure $(ZLIB_OPTS) && \
+	  $(MAKE) install
+
+build/tcllib: build/tcl
+	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
+	  sh $(EXTDIR)/tcllib/configure $(STATIC) $(TCLDIR) $(TCLLIB_OPTS) && \
+	  $(MAKE) install-libraries
+
+build/sqlite: build/tcl
+	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
+	  sh $(EXTDIR)/sqlite/tea/configure $(STATIC) $(TCLDIR) $(SQLITE_OPTS) && \
+	  $(MAKE) install-binaries
+
+base: build/tcl build/tk
+	ls -l build/bin
+
+tidy: cleanext
+	rm -rf build/tcl build/tk build/tkdyn
+
+cleanext:
+	rm -rf build/tclvfs build/*.o
+	rm -rf build/lib/vfs*
+
+clean:
+	rm -rf build kit-gui$(EXE)
+
+distclean: clean
+	rm -f tclkit-gui$(EXE)
+
+.PHONY: all base clean distclean threaded tidy
+
+$(OUTDIR)/zvfs$O: ../../zvfs.c
+	$(CC) -o $@ $(CFLAGS) -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DSTATIC_BUILD -Ibuild/include -c $<
+
+$(OUTDIR)/g2lite$O: ../../g2lite.c
+	$(CC) -o $@ $(CFLAGS) -DSTATIC_BUILD -Ibuild/include -c $<
+
+$(OUTDIR)/mcpha$O: ../../mcpha.c
+	$(CC) -o $@ $(CFLAGS) -DSTATIC_BUILD -Ibuild/include -c $<
+
+$(OUTDIR)/tclAppInit$O: ../tcl/$(PLAT)/tclAppInit.c
+	$(CC) -o $@ $(CFLAGS) -DSTATIC_BUILD -Ibuild/include \
+	  -DTCL_LOCAL_APPINIT=TclKit_AppInit -c $<
+
+$(OUTDIR)/winMain$O: ../tk/$(PLAT)/winMain.c
+	$(CC) -o $@ $(CFLAGS) -DSTATIC_BUILD -Ibuild/include \
+	  -DTK_LOCAL_APPINIT=TclKit_AppInit -c $<
+
+$(OUTDIR)/tclkit.res.o: ../../tclkit.rc
+	cp $< build/tk/tclkit.rc
+	windres -o $@ --define STATIC_BUILD --define TCLKIT_WITH_TK \
+	  --define BASE_NO_TK_ICON --include build/include \
+	  --include build/tk --include ../../files --include ../tk/win/rc \
+	  build/tk/tclkit.rc
+
+$(OUTDIR)/tclkitsh.res.o: ../../tclkit.rc
+	windres -o $@ --define STATIC_BUILD --include build/include \
+	  --include ../../files $<

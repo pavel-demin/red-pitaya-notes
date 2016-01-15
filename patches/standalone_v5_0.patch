@@ -1,0 +1,164 @@
+diff -brupN old/ps7_cortexa9_1/libsrc/standalone_v5_0/src/asm_vectors.S ps7_cortexa9_1/libsrc/standalone_v5_0/src/asm_vectors.S
+--- old/ps7_cortexa9_1/libsrc/standalone_v5_0/src/asm_vectors.S
++++ ps7_cortexa9_1/libsrc/standalone_v5_0/src/asm_vectors.S
+@@ -55,6 +55,7 @@
+ *
+ ******************************************************************************/
+ #include "xil_errata.h"
++#include "xparameters.h"
+ 
+ #define __ARM_NEON__ 1
+ 
+@@ -63,6 +64,10 @@
+ 
+ .globl _boot
+ .globl _vector_table
++.globl _cpu0_catch
++.globl _cpu1_catch
++.globl OKToRun
++.globl EndlessLoop0
+ 
+ .globl FIQInterrupt
+ .globl IRQInterrupt
+@@ -85,6 +90,20 @@ _vector_table:
+ 	B	FIQHandler
+ 
+ 
++#if XPAR_CPU_ID==0
++_cpu0_catch:
++.word	OKToRun		/* fixed addr for caught cpu- */
++_cpu1_catch:
++.word	EndlessLoop0	/* fixed addr for caught cpu- */
++
++#elif XPAR_CPU_ID==1
++_cpu0_catch:
++.word	EndlessLoop0
++_cpu1_catch:
++.word	OKToRun
++#endif
++
++
+ IRQHandler:					/* IRQ vector handler */
+ 
+ 	stmdb	sp!,{r0-r3,r12,lr}		/* state save from compiled code*/
+diff -brupN old/ps7_cortexa9_1/libsrc/standalone_v5_0/src/boot.S ps7_cortexa9_1/libsrc/standalone_v5_0/src/boot.S
+--- old/ps7_cortexa9_1/libsrc/standalone_v5_0/src/boot.S
++++ ps7_cortexa9_1/libsrc/standalone_v5_0/src/boot.S
+@@ -79,6 +77,11 @@
+ .global __undef_stack
+ .global _vector_table
+ 
++.globl _cpu0_catch
++.globl _cpu1_catch
++.globl OKToRun
++.globl EndlessLoop0
++
+ .set PSS_L2CC_BASE_ADDR, 0xF8F02000
+ .set PSS_SLCR_BASE_ADDR, 0xF8000000
+ 
+@@ -137,26 +139,27 @@
+ _prestart:
+ _boot:
+ 
+-#if XPAR_CPU_ID==0
+-/* only allow cpu0 through */
++/* Test which processor is running and jump to the catch address */
+ 	mrc	p15,0,r1,c0,c0,5
+ 	and	r1, r1, #0xf
+ 	cmp	r1, #0
+-	beq	OKToRun
++	bne	NotCpu0
++	ldr	r0, =_cpu0_catch
++	b cpuxCont
++NotCpu0:
++	cmp	r1, #1
++	bne	EndlessLoop0
++	ldr	r0, =_cpu1_catch
++	b cpuxCont
+ EndlessLoop0:
+ 	wfe
+ 	b	EndlessLoop0
+ 
+-#elif XPAR_CPU_ID==1
+-/* only allow cpu1 through */
+-	mrc	p15,0,r1,c0,c0,5
+-	and	r1, r1, #0xf
+-	cmp	r1, #1
+-	beq	OKToRun
+-EndlessLoop1:
+-	wfe
+-	b	EndlessLoop1
+-#endif
++/* Jump to address pointed to by cpux_catch */
++cpuxCont:
++	ldr lr, [r0]
++	bx	lr
++
+ 
+ OKToRun:
+ 	mrc     p15, 0, r0, c0, c0, 0		/* Get the revision */
+@@ -251,18 +254,42 @@ shareable_loop:
+ 	bge	shareable_loop			/* loop till 1G is covered */
+ #endif
+ 
+-	/* In case of AMP, map virtual address 0x20000000 to 0x00000000  and mark it as non-cacheable */
++//	/* In case of AMP, map virtual address 0x20000000 to 0x00000000  and mark it as non-cacheable */
++//#if USE_AMP==1
++//	ldr	r3, =0x1ff			/* 512 entries to cover 512MB DDR */
++//	ldr	r0, =TblBase			/* MMU Table address in memory */
++//	add	r0, r0, #0x800			/* Address of entry in MMU table, for 0x20000000 */
++//	ldr	r2, =0x0c02			/* S=b0 TEX=b000 AP=b11, Domain=b0, C=b0, B=b0 */
++//mmu_loop:
++//	str	r2, [r0]			/* write the entry to MMU table */
++//	add	r0, r0, #0x4			/* next entry in the table */
++//	add	r2, r2, #0x100000		/* next section */
++//	subs	r3, r3, #1
++//	bge	mmu_loop			/* loop till 512MB is covered */
++//#endif
++
++	/* In case of AMP, mark address 0x00000000 - 0x1dffffff DDR as unassigned/reserved */
++	/* and address 0x1e000000 - 0x1fffffff DDR as inner cached only */
+ #if USE_AMP==1
+-	ldr	r3, =0x1ff			/* 512 entries to cover 512MB DDR */
++	ldr	r3, =0x1df			/* 480 entries to cover 480MB DDR */
+ 	ldr	r0, =TblBase			/* MMU Table address in memory */
+-	add	r0, r0, #0x800			/* Address of entry in MMU table, for 0x20000000 */
+-	ldr	r2, =0x0c02			/* S=b0 TEX=b000 AP=b11, Domain=b0, C=b0, B=b0 */
++	ldr	r2, =0x0000			/* S=b0 TEX=b000 AP=b00, Domain=b0, C=b0, B=b0 */
+ mmu_loop:
+ 	str	r2, [r0]			/* write the entry to MMU table */
+ 	add	r0, r0, #0x4			/* next entry in the table */
+ 	add	r2, r2, #0x100000		/* next section */
+ 	subs	r3, r3, #1
+-	bge	mmu_loop			/* loop till 512MB is covered */
++	bge	mmu_loop			/* loop till 480MB is covered */
++
++	ldr	r3, =0x01f			/* 32 entries to cover 32MB DDR */
++	movw	r2, #0x4de6			/* S=b0 TEX=b100 AP=b11, Domain=b1111, C=b0, B=b1 */
++	movt	r2, #0x1e00			/* S=b0, Section start for address 0x1e000000 */
++mmu_loop1:
++	str	r2, [r0]			/* write the entry to MMU table */
++	add	r0, r0, #0x4			/* next entry in the table */
++	add	r2, r2, #0x100000		/* next section */
++	subs	r3, r3, #1
++	bge	mmu_loop1			/* loop till 32MB is covered */
+ #endif
+ 
+ 	mrs	r0, cpsr			/* get the current PSR */
+diff -brupN old/ps7_cortexa9_1/libsrc/standalone_v5_0/src/xtime_l.c ps7_cortexa9_1/libsrc/standalone_v5_0/src/xtime_l.c
+--- old/ps7_cortexa9_1/libsrc/standalone_v5_0/src/xtime_l.c
++++ ps7_cortexa9_1/libsrc/standalone_v5_0/src/xtime_l.c	
+@@ -80,6 +80,13 @@
+ ****************************************************************************/
+ void XTime_SetTime(XTime Xtime_Global)
+ {
++#ifdef USE_AMP
++	if(Xil_In32((u32)GLOBAL_TMR_BASEADDR + (u32)GTIMER_CONTROL_OFFSET) & (u32)0x1) {
++		// Timer is already enabled so don't reset it
++		return;
++	}
++#endif
++
+ 	/* Disable Global Timer */
+ 	Xil_Out32((u32)GLOBAL_TMR_BASEADDR + (u32)GTIMER_CONTROL_OFFSET, (u32)0x0);
+ 

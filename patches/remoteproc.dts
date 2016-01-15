@@ -1,0 +1,14 @@
+/include/ "system.dts"
+
+/ {
+	test: remoteproc@0 {
+		compatible = "xlnx,zynq_remoteproc";
+		reg = < 0x1E000000 0x2000000 >;
+		interrupt-parent = <&intc>;
+		interrupts = < 0 37 0 0 38 0 >;
+		firmware = "app_cpu1.elf";
+		ipino = <8>;
+		vring0 = <9>;
+		vring1 = <10>;
+	};
+};

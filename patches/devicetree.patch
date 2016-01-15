@@ -1,31 +1,77 @@
---- led_blinker.dts.old	2014-12-10 22:27:35.576535000 +0100
-+++ led_blinker.dts	2014-12-10 22:20:59.268535000 +0100
-@@ -23,3 +23,28 @@
- 		reg = <0x0 0x20000000>;
- 	} ;
+--- system.dts.old
++++ system.dts
+@@ -16,6 +16,13 @@
+ 	chosen {
+ 		bootargs = "console=ttyPS0,115200 root=/dev/mmcblk0p2 ro rootfstype=ext4 earlyprintk rootwait";
+ 	};
++	usb_phy0: phy0 {
++		#phy-cells = <0>;
++		compatible = "ulpi-phy";
++		reg = <0xe0002000 0x1000>;
++		view-port = <0x0170>;
++		drv-vbus;
++	};
+ 	aliases {
+ 		ethernet0 = &gem0;
+ 		serial0 = &uart0;
+@@ -26,7 +33,7 @@
+ 	};
+ 	memory {
+ 		device_type = "memory";
+-		reg = <0x0 0x20000000>;
++		reg = <0x0 0x1E000000>;
+ 	};
  };
-+
-+&ps7_ethernet_0 {
-+	phy-handle = <&phy0>;
-+	mdio {
-+		phy0: phy@1 {
-+			compatible = "lantiq,phy11g";
-+			device_type = "ethernet-phy";
-+			reg = <1>;
-+		};
+ &gem0 {
+@@ -35,6 +42,14 @@
+ 	status = "okay";
+ 	xlnx,ptp-enet-clock = <0x69f6bcb>;
+ };
++&gem0 {
++	phy-handle = <&ethernet_phy>;
++	ethernet_phy: ethernet-phy@1 {
++		compatible = "lantiq,phy11g";
++		device_type = "ethernet-phy";
++		reg = <0x1>;
 +	};
 +};
-+
-+&ps7_i2c_0 {
-+	#address-cells = <1>;
-+	#size-cells = <0>;
+ &gpio0 {
+ 	emio-gpio-width = <64>;
+ 	gpio-mask-high = <0x0>;
+@@ -44,6 +59,12 @@
+ 	clock-frequency = <400000>;
+ 	status = "okay";
+ };
++&i2c0 {
 +	eep@50 {
 +		compatible = "24c64";
 +		reg = <0x50>;
 +	};
-+	eep@51 {
-+		compatible = "24c64";
-+		reg = <0x51>;
-+	};
 +};
-+
+ &intc {
+ 	num_cpus = <2>;
+ 	num_interrupts = <96>;
+@@ -68,6 +89,11 @@
+ 	is-decoded-cs = <0>;
+ 	num-cs = <1>;
+ 	status = "okay";
++	spidev@0 {
++		compatible = "spidev";
++		reg = <0x0>;
++		spi-max-frequency = <10000000>;
++	};
+ };
+ &uart0 {
+ 	current-speed = <115200>;
+@@ -83,9 +109,9 @@
+ };
+ &usb0 {
+ 	dr_mode = "host";
+-	phy_type = "ulpi";
++	usb-phy = <&usb_phy0>;
+ 	status = "okay";
+-	usb-reset = <&gpio0 48 0>;
++	xlnx,phy-reset-gpio = <&gpio0 48 0>;
+ };
+ &clkc {
+ 	fclk-enable = <0x1>;

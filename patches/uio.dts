@@ -1,0 +1,12 @@
+/include/ "system.dts"
+
+/ {
+	chosen {
+		bootargs = "uio_pdrv_genirq.of_id=generic-uio console=ttyPS0,115200 root=/dev/mmcblk0p2 ro rootfstype=ext4 earlyprintk rootwait";
+	};
+
+	uio0: uio@40000000 {
+		compatible = "generic-uio";
+		reg = <0x40000000 0x1000>;
+	};
+};

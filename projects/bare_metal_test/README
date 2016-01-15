@@ -1,0 +1,73 @@
+Instructions for Vivado 2015.1
+
+Based on the information from the following links:
+
+  http://www.wiki.xilinx.com/XAPP1078+Latest+Information
+  http://henryomd.blogspot.be/2015/02/zynq-amp-linux-on-cpu0-and-bare-metal.html
+
+Setting up the Vivado environment:
+
+  source /opt/Xilinx/Vivado/2015.1/settings64.sh
+  source /opt/Xilinx/SDK/2015.1/settings64.sh
+
+Cloning the source code repository:
+
+  git clone https://github.com/pavel-demin/red-pitaya-notes
+  cd red-pitaya-notes
+
+Building boot.bin, devicetree.dtb and uImage:
+
+  make NAME=bare_metal_test all
+
+Building app_cpu1.elf:
+
+  hsi -nolog -nojournal -mode batch -source scripts/app_cpu1.tcl -tclargs bare_metal_test
+  cp projects/bare_metal_test/app_cpu1/* tmp/bare_metal_test.cpu1/
+
+  patch -d tmp/bare_metal_test.cpu1/app_cpu1_bsp -p 0 < patches/standalone_v5_0.patch
+
+  make -C tmp/bare_metal_test.cpu1/app_cpu1_bsp
+  make -C tmp/bare_metal_test.cpu1
+
+  cp tmp/bare_metal_test.cpu1/app_cpu1.elf app_cpu1.elf
+
+Patching and building zynq_remoteproc driver:
+
+  patch -d tmp -p 0 < patches/remoteproc.patch
+  make -C tmp/linux-xlnx-xilinx-v2015.1 ARCH=arm CFLAGS="-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp" CROSS_COMPILE=arm-xilinx-linux-gnueabi- modules
+  find tmp/linux-xlnx-xilinx-v2015.1/drivers -name \*.ko -printf '%P\0' | tar --null --directory=tmp/linux-xlnx-xilinx-v2015.1/drivers --files-from=- -zcvf drivers.tgz
+  cp tmp/linux-xlnx-xilinx-v2015.1/modules.order modules.order
+  cp tmp/linux-xlnx-xilinx-v2015.1/modules.builtin modules.builtin
+
+Building devicetree.dtb:
+
+  tmp/linux-xlnx-xilinx-v2015.1/scripts/dtc/dtc -I dts -O dtb -o devicetree.dtb -i tmp/bare_metal_test.tree patches/remoteproc.dts
+
+Installing devicetree.dtb, drivers and app_cpu1.elf on Red Pitaya:
+
+  Create directory for drivers:
+  mkdir -p /lib/modules/3.18.0-xilinx/kernel/drivers
+
+  Unpack drivers:
+  tar --directory=/lib/modules/3.18.0-xilinx/kernel/drivers -zxf drivers.tgz
+
+  Copy modules.order and modules.builtin to /lib/modules/3.18.0-xilinx
+
+  Generate modules.dep and map files:
+  depmod
+
+  Copy devicetree.dtb to /boot
+
+  Copy app_cpu1.elf to /lib/firmware
+
+  Reboot Red Pitaya
+
+Starting CPU1 application:
+
+  modprobe zynq_remoteproc
+  echo 1 > /sys/devices/soc0/1e000000.remoteproc/remoteproc0/up
+
+Stopping CPU1 application:
+
+  echo 0 > /sys/devices/soc0/1e000000.remoteproc/remoteproc0/up
+  rmmod zynq_remoteproc

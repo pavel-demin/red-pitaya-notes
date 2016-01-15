@@ -1,6 +1,6 @@
 diff -rupN old/u-boot-xlnx-xilinx-v2014.3/boards.cfg u-boot-xlnx-xilinx-v2014.3/boards.cfg
---- old/u-boot-xlnx-xilinx-v2014.3/boards.cfg	2014-10-31 13:19:41.000000000 +0100
-+++ u-boot-xlnx-xilinx-v2014.3/boards.cfg	2014-11-26 03:09:35.868535000 +0100
+--- old/u-boot-xlnx-xilinx-v2014.3/boards.cfg
++++ u-boot-xlnx-xilinx-v2014.3/boards.cfg
 @@ -389,6 +389,7 @@ Active  arm         armv7          zynq
  Active  arm         armv7          zynq        xilinx          zynq                zynq_zc770_XM012                     zynq_zc770:ZC770_XM012                                                                                                             Michal Simek <monstr@monstr.eu>:Jagannadha Sutradharudu Teki <jaganna@xilinx.com>
  Active  arm         armv7          zynq        xilinx          zynq                zynq_zc770_XM013                     zynq_zc770:ZC770_XM013                                                                                                             Michal Simek <monstr@monstr.eu>:Jagannadha Sutradharudu Teki <jaganna@xilinx.com>
@@ -10,8 +10,8 @@ diff -rupN old/u-boot-xlnx-xilinx-v2014.3/boards.cfg u-boot-xlnx-xilinx-v2014.3/
  Active  arm         armv7          zynq        xilinx          zynq                zynq_afx_qspi                        zynq_afx:AFX_QSPI                                                                                                                  Michal Simek <michal.simek@xilinx.com>
  Active  arm         armv7          zynq        xilinx          zynq                zynq_afx_nand                        zynq_afx:AFX_NAND                                                                                                                  Michal Simek <michal.simek@xilinx.com>
 diff -rupN old/u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile
---- old/u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile	2014-10-31 13:19:41.000000000 +0100
-+++ u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile	2014-11-26 03:09:35.868535000 +0100
+--- old/u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile
++++ u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile
 @@ -14,6 +14,7 @@ obj-$(CONFIG_PHYLIB_10G) += generic_10g.
  obj-$(CONFIG_PHY_ATHEROS) += atheros.o
  obj-$(CONFIG_PHY_BROADCOM) += broadcom.o
@@ -21,8 +21,8 @@ diff -rupN old/u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/Makefile u-boot-xlnx-x
  obj-$(CONFIG_PHY_ICPLUS) += icplus.o
  obj-$(CONFIG_PHY_LXT) += lxt.o
 diff -rupN old/u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/phy.c u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/phy.c
---- old/u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/phy.c	2014-10-31 13:19:41.000000000 +0100
-+++ u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/phy.c	2014-11-26 03:09:35.868535000 +0100
+--- old/u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/phy.c
++++ u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/phy.c
 @@ -457,6 +457,9 @@ int phy_init(void)
  #ifdef CONFIG_PHY_ICPLUS
  	phy_icplus_init();
@@ -34,8 +34,8 @@ diff -rupN old/u-boot-xlnx-xilinx-v2014.3/drivers/net/phy/phy.c u-boot-xlnx-xili
  	phy_lxt_init();
  #endif
 diff -rupN old/u-boot-xlnx-xilinx-v2014.3/include/linux/mii.h u-boot-xlnx-xilinx-v2014.3/include/linux/mii.h
---- old/u-boot-xlnx-xilinx-v2014.3/include/linux/mii.h	2014-10-31 13:19:41.000000000 +0100
-+++ u-boot-xlnx-xilinx-v2014.3/include/linux/mii.h	2014-11-26 03:10:25.352535000 +0100
+--- old/u-boot-xlnx-xilinx-v2014.3/include/linux/mii.h
++++ u-boot-xlnx-xilinx-v2014.3/include/linux/mii.h
 @@ -19,6 +19,8 @@
  #define MII_EXPANSION	    0x06	/* Expansion register	       */
  #define MII_CTRL1000	    0x09	/* 1000BASE-T control	       */
@@ -46,8 +46,8 @@ diff -rupN old/u-boot-xlnx-xilinx-v2014.3/include/linux/mii.h u-boot-xlnx-xilinx
  #define MII_DCOUNTER	    0x12	/* Disconnect counter	       */
  #define MII_FCSCOUNTER	    0x13	/* False carrier counter       */
 diff -rupN old/u-boot-xlnx-xilinx-v2014.3/include/phy.h u-boot-xlnx-xilinx-v2014.3/include/phy.h
---- old/u-boot-xlnx-xilinx-v2014.3/include/phy.h	2014-10-31 13:19:41.000000000 +0100
-+++ u-boot-xlnx-xilinx-v2014.3/include/phy.h	2014-11-26 03:09:35.872535000 +0100
+--- old/u-boot-xlnx-xilinx-v2014.3/include/phy.h
++++ u-boot-xlnx-xilinx-v2014.3/include/phy.h
 @@ -32,7 +32,7 @@
  #define PHY_10G_FEATURES	(PHY_GBIT_FEATURES | \
  				SUPPORTED_10000baseT_Full)

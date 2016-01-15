@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"></meta>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Red Pitaya</title>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+<script src="js/jquery-2.1.4.min.js"></script>
+<script>
+  var app_id = 'sdr_transceiver_wide';
+  var root_url = '';
+  var start_app_url = root_url + '/bazaar?start=' + app_id;
+  var stop_app_url = root_url + '/bazaar?stop=' + app_id;
+  function start_app() {
+    $.ajax({
+      url: start_app_url,
+      async: true
+    });
+  }
+  function stop_app() {
+    $.ajax({
+      url: stop_app_url,
+      async: false
+    });
+  }
+</script>
+</head>
+<body onload="start_app()" onunload="stop_app()">
+<div class="container-fluid">
+<div class="navbar navbar-inverse" role="navigation">
+<div class="container">
+<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+</button>
+<a class="navbar-brand" href="/">
+<img class="back-btn" src="img/arrow_nav_left.png">
+</a>
+<img class="logo" width=110 src="img/logo.png">
+</div>
+</div>
+<div id="main">
+<h1>Wideband SDR transceiver</h1>
+<p>The Red Pitaya SDR transceiver is ready.</p>
+<p>Now you can start experimenting with GNU Radio.</p>
+<p>More details about this application can be found at <a href="http://pavel-demin.github.io/red-pitaya-notes/sdr-transceiver-wide/" target="_blank">this link</a>.
+<h3>Getting started</h3>
+<ul>
+<li>Requirements:
+<ul>
+<li>Computer running Ubuntu 14.04 or Debian 8.</li>
+<li>Wired or wireless Ethernet connection between the computer and the Red Pitaya board.</li>
+</ul>
+</li>
+<li>Install <a href="http://gnuradio.org" target="_blank">GNU Radio</a>:</li>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo apt-get install gnuradio python-numpy python-gtk2</code></pre></div>
+<li>Clone the Red Pitaya SDR transceiver source code repository:</li>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">git clone https://github.com/pavel-demin/red-pitaya-notes</code></pre></div>
+<li>Run <a href="http://gnuradio.org/redmine/projects/gnuradio/wiki/GNURadioCompanion" target="_blank">GNU Radio Companion</a> and open a flow graph:</li>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd </span>red-pitaya-notes/projects/sdr_transceiver_wide/gnuradio
+<span class="nb">export </span><span class="nv">GRC_BLOCKS_PATH</span><span class="o">=</span>.
+gnuradio-companion trx_wide_template.grc</code></pre></div>
+</ul>
+</div>
+</div>
+</body>
+</html>
