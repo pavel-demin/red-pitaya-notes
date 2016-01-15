@@ -88,7 +88,9 @@ apt-get -y upgrade
 apt-get -y install locales
 
 locale-gen en_US.UTF-8
-update-locale LANG=en_US.UTF-8
+export LC_ALL="en_US.UTF-8"
+update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LC_MESSAGES=POSIX
+dpkg-reconfigure locales
 
 echo $timezone > etc/timezone
 dpkg-reconfigure --frontend=noninteractive tzdata
