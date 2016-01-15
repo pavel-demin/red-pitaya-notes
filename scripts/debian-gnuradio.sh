@@ -61,6 +61,7 @@ cp projects/sdr_transceiver_emb/gnuradio/* $root_dir/root/gnuradio/
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
+export LC_ALL=C
 
 /debootstrap/debootstrap --second-stage
 

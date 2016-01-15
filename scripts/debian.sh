@@ -58,6 +58,7 @@ chmod +x $root_dir/usr/local/sbin/hostapd
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
+export LC_ALL=C
 
 /debootstrap/debootstrap --second-stage
 
