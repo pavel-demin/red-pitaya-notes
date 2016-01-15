@@ -82,8 +82,10 @@ echo red-pitaya > etc/hostname
 
 sed -i '/^# deb .* universe$/s/^# //' etc/apt/sources.list
 
+sed -i '/### END INIT INFO/aexit 0' /etc/init.d/udev
 apt-get update
 apt-get -y upgrade
+sed -i '/### END INIT INFO/{n;d}' /etc/init.d/udev
 
 apt-get -y install locales
 
