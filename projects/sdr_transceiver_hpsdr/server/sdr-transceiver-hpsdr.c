@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_data[0] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
   tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
@@ -70,14 +70,14 @@ int main(int argc, char *argv[])
 
   rx_freq[0] = ((uint32_t *)(cfg + 4));
   rx_rate[0] = ((uint32_t *)(cfg + 8));
-  rx_cntr[0] = ((uint16_t *)(sts + 0));
+  rx_cntr[0] = ((uint16_t *)(sts + 12));
 
   rx_freq[1] = ((uint32_t *)(cfg + 12));
   rx_rate[1] = ((uint32_t *)(cfg + 16));
-  rx_cntr[1] = ((uint16_t *)(sts + 2));
+  rx_cntr[1] = ((uint16_t *)(sts + 14));
 
   tx_freq = ((uint32_t *)(cfg + 28));
-  tx_cntr = ((uint16_t *)(sts + 4));
+  tx_cntr = ((uint16_t *)(sts + 16));
 
   /* set I/Q data for the VNA mode */
   *((uint64_t *)(cfg + 20)) = 2000000;
