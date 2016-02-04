@@ -18,7 +18,8 @@
 uint32_t *rx_freq[2], *rx_rate[2], *tx_freq;
 uint16_t *rx_cntr[2], *tx_cntr;
 uint8_t *gpio, *rx_rst, *tx_rst;
-void *rx_data[2], *tx_data;
+uint64_t *rx_data[2];
+void *tx_data;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
@@ -303,8 +304,8 @@ void *handler_ep6(void *arg)
 
     while(*rx_cntr[0] < m * n * 4) usleep(1000);
 
-    memcpy(data0, rx_data[0], m * n * 16);
-    memcpy(data1, rx_data[1], m * n * 16);
+    for(i = 0; i < m * n * 16; i += 8) *(uint64_t *)(data0 + i) = *rx_data[0];
+    for(i = 0; i < m * n * 16; i += 8) *(uint64_t *)(data1 + i) = *rx_data[1];
 
     data_offset = 0;
     for(i = 0; i < m; ++i)
