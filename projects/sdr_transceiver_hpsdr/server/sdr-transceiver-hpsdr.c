@@ -18,7 +18,8 @@
 uint32_t *rx_freq[2], *rx_rate[2], *tx_freq;
 uint16_t *rx_cntr[2], *tx_cntr;
 uint8_t *gpio, *rx_rst, *tx_rst;
-void *rx_data[2], *tx_data;
+uint64_t *rx_data[2];
+void *tx_data;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
@@ -56,8 +57,8 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_data[0] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
   tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
@@ -70,14 +71,14 @@ int main(int argc, char *argv[])
 
   rx_freq[0] = ((uint32_t *)(cfg + 4));
   rx_rate[0] = ((uint32_t *)(cfg + 8));
-  rx_cntr[0] = ((uint16_t *)(sts + 0));
+  rx_cntr[0] = ((uint16_t *)(sts + 12));
 
   rx_freq[1] = ((uint32_t *)(cfg + 12));
   rx_rate[1] = ((uint32_t *)(cfg + 16));
-  rx_cntr[1] = ((uint16_t *)(sts + 2));
+  rx_cntr[1] = ((uint16_t *)(sts + 14));
 
   tx_freq = ((uint32_t *)(cfg + 28));
-  tx_cntr = ((uint16_t *)(sts + 4));
+  tx_cntr = ((uint16_t *)(sts + 16));
 
   /* set I/Q data for the VNA mode */
   *((uint64_t *)(cfg + 20)) = 2000000;
@@ -303,8 +304,8 @@ void *handler_ep6(void *arg)
 
     while(*rx_cntr[0] < m * n * 4) usleep(1000);
 
-    memcpy(data0, rx_data[0], m * n * 16);
-    memcpy(data1, rx_data[1], m * n * 16);
+    for(i = 0; i < m * n * 16; i += 8) *(uint64_t *)(data0 + i) = *rx_data[0];
+    for(i = 0; i < m * n * 16; i += 8) *(uint64_t *)(data1 + i) = *rx_data[1];
 
     data_offset = 0;
     for(i = 0; i < m; ++i)

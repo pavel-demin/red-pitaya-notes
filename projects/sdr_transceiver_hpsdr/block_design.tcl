@@ -208,21 +208,34 @@ module tx_0 {
 
 # STS
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_1
+
+# Create dna_reader
+cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
+  aclk ps_0/FCLK_CLK0
+  aresetn rst_0/peripheral_aresetn
+}
+
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_0 {
-  NUM_PORTS 3
-  IN0_WIDTH 16
-  IN1_WIDTH 16
+  NUM_PORTS 5
+  IN0_WIDTH 32
+  IN1_WIDTH 64
   IN2_WIDTH 16
+  IN3_WIDTH 16
+  IN4_WIDTH 16
 } {
-  In0 rx_0/fifo_generator_0/rd_data_count
-  In1 rx_1/fifo_generator_0/rd_data_count
-  In2 tx_0/fifo_generator_0/data_count
+  In0 const_1/dout
+  In1 dna_0/dna_data
+  In2 rx_0/fifo_generator_0/rd_data_count
+  In3 rx_1/fifo_generator_0/rd_data_count
+  In4 tx_0/fifo_generator_0/data_count
 }
 
 # Create axi_sts_register
 cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
-  STS_DATA_WIDTH 64
+  STS_DATA_WIDTH 160
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
@@ -233,19 +246,19 @@ cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Master /ps_0/M_AXI_GP0
   Clk Auto
-} [get_bd_intf_pins cfg_0/S_AXI]
+} [get_bd_intf_pins sts_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
-set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
+set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Master /ps_0/M_AXI_GP0
   Clk Auto
-} [get_bd_intf_pins sts_0/S_AXI]
+} [get_bd_intf_pins cfg_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
-set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
+set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
