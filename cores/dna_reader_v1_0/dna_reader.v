@@ -10,7 +10,7 @@ module dna_reader
 );
 
   localparam integer CNTR_WIDTH = 16;
-  localparam integer DATA_WIDTH = 58;
+  localparam integer DATA_WIDTH = 57;
 
   reg int_enbl_reg, int_enbl_next;
   reg int_read_reg, int_read_next;
