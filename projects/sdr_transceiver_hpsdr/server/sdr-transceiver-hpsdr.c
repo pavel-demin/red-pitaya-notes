@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
   *((uint64_t *)(cfg + 20)) = 2000000;
   *tx_rst &= ~2;
 
-  /* set PTT pin to low */
+  /* set all GPIO pins to low */
   *gpio = 0;
 
   /* set default rx phase increment */
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
       case 0x0201feef:
         while(*tx_cntr > 16258) usleep(1000);
         if(*tx_cntr == 0) memset(tx_data, 0, 65032);
-        if(*gpio)
+        if(*gpio & 1)
         {
           for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 20 + i, 4);
           for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 532 + i, 4);
@@ -196,7 +196,11 @@ void process_ep2(char *frame)
     case 1:
       receivers = ((frame[4] >> 3) & 7) + 1;
       /* set PTT pin */
-      *gpio = frame[0] & 1;
+      if(frame[0] & 1) *gpio |= 1;
+      else *gpio &= ~1;
+      /* set pre-amp pin */
+      if(frame[3] & 4) *gpio |= 2;
+      else *gpio &= ~2;
       /* set rx sample rate */
       switch(frame[1] & 3)
       {
