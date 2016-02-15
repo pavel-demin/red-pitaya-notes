@@ -130,6 +130,23 @@ cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
   Dout exp_p_tri_io
 }
 
+# Create gpio_debouncer
+cell pavel-demin:user:gpio_debouncer:1.0 gpio_0 {
+  DATA_WIDTH 4
+  CNTR_WIDTH 22
+} {
+  gpio_data exp_n_tri_io
+  aclk adc_0/adc_clk
+}
+
+# Create util_vector_logic
+cell xilinx.com:ip:util_vector_logic:2.0 not_0 {
+  C_SIZE 4
+  C_OPERATION not
+} {
+  Op1 gpio_0/out
+}
+
 # RX 0
 
 # Create xlslice
@@ -219,18 +236,20 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_0 {
-  NUM_PORTS 5
+  NUM_PORTS 6
   IN0_WIDTH 32
   IN1_WIDTH 64
   IN2_WIDTH 16
   IN3_WIDTH 16
   IN4_WIDTH 16
+  IN5_WIDTH 4
 } {
   In0 const_1/dout
   In1 dna_0/dna_data
   In2 rx_0/fifo_generator_0/rd_data_count
   In3 rx_1/fifo_generator_0/rd_data_count
   In4 tx_0/fifo_generator_0/data_count
+  In5 not_0/Res
 }
 
 # Create axi_sts_register
