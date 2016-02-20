@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
       case 0x0201feef:
         while(*tx_cntr > 16258) usleep(1000);
         if(*tx_cntr == 0) memset(tx_data, 0, 65032);
-        if(*gpio_out)
+        if((*gpio_out & 1) | (*gpio_in & 1))
         {
           for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 20 + i, 4);
           for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 532 + i, 4);
