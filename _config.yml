@@ -6,4 +6,4 @@ url: http://pavel-demin.github.io
 
 # Build settings
 markdown: kramdown
-highlighter: pygments
+highlighter: rouge
