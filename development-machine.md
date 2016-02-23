@@ -4,14 +4,14 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.3 (amd64) or [Debian](http://www.debian.org/releases/jessie) 8.2 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.4 with full SDK.
+The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.4 (amd64) or [Debian](http://www.debian.org/releases/jessie) 8.3 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2015.4 with full SDK.
 
-Creating virtual machine with Ubuntu 14.04.3 (amd64) or Debian 8.2 (amd64)
+Creating virtual machine with Ubuntu 14.04.4 (amd64) or Debian 8.3 (amd64)
 -----
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](http://ftp.heanet.ie/pub/ubuntu/dists/trusty-updates/main/installer-amd64/current/images/netboot/mini.iso) for Ubuntu 14.04.3 or [mini.iso](http://ftp.heanet.ie/pub/debian/dists/jessie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 8.2
+- Download [mini.iso](http://ftp.heanet.ie/pub/ubuntu/dists/trusty-updates/main/installer-amd64/current/images/netboot/mini.iso) for Ubuntu 14.04.4 or [mini.iso](http://ftp.heanet.ie/pub/debian/dists/jessie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 8.3
 
 - Start VirtualBox
 
