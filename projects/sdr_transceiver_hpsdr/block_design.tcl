@@ -136,7 +136,7 @@ cell pavel-demin:user:gpio_debouncer:1.0 gpio_0 {
   CNTR_WIDTH 22
 } {
   gpio_data exp_n_tri_io
-  aclk adc_0/adc_clk
+  aclk ps_0/FCLK_CLK0
 }
 
 # Create util_vector_logic
