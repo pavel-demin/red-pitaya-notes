@@ -51,18 +51,18 @@ Creating virtual machine with Ubuntu 14.04.4 (amd64) or Debian 8.3 (amd64)
 
 - For Ubuntu, edit the boot parameters at the bottom of the boot screen to make them look like the following:
 
-  (the content of the `git.io/FwVS` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/ubuntu.seed))
+  (the content of the `goo.gl/A6R6Dm` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/ubuntu.seed))
 
 {% highlight bash %}
-linux initrd=initrd.gz url=git.io/FwVS auto=true priority=critical interface=auto
+linux initrd=initrd.gz url=goo.gl/A6R6Dm auto=true priority=critical interface=auto
 {% endhighlight %}
 
 - For Debian, edit the boot parameters at the bottom of the boot screen to make them look like the following:
 
-  (the content of the `git.io/vTXXT` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/debian.seed))
+  (the content of the `goo.gl/eagfri` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/debian.seed))
 
 {% highlight bash %}
-linux initrd=initrd.gz url=git.io/vTXXT auto=true priority=critical interface=auto
+linux initrd=initrd.gz url=goo.gl/eagfri auto=true priority=critical interface=auto
 {% endhighlight %}
 
 - Press ENTER to start the automatic installation
