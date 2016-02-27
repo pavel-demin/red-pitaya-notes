@@ -44,25 +44,6 @@ cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
   adc_csn adc_csn_o
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
-
-# Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 2
-  NUM_MI 3
-  M00_TDATA_REMAP {tdata[15:0]}
-  M01_TDATA_REMAP {tdata[31:16]}
-  M02_TDATA_REMAP {tdata[31:16]}
-} {
-  S_AXIS adc_0/M_AXIS
-  aclk adc_0/adc_clk
-  aresetn const_0/dout
-}
-
 # LED
 
 # Create c_counter_binary
@@ -96,10 +77,10 @@ cell xilinx.com:ip:clk_wiz:5.2 pll_0 {
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1
+cell xilinx.com:ip:xlconstant:1.1 const_0
 
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 2
@@ -108,7 +89,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
   M01_TDATA_REMAP {tdata[15:0]}
 } {
   aclk pll_0/clk_out1
-  aresetn const_1/dout
+  aresetn const_0/dout
 }
 
 # Create axis_red_pitaya_dac
@@ -121,7 +102,7 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   dac_sel dac_sel_o
   dac_wrt dac_wrt_o
   dac_dat dac_dat_o
-  S_AXIS bcast_1/M00_AXIS
+  S_AXIS bcast_0/M00_AXIS
 }
 
 # CFG
@@ -191,18 +172,12 @@ module rx_0 {
   slice_3/Din cfg_slice_0/Dout
   slice_4/Din cfg_slice_0/Dout
   slice_5/Din cfg_slice_0/Dout
-  fifo_0/S_AXIS bcast_0/M00_AXIS
+  fifo_0/S_AXIS adc_0/M_AXIS
   fifo_0/s_axis_aclk adc_0/adc_clk
   fifo_0/s_axis_aresetn const_0/dout
   fifo_1/S_AXIS bcast_0/M01_AXIS
-  fifo_1/s_axis_aclk adc_0/adc_clk
+  fifo_1/s_axis_aclk pll_0/clk_out1
   fifo_1/s_axis_aresetn const_0/dout
-  fifo_2/S_AXIS bcast_0/M02_AXIS
-  fifo_2/s_axis_aclk adc_0/adc_clk
-  fifo_2/s_axis_aresetn const_0/dout
-  fifo_3/S_AXIS bcast_1/M01_AXIS
-  fifo_3/s_axis_aclk pll_0/clk_out1
-  fifo_3/s_axis_aresetn const_1/dout
 }
 
 # TX 0
@@ -228,9 +203,9 @@ module tx_0 {
   slice_1/Din rst_slice_1/Dout
   slice_2/Din cfg_slice_1/Dout
   slice_3/Din cfg_slice_1/Dout
-  fifo_1/M_AXIS bcast_1/S_AXIS
+  fifo_1/M_AXIS bcast_0/S_AXIS
   fifo_1/m_axis_aclk pll_0/clk_out1
-  fifo_1/m_axis_aresetn const_1/dout
+  fifo_1/m_axis_aresetn const_0/dout
 }
 
 # STS
