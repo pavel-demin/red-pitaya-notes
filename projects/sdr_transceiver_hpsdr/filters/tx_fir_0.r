@@ -25,7 +25,7 @@ Mf <- c(Mp, matrix(0, 1, length(fs)))
 h <- fir2(L, f, Mf, window=kaiser(L+1, Beta))
 
 # Print filter coefficients
-paste(as.character(h), collapse=", ")
+paste(sprintf("%.10e", h), collapse=", ")
 
 fh <- freqz(h)
 
