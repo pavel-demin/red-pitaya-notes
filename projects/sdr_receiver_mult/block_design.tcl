@@ -164,56 +164,17 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins rx_0/reader_0/S_AXI]
+set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
-set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
-set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
+for {set i 0} {$i <= 5} {incr i} {
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins rx_0/reader_1/S_AXI]
+  # Create all required interconnections
+  apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+    Master /ps_0/M_AXI_GP0
+    Clk Auto
+  } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
 
-set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_1_reg0]
-set_property OFFSET 0x40004000 [get_bd_addr_segs ps_0/Data/SEG_reader_1_reg0]
+  set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property OFFSET 0x4000[format %X [expr 2 * $i + 2]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins rx_0/reader_2/S_AXI]
-
-set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_2_reg0]
-set_property OFFSET 0x40006000 [get_bd_addr_segs ps_0/Data/SEG_reader_2_reg0]
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins rx_0/reader_3/S_AXI]
-
-set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_3_reg0]
-set_property OFFSET 0x40008000 [get_bd_addr_segs ps_0/Data/SEG_reader_3_reg0]
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins rx_0/reader_4/S_AXI]
-
-set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_4_reg0]
-set_property OFFSET 0x4000A000 [get_bd_addr_segs ps_0/Data/SEG_reader_4_reg0]
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins rx_0/reader_5/S_AXI]
-
-set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_5_reg0]
-set_property OFFSET 0x4000C000 [get_bd_addr_segs ps_0/Data/SEG_reader_5_reg0]
+}
