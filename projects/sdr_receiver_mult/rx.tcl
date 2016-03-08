@@ -31,12 +31,11 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-
 for {set i 0} {$i <= 5} {incr i} {
 
   # Create xlslice
   cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 1] {
-    DIN_WIDTH 224 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32] DOUT_WIDTH 32
+    DIN_WIDTH 192 DIN_FROM [expr 32 * $i + 31] DIN_TO [expr 32 * $i] DOUT_WIDTH 32
   }
 
   # Create axis_constant
