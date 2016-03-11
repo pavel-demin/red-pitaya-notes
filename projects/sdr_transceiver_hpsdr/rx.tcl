@@ -117,17 +117,12 @@ for {set i 0} {$i <= 3} {incr i} {
     aresetn /rst_0/peripheral_aresetn
   }
 
-  # Create axis_variable
-  cell pavel-demin:user:axis_variable:1.0 rate_[expr 2 * $i + 0] {
-    AXIS_TDATA_WIDTH 16
-  } {
-    cfg_data slice_1/Dout
-    aclk /ps_0/FCLK_CLK0
-    aresetn /rst_0/peripheral_aresetn
-  }
+}
+
+for {set i 0} {$i <= 7} {incr i} {
 
   # Create axis_variable
-  cell pavel-demin:user:axis_variable:1.0 rate_[expr 2 * $i + 1] {
+  cell pavel-demin:user:axis_variable:1.0 rate_$i {
     AXIS_TDATA_WIDTH 16
   } {
     cfg_data slice_1/Dout
@@ -136,7 +131,7 @@ for {set i 0} {$i <= 3} {incr i} {
   }
 
   # Create cic_compiler
-  cell xilinx.com:ip:cic_compiler:4.0 cic_[expr 2 * $i + 0] {
+  cell xilinx.com:ip:cic_compiler:4.0 cic_$i {
     INPUT_DATA_WIDTH.VALUE_SRC USER
     FILTER_TYPE Decimation
     NUMBER_OF_STAGES 6
@@ -153,32 +148,8 @@ for {set i 0} {$i <= 3} {incr i} {
     HAS_DOUT_TREADY true
     HAS_ARESETN true
   } {
-    S_AXIS_DATA bcast_[expr $i + 1]/M00_AXIS
-    S_AXIS_CONFIG rate_[expr 2 * $i + 0]/M_AXIS
-    aclk /ps_0/FCLK_CLK0
-    aresetn /rst_0/peripheral_aresetn
-  }
-
-  # Create cic_compiler
-  cell xilinx.com:ip:cic_compiler:4.0 cic_[expr 2 * $i + 1] {
-    INPUT_DATA_WIDTH.VALUE_SRC USER
-    FILTER_TYPE Decimation
-    NUMBER_OF_STAGES 6
-    SAMPLE_RATE_CHANGES Programmable
-    MINIMUM_RATE 125
-    MAXIMUM_RATE 8192
-    FIXED_OR_INITIAL_RATE 500
-    INPUT_SAMPLE_FREQUENCY 125
-    CLOCK_FREQUENCY 125
-    INPUT_DATA_WIDTH 24
-    QUANTIZATION Truncation
-    OUTPUT_DATA_WIDTH 24
-    USE_XTREME_DSP_SLICE false
-    HAS_DOUT_TREADY true
-    HAS_ARESETN true
-  } {
-    S_AXIS_DATA bcast_[expr $i + 1]/M01_AXIS
-    S_AXIS_CONFIG rate_[expr 2 * $i + 1]/M_AXIS
+    S_AXIS_DATA bcast_[expr $i / 2 + 1]/M0[expr $i % 2]_AXIS
+    S_AXIS_CONFIG rate_$i/M_AXIS
     aclk /ps_0/FCLK_CLK0
     aresetn /rst_0/peripheral_aresetn
   }
@@ -307,7 +278,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_2 {
   SAMPLE_FREQUENCY 0.768
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
-  OUTPUT_WIDTH 25
+  OUTPUT_WIDTH 26
   M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {

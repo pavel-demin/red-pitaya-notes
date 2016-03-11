@@ -90,7 +90,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   SAMPLE_FREQUENCY 0.048
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
-  OUTPUT_WIDTH 25
+  OUTPUT_WIDTH 26
   M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
@@ -262,7 +262,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   APORTWIDTH 24
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 18
+  OUTPUTWIDTH 17
 } {
   S_AXIS_A keyer_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
