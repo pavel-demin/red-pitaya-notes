@@ -278,7 +278,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_2 {
   SAMPLE_FREQUENCY 0.768
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
-  OUTPUT_WIDTH 25
+  OUTPUT_WIDTH 26
   M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
