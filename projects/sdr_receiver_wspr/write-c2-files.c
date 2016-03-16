@@ -92,7 +92,6 @@ int main()
   {
     strftime(date, 12, "%y%m%d_%H%M", lt);
     sprintf(name, "wspr_%d_%s.c2", (uint32_t)(freq[i] * 1.0e6), date);
-    printf("%s\n", name); continue;
     if((fp = fopen(name, "wb")) == NULL)
     {
       perror("fopen");
