@@ -25,6 +25,7 @@ int main()
   char name[32];
   char zeros[15] = "000000_0000.c2";
   double dialfreq;
+  double corr = 9;
   double freq[8] = {
 //     0.137500,
 //     0.475100,
@@ -61,7 +62,7 @@ int main()
   for(i = 0; i < 8; ++i)
   {
     fifo[i] = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000 + i * 0x1000);
-    *(uint32_t *)(cfg + 4 + i * 4) = (uint32_t)floor(freq[i] / 125.0 * (1<<30) + 0.5);
+    *(uint32_t *)(cfg + 4 + i * 4) = (uint32_t)floor((1.0 + 1.0e-6 * corr) * freq[i] / 125.0 * (1<<30) + 0.5);
   }
 
   rst = (uint8_t *)(cfg + 0);
