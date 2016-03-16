@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <math.h>
@@ -19,19 +20,19 @@ int main()
   uint64_t buffer[8][45000];
   char name[15];
   double freq[8] = {
-//    137500,
-//    475100,
-//    1838100,
-    3594100,
-    5288700,
-    7040100,
-    10140200,
-    14097100,
-    18106100,
-    21096100,
-    24926100,
-//    28126100,
-//    50294500,
+//     0.137500,
+//     0.475100,
+//     1.838100,
+     3.594100,
+     5.288700,
+     7.040100,
+    10.140200,
+    14.097100,
+    18.106100,
+    21.096100,
+    24.926100,
+//    28.126100,
+//    50.294500,
   };
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
@@ -46,7 +47,7 @@ int main()
   for(i = 0; i < 8; ++i)
   {
     fifo[i] = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000 + i * 0x1000);
-    *(uint32_t *)(cfg + 4 + i * 4) = (uint32_t)floor(freq[i] / 125.0e6 * (1<<30) + 0.5);
+    *(uint32_t *)(cfg + 4 + i * 4) = (uint32_t)floor(freq[i] / 125.0 * (1<<30) + 0.5);
   }
 
   rst = (uint8_t *)(cfg + 0);
@@ -56,8 +57,9 @@ int main()
   *rst &= ~1;
 
   offset = 0;
+  memset(buffer, 0, 45000 * 8 * 8);
 
-  while(offset < 45000)
+  while(offset < 42000)
   {
     while(*cntr < 500) usleep(300000);
 
