@@ -36,8 +36,7 @@ The [projects/sdr_receiver_wspr](https://github.com/pavel-demin/red-pitaya-notes
 Software
 -----
 
-The [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/write-c2-files.c) program accumulates 45000 samples at 375 samples per second for each of the eight bands
-and saves the samples to .c2 files
+The [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/write-c2-files.c) program accumulates 42000 samples at 375 samples per second for each of the eight bands and saves the samples to eight .c2 files.
 
 The recorded .c2 files are processed with the [WSPR decoder](https://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wsjtx/lib/wsprd/).
 
