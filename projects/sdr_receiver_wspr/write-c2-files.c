@@ -24,6 +24,7 @@ int main()
   char date[12];
   char name[32];
   char zeros[15] = "000000_0000.c2";
+  double dialfreq;
   double freq[8] = {
 //     0.137500,
 //     0.475100,
@@ -69,7 +70,6 @@ int main()
   *rst |= 1;
   *rst &= ~1;
 
-
   offset = 0;
   memset(buffer, 0, 45000 * 8 * 8);
 
@@ -90,8 +90,9 @@ int main()
 
   for(i = 0; i < 8; ++i)
   {
+    dialfreq = freq[i] - 0.0015;
     strftime(date, 12, "%y%m%d_%H%M", lt);
-    sprintf(name, "wspr_%d_%s.c2", (uint32_t)(freq[i] * 1.0e6), date);
+    sprintf(name, "wspr_%d_%s.c2", (uint32_t)(dialfreq * 1.0e6), date);
     if((fp = fopen(name, "wb")) == NULL)
     {
       perror("fopen");
@@ -99,7 +100,7 @@ int main()
     }
     fwrite(zeros, 1, 14, fp);
     fwrite(&type, 1, 4, fp);
-    fwrite(&freq[i], 1, 8, fp);
+    fwrite(&dialfreq, 1, 8, fp);
     fwrite(buffer[i], 1, 360000, fp);
     fclose(fp);
   }
