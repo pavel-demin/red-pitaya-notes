@@ -6,19 +6,24 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <math.h>
+#include <time.h>
 #include <sys/mman.h>
 
 int main()
 {
   FILE *fp;
   int fd, offset, i, j;
+  time_t t;
+  struct tm *lt;
   void *cfg, *sts;
   uint64_t *fifo[8];
   uint8_t *rst;
   uint16_t *cntr;
   int32_t type = 2;
   uint64_t buffer[8][45000];
-  char name[15];
+  char date[12];
+  char name[32];
+  char zeros[15] = "000000_0000.c2";
   double freq[8] = {
 //     0.137500,
 //     0.475100,
@@ -34,6 +39,14 @@ int main()
 //    28.126100,
 //    50.294500,
   };
+
+  t = time(NULL);
+  lt = localtime(&t);
+  if((lt = localtime(&t)) == NULL)
+  {
+    perror("localtime");
+    return EXIT_FAILURE;
+  }
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
@@ -56,6 +69,7 @@ int main()
   *rst |= 1;
   *rst &= ~1;
 
+
   offset = 0;
   memset(buffer, 0, 45000 * 8 * 8);
 
@@ -76,13 +90,15 @@ int main()
 
   for(i = 0; i < 8; ++i)
   {
-    sprintf(name, "000000_000%d.c2", i);
+    strftime(date, 12, "%y%m%d_%H%M", lt);
+    sprintf(name, "wspr_%d_%s.c2", (uint32_t)(freq[i] * 1.0e6), date);
+    printf("%s\n", name); continue;
     if((fp = fopen(name, "wb")) == NULL)
     {
       perror("fopen");
       return EXIT_FAILURE;
     }
-    fwrite(name, 1, 14, fp);
+    fwrite(zeros, 1, 14, fp);
     fwrite(&type, 1, 4, fp);
     fwrite(&freq[i], 1, 8, fp);
     fwrite(buffer[i], 1, 360000, fp);
