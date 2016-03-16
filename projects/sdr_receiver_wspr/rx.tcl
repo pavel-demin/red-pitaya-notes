@@ -298,14 +298,14 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_9 {
   S_TDATA_NUM_BYTES 64
   M_TDATA_NUM_BYTES 8
   NUM_MI 8
-  M00_TDATA_REMAP {tdata[31:0],tdata[63:32]}
-  M01_TDATA_REMAP {tdata[95:64],tdata[127:96]}
-  M02_TDATA_REMAP {tdata[159:128],tdata[191:160]}
-  M03_TDATA_REMAP {tdata[223:192],tdata[255:224]}
-  M04_TDATA_REMAP {tdata[287:256],tdata[319:288]}
-  M05_TDATA_REMAP {tdata[351:320],tdata[383:352]}
-  M06_TDATA_REMAP {tdata[415:384],tdata[447:416]}
-  M07_TDATA_REMAP {tdata[479:448],tdata[511:480]}
+  M00_TDATA_REMAP {tdata[63:0]}
+  M01_TDATA_REMAP {tdata[127:64]}
+  M02_TDATA_REMAP {tdata[191:128]}
+  M03_TDATA_REMAP {tdata[255:192]}
+  M04_TDATA_REMAP {tdata[319:256]}
+  M05_TDATA_REMAP {tdata[383:320]}
+  M06_TDATA_REMAP {tdata[447:384]}
+  M07_TDATA_REMAP {tdata[511:448]}
 } {
   S_AXIS conv_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
