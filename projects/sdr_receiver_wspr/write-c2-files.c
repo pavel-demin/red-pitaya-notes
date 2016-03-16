@@ -59,9 +59,9 @@ int main()
 
   while(offset < 45000)
   {
-    while(*cntr < 500) sleep(1);
+    while(*cntr < 500) usleep(300000);
 
-    for(i = 0; i < 500; ++i)
+    for(i = 0; i < 250; ++i)
     {
       for(j = 0; j < 8; ++j)
       {
@@ -69,7 +69,7 @@ int main()
       }
     }
 
-    offset += 500;
+    offset += 250;
   }
 
   for(i = 0; i < 8; ++i)
