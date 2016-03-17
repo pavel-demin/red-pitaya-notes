@@ -14,7 +14,7 @@ int main()
   FILE *fp;
   int fd, offset, i, j;
   time_t t;
-  struct tm *lt;
+  struct tm *gmt;
   void *cfg, *sts;
   uint64_t *fifo[8];
   uint8_t *rst;
@@ -43,10 +43,9 @@ int main()
   };
 
   t = time(NULL);
-  lt = localtime(&t);
-  if((lt = localtime(&t)) == NULL)
+  if((gmt = gmtime(&t)) == NULL)
   {
-    perror("localtime");
+    perror("gmtime");
     return EXIT_FAILURE;
   }
 
@@ -92,7 +91,7 @@ int main()
   for(i = 0; i < 8; ++i)
   {
     dialfreq = freq[i] - 0.0015;
-    strftime(date, 12, "%y%m%d_%H%M", lt);
+    strftime(date, 12, "%y%m%d_%H%M", gmt);
     sprintf(name, "wspr_%d_%s.c2", (uint32_t)(dialfreq * 1.0e6), date);
     if((fp = fopen(name, "wb")) == NULL)
     {
