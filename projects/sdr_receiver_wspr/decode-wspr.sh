@@ -4,7 +4,7 @@
 # http://www.dj0abr.de/german/technik/dds/wsprbanana_console.htm
 # http://www.dj0abr.de/english/technik/dds/wsprbanana_console.htm
 
-DECODER=/root/wsprd_exp
+DECODER=/root/wsprd/wsprd_exp
 ALLMEPT=ALL_WSPR.TXT
 
 echo "Decoding ..."
@@ -29,7 +29,7 @@ then
 
   RESULT=$?
 
-  # check if curl uploaded the data successfully
+  # check if upload succeed
   if [ $RESULT -eq 0 ]
   then
     echo "Upload succeed, deleting $ALLMEPT ..."
