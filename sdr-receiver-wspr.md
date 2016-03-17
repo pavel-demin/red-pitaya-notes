@@ -45,9 +45,24 @@ The decoded data are uploaded to [wsprnet.org](http://wsprnet.org) using [curl](
 Getting started
 -----
 
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.92-65-35575ed-sdr-receiver-wspr.zip).
- - Copy the content of the SD card image zip file to an SD card.
- - Insert the SD card in Red Pitaya and connect the power.
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/red-pitaya-wspr-debian-8.2-armhf-20160317.zip).
+
+The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
+
+To write the image to a SD card, the `dd` command-line utility can be used on GNU/Linux and Mac OS X or [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/) can be used on MS Windows.
+
+The default password for the `root` account is `changeme`.
+
+To use the full size of a SD card, the SD card partitions should be resized with the following commands:
+
+{% highlight bash %}
+# delete second partition
+echo -e "d\n2\nw" | fdisk /dev/mmcblk0
+# recreate partition
+parted -s /dev/mmcblk0 mkpart primary ext4 16MB 100%
+# resize partition
+resize2fs /dev/mmcblk0p2
+{% endhighlight %}
 
 Building from source
 -----
@@ -68,22 +83,12 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 {% endhighlight %}
 
-Building `sdr_receiver_wspr.bit`:
-{% highlight bash %}
-make NAME=sdr_receiver_wspr tmp/sdr_receiver_wspr.bit
-{% endhighlight %}
-
-Building `write-c2-files`:
-{% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/sdr_receiver_wspr/server/write-c2-files.c -o write-c2-files -lm -static
-{% endhighlight %}
-
 Building `boot.bin`, `devicetree.dtb` and `uImage`:
 {% highlight bash %}
-make NAME=red_pitaya_0_92 all
+make NAME=sdr_receiver_wspr all
 {% endhighlight %}
 
-Building SD card image zip file:
+Building a bootable SD card image:
 {% highlight bash %}
-source scripts/sdr-receiver-wspr-ecosystem.sh
+sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.2-armhf.img 1024
 {% endhighlight %}
