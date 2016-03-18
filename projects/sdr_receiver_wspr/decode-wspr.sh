@@ -7,6 +7,8 @@
 DECODER=/root/wsprd/wsprd_exp
 ALLMEPT=ALL_WSPR.TXT
 
+date
+
 echo "Decoding ..."
 for file in *.c2
 do
@@ -24,13 +26,15 @@ then
   # ping helps curl to contact the DNS server under various conditions
   ping -W 2 -c 1 wsprnet.org > /dev/null
 
+  DONE=0
+
   # to enable uploading of spots to wsprnet.org specify your call and locator
-  # curl -m 8 -F allmept=@$ALLMEPT -F call=MYCALL -F grid=MYLOCATOR http://wsprnet.org/post > /dev/null
+  # curl -m 8 -F allmept=@$ALLMEPT -F call=MYCALL -F grid=MYLOCATOR http://wsprnet.org/post > /dev/null && DONE=1
 
   RESULT=$?
 
   # check if upload succeed
-  if [ $RESULT -eq 0 ]
+  if [ $DONE -eq 1 ]
   then
     echo "Upload succeed, deleting $ALLMEPT ..."
     rm -f $ALLMEPT
