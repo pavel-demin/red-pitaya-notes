@@ -9,7 +9,7 @@
 #include <time.h>
 #include <sys/mman.h>
 
-int main()
+int main(int argc, char *argv[])
 {
   FILE *fp;
   int fd, offset, i, j;
@@ -21,11 +21,12 @@ int main()
   uint16_t *cntr;
   int32_t type = 2;
   uint64_t buffer[8][45000];
+  char *end;
   char date[12];
   char name[32];
   char zeros[15] = "000000_0000.c2";
   double dialfreq;
-  double corr = 20;
+  double corr;
   double freq[8] = {
 //     0.137500,
 //     0.475100,
@@ -41,6 +42,15 @@ int main()
     28.126100,
     50.294500,
   };
+
+  errno = 0;
+  corr = (argc == 2) ? strtod(argv[1], &end) : -999.9;
+  if(errno != 0 || end == argv[1] || corr < -100.0  || corr > 100.0)
+  {
+    printf("Usage: write-c2-files corr\n");
+    printf("corr - frequency correction, from -100.0 ppm to +100.0 ppm\n");
+    return EXIT_FAILURE;
+  }
 
   t = time(NULL);
   if((gmt = gmtime(&t)) == NULL)
