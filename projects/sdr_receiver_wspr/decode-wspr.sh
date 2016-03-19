@@ -1,8 +1,11 @@
 #! /bin/sh
 
-# This script is based on the WSPR decoder script by DJ0ABR
-# http://www.dj0abr.de/german/technik/dds/wsprbanana_console.htm
-# http://www.dj0abr.de/english/technik/dds/wsprbanana_console.htm
+# CALL and GRID should be specified to enable uploads
+CALL=
+GRID=
+
+JOBS=1
+NICE=10
 
 DECODER=/root/wsprd/wsprd_exp
 ALLMEPT=ALL_WSPR.TXT
@@ -10,35 +13,18 @@ ALLMEPT=ALL_WSPR.TXT
 date
 
 echo "Decoding ..."
-for file in *.c2
-do
-  $DECODER -w $file
-  rm -f $file
-done
 
-# check if spots are available
+TIMESTAMP=`date --utc --date='-2min' +'%y%m%d_%H%M'`
+find . -name wspr_\*_$TIMESTAMP.c2 | parallel --jobs $JOBS --nice $NICE $DECODER -J -w
+rm -f wspr_*_$TIMESTAMP.c2
+
+test -z "$CALL" -o -z "$GRID" && exit
+
 FILESIZE=`stat -c%s $ALLMEPT`
 echo "Data size: $FILESIZE"
-if [ $FILESIZE -ne 0 ]
-then
-  echo "Uploading ..."
 
-  # ping helps curl to contact the DNS server under various conditions
-  ping -W 2 -c 1 wsprnet.org > /dev/null
+test $FILESIZE -eq 0 && exit
 
-  DONE=0
+echo "Uploading ..."
 
-  # to enable uploading of spots to wsprnet.org specify your call and locator
-  # curl -m 8 -F allmept=@$ALLMEPT -F call=MYCALL -F grid=MYLOCATOR http://wsprnet.org/post > /dev/null && DONE=1
-
-  RESULT=$?
-
-  # check if upload succeed
-  if [ $DONE -eq 1 ]
-  then
-    echo "Upload succeed, deleting $ALLMEPT ..."
-    rm -f $ALLMEPT
-  else
-    echo "Upload failed, error code: $RESULT"
-  fi
-fi
+curl -m 8 -F allmept=@$ALLMEPT -F call=$CALL -F grid=$GRID http://wsprnet.org/post > /dev/null && rm -f $ALLMEPT
