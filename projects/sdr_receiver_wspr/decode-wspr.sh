@@ -23,6 +23,7 @@ test -z "$CALL" -o -z "$GRID" && exit
 FILESIZE=`stat -c%s $ALLMEPT`
 echo "Data size: $FILESIZE"
 
+test -z "$FILESIZE"  && exit
 test $FILESIZE -eq 0 && exit
 
 echo "Uploading ..."
