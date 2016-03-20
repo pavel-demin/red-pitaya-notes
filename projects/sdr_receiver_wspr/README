@@ -1,0 +1,14 @@
+Configuring WSPR receiver
+
+To enable uploads to wsprnet.org the CALL and GRID variables should be specified
+in decode-wspr.sh.
+
+The frequency correction ppm value can be adjusted by editing the CORR variable
+in decode-wspr.sh.
+
+The bands can be configured by editing and recompiling write-c2-files.c.
+The freq[8] array contains all the WSPR frequencies. They can be enabled or
+disabled by uncommenting or by commenting the corresponding lines.
+The command to compile write-c2-files.c is:
+
+  gcc write-c2-files.c -o write-c2-files -lm

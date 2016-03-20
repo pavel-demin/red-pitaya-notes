@@ -59,6 +59,7 @@ chmod +x $root_dir/usr/local/sbin/hostapd
 mkdir -p $root_dir/root
 cp projects/sdr_receiver_wspr/write-c2-files.c $root_dir/root/
 cp projects/sdr_receiver_wspr/decode-wspr.sh $root_dir/root/
+cp projects/sdr_receiver_wspr/README $root_dir/root/
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
