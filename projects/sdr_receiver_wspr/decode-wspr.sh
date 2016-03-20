@@ -4,28 +4,33 @@
 CALL=
 GRID=
 
+# frequency correction in ppm
+CORR=0
+
 JOBS=1
 NICE=10
 
+RECORDER=/root/write-c2-files
 DECODER=/root/wsprd/wsprd_exp
 ALLMEPT=ALL_WSPR.TXT
 
 date
+TIMESTAMP=`date --utc +'%y%m%d_%H%M'`
+
+echo "Recording ..."
+
+killall -v $RECORDER
+$RECORDER $CORR
 
 echo "Decoding ..."
 
-TIMESTAMP=`date --utc --date='-2min' +'%y%m%d_%H%M'`
-find . -name wspr_\*_$TIMESTAMP.c2 | parallel --jobs $JOBS --nice $NICE $DECODER -J -w
+parallel --jobs $JOBS --nice $NICE $DECODER -J -w ::: wspr_*_$TIMESTAMP.c2
 rm -f wspr_*_$TIMESTAMP.c2
 
-test -z "$CALL" -o -z "$GRID" && exit
-
-FILESIZE=`stat -c%s $ALLMEPT`
-echo "Data size: $FILESIZE"
-
-test -z "$FILESIZE"  && exit
-test $FILESIZE -eq 0 && exit
+test -n "$CALL" -a -n "$GRID" -a -s $ALLMEPT || exit
 
 echo "Uploading ..."
 
-curl -m 8 -F allmept=@$ALLMEPT -F call=$CALL -F grid=$GRID http://wsprnet.org/post > /dev/null && rm -f $ALLMEPT
+curl -m 8 -F allmept=@$ALLMEPT -F call=$CALL -F grid=$GRID http://wsprnet.org/post > /dev/null
+
+test $? -ne 0 || rm -f $ALLMEPT

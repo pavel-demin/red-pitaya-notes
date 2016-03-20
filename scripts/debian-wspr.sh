@@ -120,7 +120,6 @@ cd ..
 gcc write-c2-files.c -o write-c2-files -lm
 cd ..
 
-(crontab -l ; echo "*/2 * * * * cd /dev/shm && /root/write-c2-files 0") | crontab -
 (crontab -l ; echo "*/2 * * * * cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log") | crontab -
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
