@@ -4,8 +4,6 @@ title: Multiband WSPR receiver
 permalink: /sdr-receiver-wspr/
 ---
 
-This is a work in progress...
-
 Interesting links
 -----
 
@@ -20,7 +18,7 @@ Some interesting links on the Weak Signal Propagation Reporter (WSPR) protocol:
 Short description
 -----
 
-The idea of this project is to build a standalone multiband WSPR receiver with all the WSPR decoding done by Red Pitaya.
+This project implements a standalone multiband WSPR receiver with all the WSPR decoding done by Red Pitaya. It can record and decode eight bands simultaneously.
 
 Hardware
 -----
@@ -42,6 +40,11 @@ The recorded .c2 files are processed with the [WSPR decoder](https://sourceforge
 
 The decoded data are uploaded to [wsprnet.org](http://wsprnet.org) using [curl](https://curl.haxx.se).
 
+The [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/decode-wspr.sh) script launches `write-c2-files`, `wsprd` and `curl` one after another. This script is run every two minutes by the following crontab entry:
+{% highlight bash %}
+1-59/2 * * * * cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log
+{% endhighlight %}
+
 Getting started
 -----
 
@@ -62,6 +65,18 @@ echo -e "d\n2\nw" | fdisk /dev/mmcblk0
 parted -s /dev/mmcblk0 mkpart primary ext4 16MB 100%
 # resize partition
 resize2fs /dev/mmcblk0p2
+{% endhighlight %}
+
+Configuring WSPR receiver
+-----
+
+To enable uploads to [wsprnet.org](http://wsprnet.org) the `CALL` and `GRID` variables should be specified in [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/decode-wspr.sh#L4).
+
+The frequency correction ppm value can be adjusted by editing the `CORR` variable in [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/decode-wspr.sh#L8).
+
+The bands can be configured by editing and recompiling [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/write-c2-files.c). The `freq[8]` array contains all the WSPR frequencies. They can be enabled or disabled by uncommenting or by commenting the corresponding lines. The command to compile [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/write-c2-files.c) is:
+{% highlight bash %}
+gcc write-c2-files.c -o write-c2-files -lm
 {% endhighlight %}
 
 Building from source
