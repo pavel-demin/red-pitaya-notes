@@ -1,7 +1,7 @@
 Configuring WSPR receiver
 
 By default, the uploads to wsprnet.org are disabled and all the decoded data are
-accumulated in /dev/shm/ALL_DATA.TXT.
+accumulated in /dev/shm/ALL_WSPR.TXT.
 
 To enable uploads, the CALL and GRID variables should be specified in
 decode-wspr.sh. These variables should be set to the call sign of the receiving
