@@ -79,7 +79,7 @@ resize2fs /dev/mmcblk0p2
 Configuring WSPR receiver
 -----
 
-By default, the uploads to [wsprnet.org](http://wsprnet.org) are disabled and all the decoded data are accumulated in `/dev/shm/ALL_DATA.TXT`.
+By default, the uploads to [wsprnet.org](http://wsprnet.org) are disabled and all the decoded data are accumulated in `/dev/shm/ALL_WSPR.TXT`.
 
 To enable uploads, the `CALL` and `GRID` variables should be specified in [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/decode-wspr.sh#L4). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
 
