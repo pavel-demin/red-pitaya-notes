@@ -118,3 +118,13 @@ Building a bootable SD card image:
 {% highlight bash %}
 sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.2-armhf.img 1024
 {% endhighlight %}
+
+Feedback and results
+-----
+
+I would like to thank PA7T and DK5HH for their interest in this project, for the tests that they have done and for the valuable feedback that they have provided.
+
+The following plots show the number of WSPR spots per hour decoded by the multiband WSPR receiver:
+
+![WSPR spots by PA7T]({{ "/img/wspr-spots-PA7T.png" | prepend: site.baseurl }})
+![WSPR spots by DK5HH]({{ "/img/wspr-spots-DK5HH.png" | prepend: site.baseurl }})
