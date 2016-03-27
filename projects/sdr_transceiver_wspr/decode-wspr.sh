@@ -7,7 +7,7 @@ GRID=
 # frequency correction in ppm
 CORR=0
 
-JOBS=1
+JOBS=2
 NICE=10
 
 RECORDER=/root/write-c2-files
@@ -38,6 +38,7 @@ test -n "$CALL" -a -n "$GRID" -a -s $ALLMEPT || exit
 
 echo "Uploading ..."
 
+sort -n -k 1,1 -k 2,2 -k 6,6 -o $ALLMEPT < $ALLMEPT
 curl -m 8 -F allmept=@$ALLMEPT -F call=$CALL -F grid=$GRID http://wsprnet.org/post > /dev/null
 
 test $? -ne 0 || rm -f $ALLMEPT
