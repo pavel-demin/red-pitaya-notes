@@ -57,10 +57,10 @@ curl -L $hostapd_url -o $root_dir/usr/local/sbin/hostapd
 chmod +x $root_dir/usr/local/sbin/hostapd
 
 mkdir -p $root_dir/root
-cp projects/sdr_receiver_wspr/write-c2-files.c $root_dir/root/
-cp projects/sdr_receiver_wspr/write-c2-files.cfg $root_dir/root/
-cp projects/sdr_receiver_wspr/decode-wspr.sh $root_dir/root/
-cp projects/sdr_receiver_wspr/README $root_dir/root/
+cp projects/sdr_transceiver_wspr/write-c2-files.c $root_dir/root/
+cp projects/sdr_transceiver_wspr/write-c2-files.cfg $root_dir/root/
+cp projects/sdr_transceiver_wspr/decode-wspr.sh $root_dir/root/
+cp projects/sdr_transceiver_wspr/README $root_dir/root/
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
