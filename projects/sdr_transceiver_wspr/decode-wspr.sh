@@ -4,13 +4,12 @@
 CALL=
 GRID=
 
-# frequency correction in ppm
-CORR=0
-
 JOBS=2
 NICE=10
 
 RECORDER=/root/write-c2-files
+CONFIG=/root/write-c2-files.cfg
+
 DECODER=/root/wsprd/wsprd_exp
 ALLMEPT=ALL_WSPR.TXT
 
@@ -27,7 +26,7 @@ TIMESTAMP=`date --utc +'%y%m%d_%H%M'`
 echo "Recording ..."
 
 killall -v $RECORDER
-$RECORDER $CORR
+$RECORDER $CONFIG
 
 echo "Decoding ..."
 

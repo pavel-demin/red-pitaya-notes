@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -8,48 +7,98 @@
 #include <math.h>
 #include <time.h>
 #include <sys/mman.h>
+#include <libconfig.h>
 
 int main(int argc, char *argv[])
 {
   FILE *fp;
-  int fd, offset, i, j;
+  int fd, offset, length, i, j;
   time_t t;
   struct tm *gmt;
-  void *cfg, *sts;
+  void *cfg, *sts, *mux;
   uint64_t *fifo[8];
   uint8_t *rst;
   uint16_t *cntr;
   int32_t type = 2;
   uint64_t buffer[8][45000];
-  char *end;
+  config_t config;
+  config_setting_t *setting, *element;
   char date[12];
   char name[32];
   char zeros[15] = "000000_0000.c2";
   double dialfreq;
   double corr;
-  double freq[8] = {
-//     0.137500,
-//     0.475100,
-//     1.838100,
-     3.594100,
-     5.288700,
-     7.040100,
-    10.140200,
-    14.097100,
-    18.106100,
-//    21.096100,
-//    24.926100,
-    28.126100,
-    50.294500,
-  };
+  double freq[8];
+  int chan[8];
 
-  errno = 0;
-  corr = (argc == 2) ? strtod(argv[1], &end) : -999.9;
-  if(errno != 0 || end == argv[1] || corr < -100.0  || corr > 100.0)
+  if(argc != 2)
   {
-    printf("Usage: write-c2-files corr\n");
-    printf("corr - frequency correction, from -100.0 ppm to +100.0 ppm\n");
+    fprintf(stderr, "Usage: write-c2-files config_file.cfg\n");
     return EXIT_FAILURE;
+  }
+
+  config_init(&config);
+
+  if(!config_read_file(&config, argv[1]))
+  {
+    fprintf(stderr, "Error on line %d in configuration file.\n", config_error_line(&config));
+    return EXIT_FAILURE;
+  }
+
+  if(!config_lookup_float(&config, "corr", &corr))
+  {
+    fprintf(stderr, "No 'corr' setting in configuration file.\n");
+    return EXIT_FAILURE;
+  }
+
+  if(corr < -100.0 || corr > 100.0)
+  {
+    fprintf(stderr, "Wrong 'corr' setting in configuration file.\n");
+    return EXIT_FAILURE;
+  }
+
+  setting = config_lookup(&config, "bands");
+  if(setting == NULL)
+  {
+    fprintf(stderr, "No 'bands' setting in configuration file.\n");
+    return EXIT_FAILURE;
+  }
+
+  length = config_setting_length(setting);
+
+  if(length > 8)
+  {
+    fprintf(stderr, "More than 8 bands in configuration file.\n");
+    return EXIT_FAILURE;
+  }
+
+  if(length < 8)
+  {
+    fprintf(stderr, "Less than 8 bands in configuration file.\n");
+    return EXIT_FAILURE;
+  }
+
+  for(i = 0; i < 8; ++i)
+  {
+    element = config_setting_get_elem(setting, i);
+
+    if(!config_setting_lookup_float(element, "freq", &freq[i]))
+    {
+      fprintf(stderr, "No 'freq' setting in element %d.\n", i);
+      return EXIT_FAILURE;
+    }
+
+    if(!config_setting_lookup_int(element, "chan", &chan[i]))
+    {
+      fprintf(stderr, "No 'chan' setting in element %d.\n", i);
+      return EXIT_FAILURE;
+    }
+
+    if(chan[i] < 1 || chan[i] > 2)
+    {
+      fprintf(stderr, "Wrong 'chan' setting in element %d.\n", i);
+      return EXIT_FAILURE;
+    }
   }
 
   t = time(NULL);
@@ -67,12 +116,20 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
 
   for(i = 0; i < 8; ++i)
   {
-    fifo[i] = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000 + i * 0x1000);
+    fifo[i] = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000 + i * 0x1000);
     *(uint32_t *)(cfg + 4 + i * 4) = (uint32_t)floor((1.0 + 1.0e-6 * corr) * freq[i] / 125.0 * (1<<30) + 0.5);
   }
+
+  for(i = 0; i < 8; ++i)
+  {
+    *(uint32_t *)(mux + 64 + i * 4) = i * 2 + chan[i] - 1;
+  }
+
+  *(uint32_t *)mux = 2;
 
   rst = (uint8_t *)(cfg + 0);
   cntr = (uint16_t *)(sts + 12);
