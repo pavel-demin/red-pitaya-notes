@@ -111,14 +111,14 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
   iw firmware-realtek firmware-ralink ifplugd ntfs-3g \
-  build-essential subversion libfftw3-dev parallel
+  build-essential subversion libfftw3-dev libconfig-dev parallel
 
 cd root
 svn co svn://svn.code.sf.net/p/wsjt/wsjt/branches/wsjtx/lib/wsprd
 cd wsprd
-make CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math' wsprd_exp
+make CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd_exp
 cd ..
-gcc write-c2-files.c -o write-c2-files -lm
+gcc write-c2-files.c -o write-c2-files -lm -lconfig
 cd ..
 
 (crontab -l ; echo "1-59/2 * * * * cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log") | crontab -
