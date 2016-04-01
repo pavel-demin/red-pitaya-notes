@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
   {
     dialfreq = freq[i] - 0.0015;
     strftime(date, 12, "%y%m%d_%H%M", gmt);
-    sprintf(name, "wspr_%d_%s.c2", (uint32_t)(dialfreq * 1.0e6), date);
+    sprintf(name, "wspr_%d_%d_%s.c2", i, (uint32_t)(dialfreq * 1.0e6), date);
     if((fp = fopen(name, "wb")) == NULL)
     {
       perror("fopen");
