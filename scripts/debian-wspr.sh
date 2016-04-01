@@ -116,9 +116,7 @@ apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
 
 cd root
 svn co svn://svn.code.sf.net/p/wsjt/wsjt/branches/wsjtx/lib/wsprd
-cd wsprd
-make CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd_exp
-cd ..
+make -C wsprd CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd_exp
 gcc write-c2-files.c -o write-c2-files -lm -lconfig
 cd ..
 
