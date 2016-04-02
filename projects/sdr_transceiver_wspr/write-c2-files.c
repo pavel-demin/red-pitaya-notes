@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
   int fd, offset, length, i, j;
   time_t t;
   struct tm *gmt;
-  void *cfg, *sts, *mux;
+  void *cfg, *sts, *mux, *ptr;
   uint64_t *fifo[8];
   uint8_t *rst;
   uint16_t *cntr;
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
   double dialfreq;
   double corr;
   double freq[8];
-  int chan[8];
+  int upd, val, chan[8];
 
   if(argc != 2)
   {
@@ -124,12 +124,20 @@ int main(int argc, char *argv[])
     *(uint32_t *)(cfg + 4 + i * 4) = (uint32_t)floor((1.0 + 1.0e-6 * corr) * freq[i] / 125.0 * (1<<30) + 0.5);
   }
 
+  upd = 0;
+
   for(i = 0; i < 8; ++i)
   {
-    *(uint32_t *)(mux + 64 + i * 4) = i * 2 + chan[i] - 1;
+    ptr = mux + 64 + i * 4;
+    val = i * 2 + chan[i] - 1;
+    if(*(uint32_t *)ptr != val)
+    {
+      *(uint32_t *)ptr = val;
+      upd = 1;
+    }
   }
 
-  *(uint32_t *)mux = 2;
+  if(upd) *(uint32_t *)mux = 2;
 
   rst = (uint8_t *)(cfg + 0);
   cntr = (uint16_t *)(sts + 12);
