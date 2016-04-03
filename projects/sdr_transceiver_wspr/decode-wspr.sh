@@ -10,7 +10,7 @@ NICE=10
 RECORDER=/root/write-c2-files
 CONFIG=/root/write-c2-files.cfg
 
-DECODER=/root/wsprd/wsprd_exp
+DECODER=/root/wsprd/wsprd
 ALLMEPT=ALL_WSPR.TXT
 
 date
@@ -30,7 +30,7 @@ $RECORDER $CONFIG
 
 echo "Decoding ..."
 
-parallel --jobs $JOBS --nice $NICE $DECODER -J -w ::: wspr_*_$TIMESTAMP.c2
+parallel --jobs $JOBS --nice $NICE $DECODER -JC 5000 ::: wspr_*_$TIMESTAMP.c2
 rm -f wspr_*_$TIMESTAMP.c2
 
 test -n "$CALL" -a -n "$GRID" -a -s $ALLMEPT || exit
