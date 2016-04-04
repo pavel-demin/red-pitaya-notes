@@ -1,9 +1,7 @@
 ---
-layout: redirect
-title: Multiband WSPR receiver
-sitemap: false
-permalink: /sdr-receiver-wspr/
-redirect_to: /sdr-transceiver-wspr/
+layout: page
+title: Multiband WSPR transceiver
+permalink: /sdr-transceiver-wspr/
 ---
 
 Interesting links
@@ -20,7 +18,7 @@ Some interesting links on the Weak Signal Propagation Reporter (WSPR) protocol:
 Short description
 -----
 
-This project implements a standalone multiband WSPR receiver with all the WSPR signal processing done by Red Pitaya in the following way:
+This project implements a standalone multiband WSPR transceiver with all the WSPR signal processing done by Red Pitaya in the following way:
 
  - simultaneously record WPSR signals from eight bands
  - use FPGA for all the conversions needed to produce .c2 files (complex 32-bit floating-point data at 375 samples per second)
@@ -28,6 +26,8 @@ This project implements a standalone multiband WSPR receiver with all the WSPR s
  - upload decoded data to [wsprnet.org](http://wsprnet.org)
 
 With this configuration, it is enough to connect Red Pitaya to an antenna and to a network. After switching Red Pitaya on, it will automatically start operating as a WSPR receiver.
+
+The transmitter part is disabled by default and should be enabled manually.
 
 Hardware
 -----
@@ -38,28 +38,28 @@ The FPGA configuration consists of eight identical digital down-converters (DDC)
 
 The DDC output contains complex 32-bit floating-point data at 375 samples per second and is directly compatible with the [WSPR decoder](https://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wsjtx/lib/wsprd/).
 
-The [projects/sdr_receiver_wspr](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr) directory contains two Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_wspr/block_design.tcl) and [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_wspr/rx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/sdr_transceiver_wspr](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_wspr/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_wspr/rx.tcl) and [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_wspr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
 Software
 -----
 
-The [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/write-c2-files.c) program accumulates 42000 samples at 375 samples per second for each of the eight bands and saves the samples to eight .c2 files.
+The [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/write-c2-files.c) program accumulates 42000 samples at 375 samples per second for each of the eight bands and saves the samples to eight .c2 files.
 
 The recorded .c2 files are processed with the [WSPR decoder](https://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wsjtx/lib/wsprd/).
 
 The decoded data are uploaded to [wsprnet.org](http://wsprnet.org) using [curl](https://curl.haxx.se).
 
-The [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/decode-wspr.sh) script launches `write-c2-files`, `wsprd` and `curl` one after another. This script is run every two minutes by the following crontab entry:
+The [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/decode-wspr.sh) script launches `write-c2-files`, `wsprd` and `curl` one after another. This script is run every two minutes by the following crontab entry:
 {% highlight bash %}
 1-59/2 * * * * cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log
 {% endhighlight %}
 
+The [transmit-wspr-message.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/transmit-wspr-message.c) program transmits WSPR messages.
+
 Getting started
 -----
 
-An antenna should be connected to the IN1 connector on the Red Pitaya board.
-
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/red-pitaya-wspr-debian-8.2-armhf-20160322.zip).
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/red-pitaya-wspr-debian-8.2-armhf-20160405.zip).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
@@ -83,14 +83,17 @@ Configuring WSPR receiver
 
 By default, the uploads to [wsprnet.org](http://wsprnet.org) are disabled and all the decoded data are accumulated in `/dev/shm/ALL_WSPR.TXT`.
 
-To enable uploads, the `CALL` and `GRID` variables should be specified in [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/decode-wspr.sh#L4). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
+To enable uploads, the `CALL` and `GRID` variables should be specified in [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/decode-wspr.sh#L4). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
 
-The frequency correction ppm value can be adjusted by editing the `CORR` variable in [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/decode-wspr.sh#L8).
+The frequency correction ppm value can be adjusted by editing the corr parameter in [write-c2-files.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/write-c2-files.cfg).
 
-The bands can be configured by editing and recompiling [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/write-c2-files.c). The `freq[8]` array contains all the WSPR frequencies. They can be enabled or disabled by uncommenting or by commenting the corresponding lines. The command to compile [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wspr/write-c2-files.c) from the Red Pitaya command line is:
-{% highlight bash %}
-gcc write-c2-files.c -o write-c2-files -lm
-{% endhighlight %}
+The bands list in [write-c2-files.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/write-c2-files.cfg) contains all the WSPR frequencies. They can be enabled or disabled by uncommenting or by commenting the corresponding lines.
+
+Configuring WSPR transmitter
+-----
+
+The WSPR message, transmit frequency and frequency ppm value can be adjusted by editing [transmit-wspr-message.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/transmit-wspr-message.cfg).
+
 
 Building from source
 -----
@@ -113,7 +116,7 @@ cd red-pitaya-notes
 
 Building `boot.bin`, `devicetree.dtb` and `uImage`:
 {% highlight bash %}
-make NAME=sdr_receiver_wspr all
+make NAME=sdr_transceiver_wspr all
 {% endhighlight %}
 
 Building a bootable SD card image:
