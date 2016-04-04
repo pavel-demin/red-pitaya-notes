@@ -57,9 +57,13 @@ curl -L $hostapd_url -o $root_dir/usr/local/sbin/hostapd
 chmod +x $root_dir/usr/local/sbin/hostapd
 
 mkdir -p $root_dir/root
-cp projects/sdr_receiver_wspr/write-c2-files.c $root_dir/root/
-cp projects/sdr_receiver_wspr/decode-wspr.sh $root_dir/root/
-cp projects/sdr_receiver_wspr/README $root_dir/root/
+cp projects/sdr_transceiver_wspr/transmit-wspr-message.c $root_dir/root/
+cp projects/sdr_transceiver_wspr/transmit-wspr-message.cfg $root_dir/root/
+cp projects/sdr_transceiver_wspr/write-c2-files.c $root_dir/root/
+cp projects/sdr_transceiver_wspr/write-c2-files.cfg $root_dir/root/
+cp projects/sdr_transceiver_wspr/decode-wspr.sh $root_dir/root/
+cp projects/sdr_transceiver_wspr/README $root_dir/root/
+cp projects/sdr_transceiver_wspr/Makefile $root_dir/root/
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
@@ -111,17 +115,15 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
   iw firmware-realtek firmware-ralink ifplugd ntfs-3g \
-  build-essential subversion libfftw3-dev parallel
+  build-essential subversion libfftw3-dev libconfig-dev parallel
 
 cd root
 svn co svn://svn.code.sf.net/p/wsjt/wsjt/branches/wsjtx/lib/wsprd
-cd wsprd
-make CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math' wsprd_exp
-cd ..
-gcc write-c2-files.c -o write-c2-files -lm
+make -C wsprd CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd
+make
 cd ..
 
-(crontab -l ; echo "1-59/2 * * * * cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log") | crontab -
+(crontab -l ; echo "1-59/2 * * * * cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log 2>&1") | crontab -
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 

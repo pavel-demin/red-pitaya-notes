@@ -44,9 +44,6 @@ cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
   adc_csn adc_csn_o
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
-
 # LED
 
 # Create c_counter_binary
@@ -64,6 +61,41 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
   Dout led_o
 }
 
+# DAC
+
+# Create clk_wiz
+cell xilinx.com:ip:clk_wiz:5.2 pll_0 {
+  PRIMITIVE PLL
+  PRIM_IN_FREQ.VALUE_SRC USER
+  PRIM_IN_FREQ 125.0
+  CLKOUT1_USED true
+  CLKOUT2_USED true
+  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+} {
+  clk_in1 adc_0/adc_clk
+}
+
+# Create axis_zeroer
+cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
+  AXIS_TDATA_WIDTH 16
+} {
+  aclk pll_0/clk_out1
+}
+
+# Create axis_red_pitaya_dac
+cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
+  aclk pll_0/clk_out1
+  ddr_clk pll_0/clk_out2
+  locked pll_0/locked
+  S_AXIS zeroer_0/M_AXIS
+  dac_clk dac_clk_o
+  dac_rst dac_rst_o
+  dac_sel dac_sel_o
+  dac_wrt dac_wrt_o
+  dac_dat dac_dat_o
+}
+
 # CFG
 
 # Create axi_cfg_register
@@ -72,6 +104,9 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
 
 # RX 0
 
@@ -90,7 +125,7 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
 }
 
 module rx_0 {
-  source projects/sdr_receiver_wspr/rx.tcl
+  source projects/sdr_transceiver_wspr/rx.tcl
 } {
   slice_0/Din rst_slice_0/Dout
   slice_1/Din cfg_slice_0/Dout
@@ -104,6 +139,16 @@ module rx_0 {
   fifo_0/S_AXIS adc_0/M_AXIS
   fifo_0/s_axis_aclk adc_0/adc_clk
   fifo_0/s_axis_aresetn const_0/dout
+}
+
+# TX 0
+
+module tx_0 {
+  source projects/sdr_transceiver_wspr/tx.tcl
+} {
+  fifo_1/M_AXIS zeroer_0/S_AXIS
+  fifo_1/m_axis_aclk pll_0/clk_out1
+  fifo_1/m_axis_aresetn const_0/dout
 }
 
 # STS
@@ -170,6 +215,15 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins rx_0/switch_0/S_AXI_CTRL]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg]
+set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg]
+
 for {set i 0} {$i <= 7} {incr i} {
 
   # Create all required interconnections
@@ -179,6 +233,15 @@ for {set i 0} {$i <= 7} {incr i} {
   } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
 
   set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
-  set_property OFFSET 0x4000[format %X [expr $i + 2]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property OFFSET 0x4000[format %X [expr $i + 3]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
 
 }
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins tx_0/writer_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+set_property OFFSET 0x4000B000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]

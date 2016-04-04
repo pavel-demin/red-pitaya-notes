@@ -13,7 +13,7 @@ make NAME=sdr_transceiver_emb all
 sudo sh scripts/image.sh scripts/debian-gnuradio.sh red-pitaya-gnuradio-debian-8.2-armhf-$DATE.img 1024
 zip red-pitaya-gnuradio-debian-8.2-armhf-$DATE.zip red-pitaya-gnuradio-debian-8.2-armhf-$DATE.img
 
-make NAME=sdr_receiver_wspr all
+make NAME=sdr_transceiver_wspr all
 
 sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.2-armhf-$DATE.img 1024
 zip red-pitaya-wspr-debian-8.2-armhf-$DATE.zip red-pitaya-wspr-debian-8.2-armhf-$DATE.img
