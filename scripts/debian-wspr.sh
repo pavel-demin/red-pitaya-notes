@@ -57,10 +57,13 @@ curl -L $hostapd_url -o $root_dir/usr/local/sbin/hostapd
 chmod +x $root_dir/usr/local/sbin/hostapd
 
 mkdir -p $root_dir/root
+cp projects/sdr_transceiver_wspr/transmit-wspr-message.c $root_dir/root/
+cp projects/sdr_transceiver_wspr/transmit-wspr-message.cfg $root_dir/root/
 cp projects/sdr_transceiver_wspr/write-c2-files.c $root_dir/root/
 cp projects/sdr_transceiver_wspr/write-c2-files.cfg $root_dir/root/
 cp projects/sdr_transceiver_wspr/decode-wspr.sh $root_dir/root/
 cp projects/sdr_transceiver_wspr/README $root_dir/root/
+cp projects/sdr_transceiver_wspr/Makefile $root_dir/root/
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
@@ -117,7 +120,7 @@ apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
 cd root
 svn co svn://svn.code.sf.net/p/wsjt/wsjt/branches/wsjtx/lib/wsprd
 make -C wsprd CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd
-gcc write-c2-files.c -o write-c2-files -lm -lconfig
+make
 cd ..
 
 (crontab -l ; echo "1-59/2 * * * * cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log 2>&1") | crontab -
