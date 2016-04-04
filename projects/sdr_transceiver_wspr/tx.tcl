@@ -50,20 +50,12 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   aclk /ps_0/FCLK_CLK0
 }
 
-# Create axis_zeroer
-cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
-  AXIS_TDATA_WIDTH 16
-} {
-  S_AXIS dds_0/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
-}
-
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
 } {
-  S_AXIS zeroer_0/M_AXIS
+  S_AXIS dds_0/M_AXIS_DATA
   s_axis_aclk /ps_0/FCLK_CLK0
   s_axis_aresetn /rst_0/peripheral_aresetn
 }

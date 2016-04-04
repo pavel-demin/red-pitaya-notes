@@ -76,11 +76,19 @@ cell xilinx.com:ip:clk_wiz:5.2 pll_0 {
   clk_in1 adc_0/adc_clk
 }
 
+# Create axis_zeroer
+cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
+  AXIS_TDATA_WIDTH 16
+} {
+  aclk pll_0/clk_out1
+}
+
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   aclk pll_0/clk_out1
   ddr_clk pll_0/clk_out2
   locked pll_0/locked
+  S_AXIS zeroer_0/M_AXIS
   dac_clk dac_clk_o
   dac_rst dac_rst_o
   dac_sel dac_sel_o
@@ -138,7 +146,7 @@ module rx_0 {
 module tx_0 {
   source projects/sdr_transceiver_wspr/tx.tcl
 } {
-  fifo_1/M_AXIS dac_0/S_AXIS
+  fifo_1/M_AXIS zeroer_0/S_AXIS
   fifo_1/m_axis_aclk pll_0/clk_out1
   fifo_1/m_axis_aresetn const_0/dout
 }
