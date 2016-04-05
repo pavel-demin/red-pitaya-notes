@@ -133,3 +133,4 @@ The following plots show the number of WSPR spots per hour decoded by the multib
 
 ![WSPR spots by PA7T]({{ "/img/wspr-spots-PA7T.png" | prepend: site.baseurl }})
 ![WSPR spots by DK5HH]({{ "/img/wspr-spots-DK5HH.png" | prepend: site.baseurl }})
+![WSPR spots by SWLJO20]({{ "/img/wspr-spots-SWLJO20.png" | prepend: site.baseurl }})
