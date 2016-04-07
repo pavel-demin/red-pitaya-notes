@@ -37,7 +37,10 @@ test -n "$CALL" -a -n "$GRID" -a -s $ALLMEPT || exit
 
 echo "Uploading ..."
 
-sort -n -k 1,1 -k 2,2 -k 6,6 -o $ALLMEPT < $ALLMEPT
+# sort by highest SNR, then print unique date/time/band/call combinations,
+# and then sort them by date/time/frequency
+sort -nr -k 4,4 ALL_WSPR.TXT | awk '!seen[$1"_"$2"_"int($6)"_"$7] {print} {++seen[$1"_"$2"_"int($6)"_"$7]}' | sort -n -k 1,1 -k 2,2 -k 6,6 -o ALL_WSPR.TXT
+
 curl -sS -m 8 -F allmept=@$ALLMEPT -F call=$CALL -F grid=$GRID http://wsprnet.org/post > /dev/null
 
 test $? -ne 0 || rm -f $ALLMEPT
