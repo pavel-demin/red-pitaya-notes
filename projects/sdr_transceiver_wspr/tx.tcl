@@ -1,3 +1,8 @@
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_0 {
+  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+}
+
 # Create axi_axis_writer
 cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
   AXI_DATA_WIDTH 32
@@ -41,6 +46,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
   HAS_TREADY true
+  HAS_ARESETN true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
   OUTPUT_WIDTH 14
@@ -48,6 +54,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 } {
   S_AXIS_PHASE inter_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
+  aresetn slice_0/Dout
 }
 
 # Create axis_clock_converter
