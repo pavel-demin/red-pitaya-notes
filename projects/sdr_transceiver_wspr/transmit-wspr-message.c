@@ -14,6 +14,8 @@ int printdata = 0;
 int main(int argc, char *argv[])
 {
   int fd, i;
+  void *cfg;
+  uint8_t *rst;
   uint32_t *fifo;
   unsigned char symbols[162];
   char *message, *hashtab;
@@ -79,7 +81,13 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000B000);
+
+  rst = (uint8_t *)(cfg + 1);
+
+  *rst &= ~1;
+  *rst |= 1;
 
   get_wspr_channel_symbols(message, hashtab, symbols);
 

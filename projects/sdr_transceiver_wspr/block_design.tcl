@@ -143,9 +143,17 @@ module rx_0 {
 
 # TX 0
 
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
+  DIN_WIDTH 288 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
 module tx_0 {
   source projects/sdr_transceiver_wspr/tx.tcl
 } {
+  slice_0/Din rst_slice_1/Dout
   fifo_1/M_AXIS zeroer_0/S_AXIS
   fifo_1/m_axis_aclk pll_0/clk_out1
   fifo_1/m_axis_aresetn const_0/dout
