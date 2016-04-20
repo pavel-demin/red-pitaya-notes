@@ -69,9 +69,7 @@ cell xilinx.com:ip:clk_wiz:5.2 pll_0 {
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
   CLKOUT1_USED true
-  CLKOUT2_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 125.0
-  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT1_REQUESTED_OUT_FREQ 250.0
 } {
   clk_in1 adc_0/adc_clk
 }
@@ -88,14 +86,14 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M00_TDATA_REMAP {tdata[15:0]}
   M01_TDATA_REMAP {tdata[15:0]}
 } {
-  aclk pll_0/clk_out1
+  aclk adc_0/adc_clk
   aresetn const_0/dout
 }
 
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
-  aclk pll_0/clk_out1
-  ddr_clk pll_0/clk_out2
+  aclk adc_0/adc_clk
+  ddr_clk pll_0/clk_out1
   locked pll_0/locked
   dac_clk dac_clk_o
   dac_rst dac_rst_o
@@ -149,6 +147,18 @@ cell xilinx.com:ip:util_vector_logic:2.0 not_0 {
 
 # RX 0
 
+# Create axis_combiner
+cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 4
+  NUM_SI 2
+} {
+  S00_AXIS adc_0/M_AXIS
+  S01_AXIS bcast_0/M01_AXIS
+  aclk adc_0/adc_clk
+  aresetn const_0/dout
+}
+
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
   DIN_WIDTH 288 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
@@ -172,12 +182,9 @@ module rx_0 {
   slice_3/Din cfg_slice_0/Dout
   slice_4/Din cfg_slice_0/Dout
   slice_5/Din cfg_slice_0/Dout
-  fifo_0/S_AXIS adc_0/M_AXIS
+  fifo_0/S_AXIS comb_0/M_AXIS
   fifo_0/s_axis_aclk adc_0/adc_clk
   fifo_0/s_axis_aresetn const_0/dout
-  fifo_1/S_AXIS bcast_0/M01_AXIS
-  fifo_1/s_axis_aclk pll_0/clk_out1
-  fifo_1/s_axis_aresetn const_0/dout
 }
 
 # TX 0
@@ -204,7 +211,7 @@ module tx_0 {
   slice_2/Din cfg_slice_1/Dout
   slice_3/Din cfg_slice_1/Dout
   fifo_1/M_AXIS bcast_0/S_AXIS
-  fifo_1/m_axis_aclk pll_0/clk_out1
+  fifo_1/m_axis_aclk adc_0/adc_clk
   fifo_1/m_axis_aresetn const_0/dout
 }
 
