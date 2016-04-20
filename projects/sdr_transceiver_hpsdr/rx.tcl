@@ -11,7 +11,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_1 {
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
+  TDATA_NUM_BYTES 8
 } {
   m_axis_aclk /ps_0/FCLK_CLK0
   m_axis_aresetn /rst_0/peripheral_aresetn
@@ -21,32 +21,17 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
+  S_TDATA_NUM_BYTES 8
   M_TDATA_NUM_BYTES 2
-  NUM_MI 3
+  NUM_MI 4
   M00_TDATA_REMAP {tdata[15:0]}
   M01_TDATA_REMAP {tdata[31:16]}
   M02_TDATA_REMAP {tdata[31:16]}
+  M03_TDATA_REMAP {tdata[47:32]}
 } {
   S_AXIS fifo_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 2
-} {
-  m_axis_aclk /ps_0/FCLK_CLK0
-  m_axis_aresetn /rst_0/peripheral_aresetn
-}
-
-array set channels {
-  0 bcast_0/M00_AXIS
-  1 bcast_0/M01_AXIS
-  2 bcast_0/M02_AXIS
-  3 fifo_1/M_AXIS
 }
 
 for {set i 0} {$i <= 3} {incr i} {
@@ -97,7 +82,7 @@ for {set i 0} {$i <= 3} {incr i} {
     ROUNDMODE Random_Rounding
     OUTPUTWIDTH 25
   } {
-    S_AXIS_A $channels($i)
+    S_AXIS_A bcast_0/M0${i}_AXIS
     S_AXIS_B dds_$i/M_AXIS_DATA
     S_AXIS_CTRL lfsr_$i/M_AXIS
     aclk /ps_0/FCLK_CLK0
