@@ -47,7 +47,9 @@ void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
 
 /* variables to handle PCA9555 board */
-int i2c_fd, i2c_pene, i2c_alex;
+int i2c_fd;
+int i2c_pene = 0;
+int i2c_alex = 0;
 
 ssize_t i2c_write(int fd, uint8_t addr, uint16_t data)
 {
@@ -77,9 +79,6 @@ int main(int argc, char *argv[])
     perror("open");
     return EXIT_FAILURE;
   }
-
-  i2c_pene = 0;
-  i2c_alex = 0;
 
   if((i2c_fd = open("/dev/i2c-0", O_RDWR)) >= 0)
   {
@@ -281,7 +280,7 @@ void process_ep2(uint8_t *frame)
           break;
       }
 
-      /* configure PENE */
+      /* configure PENELOPE */
       if(i2c_pene)
       {
         change_pene = 0;
