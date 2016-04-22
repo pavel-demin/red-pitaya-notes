@@ -1,4 +1,4 @@
-// 19.4.2016 DC2PD : Add code to support outputs for bandpass and antenna switching via I2C chip.
+/* 19.04.2016 DC2PD : add code for bandpass and antenna switching via I2C. */
 
 #include <stdio.h>
 #include <errno.h>
@@ -17,13 +17,12 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
-#define I2C_SLAVE_FORCE 		   0x0706
-#define I2C_SLAVE    			   0x0703    /* Change slave address            */
-#define I2C_FUNCS    			   0x0705    /* Get the adapter functionality   */
-#define I2C_RDWR    			   0x0707    /* Combined R/W transfer (one stop only)*/
- 
-#define penelop_ADDR 0x20   // PCA9555 switch to address 0
-#define alex_ADDR 0x21      // PCA9555 switch to address 1 
+#define I2C_SLAVE       0x0703 /* Use this slave address */
+#define I2C_SLAVE_FORCE 0x0706 /* Use this slave address, even if it
+                                  is already in use by a driver! */
+
+#define ADDR_PENE 0x20 /* PCA9555 address 0  */
+#define ADDR_ALEX     0x21 /* PCA9555 address 1 */
 
 uint32_t *rx_freq[4], *rx_rate, *tx_freq;
 uint16_t *rx_cntr[4], *tx_cntr;
@@ -47,72 +46,21 @@ int vna = 0;
 void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
 
-// variables to handle PCA9555 board 
-int i2c_hdl, i2c_penelop , i2c_alex;
+/* variables to handle PCA9555 board */
+int i2c_fd, i2c_pene, i2c_alex;
 
-// Helper Functions to control 16 Bit I2C port
-
-// read 16 bit from port
-int PCA9555_read(uint16_t input){
-   ssize_t bytes_written;
-   ssize_t bytes_read;
-   uint8_t write_buffer[1];
-   uint8_t read_buffer[2];
-   
-   write_buffer[0] = 0x00;  // input register 0	
-   // Write the register address onto the bus 
-   bytes_written = write(i2c_hdl, write_buffer, 1);
-   if(bytes_written < 0){
-	return -1;
-   } 
-   // read 2 bytes from i2c	
-   bytes_read = read(i2c_hdl, read_buffer, 2);
-   if(bytes_read < 0){
-	return -1;
-   }
-   input = (read_buffer[1] << 8) | read_buffer[0];
-   return 0;	 		
+ssize_t i2c_write(int fd, uint8_t addr, uint16_t data)
+{
+  uint8_t buffer[3];
+  buffer[0] = addr;
+  buffer[1] = data;
+  buffer[2] = data >> 8;
+  return write(fd, buffer, 3);
 }
-
-// write 16 bit to port
-int PCA9555_write(uint16_t output){
-   ssize_t bytes_written;
-   uint8_t write_buffer[3];
-
-   write_buffer[0] = 0x02;   // output register
-   write_buffer[1] = output;
-   write_buffer[2] = output >> 8;
-   // Write the register address and output to I2C 
-   bytes_written = write(i2c_hdl, write_buffer, 3);
-   if(bytes_written < 0){
-	return -1;
-   }
-   return 0;
-}
-
-// write config register. Direction : 1 input ; 0 output 
-int PCA9555_config(uint16_t config){
-   ssize_t bytes_written;
-   uint8_t write_buffer[3];
-
-   write_buffer[0] = 0x06;   // config register
-   write_buffer[1] = config ;
-   write_buffer[2] = config >> 8;
-   // Write the register address and config to I2C 
-   bytes_written = write(i2c_hdl, write_buffer, 3);
-   if(bytes_written < 0){
-	return -1;
-   }
-   return 0;
-}
-
-
-/* main loop            */
 
 int main(int argc, char *argv[])
 {
   int fd, i;
-  int status;
   ssize_t size;
   pthread_t thread;
   void *cfg, *sts;
@@ -130,33 +78,32 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  /* check if port extender on i2c port */
-  i2c_penelop = 0;
+  i2c_pene = 0;
   i2c_alex = 0;
-  
-  i2c_hdl = open("/dev/i2c-0", O_RDWR);    // open I2C
-  if(i2c_hdl >= 0){
-  	status = ioctl(i2c_hdl, I2C_SLAVE_FORCE, penelop_ADDR);   // select penelope outputs
-    	if(status >= 0)
-    	{
-	  status = PCA9555_write(0x0000);          // resetset all pins
-	  if(status == 0){
-		 i2c_penelop = 1;	    	   // the board is present	
-		 status = PCA9555_config(0x0000);  // set all 16-bit to output
-		 if(status == 0) perror("i2c Penelope found ");  // inform user 
-		}
-	}
-	status = ioctl(i2c_hdl, I2C_SLAVE, alex_ADDR);   // select alex outputs
-    	if(status >= 0)
-    	{
-	  status = PCA9555_write(0x0000);   		// resetset all pins
-          if(status == 0){			
-		 i2c_alex = 1;				//The board is present		
-                 status = PCA9555_config(0x0000);  	// set all 16-bit to output
-		 if(status == 0) perror("i2c Alex found ");   // inform user
-		}
-	}
-  } 
+
+  if((i2c_fd = open("/dev/i2c-0", O_RDWR)) >= 0)
+  {
+    if(ioctl(i2c_fd, I2C_SLAVE_FORCE, ADDR_PENE) >= 0)
+    {
+      /* set all pins to low */
+      if(i2c_write(i2c_fd, 0x02, 0x0000))
+      {
+        i2c_pene = 1;
+        /* configure all pins as output */
+        i2c_write(i2c_fd, 0x06, 0x0000);
+      }
+    }
+    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_ALEX) >= 0)
+    {
+      /* set all pins to low */
+      if(i2c_write(i2c_fd, 0x02, 0x0000))
+      {
+        i2c_alex = 1;
+        /* configure all pins as output */
+        i2c_write(i2c_fd, 0x06, 0x0000);
+      }
+    }
+  }
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
@@ -298,29 +245,24 @@ int main(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
-/* End Point 2 : Data from PC to HPSDR   */ 
-void process_ep2(uint8_t *frame)  
+void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
-  uint8_t pen_out;
-  uint8_t antenna;
-  uint8_t att;
-  uint8_t tmp;
-  int status;
-  int change_p,change_a;
-  uint8_t a1_out,a2_out;
+  uint8_t pene[3] = {0, 0, 0};
+  uint8_t alex[2] = {0, 0};
+  int change_pene, change_alex;
 
   switch(frame[0])
   {
     case 0:
-    case 1:  
+    case 1:
       receivers = ((frame[4] >> 3) & 7) + 1;
       /* set PTT pin */
       if(frame[0] & 1) *gpio_out |= 1;
       else *gpio_out &= ~1;
       /* set preamp pin */
       if(frame[3] & 4) *gpio_out |= 2;
-      else *gpio_out &= ~2;	
+      else *gpio_out &= ~2;
 
       /* set rx sample rate */
       switch(frame[1] & 3)
@@ -339,62 +281,66 @@ void process_ep2(uint8_t *frame)
           break;
       }
 
-	if(i2c_penelop == 1){   	   // penelope I2C extension is attached
-          change_p = 0;
-	  if(pen_out != (frame[2] >> 1)){  // Penelope outputs changed
-            change_p = 1;
- 	    pen_out = frame[2] >> 1;       // output pins
-	    }
-	  if(antenna != ((frame[3] & 0x60) >> 5) | ((frame[4] & 0x03) << 2)){
-	    change_p = 1;
-            antenna = ((frame[3] & 0x60) >> 5) | ((frame[4] & 0x03) << 2);  // Rx Tx Antenna setting	
-	    }
-          if(att != (frame[3] & 0x03)){    // check if new setting
-	    change_p = 1;
-	    att = frame[3] & 0x03;           // new Attentuator setting
-	    }		    
-
-	  if(change_p = 1){		     // some bits have changed               
-	    status = ioctl(i2c_hdl, I2C_SLAVE, penelop_ADDR);   // select penelope I2C outputs
-	    status = PCA9555_write(pen_out | (att << 7) | (antenna << 9));   // set new data
-	}
-      }  	
-
+      /* configure PENE */
+      if(i2c_pene)
+      {
+        change_pene = 0;
+        if(pene[0] != (frame[2] >> 1))
+        {
+          change_pene = 1;
+          pene[0] = frame[2] >> 1;
+        }
+        if(pene[2] != (((frame[4] & 0x03) << 2) | ((frame[3] & 0x60) >> 5)))
+        {
+          change_pene = 1;
+          pene[2] = ((frame[4] & 0x03) << 2) | ((frame[3] & 0x60) >> 5);
+        }
+        if(pene[1] != (frame[3] & 0x03))
+        {
+          change_pene = 1;
+          pene[1] = frame[3] & 0x03;
+        }
+        if(change_pene)
+        {
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_PENE);
+          i2c_write(i2c_fd, 0x02, (pene[2] << 9) | (pene[1] << 7) | pene[0]);
+        }
+      }
       break;
     case 2:
     case 3:
       /* set tx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *tx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+      *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       if(!vna) break;
     case 4:
     case 5:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[0] = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+      *rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 6:
     case 7:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[1] = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+      *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 8:
     case 9:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[2] = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+      *rx_freq[2] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 10:
     case 11:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[3] = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+      *rx_freq[3] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 18:
     case 19:
@@ -403,22 +349,26 @@ void process_ep2(uint8_t *frame)
       if(vna) *tx_rst |= 2;
       else *tx_rst &= ~2;
 
-      if(i2c_alex == 1){   // alex I2C extension is attached	
-	change_a = 0;
-	if(a1_out != frame[3]){  // Alex outputs changed
-            change_a = 1;
- 	    a1_out = frame[3];   // Alex output pins1
-	    }
-	if(a2_out != frame[4]){  // Alex outputs changed
-            change_a = 1;
- 	    a2_out = frame[4];   // Alex output pins2
-	    }
-	if(change_a = 1){	 // some Alex bits have changed               
-	    status = ioctl(i2c_hdl, I2C_SLAVE, alex_ADDR);   // select alex I2C outputs
-	    status = PCA9555_write(a1_out | (a2_out << 8));  // set new data
-	}
-	
-      }	
+      /* configure ALEX */
+      if(i2c_alex)
+      {
+        change_alex = 0;
+        if(alex[0] != frame[3])
+        {
+          change_alex = 1;
+          alex[0] = frame[3];
+        }
+        if(alex[1] != frame[4])
+        {
+          change_alex = 1;
+          alex[1] = frame[4];
+        }
+        if(change_alex)
+        {
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_ALEX);
+          i2c_write(i2c_fd, 0x02, (alex[1] << 8) | alex[0]);
+        }
+      }
       break;
   }
 }
