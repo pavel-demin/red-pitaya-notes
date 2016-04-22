@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     if(ioctl(i2c_fd, I2C_SLAVE_FORCE, ADDR_PENE) >= 0)
     {
       /* set all pins to low */
-      if(i2c_write(i2c_fd, 0x02, 0x0000))
+      if(i2c_write(i2c_fd, 0x02, 0x0000) > 0)
       {
         i2c_pene = 1;
         /* configure all pins as output */
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_ALEX) >= 0)
     {
       /* set all pins to low */
-      if(i2c_write(i2c_fd, 0x02, 0x0000))
+      if(i2c_write(i2c_fd, 0x02, 0x0000) > 0)
       {
         i2c_alex = 1;
         /* configure all pins as output */
