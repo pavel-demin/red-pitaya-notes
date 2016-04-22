@@ -21,8 +21,8 @@
 #define I2C_SLAVE_FORCE 0x0706 /* Use this slave address, even if it
                                   is already in use by a driver! */
 
-#define ADDR_PENE 0x20 /* PCA9555 address 0  */
-#define ADDR_ALEX     0x21 /* PCA9555 address 1 */
+#define ADDR_PENE 0x20 /* PCA9555 address 0 */
+#define ADDR_ALEX 0x21 /* PCA9555 address 1 */
 
 uint32_t *rx_freq[4], *rx_rate, *tx_freq;
 uint16_t *rx_cntr[4], *tx_cntr;
