@@ -283,57 +283,49 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_5 {
+# Create axis_subset_converter
+cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 32
-  M_TDATA_NUM_BYTES 8
-  NUM_MI 4
-  M00_TDATA_REMAP {tdata[23:16],tdata[39:32],tdata[47:40],tdata[55:48],16'b0000000000000000,tdata[7:0],tdata[15:8]}
-  M01_TDATA_REMAP {tdata[87:80],tdata[103:96],tdata[111:104],tdata[119:112],16'b0000000000000000,tdata[71:64],tdata[79:72]}
-  M02_TDATA_REMAP {tdata[151:144],tdata[167:160],tdata[175:168],tdata[183:176],16'b0000000000000000,tdata[135:128],tdata[143:136]}
-  M03_TDATA_REMAP {tdata[215:208],tdata[231:224],tdata[239:232],tdata[247:240],16'b0000000000000000,tdata[199:192],tdata[207:200]}
+  M_TDATA_NUM_BYTES 32
+  TDATA_REMAP {tdata[23:16],tdata[39:32],tdata[47:40],tdata[55:48],16'b0000000000000000,tdata[7:0],tdata[15:8],tdata[87:80],tdata[103:96],tdata[111:104],tdata[119:112],16'b0000000000000000,tdata[71:64],tdata[79:72],tdata[151:144],tdata[167:160],tdata[175:168],tdata[183:176],16'b0000000000000000,tdata[135:128],tdata[143:136],tdata[215:208],tdata[231:224],tdata[239:232],tdata[247:240],16'b0000000000000000,tdata[199:192],tdata[207:200]}
 } {
   S_AXIS conv_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
 
-for {set i 0} {$i <= 3} {incr i} {
+# Create fifo_generator
+cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
+  PERFORMANCE_OPTIONS First_Word_Fall_Through
+  INPUT_DATA_WIDTH 256
+  INPUT_DEPTH 1024
+  OUTPUT_DATA_WIDTH 32
+  OUTPUT_DEPTH 8192
+  READ_DATA_COUNT true
+  READ_DATA_COUNT_WIDTH 14
+} {
+  clk /ps_0/FCLK_CLK0
+  srst slice_0/Dout
+}
 
-  # Create fifo_generator
-  cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_$i {
-    PERFORMANCE_OPTIONS First_Word_Fall_Through
-    INPUT_DATA_WIDTH 64
-    INPUT_DEPTH 1024
-    OUTPUT_DATA_WIDTH 32
-    OUTPUT_DEPTH 2048
-    READ_DATA_COUNT true
-    READ_DATA_COUNT_WIDTH 12
-  } {
-    clk /ps_0/FCLK_CLK0
-    srst slice_0/Dout
-  }
+# Create axis_fifo
+cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
+  S_AXIS_TDATA_WIDTH 256
+  M_AXIS_TDATA_WIDTH 32
+} {
+  S_AXIS subset_2/M_AXIS
+  FIFO_READ fifo_generator_0/FIFO_READ
+  FIFO_WRITE fifo_generator_0/FIFO_WRITE
+  aclk /ps_0/FCLK_CLK0
+}
 
-  # Create axis_fifo
-  cell pavel-demin:user:axis_fifo:1.0 fifo_[expr $i + 2] {
-    S_AXIS_TDATA_WIDTH 64
-    M_AXIS_TDATA_WIDTH 32
-  } {
-    S_AXIS bcast_5/M0${i}_AXIS
-    FIFO_READ fifo_generator_$i/FIFO_READ
-    FIFO_WRITE fifo_generator_$i/FIFO_WRITE
-    aclk /ps_0/FCLK_CLK0
-  }
-
-  # Create axi_axis_reader
-  cell pavel-demin:user:axi_axis_reader:1.0 reader_$i {
-    AXI_DATA_WIDTH 32
-  } {
-    S_AXIS fifo_[expr $i + 2]/M_AXIS
-    aclk /ps_0/FCLK_CLK0
-    aresetn /rst_0/peripheral_aresetn
-  }
-
+# Create axi_axis_reader
+cell pavel-demin:user:axi_axis_reader:1.0 reader_0 {
+  AXI_DATA_WIDTH 32
+} {
+  S_AXIS fifo_1/M_AXIS
+  aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
 }

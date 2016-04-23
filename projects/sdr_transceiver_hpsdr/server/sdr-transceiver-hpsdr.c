@@ -25,9 +25,9 @@
 #define ADDR_ALEX 0x21 /* PCA9555 address 1 */
 
 uint32_t *rx_freq[4], *rx_rate, *tx_freq;
-uint16_t *rx_cntr[4], *tx_cntr;
+uint16_t *rx_cntr, *tx_cntr;
 uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
-uint64_t *rx_data[4];
+uint64_t *rx_data;
 void *tx_data;
 
 const uint32_t freq_min = 0;
@@ -106,10 +106,7 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  rx_data[0] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-  rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
-  rx_data[2] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
-  rx_data[3] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
   tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
 
   *(uint32_t *)(tx_data + 8) = 165;
@@ -121,21 +118,15 @@ int main(int argc, char *argv[])
   rx_rate = ((uint32_t *)(cfg + 4));
 
   rx_freq[0] = ((uint32_t *)(cfg + 8));
-  rx_cntr[0] = ((uint16_t *)(sts + 12));
-
   rx_freq[1] = ((uint32_t *)(cfg + 12));
-  rx_cntr[1] = ((uint16_t *)(sts + 14));
-
   rx_freq[2] = ((uint32_t *)(cfg + 16));
-  rx_cntr[2] = ((uint16_t *)(sts + 16));
-
   rx_freq[3] = ((uint32_t *)(cfg + 20));
-  rx_cntr[3] = ((uint16_t *)(sts + 18));
 
   tx_freq = ((uint32_t *)(cfg + 32));
-  tx_cntr = ((uint16_t *)(sts + 20));
 
-  gpio_in = ((uint8_t *)(sts + 22));
+  rx_cntr = ((uint16_t *)(sts + 12));
+  tx_cntr = ((uint16_t *)(sts + 14));
+  gpio_in = ((uint8_t *)(sts + 16));
 
   /* set I/Q data for the VNA mode */
   *((uint64_t *)(cfg + 24)) = 2000000;
@@ -145,15 +136,16 @@ int main(int argc, char *argv[])
   *gpio_out = 0;
 
   /* set default rx phase increment */
-  *rx_freq[0] = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-  *rx_freq[1] = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-  *rx_freq[2] = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
-  *rx_freq[3] = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *rx_freq[0] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+  *rx_freq[1] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+  *rx_freq[2] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+  *rx_freq[3] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+
   /* set default rx sample rate */
   *rx_rate = 1000;
 
   /* set default tx phase increment */
-  *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *tx_freq = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
 
   *tx_rst |= 1;
   *tx_rst &= ~1;
@@ -421,20 +413,20 @@ void *handler_ep6(void *arg)
     n = 504 / size;
     m = 256 / n;
 
-    if(*rx_cntr[0] >= 2048)
+    if(*rx_cntr >= 8192)
     {
       *rx_rst |= 1;
       *rx_rst &= ~1;
     }
 
-    while(*rx_cntr[0] < m * n * 4) usleep(1000);
+    while(*rx_cntr < m * n * 16) usleep(1000);
 
     for(i = 0; i < m * n * 16; i += 8)
     {
-       *(uint64_t *)(data0 + i) = *rx_data[0];
-       *(uint64_t *)(data1 + i) = *rx_data[1];
-       *(uint64_t *)(data2 + i) = *rx_data[2];
-       *(uint64_t *)(data3 + i) = *rx_data[3];
+      *(uint64_t *)(data0 + i) = *rx_data;
+      *(uint64_t *)(data1 + i) = *rx_data;
+      *(uint64_t *)(data2 + i) = *rx_data;
+      *(uint64_t *)(data3 + i) = *rx_data;
     }
 
     data_offset = 0;
