@@ -42,6 +42,16 @@ The [projects/sdr_transceiver_hpsdr/filters](https://github.com/pavel-demin/red-
 
 The [projects/sdr_transceiver_hpsdr/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr/server) directory contains the source code of the UDP server ([sdr-transceiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c)) that receives control commands and transmits/receives the I/Q data streams to/from the SDR programs.
 
+External connections
+-----
+
+ - input for RX1 is connected to IN1
+ - inputs for RX2 and RX3 are connected to IN2
+ - output for TX is connected to OUT1
+ - output for a RX/TX switch control (PTT-out) is connected to pin DIO0_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
+ - output for a pre-amplifier/attenuator control is connected to pin DIO1_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1) (this pin is controlled by the first ATT combo-box in [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR))
+ - inputs for PTT, DASH and DOT are connected to the pins DIO0_N, DIO1_N and DIO2_N of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
+
 Software
 -----
 
