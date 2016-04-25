@@ -83,8 +83,8 @@ module axis_alex
 
   assign s_axis_tready = int_tready_reg;
 
-  assign alex_data[0] = int_cntr_reg[6] & ~int_cntr_reg[11];
-  assign alex_data[1] = int_data_reg[0];
+  assign alex_data[0] = int_data_reg[0];
+  assign alex_data[1] = int_cntr_reg[6] & ~int_cntr_reg[11];
   assign alex_data[2] = int_load_reg[0] & int_cntr_reg[6] & int_cntr_reg[11];
   assign alex_data[3] = int_load_reg[1] & int_cntr_reg[6] & int_cntr_reg[11];
 
