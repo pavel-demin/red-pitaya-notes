@@ -69,7 +69,7 @@ module axis_alex
 
     if(&int_cntr_reg[6:0])
     begin
-      int_data_next = {1'b0, int_data_reg[15:1]};
+      int_data_next = {int_data_reg[14:0], 1'b0};
     end
 
     if(int_cntr_reg[7] & int_cntr_reg[11])
@@ -83,7 +83,7 @@ module axis_alex
 
   assign s_axis_tready = int_tready_reg;
 
-  assign alex_data[0] = int_data_reg[0];
+  assign alex_data[0] = int_data_reg[15];
   assign alex_data[1] = int_cntr_reg[6] & ~int_cntr_reg[11];
   assign alex_data[2] = int_load_reg[0] & int_cntr_reg[6] & int_cntr_reg[11];
   assign alex_data[3] = int_load_reg[1] & int_cntr_reg[6] & int_cntr_reg[11];
