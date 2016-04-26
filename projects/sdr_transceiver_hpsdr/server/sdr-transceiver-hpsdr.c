@@ -62,6 +62,8 @@ ssize_t i2c_write(int fd, uint8_t addr, uint16_t data)
   return write(fd, buffer, 3);
 }
 
+uint16_t alex_data_rx = 0;
+uint16_t alex_data_tx = 0;
 uint16_t alex_data_0 = 0;
 uint32_t alex_data_1 = 0;
 uint32_t alex_data_2 = 0;
@@ -75,7 +77,7 @@ void alex_write()
   uint16_t preamp = manual ? (alex_data_4 >> 6) & 0x01 : max > 50000000;
   uint16_t ptt = alex_data_0 & 0x01;
   uint32_t freq = 0;
-  uint16_t hpf = 0, lpf = 0;
+  uint16_t hpf = 0, lpf = 0, data = 0;
 
   freq = alex_data_2 < alex_data_3 ? alex_data_2 : alex_data_3;
 
@@ -88,8 +90,7 @@ void alex_write()
   else if(freq < 20000000) hpf = 0x01; /* 13 MHz HPF */
   else hpf = 0x02; /* 20 MHz HPF */
 
-  *alex =
-    1 << 16 |
+  data =
     ptt << 15 |
     ((alex_data_0 >> 1) & 0x01) << 14 |
     ((alex_data_0 >> 2) & 0x01) << 13 |
@@ -103,6 +104,12 @@ void alex_write()
     (hpf & 0x03) << 1 |
     1;
 
+  if(alex_data_rx != data)
+  {
+    alex_data_rx = data;
+    *alex = 1 << 16 | data;
+  }
+
   freq = ptt ? alex_data_1 : max;
 
   if(manual) lpf = (alex_data_4 >> 8) & 0x7f;
@@ -114,8 +121,7 @@ void alex_write()
   else if(freq > 2400000) lpf = 0x04; /* 80 meters */
   else lpf = 0x08; /* 160 meters */
 
-  *alex =
-    1 << 17 |
+  data =
     ((lpf >> 4) & 0x07) << 13 |
     ptt << 12 |
     (~(alex_data_4 >> 7) & ptt) << 11 |
@@ -124,6 +130,12 @@ void alex_write()
     (((alex_data_0 >> 8) & 0x03) == 0x00) << 8 |
     (lpf & 0x0f) << 4 |
     1 << 3;
+
+  if(alex_data_tx != data)
+  {
+    alex_data_tx = data;
+    *alex = 1 << 17 | data;
+  }
 }
 
 int main(int argc, char *argv[])
