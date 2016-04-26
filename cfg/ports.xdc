@@ -174,6 +174,15 @@ set_property DRIVE 8 [get_ports exp_p_trg]
 
 set_property PACKAGE_PIN M14 [get_ports exp_p_trg]
 
+set_property IOSTANDARD LVCMOS33 [get_ports {exp_n_alex[*]}]
+set_property SLEW FAST [get_ports {exp_n_alex[*]}]
+set_property DRIVE 8 [get_ports {exp_n_alex[*]}]
+
+set_property PACKAGE_PIN L15 [get_ports {exp_n_alex[0]}]
+set_property PACKAGE_PIN L17 [get_ports {exp_n_alex[1]}]
+set_property PACKAGE_PIN J16 [get_ports {exp_n_alex[2]}]
+set_property PACKAGE_PIN M15 [get_ports {exp_n_alex[3]}]
+
 ### SATA connector
 
 set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports daisy_p_o[*]]

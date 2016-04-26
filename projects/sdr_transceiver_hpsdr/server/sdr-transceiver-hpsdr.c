@@ -24,7 +24,7 @@
 #define ADDR_PENE 0x20 /* PCA9555 address 0 */
 #define ADDR_ALEX 0x21 /* PCA9555 address 1 */
 
-uint32_t *rx_freq[4], *rx_rate, *tx_freq;
+uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex;
 uint16_t *rx_cntr, *tx_cntr;
 uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
 uint64_t *rx_data;
@@ -50,6 +50,8 @@ void *handler_ep6(void *arg);
 int i2c_fd;
 int i2c_pene = 0;
 int i2c_alex = 0;
+uint16_t i2c_pene_data = 0;
+uint16_t i2c_alex_data = 0;
 
 ssize_t i2c_write(int fd, uint8_t addr, uint16_t data)
 {
@@ -58,6 +60,70 @@ ssize_t i2c_write(int fd, uint8_t addr, uint16_t data)
   buffer[1] = data;
   buffer[2] = data >> 8;
   return write(fd, buffer, 3);
+}
+
+uint16_t alex_data_0 = 0;
+uint32_t alex_data_1 = 0;
+uint32_t alex_data_2 = 0;
+uint32_t alex_data_3 = 0;
+uint16_t alex_data_4 = 0;
+
+void alex_write()
+{
+  uint32_t max = alex_data_2 > alex_data_3 ? alex_data_2 : alex_data_3;
+  uint16_t manual = (alex_data_4 >> 15) & 0x01;
+  uint16_t preamp = manual ? (alex_data_4 >> 6) & 0x01 : max > 50000000;
+  uint16_t ptt = alex_data_0 & 0x01;
+  uint32_t freq = 0;
+  uint16_t hpf = 0, lpf = 0;
+
+  freq = alex_data_2 < alex_data_3 ? alex_data_2 : alex_data_3;
+
+  if(preamp) hpf = 0;
+  else if(manual) hpf = alex_data_4 & 0x3f;
+  else if(freq < 1416000) hpf = 0x20; /* bypass */
+  else if(freq < 6500000) hpf = 0x10; /* 1.5 MHz HPF */
+  else if(freq < 9500000) hpf = 0x08; /* 6.5 MHz HPF */
+  else if(freq < 13000000) hpf = 0x04; /* 9.5 MHz HPF */
+  else if(freq < 20000000) hpf = 0x01; /* 13 MHz HPF */
+  else hpf = 0x02; /* 20 MHz HPF */
+
+  *alex =
+    1 << 16 |
+    ptt << 15 |
+    ((alex_data_0 >> 1) & 0x01) << 14 |
+    ((alex_data_0 >> 2) & 0x01) << 13 |
+    ((hpf >> 5) & 0x01) << 12 |
+    ((alex_data_0 >> 7) & 0x01) << 11 |
+    (((alex_data_0 >> 5) & 0x03) == 0x01) << 10 |
+    (((alex_data_0 >> 5) & 0x03) == 0x02) << 9 |
+    (((alex_data_0 >> 5) & 0x03) == 0x03) << 8 |
+    ((hpf >> 2) & 0x07) << 4 |
+    preamp << 3 |
+    (hpf & 0x03) << 1 |
+    1;
+
+  freq = ptt ? alex_data_1 : max;
+
+  if(manual) lpf = (alex_data_4 >> 8) & 0x7f;
+  else if(freq > 32000000) lpf = 0x10; /* bypass */
+  else if(freq > 22000000) lpf = 0x20; /* 12/10 meters */
+  else if(freq > 15000000) lpf = 0x40; /* 17/15 meters */
+  else if(freq > 8000000) lpf = 0x01; /* 30/20 meters */
+  else if(freq > 4500000) lpf = 0x02; /* 60/40 meters */
+  else if(freq > 2400000) lpf = 0x04; /* 80 meters */
+  else lpf = 0x08; /* 160 meters */
+
+  *alex =
+    1 << 17 |
+    ((lpf >> 4) & 0x07) << 13 |
+    ptt << 12 |
+    ((alex_data_4 >> 7) & ptt) << 11 |
+    (((alex_data_0 >> 8) & 0x03) == 0x02) << 10 |
+    (((alex_data_0 >> 8) & 0x03) == 0x01) << 9 |
+    (((alex_data_0 >> 8) & 0x03) == 0x00) << 8 |
+    (lpf & 0x0f) << 4 |
+    1 << 3;
 }
 
 int main(int argc, char *argv[])
@@ -106,6 +172,7 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  alex = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
   tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
 
@@ -239,9 +306,7 @@ int main(int argc, char *argv[])
 void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
-  uint8_t pene[3] = {0, 0, 0};
-  uint8_t alex[2] = {0, 0};
-  int change_pene, change_alex;
+  uint16_t data;
 
   switch(frame[0])
   {
@@ -272,29 +337,22 @@ void process_ep2(uint8_t *frame)
           break;
       }
 
+      data = (frame[4] & 0x03) << 8 | (frame[3] & 0xe0) | (frame[3] & 0x03) << 1 | (frame[0] & 0x01);
+      if(alex_data_0 != data)
+      {
+        alex_data_0 = data;
+        alex_write();
+      }
+
       /* configure PENELOPE */
       if(i2c_pene)
       {
-        change_pene = 0;
-        if(pene[0] != (frame[2] >> 1))
+        data = (frame[4] & 0x03) << 11 | (frame[3] & 0x60) << 4 | (frame[3] & 0x03) << 7 | frame[2] >> 1;
+        if(i2c_pene_data != data)
         {
-          change_pene = 1;
-          pene[0] = frame[2] >> 1;
-        }
-        if(pene[2] != (((frame[4] & 0x03) << 2) | ((frame[3] & 0x60) >> 5)))
-        {
-          change_pene = 1;
-          pene[2] = ((frame[4] & 0x03) << 2) | ((frame[3] & 0x60) >> 5);
-        }
-        if(pene[1] != (frame[3] & 0x03))
-        {
-          change_pene = 1;
-          pene[1] = frame[3] & 0x03;
-        }
-        if(change_pene)
-        {
+          i2c_pene_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_PENE);
-          i2c_write(i2c_fd, 0x02, (pene[2] << 9) | (pene[1] << 7) | pene[0]);
+          i2c_write(i2c_fd, 0x02, data);
         }
       }
       break;
@@ -302,6 +360,11 @@ void process_ep2(uint8_t *frame)
     case 3:
       /* set tx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
+      if(alex_data_1 != freq)
+      {
+        alex_data_1 = freq;
+        alex_write();
+      }
       if(freq < freq_min || freq > freq_max) break;
       *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       if(!vna) break;
@@ -309,6 +372,11 @@ void process_ep2(uint8_t *frame)
     case 5:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
+      if(alex_data_2 != freq)
+      {
+        alex_data_2 = freq;
+        alex_write();
+      }
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
@@ -316,6 +384,11 @@ void process_ep2(uint8_t *frame)
     case 7:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
+      if(alex_data_3 != freq)
+      {
+        alex_data_3 = freq;
+        alex_write();
+      }
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
@@ -340,24 +413,22 @@ void process_ep2(uint8_t *frame)
       if(vna) *tx_rst |= 2;
       else *tx_rst &= ~2;
 
+      data = (frame[2] & 0x40) << 9 | frame[4] << 8 | frame[3];
+      if(alex_data_4 != data)
+      {
+        alex_data_4 = data;
+        alex_write();
+      }
+
       /* configure ALEX */
       if(i2c_alex)
       {
-        change_alex = 0;
-        if(alex[0] != frame[3])
+        data = frame[4] << 8 | frame[3];
+        if(i2c_alex_data != data)
         {
-          change_alex = 1;
-          alex[0] = frame[3];
-        }
-        if(alex[1] != frame[4])
-        {
-          change_alex = 1;
-          alex[1] = frame[4];
-        }
-        if(change_alex)
-        {
+          i2c_alex_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_ALEX);
-          i2c_write(i2c_fd, 0x02, (alex[1] << 8) | alex[0]);
+          i2c_write(i2c_fd, 0x02, data);
         }
       }
       break;
