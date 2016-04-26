@@ -81,48 +81,49 @@ void alex_write()
 
   if(preamp) hpf = 0;
   else if(manual) hpf = alex_data_4 & 0x3f;
-  else if(freq < 1416000) hpf = 0x01;
-  else if(freq < 6500000) hpf = 0x02;
-  else if(freq < 9500000) hpf = 0x04;
-  else if(freq < 13000000) hpf = 0x08;
-  else if(freq < 20000000) hpf = 0x20;
-  else hpf = 0x10;
+  else if(freq < 1416000) hpf = 0x20; /* bypass */
+  else if(freq < 6500000) hpf = 0x10; /* 1.5 MHz HPF */
+  else if(freq < 9500000) hpf = 0x08; /* 6.5 MHz HPF */
+  else if(freq < 13000000) hpf = 0x04; /* 9.5 MHz HPF */
+  else if(freq < 20000000) hpf = 0x01; /* 13 MHz HPF */
+  else hpf = 0x02; /* 20 MHz HPF */
 
   *alex =
     1 << 16 |
-    1 << 15 |
-    ((hpf >> 4) & 0x03) << 13 |
-    preamp << 12 |
-    ((hpf >> 1) & 0x07) << 9 |
-    (((alex_data_0 >> 5) & 0x03) == 0x03) << 7 |
-    (((alex_data_0 >> 5) & 0x03) == 0x02) << 6 |
-    (((alex_data_0 >> 5) & 0x03) == 0x01) << 5 |
-    ((alex_data_0 >> 7) & 0x01) << 4 |
-    (hpf & 0x01) << 3 |
-    ((alex_data_0 >> 1) & 0x03) << 1 |
-    ptt;
+    ptt << 15 |
+    ((alex_data_0 >> 1) & 0x01) << 14 |
+    ((alex_data_0 >> 2) & 0x01) << 13 |
+    ((hpf >> 5) & 0x01) << 12 |
+    ((alex_data_0 >> 7) & 0x01) << 11 |
+    (((alex_data_0 >> 5) & 0x03) == 0x01) << 10 |
+    (((alex_data_0 >> 5) & 0x03) == 0x02) << 9 |
+    (((alex_data_0 >> 5) & 0x03) == 0x03) << 8 |
+    ((hpf >> 2) & 0x07) << 4 |
+    preamp << 3 |
+    (hpf & 0x03) << 1 |
+    1;
 
   freq = ptt ? alex_data_1 : max;
 
   if(manual) lpf = (alex_data_4 >> 8) & 0x7f;
-  else if(freq > 32000000) lpf = 0x04;
-  else if(freq > 22000000) lpf = 0x02;
-  else if(freq > 15000000) lpf = 0x01;
-  else if(freq > 8000000) lpf = 0x40;
-  else if(freq > 4500000) lpf = 0x20;
-  else if(freq > 2400000) lpf = 0x10;
-  else lpf = 0x08;
+  else if(freq > 32000000) lpf = 0x10; /* bypass */
+  else if(freq > 22000000) lpf = 0x20; /* 12/10 meters */
+  else if(freq > 15000000) lpf = 0x40; /* 17/15 meters */
+  else if(freq > 8000000) lpf = 0x01; /* 30/20 meters */
+  else if(freq > 4500000) lpf = 0x02; /* 60/40 meters */
+  else if(freq > 2400000) lpf = 0x04; /* 80 meters */
+  else lpf = 0x08; /* 160 meters */
 
   *alex =
     1 << 17 |
-    1 << 12 |
-    (lpf & 0x0f) << 8 |
-    (((alex_data_0 >> 8) & 0x03) == 0x00) << 7 |
-    (((alex_data_0 >> 8) & 0x03) == 0x01) << 6 |
-    (((alex_data_0 >> 8) & 0x03) == 0x02) << 5 |
-    ((alex_data_4 >> 7) & ptt) << 4 |
-    ptt << 3 |
-    ((lpf >> 4) & 0x07);
+    ((lpf >> 4) & 0x07) << 13 |
+    ptt << 12 |
+    ((alex_data_4 >> 7) & ptt) << 11 |
+    (((alex_data_0 >> 8) & 0x03) == 0x02) << 10 |
+    (((alex_data_0 >> 8) & 0x03) == 0x01) << 9 |
+    (((alex_data_0 >> 8) & 0x03) == 0x00) << 8 |
+    (lpf & 0x0f) << 4 |
+    1 << 3;
 }
 
 int main(int argc, char *argv[])
