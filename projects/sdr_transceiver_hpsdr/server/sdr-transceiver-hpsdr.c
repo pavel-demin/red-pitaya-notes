@@ -118,7 +118,7 @@ void alex_write()
     1 << 17 |
     ((lpf >> 4) & 0x07) << 13 |
     ptt << 12 |
-    ((alex_data_4 >> 7) & ptt) << 11 |
+    (~(alex_data_4 >> 7) & ptt) << 11 |
     (((alex_data_0 >> 8) & 0x03) == 0x02) << 10 |
     (((alex_data_0 >> 8) & 0x03) == 0x01) << 9 |
     (((alex_data_0 >> 8) & 0x03) == 0x00) << 8 |
