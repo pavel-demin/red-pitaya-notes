@@ -11,7 +11,7 @@ The [High Performance Software Defined Radio](http://openhpsdr.org) (HPSDR) proj
 
 This version of the Red Pitaya SDR transceiver makes it usable with the software developed by the HPSDR project and other SDR programs that support the HPSDR/Metis communication protocol.
 
-This SDR transceiver emulates a HPSDR transceiver with one [Metis](http://openhpsdr.org/metis.php) network interface module, two [Mercury](http://openhpsdr.org/mercury.php) receivers and one [Pennylane ](http://openhpsdr.org/penny.php) transmitter.
+This SDR transceiver emulates a HPSDR transceiver with one [Metis](http://openhpsdr.org/metis.php) network interface module, two [Mercury](http://openhpsdr.org/mercury.php) receivers and one [Pennylane](http://openhpsdr.org/penny.php) transmitter.
 
 The HPSDR/Metis communication protocol is described in the following documents:
 
@@ -34,7 +34,7 @@ The tunable frequency range covers from 0 Hz to 61.44 MHz.
 
 The basic blocks of the digital down-converters (DDC) and of the digital up-converter (DUC) are shown on the following diagram:
 
-![SDR transceiver compatible with HPSDR ]({{ "/img/sdr-transceiver-hpsdr.png" | prepend: site.baseurl }})
+![SDR transceiver compatible with HPSDR]({{ "/img/sdr-transceiver-hpsdr.png" | prepend: site.baseurl }})
 
 The [projects/sdr_transceiver_hpsdr](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
@@ -118,6 +118,20 @@ Getting started
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install and run one of the HPSDR programs.
+
+Amplifier linearization
+-----
+
+[PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) includes an amplifier linearization system called [PureSignal](http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/PowerSDR_HPSDR_mRX_PS/bin/Release/PureSignal.pdf). The following screenshots show what settings should be adjusted when using it with Red Pitaya. To access the "Calibration Information" panel press Ctrl+Alt+i. The attenuated feedback signal from the amplifier should be connected to IN2.
+
+![PowerSDR Hardware Config]({{ "/img/powersdr-hardware.png" | prepend: site.baseurl }})
+
+![PowerSDR Linearity]({{ "/img/powersdr-linearity.png" | prepend: site.baseurl }})
+
+The following spectra illustrate how the amplifier linearization works with the Red Pitaya output (OUT1) connected to the Red Pitaya input (IN2) with a 50 Ohm termination.
+
+![PureSignal off]({{ "/img/puresignal-off.png" | prepend: site.baseurl }})
+![PureSignal on]({{ "/img/puresignal-on.png" | prepend: site.baseurl }})
 
 Building from source
 -----
