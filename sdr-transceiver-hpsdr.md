@@ -67,9 +67,9 @@ HPSDR signals sent to the [PCA9555](http://www.ti.com/product/PCA9555) chip at a
 PCA9555 pins | HPSDR signals
 ------------ | -------------
 P00 - P06    | Open Collector Outputs on Penelope or Hermes
-P07 - P10    | Alex Attenuator (00 = 0dB, 01 = 10dB, 10 = 20dB, 11 = 30dB)
-P11 - P12    | Alex Rx Antenna (00 = none, 01 = Rx1, 10 = Rx2, 11 = XV)
-P13 - P14    | Alex Tx relay (00 = Tx1, 01= Tx2, 10 = Tx3)
+P07 - P10    | Attenuator (00 = 0dB, 01 = 10dB, 10 = 20dB, 11 = 30dB)
+P11 - P12    | Rx Antenna (00 = none, 01 = Rx1, 10 = Rx2, 11 = XV)
+P13 - P14    | Tx relay (00 = Tx1, 01= Tx2, 10 = Tx3)
 
 HPSDR signals sent to the [PCA9555](http://www.ti.com/product/PCA9555) chip at address 1:
 
