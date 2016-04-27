@@ -1,16 +1,16 @@
 library(signal)
 
-Fo <- 0.0072                   # Pass band edge; 0.22*4/5/25
+Fo <- 0.008                    # Pass band edge; 0.25*4/5/25
 
 # fir2 parameters
-k <- kaiserord(c(Fo, Fo+0.0084), c(1, 0), 1/(2^16), 1)
+k <- kaiserord(c(Fo, Fo+0.008), c(1, 0), 1/(2^16), 1)
 L <- k$n                       # Filter order
 Beta <- k$beta                 # Kaiser window parameter
 
 # FIR filter design using fir2
 s <- 0.0001                    # Step size
 fp <- seq(0.0, Fo, by=s)       # Pass band frequency samples
-fs <- seq(Fo+0.0084, 0.5, by=s) # Stop band frequency samples
+fs <- seq(Fo+0.008, 0.5, by=s) # Stop band frequency samples
 f <- c(fp, fs)*2               # Normalized frequency samples; 0<=f<=1
 
 Mp <- matrix(1, 1, length(fp)) # Pass band response; Mp[1]=1
