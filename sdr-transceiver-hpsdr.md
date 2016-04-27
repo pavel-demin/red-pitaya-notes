@@ -42,7 +42,7 @@ The [projects/sdr_transceiver_hpsdr/filters](https://github.com/pavel-demin/red-
 
 The [projects/sdr_transceiver_hpsdr/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr/server) directory contains the source code of the UDP server ([sdr-transceiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c)) that receives control commands and transmits/receives the I/Q data streams to/from the SDR programs.
 
-External connections
+RF and GPIO connections
 -----
 
  - input for RX1 is connected to IN1
@@ -51,6 +51,47 @@ External connections
  - output for a RX/TX switch control (PTT-out) is connected to pin DIO0_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
  - output for a pre-amplifier/attenuator control is connected to pin DIO1_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1) (this pin is controlled by the first ATT combo-box in [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR))
  - inputs for PTT, DASH and DOT are connected to the pins DIO0_N, DIO1_N and DIO2_N of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
+
+ALEX connections
+-----
+The [ALEX module](http://openhpsdr.org/alex.php) can be connected to the pins DIO4_N (Serial Data), DIO5_N (Clock), DIO6_N (RX Board Load Strobe) and DIO7_N (TX Board Load Strobe) of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1).
+The board and the protocol are described in the [ALEX manual](http://www.tapr.org/pdf/ALEX_Manual_V1_0.pdf).
+
+I2C connections
+-----
+
+This interface is designed by Peter DC2PD. The [sdr-transceiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c) server communicates with one or two [PCA9555](http://www.ti.com/product/PCA9555) chips connected to the I2C pins of the [extension connector E2](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E2).
+
+HPSDR signals sent to the [PCA9555](http://www.ti.com/product/PCA9555) chip at address 0:
+
+PCA9555 pins | HPSDR signals
+------------ | -------------
+P00 - P06    | Open Collector Outputs on Penelope or Hermes
+P07 - P10    | Alex Attenuator (00 = 0dB, 01 = 10dB, 10 = 20dB, 11 = 30dB)
+P11 - P12    | Alex Rx Antenna (00 = none, 01 = Rx1, 10 = Rx2, 11 = XV)
+P13 - P14    | Alex Tx relay (00 = Tx1, 01= Tx2, 10 = Tx3)
+
+HPSDR signals sent to the [PCA9555](http://www.ti.com/product/PCA9555) chip at address 1:
+
+PCA9555 pins | HPSDR signals
+------------ | -------------
+P00          | select 13MHz HPF (0 = disable, 1 = enable)
+P01          | select 20MHz HPF (0 = disable, 1 = enable)
+P02          | select 9.5MHz HPF (0 = disable, 1 = enable)
+P03          | select 6.5MHz HPF (0 = disable, 1 = enable)
+P04          | select 1.5MHz HPF (0 = disable, 1 = enable)
+P05          | bypass all HPFs (0 = disable, 1 = enable)
+P06          | 6M low noise amplifier (0 = disable, 1 = enable)
+P07          | disable T/R relay (0 = enable, 1 = disable)
+P10          | select 30/20m LPF (0 = disable, 1 = enable)
+P11          | select 60/40m LPF (0 = disable, 1 = enable)
+P12          | select 80m LPF (0 = disable, 1 = enable)
+P13          | select 160m LPF (0 = disable, 1 = enable)
+P14          | select 6m LPF (0 = disable, 1 = enable)
+P15          | select 12/10m LPF (0 = disable, 1 = enable)
+P16          | select 17/15m LPF (0 = disable, 1 = enable)
+
+More information about the I2C interface can be found at [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/Hermes_and_Alex_outputs.pdf).
 
 Software
 -----
