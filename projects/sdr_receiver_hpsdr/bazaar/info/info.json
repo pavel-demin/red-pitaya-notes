@@ -2,5 +2,5 @@
     "name": "SDR receiver compatible with HPSDR",
     "version": "0.94-BUILD_NUMBER",
     "revision": "REVISION",
-    "description": "SDR receiver emulating a HPSDR receiver with one network interface module and four receivers. (by Pavel Demin)"
+    "description": "SDR receiver emulating a HPSDR receiver with one network interface module and five receivers. (by Pavel Demin)"
 }
