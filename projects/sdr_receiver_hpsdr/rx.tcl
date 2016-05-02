@@ -5,40 +5,82 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
+  DIN_WIDTH 192 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
 }
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
 
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 2
+  TDATA_NUM_BYTES 4
 } {
+  m_axis_tready const_0/dout
   m_axis_aclk /ps_0/FCLK_CLK0
   m_axis_aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 2
-  M_TDATA_NUM_BYTES 2
-  NUM_MI 4
-  M00_TDATA_REMAP {tdata[15:0]}
-  M01_TDATA_REMAP {tdata[15:0]}
-  M02_TDATA_REMAP {tdata[15:0]}
-  M03_TDATA_REMAP {tdata[15:0]}
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+  NUM_PORTS 5
+}
+
+set prop_list {}
+for {set i 0} {$i <= 4} {incr i} {
+  lappend prop_list IN${i}_WIDTH 32
+}
+set_property -dict $prop_list [get_bd_cells concat_0]
+
+for {set i 0} {$i <= 4} {incr i} {
+  connect_bd_net [get_bd_pins concat_0/In$i] [get_bd_pins fifo_0/m_axis_tdata]
+}
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_1 {
+  NUM_PORTS 10
+}
+
+set prop_list {}
+for {set i 0} {$i <= 9} {incr i} {
+  lappend prop_list IN${i}_WIDTH 1
+}
+set_property -dict $prop_list [get_bd_cells concat_1]
+
+for {set i 0} {$i <= 9} {incr i} {
+  connect_bd_net [get_bd_pins concat_1/In$i] [get_bd_pins fifo_0/m_axis_tvalid]
+}
+
+# Create axis_switch
+cell xilinx.com:ip:axis_switch:1.1 switch_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 2
+  ROUTING_MODE 1
+  NUM_SI 10
+  NUM_MI 5
 } {
-  S_AXIS fifo_0/M_AXIS
+  s_axis_tdata concat_0/dout
+  s_axis_tvalid concat_1/dout
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
 
-for {set i 0} {$i <= 3} {incr i} {
+set prop_list {}
+for {set i 0} {$i <= 4} {incr i} {
+  for {set j 0} {$j <= 9} {incr j} {
+    if {$i == $j / 2} continue
+    lappend prop_list CONFIG.M[format %02d $i]_S[format %02d $j]_CONNECTIVITY 0
+  }
+}
+set_property -dict $prop_list [get_bd_cells switch_0]
+
+unset prop_list
+
+for {set i 0} {$i <= 4} {incr i} {
 
   # Create xlslice
   cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 2] {
-    DIN_WIDTH 160 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32] DOUT_WIDTH 32
+    DIN_WIDTH 192 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32] DOUT_WIDTH 32
   }
 
   # Create axis_constant
@@ -82,14 +124,14 @@ for {set i 0} {$i <= 3} {incr i} {
     ROUNDMODE Random_Rounding
     OUTPUTWIDTH 25
   } {
-    S_AXIS_A bcast_0/M0${i}_AXIS
+    S_AXIS_A switch_0/M0${i}_AXIS
     S_AXIS_B dds_$i/M_AXIS_DATA
     S_AXIS_CTRL lfsr_$i/M_AXIS
     aclk /ps_0/FCLK_CLK0
   }
 
   # Create axis_broadcaster
-  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_[expr $i + 1] {
+  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_$i {
     S_TDATA_NUM_BYTES.VALUE_SRC USER
     M_TDATA_NUM_BYTES.VALUE_SRC USER
     S_TDATA_NUM_BYTES 8
@@ -104,7 +146,7 @@ for {set i 0} {$i <= 3} {incr i} {
 
 }
 
-for {set i 0} {$i <= 7} {incr i} {
+for {set i 0} {$i <= 9} {incr i} {
 
   # Create axis_variable
   cell pavel-demin:user:axis_variable:1.0 rate_$i {
@@ -133,7 +175,7 @@ for {set i 0} {$i <= 7} {incr i} {
     HAS_DOUT_TREADY true
     HAS_ARESETN true
   } {
-    S_AXIS_DATA bcast_[expr $i / 2 + 1]/M0[expr $i % 2]_AXIS
+    S_AXIS_DATA bcast_[expr $i / 2]/M0[expr $i % 2]_AXIS
     S_AXIS_CONFIG rate_$i/M_AXIS
     aclk /ps_0/FCLK_CLK0
     aresetn /rst_0/peripheral_aresetn
@@ -145,7 +187,7 @@ for {set i 0} {$i <= 7} {incr i} {
 cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 3
-  NUM_SI 8
+  NUM_SI 10
 } {
   S00_AXIS cic_0/M_AXIS_DATA
   S01_AXIS cic_1/M_AXIS_DATA
@@ -155,6 +197,8 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   S05_AXIS cic_5/M_AXIS_DATA
   S06_AXIS cic_6/M_AXIS_DATA
   S07_AXIS cic_7/M_AXIS_DATA
+  S08_AXIS cic_8/M_AXIS_DATA
+  S09_AXIS cic_9/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
@@ -162,7 +206,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 # Create axis_dwidth_converter
 cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 24
+  S_TDATA_NUM_BYTES 30
   M_TDATA_NUM_BYTES 3
 } {
   S_AXIS comb_0/M_AXIS
@@ -182,7 +226,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   RATE_CHANGE_TYPE Fixed_Fractional
   INTERPOLATION_RATE 24
   DECIMATION_RATE 25
-  NUMBER_CHANNELS 8
+  NUMBER_CHANNELS 10
   NUMBER_PATHS 1
   SAMPLE_FREQUENCY 1.0
   CLOCK_FREQUENCY 125
@@ -221,7 +265,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_1 {
   RATE_CHANGE_TYPE Fixed_Fractional
   INTERPOLATION_RATE 4
   DECIMATION_RATE 5
-  NUMBER_CHANNELS 8
+  NUMBER_CHANNELS 10
   NUMBER_PATHS 1
   SAMPLE_FREQUENCY 0.96
   CLOCK_FREQUENCY 125
@@ -258,7 +302,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_2 {
   BESTPRECISION true
   FILTER_TYPE Decimation
   DECIMATION_RATE 2
-  NUMBER_CHANNELS 8
+  NUMBER_CHANNELS 10
   NUMBER_PATHS 1
   SAMPLE_FREQUENCY 0.768
   CLOCK_FREQUENCY 125
@@ -276,56 +320,65 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_2 {
 cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 32
+  M_TDATA_NUM_BYTES 40
 } {
   S_AXIS fir_2/M_AXIS_DATA
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
+# Create axis_broadcaster
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_5 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 32
-  M_TDATA_NUM_BYTES 32
-  TDATA_REMAP {tdata[23:16],tdata[39:32],tdata[47:40],tdata[55:48],16'b0000000000000000,tdata[7:0],tdata[15:8],tdata[87:80],tdata[103:96],tdata[111:104],tdata[119:112],16'b0000000000000000,tdata[71:64],tdata[79:72],tdata[151:144],tdata[167:160],tdata[175:168],tdata[183:176],16'b0000000000000000,tdata[135:128],tdata[143:136],tdata[215:208],tdata[231:224],tdata[239:232],tdata[247:240],16'b0000000000000000,tdata[199:192],tdata[207:200]}
+  S_TDATA_NUM_BYTES 40
+  M_TDATA_NUM_BYTES 8
+  NUM_MI 5
+  M00_TDATA_REMAP {tdata[23:16],tdata[39:32],tdata[47:40],tdata[55:48],16'b0000000000000000,tdata[7:0],tdata[15:8]}
+  M01_TDATA_REMAP {tdata[87:80],tdata[103:96],tdata[111:104],tdata[119:112],16'b0000000000000000,tdata[71:64],tdata[79:72]}
+  M02_TDATA_REMAP {tdata[151:144],tdata[167:160],tdata[175:168],tdata[183:176],16'b0000000000000000,tdata[135:128],tdata[143:136]}
+  M03_TDATA_REMAP {tdata[215:208],tdata[231:224],tdata[239:232],tdata[247:240],16'b0000000000000000,tdata[199:192],tdata[207:200]}
+  M04_TDATA_REMAP {tdata[279:272],tdata[295:288],tdata[303:296],tdata[311:304],16'b0000000000000000,tdata[263:256],tdata[271:264]}
 } {
   S_AXIS conv_1/M_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
-  PERFORMANCE_OPTIONS First_Word_Fall_Through
-  INPUT_DATA_WIDTH 256
-  INPUT_DEPTH 1024
-  OUTPUT_DATA_WIDTH 32
-  OUTPUT_DEPTH 8192
-  READ_DATA_COUNT true
-  READ_DATA_COUNT_WIDTH 14
-} {
-  clk /ps_0/FCLK_CLK0
-  srst slice_0/Dout
-}
+for {set i 0} {$i <= 4} {incr i} {
 
-# Create axis_fifo
-cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
-  S_AXIS_TDATA_WIDTH 256
-  M_AXIS_TDATA_WIDTH 32
-} {
-  S_AXIS subset_2/M_AXIS
-  FIFO_READ fifo_generator_0/FIFO_READ
-  FIFO_WRITE fifo_generator_0/FIFO_WRITE
-  aclk /ps_0/FCLK_CLK0
-}
+  # Create fifo_generator
+  cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_$i {
+    PERFORMANCE_OPTIONS First_Word_Fall_Through
+    INPUT_DATA_WIDTH 64
+    INPUT_DEPTH 1024
+    OUTPUT_DATA_WIDTH 32
+    OUTPUT_DEPTH 2048
+    READ_DATA_COUNT true
+    READ_DATA_COUNT_WIDTH 12
+  } {
+    clk /ps_0/FCLK_CLK0
+    srst slice_0/Dout
+  }
 
-# Create axi_axis_reader
-cell pavel-demin:user:axi_axis_reader:1.0 reader_0 {
-  AXI_DATA_WIDTH 32
-} {
-  S_AXIS fifo_1/M_AXIS
-  aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
+  # Create axis_fifo
+  cell pavel-demin:user:axis_fifo:1.0 fifo_[expr $i + 1] {
+    S_AXIS_TDATA_WIDTH 64
+    M_AXIS_TDATA_WIDTH 32
+  } {
+    S_AXIS bcast_5/M0${i}_AXIS
+    FIFO_READ fifo_generator_$i/FIFO_READ
+    FIFO_WRITE fifo_generator_$i/FIFO_WRITE
+    aclk /ps_0/FCLK_CLK0
+  }
+
+  # Create axi_axis_reader
+  cell pavel-demin:user:axi_axis_reader:1.0 reader_$i {
+    AXI_DATA_WIDTH 32
+  } {
+    S_AXIS fifo_[expr $i + 1]/M_AXIS
+    aclk /ps_0/FCLK_CLK0
+    aresetn /rst_0/peripheral_aresetn
+  }
+
 }
