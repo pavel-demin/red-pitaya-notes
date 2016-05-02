@@ -15,10 +15,10 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
-uint32_t *rx_freq[4], *rx_rate;
-uint16_t *rx_cntr;
+uint32_t *rx_freq[5], *rx_rate;
+uint16_t *rx_cntr[5];
 uint8_t *rx_rst;
-uint64_t *rx_data;
+uint64_t *rx_data[5];
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   void *cfg, *sts;
   char *name = "/dev/mem";
   uint8_t buffer[1032];
-  uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 31, 1};
+  uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1};
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from;
   socklen_t size_from;
@@ -56,7 +56,11 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  rx_data[0] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+  rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
+  rx_data[2] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
+  rx_data[3] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  rx_data[4] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000a000);
 
   rx_rst = ((uint8_t *)(cfg + 0));
 
@@ -66,14 +70,20 @@ int main(int argc, char *argv[])
   rx_freq[1] = ((uint32_t *)(cfg + 12));
   rx_freq[2] = ((uint32_t *)(cfg + 16));
   rx_freq[3] = ((uint32_t *)(cfg + 20));
+  rx_freq[4] = ((uint32_t *)(cfg + 24));
 
-  rx_cntr = ((uint16_t *)(sts + 12));
+  rx_cntr[0] = ((uint16_t *)(sts + 12));
+  rx_cntr[1] = ((uint16_t *)(sts + 14));
+  rx_cntr[2] = ((uint16_t *)(sts + 16));
+  rx_cntr[3] = ((uint16_t *)(sts + 18));
+  rx_cntr[4] = ((uint16_t *)(sts + 20));
 
   /* set default rx phase increment */
   *rx_freq[0] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
   *rx_freq[1] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
   *rx_freq[2] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
   *rx_freq[3] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+  *rx_freq[4] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
 
   /* set default rx sample rate */
   *rx_rate = 1000;
@@ -208,6 +218,13 @@ void process_ep2(uint8_t *frame)
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[3] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
+    case 12:
+    case 13:
+      /* set rx phase increment */
+      freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *rx_freq[4] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      break;
   }
 }
 
@@ -220,12 +237,13 @@ void *handler_ep6(void *arg)
   uint8_t data1[4096];
   uint8_t data2[4096];
   uint8_t data3[4096];
+  uint8_t data4[4096];
   uint8_t buffer[25][1032];
   struct iovec iovec[25][1];
   struct mmsghdr datagram[25];
   uint8_t header[40] =
   {
-    127, 127, 127, 0, 0, 33, 17, 31,
+    127, 127, 127, 0, 0, 33, 17, 25,
     127, 127, 127, 8, 0, 0, 0, 0,
     127, 127, 127, 16, 0, 0, 0, 0,
     127, 127, 127, 24, 0, 0, 0, 0,
@@ -260,20 +278,21 @@ void *handler_ep6(void *arg)
     n = 504 / size;
     m = 256 / n;
 
-    if(*rx_cntr >= 8192)
+    if(*rx_cntr[0] >= 8192)
     {
       *rx_rst |= 1;
       *rx_rst &= ~1;
     }
 
-    while(*rx_cntr < m * n * 16) usleep(1000);
+    while(*rx_cntr[0] < m * n * 16) usleep(1000);
 
     for(i = 0; i < m * n * 16; i += 8)
     {
-      *(uint64_t *)(data0 + i) = *rx_data;
-      *(uint64_t *)(data1 + i) = *rx_data;
-      *(uint64_t *)(data2 + i) = *rx_data;
-      *(uint64_t *)(data3 + i) = *rx_data;
+      *(uint64_t *)(data0 + i) = *rx_data[0];
+      *(uint64_t *)(data1 + i) = *rx_data[1];
+      *(uint64_t *)(data2 + i) = *rx_data[2];
+      *(uint64_t *)(data3 + i) = *rx_data[3];
+      *(uint64_t *)(data4 + i) = *rx_data[4];
     }
 
     data_offset = 0;
@@ -301,6 +320,10 @@ void *handler_ep6(void *arg)
         {
           memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
         }
+        if(size > 26)
+        {
+          memcpy(buffer[i] + buffer_offset + 24, data4 + data_offset, 6);
+        }
         data_offset += 8;
         buffer_offset += size;
       }
@@ -324,6 +347,10 @@ void *handler_ep6(void *arg)
         if(size > 20)
         {
           memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
+        }
+        if(size > 26)
+        {
+          memcpy(buffer[i] + buffer_offset + 24, data4 + data_offset, 6);
         }
         data_offset += 8;
         buffer_offset += size;
