@@ -278,13 +278,13 @@ void *handler_ep6(void *arg)
     n = 504 / size;
     m = 256 / n;
 
-    if(*rx_cntr[0] >= 8192)
+    if(*rx_cntr[0] >= 2048)
     {
       *rx_rst |= 1;
       *rx_rst &= ~1;
     }
 
-    while(*rx_cntr[0] < m * n * 16) usleep(1000);
+    while(*rx_cntr[0] < m * n * 4) usleep(1000);
 
     for(i = 0; i < m * n * 16; i += 8)
     {
