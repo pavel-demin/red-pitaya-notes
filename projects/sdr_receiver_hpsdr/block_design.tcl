@@ -195,7 +195,7 @@ for {set i 0} {$i <= 4} {incr i} {
     Clk Auto
   } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
 
-  set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
-  set_property OFFSET 0x4000[format %X [expr $i + 2]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property OFFSET 0x4000[format %X [expr 2 * $i + 2]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
 
 }
