@@ -8,32 +8,73 @@ cell xilinx.com:ip:xlslice:1.0 slice_1 {
   DIN_WIDTH 192 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 2
+  TDATA_NUM_BYTES 4
 } {
+  m_axis_tready const_0/dout
   m_axis_aclk /ps_0/FCLK_CLK0
   m_axis_aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 2
-  M_TDATA_NUM_BYTES 2
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+  NUM_PORTS 5
+}
+
+set prop_list {}
+for {set i 0} {$i <= 4} {incr i} {
+  lappend prop_list IN${i}_WIDTH 32
+}
+set_property -dict $prop_list [get_bd_cells concat_0]
+
+for {set i 0} {$i <= 4} {incr i} {
+  connect_bd_net [get_bd_pins concat_0/In$i] [get_bd_pins fifo_0/m_axis_tdata]
+}
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_1 {
+  NUM_PORTS 10
+}
+
+set prop_list {}
+for {set i 0} {$i <= 9} {incr i} {
+  lappend prop_list IN${i}_WIDTH 1
+}
+set_property -dict $prop_list [get_bd_cells concat_1]
+
+for {set i 0} {$i <= 9} {incr i} {
+  connect_bd_net [get_bd_pins concat_1/In$i] [get_bd_pins fifo_0/m_axis_tvalid]
+}
+
+# Create axis_switch
+cell xilinx.com:ip:axis_switch:1.1 switch_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 2
+  ROUTING_MODE 1
+  NUM_SI 10
   NUM_MI 5
-  M00_TDATA_REMAP {tdata[15:0]}
-  M01_TDATA_REMAP {tdata[15:0]}
-  M02_TDATA_REMAP {tdata[15:0]}
-  M03_TDATA_REMAP {tdata[15:0]}
-  M04_TDATA_REMAP {tdata[15:0]}
 } {
-  S_AXIS fifo_0/M_AXIS
+  s_axis_tdata concat_0/dout
+  s_axis_tvalid concat_1/dout
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
+
+set prop_list {}
+for {set i 0} {$i <= 4} {incr i} {
+  for {set j 0} {$j <= 9} {incr j} {
+    if {$i == $j / 2} continue
+    lappend prop_list CONFIG.M[format %02d $i]_S[format %02d $j]_CONNECTIVITY 0
+  }
+}
+set_property -dict $prop_list [get_bd_cells switch_0]
+
+unset prop_list
 
 for {set i 0} {$i <= 4} {incr i} {
 
@@ -83,14 +124,14 @@ for {set i 0} {$i <= 4} {incr i} {
     ROUNDMODE Random_Rounding
     OUTPUTWIDTH 25
   } {
-    S_AXIS_A bcast_0/M0${i}_AXIS
+    S_AXIS_A switch_0/M0${i}_AXIS
     S_AXIS_B dds_$i/M_AXIS_DATA
     S_AXIS_CTRL lfsr_$i/M_AXIS
     aclk /ps_0/FCLK_CLK0
   }
 
   # Create axis_broadcaster
-  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_[expr $i + 1] {
+  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_$i {
     S_TDATA_NUM_BYTES.VALUE_SRC USER
     M_TDATA_NUM_BYTES.VALUE_SRC USER
     S_TDATA_NUM_BYTES 8
@@ -134,7 +175,7 @@ for {set i 0} {$i <= 9} {incr i} {
     HAS_DOUT_TREADY true
     HAS_ARESETN true
   } {
-    S_AXIS_DATA bcast_[expr $i / 2 + 1]/M0[expr $i % 2]_AXIS
+    S_AXIS_DATA bcast_[expr $i / 2]/M0[expr $i % 2]_AXIS
     S_AXIS_CONFIG rate_$i/M_AXIS
     aclk /ps_0/FCLK_CLK0
     aresetn /rst_0/peripheral_aresetn
@@ -287,7 +328,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
 }
 
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_6 {
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_5 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 40
@@ -325,7 +366,7 @@ for {set i 0} {$i <= 4} {incr i} {
     S_AXIS_TDATA_WIDTH 64
     M_AXIS_TDATA_WIDTH 32
   } {
-    S_AXIS bcast_6/M0${i}_AXIS
+    S_AXIS bcast_5/M0${i}_AXIS
     FIFO_READ fifo_generator_$i/FIFO_READ
     FIFO_WRITE fifo_generator_$i/FIFO_WRITE
     aclk /ps_0/FCLK_CLK0

@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   int fd, i;
   ssize_t size;
   pthread_t thread;
-  void *cfg, *sts;
+  void *cfg, *sts, *mux, *ptr;
   char *name = "/dev/mem";
   uint8_t buffer[1032];
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1};
@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
   struct sockaddr_in addr_ep2, addr_from;
   socklen_t size_from;
   int yes = 1;
+  int val, chan[5] = {0, 0, 0, 0, 0};
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -56,34 +57,30 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  rx_data[0] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-  rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
-  rx_data[2] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
-  rx_data[3] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
-  rx_data[4] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000a000);
+  mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+
+  for(i = 0; i < 5; ++i)
+  {
+    rx_data[i] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000 + i * 0x2000);
+    rx_freq[i] = ((uint32_t *)(cfg + 8 + i * 4));
+    rx_cntr[i] = ((uint16_t *)(sts + 12 + i * 2));
+
+    /* set default rx phase increment */
+    *rx_freq[i] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+  }
+
+  for(i = 0; i < 5; ++i)
+  {
+    ptr = mux + 64 + i * 4;
+    val = i * 2 + chan[i];
+    *(uint32_t *)ptr = val;
+  }
+
+  *(uint32_t *)mux = 2;
 
   rx_rst = ((uint8_t *)(cfg + 0));
 
   rx_rate = ((uint32_t *)(cfg + 4));
-
-  rx_freq[0] = ((uint32_t *)(cfg + 8));
-  rx_freq[1] = ((uint32_t *)(cfg + 12));
-  rx_freq[2] = ((uint32_t *)(cfg + 16));
-  rx_freq[3] = ((uint32_t *)(cfg + 20));
-  rx_freq[4] = ((uint32_t *)(cfg + 24));
-
-  rx_cntr[0] = ((uint16_t *)(sts + 12));
-  rx_cntr[1] = ((uint16_t *)(sts + 14));
-  rx_cntr[2] = ((uint16_t *)(sts + 16));
-  rx_cntr[3] = ((uint16_t *)(sts + 18));
-  rx_cntr[4] = ((uint16_t *)(sts + 20));
-
-  /* set default rx phase increment */
-  *rx_freq[0] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
-  *rx_freq[1] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
-  *rx_freq[2] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
-  *rx_freq[3] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
-  *rx_freq[4] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
 
   /* set default rx sample rate */
   *rx_rate = 1000;
