@@ -126,7 +126,7 @@ for {set i 0} {$i <= 7} {incr i} {
   }
 
   # Create axis_broadcaster
-  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_[expr $i + 1] {
+  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_$i {
     S_TDATA_NUM_BYTES.VALUE_SRC USER
     M_TDATA_NUM_BYTES.VALUE_SRC USER
     S_TDATA_NUM_BYTES 8
@@ -159,7 +159,7 @@ for {set i 0} {$i <= 15} {incr i} {
     HAS_DOUT_TREADY true
     HAS_ARESETN true
   } {
-    S_AXIS_DATA bcast_[expr $i / 2 + 1]/M0[expr $i % 2]_AXIS
+    S_AXIS_DATA bcast_[expr $i / 2]/M0[expr $i % 2]_AXIS
     aclk /ps_0/FCLK_CLK0
     aresetn /rst_0/peripheral_aresetn
   }
@@ -330,7 +330,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
 }
 
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_9 {
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_8 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 64
@@ -371,7 +371,7 @@ for {set i 0} {$i <= 7} {incr i} {
     S_AXIS_TDATA_WIDTH 64
     M_AXIS_TDATA_WIDTH 32
   } {
-    S_AXIS bcast_9/M0${i}_AXIS
+    S_AXIS bcast_8/M0${i}_AXIS
     FIFO_READ fifo_generator_$i/FIFO_READ
     FIFO_WRITE fifo_generator_$i/FIFO_WRITE
     aclk /ps_0/FCLK_CLK0
