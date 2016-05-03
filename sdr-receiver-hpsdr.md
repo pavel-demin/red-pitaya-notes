@@ -7,7 +7,7 @@ permalink: /sdr-receiver-hpsdr/
 Introduction
 -----
 
-This version of the Red Pitaya SDR receiver emulates a [Hermes](http://openhpsdr.org/hermes.php)  module with five receivers. It may be useful for projects that require five receivers compatible with the programs that support the HPSDR/Metis communication protocol.
+This version of the Red Pitaya SDR receiver emulates a [Hermes](http://openhpsdr.org/hermes.php) module with six receivers. It may be useful for projects that require six receivers compatible with the programs that support the HPSDR/Metis communication protocol.
 
 The HPSDR/Metis communication protocol is described in the following documents:
 
@@ -18,7 +18,7 @@ The HPSDR/Metis communication protocol is described in the following documents:
 Hardware
 -----
 
-The FPGA configuration consists of five identical digital down-converters (DDC). Their structure is shown on the following diagram:
+The FPGA configuration consists of six identical digital down-converters (DDC). Their structure is shown on the following diagram:
 
 ![HPSDR receiver]({{ "/img/sdr-receiver-hpsdr.png" | prepend: site.baseurl }})
 
