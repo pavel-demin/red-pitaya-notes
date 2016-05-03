@@ -40,14 +40,27 @@ int main(int argc, char *argv[])
   ssize_t size;
   pthread_t thread;
   void *cfg, *sts, *mux, *ptr;
-  char *name = "/dev/mem";
+  char *end, *name = "/dev/mem";
   uint8_t buffer[1032];
   uint8_t reply[20] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1, 'R', 'T', 'L', '_', 'N', '1', 'G', 'P', 6};
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from;
   socklen_t size_from;
   int yes = 1;
-  int val, chan[6] = {0, 0, 0, 0, 0, 0};
+  int val, chan[6] = {1, 1, 1, 1, 1, 1};
+  long number;
+
+  for(i = 0; i < 6; ++i)
+  {
+    errno = 0;
+    number = (argc == 7) ? strtol(argv[i + 1], &end, 10) : -1;
+    if(errno != 0 || end == argv[i + 1] || number < 1 || number > 2)
+    {
+      printf("Usage: sdr-transceiver-hpsdr 1|2 1|2 1|2 1|2 1|2 1|2\n");
+      return EXIT_FAILURE;
+    }
+    chan[i] = number;
+  }
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -72,7 +85,7 @@ int main(int argc, char *argv[])
   for(i = 0; i < 6; ++i)
   {
     ptr = mux + 64 + i * 4;
-    val = i * 2 + chan[i];
+    val = i * 2 + chan[i] - 1;
     *(uint32_t *)ptr = val;
   }
 

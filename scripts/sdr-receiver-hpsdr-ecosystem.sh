@@ -35,7 +35,7 @@ cat <<- EOF_CAT >> ${ecosystem}-sdr-receiver-hpsdr/etc/init.d/rcS
 
 cat /opt/sdr_receiver_hpsdr.bit > /dev/xdevcfg
 
-/opt/bin/sdr-receiver-hpsdr &
+/opt/bin/sdr-receiver-hpsdr 1 1 1 1 1 1 &
 
 EOF_CAT
 
