@@ -15,10 +15,10 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
-uint32_t *rx_freq[5], *rx_rate;
-uint16_t *rx_cntr[5];
+uint32_t *rx_freq[6], *rx_rate;
+uint16_t *rx_cntr[6];
 uint8_t *rx_rst;
-uint64_t *rx_data[5];
+uint64_t *rx_data[6];
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
@@ -42,12 +42,12 @@ int main(int argc, char *argv[])
   void *cfg, *sts, *mux, *ptr;
   char *name = "/dev/mem";
   uint8_t buffer[1032];
-  uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1};
+  uint8_t reply[20] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1, 'R', 'T', 'L', '_', 'N', '1', 'G', 'P', 6};
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from;
   socklen_t size_from;
   int yes = 1;
-  int val, chan[5] = {0, 0, 0, 0, 0};
+  int val, chan[6] = {0, 0, 0, 0, 0, 0};
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
 
-  for(i = 0; i < 5; ++i)
+  for(i = 0; i < 6; ++i)
   {
     rx_data[i] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000 + i * 0x2000);
     rx_freq[i] = ((uint32_t *)(cfg + 8 + i * 4));
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     *rx_freq[i] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
   }
 
-  for(i = 0; i < 5; ++i)
+  for(i = 0; i < 6; ++i)
   {
     ptr = mux + 64 + i * 4;
     val = i * 2 + chan[i];
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
       case 0x0002feef:
         reply[2] = 2 + active_thread;
         memset(buffer, 0, 60);
-        memcpy(buffer, reply, 11);
+        memcpy(buffer, reply, 20);
         sendto(sock_ep2, buffer, 60, 0, (struct sockaddr *)&addr_from, size_from);
         break;
       case 0x0004feef:
@@ -222,6 +222,13 @@ void process_ep2(uint8_t *frame)
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[4] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
+    case 14:
+    case 15:
+      /* set rx phase increment */
+      freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *rx_freq[5] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      break;
   }
 }
 
@@ -235,6 +242,7 @@ void *handler_ep6(void *arg)
   uint8_t data2[4096];
   uint8_t data3[4096];
   uint8_t data4[4096];
+  uint8_t data5[4096];
   uint8_t buffer[25][1032];
   struct iovec iovec[25][1];
   struct mmsghdr datagram[25];
@@ -290,6 +298,7 @@ void *handler_ep6(void *arg)
       *(uint64_t *)(data2 + i) = *rx_data[2];
       *(uint64_t *)(data3 + i) = *rx_data[3];
       *(uint64_t *)(data4 + i) = *rx_data[4];
+      *(uint64_t *)(data5 + i) = *rx_data[5];
     }
 
     data_offset = 0;
@@ -321,6 +330,10 @@ void *handler_ep6(void *arg)
         {
           memcpy(buffer[i] + buffer_offset + 24, data4 + data_offset, 6);
         }
+        if(size > 32)
+        {
+          memcpy(buffer[i] + buffer_offset + 30, data4 + data_offset, 6);
+        }
         data_offset += 8;
         buffer_offset += size;
       }
@@ -348,6 +361,10 @@ void *handler_ep6(void *arg)
         if(size > 26)
         {
           memcpy(buffer[i] + buffer_offset + 24, data4 + data_offset, 6);
+        }
+        if(size > 32)
+        {
+          memcpy(buffer[i] + buffer_offset + 30, data4 + data_offset, 6);
         }
         data_offset += 8;
         buffer_offset += size;
