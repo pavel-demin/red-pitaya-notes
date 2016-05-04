@@ -69,7 +69,7 @@ Running CW Skimmer Server and Reverse Beacon Network Aggregator
  - Copy [HermesIntf.dll](https://sourceforge.net/projects/hermesintf/files) to the CW Skimmer Server program directory (C:\Program Files (x86)\Afreet\SkimSrv).
  - Install [Reverse Beacon Network Aggregator](http://www.reversebeacon.net/pages/Aggregator+19).
  - Start CW Skimmer Server, configure frequencies and your call sign.
- - Start Reverse Beacon Network Aggregator
+ - Start Reverse Beacon Network Aggregator.
 
 Building from source
 -----
