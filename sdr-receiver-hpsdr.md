@@ -62,6 +62,15 @@ Getting started
  - Insert the SD card in Red Pitaya and connect the power.
  - Install and run one of the HPSDR programs.
 
+Running CW Skimmer Server and Reverse Beacon Network Aggregator
+-----
+
+ - Install [CW Skimmer Server](http://dxatlas.com/skimserver).
+ - Copy [HermesIntf.dll](https://sourceforge.net/projects/hermesintf/files) to the CW Skimmer Server program directory (C:\Program Files (x86)\Afreet\SkimSrv).
+ - Install [Reverse Beacon Network Aggregator](http://www.reversebeacon.net/pages/Aggregator+19).
+ - Start CW Skimmer Server, configure frequencies and your call sign.
+ - Start Reverse Beacon Network Aggregator
+
 Building from source
 -----
 
