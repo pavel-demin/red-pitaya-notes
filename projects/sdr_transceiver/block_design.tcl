@@ -109,6 +109,43 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   dac_dat dac_dat_o
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_1
+
+# Create dna_reader
+cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
+  aclk ps_0/FCLK_CLK0
+  aresetn rst_0/peripheral_aresetn
+}
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+  NUM_PORTS 2
+  IN0_WIDTH 32
+  IN1_WIDTH 64
+} {
+  In0 const_1/dout
+  In1 dna_0/dna_data
+}
+
+# Create axi_sts_register
+cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
+  STS_DATA_WIDTH 96
+  AXI_ADDR_WIDTH 32
+  AXI_DATA_WIDTH 32
+} {
+  sts_data concat_0/dout
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins sts_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
+set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
+
 # Delete input/output port
 delete_bd_objs [get_bd_ports exp_p_tri_io]
 
@@ -130,7 +167,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 } [get_bd_intf_pins trx_0/cfg_0/S_AXI]
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
-set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
+set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -138,8 +175,8 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins trx_0/sts_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
-set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg01]
+set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg01]
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -180,7 +217,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 } [get_bd_intf_pins trx_1/cfg_0/S_AXI]
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg01]
-set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg01]
+set_property OFFSET 0x40003000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg01]
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -188,8 +225,8 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins trx_1/sts_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg01]
-set_property OFFSET 0x40003000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg01]
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg02]
+set_property OFFSET 0x40004000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg02]
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
