@@ -43,8 +43,12 @@ int main(int argc, char *argv[])
   rx_size = ((uint32_t *)(cfg + 4));
   tx_size = ((uint32_t *)(cfg + 8));
 
-  *rx_size = 625000;
-  *tx_size = 625000;
+  *rx_size = 1250000 - 1;
+  *tx_size = 1250000 - 1;
+
+  start = 100;
+  step = 100;
+  size = 600;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -102,18 +106,18 @@ int main(int argc, char *argv[])
           *rst |= 2; *rst &= ~2;
           *rst &= ~1;
           freq = start;
-          for(i = 0; i <= size; ++i)
+          for(i = 0; i < size + 1; ++i)
           {
             *rx_freq = (uint32_t)floor((freq - 1) / 125.0e3 * (1<<30) + 0.5);
             *tx_freq = (uint32_t)floor(freq / 125.0e3 * (1<<30) + 0.5);
             if(i > 0) freq += step;
           }
           *rst |= 1;
-          for(i = 0; i <= size; ++i)
+          for(i = 0; i < size * 2 + 2; ++i)
           {
-            while(*rx_cntr < 8000) usleep(20000);
-            for(j = 0; j < 4000; ++j) buffer[j] = *rx_data;
-            if(i > 0) send(sock_client, buffer, 32000, MSG_NOSIGNAL);
+            while(*rx_cntr < 4000) usleep(1000);
+            for(j = 0; j < 2000; ++j) buffer[j] = *rx_data;
+            if(i > 1) send(sock_client, buffer, 16000, MSG_NOSIGNAL);
           }
           break;
       }
