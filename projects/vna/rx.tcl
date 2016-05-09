@@ -295,5 +295,5 @@ cell pavel-demin:user:axi_axis_reader:1.0 reader_0 {
 } {
   S_AXIS fifo_2/M_AXIS
   aclk /ps_0/FCLK_CLK0
-  aresetn slice_0/Dout
+  aresetn /rst_0/peripheral_aresetn
 }
