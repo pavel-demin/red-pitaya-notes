@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_freq = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   tx_freq = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
-  rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  rx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
 
   rx_cntr = ((uint16_t *)(sts + 12));
 
@@ -106,18 +106,18 @@ int main(int argc, char *argv[])
           *rst |= 2; *rst &= ~2;
           *rst &= ~1;
           freq = start;
-          for(i = 0; i < size + 1; ++i)
+          for(i = 0; i <= size; ++i)
           {
             *rx_freq = (uint32_t)floor((freq - 1) / 125.0e3 * (1<<30) + 0.5);
             *tx_freq = (uint32_t)floor(freq / 125.0e3 * (1<<30) + 0.5);
             if(i > 0) freq += step;
           }
           *rst |= 1;
-          for(i = 0; i < size * 2 + 2; ++i)
+          for(i = 0; i <= size; ++i)
           {
-            while(*rx_cntr < 4000) usleep(1000);
-            for(j = 0; j < 2000; ++j) buffer[j] = *rx_data;
-            if(i > 1) send(sock_client, buffer, 16000, MSG_NOSIGNAL);
+            while(*rx_cntr < 8000) usleep(2000);
+            for(j = 0; j < 4000; ++j) buffer[j] = *rx_data;
+            if(i > 0) send(sock_client, buffer, 32000, MSG_NOSIGNAL);
           }
           break;
       }

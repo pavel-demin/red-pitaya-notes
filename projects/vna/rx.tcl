@@ -268,11 +268,11 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
 cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 256
-  INPUT_DEPTH 1024
+  INPUT_DEPTH 2048
   OUTPUT_DATA_WIDTH 32
-  OUTPUT_DEPTH 8192
+  OUTPUT_DEPTH 16384
   READ_DATA_COUNT true
-  READ_DATA_COUNT_WIDTH 14
+  READ_DATA_COUNT_WIDTH 15
 } {
   clk /ps_0/FCLK_CLK0
   srst slice_1/Dout
