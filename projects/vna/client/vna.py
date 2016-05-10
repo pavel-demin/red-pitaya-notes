@@ -54,8 +54,9 @@ class VNA(QMainWindow, Ui_VNA):
     self.buffer = bytearray(32000 * 1000)
     self.offset = 0
     self.data = np.frombuffer(self.buffer, np.complex64)
-    self.adc = np.zeros(1000, np.complex64)
-    self.dac = np.zeros(1000, np.complex64)
+    self.adc1 = np.zeros(1000, np.complex64)
+    self.adc2 = np.zeros(1000, np.complex64)
+    self.dac1 = np.zeros(1000, np.complex64)
     self.open = np.zeros(1000, np.complex64)
     self.short = np.zeros(1000, np.complex64)
     self.load = np.zeros(1000, np.complex64)
@@ -77,7 +78,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.readyRead.connect(self.read_data)
     self.socket.error.connect(self.display_error)
     # connect signals from buttons and boxes
-    self.buttons_enabled(False)
+    self.sweepFrame.setEnabled(False)
+    self.selectFrame.setEnabled(False)
     self.connectButton.clicked.connect(self.start)
     self.openButton.clicked.connect(self.sweep_open)
     self.shortButton.clicked.connect(self.sweep_short)
@@ -93,12 +95,6 @@ class VNA(QMainWindow, Ui_VNA):
     self.startTimer = QTimer(self)
     self.startTimer.timeout.connect(self.timeout)
 
-  def buttons_enabled(self, value):
-    self.openButton.setEnabled(value)
-    self.shortButton.setEnabled(value)
-    self.loadButton.setEnabled(value)
-    self.dutButton.setEnabled(value)
-
   def start(self):
     if self.idle:
       self.connectButton.setEnabled(False)
@@ -113,7 +109,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.offset = 0
     self.connectButton.setText('Connect')
     self.connectButton.setEnabled(True)
-    self.buttons_enabled(False)
+    self.sweepFrame.setEnabled(False)
+    self.selectFrame.setEnabled(False)
 
   def timeout(self):
     self.display_error('timeout')
@@ -126,7 +123,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.set_size(self.sizeValue.value())
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
-    self.buttons_enabled(True)
+    self.sweepFrame.setEnabled(True)
+    self.selectFrame.setEnabled(True)
 
   def read_data(self):
     size = self.socket.bytesAvailable()
@@ -139,10 +137,12 @@ class VNA(QMainWindow, Ui_VNA):
       for i in range(0, self.sweep_size):
         start = i * 1000
         stop = start + 1000
-        self.adc[i] = np.fft.fft(self.data[0::4][start:stop])[10]
-        self.dac[i] = np.fft.fft(self.data[2::4][start:stop])[10]
-      getattr(self, self.mode)[0:self.sweep_size] = np.divide(self.adc[0:self.sweep_size], self.dac[0:self.sweep_size])
-      self.buttons_enabled(True)
+        self.adc1[i] = np.fft.fft(self.data[0::4][start:stop])[10]
+        self.adc2[i] = np.fft.fft(self.data[1::4][start:stop])[10]
+        self.dac1[i] = np.fft.fft(self.data[2::4][start:stop])[10]
+      getattr(self, self.mode)[0:self.sweep_size] = np.divide(self.adc1[0:self.sweep_size], self.dac1[0:self.sweep_size])
+      self.sweepFrame.setEnabled(True)
+      self.selectFrame.setEnabled(True)
 
   def display_error(self, socketError):
     self.startTimer.stop()
@@ -166,23 +166,27 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.write(struct.pack('<I', 3<<28))
 
   def sweep_open(self):
-    self.buttons_enabled(False)
+    self.sweepFrame.setEnabled(False)
+    self.selectFrame.setEnabled(False)
     self.mode = 'open'
     self.sweep()
 
   def sweep_short(self):
-    self.buttons_enabled(False)
+    self.sweepFrame.setEnabled(False)
+    self.selectFrame.setEnabled(False)
     self.mode = 'short'
     self.sweep()
 
   def sweep_load(self):
-    self.buttons_enabled(False)
+    self.sweepFrame.setEnabled(False)
+    self.selectFrame.setEnabled(False)
     self.mode = 'load'
     self.sweep()
 
 
   def sweep_dut(self):
-    self.buttons_enabled(False)
+    self.sweepFrame.setEnabled(False)
+    self.selectFrame.setEnabled(False)
     self.mode = 'dut'
     self.sweep()
 
