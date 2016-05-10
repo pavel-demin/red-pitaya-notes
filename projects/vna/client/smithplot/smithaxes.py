@@ -36,8 +36,6 @@ Example:
     parameters are array-like types (e.g. numpy.ndarray).
 '''
 
-
-from cycler import cycler
 from collections import Iterable
 from matplotlib.axes import Axes
 from matplotlib.cbook import simple_linear_interpolation as linear_interpolation
@@ -46,7 +44,7 @@ from matplotlib.markers import MarkerStyle
 from matplotlib.patches import Circle, Arc
 from matplotlib.path import Path
 from matplotlib.spines import Spine
-from matplotlib.ticker import Formatter, AutoMinorLocator, Locator
+from matplotlib.ticker import Formatter, Locator
 from matplotlib.transforms import Affine2D, BboxTransformTo, Transform
 from .smithhelper import EPSILON, TWO_PI, vswr_rotation, lambda_to_rad, ang_to_c, split_complex, convert_args
 from types import MethodType, FunctionType
@@ -82,13 +80,6 @@ def update_scParams(sc_dict=None, instance=None, **kwargs):
     update_scParams({grid.major: True}) or update_scParams(grid_major=True)
 
     Valid parameters with default values and description:
-
-        init.updaterc: True
-            Updates matplotlib rcParams with SmithAxes defaults. Only affects
-            parameter, which have their default value.
-            Accepts: boolean
-            Note: Can only be set global or as keyword for :meth:`subplot`
-            and affects all matplotlib.
 
         plot.zorder: 5
             Zorder of plotted lines.
@@ -154,54 +145,6 @@ def update_scParams(sc_dict=None, instance=None, **kwargs):
             Maximum number of spacing steps for the imaginary axis.
             Accepts: integer
 
-        grid.major.fancy: True
-            Draws a fancy major grid instead of the standard one.
-            Accepts: boolean
-
-        grid.major.fancy.threshold: (100, 50)
-            Minimum distance times 1000 between two gridlines relative to
-            total plot size 2. Either tuple for individual real and
-            imaginary distances or single value for both.
-            Accepts: (float, float) or float
-
-        grid.minor.enable: True
-            Enables the minor grid.
-            Accepts: boolean
-
-        grid.minor.linestyle: (0, (0.2, 2))
-            Minor gridline style.
-            Accepts: see matplotlib.patches.Patch.set_linestyle()
-
-        grid.minor.linewidth: 0.75
-            Minor gridline width.
-            Accepts: float
-
-        grid.minor.color: 0.4
-            Minor gridline color.
-            Accepts: matplotlib color
-
-        grid.minor.xauto: 4
-            Maximum number of spacing steps for the real axis.
-            Accepts: integer
-
-        grid.minor.yauto: 4
-            Maximum number of spacing steps for the imaginary axis.
-            Accepts: integer
-
-        grid.minor.fancy: True
-            Draws a fancy minor grid instead the standard one.
-            Accepts: boolean
-
-        grid.minor.fancy.dividers: [1, 2, 3, 5, 10, 20]
-            Divisions for the fancy minor grid, which are selected by
-            comparing the distance of gridlines with the threshold value.
-            Accepts: list of integers
-
-        grid.minor.fancy.threshold: 25
-            Minimum distance for using the next bigger divider. Value times
-            1000 relative to total plot size 2.
-            Accepts: float
-
         Note: gridlines are matplotlib.patches.Patch instances, which are no
         Line2D objects. Therefore Line2D parameter can not be used.
 
@@ -215,9 +158,9 @@ def update_scParams(sc_dict=None, instance=None, **kwargs):
            Accepts: float
 
         axes.xlabel.fancybox: {"boxstyle": "round4,pad=0.4"
-                                 "facecolor": 'w'
-                                 "edgecolor": "w"
-                                 "mutation_aspect": 0.75}
+                               "facecolor": 'w'
+                               "edgecolor": "w"
+                               "mutation_aspect": 0.75}
             FancyBboxPatch parameter for the labels bounding box.
             Accepts: dictionary with rectprops
 
@@ -226,7 +169,7 @@ def update_scParams(sc_dict=None, instance=None, **kwargs):
             be adapted when fontsize changes 'font.size'.
             Accepts: (float, float)
 
-        axes.radius: 0.43
+        axes.radius: 0.55
             Radius of the plotting area. Usually needs to be adapted to
             the size of the figure.
             Accepts: float
@@ -245,7 +188,7 @@ def update_scParams(sc_dict=None, instance=None, **kwargs):
             Symbol for infinity (can be normal text as well).
             Accepts: string
 
-        symbol.infinity.correction: 7
+        symbol.infinity.correction: 5
             Correction of size for the infinity symbol, because normal symbol
             seems smaller than other letters.
             Accepts: float
@@ -289,7 +232,6 @@ class SmithAxes(Axes):
         - :class:`matplotlib.ticker.Locator`
             -> :class:`RealMaxNLocator`
             -> :class:`ImagMaxNLocator`
-            -> :class:`SmithAutoMinorLocator`
         - :class:`matplotlib.ticker.Formatter`
             -> :class:`RealFormatter`
             -> :class:`ImagFormatter`
@@ -304,77 +246,36 @@ class SmithAxes(Axes):
     _ax_lim_x = _near_inf
     _ax_lim_y = _inf
 
-    # default parameter for matplotlib
-    _rcDefaultParams = {"font.size": 15,
-                   "legend.fontsize": 16,
-                   "lines.linestyle": "-",
-                   "lines.linewidth": 2,
-                   "lines.markersize": 8,
-                   "lines.markeredgewidth": 1,
-                   "axes.prop_cycle": cycler('color',
-                                      ["#FF4848", # red
-                                       "#31B404", # blue
-                                       "#0276FD", # green
-                                       "#FFB428", # orange
-                                       "#01C5BB", # teal
-                                       "#CD69C9", # pink
-                                       "0.65", # dark grey
-                                       "0.45"]), # light grey
-                   "xtick.labelsize": 14,
-                   "xtick.major.pad": 0,
-                   "ytick.labelsize": 15,
-                   "ytick.major.pad": 10,
-                   "legend.fancybox": False,
-                   "legend.shadow": True,
-                   "legend.markerscale": 0.75,
-                   "legend.numpoints": 3,
-                   "axes.axisbelow": True}
-
-    scDefaultParams = {"init.updaterc": True,
-                "plot.zorder": 5,
-                "plot.hacklines": True,
-                "plot.rotatemarker": True,
-                "plot.startmarker": "s",
-                "plot.marker": "o",
-                "plot.endmarker": "^",
-                   "grid.zorder" : 1,
-                   "grid.locator.precision": 2,
-                   "grid.major.enable": True,
-                   "grid.major.linestyle": '-',
-                   "grid.major.linewidth": 1,
-                   "grid.major.color": "0.2",
-                   "grid.major.xmaxn": 10,
-                   "grid.major.ymaxn": 16,
-                   "grid.major.fancy": True,
-                   "grid.major.fancy.threshold": (100, 50),
-                   "grid.minor.enable": True,
-                   "grid.minor.linestyle": ":",
-                   "grid.minor.capstyle": str("round"),
-                   "grid.minor.dashes": [0.2, 2],
-                   "grid.minor.linewidth": 0.75,
-                   "grid.minor.color": "0.4",
-                   "grid.minor.xauto": 4,
-                   "grid.minor.yauto": 4,
-                   "grid.minor.fancy": True,
-                   "grid.minor.fancy.dividers": [1, 2, 3, 5, 10, 20],
-                   "grid.minor.fancy.threshold": 25,
-                   "path.default_interpolation": 75,
-                   "axes.xlabel.rotation": 90,
-                   "axes.xlabel.fancybox": {"boxstyle": "round4,pad=0.4",
-                                            "facecolor": 'w',
-                                            "edgecolor": "w",
-                                            "mutation_aspect": 0.75},
-                   "axes.ylabel.correction": (-2, 0),
-                   "axes.radius": 0.43,
-                   "axes.scale": 1,
-                   "axes.norm": None,
-                   "symbol.infinity": "\u221E",
-                   "symbol.infinity.correction": 7}
+    scDefaultParams = {"plot.zorder": 5,
+                       "plot.hacklines": True,
+                       "plot.rotatemarker": True,
+                       "plot.startmarker": "s",
+                       "plot.marker": "o",
+                       "plot.endmarker": "^",
+                       "grid.zorder" : 1,
+                       "grid.locator.precision": 2,
+                       "grid.major.enable": True,
+                       "grid.major.linestyle": '-',
+                       "grid.major.linewidth": 1,
+                       "grid.major.color": "0.2",
+                       "grid.major.xmaxn": 10,
+                       "grid.major.ymaxn": 16,
+                       "path.default_interpolation": 75,
+                       "axes.xlabel.rotation": 90,
+                       "axes.xlabel.fancybox": {"boxstyle": "round4,pad=0.4",
+                                                "facecolor": 'w',
+                                                "edgecolor": "w",
+                                                "mutation_aspect": 0.75},
+                       "axes.ylabel.correction": (-2, 0),
+                       "axes.radius": 0.43,
+                       "axes.scale": 1,
+                       "axes.norm": None,
+                       "symbol.infinity": "\u221E",
+                       "symbol.infinity.correction": 5}
 
     def __init__(self, *args, **kwargs):
         '''
-        Builds a new :class:`SmithAxes` instance. If 'init.updaterc' is set
-        updates the global rcParams of matplotlib. For futher details see:
+        Builds a new :class:`SmithAxes` instance. For futher details see:
 
             :meth:`update_scParams`
             :class:`matplotlib.axes.Axes`
@@ -385,18 +286,10 @@ class SmithAxes(Axes):
         axes_kwargs = {}
         for key in kwargs.copy():
             key_dot = key.replace("_", ".")
-            if not (key_dot in self.scParams or \
-                    key_dot in self._rcDefaultParams):
+            if not (key_dot in self.scParams):
                 axes_kwargs[key] = kwargs.pop(key_dot)
 
         self.update_scParams(**kwargs)
-
-        # if 'init.updaterc' is True, all matplotlib rc parameter
-        # which are unmodified are updated to the Smith defaults
-        if self._get_key("init.updaterc"):
-            for key, value in self._rcDefaultParams.items():
-                if mp.rcParams[key] == mp.rcParamsDefault[key]:
-                    mp.rcParams[key] = value
 
         Axes.__init__(self, *args, **axes_kwargs)
         self.set_aspect(1, adjustable='box', anchor='C')
@@ -441,7 +334,6 @@ class SmithAxes(Axes):
         Axes.cla(self)
 
         self._fancy_majorarcs = []
-        self._fancy_minorarcs = []
         self._normbox = None
         self._scale = self._get_key("axes.scale")
         self._current_zorder = self._get_key("plot.zorder")
@@ -449,14 +341,11 @@ class SmithAxes(Axes):
         self.xaxis.set_major_locator(self.RealMaxNLocator(self, self._get_key("grid.major.xmaxn")))
         self.yaxis.set_major_locator(self.ImagMaxNLocator(self, self._get_key("grid.major.ymaxn")))
 
-        self.xaxis.set_minor_locator(self.SmithAutoMinorLocator(self._get_key("grid.minor.xauto")))
-        self.yaxis.set_minor_locator(self.SmithAutoMinorLocator(self._get_key("grid.minor.yauto")))
-
         self.xaxis.set_ticks_position('none')
         self.yaxis.set_ticks_position('none')
 
-        Axes.set_xlim(self, 0, self._ax_lim_x)
-        Axes.set_ylim(self, -self._ax_lim_y, self._ax_lim_y)
+        Axes.set_xlim(self, 0, self._ax_lim_x * self._scale)
+        Axes.set_ylim(self, -self._ax_lim_y * self._scale, self._ax_lim_y * self._scale)
 
         for label in self.get_xticklabels():
             label.set_verticalalignment('center')
@@ -468,7 +357,7 @@ class SmithAxes(Axes):
         for tick, loc in zip(self.yaxis.get_major_ticks(),
                              self.yaxis.get_majorticklocs()):
             # workaround for fixing to small infinity symbol
-            if abs(loc) > self._near_inf:
+            if abs(loc) > self._near_inf * self._scale:
                 tick.label.set_size(tick.label.get_size() +
                                     self._get_key("symbol.infinity.correction"))
 
@@ -496,8 +385,7 @@ class SmithAxes(Axes):
             self._normbox.set_transform(self._yaxis_correction + \
                                         Affine2D().translate(-px, -py))
 
-        for grid in ['minor', "major"]:
-            self.grid(b=self._get_key("grid.%s.enable" % grid), which=grid)
+        self.grid(b=self._get_key("grid.major.enable"))
 
     def _set_lim_and_transforms(self):
         r = self._get_key("axes.radius")
@@ -817,18 +705,13 @@ class SmithAxes(Axes):
 
     def grid(self,
              b=None,
-             which='major',
              axis='both',
-             fancy=None,
-             dividers=None,
-             threshold=None,
              **kwargs):
         '''
         Complete rewritten grid function. Gridlines are replaced with Arcs,
         which reduces the amount of points to store and increases speed. The
-        grid consist of a minor and major part, which can be drawn either as
-        standard with lines from axis to axis, or fancy with dynamic spacing
-        and length adaption.
+        grid consist of major part, which can be drawn either as
+        standard with lines from axis to axis.
 
         Keyword arguments:
 
@@ -836,28 +719,9 @@ class SmithAxes(Axes):
                 Enables or disables the selected grid.
                 Accepts: boolean
 
-            *which*:
-                The grid to be drawn.
-                Accepts: ['major', 'minor', 'both']
-
             *axis*:
                 The axis to be drawn. x=real and y=imaginary
                 Accepts: ['x', 'y', 'both']
-                Note: if fancy is set, only 'both' is valid
-
-            *fancy*:
-                If set to 'True', draws the grid on the fancy way.
-                Accepts: boolean
-
-            *dividers*:
-                Adaptive divisions for the minor fancy grid.
-                Accepts: array with integers
-                Note: has no effect on major and non-fancy grid
-
-            *threshold*:
-                Threshold for dynamic adaption of spacing and line length. Can
-                be specified for both axis together or each seperatly.
-                Accepts: float or (float, float)
 
             **kwargs*:
                 Keyword arguments passed to the gridline creator.
@@ -865,9 +729,7 @@ class SmithAxes(Axes):
                 not accept all arguments :class:`matplotlib.lines.Line2D`
                 accepts.
         '''
-        assert which in ["both", "major", "minor"]
         assert axis in ["both", "x", "y"]
-        assert fancy in [None, True, False]
 
         def update_param(grid):
             kw = kwargs.copy()
@@ -889,213 +751,19 @@ class SmithAxes(Axes):
                 for ys in yticks:
                     arc_storage.append(self.add_imagarc(ys, 0, self._inf, **param))
 
-        def check_fancy(yticks):
-            # checks if the imaginary axis is symetric
-            len_y = (len(yticks) - 1) // 2
-            if not (len(yticks) % 2 == 1 and \
-                    (yticks[len_y:] + yticks[len_y::-1] < EPSILON).all()):
-                raise ValueError("fancy minor grid is only supported for zero-symetric imaginary grid - e.g. ImagMaxNLocator")
-            return  yticks[len_y:]
+        try:
+            for arc in self._fancy_majorarcs:
+                arc.remove()
+        except:
+            pass
 
-        def split_threshold(threshold):
-            if isinstance(threshold, tuple):
-                thr_x, thr_y = threshold
-            else:
-                thr_x = thr_y = threshold
-            assert thr_x > 0 and thr_y > 0
+        self._fancy_majorarcs = []
 
-            return (thr_x / 1000, thr_y / 1000)
-
-        if fancy is None:
-            fancy_major = self._get_key("grid.major.fancy")
-            fancy_minor = self._get_key("grid.minor.fancy")
-        else:
-            fancy_major = fancy_minor = fancy
-
-        if (fancy_major or fancy_minor) and axis != 'both':
-            raise NotImplementedError("fancy grid is only supported for both axis")
-
-        if which in ['both', 'minor']:
-            # remove the old grid
-            try:
-                for arc in self._fancy_minorarcs:
-                    arc.remove()
-            except:
-                pass
-            self._fancy_minorarcs = []
-
-            if b:
-                param = update_param("minor")
-                if "dash_capstyle" not in param:
-                    param["dash_capstyle"] = self._get_key("grid.minor.capstyle")
-                if "dashes" not in param:
-                    param["dashes"] = self._get_key("grid.minor.dashes")
-
-                if fancy_minor:
-                    # 1. Step: get x/y grid data
-                    xticks = np.sort(self.xaxis.get_majorticklocs())
-                    yticks = np.sort(self.yaxis.get_majorticklocs())
-                    assert len(xticks) > 0 and len(yticks) > 0
-
-                    yticks = check_fancy(yticks)
-
-                    if dividers is None:
-                        dividers = self._get_key("grid.minor.fancy.dividers")
-                    assert len(dividers) > 0
-                    dividers = np.sort(dividers)
-
-                    if threshold is None:
-                        threshold = self._get_key("grid.minor.fancy.threshold")
-
-                    thr_x, thr_y = split_threshold(threshold)
-                    len_x, len_y = len(xticks) - 1, len(yticks) - 1
-
-                    # 2. Step: calculate optimal gridspacing for each quadrant
-                    d_mat = np.ones((len_x, len_y, 2))
-
-                    for i in range(len_x):
-                        for k in range(len_y):
-                            x0, x1 = xticks[i:i + 2]
-                            y0, y1 = yticks[k:k + 2]
-
-                            xm = self.real_interp1d([x0, x1], 2)[1]
-                            ym = self.imag_interp1d([y0, y1], 2)[1]
-
-                            x_div = y_div = dividers[0]
-
-                            for div in dividers[1:]:
-                                if abs(self._moebius_z(x1 - (x1 - x0) / div, ym) - self._moebius_z(x1, ym)) > thr_x:
-                                    x_div = div
-                                else:
-                                    break
-
-                            for div in dividers[1:]:
-                                if abs(self._moebius_z(xm, y1) - self._moebius_z(xm, y1 - (y1 - y0) / div)) > thr_y:
-                                    y_div = div
-                                else:
-                                    break
-
-                            d_mat[i, k] = [x_div, y_div]
-
-                    # 3. Steps: optimize spacing
-                    # ensure the x-spacing declines towards infinity
-                    d_mat[:-1, 0, 0] = list(map(np.max, list(zip(d_mat[:-1, 0, 0],
-                                                       d_mat[1:, 0, 0]))))
-
-                    # find the values which are near (0, 0.5) on the plot
-                    idx = np.searchsorted(xticks,
-                                          self._moebius_inv_z(0)) + 1
-                    idy = np.searchsorted(yticks,
-                                          np.imag(self._moebius_inv_z(1j)))
-
-                    # extend the values around the center towards the border
-                    if idx > idy:
-                        for d in range(idy):
-                            delta = idx - idy + d
-                            d_mat[delta, :d + 1] = d_mat[:delta, d] = d_mat[delta, 0]
-                    else:
-                        for d in range(idx):
-                            delta = idy - idx + d
-                            d_mat[:d + 1, delta] = d_mat[d, :delta] = d_mat[d, 0]
-
-                    # 4. Step: gather and optimize the lines
-                    x_lines, y_lines = ([], [])
-
-                    for i in range(len_x):
-                        x0, x1 = xticks[i:i + 2]
-
-                        for k in range(len_y):
-                                y0, y1 = yticks[k:k + 2]
-
-                                x_div, y_div = d_mat[i, k]
-
-                                for xs in np.linspace(x0, x1, x_div + 1)[1:]:
-                                    x_lines.append([xs, y0, y1])
-                                    x_lines.append([xs, -y1, -y0])
-
-
-                                for ys in np.linspace(y0, y1, y_div + 1)[1:]:
-                                    y_lines.append([ys, x0, x1])
-                                    y_lines.append([-ys, x0, x1])
-
-                    # round values to prevent float inaccuarcy
-                    x_lines = np.round(np.array(x_lines), 7)
-                    y_lines = np.round(np.array(y_lines), 7)
-
-                    def merge_lines(lines, ds):
-                        # elimenate lines where the endpoint is startpoint of
-                        # another line and vice versa.
-                        data = lines[lines[:, 0] == ds, 1:]
-                        data = data[data[:, 0].argsort()]
-                        data[:, 1] = np.roll(data[:, 1], 1)
-                        data = data[data[:, 0] != data[:, 1]]
-                        data[:, 0] = np.roll(data[:, 0], 1)
-                        return data
-
-                    for xs in np.unique(x_lines[:, 0]):
-                        for y0, y1 in merge_lines(x_lines, xs):
-                            self._fancy_minorarcs.append(self.add_realarc(xs, y0, y1, **param))
-
-                    for ys in np.unique(y_lines[:, 0]):
-                        for x0, x1 in merge_lines(y_lines, ys):
-                            self._fancy_minorarcs.append(self.add_imagarc(ys, x0, x1, **param))
-
-                else:
-                    xticks = np.sort(self.xaxis.get_minorticklocs())
-                    yticks = np.sort(self.yaxis.get_minorticklocs())
-
-                    draw_standard(xticks, yticks, param, self._fancy_minorarcs)
-
-        if which in ['both', 'major']:
-            try:
-                for arc in self._fancy_majorarcs:
-                    arc.remove()
-            except:
-                pass
-
-            self._fancy_majorarcs = []
-
-            if b:
-                param = update_param('major')
-                xticks = np.sort(self.xaxis.get_majorticklocs())
-                yticks = np.sort(self.yaxis.get_majorticklocs())
-
-                if fancy_major:
-                    assert len(xticks) > 0 and len(yticks) > 0
-                    yticks = check_fancy(yticks)
-
-                    if threshold is None:
-                        threshold = self._get_key("grid.major.fancy.threshold")
-
-                    thr_x, thr_y = split_threshold(threshold)
-
-                    # draw the 0 line
-                    self._fancy_majorarcs.append(self.add_imagarc(yticks[0], 0, xticks[-1], **param))
-
-                    tmp_yticks = yticks.copy()
-                    for xs in xticks[1:]:
-                        k = 1
-                        while k < len(tmp_yticks):
-                            y0, y1 = tmp_yticks[k - 1:k + 1]
-                            if abs(self._moebius_z(xs, y0) - self._moebius_z(xs, y1)) < thr_x:
-                                self._fancy_majorarcs.append(self.add_imagarc(y1, 0, xs, **param))
-                                self._fancy_majorarcs.append(self.add_imagarc(-y1, 0, xs, **param))
-                                tmp_yticks = np.delete(tmp_yticks, k)
-                            else:
-                                k += 1
-
-                    for i in range(1, len(yticks) - 1):
-                        y0, y1 = yticks[i:i + 2]
-                        k = 1
-                        while k < len(xticks) - 1:
-                            x0, x1 = xticks[k - 1:k + 1]
-                            if abs(self._moebius_z(x0, y1) - self._moebius_z(x1, y1)) < thr_y:
-                                self._fancy_majorarcs.append(self.add_realarc(x1, -y0, y0, **param))
-                                xticks = np.delete(xticks, k)
-                            else:
-                                k += 1
-                else:
-                    draw_standard(xticks, yticks, param, self._fancy_majorarcs)
+        if b:
+            param = update_param('major')
+            xticks = np.sort(self.xaxis.get_majorticklocs())
+            yticks = np.sort(self.yaxis.get_majorticklocs())
+            draw_standard(xticks, yticks, param, self._fancy_majorarcs)
 
     def _hack_linedraw(self, line, rotate_marker=None):
         '''
@@ -1487,61 +1155,8 @@ class SmithAxes(Axes):
 
         def __call__(self):
             if self.ticks is None:
-                self.ticks = self.tick_values(0, self.axes._inf)
+                self.ticks = np.array([0.0, 0.2, 0.5, 1.0, 2.0, 5.0, self.axes._inf]) * self.axes._scale
             return self.ticks
-
-        def nice_round(self, num, down=True):
-            # normalize to 'precision' decimals befor comma
-            exp = np.ceil(np.log10(np.abs(num) + EPSILON))
-            if exp < 1:  # fix for leading 0
-                exp += 1
-            norm = 10 ** -(exp - self.precision)
-
-            num_normed = num * norm
-            # increase precision by 0.5, if normed value is smaller than 1/3
-            # of its decade range
-            if num_normed < 3.3:
-                norm *= 2
-            # decrease precision by 1, if normed value is bigger than 1/2
-            elif num_normed > 50:
-                norm /= 10
-
-            # select rounding function
-            if not 1 < num_normed % 10 < 9:
-                # round to nearest value, if last digit is 1 or 9
-                if abs(num_normed % 10 - 1) < EPSILON:
-                    num -= 0.5 / norm
-                f_round = np.round
-            else:
-                f_round = np.floor if down else np.ceil
-
-            return f_round(np.round(num * norm, 1)) / norm
-
-        def tick_values(self, vmin, vmax):
-            tmin, tmax = self.transform(vmin), self.transform(vmax)
-            mean = self.transform(self.nice_round(self.invert(0.5 * (tmin + tmax))))
-
-            result = [tmin, tmax, mean]
-            d0 = abs(tmin - tmax) / (self.steps + 1)
-            # calculate values above and below mean, adapt delta
-            for sgn, side, end in [[1, False, tmax], [-1, True, tmin]]:
-                d, d0 = d0, None
-                last = mean
-                while True:
-                    new = last + d * sgn
-                    if self.out_of_range(new) or abs(end - new) < d / 2:
-                        break
-
-                    # round new value to the next nice display value
-                    new = self.transform(self.nice_round(self.invert(new), side))
-                    d = abs(new - last)
-                    if d0 is None:
-                        d0 = d
-
-                    last = new
-                    result.append(last)
-
-            return np.sort(self.invert(np.array(result)))
 
         def out_of_range(self, x):
             return abs(x) > 1
@@ -1558,7 +1173,7 @@ class SmithAxes(Axes):
 
         def __call__(self):
             if self.ticks is None:
-                tmp = self.tick_values(0, self.axes._inf)
+                tmp = np.array([0.0, 0.2, 0.5, 1.0, 2.0, 5.0, self.axes._inf]) * self.axes._scale
                 self.ticks = np.concatenate((-tmp[:0:-1], tmp))
             return self.ticks
 
@@ -1570,34 +1185,6 @@ class SmithAxes(Axes):
 
         def invert(self, x):
             return np.imag(-self.axes._moebius_inv_z(ang_to_c(np.pi + np.array(x))))
-
-    class SmithAutoMinorLocator(AutoMinorLocator):
-        '''
-        AutoLocator for SmithAxes. Returns linear spaced intermediate ticks
-        depending on the major tickvalues.
-
-        Keyword arguments:
-
-            *n*:
-                Number of intermediate ticks
-                Accepts: positive integer
-        '''
-        def __init__(self, n=None):
-            assert n > 0
-            AutoMinorLocator.__init__(self, n=n)
-            if n is None:
-                #TODO: is _get_key valid?
-                self.ndivs = self._get_key("grid.minor.xauto")
-            self._ticks = None
-
-        def __call__(self):
-            if self._ticks is None:
-                majorticks = self.axis.get_majorticklocs()
-                linspace_mod = lambda i0_i1: np.linspace(i0_i1[0], i0_i1[1], self.ndivs + 1)
-                intervals = list(zip(majorticks[:-1], majorticks[1:]))
-                minorticks = np.concatenate(list(map(linspace_mod, intervals)))
-                self._ticks = np.sort(np.concatenate([majorticks, minorticks]))
-            return self._ticks
 
     class RealFormatter(Formatter):
         '''
@@ -1617,7 +1204,7 @@ class SmithAxes(Axes):
             self._axes = axes
 
         def __call__(self, x, pos=None):
-            if x < EPSILON or x > self._axes._near_inf:
+            if x < EPSILON or x > self._axes._near_inf * self._axes._scale:
                 return ""
             else:
                 return ('%f' % x).rstrip('0').rstrip('.')
@@ -1637,9 +1224,9 @@ class SmithAxes(Axes):
                 Accepts: SmithAxes instance
         '''
         def __call__(self, x, pos=None):
-            if x < -self._axes._near_inf:
+            if x < -self._axes._near_inf * self._axes._scale:
                 return ""
-            elif x > self._axes._near_inf:
+            elif x > self._axes._near_inf * self._axes._scale:
                 return self._axes._get_key("symbol.infinity")  # utf8 infinity symbol
             elif abs(x) < EPSILON:
                 return "0"
