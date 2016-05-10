@@ -267,7 +267,7 @@ class SmithAxes(Axes):
                                                 "edgecolor": "w",
                                                 "mutation_aspect": 0.75},
                        "axes.ylabel.correction": (-2, 0),
-                       "axes.radius": 0.43,
+                       "axes.radius": 0.55,
                        "axes.scale": 1,
                        "axes.norm": None,
                        "symbol.infinity": "\u221E",
