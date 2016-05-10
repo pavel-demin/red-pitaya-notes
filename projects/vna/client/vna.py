@@ -61,6 +61,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.short = np.zeros(1000, np.complex64)
     self.load = np.zeros(1000, np.complex64)
     self.dut = np.zeros(1000, np.complex64)
+    self.mode = 'dut'
     # create figure
     self.figure = Figure()
     self.figure.set_facecolor('none')
@@ -197,15 +198,15 @@ class VNA(QMainWindow, Ui_VNA):
       return getattr(self, self.mode)[0:self.sweep_size]
 
   def plot_smith(self):
-    matplotlib.rcdefaults() 
+    matplotlib.rcdefaults()
     self.figure.clf()
-    axes = self.figure.add_subplot(111, projection = 'smith', axes_scale = 50)
+    axes = self.figure.add_subplot(111, projection = 'smith', axes_radius = 0.55, axes_scale = 50.0)
     axes.cla()
     axes.plot(self.result())
     self.canvas.draw()
 
   def plot_mag(self):
-    matplotlib.rcdefaults() 
+    matplotlib.rcdefaults()
     self.figure.clf()
     axes = self.figure.add_subplot(111)
     axes.cla()
@@ -219,7 +220,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.canvas.draw()
 
   def plot_arg(self):
-    matplotlib.rcdefaults() 
+    matplotlib.rcdefaults()
     self.figure.clf()
     axes = self.figure.add_subplot(111)
     axes.cla()
