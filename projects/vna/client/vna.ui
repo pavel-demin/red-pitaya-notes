@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
-    <height>600</height>
+    <width>720</width>
+    <height>540</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>700</width>
-    <height>600</height>
+    <width>720</width>
+    <height>540</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -21,141 +21,29 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <spacer name="spacer1">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>40</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="0" column="0">
-     <widget class="QFrame" name="addrFrame">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QGridLayout" name="addrLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="addrLabel">
-         <property name="text">
-          <string>IP address</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLineEdit" name="addrValue">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>192.168.1.100</string>
-         </property>
-         <property name="maxLength">
-          <number>15</number>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="connectButton">
-         <property name="text">
-          <string>Connect</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-      <zorder>addrLabel</zorder>
-      <zorder>addrLabel</zorder>
-      <zorder>addrLabel</zorder>
-      <zorder>addrValue</zorder>
-      <zorder>connectButton</zorder>
-     </widget>
-    </item>
-    <item row="1" column="5">
-     <spacer name="spacer3">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="2" column="5">
-     <widget class="QFrame" name="selectFrame">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QGridLayout" name="selectLayout">
-       <item row="1" column="0">
-        <widget class="QPushButton" name="magButton">
-         <property name="text">
-          <string>Magnitude</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QPushButton" name="lossButton">
-         <property name="text">
-          <string>Return Loss</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QPushButton" name="swrButton">
-         <property name="text">
-          <string>SWR</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QPushButton" name="smithButton">
-         <property name="text">
-          <string>Smith Chart</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="argButton">
-         <property name="text">
-          <string>Phase</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="4" column="5">
-     <spacer name="spacer4">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <item row="0" column="2" colspan="4">
      <widget class="QFrame" name="sweepFrame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -163,49 +51,28 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QGridLayout" name="sweepLayout">
-       <item row="0" column="2">
+       <item row="1" column="4">
         <widget class="QLabel" name="sizeLabel">
          <property name="text">
-          <string>Size</string>
+          <string>Points</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="3">
-        <widget class="QPushButton" name="saveButton">
-         <property name="text">
-          <string>Save</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
+       <item row="2" column="3">
         <widget class="QPushButton" name="shortButton">
          <property name="text">
           <string>Short</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="3">
-        <widget class="QPushButton" name="dutButton">
+       <item row="1" column="2">
+        <widget class="QLabel" name="stopLabel">
          <property name="text">
-          <string>DUT</string>
+          <string>Stop, kHz</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="3">
-        <widget class="QPushButton" name="restoreButton">
-         <property name="text">
-          <string>Restore</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="stepLabel">
-         <property name="text">
-          <string>Step, kHz</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
+       <item row="1" column="1">
         <widget class="QSpinBox" name="startValue">
          <property name="minimum">
           <number>100</number>
@@ -218,37 +85,37 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
+       <item row="1" column="0">
         <widget class="QLabel" name="startLabel">
          <property name="text">
           <string>Start, kHz</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="stepValue">
+       <item row="1" column="3">
+        <widget class="QSpinBox" name="stopValue">
          <property name="minimum">
-          <number>1</number>
+          <number>100</number>
          </property>
          <property name="maximum">
-          <number>10000</number>
+          <number>60000</number>
          </property>
          <property name="singleStep">
           <number>100</number>
          </property>
          <property name="value">
-          <number>100</number>
+          <number>60000</number>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="2" column="1">
         <widget class="QPushButton" name="openButton">
          <property name="text">
           <string>Open</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
+       <item row="1" column="5">
         <widget class="QSpinBox" name="sizeValue">
          <property name="minimum">
           <number>10</number>
@@ -264,8 +131,14 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="2">
+       <item row="2" column="5">
         <widget class="QPushButton" name="loadButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Load</string>
          </property>
@@ -274,16 +147,259 @@
       </layout>
      </widget>
     </item>
+    <item row="4" column="5">
+     <spacer name="spacer5">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
     <item row="1" column="0" rowspan="4" colspan="5">
      <widget class="QFrame" name="plotWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QVBoxLayout" name="plotLayout"/>
+      <layout class="QVBoxLayout" name="plotLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+      </layout>
      </widget>
+    </item>
+    <item row="2" column="5">
+     <widget class="QFrame" name="selectFrame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="selectLayout">
+       <item row="11" column="0">
+        <widget class="QPushButton" name="rlPlot">
+         <property name="text">
+          <string>Return loss</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="dutButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>DUT</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <spacer name="spacer4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="7" column="0">
+        <widget class="QPushButton" name="smithPlot">
+         <property name="text">
+          <string>Smith chart</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QPushButton" name="dutPlot">
+         <property name="text">
+          <string>DUT data</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="openPlot">
+         <property name="text">
+          <string>Open data</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QPushButton" name="rcPlot">
+         <property name="text">
+          <string>Refl. coeff.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="shortPlot">
+         <property name="text">
+          <string>Short data</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QPushButton" name="loadPlot">
+         <property name="text">
+          <string>Load data</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QPushButton" name="impPlot">
+         <property name="text">
+          <string>Impedance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QPushButton" name="swrPlot">
+         <property name="text">
+          <string>SWR</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer name="spacer3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QFrame" name="addrFrame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="addrLayout">
+       <item row="2" column="0">
+        <widget class="QLabel" name="addrLabel">
+         <property name="text">
+          <string>IP address</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="addrValue">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>192.168.1.100</string>
+         </property>
+         <property name="maxLength">
+          <number>15</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QPushButton" name="connectButton">
+         <property name="text">
+          <string>Connect</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="QPushButton" name="readButton">
+         <property name="text">
+          <string>Read cfg.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="3">
+        <widget class="QPushButton" name="writeButton">
+         <property name="text">
+          <string>Write cfg.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="5">
+     <spacer name="spacer2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="0" column="1">
+     <spacer name="spacer1">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
     </item>
    </layout>
   </widget>
