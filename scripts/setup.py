@@ -5,7 +5,6 @@ import matplotlib
 
 includes = [
   'sip',
-  'yaml',
   'PyQt5',
   'PyQt5.uic',
   'PyQt5.QtCore',
@@ -18,19 +17,20 @@ includes = [
   'PyQt5.QtWidgets',
   'PyQt5.QtXml',
   'numpy',
-  'matplotlib.backends.backend_qt5agg'
+  'matplotlib.backends.backend_qt5agg',
+  'smithplot'
 ]
 
 setup(
   windows = [{'script': 'exec.py'}],
   data_files = matplotlib.get_py2exe_datafiles() + [
-    ('', ['d:\\Python34\\Lib\\site-packages\\PyQt5\\Qt5DesignerComponents.dll', 'd:\\Python34\\Lib\\site-packages\\PyQt5\\designer.exe']),
-    ('platforms', ['d:\\Python34\\Lib\\site-packages\\PyQt5\\plugins\\platforms\\qwindows.dll'])
+    ('', ['c:\\Python34\\Lib\\site-packages\\PyQt5\\Qt5DesignerComponents.dll', 'c:\\Python34\\Lib\\site-packages\\PyQt5\\designer.exe']),
+    ('platforms', ['c:\\Python34\\Lib\\site-packages\\PyQt5\\plugins\\platforms\\qwindows.dll'])
   ],
   options = {
     'py2exe':{
       'includes': includes,
-      'bundle_files': 2,
+      'bundle_files': 3,
       'compressed': True
     }
   }
