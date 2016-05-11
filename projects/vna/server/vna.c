@@ -21,9 +21,10 @@ int main(int argc, char *argv[])
   uint8_t *rst;
   uint64_t *rx_data;
   struct sockaddr_in addr;
-  uint32_t command, value, freq;
+  uint32_t command, value;
+  int64_t start, stop, size, freq;
   uint64_t buffer[4000];
-  int i, j, start, step, size, yes = 1;
+  int i, j, yes = 1;
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -46,8 +47,8 @@ int main(int argc, char *argv[])
   *rx_size = 1250000 - 1;
   *tx_size = 1250000 - 1;
 
-  start = 100;
-  step = 100;
+  start = 100000;
+  stop = 60000000;
   size = 600;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -88,13 +89,13 @@ int main(int argc, char *argv[])
       {
         case 0:
           /* set start */
-          if(value < 100 || value > 60000) continue;
+          if(value < 100000 || value > 60000000) continue;
           start = value;
           break;
         case 1:
-          /* set step */
-          if(value < 100 || value > 10000) continue;
-          step = value;
+          /* set stop */
+          if(value < 100000 || value > 60000000) continue;
+          stop = value;
           break;
         case 2:
           /* set size */
@@ -108,9 +109,9 @@ int main(int argc, char *argv[])
           freq = start;
           for(i = 0; i <= size; ++i)
           {
-            *rx_freq = (uint32_t)floor((freq - 1) / 125.0e3 * (1<<30) + 0.5);
-            *tx_freq = (uint32_t)floor(freq / 125.0e3 * (1<<30) + 0.5);
-            if(i > 0) freq += step;
+            if(i > 0) freq = start + (stop - start) * (i - 1) / (size - 1);
+            *rx_freq = (uint32_t)floor((freq - 1000) / 125.0e6 * (1<<30) + 0.5);
+            *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1<<30) + 0.5);
           }
           *rst |= 1;
           for(i = 0; i <= size; ++i)

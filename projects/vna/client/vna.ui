@@ -59,7 +59,7 @@
         </widget>
        </item>
        <item row="2" column="3">
-        <widget class="QPushButton" name="shortButton">
+        <widget class="QPushButton" name="shortSweep">
          <property name="text">
           <string>Short</string>
          </property>
@@ -109,7 +109,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QPushButton" name="openButton">
+        <widget class="QPushButton" name="openSweep">
          <property name="text">
           <string>Open</string>
          </property>
@@ -132,7 +132,7 @@
         </widget>
        </item>
        <item row="2" column="5">
-        <widget class="QPushButton" name="loadButton">
+        <widget class="QPushButton" name="loadSweep">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -146,19 +146,6 @@
        </item>
       </layout>
      </widget>
-    </item>
-    <item row="4" column="5">
-     <spacer name="spacer5">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
     </item>
     <item row="1" column="0" rowspan="4" colspan="5">
      <widget class="QFrame" name="plotWidget">
@@ -208,15 +195,83 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QGridLayout" name="selectLayout">
+       <item row="4" column="0">
+        <widget class="QPushButton" name="shortPlot">
+         <property name="text">
+          <string>Short data</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="openPlot">
+         <property name="text">
+          <string>Open data</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QPushButton" name="rcPlot">
+         <property name="text">
+          <string>Refl. coeff.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QPushButton" name="impPlot">
+         <property name="text">
+          <string>Impedance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <spacer name="spacer2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="11" column="0">
+        <widget class="QPushButton" name="swrPlot">
+         <property name="text">
+          <string>SWR</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QPushButton" name="loadPlot">
+         <property name="text">
+          <string>Load data</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <spacer name="spacer3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="12" column="0">
         <widget class="QPushButton" name="rlPlot">
          <property name="text">
           <string>Return loss</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QPushButton" name="dutButton">
+       <item row="1" column="0">
+        <widget class="QPushButton" name="dutSweep">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -228,7 +283,7 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
+       <item row="7" column="0">
         <spacer name="spacer4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -241,64 +296,22 @@
          </property>
         </spacer>
        </item>
-       <item row="7" column="0">
+       <item row="8" column="0">
         <widget class="QPushButton" name="smithPlot">
          <property name="text">
           <string>Smith chart</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <widget class="QPushButton" name="dutPlot">
          <property name="text">
           <string>DUT data</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="openPlot">
-         <property name="text">
-          <string>Open data</string>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0">
-        <widget class="QPushButton" name="rcPlot">
-         <property name="text">
-          <string>Refl. coeff.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QPushButton" name="shortPlot">
-         <property name="text">
-          <string>Short data</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QPushButton" name="loadPlot">
-         <property name="text">
-          <string>Load data</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QPushButton" name="impPlot">
-         <property name="text">
-          <string>Impedance</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QPushButton" name="swrPlot">
-         <property name="text">
-          <string>SWR</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <spacer name="spacer3">
+       <item row="13" column="0">
+        <spacer name="spacer5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -374,19 +387,6 @@
        </item>
       </layout>
      </widget>
-    </item>
-    <item row="1" column="5">
-     <spacer name="spacer2">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
     </item>
     <item row="0" column="1">
      <spacer name="spacer1">

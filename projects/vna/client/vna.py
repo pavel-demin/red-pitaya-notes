@@ -84,14 +84,14 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.error.connect(self.display_error)
     # connect signals from buttons and boxes
     self.sweepFrame.setEnabled(False)
-    self.selectFrame.setEnabled(False)
+    self.dutSweep.setEnabled(False)
     self.connectButton.clicked.connect(self.start)
     self.writeButton.clicked.connect(self.write_cfg)
     self.readButton.clicked.connect(self.read_cfg)
-    self.openButton.clicked.connect(self.sweep_open)
-    self.shortButton.clicked.connect(self.sweep_short)
-    self.loadButton.clicked.connect(self.sweep_load)
-    self.dutButton.clicked.connect(self.sweep_dut)
+    self.openSweep.clicked.connect(self.sweep_open)
+    self.shortSweep.clicked.connect(self.sweep_short)
+    self.loadSweep.clicked.connect(self.sweep_load)
+    self.dutSweep.clicked.connect(self.sweep_dut)
     self.startValue.valueChanged.connect(self.set_start)
     self.stopValue.valueChanged.connect(self.set_stop)
     self.sizeValue.valueChanged.connect(self.set_size)
@@ -123,7 +123,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.connectButton.setText('Connect')
     self.connectButton.setEnabled(True)
     self.sweepFrame.setEnabled(False)
-    self.selectFrame.setEnabled(False)
+    self.dutSweep.setEnabled(False)
 
   def timeout(self):
     self.display_error('timeout')
@@ -137,7 +137,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
     self.sweepFrame.setEnabled(True)
-    self.selectFrame.setEnabled(True)
+    self.dutSweep.setEnabled(True)
 
   def read_data(self):
     size = self.socket.bytesAvailable()
@@ -168,39 +168,44 @@ class VNA(QMainWindow, Ui_VNA):
 
   def set_start(self, value):
     self.sweep_start = value
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
+    self.xaxis *= 1000
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 0<<28 | int(value * 1000)))
 
   def set_stop(self, value):
     self.sweep_stop = value
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
+    self.xaxis *= 1000
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 1<<28 | int(value * 1000)))
 
   def set_size(self, value):
     self.sweep_size = value
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
+    self.xaxis *= 1000
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 2<<28 | int(value)))
 
   def sweep(self):
     if self.idle: return
+    self.sweepFrame.setEnabled(False)
+    self.selectFrame.setEnabled(False)
     self.socket.write(struct.pack('<I', 3<<28))
 
   def sweep_open(self):
-    self.sweepFrame.setEnabled(False)
-    self.selectFrame.setEnabled(False)
     self.mode = 'open'
     self.sweep()
 
   def sweep_short(self):
-    self.sweepFrame.setEnabled(False)
-    self.selectFrame.setEnabled(False)
     self.mode = 'short'
     self.sweep()
 
   def sweep_load(self):
-    self.sweepFrame.setEnabled(False)
-    self.selectFrame.setEnabled(False)
     self.mode = 'load'
     self.sweep()
 
-
   def sweep_dut(self):
-    self.sweepFrame.setEnabled(False)
-    self.selectFrame.setEnabled(False)
     self.mode = 'dut'
     self.sweep()
 
@@ -210,16 +215,6 @@ class VNA(QMainWindow, Ui_VNA):
   def gamma(self):
     z = self.impedance()
     return (z - 50.0)/(z + 50.0)
-
-  def SWR(self):
-    """Compute SWR"""
-    rho = np.abs(self.Gamma())
-    return (1+rho)/(1-rho)
-
-  def RL(self):
-    """Compute Return Loss"""
-    rho = np.abs(self.Gamma())
-    return (-20 * np.log10(rho))
 
   def plot_magphase(self, data):
     matplotlib.rcdefaults()
@@ -311,33 +306,42 @@ class VNA(QMainWindow, Ui_VNA):
   def write_cfg_settings(self, settings):
     settings.setValue('start', self.startValue.value())
     settings.setValue('stop', self.stopValue.value())
-    settings.setValue('size', self.sizeValue.value())
-    for i in range(0, self.sizeValue.value()):
+    size = self.sizeValue.value()
+    settings.setValue('size', size)
+    for i in range(0, size):
       settings.setValue('open_real_%d' % i, float(self.open.real[i]))
       settings.setValue('open_imag_%d' % i, float(self.open.imag[i]))
-    for i in range(0, self.sizeValue.value()):
+    for i in range(0, size):
       settings.setValue('short_real_%d' % i, float(self.short.real[i]))
       settings.setValue('short_imag_%d' % i, float(self.short.imag[i]))
-    for i in range(0, self.sizeValue.value()):
+    for i in range(0, size):
       settings.setValue('load_real_%d' % i, float(self.load.real[i]))
       settings.setValue('load_imag_%d' % i, float(self.load.imag[i]))
+    for i in range(0, size):
+      settings.setValue('dut_real_%d' % i, float(self.dut.real[i]))
+      settings.setValue('dut_imag_%d' % i, float(self.dut.imag[i]))
 
   def read_cfg_settings(self, settings):
     self.startValue.setValue(settings.value('start', 100, type = int))
     self.stopValue.setValue(settings.value('stop', 60000, type = int))
-    self.sizeValue.setValue(settings.value('size', 600, type = int))
-    for i in range(0, self.sizeValue.value()):
-      re = settings.value('open_real_%d' % i, 0.0, type = float)
-      im = settings.value('open_imag_%d' % i, 0.0, type = float)
-      self.open[i] = re + 1.0j * im
-    for i in range(0, self.sizeValue.value()):
-      re = settings.value('short_real_%d' % i, 0.0, type = float)
-      im = settings.value('short_imag_%d' % i, 0.0, type = float)
-      self.short[i] = re + 1.0j * im
-    for i in range(0, self.sizeValue.value()):
-      re = settings.value('load_real_%d' % i, 0.0, type = float)
-      im = settings.value('load_imag_%d' % i, 0.0, type = float)
-      self.load[i] = re + 1.0j * im
+    size = settings.value('size', 600, type = int)
+    self.sizeValue.setValue(size)
+    for i in range(0, size):
+      real = settings.value('open_real_%d' % i, 0.0, type = float)
+      imag = settings.value('open_imag_%d' % i, 0.0, type = float)
+      self.open[i] = real + 1.0j * imag
+    for i in range(0, size):
+      real = settings.value('short_real_%d' % i, 0.0, type = float)
+      imag = settings.value('short_imag_%d' % i, 0.0, type = float)
+      self.short[i] = real + 1.0j * imag
+    for i in range(0, size):
+      real = settings.value('load_real_%d' % i, 0.0, type = float)
+      imag = settings.value('load_imag_%d' % i, 0.0, type = float)
+      self.load[i] = real + 1.0j * imag
+    for i in range(0, size):
+      real = settings.value('dut_real_%d' % i, 0.0, type = float)
+      imag = settings.value('dut_imag_%d' % i, 0.0, type = float)
+      self.dut[i] = real + 1.0j * imag
 
 app = QApplication(sys.argv)
 window = VNA()
