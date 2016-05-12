@@ -57,7 +57,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
     self.xaxis *= 1000
     # buffer and offset for the incoming samples
-    self.buffer = bytearray(16000 * VNA.max_size)
+    self.buffer = bytearray(32 * VNA.max_size)
     self.offset = 0
     self.data = np.frombuffer(self.buffer, np.complex64)
     self.adc1 = np.zeros(VNA.max_size, np.complex64)
@@ -126,6 +126,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.connectButton.setText('Connect')
     self.connectButton.setEnabled(True)
     self.sweepFrame.setEnabled(False)
+    self.selectFrame.setEnabled(True)
     self.dutSweep.setEnabled(False)
 
   def timeout(self):
@@ -144,19 +145,16 @@ class VNA(QMainWindow, Ui_VNA):
 
   def read_data(self):
     size = self.socket.bytesAvailable()
-    if self.offset + size < 16000 * self.sweep_size:
+    if self.offset + size < 32 * self.sweep_size:
       self.buffer[self.offset:self.offset + size] = self.socket.read(size)
       self.offset += size
     else:
-      self.buffer[self.offset:16000 * self.sweep_size] = self.socket.read(16000 * self.sweep_size - self.offset)
+      self.buffer[self.offset:32 * self.sweep_size] = self.socket.read(32 * self.sweep_size - self.offset)
       self.offset = 0
-      for i in range(0, self.sweep_size):
-        start = i * 500
-        stop = start + 500
-        self.adc1[i] = np.fft.fft(self.data[0::4][start:stop])[5]
-        self.adc2[i] = np.fft.fft(self.data[1::4][start:stop])[5]
-        self.dac1[i] = np.fft.fft(self.data[2::4][start:stop])[5]
-      getattr(self, self.mode)[0:self.sweep_size] = np.divide(self.adc1[0:self.sweep_size], self.dac1[0:self.sweep_size])
+      self.adc1 = self.data[0::4]
+      self.adc2 = self.data[1::4]
+      self.dac1 = self.data[2::4]
+      getattr(self, self.mode)[0:self.sweep_size] = self.adc1[0:self.sweep_size] / self.dac1[0:self.sweep_size]
       self.sweepFrame.setEnabled(True)
       self.selectFrame.setEnabled(True)
       getattr(self, 'plot_%s' % self.mode)()
@@ -239,16 +237,6 @@ class VNA(QMainWindow, Ui_VNA):
     axes2.tick_params('y', color = 'red', labelcolor = 'red')
     axes2.yaxis.label.set_color('red')
     axes2.plot(self.xaxis, np.angle(data, deg = True), color = 'red')
-    self.canvas.draw()
-
-  def plot_fft(self):
-    matplotlib.rcdefaults()
-    self.figure.clf()
-    self.figure.subplots_adjust(top = 0.98, right = 0.88)
-    axes = self.figure.add_subplot(111)
-    axes.cla()
-    w = np.kaiser(500, 12)
-    axes.plot(np.fft.fftfreq(500), 20*np.log10(np.fft.fft(self.data[0::4][100*500:101*500] * w)))
     self.canvas.draw()
 
   def plot_open(self):

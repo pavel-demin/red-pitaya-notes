@@ -19,12 +19,15 @@ int main(int argc, char *argv[])
   uint32_t *rx_size, *tx_size;
   uint16_t *rx_cntr;
   uint8_t *rst;
-  uint64_t *rx_data;
+  float *rx_data;
   struct sockaddr_in addr;
   uint32_t command, value;
   int64_t start, stop, size, freq;
-  uint64_t buffer[2000];
-  int i, j, yes = 1;
+  int i, j, k, yes = 1;
+  float omega, sine, cosine, coeff;
+  float re, r0[4], r1[4], r2[4];
+  float im, i0[4], i1[4], i2[4];
+  float buffer[8];
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -50,6 +53,11 @@ int main(int argc, char *argv[])
   start = 100000;
   stop = 60000000;
   size = 600;
+
+  omega = M_PI / 50.0;
+  sine = sin(omega);
+  cosine = cos(omega);
+  coeff = 2.0 * cosine;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -116,9 +124,31 @@ int main(int argc, char *argv[])
           *rst |= 1;
           for(i = 0; i <= size; ++i)
           {
-            while(*rx_cntr < 4000) usleep(500);
-            for(j = 0; j < 2000; ++j) buffer[j] = *rx_data;
-            if(i > 0) if(send(sock_client, buffer, 16000, MSG_NOSIGNAL) < 0) break;
+            memset(r1, 0, 16);
+            memset(i1, 0, 16);
+            memset(r2, 0, 16);
+            memset(i2, 0, 16);
+            while(*rx_cntr < 4000) usleep(200);
+            for(j = 0; j < 500; ++j)
+            {
+              for(k = 0; k < 4; ++k)
+              {
+                re = *rx_data;
+                im = *rx_data;
+                r0[k] = coeff * r1[k] - r2[k] + re;
+                i0[k] = coeff * i1[k] - i2[k] + im;
+                r2[k] = r1[k];
+                i2[k] = i1[k];
+                r1[k] = r0[k];
+                i1[k] = i0[k];
+              }
+            }
+            for(k = 0; k < 4; ++k)
+            {
+              buffer[2 * k + 0] = (r1[k] - r2[k] * cosine) - (i2[k] * sine);
+              buffer[2 * k + 1] = (r2[k] * sine) + (i1[k] - i2[k] * cosine);
+            }
+            if(i > 0) if(send(sock_client, buffer, 32, MSG_NOSIGNAL) < 0) break;
           }
           break;
       }
