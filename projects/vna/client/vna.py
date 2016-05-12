@@ -38,6 +38,8 @@ Ui_VNA, QMainWindow = loadUiType('vna.ui')
 
 class VNA(QMainWindow, Ui_VNA):
 
+  max_size = 8000
+
   formatter = matplotlib.ticker.FuncFormatter(lambda x, pos: '%1.1fM' % (x * 1e-6) if abs(x) >= 1e6 else '%1.1fk' % (x * 1e-3) if abs(x) >= 1e3 else '%1.1f' % x if abs(x) >= 1e0 else '%1.1fm' % (x * 1e+3) if abs(x) >= 1e-3 else '%1.1fu' % (x * 1e+6) if abs(x) >= 1e-6 else '%1.1f' % x)
 
   def __init__(self):
@@ -55,16 +57,16 @@ class VNA(QMainWindow, Ui_VNA):
     self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
     self.xaxis *= 1000
     # buffer and offset for the incoming samples
-    self.buffer = bytearray(32000 * 1000)
+    self.buffer = bytearray(16000 * VNA.max_size)
     self.offset = 0
     self.data = np.frombuffer(self.buffer, np.complex64)
-    self.adc1 = np.zeros(1000, np.complex64)
-    self.adc2 = np.zeros(1000, np.complex64)
-    self.dac1 = np.zeros(1000, np.complex64)
-    self.open = np.zeros(1000, np.complex64)
-    self.short = np.zeros(1000, np.complex64)
-    self.load = np.zeros(1000, np.complex64)
-    self.dut = np.zeros(1000, np.complex64)
+    self.adc1 = np.zeros(VNA.max_size, np.complex64)
+    self.adc2 = np.zeros(VNA.max_size, np.complex64)
+    self.dac1 = np.zeros(VNA.max_size, np.complex64)
+    self.open = np.zeros(VNA.max_size, np.complex64)
+    self.short = np.zeros(VNA.max_size, np.complex64)
+    self.load = np.zeros(VNA.max_size, np.complex64)
+    self.dut = np.zeros(VNA.max_size, np.complex64)
     self.mode = 'dut'
     # create figure
     self.figure = Figure()
@@ -92,6 +94,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.shortSweep.clicked.connect(self.sweep_short)
     self.loadSweep.clicked.connect(self.sweep_load)
     self.dutSweep.clicked.connect(self.sweep_dut)
+    self.s1pButton.clicked.connect(self.write_s1p)
     self.startValue.valueChanged.connect(self.set_start)
     self.stopValue.valueChanged.connect(self.set_stop)
     self.sizeValue.valueChanged.connect(self.set_size)
@@ -141,18 +144,18 @@ class VNA(QMainWindow, Ui_VNA):
 
   def read_data(self):
     size = self.socket.bytesAvailable()
-    if self.offset + size < 32000 * self.sweep_size:
+    if self.offset + size < 16000 * self.sweep_size:
       self.buffer[self.offset:self.offset + size] = self.socket.read(size)
       self.offset += size
     else:
-      self.buffer[self.offset:32000 * self.sweep_size] = self.socket.read(32000 * self.sweep_size - self.offset)
+      self.buffer[self.offset:16000 * self.sweep_size] = self.socket.read(16000 * self.sweep_size - self.offset)
       self.offset = 0
       for i in range(0, self.sweep_size):
-        start = i * 1000
-        stop = start + 1000
-        self.adc1[i] = np.fft.fft(self.data[0::4][start:stop])[10]
-        self.adc2[i] = np.fft.fft(self.data[1::4][start:stop])[10]
-        self.dac1[i] = np.fft.fft(self.data[2::4][start:stop])[10]
+        start = i * 500
+        stop = start + 500
+        self.adc1[i] = np.fft.fft(self.data[0::4][start:stop])[5]
+        self.adc2[i] = np.fft.fft(self.data[1::4][start:stop])[5]
+        self.dac1[i] = np.fft.fft(self.data[2::4][start:stop])[5]
       getattr(self, self.mode)[0:self.sweep_size] = np.divide(self.adc1[0:self.sweep_size], self.dac1[0:self.sweep_size])
       self.sweepFrame.setEnabled(True)
       self.selectFrame.setEnabled(True)
@@ -238,6 +241,16 @@ class VNA(QMainWindow, Ui_VNA):
     axes2.plot(self.xaxis, np.angle(data, deg = True), color = 'red')
     self.canvas.draw()
 
+  def plot_fft(self):
+    matplotlib.rcdefaults()
+    self.figure.clf()
+    self.figure.subplots_adjust(top = 0.98, right = 0.88)
+    axes = self.figure.add_subplot(111)
+    axes.cla()
+    w = np.kaiser(500, 12)
+    axes.plot(np.fft.fftfreq(500), 20*np.log10(np.fft.fft(self.data[0::4][100*500:101*500] * w)))
+    self.canvas.draw()
+
   def plot_open(self):
     self.plot_magphase(self.open[0:self.sweep_size])
 
@@ -290,7 +303,7 @@ class VNA(QMainWindow, Ui_VNA):
     axes1.set_xlabel('Hz')
     axes1.set_ylabel('Return loss, dB')
     magnitude = np.absolute(self.gamma())
-    axes1.plot(self.xaxis, -20.0 * np.log10(magnitude), color = 'blue')
+    axes1.plot(self.xaxis, 20.0 * np.log10(magnitude), color = 'blue')
     self.canvas.draw()
 
   def write_cfg(self):
@@ -342,6 +355,16 @@ class VNA(QMainWindow, Ui_VNA):
       real = settings.value('dut_real_%d' % i, 0.0, type = float)
       imag = settings.value('dut_imag_%d' % i, 0.0, type = float)
       self.dut[i] = real + 1.0j * imag
+
+  def write_s1p(self):
+    name = QFileDialog.getSaveFileName(self, 'Write s1p file', '.', '*.s1p')
+    fh = open(name[0], 'w')
+    gamma = self.gamma()
+    size = self.sizeValue.value()
+    fh.write('# GHz S MA R 50\n')
+    for i in range(0, size):
+      fh.write('0.0%.8d   %8.6f %7.2f\n' % (self.xaxis[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
+    fh.close()
 
 app = QApplication(sys.argv)
 window = VNA()

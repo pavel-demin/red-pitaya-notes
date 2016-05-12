@@ -51,7 +51,7 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 cell xilinx.com:ip:axis_data_fifo:1.1 fifo_1 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
-  FIFO_DEPTH 1024
+  FIFO_DEPTH 8192
 } {
   S_AXIS writer_0/M_AXIS
   s_axis_aclk /ps_0/FCLK_CLK0
@@ -268,11 +268,11 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
 cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 256
-  INPUT_DEPTH 2048
+  INPUT_DEPTH 1024
   OUTPUT_DATA_WIDTH 32
-  OUTPUT_DEPTH 16384
+  OUTPUT_DEPTH 8192
   READ_DATA_COUNT true
-  READ_DATA_COUNT_WIDTH 15
+  READ_DATA_COUNT_WIDTH 14
 } {
   clk /ps_0/FCLK_CLK0
   srst slice_1/Dout

@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
   struct sockaddr_in addr;
   uint32_t command, value;
   int64_t start, stop, size, freq;
-  uint64_t buffer[4000];
+  uint64_t buffer[2000];
   int i, j, yes = 1;
 
   if((fd = open(name, O_RDWR)) < 0)
@@ -34,9 +34,9 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  rx_freq = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-  tx_freq = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
-  rx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+  rx_freq = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  tx_freq = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+  rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40018000);
 
   rx_cntr = ((uint16_t *)(sts + 12));
 
@@ -44,8 +44,8 @@ int main(int argc, char *argv[])
   rx_size = ((uint32_t *)(cfg + 4));
   tx_size = ((uint32_t *)(cfg + 8));
 
-  *rx_size = 1250000 - 1;
-  *tx_size = 1250000 - 1;
+  *rx_size = 625000 - 1;
+  *tx_size = 625000 - 1;
 
   start = 100000;
   stop = 60000000;
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
           break;
         case 2:
           /* set size */
-          if(value < 10 || value > 1000) continue;
+          if(value < 10 || value > 8000) continue;
           size = value;
           break;
         case 3:
@@ -116,9 +116,9 @@ int main(int argc, char *argv[])
           *rst |= 1;
           for(i = 0; i <= size; ++i)
           {
-            while(*rx_cntr < 8000) usleep(2000);
-            for(j = 0; j < 4000; ++j) buffer[j] = *rx_data;
-            if(i > 0) send(sock_client, buffer, 32000, MSG_NOSIGNAL);
+            while(*rx_cntr < 4000) usleep(1000);
+            for(j = 0; j < 2000; ++j) buffer[j] = *rx_data;
+            if(i > 0) if(send(sock_client, buffer, 16000, MSG_NOSIGNAL) < 0) break;
           }
           break;
       }
