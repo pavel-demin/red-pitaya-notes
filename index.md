@@ -19,4 +19,5 @@ layout: default
 1. [Pulsed Nuclear Magnetic Resonance]({{ "/pulsed-nmr/" | prepend: site.baseurl }})
 1. [Multichannel Pulse Height Analyzer]({{ "/mcpha/" | prepend: site.baseurl }})
 1. [Scanning system]({{ "/scanner/" | prepend: site.baseurl }})
+1. [Vector Network Analyzer]({{ "/vna/" | prepend: site.baseurl }})
 1. [Debian with Red Pitaya ecosystem]({{ "/debian-ecosystem/" | prepend: site.baseurl }})
