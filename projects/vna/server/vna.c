@@ -34,9 +34,9 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  rx_freq = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
-  tx_freq = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
-  rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40018000);
+  rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  rx_freq = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+  tx_freq = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
   rx_cntr = ((uint16_t *)(sts + 12));
 
@@ -44,8 +44,8 @@ int main(int argc, char *argv[])
   rx_size = ((uint32_t *)(cfg + 4));
   tx_size = ((uint32_t *)(cfg + 8));
 
-  *rx_size = 625000 - 1;
-  *tx_size = 625000 - 1;
+  *rx_size = 250000 - 1;
+  *tx_size = 250000 - 1;
 
   start = 100000;
   stop = 60000000;
@@ -89,17 +89,17 @@ int main(int argc, char *argv[])
       {
         case 0:
           /* set start */
-          if(value < 100000 || value > 60000000) continue;
+          if(value < 5000 || value > 62500000) continue;
           start = value;
           break;
         case 1:
           /* set stop */
-          if(value < 100000 || value > 60000000) continue;
+          if(value < 5000 || value > 62500000) continue;
           stop = value;
           break;
         case 2:
           /* set size */
-          if(value < 10 || value > 8000) continue;
+          if(value < 1 || value > 16383) continue;
           size = value;
           break;
         case 3:
@@ -110,13 +110,13 @@ int main(int argc, char *argv[])
           for(i = 0; i <= size; ++i)
           {
             if(i > 0) freq = start + (stop - start) * (i - 1) / (size - 1);
-            *rx_freq = (uint32_t)floor((freq - 1000) / 125.0e6 * (1<<30) + 0.5);
+            *rx_freq = (uint32_t)floor((freq - 2500) / 125.0e6 * (1<<30) + 0.5);
             *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1<<30) + 0.5);
           }
           *rst |= 1;
           for(i = 0; i <= size; ++i)
           {
-            while(*rx_cntr < 4000) usleep(1000);
+            while(*rx_cntr < 4000) usleep(500);
             for(j = 0; j < 2000; ++j) buffer[j] = *rx_data;
             if(i > 0) if(send(sock_client, buffer, 16000, MSG_NOSIGNAL) < 0) break;
           }

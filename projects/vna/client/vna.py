@@ -38,7 +38,7 @@ Ui_VNA, QMainWindow = loadUiType('vna.ui')
 
 class VNA(QMainWindow, Ui_VNA):
 
-  max_size = 8000
+  max_size = 16383
 
   formatter = matplotlib.ticker.FuncFormatter(lambda x, pos: '%1.1fM' % (x * 1e-6) if abs(x) >= 1e6 else '%1.1fk' % (x * 1e-3) if abs(x) >= 1e3 else '%1.1f' % x if abs(x) >= 1e0 else '%1.1fm' % (x * 1e+3) if abs(x) >= 1e-3 else '%1.1fu' % (x * 1e+6) if abs(x) >= 1e-6 else '%1.1f' % x)
 
