@@ -57,7 +57,7 @@ ALEX connections
 The [ALEX module](http://openhpsdr.org/alex.php) can be connected to the pins DIO4_N (Serial Data), DIO5_N (Clock), DIO6_N (RX Board Load Strobe) and DIO7_N (TX Board Load Strobe) of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1).
 The board and the protocol are described in the [ALEX manual](http://www.tapr.org/pdf/ALEX_Manual_V1_0.pdf).
 
-HPSDR signals sent to the [TPIC6B595](http://www.ti.com/product/PCA9555) chips on the RX board:
+HPSDR signals sent to the [TPIC6B595](http://www.ti.com/product/TPIC6B595) chips on the RX board:
 
 RX board pins | HPSDR signals
 ------------- | -------------
@@ -78,7 +78,7 @@ RX board pins | HPSDR signals
 16            | 13MHz HPF
 17            | Yellow LED
 
-HPSDR signals sent to the [TPIC6B595](http://www.ti.com/product/PCA9555) chips on the TX board:
+HPSDR signals sent to the [TPIC6B595](http://www.ti.com/product/TPIC6B595) chips on the TX board:
 
 TX board pins | HPSDR signals
 ------------- | -------------
