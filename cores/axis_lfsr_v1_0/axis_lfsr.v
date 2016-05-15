@@ -1,10 +1,7 @@
 
 `timescale 1 ns / 1 ps
 
-module axis_lfsr #
-(
-  parameter integer AXIS_TDATA_WIDTH = 64
-)
+module axis_lfsr
 (
   // System signals
   input  wire                        aclk,
@@ -15,6 +12,8 @@ module axis_lfsr #
   output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata,
   output wire                        m_axis_tvalid
 );
+
+  localparam integer AXIS_TDATA_WIDTH = 64;
 
   reg [AXIS_TDATA_WIDTH-1:0] int_lfsr_reg, int_lfsr_next;
   reg int_enbl_reg, int_enbl_next;
