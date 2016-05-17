@@ -1,7 +1,7 @@
 DATE=`date +%Y%m%d`
 
-source /opt/Xilinx/Vivado/2015.4/settings64.sh
-source /opt/Xilinx/SDK/2015.4/settings64.sh
+source /opt/Xilinx/Vivado/2016.1/settings64.sh
+source /opt/Xilinx/SDK/2016.1/settings64.sh
 
 make NAME=led_blinker all
 
@@ -25,6 +25,7 @@ zip red-pitaya-ecosystem-0.92-debian-8.2-armel-$DATE.zip red-pitaya-ecosystem-0.
 
 make NAME=sdr_transceiver tmp/sdr_transceiver.bit
 make NAME=sdr_transceiver_hpsdr tmp/sdr_transceiver_hpsdr.bit
+make NAME=sdr_receiver_hpsdr tmp/sdr_receiver_hpsdr.bit
 make NAME=sdr_transceiver_wide tmp/sdr_transceiver_wide.bit
 
 source scripts/sdr-transceiver-ecosystem.sh
@@ -32,6 +33,9 @@ source scripts/sdr-transceiver-bazaar.sh
 
 source scripts/sdr-transceiver-hpsdr-ecosystem.sh
 source scripts/sdr-transceiver-hpsdr-bazaar.sh
+
+source scripts/sdr-receiver-hpsdr-ecosystem.sh
+source scripts/sdr-receiver-hpsdr-bazaar.sh
 
 source scripts/sdr-transceiver-wide-ecosystem.sh
 source scripts/sdr-transceiver-wide-bazaar.sh
@@ -48,3 +52,8 @@ source scripts/pulsed-nmr-ecosystem.sh
 make NAME=scanner tmp/scanner.bit
 
 source scripts/scanner-ecosystem.sh
+
+make NAME=vna tmp/vna.bit
+
+source scripts/vna-ecosystem.sh
+source scripts/vna-bazaar.sh
