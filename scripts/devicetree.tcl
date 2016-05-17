@@ -18,7 +18,7 @@ set_repo_path $repo_path
 open_hw_design $hard_path/$project_name.hdf
 create_sw_design -proc $proc_name -os device_tree devicetree
 
-set_property CONFIG.kernel_version {2015.4} [get_os]
+set_property CONFIG.kernel_version {2016.1} [get_os]
 set_property CONFIG.bootargs $boot_args [get_os]
 
 generate_bsp -dir $tree_path

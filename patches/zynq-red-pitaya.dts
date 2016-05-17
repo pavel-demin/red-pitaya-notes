@@ -24,8 +24,7 @@
 
 	chosen {
 		bootargs = "earlyprintk";
-		linux,stdout-path = &uart0;
-		stdout-path = &uart0;
+		stdout-path = "serial0:115200n8";
 	};
 
 	usb_phy0: phy0 {
@@ -49,10 +48,12 @@
 };
 
 &sdhci0 {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 
 &uart0 {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 
