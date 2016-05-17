@@ -29,9 +29,9 @@ from matplotlib.figure import Figure
 import smithplot
 
 from PyQt5.uic import loadUiType
-from PyQt5.QtCore import QRegExp, QTimer, QSettings, Qt
+from PyQt5.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
 from PyQt5.QtGui import QRegExpValidator
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QDialog, QFileDialog
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_VNA, QMainWindow = loadUiType('vna.ui')
@@ -295,16 +295,26 @@ class VNA(QMainWindow, Ui_VNA):
     self.canvas.draw()
 
   def write_cfg(self):
-    name = QFileDialog.getSaveFileName(self, 'Write configuration settings', '.', '*.ini')
-    settings = QSettings(name[0], QSettings.IniFormat)
-    self.write_cfg_settings(settings)
+    dialog = QFileDialog(self, 'Write configuration settings', '.', '*.ini')
+    dialog.setDefaultSuffix('ini')
+    dialog.setAcceptMode(QFileDialog.AcceptSave)
+    dialog.setOptions(QFileDialog.DontConfirmOverwrite)
+    if dialog.exec_() == QDialog.Accepted:
+      name = dialog.selectedFiles()
+      settings = QSettings(name[0], QSettings.IniFormat)
+      self.write_cfg_settings(settings)
 
   def read_cfg(self):
-    name = QFileDialog.getOpenFileName(self, 'Read configuration settings', '.', '*.ini')
-    settings = QSettings(name[0], QSettings.IniFormat)
-    self.read_cfg_settings(settings)
+    dialog = QFileDialog(self, 'Read configuration settings', '.', '*.ini')
+    dialog.setDefaultSuffix('ini')
+    dialog.setAcceptMode(QFileDialog.AcceptOpen)
+    if dialog.exec_() == QDialog.Accepted:
+      name = dialog.selectedFiles()
+      settings = QSettings(name[0], QSettings.IniFormat)
+      self.read_cfg_settings(settings)
 
   def write_cfg_settings(self, settings):
+    settings.setValue('addr', self.addrValue.text())
     settings.setValue('start', self.startValue.value())
     settings.setValue('stop', self.stopValue.value())
     size = self.sizeValue.value()
@@ -323,6 +333,7 @@ class VNA(QMainWindow, Ui_VNA):
       settings.setValue('dut_imag_%d' % i, float(self.dut.imag[i]))
 
   def read_cfg_settings(self, settings):
+    self.addrValue.setText(settings.value('addr', '192.168.1.100'))
     self.startValue.setValue(settings.value('start', 100, type = int))
     self.stopValue.setValue(settings.value('stop', 60000, type = int))
     size = settings.value('size', 600, type = int)
@@ -345,14 +356,19 @@ class VNA(QMainWindow, Ui_VNA):
       self.dut[i] = real + 1.0j * imag
 
   def write_s1p(self):
-    name = QFileDialog.getSaveFileName(self, 'Write s1p file', '.', '*.s1p')
-    fh = open(name[0], 'w')
-    gamma = self.gamma()
-    size = self.sizeValue.value()
-    fh.write('# GHz S MA R 50\n')
-    for i in range(0, size):
-      fh.write('0.0%.8d   %8.6f %7.2f\n' % (self.xaxis[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
-    fh.close()
+    dialog = QFileDialog(self, 'Write s1p file', '.', '*.s1p')
+    dialog.setDefaultSuffix('s1p')
+    dialog.setAcceptMode(QFileDialog.AcceptSave)
+    dialog.setOptions(QFileDialog.DontConfirmOverwrite)
+    if dialog.exec_() == QDialog.Accepted:
+      name = dialog.selectedFiles()
+      fh = open(name[0], 'w')
+      gamma = self.gamma()
+      size = self.sizeValue.value()
+      fh.write('# GHz S MA R 50\n')
+      for i in range(0, size):
+        fh.write('0.0%.8d   %8.6f %7.2f\n' % (self.xaxis[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
+      fh.close()
 
 app = QApplication(sys.argv)
 window = VNA()
