@@ -64,14 +64,11 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 # DAC
 
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.2 pll_0 {
-  PRIMITIVE PLL
+cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
   CLKOUT1_USED true
-  CLKOUT2_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 125.0
-  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT1_REQUESTED_OUT_FREQ 250.0
 } {
   clk_in1 adc_0/adc_clk
 }
@@ -88,14 +85,14 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M00_TDATA_REMAP {tdata[15:0]}
   M01_TDATA_REMAP {tdata[15:0]}
 } {
-  aclk pll_0/clk_out1
+  aclk adc_0/adc_clk
   aresetn const_0/dout
 }
 
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
-  aclk pll_0/clk_out1
-  ddr_clk pll_0/clk_out2
+  aclk adc_0/adc_clk
+  ddr_clk pll_0/clk_out1
   locked pll_0/locked
   dac_clk dac_clk_o
   dac_rst dac_rst_o
@@ -175,7 +172,7 @@ module rx_0 {
   fifo_0/s_axis_aclk adc_0/adc_clk
   fifo_0/s_axis_aresetn const_0/dout
   fifo_1/S_AXIS bcast_0/M01_AXIS
-  fifo_1/s_axis_aclk pll_0/clk_out1
+  fifo_1/s_axis_aclk adc_0/adc_clk
   fifo_1/s_axis_aresetn const_0/dout
 }
 
@@ -202,7 +199,7 @@ module tx_0 {
   slice_1/Din cfg_slice_1/Dout
   slice_2/Din cfg_slice_1/Dout
   fifo_1/M_AXIS bcast_0/S_AXIS
-  fifo_1/m_axis_aclk pll_0/clk_out1
+  fifo_1/m_axis_aclk adc_0/adc_clk
   fifo_1/m_axis_aresetn const_0/dout
 }
 

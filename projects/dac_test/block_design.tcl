@@ -1,14 +1,11 @@
 source projects/packetizer_test/block_design.tcl
 
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.2 pll_0 {
-  PRIMITIVE PLL
+cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
   CLKOUT1_USED true
-  CLKOUT2_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 125.0
-  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT1_REQUESTED_OUT_FREQ 250.0
 } {
   clk_in1 adc_0/adc_clk
 }
@@ -22,13 +19,13 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   HAS_PHASE_OUT false
   OUTPUT_FREQUENCY1 0.9765625
 } {
-  aclk pll_0/clk_out1
+  aclk adc_0/adc_clk
 }
 
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
-  aclk pll_0/clk_out1
-  ddr_clk pll_0/clk_out2
+  aclk adc_0/adc_clk
+  ddr_clk pll_0/clk_out1
   locked pll_0/locked
   S_AXIS dds_0/M_AXIS_DATA
   dac_clk dac_clk_o

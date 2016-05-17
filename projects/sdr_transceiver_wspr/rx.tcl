@@ -353,7 +353,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_8 {
 for {set i 0} {$i <= 7} {incr i} {
 
   # Create fifo_generator
-  cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_$i {
+  cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_$i {
     PERFORMANCE_OPTIONS First_Word_Fall_Through
     INPUT_DATA_WIDTH 64
     INPUT_DEPTH 512

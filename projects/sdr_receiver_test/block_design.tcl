@@ -182,14 +182,11 @@ cell xilinx.com:ip:cordic:6.0 cordic_test {
 }
 
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.2 pll_test {
-  PRIMITIVE PLL
+cell xilinx.com:ip:clk_wiz:5.3 pll_test {
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
   CLKOUT1_USED true
-  CLKOUT2_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 125.0
-  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT1_REQUESTED_OUT_FREQ 250.0
 } {
   clk_in1 adc_0/adc_clk
 }
@@ -199,14 +196,14 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_test {} {
   S_AXIS cordic_test/M_AXIS_DOUT
   s_axis_aclk ps_0/FCLK_CLK0
   s_axis_aresetn slice_1/Dout
-  m_axis_aclk pll_test/clk_out1
+  m_axis_aclk adc_0/adc_clk
   m_axis_aresetn const_0/dout
 }
 
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_test {} {
-  aclk pll_test/clk_out1
-  ddr_clk pll_test/clk_out2
+  aclk adc_0/adc_clk
+  ddr_clk pll_0/clk_out1
   locked pll_test/locked
   S_AXIS fifo_test/M_AXIS
   dac_clk dac_clk_o

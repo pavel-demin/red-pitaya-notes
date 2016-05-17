@@ -265,7 +265,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 256
   INPUT_DEPTH 1024
