@@ -54,50 +54,12 @@ RF and GPIO connections
 
 ALEX connections
 -----
-The [ALEX module](http://openhpsdr.org/alex.php) can be connected to the pins DIO4_N (Serial Data), DIO5_N (Clock), DIO6_N (RX Board Load Strobe) and DIO7_N (TX Board Load Strobe) of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1).
+The [ALEX module](http://openhpsdr.org/alex.php) can be connected to the pins DIO4_N (Serial Data), DIO5_N (Clock), DIO6_N (RX Strobe) and DIO7_N (TX Strobe) of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1).
 The board and the protocol are described in the [ALEX manual](http://www.tapr.org/pdf/ALEX_Manual_V1_0.pdf).
 
-HPSDR signals sent to the [TPIC6B595](http://www.ti.com/product/TPIC6B595) chips on the RX board:
+The HPSDR signals sent to the [TPIC6B595](http://www.ti.com/product/TPIC6B595) chips are shown on the following diagram:
 
-RX board pins | HPSDR signals
-------------- | -------------
-00            | Red LED
-01            | 10dB Attenuator
-02            | 20dB Attenuator
-03            | Bypass
-04            | RX 1 Out
-05            | RX 1 In
-06            | RX 2 In
-07            | XVTR RX In
-10            | N.C.
-11            | 1.5MHz HPF
-12            | 6.5MHz HPF
-13            | 9.5MHz HPF
-14            | 6M Preamp
-15            | 20MHz HPF
-16            | 13MHz HPF
-17            | Yellow LED
-
-HPSDR signals sent to the [TPIC6B595](http://www.ti.com/product/TPIC6B595) chips on the TX board:
-
-TX board pins | HPSDR signals
-------------- | -------------
-00            | 17/15m LPF
-01            | 12/10m LPF
-02            | 6m LPF (Bypass)
-03            | Red LED
-04            | T/R Relay (0 = RX, 1 = TX)
-05            | TX 3
-06            | TX 2
-07            | TX 1
-10            | 160m LPF
-11            | 80m LPF
-12            | 60/40m LPF
-13            | 30/20m LPF
-14            | Yellow LED
-15            | N.C.
-16            | N.C.
-17            | N.C.
+![SDR transceiver compatible with HPSDR]({{ "/img/sdr-transceiver-hpsdr-alex-interface.png" | prepend: site.baseurl }})
 
 I2C connections
 -----
@@ -184,8 +146,8 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2015.4/settings64.sh
-source /opt/Xilinx/SDK/2015.4/settings64.sh
+source /opt/Xilinx/Vivado/2016.1/settings64.sh
+source /opt/Xilinx/SDK/2016.1/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
