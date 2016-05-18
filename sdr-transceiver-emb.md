@@ -12,16 +12,16 @@ This version of the Red Pitaya SDR transceiver may be useful for building a smal
 Hardware
 -----
 
-The structure of this version is very similar to the SDR transceiver described at [this link]({{ "/sdr-transceiver/" | prepend: site.baseurl }}). The two main differences are:
+The structure of this version is very similar to the SDR transceiver described at [this link]({{ "/sdr-transceiver-hpsdr/" | prepend: site.baseurl }}). The two main differences are:
 
- - FIR filters for fractional sample rate conversion,
- - lower sample rates (24, 48, 96 kSPS).
+ - lower sample rates (24, 48, 96 kSPS),
+ - fewer FIR filters.
 
 The basic blocks of the digital down-converters (DDC) and of the digital up-converters (DUC) are shown on the following diagram:
 
 ![Embedded SDR transceiver]({{ "/img/sdr-transceiver-emb.png" | prepend: site.baseurl }})
 
-The [projects/sdr_transceiver_emb](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb) directory contains four Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/block_design.tcl), [trx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/trx.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/sdr_transceiver_emb](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
 Software
 -----
@@ -70,8 +70,8 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2015.4/settings64.sh
-source /opt/Xilinx/SDK/2015.4/settings64.sh
+source /opt/Xilinx/Vivado/2016.1/settings64.sh
+source /opt/Xilinx/SDK/2016.1/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
