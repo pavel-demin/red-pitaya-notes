@@ -6,7 +6,7 @@ test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/0.9
 
 unzip -d ${ecosystem}-vna ${ecosystem}.zip
 
-arm-xilinx-linux-gnueabi-gcc -static projects/vna/server/vna.c -lm -o ${ecosystem}-vna/bin/vna
+arm-xilinx-linux-gnueabi-gcc -static projects/vna/server/vna.c -lm -lpthread -o ${ecosystem}-vna/bin/vna
 cp boot.bin devicetree.dtb uImage tmp/vna.bit ${ecosystem}-vna
 
 cat <<- EOF_CAT > ${ecosystem}-vna/uEnv.txt

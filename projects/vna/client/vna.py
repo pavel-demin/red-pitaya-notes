@@ -18,6 +18,7 @@
 
 import sys
 import struct
+import warnings
 
 import numpy as np
 
@@ -31,14 +32,14 @@ import smithplot
 from PyQt5.uic import loadUiType
 from PyQt5.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
 from PyQt5.QtGui import QRegExpValidator
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QDialog, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QDialog, QFileDialog, QProgressDialog
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_VNA, QMainWindow = loadUiType('vna.ui')
 
 class VNA(QMainWindow, Ui_VNA):
 
-  max_size = 16383
+  max_size = 16384
 
   formatter = matplotlib.ticker.FuncFormatter(lambda x, pos: '%1.1fM' % (x * 1e-6) if abs(x) >= 1e6 else '%1.1fk' % (x * 1e-3) if abs(x) >= 1e3 else '%1.1f' % x if abs(x) >= 1e0 else '%1.1fm' % (x * 1e+3) if abs(x) >= 1e-3 else '%1.1fu' % (x * 1e+6) if abs(x) >= 1e-6 else '%1.1f' % x)
 
@@ -48,13 +49,14 @@ class VNA(QMainWindow, Ui_VNA):
     # IP address validator
     rx = QRegExp('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
     self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
-    # state variable
+    # state variables
     self.idle = True
+    self.reading = False
     # sweep parameters
     self.sweep_start = 100
     self.sweep_stop = 60000
-    self.sweep_size = 600
-    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
+    self.sweep_size = 601
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size - 1, retstep = True)
     self.xaxis *= 1000
     # buffer and offset for the incoming samples
     self.buffer = bytearray(32 * VNA.max_size)
@@ -122,7 +124,6 @@ class VNA(QMainWindow, Ui_VNA):
   def stop(self):
     self.idle = True
     self.socket.abort()
-    self.offset = 0
     self.connectButton.setText('Connect')
     self.connectButton.setEnabled(True)
     self.sweepFrame.setEnabled(False)
@@ -144,20 +145,24 @@ class VNA(QMainWindow, Ui_VNA):
     self.dutSweep.setEnabled(True)
 
   def read_data(self):
+    if not self.reading:
+      self.socket.readAll()
+      return
     size = self.socket.bytesAvailable()
+    self.progress.setValue((self.offset + size) / 32)
     if self.offset + size < 32 * self.sweep_size:
       self.buffer[self.offset:self.offset + size] = self.socket.read(size)
       self.offset += size
     else:
       self.buffer[self.offset:32 * self.sweep_size] = self.socket.read(32 * self.sweep_size - self.offset)
-      self.offset = 0
       self.adc1 = self.data[0::4]
       self.adc2 = self.data[1::4]
       self.dac1 = self.data[2::4]
-      getattr(self, self.mode)[0:self.sweep_size] = self.adc1[0:self.sweep_size] / self.dac1[0:self.sweep_size]
+      getattr(self, self.mode)[0:self.sweep_size - 1] = self.adc1[1:self.sweep_size] / self.dac1[1:self.sweep_size]
+      getattr(self, 'plot_%s' % self.mode)()
+      self.reading = False
       self.sweepFrame.setEnabled(True)
       self.selectFrame.setEnabled(True)
-      getattr(self, 'plot_%s' % self.mode)()
 
   def display_error(self, socketError):
     self.startTimer.stop()
@@ -169,21 +174,21 @@ class VNA(QMainWindow, Ui_VNA):
 
   def set_start(self, value):
     self.sweep_start = value
-    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size - 1, retstep = True)
     self.xaxis *= 1000
     if self.idle: return
     self.socket.write(struct.pack('<I', 0<<28 | int(value * 1000)))
 
   def set_stop(self, value):
     self.sweep_stop = value
-    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size - 1, retstep = True)
     self.xaxis *= 1000
     if self.idle: return
     self.socket.write(struct.pack('<I', 1<<28 | int(value * 1000)))
 
   def set_size(self, value):
-    self.sweep_size = value
-    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
+    self.sweep_size = value + 1
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size - 1, retstep = True)
     self.xaxis *= 1000
     if self.idle: return
     self.socket.write(struct.pack('<I', 2<<28 | int(value)))
@@ -193,6 +198,19 @@ class VNA(QMainWindow, Ui_VNA):
     self.sweepFrame.setEnabled(False)
     self.selectFrame.setEnabled(False)
     self.socket.write(struct.pack('<I', 3<<28))
+    self.offset = 0
+    self.reading = True
+    self.progress = QProgressDialog('Sweep status', 'Cancel', 0, self.sweep_size)
+    self.progress.setModal(True)
+    self.progress.setMinimumDuration(1000)
+    self.progress.canceled.connect(self.cancel)
+
+  def cancel(self):
+    self.offset = 0
+    self.reading = False
+    self.socket.write(struct.pack('<I', 4<<28))
+    self.sweepFrame.setEnabled(True)
+    self.selectFrame.setEnabled(True)
 
   def sweep_open(self):
     self.mode = 'open'
@@ -211,10 +229,16 @@ class VNA(QMainWindow, Ui_VNA):
     self.sweep()
 
   def impedance(self):
-    return 50.0 * (self.open[0:self.sweep_size] - self.load[0:self.sweep_size]) * (self.dut[0:self.sweep_size] - self.short[0:self.sweep_size]) / ((self.load[0:self.sweep_size] - self.short[0:self.sweep_size]) * (self.open[0:self.sweep_size] - self.dut[0:self.sweep_size]))
+    size = self.sweep_size - 1
+    with warnings.catch_warnings():
+      warnings.simplefilter('ignore')
+      result = 50.0 * (self.open[0:size] - self.load[0:size]) * (self.dut[0:size] - self.short[0:size]) / ((self.load[0:size] - self.short[0:size]) * (self.open[0:size] - self.dut[0:size]))
+    return result
 
   def gamma(self):
     z = self.impedance()
+    with warnings.catch_warnings():
+      warnings.simplefilter('ignore')
     return (z - 50.0)/(z + 50.0)
 
   def plot_magphase(self, data):
@@ -240,16 +264,16 @@ class VNA(QMainWindow, Ui_VNA):
     self.canvas.draw()
 
   def plot_open(self):
-    self.plot_magphase(self.open[0:self.sweep_size])
+    self.plot_magphase(self.open[0:self.sweep_size - 1])
 
   def plot_short(self):
-    self.plot_magphase(self.short[0:self.sweep_size])
+    self.plot_magphase(self.short[0:self.sweep_size - 1])
 
   def plot_load(self):
-    self.plot_magphase(self.load[0:self.sweep_size])
+    self.plot_magphase(self.load[0:self.sweep_size - 1])
 
   def plot_dut(self):
-    self.plot_magphase(self.dut[0:self.sweep_size])
+    self.plot_magphase(self.dut[0:self.sweep_size - 1])
 
   def plot_smith(self):
     matplotlib.rcdefaults()
@@ -299,7 +323,7 @@ class VNA(QMainWindow, Ui_VNA):
     dialog.setDefaultSuffix('ini')
     dialog.setAcceptMode(QFileDialog.AcceptSave)
     dialog.setOptions(QFileDialog.DontConfirmOverwrite)
-    if dialog.exec_() == QDialog.Accepted:
+    if dialog.exec() == QDialog.Accepted:
       name = dialog.selectedFiles()
       settings = QSettings(name[0], QSettings.IniFormat)
       self.write_cfg_settings(settings)
@@ -308,7 +332,7 @@ class VNA(QMainWindow, Ui_VNA):
     dialog = QFileDialog(self, 'Read configuration settings', '.', '*.ini')
     dialog.setDefaultSuffix('ini')
     dialog.setAcceptMode(QFileDialog.AcceptOpen)
-    if dialog.exec_() == QDialog.Accepted:
+    if dialog.exec() == QDialog.Accepted:
       name = dialog.selectedFiles()
       settings = QSettings(name[0], QSettings.IniFormat)
       self.read_cfg_settings(settings)
@@ -360,7 +384,7 @@ class VNA(QMainWindow, Ui_VNA):
     dialog.setDefaultSuffix('s1p')
     dialog.setAcceptMode(QFileDialog.AcceptSave)
     dialog.setOptions(QFileDialog.DontConfirmOverwrite)
-    if dialog.exec_() == QDialog.Accepted:
+    if dialog.exec() == QDialog.Accepted:
       name = dialog.selectedFiles()
       fh = open(name[0], 'w')
       gamma = self.gamma()
@@ -373,4 +397,4 @@ class VNA(QMainWindow, Ui_VNA):
 app = QApplication(sys.argv)
 window = VNA()
 window.show()
-sys.exit(app.exec_())
+sys.exit(app.exec())

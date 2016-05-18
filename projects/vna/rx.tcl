@@ -10,6 +10,11 @@ cell xilinx.com:ip:xlslice:1.0 slice_1 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
+  DIN_WIDTH 96 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_3 {
   DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 }
 
@@ -55,7 +60,7 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_1 {
 } {
   S_AXIS writer_0/M_AXIS
   s_axis_aclk /ps_0/FCLK_CLK0
-  s_axis_aresetn /rst_0/peripheral_aresetn
+  s_axis_aresetn slice_1/Dout
 }
 
 # Create axis_interpolator
@@ -64,7 +69,7 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   CNTR_WIDTH 32
 } {
   S_AXIS fifo_1/M_AXIS
-  cfg_data slice_2/Dout
+  cfg_data slice_3/Dout
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
@@ -275,7 +280,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   READ_DATA_COUNT_WIDTH 14
 } {
   clk /ps_0/FCLK_CLK0
-  srst slice_1/Dout
+  srst slice_2/Dout
 }
 
 # Create axis_fifo
