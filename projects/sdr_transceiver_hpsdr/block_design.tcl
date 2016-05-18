@@ -106,7 +106,7 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 288
+  CFG_DATA_WIDTH 224
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -121,7 +121,7 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 288 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+  DIN_WIDTH 224 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
   Dout exp_p_tri_io
@@ -198,14 +198,14 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 288 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+  DIN_WIDTH 224 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 288 DIN_FROM 191 DIN_TO 32 DOUT_WIDTH 160
+  DIN_WIDTH 224 DIN_FROM 191 DIN_TO 32 DOUT_WIDTH 160
 } {
   Din cfg_0/cfg_data
 }
@@ -214,12 +214,11 @@ module rx_0 {
   source projects/sdr_transceiver_hpsdr/rx.tcl
 } {
   slice_0/Din rst_slice_0/Dout
-  slice_1/Din rst_slice_0/Dout
+  slice_1/Din cfg_slice_0/Dout
   slice_2/Din cfg_slice_0/Dout
   slice_3/Din cfg_slice_0/Dout
   slice_4/Din cfg_slice_0/Dout
   slice_5/Din cfg_slice_0/Dout
-  slice_6/Din cfg_slice_0/Dout
   fifo_0/S_AXIS comb_0/M_AXIS
   fifo_0/s_axis_aclk adc_0/adc_clk
   fifo_0/s_axis_aresetn const_0/dout
@@ -228,8 +227,15 @@ module rx_0 {
 # TX 0
 
 # Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
+  DIN_WIDTH 224 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 288 DIN_FROM 287 DIN_TO 192 DOUT_WIDTH 96
+  DIN_WIDTH 224 DIN_FROM 223 DIN_TO 192 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
@@ -237,12 +243,8 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
 module tx_0 {
   source projects/sdr_transceiver_hpsdr/tx.tcl
 } {
-  slice_0/Din rst_slice_0/Dout
-  slice_1/Din rst_slice_0/Dout
-  slice_2/Din rst_slice_0/Dout
-  slice_3/Din cfg_slice_1/Dout
-  slice_4/Din cfg_slice_1/Dout
-  slice_5/Din cfg_slice_0/Dout
+  slice_0/Din rst_slice_1/Dout
+  slice_1/Din cfg_slice_1/Dout
   fifo_1/M_AXIS bcast_0/S_AXIS
   fifo_1/m_axis_aclk adc_0/adc_clk
   fifo_1/m_axis_aresetn const_0/dout
@@ -251,7 +253,7 @@ module tx_0 {
 # STS
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_2
+cell xilinx.com:ip:xlconstant:1.1 const_1
 
 # Create dna_reader
 cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
@@ -268,7 +270,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN3_WIDTH 16
   IN4_WIDTH 4
 } {
-  In0 const_2/dout
+  In0 const_1/dout
   In1 dna_0/dna_data
   In2 rx_0/fifo_generator_0/rd_data_count
   In3 tx_0/fifo_generator_0/data_count
