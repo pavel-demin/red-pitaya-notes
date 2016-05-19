@@ -107,8 +107,6 @@ http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/OpenHPSDR_Skins)
 
  - [QUISK](http://james.ahlstrom.name/quisk) with the `hermes/quisk_conf.py` configuration file
 
- - [Ham VNA](http://dxatlas.com/HamVNA) vector network analyzer
-
  - [ghpsdr3-alex](http://napan.ca/ghpsdr3) client-server distributed system
 
  - [openHPSDR Android Application](https://play.google.com/store/apps/details?id=org.g0orx.openhpsdr) that is described in more details at [this link](http://g0orx.blogspot.be/2015/01/openhpsdr-android-application.html)

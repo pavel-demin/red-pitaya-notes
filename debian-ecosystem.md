@@ -15,7 +15,7 @@ The Red Pitaya web server and the Red Pitaya SDK are by default built for the AR
 
 I've put together a bootable SD card image for the Red Pitaya board containing the following:
 
- - Linux 4.0.0-xilinx
+ - Linux 4.4.0-xilinx
  - Debian 8.2 (armel)
  - Development tools (GCC 4.9.2, make)
  - Wi-Fi drivers for MediaTek/Ralink and Realtek chipsets
@@ -75,8 +75,8 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2015.4/settings64.sh
-source /opt/Xilinx/SDK/2015.4/settings64.sh
+source /opt/Xilinx/Vivado/2016.1/settings64.sh
+source /opt/Xilinx/SDK/2016.1/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:

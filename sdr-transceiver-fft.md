@@ -40,8 +40,8 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2015.4/settings64.sh
-source /opt/Xilinx/SDK/2015.4/settings64.sh
+source /opt/Xilinx/Vivado/2016.1/settings64.sh
+source /opt/Xilinx/SDK/2016.1/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
