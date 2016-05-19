@@ -97,8 +97,12 @@ sed -i '/uname -i/s/ -i/ -m/' xsetup
 ./xsetup
 {% endhighlight %}
 
-- Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page
-  (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2016_1/ug973-vivado-release-notes-install-license.pdf))
+- Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2016_1/ug973-vivado-release-notes-install-license.pdf))
+
+- Vivado 2016.1 comes bundled with `arm-linux-gnueabihf-gcc` (4.9.2, Linaro 2014.09, pre-release) that interferes with the `gcc` versions available from the Debian and Ubuntu repositories. The following command deactivates this `arm-linux-gnueabihf-gcc`:
+{% highlight bash %}
+mv /opt/Xilinx/SDK/2016.1/gnu/aarch32 /opt/Xilinx/SDK/2016.1/gnu/aarch32_dont_use
+{% endhighlight %}
 
 - Xilinx SDK requires `gmake` that is unavailable on Ubuntu and Debian. The following command creates a symbolic link called `gmake` and pointing to `make`:
 {% highlight bash %}
