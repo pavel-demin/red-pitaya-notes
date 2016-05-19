@@ -55,8 +55,8 @@ class VNA(QMainWindow, Ui_VNA):
     # sweep parameters
     self.sweep_start = 100
     self.sweep_stop = 60000
-    self.sweep_size = 601
-    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size - 1, retstep = True)
+    self.sweep_size = 600
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
     self.xaxis *= 1000
     # buffer and offset for the incoming samples
     self.buffer = bytearray(32 * VNA.max_size)
@@ -150,15 +150,16 @@ class VNA(QMainWindow, Ui_VNA):
       return
     size = self.socket.bytesAvailable()
     self.progress.setValue((self.offset + size) / 32)
-    if self.offset + size < 32 * self.sweep_size:
+    limit = 32 * (self.sweep_size + 1)
+    if self.offset + size < limit:
       self.buffer[self.offset:self.offset + size] = self.socket.read(size)
       self.offset += size
     else:
-      self.buffer[self.offset:32 * self.sweep_size] = self.socket.read(32 * self.sweep_size - self.offset)
+      self.buffer[self.offset:limit] = self.socket.read(limit - self.offset)
       self.adc1 = self.data[0::4]
       self.adc2 = self.data[1::4]
       self.dac1 = self.data[2::4]
-      getattr(self, self.mode)[0:self.sweep_size - 1] = self.adc1[1:self.sweep_size] / self.dac1[1:self.sweep_size]
+      getattr(self, self.mode)[0:self.sweep_size] = self.adc1[1:self.sweep_size + 1] / self.dac1[1:self.sweep_size + 1]
       getattr(self, 'plot_%s' % self.mode)()
       self.reading = False
       self.sweepFrame.setEnabled(True)
@@ -174,21 +175,21 @@ class VNA(QMainWindow, Ui_VNA):
 
   def set_start(self, value):
     self.sweep_start = value
-    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size - 1, retstep = True)
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
     self.xaxis *= 1000
     if self.idle: return
     self.socket.write(struct.pack('<I', 0<<28 | int(value * 1000)))
 
   def set_stop(self, value):
     self.sweep_stop = value
-    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size - 1, retstep = True)
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
     self.xaxis *= 1000
     if self.idle: return
     self.socket.write(struct.pack('<I', 1<<28 | int(value * 1000)))
 
   def set_size(self, value):
-    self.sweep_size = value + 1
-    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size - 1, retstep = True)
+    self.sweep_size = value
+    self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
     self.xaxis *= 1000
     if self.idle: return
     self.socket.write(struct.pack('<I', 2<<28 | int(value)))
@@ -200,7 +201,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.write(struct.pack('<I', 3<<28))
     self.offset = 0
     self.reading = True
-    self.progress = QProgressDialog('Sweep status', 'Cancel', 0, self.sweep_size)
+    self.progress = QProgressDialog('Sweep status', 'Cancel', 0, self.sweep_size + 1)
     self.progress.setModal(True)
     self.progress.setMinimumDuration(1000)
     self.progress.canceled.connect(self.cancel)
@@ -229,16 +230,11 @@ class VNA(QMainWindow, Ui_VNA):
     self.sweep()
 
   def impedance(self):
-    size = self.sweep_size - 1
-    with warnings.catch_warnings():
-      warnings.simplefilter('ignore')
-      result = 50.0 * (self.open[0:size] - self.load[0:size]) * (self.dut[0:size] - self.short[0:size]) / ((self.load[0:size] - self.short[0:size]) * (self.open[0:size] - self.dut[0:size]))
-    return result
+    size = self.sweep_size
+    return 50.0 * (self.open[0:size] - self.load[0:size]) * (self.dut[0:size] - self.short[0:size]) / ((self.load[0:size] - self.short[0:size]) * (self.open[0:size] - self.dut[0:size]))
 
   def gamma(self):
     z = self.impedance()
-    with warnings.catch_warnings():
-      warnings.simplefilter('ignore')
     return (z - 50.0)/(z + 50.0)
 
   def plot_magphase(self, data):
@@ -264,16 +260,16 @@ class VNA(QMainWindow, Ui_VNA):
     self.canvas.draw()
 
   def plot_open(self):
-    self.plot_magphase(self.open[0:self.sweep_size - 1])
+    self.plot_magphase(self.open[0:self.sweep_size])
 
   def plot_short(self):
-    self.plot_magphase(self.short[0:self.sweep_size - 1])
+    self.plot_magphase(self.short[0:self.sweep_size])
 
   def plot_load(self):
-    self.plot_magphase(self.load[0:self.sweep_size - 1])
+    self.plot_magphase(self.load[0:self.sweep_size])
 
   def plot_dut(self):
-    self.plot_magphase(self.dut[0:self.sweep_size - 1])
+    self.plot_magphase(self.dut[0:self.sweep_size])
 
   def plot_smith(self):
     matplotlib.rcdefaults()
@@ -394,6 +390,7 @@ class VNA(QMainWindow, Ui_VNA):
         fh.write('0.0%.8d   %8.6f %7.2f\n' % (self.xaxis[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
       fh.close()
 
+warnings.filterwarnings('ignore')
 app = QApplication(sys.argv)
 window = VNA()
 window.show()
