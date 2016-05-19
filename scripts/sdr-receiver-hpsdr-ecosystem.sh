@@ -2,7 +2,7 @@ ecosystem=ecosystem-0.92-65-35575ed
 
 rm -rf ${ecosystem}-sdr-receiver-hpsdr
 
-test -f ${ecosystem}.zip || curl -O http://archives.redpitaya.com/devel/${ecosystem}.zip
+test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/0.92/${ecosystem}.zip
 
 unzip -d ${ecosystem}-sdr-receiver-hpsdr ${ecosystem}.zip
 

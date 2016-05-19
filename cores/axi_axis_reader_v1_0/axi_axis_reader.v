@@ -3,7 +3,8 @@
 
 module axi_axis_reader #
 (
-  parameter integer AXI_DATA_WIDTH = 32
+  parameter integer AXI_DATA_WIDTH = 32,
+  parameter integer AXI_ADDR_WIDTH = 32
 )
 (
   // System signals
@@ -11,6 +12,16 @@ module axi_axis_reader #
   input  wire                      aresetn,
 
   // Slave side
+  input  wire [AXI_ADDR_WIDTH-1:0] s_axi_awaddr,  // AXI4-Lite slave: Write address
+  input  wire                      s_axi_awvalid, // AXI4-Lite slave: Write address valid
+  output wire                      s_axi_awready, // AXI4-Lite slave: Write address ready
+  input  wire [AXI_DATA_WIDTH-1:0] s_axi_wdata,   // AXI4-Lite slave: Write data
+  input  wire                      s_axi_wvalid,  // AXI4-Lite slave: Write data valid
+  output wire                      s_axi_wready,  // AXI4-Lite slave: Write data ready
+  output wire [1:0]                s_axi_bresp,   // AXI4-Lite slave: Write response
+  output wire                      s_axi_bvalid,  // AXI4-Lite slave: Write response valid
+  input  wire                      s_axi_bready,  // AXI4-Lite slave: Write response ready
+  input  wire [AXI_ADDR_WIDTH-1:0] s_axi_araddr,  // AXI4-Lite slave: Read address
   input  wire                      s_axi_arvalid, // AXI4-Lite slave: Read address valid
   output wire                      s_axi_arready, // AXI4-Lite slave: Read address ready
   output wire [AXI_DATA_WIDTH-1:0] s_axi_rdata,   // AXI4-Lite slave: Read data

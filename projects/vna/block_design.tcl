@@ -64,8 +64,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 # DAC
 
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.2 pll_0 {
-  PRIMITIVE PLL
+cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
   CLKOUT1_USED true
@@ -140,6 +139,7 @@ module rx_0 {
   slice_0/Din cfg_0/cfg_data
   slice_1/Din cfg_0/cfg_data
   slice_2/Din cfg_0/cfg_data
+  slice_3/Din cfg_0/cfg_data
   fifo_0/S_AXIS comb_0/M_AXIS
   fifo_0/s_axis_aclk adc_0/adc_clk
   fifo_0/s_axis_aresetn const_0/dout
@@ -152,6 +152,7 @@ module tx_0 {
 } {
   slice_0/Din cfg_0/cfg_data
   slice_1/Din cfg_0/cfg_data
+  slice_2/Din cfg_0/cfg_data
   fifo_1/M_AXIS zeroer_0/S_AXIS
   fifo_1/m_axis_aclk adc_0/adc_clk
   fifo_1/m_axis_aresetn const_0/dout

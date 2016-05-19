@@ -18,6 +18,7 @@
 
 import sys
 import struct
+import warnings
 
 import numpy as np
 
@@ -29,16 +30,16 @@ from matplotlib.figure import Figure
 import smithplot
 
 from PyQt5.uic import loadUiType
-from PyQt5.QtCore import QRegExp, QTimer, QSettings, Qt
+from PyQt5.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
 from PyQt5.QtGui import QRegExpValidator
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QDialog, QFileDialog, QProgressDialog
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_VNA, QMainWindow = loadUiType('vna.ui')
 
 class VNA(QMainWindow, Ui_VNA):
 
-  max_size = 16383
+  max_size = 16384
 
   formatter = matplotlib.ticker.FuncFormatter(lambda x, pos: '%1.1fM' % (x * 1e-6) if abs(x) >= 1e6 else '%1.1fk' % (x * 1e-3) if abs(x) >= 1e3 else '%1.1f' % x if abs(x) >= 1e0 else '%1.1fm' % (x * 1e+3) if abs(x) >= 1e-3 else '%1.1fu' % (x * 1e+6) if abs(x) >= 1e-6 else '%1.1f' % x)
 
@@ -48,8 +49,9 @@ class VNA(QMainWindow, Ui_VNA):
     # IP address validator
     rx = QRegExp('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
     self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
-    # state variable
+    # state variables
     self.idle = True
+    self.reading = False
     # sweep parameters
     self.sweep_start = 100
     self.sweep_stop = 60000
@@ -122,7 +124,6 @@ class VNA(QMainWindow, Ui_VNA):
   def stop(self):
     self.idle = True
     self.socket.abort()
-    self.offset = 0
     self.connectButton.setText('Connect')
     self.connectButton.setEnabled(True)
     self.sweepFrame.setEnabled(False)
@@ -144,20 +145,25 @@ class VNA(QMainWindow, Ui_VNA):
     self.dutSweep.setEnabled(True)
 
   def read_data(self):
+    if not self.reading:
+      self.socket.readAll()
+      return
     size = self.socket.bytesAvailable()
-    if self.offset + size < 32 * self.sweep_size:
+    self.progress.setValue((self.offset + size) / 32)
+    limit = 32 * (self.sweep_size + 1)
+    if self.offset + size < limit:
       self.buffer[self.offset:self.offset + size] = self.socket.read(size)
       self.offset += size
     else:
-      self.buffer[self.offset:32 * self.sweep_size] = self.socket.read(32 * self.sweep_size - self.offset)
-      self.offset = 0
+      self.buffer[self.offset:limit] = self.socket.read(limit - self.offset)
       self.adc1 = self.data[0::4]
       self.adc2 = self.data[1::4]
       self.dac1 = self.data[2::4]
-      getattr(self, self.mode)[0:self.sweep_size] = self.adc1[0:self.sweep_size] / self.dac1[0:self.sweep_size]
+      getattr(self, self.mode)[0:self.sweep_size] = self.adc1[1:self.sweep_size + 1] / self.dac1[1:self.sweep_size + 1]
+      getattr(self, 'plot_%s' % self.mode)()
+      self.reading = False
       self.sweepFrame.setEnabled(True)
       self.selectFrame.setEnabled(True)
-      getattr(self, 'plot_%s' % self.mode)()
 
   def display_error(self, socketError):
     self.startTimer.stop()
@@ -193,6 +199,19 @@ class VNA(QMainWindow, Ui_VNA):
     self.sweepFrame.setEnabled(False)
     self.selectFrame.setEnabled(False)
     self.socket.write(struct.pack('<I', 3<<28))
+    self.offset = 0
+    self.reading = True
+    self.progress = QProgressDialog('Sweep status', 'Cancel', 0, self.sweep_size + 1)
+    self.progress.setModal(True)
+    self.progress.setMinimumDuration(1000)
+    self.progress.canceled.connect(self.cancel)
+
+  def cancel(self):
+    self.offset = 0
+    self.reading = False
+    self.socket.write(struct.pack('<I', 4<<28))
+    self.sweepFrame.setEnabled(True)
+    self.selectFrame.setEnabled(True)
 
   def sweep_open(self):
     self.mode = 'open'
@@ -211,7 +230,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.sweep()
 
   def impedance(self):
-    return 50.0 * (self.open[0:self.sweep_size] - self.load[0:self.sweep_size]) * (self.dut[0:self.sweep_size] - self.short[0:self.sweep_size]) / ((self.load[0:self.sweep_size] - self.short[0:self.sweep_size]) * (self.open[0:self.sweep_size] - self.dut[0:self.sweep_size]))
+    size = self.sweep_size
+    return 50.0 * (self.open[0:size] - self.load[0:size]) * (self.dut[0:size] - self.short[0:size]) / ((self.load[0:size] - self.short[0:size]) * (self.open[0:size] - self.dut[0:size]))
 
   def gamma(self):
     z = self.impedance()
@@ -295,16 +315,26 @@ class VNA(QMainWindow, Ui_VNA):
     self.canvas.draw()
 
   def write_cfg(self):
-    name = QFileDialog.getSaveFileName(self, 'Write configuration settings', '.', '*.ini')
-    settings = QSettings(name[0], QSettings.IniFormat)
-    self.write_cfg_settings(settings)
+    dialog = QFileDialog(self, 'Write configuration settings', '.', '*.ini')
+    dialog.setDefaultSuffix('ini')
+    dialog.setAcceptMode(QFileDialog.AcceptSave)
+    dialog.setOptions(QFileDialog.DontConfirmOverwrite)
+    if dialog.exec() == QDialog.Accepted:
+      name = dialog.selectedFiles()
+      settings = QSettings(name[0], QSettings.IniFormat)
+      self.write_cfg_settings(settings)
 
   def read_cfg(self):
-    name = QFileDialog.getOpenFileName(self, 'Read configuration settings', '.', '*.ini')
-    settings = QSettings(name[0], QSettings.IniFormat)
-    self.read_cfg_settings(settings)
+    dialog = QFileDialog(self, 'Read configuration settings', '.', '*.ini')
+    dialog.setDefaultSuffix('ini')
+    dialog.setAcceptMode(QFileDialog.AcceptOpen)
+    if dialog.exec() == QDialog.Accepted:
+      name = dialog.selectedFiles()
+      settings = QSettings(name[0], QSettings.IniFormat)
+      self.read_cfg_settings(settings)
 
   def write_cfg_settings(self, settings):
+    settings.setValue('addr', self.addrValue.text())
     settings.setValue('start', self.startValue.value())
     settings.setValue('stop', self.stopValue.value())
     size = self.sizeValue.value()
@@ -323,6 +353,7 @@ class VNA(QMainWindow, Ui_VNA):
       settings.setValue('dut_imag_%d' % i, float(self.dut.imag[i]))
 
   def read_cfg_settings(self, settings):
+    self.addrValue.setText(settings.value('addr', '192.168.1.100'))
     self.startValue.setValue(settings.value('start', 100, type = int))
     self.stopValue.setValue(settings.value('stop', 60000, type = int))
     size = settings.value('size', 600, type = int)
@@ -345,16 +376,22 @@ class VNA(QMainWindow, Ui_VNA):
       self.dut[i] = real + 1.0j * imag
 
   def write_s1p(self):
-    name = QFileDialog.getSaveFileName(self, 'Write s1p file', '.', '*.s1p')
-    fh = open(name[0], 'w')
-    gamma = self.gamma()
-    size = self.sizeValue.value()
-    fh.write('# GHz S MA R 50\n')
-    for i in range(0, size):
-      fh.write('0.0%.8d   %8.6f %7.2f\n' % (self.xaxis[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
-    fh.close()
+    dialog = QFileDialog(self, 'Write s1p file', '.', '*.s1p')
+    dialog.setDefaultSuffix('s1p')
+    dialog.setAcceptMode(QFileDialog.AcceptSave)
+    dialog.setOptions(QFileDialog.DontConfirmOverwrite)
+    if dialog.exec() == QDialog.Accepted:
+      name = dialog.selectedFiles()
+      fh = open(name[0], 'w')
+      gamma = self.gamma()
+      size = self.sizeValue.value()
+      fh.write('# GHz S MA R 50\n')
+      for i in range(0, size):
+        fh.write('0.0%.8d   %8.6f %7.2f\n' % (self.xaxis[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
+      fh.close()
 
+warnings.filterwarnings('ignore')
 app = QApplication(sys.argv)
 window = VNA()
 window.show()
-sys.exit(app.exec_())
+sys.exit(app.exec())

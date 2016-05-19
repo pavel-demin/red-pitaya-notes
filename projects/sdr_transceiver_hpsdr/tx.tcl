@@ -5,27 +5,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 8 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 0 DOUT_WIDTH 64
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 160 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+  DIN_WIDTH 32 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
 }
 
 # Create axi_axis_writer
@@ -37,7 +17,7 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
   INPUT_DEPTH 16384
@@ -47,7 +27,7 @@ cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
   DATA_COUNT_WIDTH 15
 } {
   clk /ps_0/FCLK_CLK0
-  srst slice_1/Dout
+  srst slice_0/Dout
 }
 
 # Create axis_fifo
@@ -224,25 +204,12 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_keyer
-cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
-  AXIS_TDATA_WIDTH 48
-} {
-  key_flag slice_2/Dout
-  key_data slice_3/Dout
-  S_AXIS comb_0/M_AXIS
-  aclk /ps_0/FCLK_CLK0
-}
-
-# Create axis_variable
-cell pavel-demin:user:axis_variant:1.0 phase_0 {
+# Create axis_constant
+cell pavel-demin:user:axis_constant:1.0 phase_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  cfg_flag slice_2/Dout
-  cfg_data0 slice_4/Dout
-  cfg_data1 slice_5/Dout
+  cfg_data slice_1/Dout
   aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create dds_compiler
@@ -250,17 +217,15 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   DDS_CLOCK_RATE 125
   SPURIOUS_FREE_DYNAMIC_RANGE 138
   FREQUENCY_RESOLUTION 0.2
-  PHASE_INCREMENT Programmable
+  PHASE_INCREMENT Streaming
   HAS_TREADY true
-  HAS_ARESETN true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
   OUTPUT_WIDTH 24
   DSP48_USE Minimal
 } {
-  S_AXIS_CONFIG phase_0/M_AXIS
+  S_AXIS_PHASE phase_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
-  aresetn slice_0/Dout
 }
 
 # Create axis_lfsr
@@ -279,7 +244,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   ROUNDMODE Random_Rounding
   OUTPUTWIDTH 17
 } {
-  S_AXIS_A keyer_0/M_AXIS
+  S_AXIS_A comb_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
   S_AXIS_CTRL lfsr_0/M_AXIS
   aclk /ps_0/FCLK_CLK0

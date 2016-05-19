@@ -5,11 +5,6 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
   DIN_WIDTH 160 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
 }
 
@@ -42,17 +37,16 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 for {set i 0} {$i <= 3} {incr i} {
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 3] {
+  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 2] {
     DIN_WIDTH 160 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32] DOUT_WIDTH 32
   }
 
-  # Create axis_variable
-  cell pavel-demin:user:axis_variable:1.0 phase_$i {
+  # Create axis_constant
+  cell pavel-demin:user:axis_constant:1.0 phase_$i {
     AXIS_TDATA_WIDTH 32
   } {
-    cfg_data slice_[expr $i + 3]/Dout
+    cfg_data slice_[expr $i + 2]/Dout
     aclk /ps_0/FCLK_CLK0
-    aresetn /rst_0/peripheral_aresetn
   }
 
   # Create dds_compiler
@@ -60,20 +54,16 @@ for {set i 0} {$i <= 3} {incr i} {
     DDS_CLOCK_RATE 125
     SPURIOUS_FREE_DYNAMIC_RANGE 138
     FREQUENCY_RESOLUTION 0.2
-    PHASE_INCREMENT Programmable
+    PHASE_INCREMENT Streaming
     HAS_TREADY true
-    HAS_ARESETN true
     HAS_PHASE_OUT false
     PHASE_WIDTH 30
     OUTPUT_WIDTH 24
     DSP48_USE Minimal
     NEGATIVE_SINE true
   } {
-    s_axis_config_tready phase_$i/m_axis_tready
-    s_axis_config_tdata phase_$i/m_axis_tdata
-    s_axis_config_tvalid phase_$i/m_axis_tvalid
+    S_AXIS_PHASE phase_$i/M_AXIS
     aclk /ps_0/FCLK_CLK0
-    aresetn slice_0/Dout
   }
 
   # Create axis_lfsr
@@ -120,7 +110,7 @@ for {set i 0} {$i <= 7} {incr i} {
   cell pavel-demin:user:axis_variable:1.0 rate_$i {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_2/Dout
+    cfg_data slice_1/Dout
     aclk /ps_0/FCLK_CLK0
     aresetn /rst_0/peripheral_aresetn
   }
@@ -306,15 +296,8 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_tagger
-cell pavel-demin:user:axis_tagger:1.0 tagger_0 {} {
-  S_AXIS subset_2/M_AXIS
-  tag_data phase_0/m_axis_tvalid
-  aclk /ps_0/FCLK_CLK0
-}
-
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 256
   INPUT_DEPTH 1024
@@ -324,7 +307,7 @@ cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
   READ_DATA_COUNT_WIDTH 14
 } {
   clk /ps_0/FCLK_CLK0
-  srst slice_1/Dout
+  srst slice_0/Dout
 }
 
 # Create axis_fifo
@@ -332,7 +315,7 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
   S_AXIS_TDATA_WIDTH 256
   M_AXIS_TDATA_WIDTH 32
 } {
-  S_AXIS tagger_0/M_AXIS
+  S_AXIS subset_2/M_AXIS
   FIFO_READ fifo_generator_0/FIFO_READ
   FIFO_WRITE fifo_generator_0/FIFO_WRITE
   aclk /ps_0/FCLK_CLK0

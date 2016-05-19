@@ -64,8 +64,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 # DAC
 
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.2 pll_0 {
-  PRIMITIVE PLL
+cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
   CLKOUT1_USED true

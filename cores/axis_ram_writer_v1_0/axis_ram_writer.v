@@ -32,6 +32,7 @@ module axis_ram_writer #
   output wire                        m_axi_wlast,   // AXI master: Write last
   output wire                        m_axi_wvalid,  // AXI master: Write valid
   input  wire                        m_axi_wready,  // AXI master: Write ready
+  input  wire                        m_axi_bvalid,  // AXI master: Write response valid
   output wire                        m_axi_bready,  // AXI master: Write response ready
 
   // Slave side

@@ -26,7 +26,7 @@
 
 uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex;
 uint16_t *rx_cntr, *tx_cntr;
-uint8_t *gpio_in, *gpio_out, *rst;
+uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
 uint64_t *rx_data;
 void *tx_data;
 
@@ -40,8 +40,6 @@ struct sockaddr_in addr_ep6;
 
 int enable_thread = 0;
 int active_thread = 0;
-
-int vna = 0;
 
 void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
@@ -188,7 +186,8 @@ int main(int argc, char *argv[])
   rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
   tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
 
-  rst = ((uint8_t *)(cfg + 0));
+  rx_rst = ((uint8_t *)(cfg + 0));
+  tx_rst = ((uint8_t *)(cfg + 1));
   gpio_out = ((uint8_t *)(cfg + 2));
 
   rx_rate = ((uint32_t *)(cfg + 4));
@@ -198,15 +197,11 @@ int main(int argc, char *argv[])
   rx_freq[2] = ((uint32_t *)(cfg + 16));
   rx_freq[3] = ((uint32_t *)(cfg + 20));
 
-  tx_freq = ((uint32_t *)(cfg + 32));
+  tx_freq = ((uint32_t *)(cfg + 24));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 14));
   gpio_in = ((uint8_t *)(sts + 16));
-
-  /* set I/Q data for the VNA mode */
-  *((uint64_t *)(cfg + 24)) = 2000000;
-  *rst &= ~8;
 
   /* set all GPIO pins to low */
   *gpio_out = 0;
@@ -223,13 +218,9 @@ int main(int argc, char *argv[])
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
 
-  /* reset dds */
-  *rst &= ~1;
-  *rst |= 1;
-
   /* reset tx fifo */
-  *rst |= 4;
-  *rst &= ~4;
+  *tx_rst |= 1;
+  *tx_rst &= ~1;
 
   if((sock_ep2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
   {
@@ -369,12 +360,6 @@ void process_ep2(uint8_t *frame)
           i2c_write(i2c_fd, 0x02, data);
         }
       }
-      if(vna)
-      {
-        /* reset dds */
-        *rst &= ~1;
-        *rst |= 1;
-      }
       break;
     case 2:
     case 3:
@@ -386,8 +371,7 @@ void process_ep2(uint8_t *frame)
         alex_write();
       }
       if(freq < freq_min || freq > freq_max) break;
-      if(vna) *rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
-      else *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 4:
     case 5:
@@ -429,11 +413,6 @@ void process_ep2(uint8_t *frame)
       break;
     case 18:
     case 19:
-      /* set VNA mode */
-      vna = frame[2] & 128;
-      if(vna) *rst |= 8;
-      else *rst &= ~8;
-
       data = (frame[2] & 0x40) << 9 | frame[4] << 8 | frame[3];
       if(alex_data_4 != data)
       {
@@ -495,8 +474,8 @@ void *handler_ep6(void *arg)
   counter = 0;
 
   /* reset rx fifo */
-  *rst |= 2;
-  *rst &= ~2;
+  *rx_rst |= 1;
+  *rx_rst &= ~1;
 
   while(1)
   {
@@ -509,8 +488,8 @@ void *handler_ep6(void *arg)
     if(*rx_cntr >= 8192)
     {
       /* reset rx fifo */
-      *rst |= 2;
-      *rst &= ~2;
+      *rx_rst |= 1;
+      *rx_rst &= ~1;
     }
 
     while(*rx_cntr < m * n * 16) usleep(1000);

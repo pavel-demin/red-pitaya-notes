@@ -29,9 +29,9 @@ VIVADO = vivado -nolog -nojournal -mode batch
 HSI = hsi -nolog -nojournal -mode batch
 RM = rm -rf
 
-UBOOT_TAG = xilinx-v2015.4
-LINUX_TAG = xilinx-v2015.4
-DTREE_TAG = xilinx-v2015.4
+UBOOT_TAG = xilinx-v2016.1
+LINUX_TAG = xilinx-v2016.1
+DTREE_TAG = xilinx-v2016.1
 
 UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
 LINUX_DIR = tmp/linux-xlnx-$(LINUX_TAG)
@@ -84,7 +84,7 @@ $(UBOOT_DIR): $(UBOOT_TAR)
 $(LINUX_DIR): $(LINUX_TAR) $(RTL_TAR)
 	mkdir -p $@
 	tar -zxf $< --strip-components=1 --directory=$@
-	tar -zxf $(RTL_TAR) --directory=$@/drivers/net/wireless
+	tar -zxf $(RTL_TAR) --directory=$@/drivers/net/wireless/realtek
 	patch -d tmp -p 0 < patches/linux-xlnx-$(LINUX_TAG).patch
 	cp patches/linux-lantiq.c $@/drivers/net/phy/lantiq.c
 

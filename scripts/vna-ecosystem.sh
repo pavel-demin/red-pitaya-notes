@@ -2,11 +2,11 @@ ecosystem=ecosystem-0.92-65-35575ed
 
 rm -rf ${ecosystem}-vna
 
-test -f ${ecosystem}.zip || curl -O http://archives.redpitaya.com/devel/${ecosystem}.zip
+test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/0.92/${ecosystem}.zip
 
 unzip -d ${ecosystem}-vna ${ecosystem}.zip
 
-arm-xilinx-linux-gnueabi-gcc -static projects/vna/server/vna.c -lm -o ${ecosystem}-vna/bin/vna
+arm-xilinx-linux-gnueabi-gcc -static projects/vna/server/vna.c -lm -lpthread -o ${ecosystem}-vna/bin/vna
 cp boot.bin devicetree.dtb uImage tmp/vna.bit ${ecosystem}-vna
 
 cat <<- EOF_CAT > ${ecosystem}-vna/uEnv.txt
