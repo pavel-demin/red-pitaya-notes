@@ -85,7 +85,7 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 Installing Vivado Design Suite
 -----
 
-- Download "Vivado 2016.1: Full Installer for Linux Single File Download Image Including SDK" from the [Xilinx download page](http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2016-1.html) or from [this direct link](https://secure.xilinx.com/webreg/register.do?group=dlc&version=2016.1&akdm=0&filename=Xilinx_Vivado_SDK_2016.1_0409_1.tar.gz) (the file name is Xilinx_Vivado_SDK_2016.1_0409_1.tar.gz)
+- Download "Vivado HLx 2016.1: All OS Installer Single-File Download" from the [Xilinx download page](http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2016-1.html) or from [this direct link](https://secure.xilinx.com/webreg/register.do?group=dlc&version=2016.1&akdm=0&filename=Xilinx_Vivado_SDK_2016.1_0409_1.tar.gz) (the file name is Xilinx_Vivado_SDK_2016.1_0409_1.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
