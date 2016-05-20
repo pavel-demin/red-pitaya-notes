@@ -3,12 +3,14 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-ecosystem_tar=red-pitaya-ecosystem-0.92-20150527.tgz
+ecosystem_tar=red-pitaya-ecosystem-0.95-20160520.tgz
 ecosystem_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/$ecosystem_tar
 
 mirror=http://ftp.heanet.ie/pub/debian
 distro=jessie
-arch=armel
+arch=armhf
+
+hostapd_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/rtl8192cu/hostapd-$arch
 
 passwd=changeme
 timezone=Europe/Brussels
@@ -49,10 +51,19 @@ cp /usr/bin/qemu-arm-static $root_dir/usr/bin/
 
 cp patches/fw_env.config $root_dir/etc/
 
+mkdir -p $root_dir/usr/local/bin
+cp fw_printenv $root_dir/usr/local/bin/fw_printenv
+cp fw_printenv $root_dir/usr/local/bin/fw_setenv
+
+mkdir -p $root_dir/usr/local/sbin
+curl -L $hostapd_url -o $root_dir/usr/local/sbin/hostapd
+chmod +x $root_dir/usr/local/sbin/hostapd
+
 test -f $ecosystem_tar || curl -L $ecosystem_url -o $ecosystem_tar
 
-mkdir -p $root_dir/var/log/nginx
-tar -zxf $ecosystem_tar --directory=$root_dir
+mkdir -p $root_dir/var/log/redpitaya_nginx/
+mkdir -p $root_dir/opt
+tar -zxf $ecosystem_tar --directory=$root_dir/opt
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
@@ -108,27 +119,48 @@ apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
-cat <<- EOF_CAT > etc/systemd/system/nginx.service
+cat <<- EOF_CAT > etc/systemd/system/redpitaya_nginx.service
 [Unit]
-Description=A high performance web server and a reverse proxy server
+Description=Customized Nginx web server for Red Pitaya applications
 After=network.target
 
 [Service]
 Type=forking
-PIDFile=/run/nginx.pid
-ExecStart=/opt/sbin/nginx -p /opt/www
-ExecReload=/opt/sbin/nginx -p /opt/www -s reload
-ExecStop=/opt/sbin/nginx -p /opt/www -s quit
+PIDFile=/run/redpitaya_nginx.pid
+Environment=PATH_REDPITAYA=/opt/redpitaya
+Environment=LD_LIBRARY_PATH=/opt/redpitaya/lib
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin:/opt/redpitaya/sbin:/opt/redpitaya/bin
+ExecStart=/opt/redpitaya/sbin/nginx -p \\\$PATH_REDPITAYA/www
+ExecReload=/opt/redpitaya/sbin/nginx -p \\\$PATH_REDPITAYA/www -s reload
+ExecStop=/opt/redpitaya/sbin/nginx -p \\\$PATH_REDPITAYA/www -s quit
 
 [Install]
 WantedBy=multi-user.target
 EOF_CAT
 
-systemctl enable nginx
+cat <<- EOF_CAT > etc/systemd/system/redpitaya_scpi.service
+[Unit]
+Description=SCPI server for Red Pitaya
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+Environment=PATH_REDPITAYA=/opt/redpitaya
+Environment=LD_LIBRARY_PATH=/opt/redpitaya/lib
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin:/opt/redpitaya/sbin:/opt/redpitaya/bin
+ExecStart=/opt/redpitaya/bin/scpi-server
+ExecStop=/bin/kill -15 \\\$MAINPID
+
+[Install]
+WantedBy=multi-user.target
+EOF_CAT
+
+systemctl enable redpitaya_nginx
 
 cat <<- EOF_CAT > etc/profile.d/red-pitaya.sh
-export PATH=\\\$PATH:/opt/bin
-export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:/opt/lib
+export PATH=\\\$PATH:/opt/redpitaya/bin
+export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:/opt/redpitaya/lib
 EOF_CAT
 
 touch etc/udev/rules.d/75-persistent-net-generator.rules
@@ -185,7 +217,7 @@ then
     DAEMON_SBIN=/usr/sbin/hostapd
   else
     sed -i '/^driver/s/=.*/=rtl871xdrv/' /etc/hostapd/hostapd.conf
-    DAEMON_SBIN=/opt/sbin/hostapd
+    DAEMON_SBIN=/usr/local/sbin/hostapd
   fi
   echo \\\$DAEMON_SBIN > /run/hostapd.which
 elif [ "\\\$1" = "stop" ]
