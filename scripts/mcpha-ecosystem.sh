@@ -1,41 +1,29 @@
-ecosystem=ecosystem-0.92-65-35575ed
+ecosystem=ecosystem-0.95-1-6deb253
 
 rm -rf ${ecosystem}-mcpha
 
-test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/0.92/${ecosystem}.zip
+test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/${ecosystem}.zip
 
 unzip -d ${ecosystem}-mcpha ${ecosystem}.zip
 
-arm-xilinx-linux-gnueabi-gcc -static projects/mcpha/server/mcpha-server.c -lm -o ${ecosystem}-mcpha/bin/mcpha-server
-cp boot.bin devicetree.dtb uImage tmp/mcpha.bit ${ecosystem}-mcpha
+arm-linux-gnueabihf-gcc -static projects/mcpha/server/mcpha-server.c -lm -o ${ecosystem}-mcpha/bin/mcpha-server
+cp tmp/mcpha.bit ${ecosystem}-mcpha
 
-cat <<- EOF_CAT > ${ecosystem}-mcpha/uEnv.txt
+rm -f ${ecosystem}-mcpha/u-boot.scr
+cp ${ecosystem}-mcpha/u-boot.scr.buildroot ${ecosystem}-mcpha/u-boot.scr
 
-kernel_image=uImage
+cat <<- EOF_CAT >> ${ecosystem}-mcpha/sbin/discovery.sh
 
-devicetree_image=devicetree.dtb
+# start mcpha server
 
-ramdisk_image=uramdisk.image.gz
+devcfg=/sys/devices/soc0/amba/f8007000.devcfg
+test -d \$devcfg/fclk/fclk0 || echo fclk0 > \$devcfg/fclk_export
+echo 1 > \$devcfg/fclk/fclk0/enable
+echo 143000000 > \$devcfg/fclk/fclk0/set_rate
 
-kernel_load_address=0x2080000
+cat /opt/redpitaya/mcpha.bit > /dev/xdevcfg
 
-devicetree_load_address=0x2000000
-
-ramdisk_load_address=0x4000000
-
-bootcmd=mmcinfo && fatload mmc 0 \${kernel_load_address} \${kernel_image} && fatload mmc 0 \${devicetree_load_address} \${devicetree_image} && load mmc 0 \${ramdisk_load_address} \${ramdisk_image} && bootm \${kernel_load_address} \${ramdisk_load_address} \${devicetree_load_address}
-
-bootargs=console=ttyPS0,115200 root=/dev/ram rw earlyprintk
-
-EOF_CAT
-
-cat <<- EOF_CAT >> ${ecosystem}-mcpha/etc/init.d/rcS
-
-# start MCPHA server
-
-cat /opt/mcpha.bit > /dev/xdevcfg
-
-/opt/bin/mcpha-server &
+/opt/redpitaya/bin/mcpha-server &
 
 EOF_CAT
 

@@ -1,41 +1,29 @@
-ecosystem=ecosystem-0.92-65-35575ed
+ecosystem=ecosystem-0.95-1-6deb253
 
 rm -rf ${ecosystem}-sdr-transceiver-hpsdr
 
-test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/0.92/${ecosystem}.zip
+test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/${ecosystem}.zip
 
 unzip -d ${ecosystem}-sdr-transceiver-hpsdr ${ecosystem}.zip
 
-arm-xilinx-linux-gnueabi-gcc -static projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -D_GNU_SOURCE -lm -lpthread -o ${ecosystem}-sdr-transceiver-hpsdr/bin/sdr-transceiver-hpsdr
-cp boot.bin devicetree.dtb uImage tmp/sdr_transceiver_hpsdr.bit ${ecosystem}-sdr-transceiver-hpsdr
+arm-linux-gnueabihf-gcc -static projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -D_GNU_SOURCE -lm -lpthread -o ${ecosystem}-sdr-transceiver-hpsdr/bin/sdr-transceiver-hpsdr
+cp tmp/sdr_transceiver_hpsdr.bit ${ecosystem}-sdr-transceiver-hpsdr
 
-cat <<- EOF_CAT > ${ecosystem}-sdr-transceiver-hpsdr/uEnv.txt
+rm -f ${ecosystem}-sdr-transceiver-hpsdr/u-boot.scr
+cp ${ecosystem}-sdr-transceiver-hpsdr/u-boot.scr.buildroot ${ecosystem}-sdr-transceiver-hpsdr/u-boot.scr
 
-kernel_image=uImage
-
-devicetree_image=devicetree.dtb
-
-ramdisk_image=uramdisk.image.gz
-
-kernel_load_address=0x2080000
-
-devicetree_load_address=0x2000000
-
-ramdisk_load_address=0x4000000
-
-bootcmd=mmcinfo && fatload mmc 0 \${kernel_load_address} \${kernel_image} && fatload mmc 0 \${devicetree_load_address} \${devicetree_image} && load mmc 0 \${ramdisk_load_address} \${ramdisk_image} && bootm \${kernel_load_address} \${ramdisk_load_address} \${devicetree_load_address}
-
-bootargs=console=ttyPS0,115200 root=/dev/ram rw earlyprintk
-
-EOF_CAT
-
-cat <<- EOF_CAT >> ${ecosystem}-sdr-transceiver-hpsdr/etc/init.d/rcS
+cat <<- EOF_CAT >> ${ecosystem}-sdr-transceiver-hpsdr/sbin/discovery.sh
 
 # start SDR transceiver
 
-cat /opt/sdr_transceiver_hpsdr.bit > /dev/xdevcfg
+devcfg=/sys/devices/soc0/amba/f8007000.devcfg
+test -d \$devcfg/fclk/fclk0 || echo fclk0 > \$devcfg/fclk_export
+echo 1 > \$devcfg/fclk/fclk0/enable
+echo 143000000 > \$devcfg/fclk/fclk0/set_rate
 
-/opt/bin/sdr-transceiver-hpsdr &
+cat /opt/redpitaya/sdr_transceiver_hpsdr.bit > /dev/xdevcfg
+
+/opt/redpitaya/bin/sdr-transceiver-hpsdr &
 
 EOF_CAT
 
