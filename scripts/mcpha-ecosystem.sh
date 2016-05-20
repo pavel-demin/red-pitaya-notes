@@ -1,5 +1,4 @@
 ecosystem=ecosystem-0.95-1-6deb253
-project=mcpha
 
 rm -rf ${ecosystem}-mcpha
 
