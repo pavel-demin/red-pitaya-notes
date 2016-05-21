@@ -115,6 +115,7 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
   iw firmware-realtek firmware-ralink build-essential libluajit-5.1 lua-cjson \
+  libboost-regex1.55.0 libboost-system1.55.0 libboost-thread1.55.0 \
   unzip ifplugd ntfs-3g
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
@@ -130,9 +131,9 @@ PIDFile=/run/redpitaya_nginx.pid
 Environment=PATH_REDPITAYA=/opt/redpitaya
 Environment=LD_LIBRARY_PATH=/opt/redpitaya/lib
 Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin:/opt/redpitaya/sbin:/opt/redpitaya/bin
-ExecStart=/opt/redpitaya/sbin/nginx -p \\\$PATH_REDPITAYA/www
-ExecReload=/opt/redpitaya/sbin/nginx -p \\\$PATH_REDPITAYA/www -s reload
-ExecStop=/opt/redpitaya/sbin/nginx -p \\\$PATH_REDPITAYA/www -s quit
+ExecStart=/opt/redpitaya/sbin/nginx -p \\\${PATH_REDPITAYA}/www
+ExecReload=/opt/redpitaya/sbin/nginx -p \\\${PATH_REDPITAYA}/www -s reload
+ExecStop=/opt/redpitaya/sbin/nginx -p \\\${PATH_REDPITAYA}/www -s quit
 
 [Install]
 WantedBy=multi-user.target
@@ -150,7 +151,7 @@ Environment=PATH_REDPITAYA=/opt/redpitaya
 Environment=LD_LIBRARY_PATH=/opt/redpitaya/lib
 Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin:/opt/redpitaya/sbin:/opt/redpitaya/bin
 ExecStart=/opt/redpitaya/bin/scpi-server
-ExecStop=/bin/kill -15 \\\$MAINPID
+ExecStop=/bin/kill -15 \\\${MAINPID}
 
 [Install]
 WantedBy=multi-user.target
@@ -160,7 +161,6 @@ systemctl enable redpitaya_nginx
 
 cat <<- EOF_CAT > etc/profile.d/red-pitaya.sh
 export PATH=\\\$PATH:/opt/redpitaya/bin
-export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:/opt/redpitaya/lib
 EOF_CAT
 
 touch etc/udev/rules.d/75-persistent-net-generator.rules
