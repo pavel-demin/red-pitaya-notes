@@ -45,8 +45,8 @@ UBOOT_URL = https://github.com/Xilinx/u-boot-xlnx/archive/$(UBOOT_TAG).tar.gz
 LINUX_URL = https://github.com/Xilinx/linux-xlnx/archive/$(LINUX_TAG).tar.gz
 DTREE_URL = https://github.com/Xilinx/device-tree-xlnx/archive/$(DTREE_TAG).tar.gz
 
-LINUX_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp"
-UBOOT_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp"
+LINUX_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
+UBOOT_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 ARMHF_CFLAGS = "-O2 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 
 RTL_TAR = tmp/rtl8192cu.tgz
@@ -97,7 +97,7 @@ uImage: $(LINUX_DIR)
 	make -C $< ARCH=arm xilinx_zynq_defconfig
 	make -C $< ARCH=arm CFLAGS=$(LINUX_CFLAGS) \
 	  -j $(shell nproc 2> /dev/null || echo 1) \
-	  CROSS_COMPILE=arm-xilinx-linux-gnueabi- UIMAGE_LOADADDR=0x8000 uImage
+	  CROSS_COMPILE=arm-linux-gnueabihf- UIMAGE_LOADADDR=0x8000 uImage
 	cp $</arch/arm/boot/uImage $@
 
 tmp/u-boot.elf: $(UBOOT_DIR)
@@ -105,7 +105,7 @@ tmp/u-boot.elf: $(UBOOT_DIR)
 	make -C $< mrproper
 	make -C $< ARCH=arm zynq_red_pitaya_defconfig
 	make -C $< ARCH=arm CFLAGS=$(UBOOT_CFLAGS) \
-	  CROSS_COMPILE=arm-xilinx-linux-gnueabi- all
+	  CROSS_COMPILE=arm-linux-gnueabihf- all
 	cp $</u-boot $@
 
 fw_printenv: $(UBOOT_DIR) tmp/u-boot.elf
