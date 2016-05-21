@@ -3,8 +3,8 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-root_tar=ubuntu-core-14.04.4-core-armhf.tar.gz
-root_url=http://cdimage.ubuntu.com/ubuntu-core/releases/14.04/release/$root_tar
+root_tar=ubuntu-base-14.04.4-core-armhf.tar.gz
+root_url=http://cdimage.ubuntu.com/ubuntu-base/releases/14.04/release/$root_tar
 
 hostapd_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/rtl8192cu/hostapd-armhf
 
