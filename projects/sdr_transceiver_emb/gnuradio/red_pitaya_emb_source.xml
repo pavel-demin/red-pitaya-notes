@@ -5,7 +5,6 @@
   <category>Red Pitaya</category>
   <import>import red_pitaya_emb</import>
   <make>red_pitaya_emb.source(
-        chan=$chan,
         freq=$freq,
         rate=$rate,
         corr=$corr
@@ -13,12 +12,6 @@
   </make>
   <callback>set_freq($freq, $corr)</callback>
   <callback>set_rate($rate)</callback>
-  <param>
-    <name>Channel</name>
-    <key>chan</key>
-    <value>1</value>
-    <type>int</type>
-  </param>
   <param>
     <name>Center Frequency</name>
     <key>freq</key>

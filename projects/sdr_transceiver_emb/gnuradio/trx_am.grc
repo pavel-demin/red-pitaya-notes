@@ -286,10 +286,6 @@
       <value>True</value>
     </param>
     <param>
-      <key>chan</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>freq</key>
       <value>rx_freq</value>
     </param>
@@ -386,10 +382,6 @@
     <param>
       <key>_enabled</key>
       <value>True</value>
-    </param>
-    <param>
-      <key>chan</key>
-      <value>1</value>
     </param>
     <param>
       <key>freq</key>
