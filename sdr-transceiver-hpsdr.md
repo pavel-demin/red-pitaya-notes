@@ -116,7 +116,7 @@ http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/OpenHPSDR_Skins)
 Getting started
 -----
 
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.92-65-35575ed-sdr-transceiver-hpsdr.zip).
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.95-1-6deb253-sdr-transceiver-hpsdr.zip).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install and run one of the HPSDR programs.
@@ -161,12 +161,7 @@ make NAME=sdr_transceiver_hpsdr tmp/sdr_transceiver_hpsdr.bit
 
 Building `sdr-transceiver-hpsdr`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -o sdr-transceiver-hpsdr -D_GNU_SOURCE -lm -lpthread -static
-{% endhighlight %}
-
-Building `boot.bin`, `devicetree.dtb` and `uImage`:
-{% highlight bash %}
-make NAME=red_pitaya_0_92 all
+arm-linux-gnueabihf-gcc projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -o sdr-transceiver-hpsdr -D_GNU_SOURCE -lm -lpthread -static
 {% endhighlight %}
 
 Building SD card image zip file:

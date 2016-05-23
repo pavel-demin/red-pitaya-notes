@@ -50,7 +50,7 @@ Getting started
  - Requirements:
    - Computer running Ubuntu 14.04 or Debian 8.
    - Wired Ethernet connection between the computer and the Red Pitaya board.
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/pulsed_nmr/ecosystem-0.92-65-35575ed-pulsed-nmr.zip).
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/pulsed_nmr/ecosystem-0.95-1-6deb253-pulsed-nmr.zip).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install required Python libraries:
@@ -94,12 +94,7 @@ make NAME=pulsed_nmr tmp/pulsed_nmr.bit
 
 Building `pulsed-nmr`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/pulsed_nmr/server/pulsed-nmr.c -o pulsed-nmr -lm -static
-{% endhighlight %}
-
-Building `boot.bin`, `devicetree.dtb` and `uImage`:
-{% highlight bash %}
-make NAME=red_pitaya_0_92 all
+arm-linux-gnueabihf-gcc projects/pulsed_nmr/server/pulsed-nmr.c -o pulsed-nmr -lm -static
 {% endhighlight %}
 
 Building SD card image zip file:

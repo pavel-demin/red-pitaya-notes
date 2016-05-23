@@ -158,12 +158,7 @@ make NAME=sdr_receiver tmp/sdr_receiver.bit
 
 Building `sdr-receiver`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/sdr_receiver/server/sdr-receiver.c -o sdr-receiver -lm -static
-{% endhighlight %}
-
-Building `boot.bin`, `devicetree.dtb` and `uImage`:
-{% highlight bash %}
-make NAME=red_pitaya_0_92 all
+arm-linux-gnueabihf-gcc projects/sdr_receiver/server/sdr-receiver.c -o sdr-receiver -lm -static
 {% endhighlight %}
 
 Building SD card image zip file:

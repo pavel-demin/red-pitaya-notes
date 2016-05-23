@@ -44,7 +44,7 @@ Getting started with MS Windows
  - Requirements:
    - Computer running MS Windows.
    - Wired Ethernet connection between the computer and the Red Pitaya board.
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/scanner/ecosystem-0.92-65-35575ed-scanner.zip).
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/scanner/ecosystem-0.95-1-6deb253-scanner.zip).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
@@ -69,7 +69,7 @@ Getting started with GNU/Linux
  - Requirements:
    - Computer running Ubuntu 14.04 or Debian 8.
    - Wired Ethernet connection between the computer and the Red Pitaya board.
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/scanner/ecosystem-0.92-65-35575ed-scanner.zip).
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/scanner/ecosystem-0.95-1-6deb253-scanner.zip).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install required Python libraries:
@@ -116,12 +116,7 @@ make NAME=scanner tmp/scanner.bit
 
 Building `scanner`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/scanner/server/scanner.c -o scanner -lm -static
-{% endhighlight %}
-
-Building `boot.bin`, `devicetree.dtb` and `uImage`:
-{% highlight bash %}
-make NAME=red_pitaya_0_92 all
+arm-linux-gnueabihf-gcc projects/scanner/server/scanner.c -o scanner -lm -static
 {% endhighlight %}
 
 Building SD card image zip file:

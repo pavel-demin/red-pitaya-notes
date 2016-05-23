@@ -7,16 +7,10 @@ permalink: /debian-ecosystem/
 Introduction
 -----
 
-The Debian project has recently released a new stable version of its GNU/Linux distribution, Debian 8 Jessie.
-
-One of the nice things about the Debian GNU/Linux distribution is that it supports many different CPU architectures including ARM EABI (armel) and ARM with hardware FPU (armhf).
-
-The Red Pitaya web server and the Red Pitaya SDK are by default built for the ARM EABI (armel) architecture.
-
 I've put together a bootable SD card image for the Red Pitaya board containing the following:
 
  - Linux 4.4.0-xilinx
- - Debian 8.2 (armel)
+ - Debian 8.4 (armhf)
  - Development tools (GCC 4.9.2, make)
  - Wi-Fi drivers for MediaTek/Ralink and Realtek chipsets
  - Wi-Fi access point
@@ -30,7 +24,7 @@ With this SD card image, it's possible to develop and compile C programs directl
 For example, here are the commands to compile all the Red Pitaya SDK examples:
 
 {% highlight bash %}
-cp -a /opt/examples .
+cp -a /opt/redpitaya/examples .
 cd examples
 make
 {% endhighlight %}
@@ -47,7 +41,7 @@ vncserver -geometry 1200x700
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/red-pitaya-ecosystem-0.92-debian-8.2-armel-20160101.zip).
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/red-pitaya-ecosystem-0.95-debian-8.4-armhf-20160522.zip).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
@@ -87,10 +81,10 @@ cd red-pitaya-notes
 
 Building `boot.bin`, `devicetree.dtb` and `uImage`:
 {% highlight bash %}
-make NAME=red_pitaya_0_92 all
+make NAME=led_blinker all
 {% endhighlight %}
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian-ecosystem.sh red-pitaya-ecosystem-0.92-debian-8.2-armel.img 1024
+sudo sh scripts/image.sh scripts/debian-ecosystem.sh red-pitaya-ecosystem-0.95-debian-8.4-armhf.img 1024
 {% endhighlight %}

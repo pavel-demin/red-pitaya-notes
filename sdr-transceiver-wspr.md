@@ -59,7 +59,7 @@ The [transmit-wspr-message.c](https://github.com/pavel-demin/red-pitaya-notes/tr
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/red-pitaya-wspr-debian-8.2-armhf-20160416.zip).
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/red-pitaya-wspr-debian-8.4-armhf-20160522.zip).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
@@ -121,7 +121,7 @@ make NAME=sdr_transceiver_wspr all
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.2-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.4-armhf.img 1024
 {% endhighlight %}
 
 Feedback and results

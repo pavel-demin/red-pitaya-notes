@@ -51,7 +51,7 @@ Getting started with GNU Radio
    - Computer running Ubuntu 14.04 or Debian 8.
    - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.92-65-35575ed-sdr-transceiver.zip).
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.95-1-6deb253-sdr-transceiver.zip).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install [GNU Radio](http://gnuradio.org):
@@ -76,7 +76,7 @@ Getting started with SDR# and HDSDR
    - Computer running MS Windows.
    - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.92-65-35575ed-sdr-transceiver.zip).
+ - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.95-1-6deb253-sdr-transceiver.zip).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [SDR#](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/sdrsharp_v1.0.0.1361_with_plugins.zip) or [HDSDR](http://www.hdsdr.de/).
@@ -113,12 +113,7 @@ make NAME=sdr_transceiver tmp/sdr_transceiver.bit
 
 Building `sdr-transceiver`:
 {% highlight bash %}
-arm-xilinx-linux-gnueabi-gcc projects/sdr_transceiver/server/sdr-transceiver.c -o sdr-transceiver -lm -lpthread -static
-{% endhighlight %}
-
-Building `boot.bin`, `devicetree.dtb` and `uImage`:
-{% highlight bash %}
-make NAME=red_pitaya_0_92 all
+arm-linux-gnueabihf-gcc projects/sdr_transceiver/server/sdr-transceiver.c -o sdr-transceiver -lm -lpthread -static
 {% endhighlight %}
 
 Building SD card image zip file:
