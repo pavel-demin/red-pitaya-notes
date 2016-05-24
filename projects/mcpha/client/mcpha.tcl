@@ -173,13 +173,13 @@ namespace eval ::mcpha {
     ${master}.connect configure -state disabled
 
     set socket [socket -async $host $port]
-    set after [after 5000 [mymethod timeout]]
+    set after [after 5000 [mymethod display_error]]
     fileevent $socket writable [mymethod connected]
   }
 
 # -------------------------------------------------------------------------
 
-  oo::define CfgDisplay method timeout {} {
+  oo::define CfgDisplay method display_error {} {
     my variable master connected host port socket after
 
     set answer [tk_messageBox -icon error -type retrycancel \
@@ -203,13 +203,19 @@ namespace eval ::mcpha {
 
     after cancel $after
     fileevent $socket writable {}
-    fconfigure $socket -translation binary -encoding binary
-    set connected true
 
-    ${master}.connect configure -state active -text Disconnect \
-      -bg yellow -activebackground yellow -command [mymethod disconnect]
+    set result [fconfigure $socket -error]
+    if {[string equal $result {}]} {
+      fconfigure $socket -translation binary -encoding binary
+      set connected true
 
-    my rate_update
+      ${master}.connect configure -state active -text Disconnect \
+        -bg yellow -activebackground yellow -command [mymethod disconnect]
+
+      my rate_update
+    } else {
+      my display_error
+    }
   }
 
 # -------------------------------------------------------------------------
