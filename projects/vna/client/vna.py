@@ -105,6 +105,9 @@ class VNA(QMainWindow, Ui_VNA):
     self.startValue.valueChanged.connect(self.set_start)
     self.stopValue.valueChanged.connect(self.set_stop)
     self.sizeValue.valueChanged.connect(self.set_size)
+    self.rateValue.addItems(['500', '50', '5', '0.5'])
+    self.rateValue.currentIndexChanged.connect(self.set_rate)
+    self.corrValue.valueChanged.connect(self.set_corr)
     self.openPlot.clicked.connect(self.plot_open)
     self.shortPlot.clicked.connect(self.plot_short)
     self.loadPlot.clicked.connect(self.plot_load)
@@ -144,6 +147,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.set_start(self.startValue.value())
     self.set_stop(self.stopValue.value())
     self.set_size(self.sizeValue.value())
+    self.set_rate(self.rateValue.currentIndex())
+    self.set_corr(self.corrValue.value())
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
     self.sweepFrame.setEnabled(True)
@@ -199,11 +204,20 @@ class VNA(QMainWindow, Ui_VNA):
     if self.idle: return
     self.socket.write(struct.pack('<I', 2<<28 | int(value)))
 
+  def set_rate(self, value):
+    if self.idle: return
+    rate = [1, 10, 100, 1000][value]
+    self.socket.write(struct.pack('<I', 3<<28 | int(rate)))
+
+  def set_corr(self, value):
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 4<<28 | int(value)))
+
   def sweep(self):
     if self.idle: return
     self.sweepFrame.setEnabled(False)
     self.selectFrame.setEnabled(False)
-    self.socket.write(struct.pack('<I', 4<<28))
+    self.socket.write(struct.pack('<I', 5<<28))
     self.offset = 0
     self.reading = True
     self.progress = QProgressDialog('Sweep status', 'Cancel', 0, self.sweep_size + 1)
@@ -214,7 +228,7 @@ class VNA(QMainWindow, Ui_VNA):
   def cancel(self):
     self.offset = 0
     self.reading = False
-    self.socket.write(struct.pack('<I', 5<<28))
+    self.socket.write(struct.pack('<I', 6<<28))
     self.sweepFrame.setEnabled(True)
     self.selectFrame.setEnabled(True)
 
@@ -349,6 +363,8 @@ class VNA(QMainWindow, Ui_VNA):
     settings.setValue('addr', self.addrValue.text())
     settings.setValue('start', self.startValue.value())
     settings.setValue('stop', self.stopValue.value())
+    settings.setValue('rate', self.rateValue.currentIndex())
+    settings.setValue('corr', self.corrValue.value())
     size = self.sizeValue.value()
     settings.setValue('size', size)
     for i in range(0, size):
@@ -368,6 +384,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.addrValue.setText(settings.value('addr', '192.168.1.100'))
     self.startValue.setValue(settings.value('start', 100, type = int))
     self.stopValue.setValue(settings.value('stop', 60000, type = int))
+    self.rateValue.setCurrentIndex(settings.value('rate', 0, type = int))
+    self.corrValue.setValue(settings.value('corr', 0, type = int))
     size = settings.value('size', 600, type = int)
     self.sizeValue.setValue(size)
     for i in range(0, size):
