@@ -27,6 +27,9 @@ matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+
+from mpldatacursor import datacursor
+
 import smithplot
 
 from PyQt5.uic import loadUiType
@@ -77,6 +80,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.plotLayout.addWidget(self.canvas)
     # create navigation toolbar
     self.toolbar = NavigationToolbar(self.canvas, self.plotWidget, False)
+    # initialize cursor
+    self.cursor = None
     # remove subplots action
     actions = self.toolbar.actions()
     self.toolbar.removeAction(actions[7])
@@ -100,6 +105,9 @@ class VNA(QMainWindow, Ui_VNA):
     self.startValue.valueChanged.connect(self.set_start)
     self.stopValue.valueChanged.connect(self.set_stop)
     self.sizeValue.valueChanged.connect(self.set_size)
+    self.rateValue.addItems(['500', '50', '5', '0.5'])
+    self.rateValue.currentIndexChanged.connect(self.set_rate)
+    self.corrValue.valueChanged.connect(self.set_corr)
     self.openPlot.clicked.connect(self.plot_open)
     self.shortPlot.clicked.connect(self.plot_short)
     self.loadPlot.clicked.connect(self.plot_load)
@@ -139,6 +147,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.set_start(self.startValue.value())
     self.set_stop(self.stopValue.value())
     self.set_size(self.sizeValue.value())
+    self.set_rate(self.rateValue.currentIndex())
+    self.set_corr(self.corrValue.value())
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
     self.sweepFrame.setEnabled(True)
@@ -194,11 +204,20 @@ class VNA(QMainWindow, Ui_VNA):
     if self.idle: return
     self.socket.write(struct.pack('<I', 2<<28 | int(value)))
 
+  def set_rate(self, value):
+    if self.idle: return
+    rate = [1, 10, 100, 1000][value]
+    self.socket.write(struct.pack('<I', 3<<28 | int(rate)))
+
+  def set_corr(self, value):
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 4<<28 | int(value)))
+
   def sweep(self):
     if self.idle: return
     self.sweepFrame.setEnabled(False)
     self.selectFrame.setEnabled(False)
-    self.socket.write(struct.pack('<I', 3<<28))
+    self.socket.write(struct.pack('<I', 5<<28))
     self.offset = 0
     self.reading = True
     self.progress = QProgressDialog('Sweep status', 'Cancel', 0, self.sweep_size + 1)
@@ -209,7 +228,7 @@ class VNA(QMainWindow, Ui_VNA):
   def cancel(self):
     self.offset = 0
     self.reading = False
-    self.socket.write(struct.pack('<I', 4<<28))
+    self.socket.write(struct.pack('<I', 6<<28))
     self.sweepFrame.setEnabled(True)
     self.selectFrame.setEnabled(True)
 
@@ -238,6 +257,7 @@ class VNA(QMainWindow, Ui_VNA):
     return (z - 50.0)/(z + 50.0)
 
   def plot_magphase(self, data):
+    if self.cursor is not None: self.cursor.hide().disable()
     matplotlib.rcdefaults()
     self.figure.clf()
     self.figure.subplots_adjust(top = 0.98, right = 0.88)
@@ -247,7 +267,7 @@ class VNA(QMainWindow, Ui_VNA):
     axes1.yaxis.set_major_formatter(VNA.formatter)
     axes1.tick_params('y', color = 'blue', labelcolor = 'blue')
     axes1.yaxis.label.set_color('blue')
-    axes1.plot(self.xaxis, np.absolute(data), color = 'blue')
+    axes1.plot(self.xaxis, np.absolute(data), color = 'blue', label = 'Magnitude')
     axes2 = axes1.twinx()
     axes2.spines['left'].set_color('blue')
     axes2.spines['right'].set_color('red')
@@ -256,7 +276,8 @@ class VNA(QMainWindow, Ui_VNA):
     axes2.set_ylabel('Phase angle')
     axes2.tick_params('y', color = 'red', labelcolor = 'red')
     axes2.yaxis.label.set_color('red')
-    axes2.plot(self.xaxis, np.angle(data, deg = True), color = 'red')
+    axes2.plot(self.xaxis, np.angle(data, deg = True), color = 'red', label = 'Phase angle')
+    self.cursor = datacursor(axes = self.figure.get_axes(), formatter = '{label}: {y:.3e}\nFrequency: {x:.3e}'.format, display = 'multiple')
     self.canvas.draw()
 
   def plot_open(self):
@@ -272,6 +293,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.plot_magphase(self.dut[0:self.sweep_size])
 
   def plot_smith(self):
+    if self.cursor is not None: self.cursor.hide().disable()
     matplotlib.rcdefaults()
     self.figure.clf()
     self.figure.subplots_adjust(top = 0.90, right = 0.90)
@@ -287,6 +309,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.plot_magphase(self.gamma())
 
   def plot_swr(self):
+    if self.cursor is not None: self.cursor.hide().disable()
     matplotlib.rcdefaults()
     self.figure.clf()
     self.figure.subplots_adjust(top = 0.98, right = 0.88)
@@ -298,10 +321,12 @@ class VNA(QMainWindow, Ui_VNA):
     axes1.set_ylabel('SWR')
     magnitude = np.absolute(self.gamma())
     swr = np.maximum(1.0, np.minimum(100.0, (1.0 + magnitude) / np.maximum(1.0e-20, 1.0 - magnitude)))
-    axes1.plot(self.xaxis, swr, color = 'blue')
+    axes1.plot(self.xaxis, swr, color = 'blue', label = 'SWR')
+    self.cursor = datacursor(axes = self.figure.get_axes(), formatter = '{label}: {y:.3e}\nFrequency: {x:.3e}'.format, display = 'multiple')
     self.canvas.draw()
 
   def plot_rl(self):
+    if self.cursor is not None: self.cursor.hide().disable()
     matplotlib.rcdefaults()
     self.figure.clf()
     self.figure.subplots_adjust(top = 0.98, right = 0.88)
@@ -311,7 +336,8 @@ class VNA(QMainWindow, Ui_VNA):
     axes1.set_xlabel('Hz')
     axes1.set_ylabel('Return loss, dB')
     magnitude = np.absolute(self.gamma())
-    axes1.plot(self.xaxis, 20.0 * np.log10(magnitude), color = 'blue')
+    axes1.plot(self.xaxis, 20.0 * np.log10(magnitude), color = 'blue', label = 'Return loss')
+    self.cursor = datacursor(axes = self.figure.get_axes(), formatter = '{label}: {y:.3e}\nFrequency: {x:.3e}'.format, display = 'multiple')
     self.canvas.draw()
 
   def write_cfg(self):
@@ -337,6 +363,8 @@ class VNA(QMainWindow, Ui_VNA):
     settings.setValue('addr', self.addrValue.text())
     settings.setValue('start', self.startValue.value())
     settings.setValue('stop', self.stopValue.value())
+    settings.setValue('rate', self.rateValue.currentIndex())
+    settings.setValue('corr', self.corrValue.value())
     size = self.sizeValue.value()
     settings.setValue('size', size)
     for i in range(0, size):
@@ -356,6 +384,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.addrValue.setText(settings.value('addr', '192.168.1.100'))
     self.startValue.setValue(settings.value('start', 100, type = int))
     self.stopValue.setValue(settings.value('stop', 60000, type = int))
+    self.rateValue.setCurrentIndex(settings.value('rate', 0, type = int))
+    self.corrValue.setValue(settings.value('corr', 0, type = int))
     size = settings.value('size', 600, type = int)
     self.sizeValue.setValue(size)
     for i in range(0, size):

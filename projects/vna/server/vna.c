@@ -15,6 +15,8 @@ uint16_t *rx_cntr;
 float *rx_data;
 
 int sock_thread = -1;
+uint32_t rate_thread = 1;
+uint32_t size_thread = 600;
 
 void *sweep_handler(void *arg);
 
@@ -28,7 +30,8 @@ int main(int argc, char *argv[])
   uint32_t *rx_size, *tx_size;
   uint8_t *rst;
   struct sockaddr_in addr;
-  uint32_t command, value;
+  uint32_t command, rate;
+  int32_t value, corr;
   int64_t start, stop, size, freq;
   int i, yes = 1;
 
@@ -56,6 +59,8 @@ int main(int argc, char *argv[])
   start = 100000;
   stop = 60000000;
   size = 600;
+  rate = 1;
+  corr = 0;
 
   *rst &= ~3;
   *rst |= 4;
@@ -90,14 +95,6 @@ int main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-    sock_thread = sock_client;
-    if(pthread_create(&thread, NULL, sweep_handler, NULL) < 0)
-    {
-      perror("pthread_create");
-      return EXIT_FAILURE;
-    }
-    pthread_detach(thread);
-
     while(1)
     {
       if(recv(sock_client, (char *)&command, 4, MSG_WAITALL) <= 0) break;
@@ -106,12 +103,12 @@ int main(int argc, char *argv[])
       {
         case 0:
           /* set start */
-          if(value < 5000 || value > 62500000) continue;
+          if(value < 0 || value > 62000000) continue;
           start = value;
           break;
         case 1:
           /* set stop */
-          if(value < 5000 || value > 62500000) continue;
+          if(value < 0 || value > 62000000) continue;
           stop = value;
           break;
         case 2:
@@ -120,24 +117,47 @@ int main(int argc, char *argv[])
           size = value;
           break;
         case 3:
+          /* set rate */
+          if(value < 1 || value > 10000) continue;
+          rate = value;
+          *rx_size = 250000 * rate - 1;
+          *tx_size = 250000 * rate - 1;
+          break;
+        case 4:
+          /* set correction */
+          if(value < -100000 || value > 100000) continue;
+          corr = value;
+          break;
+        case 5:
           /* sweep */
           *rst &= ~3;
           *rst |= 4;
           *rst &= ~4;
           *rst |= 2;
+          rate_thread = rate;
+          size_thread = size;
+          sock_thread = sock_client;
+          if(pthread_create(&thread, NULL, sweep_handler, NULL) < 0)
+          {
+            perror("pthread_create");
+            return EXIT_FAILURE;
+          }
+          pthread_detach(thread);
           freq = start;
           for(i = 0; i <= size; ++i)
           {
             if(i > 0) freq = start + (stop - start) * (i - 1) / (size - 1);
-            *rx_freq = (uint32_t)floor((freq - 2500) / 125.0e6 * (1<<30) + 0.5);
+            freq *= (1.0 + 1.0e-9 * corr);
+            *rx_freq = (uint32_t)floor((freq + 2500) / 125.0e6 * (1<<30) + 0.5);
             *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1<<30) + 0.5);
           }
           *rst |= 1;
           break;
-        case 4:
+        case 6:
           /* cancel */
           *rst &= ~3;
           *rst |= 4;
+          sock_thread = -1;
           break;
       }
     }
@@ -155,18 +175,27 @@ int main(int argc, char *argv[])
 
 void *sweep_handler(void *arg)
 {
-  int i, j;
+  int i, j, k, cntr;
+  uint32_t rate = rate_thread;
+  uint32_t size = size_thread;
   float omega, sine, cosine, coeff;
   float re, r0[4], r1[4], r2[4];
   float im, i0[4], i1[4], i2[4];
-  float buffer[8];
+  float w, buffer[8];
 
-  omega = M_PI / 50.0;
+  omega = -M_PI / 50.0;
   sine = sin(omega);
   cosine = cos(omega);
   coeff = 2.0 * cosine;
 
-  while(1)
+  memset(r1, 0, 16);
+  memset(i1, 0, 16);
+  memset(r2, 0, 16);
+  memset(i2, 0, 16);
+
+  k = 0;
+  cntr = 0;
+  while(cntr < (size + 1) * rate)
   {
     if(sock_thread < 0) break;
 
@@ -176,19 +205,16 @@ void *sweep_handler(void *arg)
       continue;
     }
 
-    memset(r1, 0, 16);
-    memset(i1, 0, 16);
-    memset(r2, 0, 16);
-    memset(i2, 0, 16);
-
     for(i = 0; i < 500; ++i)
     {
+      w = sin(M_PI * k / (500 * rate - 1));
+      ++k;
       for(j = 0; j < 4; ++j)
       {
         re = *rx_data;
         im = *rx_data;
-        r0[j] = coeff * r1[j] - r2[j] + re;
-        i0[j] = coeff * i1[j] - i2[j] + im;
+        r0[j] = coeff * r1[j] - r2[j] + re * w;
+        i0[j] = coeff * i1[j] - i2[j] + im * w;
         r2[j] = r1[j];
         i2[j] = i1[j];
         r1[j] = r0[j];
@@ -196,11 +222,22 @@ void *sweep_handler(void *arg)
       }
     }
 
+    ++cntr;
+
+    if(cntr % rate) continue;
+
     for(j = 0; j < 4; ++j)
     {
       buffer[2 * j + 0] = (r1[j] - r2[j] * cosine) - (i2[j] * sine);
       buffer[2 * j + 1] = (r2[j] * sine) + (i1[j] - i2[j] * cosine);
     }
+
+    memset(r1, 0, 16);
+    memset(i1, 0, 16);
+    memset(r2, 0, 16);
+    memset(i2, 0, 16);
+
+    k = 0;
 
     if(send(sock_thread, buffer, 32, MSG_NOSIGNAL) < 0) break;
   }
