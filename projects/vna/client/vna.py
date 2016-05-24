@@ -198,7 +198,7 @@ class VNA(QMainWindow, Ui_VNA):
     if self.idle: return
     self.sweepFrame.setEnabled(False)
     self.selectFrame.setEnabled(False)
-    self.socket.write(struct.pack('<I', 3<<28))
+    self.socket.write(struct.pack('<I', 4<<28))
     self.offset = 0
     self.reading = True
     self.progress = QProgressDialog('Sweep status', 'Cancel', 0, self.sweep_size + 1)
@@ -209,7 +209,7 @@ class VNA(QMainWindow, Ui_VNA):
   def cancel(self):
     self.offset = 0
     self.reading = False
-    self.socket.write(struct.pack('<I', 4<<28))
+    self.socket.write(struct.pack('<I', 5<<28))
     self.sweepFrame.setEnabled(True)
     self.selectFrame.setEnabled(True)
 

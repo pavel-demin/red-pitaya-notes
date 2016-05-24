@@ -75,7 +75,7 @@
        <item row="1" column="1">
         <widget class="QSpinBox" name="startValue">
          <property name="minimum">
-          <number>5</number>
+          <number>0</number>
          </property>
          <property name="maximum">
           <number>62500</number>
@@ -98,7 +98,7 @@
        <item row="1" column="3">
         <widget class="QSpinBox" name="stopValue">
          <property name="minimum">
-          <number>5</number>
+          <number>0</number>
          </property>
          <property name="maximum">
           <number>62500</number>
