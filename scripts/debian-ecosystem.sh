@@ -3,7 +3,7 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-ecosystem_tar=red-pitaya-ecosystem-0.95-20160520.tgz
+ecosystem_tar=red-pitaya-ecosystem-0.95-20160526.tgz
 ecosystem_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/$ecosystem_tar
 
 mirror=http://ftp.heanet.ie/pub/debian
@@ -61,7 +61,8 @@ chmod +x $root_dir/usr/local/sbin/hostapd
 
 test -f $ecosystem_tar || curl -L $ecosystem_url -o $ecosystem_tar
 
-mkdir -p $root_dir/var/log/redpitaya_nginx/
+mkdir -p $root_dir/var/log/nginx
+mkdir -p $root_dir/var/log/redpitaya_nginx
 mkdir -p $root_dir/opt
 tar -zxf $ecosystem_tar --directory=$root_dir/opt
 
@@ -114,9 +115,10 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
-  iw firmware-realtek firmware-ralink build-essential libluajit-5.1 lua-cjson \
-  libboost-regex1.55.0 libboost-system1.55.0 libboost-thread1.55.0 \
-  unzip ifplugd ntfs-3g
+  iw firmware-realtek firmware-ralink unzip ifplugd ntfs-3g build-essential \
+  libconfig-dev libpcre3-dev libluajit-5.1-dev libcurl4-openssl-dev libssl-dev \
+  libboost-regex1.55-dev libboost-system1.55-dev libboost-thread1.55-dev \
+  libcrypto++-dev libfftw3-dev zlib1g-dev lua-cjson parallel subversion git
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
@@ -161,6 +163,7 @@ systemctl enable redpitaya_nginx
 
 cat <<- EOF_CAT > etc/profile.d/red-pitaya.sh
 export PATH=\\\$PATH:/opt/redpitaya/bin
+export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:/opt/redpitaya/lib
 EOF_CAT
 
 touch etc/udev/rules.d/75-persistent-net-generator.rules
