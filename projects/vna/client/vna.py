@@ -27,10 +27,9 @@ matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+from matplotlib.ticker import Formatter, FuncFormatter
 
 from mpldatacursor import datacursor
-
-import smithplot
 
 from PyQt5.uic import loadUiType
 from PyQt5.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
@@ -40,11 +39,34 @@ from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_VNA, QMainWindow = loadUiType('vna.ui')
 
+def metric_prefix(x, pos = None):
+  if abs(x) >= 1.0e6:
+    return '%1.1fM' % (x * 1.0e-6)
+  elif abs(x) >= 1.0e3:
+    return '%1.1fk' % (x * 1.0e-3)
+  elif abs(x) >= 1.0e0:
+    return '%1.1f' % x
+  elif abs(x) >= 1.0e-3:
+    return '%1.1fm' % (x * 1e+3)
+  elif abs(x) >= 1.0e-6:
+    return '%1.1fu' % (x * 1e+6)
+  else:
+    return '%1.1f' % x
+
+class GammaFormatter:
+  def __init__(self, xaxis):
+    self.xaxis = xaxis
+  def __call__(self, x = None, y = None, ind = None, **kwargs):
+    gamma = complex(x, y)
+    z = 50.0 * (1.0 + gamma)/(1.0 - gamma)
+    if z.imag >= 0.0:
+      return u'Z: %s\u03A9 + j%s\u03A9\nFrequency: %sHz' % (metric_prefix(z.real), metric_prefix(z.imag), metric_prefix(self.xaxis[ind[0]]))
+    else:
+      return u'Z: %s\u03A9 \u2212 j%s\u03A9\nFrequency: %sHz' % (metric_prefix(z.real), metric_prefix(-z.imag), metric_prefix(self.xaxis[ind[0]]))
+
 class VNA(QMainWindow, Ui_VNA):
 
   max_size = 16384
-
-  formatter = matplotlib.ticker.FuncFormatter(lambda x, pos: '%1.1fM' % (x * 1e-6) if abs(x) >= 1e6 else '%1.1fk' % (x * 1e-3) if abs(x) >= 1e3 else '%1.1f' % x if abs(x) >= 1e0 else '%1.1fm' % (x * 1e+3) if abs(x) >= 1e-3 else '%1.1fu' % (x * 1e+6) if abs(x) >= 1e-6 else '%1.1f' % x)
 
   def __init__(self):
     super(VNA, self).__init__()
@@ -260,11 +282,11 @@ class VNA(QMainWindow, Ui_VNA):
     if self.cursor is not None: self.cursor.hide().disable()
     matplotlib.rcdefaults()
     self.figure.clf()
-    self.figure.subplots_adjust(top = 0.98, right = 0.88)
+    self.figure.subplots_adjust(left = 0.12, bottom = 0.12, right = 0.88, top = 0.98)
     axes1 = self.figure.add_subplot(111)
     axes1.cla()
-    axes1.xaxis.set_major_formatter(VNA.formatter)
-    axes1.yaxis.set_major_formatter(VNA.formatter)
+    axes1.xaxis.set_major_formatter(FuncFormatter(metric_prefix))
+    axes1.yaxis.set_major_formatter(FuncFormatter(metric_prefix))
     axes1.tick_params('y', color = 'blue', labelcolor = 'blue')
     axes1.yaxis.label.set_color('blue')
     axes1.plot(self.xaxis, np.absolute(data), color = 'blue', label = 'Magnitude')
@@ -292,14 +314,51 @@ class VNA(QMainWindow, Ui_VNA):
   def plot_dut(self):
     self.plot_magphase(self.dut[0:self.sweep_size])
 
+  def plot_smith_grid(self, axes, color):
+    load = 50.0
+    ticks = np.array([0.0, 0.2, 0.5, 1.0, 2.0, 5.0])
+    for tick in ticks * load:
+      axis = np.logspace(-4, np.log10(1.0e3), 200) * load
+      z = tick + 1.0j * axis
+      gamma = (z - load)/(z + load)
+      axes.plot(gamma.real, gamma.imag, color = color, linewidth = 0.4, alpha = 0.3)
+      axes.plot(gamma.real, -gamma.imag, color = color, linewidth = 0.4, alpha = 0.3)
+      z = axis + 1.0j * tick
+      gamma = (z - load)/(z + load)
+      axes.plot(gamma.real, gamma.imag, color = color, linewidth = 0.4, alpha = 0.3)
+      axes.plot(gamma.real, -gamma.imag, color = color, linewidth = 0.4, alpha = 0.3)
+      if tick == 0.0:
+        axes.text(1.0, 0.0, u'\u221E', color = color, ha = 'left', va = 'center', clip_on = True, fontsize = 18.0)
+        axes.text(-1.0, 0.0, u'0\u03A9', color = color, ha = 'right', va = 'center', clip_on = True, fontsize = 12.0)
+        continue
+      lab = u'%d\u03A9' % tick
+      x = (tick - load) / (tick + load)
+      axes.text(x, 0.0, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = 90.0, fontsize = 12.0)
+      lab = u'j%d\u03A9' % tick
+      z =  1.0j * tick
+      gamma = (z - load)/(z + load)
+      x = gamma.real
+      y = gamma.imag
+      axes.text(x, y, lab, color = color, ha = 'center', va = 'bottom', clip_on = True, fontsize = 12.0)
+      lab = u'-j%d\u03A9' % tick
+      axes.text(x, -y, lab, color = color, ha = 'center', va = 'top', clip_on = True, fontsize = 12.0)
+
   def plot_smith(self):
     if self.cursor is not None: self.cursor.hide().disable()
     matplotlib.rcdefaults()
     self.figure.clf()
-    self.figure.subplots_adjust(top = 0.90, right = 0.90)
-    axes = self.figure.add_subplot(111, projection = 'smith', axes_radius = 0.55, axes_scale = 50.0)
-    axes.cla()
-    axes.plot(self.impedance())
+    self.figure.subplots_adjust(left = 0.01, bottom = 0.01, right = 0.99, top = 0.99)
+    axes1 = self.figure.add_subplot(111)
+    self.plot_smith_grid(axes1, 'blue')
+    gamma = self.gamma()
+    plot, = axes1.plot(gamma.real, gamma.imag, color = 'red')
+    axes1.axis('equal')
+    axes1.set_xlim(-1.1, 1.1)
+    axes1.set_ylim(-1.1, 1.1)
+    axes1.xaxis.set_visible(False)
+    axes1.yaxis.set_visible(False)
+    formatter = lambda x, y: '%1.1fM' % (x * 1e-6)
+    self.cursor = datacursor(plot, formatter = GammaFormatter(self.xaxis), display = 'multiple')
     self.canvas.draw()
 
   def plot_imp(self):
@@ -312,11 +371,11 @@ class VNA(QMainWindow, Ui_VNA):
     if self.cursor is not None: self.cursor.hide().disable()
     matplotlib.rcdefaults()
     self.figure.clf()
-    self.figure.subplots_adjust(top = 0.98, right = 0.88)
+    self.figure.subplots_adjust(left = 0.12, bottom = 0.12, right = 0.88, top = 0.98)
     axes1 = self.figure.add_subplot(111)
     axes1.cla()
-    axes1.xaxis.set_major_formatter(VNA.formatter)
-    axes1.yaxis.set_major_formatter(VNA.formatter)
+    axes1.xaxis.set_major_formatter(FuncFormatter(metric_prefix))
+    axes1.yaxis.set_major_formatter(FuncFormatter(metric_prefix))
     axes1.set_xlabel('Hz')
     axes1.set_ylabel('SWR')
     magnitude = np.absolute(self.gamma())
@@ -329,10 +388,10 @@ class VNA(QMainWindow, Ui_VNA):
     if self.cursor is not None: self.cursor.hide().disable()
     matplotlib.rcdefaults()
     self.figure.clf()
-    self.figure.subplots_adjust(top = 0.98, right = 0.88)
+    self.figure.subplots_adjust(left = 0.12, bottom = 0.12, right = 0.88, top = 0.98)
     axes1 = self.figure.add_subplot(111)
     axes1.cla()
-    axes1.xaxis.set_major_formatter(VNA.formatter)
+    axes1.xaxis.set_major_formatter(FuncFormatter(metric_prefix))
     axes1.set_xlabel('Hz')
     axes1.set_ylabel('Return loss, dB')
     magnitude = np.absolute(self.gamma())
