@@ -329,19 +329,20 @@ class VNA(QMainWindow, Ui_VNA):
       axes.plot(gamma.real, -gamma.imag, color = color, linewidth = 0.4, alpha = 0.3)
       if tick == 0.0:
         axes.text(1.0, 0.0, u'\u221E', color = color, ha = 'left', va = 'center', clip_on = True, fontsize = 18.0)
-        axes.text(-1.0, 0.0, u'0\u03A9', color = color, ha = 'right', va = 'center', clip_on = True, fontsize = 12.0)
+        axes.text(-1.0, 0.0, u'0\u03A9', color = color, ha = 'left', va = 'bottom', clip_on = True, fontsize = 12.0)
         continue
       lab = u'%d\u03A9' % tick
       x = (tick - load) / (tick + load)
-      axes.text(x, 0.0, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = 90.0, fontsize = 12.0)
+      axes.text(x, 0.0, lab, color = color, ha = 'left', va = 'bottom', clip_on = True, fontsize = 12.0)
       lab = u'j%d\u03A9' % tick
       z =  1.0j * tick
-      gamma = (z - load)/(z + load)
+      gamma = (z - load)/(z + load) * 1.05
       x = gamma.real
       y = gamma.imag
-      axes.text(x, y, lab, color = color, ha = 'center', va = 'bottom', clip_on = True, fontsize = 12.0)
+      angle = np.angle(gamma) * 180.0 / np.pi - 90.0
+      axes.text(x, y, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = angle, fontsize = 12.0)
       lab = u'-j%d\u03A9' % tick
-      axes.text(x, -y, lab, color = color, ha = 'center', va = 'top', clip_on = True, fontsize = 12.0)
+      axes.text(x, -y, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = -angle, fontsize = 12.0)
 
   def plot_smith(self):
     if self.cursor is not None: self.cursor.hide().disable()
@@ -353,8 +354,8 @@ class VNA(QMainWindow, Ui_VNA):
     gamma = self.gamma()
     plot, = axes1.plot(gamma.real, gamma.imag, color = 'red')
     axes1.axis('equal')
-    axes1.set_xlim(-1.1, 1.1)
-    axes1.set_ylim(-1.1, 1.1)
+    axes1.set_xlim(-1.12, 1.12)
+    axes1.set_ylim(-1.12, 1.12)
     axes1.xaxis.set_visible(False)
     axes1.yaxis.set_visible(False)
     formatter = lambda x, y: '%1.1fM' % (x * 1e-6)
