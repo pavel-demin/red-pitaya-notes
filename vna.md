@@ -120,7 +120,7 @@ make NAME=vna tmp/vna.bit
 
 Building `vna`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc projects/vna/server/vna.c -o vna -lm -lpthread -static
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad projects/vna/server/vna.c -o vna -lm -lpthread
 {% endhighlight %}
 
 Building SD card image zip file:
