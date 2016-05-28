@@ -40,7 +40,7 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   S_AXIS fifo_0/M_AXIS
   cfg_data slice_2/Dout
   aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
+  aresetn slice_1/Dout
 }
 
 # Create dds_compiler

@@ -171,19 +171,23 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_0 {
-  NUM_PORTS 3
+  NUM_PORTS 5
   IN0_WIDTH 32
   IN1_WIDTH 64
   IN2_WIDTH 16
+  IN3_WIDTH 16
+  IN4_WIDTH 16
 } {
   In0 const_2/dout
   In1 dna_0/dna_data
   In2 rx_0/fifo_generator_0/rd_data_count
+  In3 rx_0/fifo_generator_1/rd_data_count
+  In4 rx_0/fifo_generator_2/rd_data_count
 }
 
 # Create axi_sts_register
 cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
-  STS_DATA_WIDTH 128
+  STS_DATA_WIDTH 160
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
@@ -208,14 +212,18 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins rx_0/reader_0/S_AXI]
+for {set i 0} {$i <= 2} {incr i} {
 
-set_property RANGE 32K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
-set_property OFFSET 0x40008000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
+  # Create all required interconnections
+  apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+    Master /ps_0/M_AXI_GP0
+    Clk Auto
+  } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
+
+  set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property OFFSET 0x4000[format %X [expr 2 * $i + 2]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+
+}
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {

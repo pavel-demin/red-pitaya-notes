@@ -90,7 +90,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.xaxis, self.sweep_step = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size, retstep = True)
     self.xaxis *= 1000
     # buffer and offset for the incoming samples
-    self.buffer = bytearray(32 * VNA.max_size)
+    self.buffer = bytearray(24 * VNA.max_size)
     self.offset = 0
     self.data = np.frombuffer(self.buffer, np.complex64)
     self.adc1 = np.zeros(VNA.max_size, np.complex64)
@@ -133,7 +133,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.startValue.valueChanged.connect(self.set_start)
     self.stopValue.valueChanged.connect(self.set_stop)
     self.sizeValue.valueChanged.connect(self.set_size)
-    self.rateValue.addItems(['500', '50', '5', '0.5'])
+    self.rateValue.addItems(['1000', '100', '10', '1'])
     self.rateValue.currentIndexChanged.connect(self.set_rate)
     self.corrValue.valueChanged.connect(self.set_corr)
     self.openPlot.clicked.connect(self.plot_open)
@@ -187,16 +187,16 @@ class VNA(QMainWindow, Ui_VNA):
       self.socket.readAll()
       return
     size = self.socket.bytesAvailable()
-    self.progress.setValue((self.offset + size) / 32)
-    limit = 32 * (self.sweep_size + 1)
+    self.progress.setValue((self.offset + size) / 24)
+    limit = 24 * (self.sweep_size + 1)
     if self.offset + size < limit:
       self.buffer[self.offset:self.offset + size] = self.socket.read(size)
       self.offset += size
     else:
       self.buffer[self.offset:limit] = self.socket.read(limit - self.offset)
-      self.adc1 = self.data[0::4]
-      self.adc2 = self.data[1::4]
-      self.dac1 = self.data[2::4]
+      self.adc1 = self.data[0::3]
+      self.adc2 = self.data[1::3]
+      self.dac1 = self.data[2::3]
       getattr(self, self.mode)[0:self.sweep_size] = self.adc1[1:self.sweep_size + 1] / self.dac1[1:self.sweep_size + 1]
       getattr(self, 'plot_%s' % self.mode)()
       self.reading = False

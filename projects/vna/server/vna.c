@@ -11,8 +11,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-uint16_t *rx_cntr;
-float *rx_data;
+volatile uint16_t *rx_cntr[3];
+volatile float *rx_data[3];
 
 int sock_thread = -1;
 uint32_t rate_thread = 1;
@@ -24,10 +24,10 @@ int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
   pthread_t thread;
-  void *cfg, *sts;
+  volatile void *cfg, *sts;
   char *name = "/dev/mem";
-  uint32_t *rx_freq, *tx_freq;
-  uint32_t *rx_size, *tx_size;
+  volatile uint32_t *rx_freq, *tx_freq;
+  volatile uint32_t *rx_size, *tx_size;
   uint8_t *rst;
   struct sockaddr_in addr;
   uint32_t command, rate;
@@ -43,18 +43,22 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  rx_data[0] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+  rx_data[1] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
+  rx_data[2] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
   rx_freq = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   tx_freq = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
-  rx_cntr = ((uint16_t *)(sts + 12));
+  rx_cntr[0] = ((uint16_t *)(sts + 12));
+  rx_cntr[1] = ((uint16_t *)(sts + 14));
+  rx_cntr[2] = ((uint16_t *)(sts + 16));
 
   rst = ((uint8_t *)(cfg + 0));
   rx_size = ((uint32_t *)(cfg + 4));
   tx_size = ((uint32_t *)(cfg + 8));
 
-  *rx_size = 250000 - 1;
-  *tx_size = 250000 - 1;
+  *rx_size = 125000 - 1;
+  *tx_size = 125000 - 1;
 
   start = 100000;
   stop = 60000000;
@@ -120,8 +124,8 @@ int main(int argc, char *argv[])
           /* set rate */
           if(value < 1 || value > 10000) continue;
           rate = value;
-          *rx_size = 250000 * rate - 1;
-          *tx_size = 250000 * rate - 1;
+          *rx_size = 125000 * rate - 1;
+          *tx_size = 125000 * rate - 1;
           break;
         case 4:
           /* set correction */
@@ -148,7 +152,7 @@ int main(int argc, char *argv[])
           {
             if(i > 0) freq = start + (stop - start) * (i - 1) / (size - 1);
             freq *= (1.0 + 1.0e-9 * corr);
-            *rx_freq = (uint32_t)floor((freq + 2500) / 125.0e6 * (1<<30) + 0.5);
+            *rx_freq = (uint32_t)floor((freq + 5000) / 125.0e6 * (1<<30) + 0.5);
             *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1<<30) + 0.5);
           }
           *rst |= 1;
@@ -179,19 +183,19 @@ void *sweep_handler(void *arg)
   uint32_t rate = rate_thread;
   uint32_t size = size_thread;
   float omega, sine, cosine, coeff;
-  float re, r0[4], r1[4], r2[4];
-  float im, i0[4], i1[4], i2[4];
-  float w, buffer[8];
+  float re[3], r0[3], r1[3], r2[3];
+  float im[3], i0[3], i1[3], i2[3];
+  float w, buffer[6];
 
   omega = -M_PI / 50.0;
   sine = sin(omega);
   cosine = cos(omega);
   coeff = 2.0 * cosine;
 
-  memset(r1, 0, 16);
-  memset(i1, 0, 16);
-  memset(r2, 0, 16);
-  memset(i2, 0, 16);
+  memset(r1, 0, 12);
+  memset(i1, 0, 12);
+  memset(r2, 0, 12);
+  memset(i2, 0, 12);
 
   k = 0;
   cntr = 0;
@@ -199,7 +203,7 @@ void *sweep_handler(void *arg)
   {
     if(sock_thread < 0) break;
 
-    if(*rx_cntr < 4000)
+    if(*rx_cntr[0] < 1000)
     {
       usleep(200);
       continue;
@@ -209,12 +213,12 @@ void *sweep_handler(void *arg)
     {
       w = sin(M_PI * k / (500 * rate - 1));
       ++k;
-      for(j = 0; j < 4; ++j)
+      for(j = 0; j < 3; ++j)
       {
-        re = *rx_data;
-        im = *rx_data;
-        r0[j] = coeff * r1[j] - r2[j] + re * w;
-        i0[j] = coeff * i1[j] - i2[j] + im * w;
+        re[j] = *rx_data[j];
+        im[j] = *rx_data[j];
+        r0[j] = coeff * r1[j] - r2[j] + re[j] * w;
+        i0[j] = coeff * i1[j] - i2[j] + im[j] * w;
         r2[j] = r1[j];
         i2[j] = i1[j];
         r1[j] = r0[j];
@@ -226,20 +230,20 @@ void *sweep_handler(void *arg)
 
     if(cntr % rate) continue;
 
-    for(j = 0; j < 4; ++j)
+    for(j = 0; j < 3; ++j)
     {
       buffer[2 * j + 0] = (r1[j] - r2[j] * cosine) - (i2[j] * sine);
       buffer[2 * j + 1] = (r2[j] * sine) + (i1[j] - i2[j] * cosine);
     }
 
-    memset(r1, 0, 16);
-    memset(i1, 0, 16);
-    memset(r2, 0, 16);
-    memset(i2, 0, 16);
+    memset(r1, 0, 12);
+    memset(i1, 0, 12);
+    memset(r2, 0, 12);
+    memset(i2, 0, 12);
 
     k = 0;
 
-    if(send(sock_thread, buffer, 32, MSG_NOSIGNAL) < 0) break;
+    if(send(sock_thread, buffer, 24, MSG_NOSIGNAL) < 0) break;
   }
 
   return NULL;
