@@ -41,19 +41,19 @@ Ui_VNA, QMainWindow = loadUiType('vna.ui')
 
 def metric_prefix(x, pos = None):
   if x == 0.0:
-    return '0.0'
+    return '0'
   elif abs(x) >= 1.0e6:
-    return '%1.1fM' % (x * 1.0e-6)
+    return '%.5gM' % (x * 1.0e-6)
   elif abs(x) >= 1.0e3:
-    return '%1.1fk' % (x * 1.0e-3)
+    return '%.5gk' % (x * 1.0e-3)
   elif abs(x) >= 1.0e0:
-    return '%1.1f' % x
+    return '%.5g' % x
   elif abs(x) >= 1.0e-3:
-    return '%1.1fm' % (x * 1e+3)
+    return '%.5gm' % (x * 1e+3)
   elif abs(x) >= 1.0e-6:
-    return '%1.1fu' % (x * 1e+6)
+    return '%.5gu' % (x * 1e+6)
   else:
-    return '%f' % x
+    return '%.5g' % x
 
 class SmithFormatter:
   def __init__(self, xaxis):
