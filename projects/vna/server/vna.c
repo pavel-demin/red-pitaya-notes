@@ -185,7 +185,9 @@ void *sweep_handler(void *arg)
   float omega, sine, cosine, coeff;
   float re[3], r0[3], r1[3], r2[3];
   float im[3], i0[3], i1[3], i2[3];
-  float w, buffer[6];
+  float *w, buffer[6];
+
+  w = malloc(4 * 500 * rate);
 
   omega = -M_PI / 50.0;
   sine = sin(omega);
@@ -205,25 +207,25 @@ void *sweep_handler(void *arg)
 
     if(*rx_cntr[0] < 1000)
     {
-      usleep(200);
+      usleep(100);
       continue;
     }
 
     for(i = 0; i < 500; ++i)
     {
-      w = sin(M_PI * k / (500 * rate - 1));
-      ++k;
+      if(cntr < rate) w[k] = sin(M_PI * k / (500 * rate - 1));
       for(j = 0; j < 3; ++j)
       {
         re[j] = *rx_data[j];
         im[j] = *rx_data[j];
-        r0[j] = coeff * r1[j] - r2[j] + re[j] * w;
-        i0[j] = coeff * i1[j] - i2[j] + im[j] * w;
+        r0[j] = coeff * r1[j] - r2[j] + re[j] * w[k];
+        i0[j] = coeff * i1[j] - i2[j] + im[j] * w[k];
         r2[j] = r1[j];
         i2[j] = i1[j];
         r1[j] = r0[j];
         i1[j] = i0[j];
       }
+      ++k;
     }
 
     ++cntr;
@@ -245,6 +247,8 @@ void *sweep_handler(void *arg)
 
     if(send(sock_thread, buffer, 24, MSG_NOSIGNAL) < 0) break;
   }
+
+  free(w);
 
   return NULL;
 }

@@ -130,10 +130,15 @@ class VNA(QMainWindow, Ui_VNA):
     self.loadSweep.clicked.connect(self.sweep_load)
     self.dutSweep.clicked.connect(self.sweep_dut)
     self.s1pButton.clicked.connect(self.write_s1p)
+    self.s2pButton.clicked.connect(self.write_s2p)
     self.startValue.valueChanged.connect(self.set_start)
     self.stopValue.valueChanged.connect(self.set_stop)
     self.sizeValue.valueChanged.connect(self.set_size)
     self.rateValue.addItems(['1000', '100', '10', '1'])
+    self.rateValue.lineEdit().setReadOnly(True)
+    self.rateValue.lineEdit().setAlignment(Qt.AlignRight)
+    for i in range(0, self.rateValue.count()):
+      self.rateValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
     self.rateValue.currentIndexChanged.connect(self.set_rate)
     self.corrValue.valueChanged.connect(self.set_corr)
     self.openPlot.clicked.connect(self.plot_open)
@@ -145,6 +150,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.rcPlot.clicked.connect(self.plot_rc)
     self.swrPlot.clicked.connect(self.plot_swr)
     self.rlPlot.clicked.connect(self.plot_rl)
+    self.gainPlot.clicked.connect(self.plot_gain)
     # create timer
     self.startTimer = QTimer(self)
     self.startTimer.timeout.connect(self.timeout)
@@ -276,6 +282,10 @@ class VNA(QMainWindow, Ui_VNA):
     self.mode = 'dut'
     self.sweep()
 
+  def gain(self):
+    size = self.sweep_size
+    return self.dut[0:size]/self.short[0:size]
+
   def impedance(self):
     size = self.sweep_size
     return 50.0 * (self.open[0:size] - self.load[0:size]) * (self.dut[0:size] - self.short[0:size]) / ((self.load[0:size] - self.short[0:size]) * (self.open[0:size] - self.dut[0:size]))
@@ -283,6 +293,31 @@ class VNA(QMainWindow, Ui_VNA):
   def gamma(self):
     z = self.impedance()
     return (z - 50.0)/(z + 50.0)
+
+  def plot_gain(self):
+    if self.cursor is not None: self.cursor.hide().disable()
+    matplotlib.rcdefaults()
+    self.figure.clf()
+    self.figure.subplots_adjust(left = 0.12, bottom = 0.12, right = 0.88, top = 0.98)
+    axes1 = self.figure.add_subplot(111)
+    axes1.cla()
+    axes1.xaxis.set_major_formatter(FuncFormatter(metric_prefix))
+    axes1.yaxis.set_major_formatter(FuncFormatter(metric_prefix))
+    axes1.tick_params('y', color = 'blue', labelcolor = 'blue')
+    axes1.yaxis.label.set_color('blue')
+    gain = self.gain()
+    axes1.plot(self.xaxis, 20.0 * np.log10(np.absolute(gain)), color = 'blue', label = 'Gain')
+    axes2 = axes1.twinx()
+    axes2.spines['left'].set_color('blue')
+    axes2.spines['right'].set_color('red')
+    axes1.set_xlabel('Hz')
+    axes1.set_ylabel('Gain, dB')
+    axes2.set_ylabel('Phase angle')
+    axes2.tick_params('y', color = 'red', labelcolor = 'red')
+    axes2.yaxis.label.set_color('red')
+    axes2.plot(self.xaxis, np.angle(gain, deg = True), color = 'red', label = 'Phase angle')
+    self.cursor = datacursor(axes = self.figure.get_axes(), formatter = LabelFormatter(), display = 'multiple')
+    self.canvas.draw()
 
   def plot_magphase(self, data):
     if self.cursor is not None: self.cursor.hide().disable()
@@ -485,6 +520,22 @@ class VNA(QMainWindow, Ui_VNA):
       fh.write('# GHz S MA R 50\n')
       for i in range(0, size):
         fh.write('0.0%.8d   %8.6f %7.2f\n' % (self.xaxis[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
+      fh.close()
+
+  def write_s2p(self):
+    dialog = QFileDialog(self, 'Write s2p file', '.', '*.s2p')
+    dialog.setDefaultSuffix('s2p')
+    dialog.setAcceptMode(QFileDialog.AcceptSave)
+    dialog.setOptions(QFileDialog.DontConfirmOverwrite)
+    if dialog.exec() == QDialog.Accepted:
+      name = dialog.selectedFiles()
+      fh = open(name[0], 'w')
+      gain = self.gain()
+      gamma = self.gamma()
+      size = self.sizeValue.value()
+      fh.write('# GHz S MA R 50\n')
+      for i in range(0, size):
+        fh.write('0.0%.8d   %8.6f %7.2f   %8.6f %7.2f   0.000000    0.00   0.000000    0.00\n' % (self.xaxis[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True), np.absolute(gain[i]), np.angle(gain[i], deg = True)))
       fh.close()
 
 warnings.filterwarnings('ignore')
