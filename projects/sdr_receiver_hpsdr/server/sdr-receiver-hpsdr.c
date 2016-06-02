@@ -345,7 +345,7 @@ void *handler_ep6(void *arg)
         }
         if(size > 32)
         {
-          memcpy(buffer[i] + buffer_offset + 30, data4 + data_offset, 6);
+          memcpy(buffer[i] + buffer_offset + 30, data5 + data_offset, 6);
         }
         data_offset += 8;
         buffer_offset += size;
@@ -377,7 +377,7 @@ void *handler_ep6(void *arg)
         }
         if(size > 32)
         {
-          memcpy(buffer[i] + buffer_offset + 30, data4 + data_offset, 6);
+          memcpy(buffer[i] + buffer_offset + 30, data5 + data_offset, 6);
         }
         data_offset += 8;
         buffer_offset += size;
