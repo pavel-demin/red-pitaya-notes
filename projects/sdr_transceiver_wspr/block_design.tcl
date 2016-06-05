@@ -105,6 +105,22 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0
 
+# GPIO
+
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_p_tri_io]
+
+# Create output port
+create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
+  DIN_WIDTH 288 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+  Dout exp_p_tri_io
+}
+
 # RX 0
 
 # Create xlslice
