@@ -198,14 +198,14 @@
        <property name="bottomMargin">
         <number>6</number>
        </property>
-       <item row="4" column="0">
+       <item row="5" column="0">
         <widget class="QPushButton" name="s2pButton">
          <property name="text">
           <string>Write s2p</string>
          </property>
         </widget>
        </item>
-       <item row="17" column="0">
+       <item row="18" column="0">
         <widget class="QPushButton" name="gainPlot">
          <property name="text">
           <string>Gain</string>
@@ -225,49 +225,49 @@
          </property>
         </spacer>
        </item>
-       <item row="7" column="0">
+       <item row="8" column="0">
         <widget class="QPushButton" name="shortPlot">
          <property name="text">
           <string>Short data</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
+       <item row="7" column="0">
         <widget class="QPushButton" name="openPlot">
          <property name="text">
           <string>Open data</string>
          </property>
         </widget>
        </item>
-       <item row="13" column="0">
+       <item row="14" column="0">
         <widget class="QPushButton" name="rcPlot">
          <property name="text">
           <string>Refl. coeff.</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="0">
+       <item row="13" column="0">
         <widget class="QPushButton" name="impPlot">
          <property name="text">
           <string>Impedance</string>
          </property>
         </widget>
        </item>
-       <item row="14" column="0">
+       <item row="15" column="0">
         <widget class="QPushButton" name="swrPlot">
          <property name="text">
           <string>SWR</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="9" column="0">
         <widget class="QPushButton" name="loadPlot">
          <property name="text">
           <string>Load data</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <spacer name="spacer4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -280,7 +280,7 @@
          </property>
         </spacer>
        </item>
-       <item row="15" column="0">
+       <item row="16" column="0">
         <widget class="QPushButton" name="rlPlot">
          <property name="text">
           <string>Return loss</string>
@@ -300,7 +300,7 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
+       <item row="11" column="0">
         <spacer name="spacer5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -313,21 +313,21 @@
          </property>
         </spacer>
        </item>
-       <item row="11" column="0">
+       <item row="12" column="0">
         <widget class="QPushButton" name="smithPlot">
          <property name="text">
           <string>Smith chart</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
+       <item row="10" column="0">
         <widget class="QPushButton" name="dutPlot">
          <property name="text">
           <string>DUT data</string>
          </property>
         </widget>
        </item>
-       <item row="16" column="0">
+       <item row="17" column="0">
         <spacer name="spacer6">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -340,7 +340,7 @@
          </property>
         </spacer>
        </item>
-       <item row="3" column="0">
+       <item row="4" column="0">
         <widget class="QPushButton" name="s1pButton">
          <property name="text">
           <string>Write s1p</string>
@@ -360,7 +360,7 @@
          </property>
         </spacer>
        </item>
-       <item row="18" column="0">
+       <item row="19" column="0">
         <spacer name="spacer7">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -372,6 +372,13 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="csvButton">
+         <property name="text">
+          <string>Write csv</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

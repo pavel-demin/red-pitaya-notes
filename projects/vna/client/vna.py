@@ -129,12 +129,13 @@ class VNA(QMainWindow, Ui_VNA):
     self.shortSweep.clicked.connect(self.sweep_short)
     self.loadSweep.clicked.connect(self.sweep_load)
     self.dutSweep.clicked.connect(self.sweep_dut)
+    self.csvButton.clicked.connect(self.write_csv)
     self.s1pButton.clicked.connect(self.write_s1p)
     self.s2pButton.clicked.connect(self.write_s2p)
     self.startValue.valueChanged.connect(self.set_start)
     self.stopValue.valueChanged.connect(self.set_stop)
     self.sizeValue.valueChanged.connect(self.set_size)
-    self.rateValue.addItems(['1000', '100', '10', '1'])
+    self.rateValue.addItems(['500', '100', '50', '10', '5', '1'])
     self.rateValue.lineEdit().setReadOnly(True)
     self.rateValue.lineEdit().setAlignment(Qt.AlignRight)
     for i in range(0, self.rateValue.count()):
@@ -240,7 +241,7 @@ class VNA(QMainWindow, Ui_VNA):
 
   def set_rate(self, value):
     if self.idle: return
-    rate = [1, 10, 100, 1000][value]
+    rate = [1, 5, 10, 50, 100, 500][value]
     self.socket.write(struct.pack('<I', 3<<28 | int(rate)))
 
   def set_corr(self, value):
@@ -506,6 +507,21 @@ class VNA(QMainWindow, Ui_VNA):
       real = settings.value('dut_real_%d' % i, 0.0, type = float)
       imag = settings.value('dut_imag_%d' % i, 0.0, type = float)
       self.dut[i] = real + 1.0j * imag
+
+  def write_csv(self):
+    dialog = QFileDialog(self, 'Write csv file', '.', '*.csv')
+    dialog.setDefaultSuffix('csv')
+    dialog.setAcceptMode(QFileDialog.AcceptSave)
+    dialog.setOptions(QFileDialog.DontConfirmOverwrite)
+    if dialog.exec() == QDialog.Accepted:
+      name = dialog.selectedFiles()
+      fh = open(name[0], 'w')
+      gamma = self.gamma()
+      size = self.sizeValue.value()
+      fh.write('frequency;open.real;open.imag;short.real;short.imag;load.real;load.imag;dut.real;dut.imag\n')
+      for i in range(0, size):
+        fh.write('0.0%.8d;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f\n' % (self.xaxis[i], self.open.real[i], self.open.imag[i], self.short.real[i], self.short.imag[i], self.load.real[i], self.load.imag[i], self.dut.real[i], self.dut.imag[i]))
+      fh.close()
 
   def write_s1p(self):
     dialog = QFileDialog(self, 'Write s1p file', '.', '*.s1p')

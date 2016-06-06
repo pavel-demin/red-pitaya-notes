@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   char *name = "/dev/mem";
   volatile uint32_t *rx_freq, *tx_freq;
   volatile uint32_t *rx_size, *tx_size;
-  uint8_t *rst;
+  volatile uint8_t *rst;
   struct sockaddr_in addr;
   uint32_t command, rate;
   int32_t value, corr;
@@ -57,8 +57,8 @@ int main(int argc, char *argv[])
   rx_size = ((uint32_t *)(cfg + 4));
   tx_size = ((uint32_t *)(cfg + 8));
 
-  *rx_size = 125000 - 1;
-  *tx_size = 125000 - 1;
+  *rx_size = 250000 - 1;
+  *tx_size = 250000 - 1;
 
   start = 100000;
   stop = 60000000;
@@ -124,8 +124,8 @@ int main(int argc, char *argv[])
           /* set rate */
           if(value < 1 || value > 10000) continue;
           rate = value;
-          *rx_size = 125000 * rate - 1;
-          *tx_size = 125000 * rate - 1;
+          *rx_size = 250000 * rate - 1;
+          *tx_size = 250000 * rate - 1;
           break;
         case 4:
           /* set correction */
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
           {
             if(i > 0) freq = start + (stop - start) * (i - 1) / (size - 1);
             freq *= (1.0 + 1.0e-9 * corr);
-            *rx_freq = (uint32_t)floor((freq + 5000) / 125.0e6 * (1<<30) + 0.5);
+            *rx_freq = (uint32_t)floor((freq + 2500) / 125.0e6 * (1<<30) + 0.5);
             *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1<<30) + 0.5);
           }
           *rst |= 1;
@@ -185,7 +185,7 @@ void *sweep_handler(void *arg)
   float omega, sine, cosine, coeff;
   float re[3], r0[3], r1[3], r2[3];
   float im[3], i0[3], i1[3], i2[3];
-  float *w, buffer[6];
+  float *w, buffer0[3][1000], buffer1[6];
 
   w = malloc(4 * 500 * rate);
 
@@ -211,13 +211,20 @@ void *sweep_handler(void *arg)
       continue;
     }
 
+    for(i = 0; i < 1000; ++i)
+    {
+      buffer0[0][i] = *rx_data[0];
+      buffer0[1][i] = *rx_data[1];
+      buffer0[2][i] = *rx_data[2];
+    }
+
     for(i = 0; i < 500; ++i)
     {
       if(cntr < rate) w[k] = sin(M_PI * k / (500 * rate - 1));
       for(j = 0; j < 3; ++j)
       {
-        re[j] = *rx_data[j];
-        im[j] = *rx_data[j];
+        re[j] = buffer0[j][2 * i + 0];
+        im[j] = buffer0[j][2 * i + 1];
         r0[j] = coeff * r1[j] - r2[j] + re[j] * w[k];
         i0[j] = coeff * i1[j] - i2[j] + im[j] * w[k];
         r2[j] = r1[j];
@@ -234,8 +241,8 @@ void *sweep_handler(void *arg)
 
     for(j = 0; j < 3; ++j)
     {
-      buffer[2 * j + 0] = (r1[j] - r2[j] * cosine) - (i2[j] * sine);
-      buffer[2 * j + 1] = (r2[j] * sine) + (i1[j] - i2[j] * cosine);
+      buffer1[2 * j + 0] = (r1[j] - r2[j] * cosine) - (i2[j] * sine);
+      buffer1[2 * j + 1] = (r2[j] * sine) + (i1[j] - i2[j] * cosine);
     }
 
     memset(r1, 0, 12);
@@ -245,7 +252,7 @@ void *sweep_handler(void *arg)
 
     k = 0;
 
-    if(send(sock_thread, buffer, 24, MSG_NOSIGNAL) < 0) break;
+    if(send(sock_thread, buffer1, 24, MSG_NOSIGNAL) < 0) break;
   }
 
   free(w);
