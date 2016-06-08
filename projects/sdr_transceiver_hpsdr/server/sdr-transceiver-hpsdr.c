@@ -43,6 +43,11 @@ int active_thread = 0;
 
 void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
+void *handler_playback(void *arg);
+
+pthread_mutex_t playback_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t playback_cond = PTHREAD_COND_INITIALIZER;
+uint8_t playback_data[504];
 
 /* variables to handle PCA9555 board */
 int i2c_fd;
@@ -245,6 +250,13 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  if(pthread_create(&thread, NULL, handler_playback, NULL) < 0)
+  {
+    perror("pthread_create");
+    return EXIT_FAILURE;
+  }
+  pthread_detach(thread);
+
   while(1)
   {
     size_from = sizeof(addr_from);
@@ -258,6 +270,14 @@ int main(int argc, char *argv[])
     switch(*(uint32_t *)buffer)
     {
       case 0x0201feef:
+        pthread_mutex_lock(&playback_mutex);
+        for(i = 0; i < 252; i += 4)
+        {
+          memcpy(playback_data + i, buffer + 16 + i * 2, 4);
+          memcpy(playback_data + 252 + i, buffer + 528 + i * 2, 4);
+        }
+        pthread_cond_signal(&playback_cond);
+        pthread_mutex_unlock(&playback_mutex);
         while(*tx_cntr > 16258) usleep(1000);
         if(*tx_cntr == 0) memset(tx_data, 0, 65032);
         if((*gpio_out & 1) | (*gpio_in & 1))
@@ -565,5 +585,17 @@ void *handler_ep6(void *arg)
 
   active_thread = 0;
 
+  return NULL;
+}
+
+void *handler_playback(void *arg)
+{
+  while(1)
+  {
+    pthread_mutex_lock(&playback_mutex);
+    pthread_cond_wait(&playback_cond, &playback_mutex);
+    write(1, playback_data, 504);
+    pthread_mutex_unlock(&playback_mutex);
+  }
   return NULL;
 }
