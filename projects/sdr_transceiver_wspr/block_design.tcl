@@ -75,7 +75,7 @@ cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
 
 # Create axis_zeroer
 cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
-  AXIS_TDATA_WIDTH 16
+  AXIS_TDATA_WIDTH 32
 } {
   aclk adc_0/adc_clk
 }
@@ -266,3 +266,12 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 set_property OFFSET 0x4000B000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins tx_0/switch_0/S_AXI_CTRL]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg1]
+set_property OFFSET 0x4000C000 [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg1]
