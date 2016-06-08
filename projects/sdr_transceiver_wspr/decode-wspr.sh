@@ -30,7 +30,7 @@ $RECORDER $CONFIG
 
 echo "Decoding ..."
 
-parallel --jobs $JOBS --nice $NICE $DECODER -JC 5000 ::: wspr_*_$TIMESTAMP.c2
+parallel --keep-order --jobs $JOBS --nice $NICE $DECODER -JC 5000 ::: wspr_*_$TIMESTAMP.c2
 rm -f wspr_*_$TIMESTAMP.c2
 
 test -n "$CALL" -a -n "$GRID" -a -s $ALLMEPT || exit
