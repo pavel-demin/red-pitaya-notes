@@ -118,7 +118,8 @@ apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   iw firmware-realtek firmware-ralink unzip ifplugd ntfs-3g build-essential \
   libconfig-dev libpcre3-dev libluajit-5.1-dev libcurl4-openssl-dev libssl-dev \
   libboost-regex1.55-dev libboost-system1.55-dev libboost-thread1.55-dev \
-  libcrypto++-dev libfftw3-dev zlib1g-dev lua-cjson parallel subversion git
+  libcrypto++-dev libfftw3-dev zlib1g-dev libasound2-dev alsa-utils lua-cjson \
+  parallel subversion git
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
