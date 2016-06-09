@@ -9,5 +9,5 @@ if aplay --list-devices | grep 'card 0:'
 then
   $server | aplay --format=S16_BE --channels=2 --rate=48000 &
 else
-  $server > /dev/null
-done
+  $server > /dev/null &
+fi
