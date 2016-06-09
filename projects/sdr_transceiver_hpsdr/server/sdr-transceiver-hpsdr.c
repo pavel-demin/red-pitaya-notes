@@ -590,12 +590,22 @@ void *handler_ep6(void *arg)
 
 void *handler_playback(void *arg)
 {
+  int offset = 0;
+  uint8_t buffer[64512];
+
   while(1)
   {
     pthread_mutex_lock(&playback_mutex);
     pthread_cond_wait(&playback_cond, &playback_mutex);
-    write(1, playback_data, 504);
+    memcpy(buffer + offset, playback_data, 504);
     pthread_mutex_unlock(&playback_mutex);
+    offset += 504;
+    if(offset >= 64512)
+    {
+      offset = 0;
+      fwrite(buffer, 1, 64512, stdout);
+      fflush(stdout);
+    }
   }
   return NULL;
 }
