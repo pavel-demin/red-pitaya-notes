@@ -26,11 +26,11 @@
 #define ADDR_PENE 0x20 /* PCA9555 address 0 */
 #define ADDR_ALEX 0x21 /* PCA9555 address 1 */
 
-uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex;
-uint16_t *rx_cntr, *tx_cntr;
-uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
-uint64_t *rx_data;
-void *tx_data;
+volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex;
+volatile uint16_t *rx_cntr, *tx_cntr;
+volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
+volatile uint64_t *rx_data;
+volatile uint32_t *tx_data;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
   int fd, i;
   ssize_t size;
   pthread_t thread;
-  void *cfg, *sts;
+  volatile void *cfg, *sts;
   char *name = "/dev/mem";
   uint8_t buffer[1032];
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
@@ -271,25 +271,19 @@ int main(int argc, char *argv[])
     switch(*(uint32_t *)buffer)
     {
       case 0x0201feef:
-        for(i = 0; i < 252; i += 4)
-        {
-          jack_ringbuffer_write(playback_data, buffer + 16 + i * 2, 4);
-        }
-        for(i = 0; i < 252; i += 4)
-        {
-          jack_ringbuffer_write(playback_data, buffer + 528 + i * 2, 4);
-        }
         while(*tx_cntr > 16258) usleep(1000);
-        if(*tx_cntr == 0) memset(tx_data, 0, 65032);
+        if(*tx_cntr == 0) for(i = 0; i < 16258; ++i) *tx_data = 0;
         if((*gpio_out & 1) | (*gpio_in & 1))
         {
-          for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 20 + i, 4);
-          for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 532 + i, 4);
+          for(i = 0; i < 504; i += 8) *tx_data = *(uint32_t *)(buffer + 20 + i);
+          for(i = 0; i < 504; i += 8) *tx_data = *(uint32_t *)(buffer + 532 + i);
         }
         else
         {
-          memset(tx_data, 0, 504);
+          for(i = 0; i < 126; ++i) *tx_data = 0;
         }
+        for(i = 0; i < 504; i += 8) jack_ringbuffer_write(playback_data, buffer + 16 + i, 4);
+        for(i = 0; i < 504; i += 8) jack_ringbuffer_write(playback_data, buffer + 528 + i, 4);
         process_ep2(buffer + 11);
         process_ep2(buffer + 523);
         break;
