@@ -161,7 +161,7 @@ make NAME=sdr_transceiver_hpsdr tmp/sdr_transceiver_hpsdr.bit
 
 Building `sdr-transceiver-hpsdr`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -o sdr-transceiver-hpsdr -D_GNU_SOURCE -lm -lpthread -static
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -o sdr-transceiver-hpsdr -D_GNU_SOURCE -Iprojects/sdr_transceiver_hpsdr/server -lm -lpthread
 {% endhighlight %}
 
 Building SD card image zip file:
