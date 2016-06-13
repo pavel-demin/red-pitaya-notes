@@ -114,7 +114,7 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
-  iw firmware-realtek firmware-ralink ifplugd ntfs-3g \
+  iw firmware-realtek firmware-ralink firmware-atheros ifplugd ntfs-3g \
   build-essential subversion libfftw3-dev libconfig-dev parallel
 
 cd root
