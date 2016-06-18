@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
   char *name = "/dev/mem";
   volatile uint32_t *rx_freq, *tx_freq;
   volatile uint32_t *rx_size, *tx_size;
+  volatile int16_t *tx_level;
   volatile uint8_t *rst;
   struct sockaddr_in addr;
   uint32_t command, rate;
@@ -56,9 +57,11 @@ int main(int argc, char *argv[])
   rst = ((uint8_t *)(cfg + 0));
   rx_size = ((uint32_t *)(cfg + 4));
   tx_size = ((uint32_t *)(cfg + 8));
+  tx_level = ((int16_t *)(cfg + 12));
 
   *rx_size = 250000 - 1;
   *tx_size = 250000 - 1;
+  *tx_level = 32767;
 
   start = 100000;
   stop = 60000000;
@@ -133,6 +136,11 @@ int main(int argc, char *argv[])
           corr = value;
           break;
         case 5:
+          /* set level */
+          if(value < -32767 || value > 32767) continue;
+          *tx_level = value;
+          break;
+        case 6:
           /* sweep */
           *rst &= ~3;
           *rst |= 4;
@@ -157,7 +165,7 @@ int main(int argc, char *argv[])
           }
           *rst |= 1;
           break;
-        case 6:
+        case 7:
           /* cancel */
           *rst &= ~3;
           *rst |= 4;

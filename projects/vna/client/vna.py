@@ -142,6 +142,7 @@ class VNA(QMainWindow, Ui_VNA):
       self.rateValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
     self.rateValue.currentIndexChanged.connect(self.set_rate)
     self.corrValue.valueChanged.connect(self.set_corr)
+    self.levelValue.valueChanged.connect(self.set_level)
     self.openPlot.clicked.connect(self.plot_open)
     self.shortPlot.clicked.connect(self.plot_short)
     self.loadPlot.clicked.connect(self.plot_load)
@@ -184,6 +185,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.set_size(self.sizeValue.value())
     self.set_rate(self.rateValue.currentIndex())
     self.set_corr(self.corrValue.value())
+    self.set_level(self.levelValue.value())
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
     self.sweepFrame.setEnabled(True)
@@ -248,11 +250,15 @@ class VNA(QMainWindow, Ui_VNA):
     if self.idle: return
     self.socket.write(struct.pack('<I', 4<<28 | int(value)))
 
+  def set_level(self, value):
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 5<<28 | int(32767 * np.power(10.0, value / 20.0))))
+
   def sweep(self):
     if self.idle: return
     self.sweepFrame.setEnabled(False)
     self.selectFrame.setEnabled(False)
-    self.socket.write(struct.pack('<I', 5<<28))
+    self.socket.write(struct.pack('<I', 6<<28))
     self.offset = 0
     self.reading = True
     self.progress = QProgressDialog('Sweep status', 'Cancel', 0, self.sweep_size + 1)
@@ -263,7 +269,7 @@ class VNA(QMainWindow, Ui_VNA):
   def cancel(self):
     self.offset = 0
     self.reading = False
-    self.socket.write(struct.pack('<I', 6<<28))
+    self.socket.write(struct.pack('<I', 7<<28))
     self.sweepFrame.setEnabled(True)
     self.selectFrame.setEnabled(True)
 

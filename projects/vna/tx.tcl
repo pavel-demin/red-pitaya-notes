@@ -1,16 +1,21 @@
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 96 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+  DIN_WIDTH 128 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+  DIN_WIDTH 128 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
+  DIN_WIDTH 128 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_3 {
+  DIN_WIDTH 128 DIN_FROM 111 DIN_TO 96 DOUT_WIDTH 16
 }
 
 # Create axi_axis_writer
@@ -61,12 +66,42 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   aresetn slice_0/Dout
 }
 
+# Create axis_constant
+cell pavel-demin:user:axis_constant:1.0 const_0 {
+  AXIS_TDATA_WIDTH 16
+} {
+  cfg_data slice_3/Dout
+  aclk /ps_0/FCLK_CLK0
+}
+
+# Create axis_lfsr
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
+  aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
+}
+
+# Create cmpy
+cell xilinx.com:ip:cmpy:6.0 mult_0 {
+  FLOWCONTROL Blocking
+  APORTWIDTH.VALUE_SRC USER
+  BPORTWIDTH.VALUE_SRC USER
+  APORTWIDTH 14
+  BPORTWIDTH 16
+  ROUNDMODE Random_Rounding
+  OUTPUTWIDTH 16
+} {
+  S_AXIS_A dds_0/M_AXIS_DATA
+  S_AXIS_B const_0/M_AXIS
+  S_AXIS_CTRL lfsr_0/M_AXIS
+  aclk /ps_0/FCLK_CLK0
+}
+
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
 } {
-  S_AXIS dds_0/M_AXIS_DATA
+  S_AXIS mult_0/M_AXIS_DOUT
   s_axis_aclk /ps_0/FCLK_CLK0
   s_axis_aresetn slice_0/Dout
 }
