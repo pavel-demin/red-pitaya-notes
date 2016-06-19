@@ -11,14 +11,19 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "jack/ringbuffer.c"
+
 volatile uint16_t *rx_cntr[3];
-volatile float *rx_data[3];
+volatile uint64_t *rx_data[3];
 
 int sock_thread = -1;
 uint32_t rate_thread = 1;
 uint32_t size_thread = 600;
 
-void *sweep_handler(void *arg);
+jack_ringbuffer_t *sweep_data = 0;
+
+void *read_handler(void *arg);
+void *send_handler(void *arg);
 
 int main(int argc, char *argv[])
 {
@@ -68,6 +73,8 @@ int main(int argc, char *argv[])
   size = 600;
   rate = 1;
   corr = 0;
+
+  sweep_data = jack_ringbuffer_create(65536);
 
   *rst &= ~3;
   *rst |= 4;
@@ -149,7 +156,13 @@ int main(int argc, char *argv[])
           rate_thread = rate;
           size_thread = size;
           sock_thread = sock_client;
-          if(pthread_create(&thread, NULL, sweep_handler, NULL) < 0)
+          if(pthread_create(&thread, NULL, read_handler, NULL) < 0)
+          {
+            perror("pthread_create");
+            return EXIT_FAILURE;
+          }
+          pthread_detach(thread);
+          if(pthread_create(&thread, NULL, send_handler, NULL) < 0)
           {
             perror("pthread_create");
             return EXIT_FAILURE;
@@ -185,15 +198,47 @@ int main(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
-void *sweep_handler(void *arg)
+void *read_handler(void *arg)
+{
+  int i, cntr;
+  uint32_t rate = rate_thread;
+  uint32_t size = size_thread;
+  uint64_t buffer[3];
+
+  cntr = 0;
+  while(cntr < (size + 1) * rate)
+  {
+    if(sock_thread < 0) break;
+
+    if(*rx_cntr[0] < 1000)
+    {
+      usleep(100);
+      continue;
+    }
+
+    for(i = 0; i < 500; ++i)
+    {
+      buffer[0] = *rx_data[0];
+      buffer[1] = *rx_data[1];
+      buffer[2] = *rx_data[2];
+      jack_ringbuffer_write(sweep_data, (char *)buffer, 24);
+    }
+
+    ++cntr;
+  }
+
+  return NULL;
+}
+
+void *send_handler(void *arg)
 {
   int i, j, k, cntr;
   uint32_t rate = rate_thread;
   uint32_t size = size_thread;
   float omega, sine, cosine, coeff;
-  float re[3], r0[3], r1[3], r2[3];
-  float im[3], i0[3], i1[3], i2[3];
-  float *w, buffer0[3][1000], buffer1[6];
+  float re, r0[3], r1[3], r2[3];
+  float im, i0[3], i1[3], i2[3];
+  float *w, buffer[6];
 
   w = malloc(4 * 500 * rate);
 
@@ -213,17 +258,10 @@ void *sweep_handler(void *arg)
   {
     if(sock_thread < 0) break;
 
-    if(*rx_cntr[0] < 1000)
+    if(jack_ringbuffer_read_space(sweep_data) < 12000)
     {
       usleep(100);
       continue;
-    }
-
-    for(i = 0; i < 1000; ++i)
-    {
-      buffer0[0][i] = *rx_data[0];
-      buffer0[1][i] = *rx_data[1];
-      buffer0[2][i] = *rx_data[2];
     }
 
     for(i = 0; i < 500; ++i)
@@ -231,10 +269,10 @@ void *sweep_handler(void *arg)
       if(cntr < rate) w[k] = sin(M_PI * k / (500 * rate - 1));
       for(j = 0; j < 3; ++j)
       {
-        re[j] = buffer0[j][2 * i + 0];
-        im[j] = buffer0[j][2 * i + 1];
-        r0[j] = coeff * r1[j] - r2[j] + re[j] * w[k];
-        i0[j] = coeff * i1[j] - i2[j] + im[j] * w[k];
+        jack_ringbuffer_read(sweep_data, (char *)&re, 4);
+        jack_ringbuffer_read(sweep_data, (char *)&im, 4);
+        r0[j] = coeff * r1[j] - r2[j] + re * w[k];
+        i0[j] = coeff * i1[j] - i2[j] + im * w[k];
         r2[j] = r1[j];
         i2[j] = i1[j];
         r1[j] = r0[j];
@@ -249,8 +287,8 @@ void *sweep_handler(void *arg)
 
     for(j = 0; j < 3; ++j)
     {
-      buffer1[2 * j + 0] = (r1[j] - r2[j] * cosine) - (i2[j] * sine);
-      buffer1[2 * j + 1] = (r2[j] * sine) + (i1[j] - i2[j] * cosine);
+      buffer[2 * j + 0] = (r1[j] - r2[j] * cosine) - (i2[j] * sine);
+      buffer[2 * j + 1] = (r2[j] * sine) + (i1[j] - i2[j] * cosine);
     }
 
     memset(r1, 0, 12);
@@ -260,7 +298,7 @@ void *sweep_handler(void *arg)
 
     k = 0;
 
-    if(send(sock_thread, buffer1, 24, MSG_NOSIGNAL) < 0) break;
+    if(send(sock_thread, buffer, 24, MSG_NOSIGNAL) < 0) break;
   }
 
   free(w);
