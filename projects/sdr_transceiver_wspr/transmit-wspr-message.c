@@ -14,9 +14,9 @@ int printdata = 0;
 int main(int argc, char *argv[])
 {
   int fd, i;
-  void *cfg, *mux;
-  uint8_t *rst;
-  uint32_t *fifo;
+  volatile void *cfg, *mux;
+  volatile uint8_t *rst;
+  volatile uint32_t *fifo;
   unsigned char symbols[162];
   char *message, *hashtab;
   config_t config;
