@@ -12,10 +12,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-uint32_t *rx_freq, *rx_rate, *tx_freq, *tx_rate;
-uint16_t *gpio, *rx_cntr, *tx_cntr;
-uint8_t *rx_rst, *tx_rst;
-void *rx_data, *tx_data;
+volatile uint64_t *rx_data, *tx_data;
+volatile uint32_t *rx_freq, *rx_rate, *tx_freq, *tx_rate;
+volatile uint16_t *gpio, *rx_cntr, *tx_cntr;
+volatile uint8_t *rx_rst, *tx_rst;
 
 int sock_thread[4] = {-1, -1, -1, -1};
 
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     tx_ctrl_handler,
     tx_data_handler
   };
-  void *cfg, *sts;
+  volatile void *cfg, *sts;
   char *end, *name = "/dev/mem";
   struct sockaddr_in addr;
   uint16_t port;
@@ -206,8 +206,8 @@ void *rx_ctrl_handler(void *arg)
 
 void *rx_data_handler(void *arg)
 {
-  int sock_client = sock_thread[1];
-  char buffer[32768];
+  int i, sock_client = sock_thread[1];
+  uint64_t buffer[4096];
 
   *rx_rst |= 1;
   *rx_rst &= ~1;
@@ -222,7 +222,7 @@ void *rx_data_handler(void *arg)
 
     while(*rx_cntr < 8192) usleep(500);
 
-    memcpy(buffer, rx_data, 32768);
+    for(i = 0; i < 4096; ++i) buffer[i] = *rx_data;
     if(send(sock_client, buffer, 32768, MSG_NOSIGNAL) < 0) break;
   }
 
@@ -317,8 +317,8 @@ void *tx_ctrl_handler(void *arg)
 
 void *tx_data_handler(void *arg)
 {
-  int sock_client = sock_thread[3];
-  char buffer[32768];
+  int i, sock_client = sock_thread[3];
+  uint64_t buffer[4096];
 
   *tx_rst |= 1;
   *tx_rst &= ~1;
@@ -329,11 +329,11 @@ void *tx_data_handler(void *arg)
 
     if(*tx_cntr == 0)
     {
-      memset(tx_data, 0, 32768);
+      for(i = 0; i < 4096; ++i) *tx_data = 0;
     }
 
     if(recv(sock_client, buffer, 32768, 0) <= 0) break;
-    memcpy(tx_data, buffer, 32768);
+    for(i = 0; i < 4096; ++i) *tx_data = buffer[i];
   }
 
   close(sock_client);
