@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
           rate_thread = rate;
           size_thread = size;
           sock_thread = sock_client;
+          jack_ringbuffer_reset(sweep_data);
           if(pthread_create(&thread, NULL, read_handler, NULL) < 0)
           {
             perror("pthread_create");
