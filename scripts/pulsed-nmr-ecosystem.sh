@@ -6,7 +6,7 @@ test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/${e
 
 unzip -d ${ecosystem}-pulsed-nmr ${ecosystem}.zip
 
-arm-linux-gnueabihf-gcc -static projects/pulsed_nmr/server/pulsed-nmr.c -lm -o ${ecosystem}-pulsed-nmr/bin/pulsed-nmr
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/pulsed_nmr/server/pulsed-nmr.c -lm -o ${ecosystem}-pulsed-nmr/bin/pulsed-nmr
 cp tmp/pulsed_nmr.bit ${ecosystem}-pulsed-nmr
 
 rm -f ${ecosystem}-pulsed-nmr/u-boot.scr
