@@ -6,7 +6,7 @@ test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/${e
 
 unzip -d ${ecosystem}-sdr-transceiver-hpsdr ${ecosystem}.zip
 
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -D_GNU_SOURCE -Iprojects/sdr_transceiver_hpsdr/server -lm -lpthread -o ${ecosystem}-sdr-transceiver-hpsdr/bin/sdr-transceiver-hpsdr
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -D_GNU_SOURCE -Iprojects/sdr_transceiver_hpsdr/server -lm -lpthread -o ${ecosystem}-sdr-transceiver-hpsdr/bin/sdr-transceiver-hpsdr
 cp tmp/sdr_transceiver_hpsdr.bit ${ecosystem}-sdr-transceiver-hpsdr
 
 rm -f ${ecosystem}-sdr-transceiver-hpsdr/u-boot.scr
