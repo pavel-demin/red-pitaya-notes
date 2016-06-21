@@ -18,8 +18,9 @@ int main()
   int16_t value[2];
   uint32_t command, code, data, period, pulses, shdelay, shtime;
   uint64_t buffer[1024], tmp;
-  void *cfg, *sts, *dac;
-  uint64_t *adc;
+  volatile void *cfg, *sts;
+  void *dac;
+  volatile uint64_t *adc;
   char *name = "/dev/mem";
 
   if((fd = open(name, O_RDWR)) < 0)
@@ -257,11 +258,6 @@ int main()
   }
 
   close(sock_server);
-
-  munmap(cfg, sysconf(_SC_PAGESIZE));
-  munmap(sts, sysconf(_SC_PAGESIZE));
-  munmap(adc, sysconf(_SC_PAGESIZE));
-  munmap(dac, sysconf(_SC_PAGESIZE));
 
   return EXIT_SUCCESS;
 }

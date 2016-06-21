@@ -3,7 +3,7 @@ server=sdr-receiver-hpsdr
 
 cp -a projects/$project/bazaar $project
 arm-linux-gnueabihf-gcc -shared -Wall -fPIC -Os -s $project/src/main.c -o $project/controllerhf.so
-arm-linux-gnueabihf-gcc -static projects/$project/server/$server.c -D_GNU_SOURCE -lm -lpthread -o $project/$server
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/$project/server/$server.c -D_GNU_SOURCE -lm -lpthread -o $project/$server
 cp tmp/$project.bit $project
 
 build_number=`git rev-list HEAD --count`

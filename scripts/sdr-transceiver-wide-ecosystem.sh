@@ -6,7 +6,7 @@ test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/${e
 
 unzip -d ${ecosystem}-sdr-transceiver-wide ${ecosystem}.zip
 
-arm-linux-gnueabihf-gcc -static projects/sdr_transceiver_wide/server/sdr-transceiver-wide.c -lm -lpthread -o ${ecosystem}-sdr-transceiver-wide/bin/sdr-transceiver-wide
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/sdr_transceiver_wide/server/sdr-transceiver-wide.c -lm -lpthread -o ${ecosystem}-sdr-transceiver-wide/bin/sdr-transceiver-wide
 cp tmp/sdr_transceiver_wide.bit ${ecosystem}-sdr-transceiver-wide
 
 rm -f ${ecosystem}-sdr-transceiver-wide/u-boot.scr

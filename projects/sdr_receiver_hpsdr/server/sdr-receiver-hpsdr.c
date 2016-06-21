@@ -15,10 +15,10 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
-uint32_t *rx_freq[6], *rx_rate;
-uint16_t *rx_cntr[6];
-uint8_t *rx_rst;
-uint64_t *rx_data[6];
+volatile uint32_t *rx_freq[6], *rx_rate;
+volatile uint16_t *rx_cntr[6];
+volatile uint8_t *rx_rst;
+volatile uint64_t *rx_data[6];
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   int fd, i;
   ssize_t size;
   pthread_t thread;
-  void *cfg, *sts, *mux, *ptr;
+  volatile void *cfg, *sts, *mux, *ptr;
   char *end, *name = "/dev/mem";
   uint8_t buffer[1032];
   uint8_t reply[20] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1, 'R', 'T', 'L', '_', 'N', '1', 'G', 'P', 6};

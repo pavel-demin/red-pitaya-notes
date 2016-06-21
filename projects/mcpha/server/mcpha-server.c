@@ -17,7 +17,8 @@
 int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
-  void *cfg, *sts, *trg, *hst[2], *gen, *ram, *buf;
+  volatile void *cfg, *sts, *trg, *gen;
+  void *hst[2], *ram, *buf;
   char *name = "/dev/mem";
   struct sockaddr_in addr;
   int yes = 1;
@@ -264,13 +265,13 @@ int main(int argc, char *argv[])
         /* read timer */
         if(chan == 0)
         {
-          memcpy(buf, sts + 0, 8);
-          if(send(sock_client, buf, 8, MSG_NOSIGNAL) < 0) break;
+          data = *(uint64_t *)(sts + 0);
+          if(send(sock_client, &data, 8, MSG_NOSIGNAL) < 0) break;
         }
         else if(chan == 1)
         {
-          memcpy(buf, sts + 8, 8);
-          if(send(sock_client, buf, 8, MSG_NOSIGNAL) < 0) break;
+          data = *(uint64_t *)(sts + 8);
+          if(send(sock_client, &data, 8, MSG_NOSIGNAL) < 0) break;
         }
       }
       else if(code == 13)
