@@ -4,7 +4,7 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.4 (amd64) or [Debian](http://www.debian.org/releases/jessie) 8.3 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2016.1 with full SDK.
+The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.4 (amd64) or [Debian](http://www.debian.org/releases/jessie) 8.3 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2016.2 with full SDK.
 
 Creating virtual machine with Ubuntu 14.04.4 (amd64) or Debian 8.3 (amd64)
 -----
@@ -85,23 +85,23 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 Installing Vivado Design Suite
 -----
 
-- Download "Vivado HLx 2016.1: All OS Installer Single-File Download" from the [Xilinx download page](http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2016-1.html) or from [this direct link](https://secure.xilinx.com/webreg/register.do?group=dlc&version=2016.1&akdm=0&filename=Xilinx_Vivado_SDK_2016.1_0409_1.tar.gz) (the file name is Xilinx_Vivado_SDK_2016.1_0409_1.tar.gz)
+- Download "Vivado HLx 2016.2: All OS Installer Single-File Download" from the [Xilinx download page](http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2016-2.html) or from [this direct link](https://secure.xilinx.com/webreg/register.do?group=dlc&version=2016.2&akdm=0&filename=Xilinx_Vivado_SDK_2016.2_0605_1.tar.gz) (the file name is Xilinx_Vivado_SDK_2016.2_0605_1.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
 mkdir /opt/Xilinx
 cd /opt/Xilinx
-tar -zxf Xilinx_Vivado_SDK_2016.1_0409_1.tar.gz
-cd Xilinx_Vivado_SDK_2016.1_0409_1
+tar -zxf Xilinx_Vivado_SDK_2016.2_0605_1.tar.gz
+cd Xilinx_Vivado_SDK_2016.2_0605_1
 sed -i '/uname -i/s/ -i/ -m/' xsetup
 ./xsetup
 {% endhighlight %}
 
-- Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2016_1/ug973-vivado-release-notes-install-license.pdf))
+- Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2016_2/ug973-vivado-release-notes-install-license.pdf))
 
-- Vivado 2016.1 comes bundled with `arm-linux-gnueabihf-gcc` (4.9.2, Linaro 2014.09, pre-release) that interferes with the `gcc` versions available from the Debian and Ubuntu repositories. The following command deactivates this `arm-linux-gnueabihf-gcc`:
+- Vivado 2016.2 comes bundled with `arm-linux-gnueabihf-gcc` (4.9.2, Linaro 2014.09, pre-release) that interferes with the `gcc` versions available from the Debian and Ubuntu repositories. The following command deactivates this `arm-linux-gnueabihf-gcc`:
 {% highlight bash %}
-mv /opt/Xilinx/SDK/2016.1/gnu/aarch32 /opt/Xilinx/SDK/2016.1/gnu/aarch32_dont_use
+mv /opt/Xilinx/SDK/2016.2/gnu/aarch32 /opt/Xilinx/SDK/2016.2/gnu/aarch32_dont_use
 {% endhighlight %}
 
 - Xilinx SDK requires `gmake` that is unavailable on Ubuntu and Debian. The following command creates a symbolic link called `gmake` and pointing to `make`:

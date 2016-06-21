@@ -99,8 +99,8 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2016.1/settings64.sh
-source /opt/Xilinx/SDK/2016.1/settings64.sh
+source /opt/Xilinx/Vivado/2016.2/settings64.sh
+source /opt/Xilinx/SDK/2016.2/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
@@ -116,7 +116,7 @@ make NAME=scanner tmp/scanner.bit
 
 Building `scanner`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc projects/scanner/server/scanner.c -o scanner -lm -static
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/scanner/server/scanner.c -o scanner -lm
 {% endhighlight %}
 
 Building SD card image zip file:

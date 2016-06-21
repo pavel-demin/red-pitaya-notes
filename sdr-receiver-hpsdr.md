@@ -80,8 +80,8 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2016.1/settings64.sh
-source /opt/Xilinx/SDK/2016.1/settings64.sh
+source /opt/Xilinx/Vivado/2016.2/settings64.sh
+source /opt/Xilinx/SDK/2016.2/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
@@ -97,7 +97,7 @@ make NAME=sdr_receiver_hpsdr tmp/sdr_receiver_hpsdr.bit
 
 Building `sdr-receiver-hpsdr`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc projects/sdr_receiver_hpsdr/server/sdr-receiver-hpsdr.c -o sdr-receiver-hpsdr -D_GNU_SOURCE -lm -lpthread -static
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/sdr_receiver_hpsdr/server/sdr-receiver-hpsdr.c -o sdr-receiver-hpsdr -D_GNU_SOURCE -lm -lpthread
 {% endhighlight %}
 
 Building SD card image zip file:

@@ -10,7 +10,7 @@ Introduction
 For my experiments with the [Red Pitaya](http://wiki.redpitaya.com), I'd like to have the following development environment:
 
  - recent version of the [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado)
- - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2016.1)
+ - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2016.2)
  - recent version of the [Debian distribution](http://www.debian.org/releases/jessie) on the development machine
  - recent version of the [Debian distribution](http://www.debian.org/releases/jessie) on the Red Pitaya
  - basic project with all the [Red Pitaya](http://wiki.redpitaya.com) peripherals connected
@@ -26,7 +26,7 @@ My development machine has the following installed:
 
  - [Debian](http://www.debian.org/releases/jessie) 8.4 (amd64)
 
- - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2016.1 with full SDK
+ - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2016.2 with full SDK
 
 The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
 
@@ -123,8 +123,8 @@ Getting started
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2016.1/settings64.sh
-source /opt/Xilinx/SDK/2016.1/settings64.sh
+source /opt/Xilinx/Vivado/2016.2/settings64.sh
+source /opt/Xilinx/SDK/2016.2/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
