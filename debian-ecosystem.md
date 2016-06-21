@@ -10,7 +10,7 @@ Introduction
 I've put together a bootable SD card image for the Red Pitaya board containing the following:
 
  - Linux 4.4.0-xilinx
- - Debian 8.4 (armhf)
+ - Debian 8.5 (armhf)
  - Development tools (GCC 4.9.2, make)
  - Wi-Fi drivers for MediaTek/Ralink and Realtek chipsets
  - Wi-Fi access point
@@ -41,7 +41,7 @@ vncserver -geometry 1200x700
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/red-pitaya-ecosystem-0.95-debian-8.4-armhf-20160613.zip).
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-ecosystem/red-pitaya-ecosystem-0.95-debian-8.5-armhf-20160613.zip).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
@@ -86,5 +86,5 @@ make NAME=led_blinker all
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian-ecosystem.sh red-pitaya-ecosystem-0.95-debian-8.4-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian-ecosystem.sh red-pitaya-ecosystem-0.95-debian-8.5-armhf.img 1024
 {% endhighlight %}

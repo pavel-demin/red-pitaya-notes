@@ -24,7 +24,7 @@ Pre-requirements
 
 My development machine has the following installed:
 
- - [Debian](http://www.debian.org/releases/jessie) 8.4 (amd64)
+ - [Debian](http://www.debian.org/releases/jessie) 8.5 (amd64)
 
  - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2016.2 with full SDK
 
@@ -148,7 +148,7 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.4-armhf.img
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.5-armhf.img
 {% endhighlight %}
 
 The SD card image size is 512 MB, so it should fit on any SD card starting from 1 GB.
@@ -157,7 +157,7 @@ To write the image to a SD card, the `dd` command-line utility can be used on GN
 
 The default password for the `root` account is `changeme`.
 
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-debian-8.4-armhf-20160522.zip).
+A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/red-pitaya-debian-8.5-armhf-20160522.zip).
 
 Resizing SD card partitions on running Red Pitaya:
 {% highlight bash %}
