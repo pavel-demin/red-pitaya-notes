@@ -59,9 +59,11 @@ chmod +x $root_dir/usr/local/sbin/hostapd
 mkdir -p $root_dir/root
 cp projects/sdr_transceiver_wspr/transmit-wspr-message.c $root_dir/root/
 cp projects/sdr_transceiver_wspr/transmit-wspr-message.cfg $root_dir/root/
+cp projects/sdr_transceiver_wspr/transmit-wspr.sh $root_dir/root/
 cp projects/sdr_transceiver_wspr/write-c2-files.c $root_dir/root/
 cp projects/sdr_transceiver_wspr/write-c2-files.cfg $root_dir/root/
 cp projects/sdr_transceiver_wspr/decode-wspr.sh $root_dir/root/
+cp projects/sdr_transceiver_wspr/wspr.cron $root_dir/root/
 cp projects/sdr_transceiver_wspr/README $root_dir/root/
 cp projects/sdr_transceiver_wspr/Makefile $root_dir/root/
 
@@ -123,7 +125,7 @@ make -C wsprd CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=
 make
 cd ..
 
-(crontab -l ; echo "1-59/2 * * * * cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log 2>&1") | crontab -
+ln -sf /root/wspr.cron etc/cron.d/wspr
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 

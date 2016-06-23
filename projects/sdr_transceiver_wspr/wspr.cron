@@ -1,0 +1,2 @@
+1-59/2 * * * * root cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log 2>&1
+#1-51/10 * * * * root cd /dev/shm && /root/transmit-wspr.sh >> transmit-wspr.log 2>&1
