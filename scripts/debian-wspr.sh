@@ -123,7 +123,7 @@ make -C wsprd CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=
 make
 cd ..
 
-(crontab -l ; echo "1-59/2 * * * * cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log 2>&1") | crontab -
+ln -sf /root/wspr.cron etc/cron.d/wspr
 
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
