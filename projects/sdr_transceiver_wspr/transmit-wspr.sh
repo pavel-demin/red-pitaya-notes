@@ -8,7 +8,7 @@ date
 echo "Sleeping ..."
 
 SECONDS=`date +%S`
-sleep `expr 60 - $SECONDS`
+sleep `expr 61 - $SECONDS`
 
 date
 TIMESTAMP=`date --utc +'%y%m%d_%H%M'`
