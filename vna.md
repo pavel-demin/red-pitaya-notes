@@ -45,7 +45,7 @@ Getting started with MS Windows (pre-built control program)
  - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/VNA/ecosystem-0.95-1-6deb253-vna.zip).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
- - Download and unpack the [control program](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/VNA/vna-win32-20160607.zip).
+ - Download and unpack the [control program](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/VNA/vna-win32-20160623.zip).
  - Run the `vna.exe` program.
  - Type in the IP address of the Red Pitaya board and press Connect button.
  - Perform calibration and measurements.
@@ -57,13 +57,12 @@ Getting started with MS Windows (manual Python installation)
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
- - Download and install [NumPy 1.10](http://heanet.dl.sourceforge.net/project/numpy/NumPy/1.10.2/numpy-1.10.2-win32-superpack-python3.4.exe).
  - Download and install [PyQt 5.5](http://heanet.dl.sourceforge.net/project/pyqt/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe).
  - Start a command prompt using the `cmd.exe` program and run the `pip` command to install `matplotlib`:
 {% highlight winbatch %}
 C:\Python34\Scripts\pip.exe install matplotlib mpldatacursor
 {% endhighlight %}
- - Download and unpack the [control program](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/VNA/vna-python3-20160607.zip).
+ - Download and unpack the [control program](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/VNA/vna-python3-20160623.zip).
  - Start a command prompt using the `cmd.exe` program and run the control program:
 {% highlight winbatch %}
 C:\Python34\pythonw.exe vna.py
