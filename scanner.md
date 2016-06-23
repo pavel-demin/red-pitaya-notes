@@ -48,7 +48,6 @@ Getting started with MS Windows
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
- - Download and install [NumPy 1.10](http://heanet.dl.sourceforge.net/project/numpy/NumPy/1.10.2/numpy-1.10.2-win32-superpack-python3.4.exe).
  - Download and install [PyQt 5.5](http://heanet.dl.sourceforge.net/project/pyqt/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe).
  - Start a command prompt using the `cmd.exe` program and run the `pip` command to install `matplotlib`:
 {% highlight winbatch %}
