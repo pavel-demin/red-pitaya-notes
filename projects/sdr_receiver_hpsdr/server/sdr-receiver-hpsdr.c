@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   volatile void *cfg, *sts, *mux, *ptr;
   char *end, *name = "/dev/mem";
   uint8_t buffer[1032];
-  uint8_t reply[20] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1, 'R', 'T', 'L', '_', 'N', '1', 'G', 'P', 6};
+  uint8_t reply[20] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1, 'R', '_', 'P', 'I', 'T', 'A', 'Y', 'A', 6};
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from;
   socklen_t size_from;
