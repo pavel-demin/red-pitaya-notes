@@ -3,14 +3,15 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-mirror=http://ftp.heanet.ie/pub/debian
+#mirror=http://ftp.heanet.ie/pub/debian
+mirror=http://httpredir.debian.org/debian
 distro=jessie
 arch=armhf
 
 hostapd_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/rtl8192cu/hostapd-$arch
 
 passwd=changeme
-timezone=Europe/Brussels
+timezone=Asia/Novosibirsk
 
 # Create partitions
 
@@ -61,6 +62,8 @@ export LANG=C
 export LC_ALL=C
 
 /debootstrap/debootstrap --second-stage
+
+export PATH="$PATH:/usr/sbin:/sbin:/bin"
 
 cat <<- EOF_CAT > /etc/apt/sources.list
 deb $mirror $distro main contrib non-free
@@ -254,8 +257,12 @@ apt-get clean
 echo root:$passwd | chpasswd
 
 service ntp stop
+service ssh stop
 
 history -c
+
+sync
+
 EOF_CHROOT
 
 rm $root_dir/etc/resolv.conf
