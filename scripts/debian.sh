@@ -3,7 +3,7 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-#mirror=http://ftp.heanet.ie/pub/debian
+# Choose mirror automatically, depending on your current location
 mirror=http://httpredir.debian.org/debian
 distro=jessie
 arch=armhf
@@ -63,6 +63,7 @@ export LC_ALL=C
 
 /debootstrap/debootstrap --second-stage
 
+# Added to avoid messages like "cat: no such command" on non-Debian distributions. (i.e Archlinux)
 export PATH="$PATH:/usr/sbin:/sbin:/bin"
 
 cat <<- EOF_CAT > /etc/apt/sources.list
@@ -257,10 +258,13 @@ apt-get clean
 echo root:$passwd | chpasswd
 
 service ntp stop
+
+# Added to avoid problems with unmounting /tmp/ROOT
 service ssh stop
 
 history -c
 
+# Added to sync all files before exiting the chroot
 sync
 
 EOF_CHROOT
