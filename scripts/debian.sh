@@ -3,8 +3,9 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-# Choose mirror automatically, depending on your current location
+# Choose mirror automatically, depending the geographic and network location
 mirror=http://httpredir.debian.org/debian
+
 distro=jessie
 arch=armhf
 
@@ -267,7 +268,6 @@ service ssh stop
 history -c
 
 sync
-
 EOF_CHROOT
 
 rm $root_dir/etc/resolv.conf

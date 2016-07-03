@@ -59,6 +59,13 @@ chroot $root_dir <<- EOF_CHROOT
 export LANG=C
 export LC_ALL=C
 
+# Add missing paths
+
+echo :$PATH: | grep -q :/sbin: || export PATH=$PATH:/sbin
+echo :$PATH: | grep -q :/bin: || export PATH=$PATH:/bin
+echo :$PATH: | grep -q :/usr/sbin: || export PATH=$PATH:/usr/sbin
+echo :$PATH: | grep -q :/usr/bin: || export PATH=$PATH:/usr/bin
+
 cat <<- EOF_CAT > etc/apt/apt.conf.d/99norecommends
 APT::Install-Recommends "0";
 APT::Install-Suggests "0";
@@ -242,8 +249,11 @@ apt-get clean
 echo root:$passwd | chpasswd
 
 service ntp stop
+service ssh stop
 
 history -c
+
+sync
 EOF_CHROOT
 
 rm $root_dir/etc/resolv.conf
