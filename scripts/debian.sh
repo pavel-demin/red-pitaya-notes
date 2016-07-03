@@ -64,7 +64,17 @@ export LC_ALL=C
 /debootstrap/debootstrap --second-stage
 
 # Added to avoid messages like "cat: no such command" on non-Debian distributions. (i.e Archlinux)
-export PATH="$PATH:/usr/sbin:/sbin:/bin"
+if [[ ! :$PATH: == *:"/usr/sbin":* ]] ; then
+	export PATH="$PATH:/usr/sbin"
+fi
+
+if [[ ! :$PATH: == *:"/sbin":* ]] ; then
+        export PATH="$PATH:/sbin"
+fi
+
+if [[ ! :$PATH: == *:"/bin":* ]] ; then
+        export PATH="$PATH:/bin"
+fi
 
 cat <<- EOF_CAT > /etc/apt/sources.list
 deb $mirror $distro main contrib non-free
