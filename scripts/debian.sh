@@ -3,14 +3,15 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-mirror=http://ftp.heanet.ie/pub/debian
+# Choose mirror automatically, depending on your current location
+mirror=http://httpredir.debian.org/debian
 distro=jessie
 arch=armhf
 
 hostapd_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/rtl8192cu/hostapd-$arch
 
 passwd=changeme
-timezone=Europe/Brussels
+timezone=Asia/Novosibirsk
 
 # Create partitions
 
@@ -61,6 +62,19 @@ export LANG=C
 export LC_ALL=C
 
 /debootstrap/debootstrap --second-stage
+
+# Added to avoid messages like "cat: no such command" on non-Debian distributions. (i.e Archlinux)
+if [[ ! :$PATH: == *:"/usr/sbin":* ]] ; then
+	export PATH="$PATH:/usr/sbin"
+fi
+
+if [[ ! :$PATH: == *:"/sbin":* ]] ; then
+        export PATH="$PATH:/sbin"
+fi
+
+if [[ ! :$PATH: == *:"/bin":* ]] ; then
+        export PATH="$PATH:/bin"
+fi
 
 cat <<- EOF_CAT > /etc/apt/sources.list
 deb $mirror $distro main contrib non-free
@@ -255,7 +269,14 @@ echo root:$passwd | chpasswd
 
 service ntp stop
 
+# Added to avoid problems with unmounting /tmp/ROOT
+service ssh stop
+
 history -c
+
+# Added to sync all files before exiting the chroot
+sync
+
 EOF_CHROOT
 
 rm $root_dir/etc/resolv.conf
