@@ -3,7 +3,9 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-mirror=http://ftp.heanet.ie/pub/debian
+# Choose mirror automatically, depending the geographic and network location
+mirror=http://httpredir.debian.org/debian
+
 distro=jessie
 arch=armhf
 
@@ -59,6 +61,13 @@ chmod +x $root_dir/usr/local/sbin/hostapd
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
 export LC_ALL=C
+
+# Add missing paths
+
+echo :$PATH: | grep -q :/sbin: || export PATH=$PATH:/sbin
+echo :$PATH: | grep -q :/bin: || export PATH=$PATH:/bin
+echo :$PATH: | grep -q :/usr/sbin: || export PATH=$PATH:/usr/sbin
+echo :$PATH: | grep -q :/usr/bin: || export PATH=$PATH:/usr/bin
 
 /debootstrap/debootstrap --second-stage
 
@@ -254,8 +263,11 @@ apt-get clean
 echo root:$passwd | chpasswd
 
 service ntp stop
+service ssh stop
 
 history -c
+
+sync
 EOF_CHROOT
 
 rm $root_dir/etc/resolv.conf
