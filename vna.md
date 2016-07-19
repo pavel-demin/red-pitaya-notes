@@ -78,7 +78,7 @@ Getting started with GNU/Linux
  - Insert the SD card in Red Pitaya and connect the power.
  - Install required Python libraries:
 {% highlight bash %}
-sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5
+sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5 libfreetype6-dev
 sudo pip3 install matplotlib mpldatacursor
 {% endhighlight %}
  - Clone the source code repository:
