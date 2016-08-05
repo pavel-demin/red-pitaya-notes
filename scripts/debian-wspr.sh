@@ -125,8 +125,8 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
-  iw firmware-realtek firmware-ralink firmware-atheros ifplugd ntfs-3g \
-  build-essential subversion libfftw3-dev libconfig-dev parallel
+  iw firmware-realtek firmware-ralink firmware-atheros firmware-brcm80211 \
+  build-essential subversion libfftw3-dev libconfig-dev parallel ifplugd ntfs-3g
 
 cd root
 svn co svn://svn.code.sf.net/p/wsjt/wsjt/branches/wsjtx/lib/wsprd
