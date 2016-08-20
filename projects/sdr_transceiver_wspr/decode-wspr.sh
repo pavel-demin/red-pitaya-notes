@@ -43,4 +43,4 @@ sort -nr -k 4,4 $ALLMEPT | awk '!seen[$1"_"$2"_"int($6)"_"$7] {print} {++seen[$1
 
 curl -sS -m 8 -F allmept=@$ALLMEPT -F call=$CALL -F grid=$GRID http://wsprnet.org/post > /dev/null
 
-test $? -ne 0 || rm -f $ALLMEPT
+rm -f $ALLMEPT
