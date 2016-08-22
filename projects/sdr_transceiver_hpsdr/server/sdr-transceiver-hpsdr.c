@@ -17,6 +17,8 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
+#include "jack/ringbuffer.c"
+
 #define I2C_SLAVE       0x0703 /* Use this slave address */
 #define I2C_SLAVE_FORCE 0x0706 /* Use this slave address, even if it
                                   is already in use by a driver! */
@@ -24,11 +26,11 @@
 #define ADDR_PENE 0x20 /* PCA9555 address 0 */
 #define ADDR_ALEX 0x21 /* PCA9555 address 1 */
 
-uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex;
-uint16_t *rx_cntr, *tx_cntr;
-uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
-uint64_t *rx_data;
-void *tx_data;
+volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex;
+volatile uint16_t *rx_cntr, *tx_cntr;
+volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
+volatile uint64_t *rx_data;
+volatile uint32_t *tx_data;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
@@ -41,10 +43,11 @@ struct sockaddr_in addr_ep6;
 int enable_thread = 0;
 int active_thread = 0;
 
-int vna = 0;
-
 void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
+void *handler_playback(void *arg);
+
+jack_ringbuffer_t *playback_data = 0;
 
 /* variables to handle PCA9555 board */
 int i2c_fd;
@@ -140,16 +143,17 @@ void alex_write()
 
 int main(int argc, char *argv[])
 {
-  int fd, i;
-  ssize_t size;
+  int fd, i, j, size;
   pthread_t thread;
-  void *cfg, *sts;
+  volatile void *cfg, *sts;
   char *name = "/dev/mem";
-  uint8_t buffer[1032];
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
   struct ifreq hwaddr;
-  struct sockaddr_in addr_ep2, addr_from;
-  socklen_t size_from;
+  struct sockaddr_in addr_ep2, addr_from[10];
+  uint8_t buffer[10][1032];
+  struct iovec iovec[10][1];
+  struct mmsghdr datagram[10];
+  struct timespec timeout;
   int yes = 1;
 
   if((fd = open(name, O_RDWR)) < 0)
@@ -188,8 +192,6 @@ int main(int argc, char *argv[])
   rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
   tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
 
-  *(uint32_t *)(tx_data + 8) = 165;
-
   rx_rst = ((uint8_t *)(cfg + 0));
   tx_rst = ((uint8_t *)(cfg + 1));
   gpio_out = ((uint8_t *)(cfg + 2));
@@ -201,15 +203,11 @@ int main(int argc, char *argv[])
   rx_freq[2] = ((uint32_t *)(cfg + 16));
   rx_freq[3] = ((uint32_t *)(cfg + 20));
 
-  tx_freq = ((uint32_t *)(cfg + 32));
+  tx_freq = ((uint32_t *)(cfg + 24));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 14));
   gpio_in = ((uint8_t *)(sts + 16));
-
-  /* set I/Q data for the VNA mode */
-  *((uint64_t *)(cfg + 24)) = 2000000;
-  *tx_rst &= ~2;
 
   /* set all GPIO pins to low */
   *gpio_out = 0;
@@ -226,6 +224,7 @@ int main(int argc, char *argv[])
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
 
+  /* reset tx fifo */
   *tx_rst |= 1;
   *tx_rst &= ~1;
 
@@ -252,64 +251,92 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  playback_data = jack_ringbuffer_create(262144);
+  if(pthread_create(&thread, NULL, handler_playback, NULL) < 0)
+  {
+    perror("pthread_create");
+    return EXIT_FAILURE;
+  }
+  pthread_detach(thread);
+
   while(1)
   {
-    size_from = sizeof(addr_from);
-    size = recvfrom(sock_ep2, buffer, 1032, 0, (struct sockaddr *)&addr_from, &size_from);
+    memset(iovec, 0, sizeof(iovec));
+    memset(datagram, 0, sizeof(datagram));
+
+    for(i = 0; i < 10; ++i)
+    {
+      *(uint32_t *)(buffer[i] + 0) = 0x0601feef;
+      iovec[i][0].iov_base = buffer[i];
+      iovec[i][0].iov_len = 1032;
+      datagram[i].msg_hdr.msg_iov = iovec[i];
+      datagram[i].msg_hdr.msg_iovlen = 1;
+      datagram[i].msg_hdr.msg_name = &addr_from[i];
+      datagram[i].msg_hdr.msg_namelen = sizeof(addr_from[i]);
+    }
+
+    timeout.tv_sec = 0;
+    timeout.tv_nsec = 1000000;
+
+    size = recvmmsg(sock_ep2, datagram, 10, 0, &timeout);
     if(size < 0)
     {
       perror("recvfrom");
       return EXIT_FAILURE;
     }
 
-    switch(*(uint32_t *)buffer)
+    for(i = 0; i < size; ++i)
     {
-      case 0x0201feef:
-        while(*tx_cntr > 16258) usleep(1000);
-        if(*tx_cntr == 0) memset(tx_data, 0, 65032);
-        if((*gpio_out & 1) | (*gpio_in & 1))
-        {
-          for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 20 + i, 4);
-          for(i = 0; i < 504; i += 8) memcpy(tx_data, buffer + 532 + i, 4);
-        }
-        else
-        {
-          memset(tx_data, 0, 504);
-        }
-        process_ep2(buffer + 11);
-        process_ep2(buffer + 523);
-        break;
-      case 0x0002feef:
-        reply[2] = 2 + active_thread;
-        memset(buffer, 0, 60);
-        memcpy(buffer, reply, 11);
-        sendto(sock_ep2, buffer, 60, 0, (struct sockaddr *)&addr_from, size_from);
-        break;
-      case 0x0004feef:
-        enable_thread = 0;
-        while(active_thread) usleep(1000);
-        break;
-      case 0x0104feef:
-      case 0x0204feef:
-      case 0x0304feef:
-        enable_thread = 0;
-        while(active_thread) usleep(1000);
-        memset(&addr_ep6, 0, sizeof(addr_ep6));
-        addr_ep6.sin_family = AF_INET;
-        addr_ep6.sin_addr.s_addr = addr_from.sin_addr.s_addr;
-        addr_ep6.sin_port = addr_from.sin_port;
-        enable_thread = 1;
-        active_thread = 1;
-        if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
-        {
-          perror("pthread_create");
-          return EXIT_FAILURE;
-        }
-        pthread_detach(thread);
-        break;
+      switch(*(uint32_t *)buffer[i])
+      {
+        case 0x0201feef:
+          while(*tx_cntr > 16258) usleep(1000);
+          if(*tx_cntr == 0) for(j = 0; j < 1260; ++j) *tx_data = 0;
+          if((*gpio_out & 1) | (*gpio_in & 1))
+          {
+            for(j = 0; j < 504; j += 8) *tx_data = *(uint32_t *)(buffer[i] + 20 + j);
+            for(j = 0; j < 504; j += 8) *tx_data = *(uint32_t *)(buffer[i] + 532 + j);
+          }
+          else
+          {
+            for(j = 0; j < 126; ++j) *tx_data = 0;
+          }
+          for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 16 + j, 4);
+          for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 528 + j, 4);
+          process_ep2(buffer[i] + 11);
+          process_ep2(buffer[i] + 523);
+          break;
+        case 0x0002feef:
+          reply[2] = 2 + active_thread;
+          memset(buffer[i], 0, 60);
+          memcpy(buffer[i], reply, 11);
+          sendto(sock_ep2, buffer[i], 60, 0, (struct sockaddr *)&addr_from[i], sizeof(addr_from[i]));
+          break;
+        case 0x0004feef:
+          enable_thread = 0;
+          while(active_thread) usleep(1000);
+          break;
+        case 0x0104feef:
+        case 0x0204feef:
+        case 0x0304feef:
+          enable_thread = 0;
+          while(active_thread) usleep(1000);
+          memset(&addr_ep6, 0, sizeof(addr_ep6));
+          addr_ep6.sin_family = AF_INET;
+          addr_ep6.sin_addr.s_addr = addr_from[i].sin_addr.s_addr;
+          addr_ep6.sin_port = addr_from[i].sin_port;
+          enable_thread = 1;
+          active_thread = 1;
+          if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
+          {
+            perror("pthread_create");
+            return EXIT_FAILURE;
+          }
+          pthread_detach(thread);
+          break;
+      }
     }
   }
-
   close(sock_ep2);
 
   return EXIT_SUCCESS;
@@ -319,6 +346,10 @@ void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
   uint16_t data;
+  uint8_t drive;
+  uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
+  uint8_t cw_internal, cw_volume, cw_delay;
+  uint16_t cw_hang, cw_freq;
 
   switch(frame[0])
   {
@@ -379,7 +410,7 @@ void process_ep2(uint8_t *frame)
       }
       if(freq < freq_min || freq > freq_max) break;
       *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
-      if(!vna) break;
+      break;
     case 4:
     case 5:
       /* set rx phase increment */
@@ -420,11 +451,7 @@ void process_ep2(uint8_t *frame)
       break;
     case 18:
     case 19:
-      /* set VNA mode */
-      vna = frame[2] & 128;
-      if(vna) *tx_rst |= 2;
-      else *tx_rst &= ~2;
-
+      drive = frame[1];
       data = (frame[2] & 0x40) << 9 | frame[4] << 8 | frame[3];
       if(alex_data_4 != data)
       {
@@ -443,6 +470,25 @@ void process_ep2(uint8_t *frame)
           i2c_write(i2c_fd, 0x02, data);
         }
       }
+      break;
+    case 22:
+    case 23:
+      cw_reversed = (frame[2] >> 6) & 1;
+      cw_speed = frame[3] & 63;
+      cw_mode = (frame[3] >> 6) & 3;
+      cw_weight = frame[4] & 127;
+      cw_spacing = (frame[4] >> 7) & 1;
+      break;
+    case 30:
+    case 31:
+      cw_internal = frame[1] & 1;
+      cw_volume = frame[2];
+      cw_delay = frame[3];
+      break;
+    case 32:
+    case 33:
+      cw_hang = (frame[1] << 2) | (frame[2] & 3);
+      cw_freq = (frame[3] << 4) | (frame[4] & 15);
       break;
   }
 }
@@ -485,6 +531,7 @@ void *handler_ep6(void *arg)
   header_offset = 0;
   counter = 0;
 
+  /* reset rx fifo */
   *rx_rst |= 1;
   *rx_rst &= ~1;
 
@@ -498,6 +545,7 @@ void *handler_ep6(void *arg)
 
     if(*rx_cntr >= 8192)
     {
+      /* reset rx fifo */
       *rx_rst |= 1;
       *rx_rst &= ~1;
     }
@@ -575,5 +623,21 @@ void *handler_ep6(void *arg)
 
   active_thread = 0;
 
+  return NULL;
+}
+
+void *handler_playback(void *arg)
+{
+  uint8_t buffer[65536];
+
+  while(1)
+  {
+    if(jack_ringbuffer_read_space(playback_data) < 65536)
+    {
+      while(jack_ringbuffer_read_space(playback_data) < 196608) usleep(1000);
+    }
+    jack_ringbuffer_read(playback_data, buffer, 65536);
+    fwrite(buffer, 1, 65536, stdout);
+  }
   return NULL;
 }

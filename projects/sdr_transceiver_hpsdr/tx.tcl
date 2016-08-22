@@ -5,17 +5,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 0 DOUT_WIDTH 64
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
+  DIN_WIDTH 32 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
 }
 
 # Create axi_axis_writer
@@ -27,7 +17,7 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
   INPUT_DEPTH 16384
@@ -214,21 +204,11 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_keyer
-cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
-  AXIS_TDATA_WIDTH 48
-} {
-  key_flag slice_1/Dout
-  key_data slice_2/Dout
-  S_AXIS comb_0/M_AXIS
-  aclk /ps_0/FCLK_CLK0
-}
-
 # Create axis_constant
 cell pavel-demin:user:axis_constant:1.0 phase_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  cfg_data slice_3/Dout
+  cfg_data slice_1/Dout
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -264,7 +244,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   ROUNDMODE Random_Rounding
   OUTPUTWIDTH 17
 } {
-  S_AXIS_A keyer_0/M_AXIS
+  S_AXIS_A comb_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
   S_AXIS_CTRL lfsr_0/M_AXIS
   aclk /ps_0/FCLK_CLK0

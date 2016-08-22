@@ -15,16 +15,17 @@ int main(int argc, char *argv[])
   int fd, sock_server, sock_client;
   void *cfg, *sts;
   char *name = "/dev/mem";
-  uint32_t *rx_freq, *rx_rate;
-  uint16_t *rx_cntr, *tx_size;
-  uint8_t *rx_rst, *tx_rst;
-  void *rx_data, *tx_data;
+  volatile uint32_t *rx_freq, *rx_rate;
+  volatile uint16_t *rx_cntr, *tx_size;
+  volatile uint8_t *rx_rst, *tx_rst;
+  volatile uint64_t *rx_data;
+  void *tx_data;
   float tx_freq;
   struct sockaddr_in addr;
   uint32_t command, value;
   int16_t pulse[32768];
-  char buffer[65536];
-  int i, size, yes = 1;
+  uint64_t buffer[8192];
+  int i, j, size, yes = 1;
 
   if((fd = open(name, O_RDWR)) < 0)
   {
@@ -138,7 +139,7 @@ int main(int argc, char *argv[])
           for(i = 0; i < 10; ++i)
           {
             while(*rx_cntr < 10000) usleep(500);
-            memcpy(buffer, rx_data, 40000);
+            for(j = 0; j < 5000; ++j) buffer[j] = *rx_data;
             send(sock_client, buffer, 40000, MSG_NOSIGNAL);
           }
           break;

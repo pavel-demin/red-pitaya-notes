@@ -3,8 +3,8 @@ device=$1
 boot_dir=/tmp/BOOT
 root_dir=/tmp/ROOT
 
-root_tar=ubuntu-core-14.04.4-core-armhf.tar.gz
-root_url=http://cdimage.ubuntu.com/ubuntu-core/releases/14.04/release/$root_tar
+root_tar=ubuntu-base-14.04.4-core-armhf.tar.gz
+root_url=http://cdimage.ubuntu.com/ubuntu-base/releases/14.04/release/$root_tar
 
 hostapd_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/rtl8192cu/hostapd-armhf
 
@@ -58,6 +58,13 @@ chmod +x $root_dir/usr/local/sbin/hostapd
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
 export LC_ALL=C
+
+# Add missing paths
+
+echo :$PATH: | grep -q :/sbin: || export PATH=$PATH:/sbin
+echo :$PATH: | grep -q :/bin: || export PATH=$PATH:/bin
+echo :$PATH: | grep -q :/usr/sbin: || export PATH=$PATH:/usr/sbin
+echo :$PATH: | grep -q :/usr/bin: || export PATH=$PATH:/usr/bin
 
 cat <<- EOF_CAT > etc/apt/apt.conf.d/99norecommends
 APT::Install-Recommends "0";
@@ -135,7 +142,7 @@ ignore_broadcast_ssid=0
 wpa=2
 wpa_passphrase=RedPitaya
 wpa_key_mgmt=WPA-PSK
-wpa_pairwise=TKIP
+wpa_pairwise=CCMP
 rsn_pairwise=CCMP
 EOF_CAT
 
@@ -242,8 +249,11 @@ apt-get clean
 echo root:$passwd | chpasswd
 
 service ntp stop
+service ssh stop
 
 history -c
+
+sync
 EOF_CHROOT
 
 rm $root_dir/etc/resolv.conf

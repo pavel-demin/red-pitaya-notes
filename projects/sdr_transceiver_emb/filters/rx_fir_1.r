@@ -19,7 +19,7 @@ fs <- seq(Fo+0.02, 0.5, by=s)  # Stop band frequency samples
 f <- c(fp, fs)*2               # Normalized frequency samples; 0<=f<=1
 
 Mp <- matrix(1, 1, length(fp)) # Pass band response; Mp[1]=1
-Mp[-1] <- abs(M*R*sin(pi*fp[-1]/R)/sin(pi*M*fp[-1]))^N
+Mp[-1] <- abs(M*R*sin(pi*fp[-1]*24/25/R)/sin(pi*M*fp[-1]*24/25))^N
 Mf <- c(Mp, matrix(0, 1, length(fs)))
 
 h <- fir2(L, f, Mf, window=kaiser(L+1, Beta))

@@ -15,10 +15,10 @@ int main(int argc, char *argv[])
   int fd, offset, length, i, j;
   time_t t;
   struct tm *gmt;
-  void *cfg, *sts, *mux, *ptr;
-  uint64_t *fifo[8];
-  uint8_t *rst;
-  uint16_t *cntr;
+  volatile void *cfg, *sts, *mux, *ptr;
+  volatile uint64_t *fifo[8];
+  volatile uint8_t *rst;
+  volatile uint16_t *cntr;
   int32_t type = 2;
   uint64_t buffer[8][45000];
   config_t config;

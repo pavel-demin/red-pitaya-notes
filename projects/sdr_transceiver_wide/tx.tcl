@@ -22,7 +22,7 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.0 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
   INPUT_DEPTH 16384
@@ -253,6 +253,6 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {
   S_AXIS mult_0/M_AXIS_DOUT
   s_axis_aclk /ps_0/FCLK_CLK0
   s_axis_aresetn /rst_0/peripheral_aresetn
-  m_axis_aclk /pll_0/clk_out1
+  m_axis_aclk /adc_0/adc_clk
   m_axis_aresetn const_0/dout
 }

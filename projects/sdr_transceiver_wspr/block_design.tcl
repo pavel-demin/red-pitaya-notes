@@ -64,29 +64,26 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 # DAC
 
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.2 pll_0 {
-  PRIMITIVE PLL
+cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
   CLKOUT1_USED true
-  CLKOUT2_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 125.0
-  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT1_REQUESTED_OUT_FREQ 250.0
 } {
   clk_in1 adc_0/adc_clk
 }
 
 # Create axis_zeroer
 cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
-  AXIS_TDATA_WIDTH 16
+  AXIS_TDATA_WIDTH 32
 } {
-  aclk pll_0/clk_out1
+  aclk adc_0/adc_clk
 }
 
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
-  aclk pll_0/clk_out1
-  ddr_clk pll_0/clk_out2
+  aclk adc_0/adc_clk
+  ddr_clk pll_0/clk_out1
   locked pll_0/locked
   S_AXIS zeroer_0/M_AXIS
   dac_clk dac_clk_o
@@ -107,6 +104,22 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0
+
+# GPIO
+
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_p_tri_io]
+
+# Create output port
+create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
+  DIN_WIDTH 288 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+  Dout exp_p_tri_io
+}
 
 # RX 0
 
@@ -155,7 +168,7 @@ module tx_0 {
 } {
   slice_0/Din rst_slice_1/Dout
   fifo_1/M_AXIS zeroer_0/S_AXIS
-  fifo_1/m_axis_aclk pll_0/clk_out1
+  fifo_1/m_axis_aclk adc_0/adc_clk
   fifo_1/m_axis_aresetn const_0/dout
 }
 
@@ -253,3 +266,12 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 set_property OFFSET 0x4000B000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins tx_0/switch_0/S_AXI_CTRL]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg1]
+set_property OFFSET 0x4000C000 [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg1]

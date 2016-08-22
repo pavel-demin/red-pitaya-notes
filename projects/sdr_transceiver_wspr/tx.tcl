@@ -57,12 +57,44 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   aresetn slice_0/Dout
 }
 
+# Create axis_constant
+cell pavel-demin:user:axis_constant:1.0 zero_0 {
+  AXIS_TDATA_WIDTH 16
+} {
+  aclk /ps_0/FCLK_CLK0
+}
+
+# Create axis_switch
+cell xilinx.com:ip:axis_switch:1.1 switch_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 2
+  ROUTING_MODE 1
+  NUM_SI 2
+  NUM_MI 2
+} {
+  S00_AXIS dds_0/M_AXIS_DATA
+  S01_AXIS zero_0/M_AXIS
+  aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
+}
+
+cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 2
+  NUM_SI 2
+} {
+  S00_AXIS switch_0/M00_AXIS
+  S01_AXIS switch_0/M01_AXIS
+  aclk /ps_0/FCLK_CLK0
+  aresetn /rst_0/peripheral_aresetn
+}
+
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {
   TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 2
+  TDATA_NUM_BYTES 4
 } {
-  S_AXIS dds_0/M_AXIS_DATA
+  S_AXIS comb_0/M_AXIS
   s_axis_aclk /ps_0/FCLK_CLK0
   s_axis_aresetn /rst_0/peripheral_aresetn
 }

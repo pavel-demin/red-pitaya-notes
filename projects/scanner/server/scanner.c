@@ -15,11 +15,13 @@ int main()
   int fd, sock_server, sock_client;
   struct sockaddr_in addr;
   int i, j, counter, yes = 1;
-  int16_t value[2];
   uint32_t command, code, data, period, pulses, shdelay, shtime;
   uint64_t buffer[1024], tmp;
-  void *cfg, *sts, *dac;
-  uint64_t *adc;
+  volatile void *cfg;
+  volatile void *sts;
+  volatile uint8_t *rst;
+  volatile uint32_t *dac;
+  volatile uint64_t *adc;
   char *name = "/dev/mem";
 
   if((fd = open(name, O_RDWR)) < 0)
@@ -33,8 +35,10 @@ int main()
   dac = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   adc = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
+  rst = cfg;
+
   /* stop pulse generators */
-  *(uint8_t *)(cfg + 0) &= ~1;
+  *rst &= ~1;
 
   /* set number of ADC samples per pulse */
   *(uint8_t *)(cfg + 2) = 25;
@@ -130,8 +134,8 @@ int main()
           break;
         case 2:
           /* set trigger polarity */
-          if(data == 0) *(uint32_t *)(cfg + 0) &= ~4;
-          else if(data == 1) *(uint32_t *)(cfg + 0) |= 4;
+          if(data == 0) *rst &= ~4;
+          else if(data == 1) *rst |= 4;
           break;
         case 3:
           /* set S&H delay */
@@ -146,8 +150,8 @@ int main()
           break;
         case 5:
           /* set S&H polarity */
-          if(data == 0) *(uint32_t *)(cfg + 0) &= ~8;
-          else if(data == 1) *(uint32_t *)(cfg + 0) |= 8;
+          if(data == 0) *rst &= ~8;
+          else if(data == 1) *rst |= 8;
           break;
         case 6:
           /* set acquisition delay */
@@ -166,18 +170,18 @@ int main()
           break;
         case 9:
           /* start pulse generators */
-          *(uint8_t *)(cfg + 0) |= 1;
+          *rst |= 1;
           break;
         case 10:
           /* start scanning */
           counter = 0;
 
           /* stop pulse generators */
-          *(uint8_t *)(cfg + 0) &= ~1;
+          *rst &= ~1;
 
           /* reset DAC and ADC FIFO */
-          *(uint8_t *)(cfg + 0) |= 2;
-          *(uint8_t *)(cfg + 0) &= ~2;
+          *rst |= 2;
+          *rst &= ~2;
 
           /* write OUT1 and OUT2 samples to DAC FIFO */
           /* read IN1 and IN2 samples from ADC FIFO */
@@ -205,18 +209,14 @@ int main()
 
             for(j = 0; j <= 8176; j += 16)
             {
-              value[0] = j;
-              value[1] = i;
-              memcpy(dac, value, 4);
+              *dac = (i << 16) | j;
             }
 
             i += 16;
 
             for(j = 8176; j >= 0; j -= 16)
             {
-              value[0] = j;
-              value[1] = i;
-              memcpy(dac, value, 4);
+              *dac = (i << 16) | j;
             }
 
             i += 16;
@@ -224,7 +224,7 @@ int main()
             if(i == 32)
             {
               /* start pulse generators */
-              *(uint8_t *)(cfg + 0) |= 1;
+              *rst |= 1;
             }
           }
 
@@ -251,17 +251,12 @@ int main()
     }
 
     /* stop pulse generators */
-    *(uint8_t *)(cfg + 0) &= ~1;
+    *rst &= ~1;
 
     close(sock_client);
   }
 
   close(sock_server);
-
-  munmap(cfg, sysconf(_SC_PAGESIZE));
-  munmap(sts, sysconf(_SC_PAGESIZE));
-  munmap(adc, sysconf(_SC_PAGESIZE));
-  munmap(dac, sysconf(_SC_PAGESIZE));
 
   return EXIT_SUCCESS;
 }

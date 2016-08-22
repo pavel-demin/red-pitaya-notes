@@ -24,6 +24,13 @@ module axi_bram_writer #
   output wire [1:0]                   s_axi_bresp,   // AXI4-Lite slave: Write response
   output wire                         s_axi_bvalid,  // AXI4-Lite slave: Write response valid
   input  wire                         s_axi_bready,  // AXI4-Lite slave: Write response ready
+  input  wire [AXI_ADDR_WIDTH-1:0]    s_axi_araddr,  // AXI4-Lite slave: Read address
+  input  wire                         s_axi_arvalid, // AXI4-Lite slave: Read address valid
+  output wire                         s_axi_arready, // AXI4-Lite slave: Read address ready
+  output wire [AXI_DATA_WIDTH-1:0]    s_axi_rdata,   // AXI4-Lite slave: Read data
+  output wire [1:0]                   s_axi_rresp,   // AXI4-Lite slave: Read data response
+  output wire                         s_axi_rvalid,  // AXI4-Lite slave: Read data valid
+  input  wire                         s_axi_rready,  // AXI4-Lite slave: Read data ready
 
   // BRAM port
   output wire                         bram_porta_clk,

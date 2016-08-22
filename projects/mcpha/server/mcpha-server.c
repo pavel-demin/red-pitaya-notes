@@ -17,7 +17,9 @@
 int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
-  void *cfg, *sts, *trg, *hst[2], *gen, *ram, *buf;
+  volatile void *cfg, *sts, *trg, *gen;
+  void *hst[2], *ram, *buf;
+  volatile uint8_t *rst[4];
   char *name = "/dev/mem";
   struct sockaddr_in addr;
   int yes = 1;
@@ -40,6 +42,11 @@ int main(int argc, char *argv[])
   ram = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
   buf = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 
+  rst[0] = cfg + 0;
+  rst[1] = cfg + 1;
+  rst[2] = cfg + 2;
+  rst[3] = cfg + 3;
+
   /* set sample rate */
   *(uint16_t *)(cfg + 4) = 125;
 
@@ -48,18 +55,18 @@ int main(int argc, char *argv[])
   *(uint32_t *)(trg + 0) = 2;
 
   /* reset timers and histograms */
-  *(uint8_t *)(cfg + 0) &= ~3;
-  *(uint8_t *)(cfg + 0) |= 3;
-  *(uint8_t *)(cfg + 1) &= ~3;
-  *(uint8_t *)(cfg + 1) |= 3;
+  *rst[0] &= ~3;
+  *rst[0] |= 3;
+  *rst[1] &= ~3;
+  *rst[1] |= 3;
 
   /* reset oscilloscope */
-  *(uint8_t *)(cfg + 2) &= ~3;
-  *(uint8_t *)(cfg + 2) |= 3;
+  *rst[2] &= ~3;
+  *rst[2] |= 3;
 
   /* reset generator */
-  *(uint8_t *)(cfg + 3) &= ~1;
-  *(uint8_t *)(cfg + 3) |= 1;
+  *rst[3] &= ~1;
+  *rst[3] |= 1;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -103,13 +110,13 @@ int main(int argc, char *argv[])
         /* reset timer */
         if(chan == 0)
         {
-          *(uint8_t *)(cfg + 0) &= ~1;
-          *(uint8_t *)(cfg + 0) |= 1;
+          *rst[0] &= ~1;
+          *rst[0] |= 1;
         }
         else if(chan == 1)
         {
-          *(uint8_t *)(cfg + 1) &= ~1;
-          *(uint8_t *)(cfg + 1) |= 1;
+          *rst[1] &= ~1;
+          *rst[1] |= 1;
         }
       }
       else if(code == 1)
@@ -117,26 +124,26 @@ int main(int argc, char *argv[])
         /* reset histogram*/
         if(chan == 0)
         {
-          *(uint8_t *)(cfg + 0) &= ~2;
-          *(uint8_t *)(cfg + 0) |= 2;
+          *rst[0] &= ~2;
+          *rst[0] |= 2;
         }
         else if(chan == 1)
         {
-          *(uint8_t *)(cfg + 1) &= ~2;
-          *(uint8_t *)(cfg + 1) |= 2;
+          *rst[1] &= ~2;
+          *rst[1] |= 2;
         }
       }
       else if(code == 2)
       {
         /* reset oscilloscope */
-        *(uint8_t *)(cfg + 2) &= ~3;
-        *(uint8_t *)(cfg + 2) |= 3;
+        *rst[2] &= ~3;
+        *rst[2] |= 3;
       }
       else if(code == 3)
       {
         /* reset generator */
-        *(uint8_t *)(cfg + 3) &= ~1;
-        *(uint8_t *)(cfg + 3) |= 1;
+        *rst[3] &= ~1;
+        *rst[3] |= 1;
       }
       else if(code == 4)
       {
@@ -150,22 +157,22 @@ int main(int argc, char *argv[])
         {
           if(data == 0)
           {
-            *(uint8_t *)(cfg + 0) &= ~4;
+            *rst[0] &= ~4;
           }
           else if(data == 1)
           {
-            *(uint8_t *)(cfg + 0) |= 4;
+            *rst[0] |= 4;
           }
         }
         else if(chan == 1)
         {
           if(data == 0)
           {
-            *(uint8_t *)(cfg + 1) &= ~4;
+            *rst[1] &= ~4;
           }
           else if(data == 1)
           {
-            *(uint8_t *)(cfg + 1) |= 4;
+            *rst[1] |= 4;
           }
         }
       }
@@ -223,14 +230,14 @@ int main(int argc, char *argv[])
         if(chan == 0)
         {
           *(uint64_t *)(cfg + 8) = data;
-          *(uint8_t *)(cfg + 0) |= 16;
-          *(uint8_t *)(cfg + 0) &= ~16;
+          *rst[0] |= 16;
+          *rst[0] &= ~16;
         }
         else if(chan == 1)
         {
           *(uint64_t *)(cfg + 24) = data;
-          *(uint8_t *)(cfg + 1) |= 16;
-          *(uint8_t *)(cfg + 1) &= ~16;
+          *rst[1] |= 16;
+          *rst[1] &= ~16;
         }
       }
       else if(code == 11)
@@ -240,22 +247,22 @@ int main(int argc, char *argv[])
         {
           if(data == 0)
           {
-            *(uint8_t *)(cfg + 0) &= ~8;
+            *rst[0] &= ~8;
           }
           else if(data == 1)
           {
-            *(uint8_t *)(cfg + 0) |= 8;
+            *rst[0] |= 8;
           }
         }
         else if(chan == 1)
         {
           if(data == 0)
           {
-            *(uint8_t *)(cfg + 1) &= ~8;
+            *rst[1] &= ~8;
           }
           else if(data == 1)
           {
-            *(uint8_t *)(cfg + 1) |= 8;
+            *rst[1] |= 8;
           }
         }
       }
@@ -264,13 +271,13 @@ int main(int argc, char *argv[])
         /* read timer */
         if(chan == 0)
         {
-          memcpy(buf, sts + 0, 8);
-          if(send(sock_client, buf, 8, MSG_NOSIGNAL) < 0) break;
+          data = *(uint64_t *)(sts + 0);
+          if(send(sock_client, &data, 8, MSG_NOSIGNAL) < 0) break;
         }
         else if(chan == 1)
         {
-          memcpy(buf, sts + 8, 8);
-          if(send(sock_client, buf, 8, MSG_NOSIGNAL) < 0) break;
+          data = *(uint64_t *)(sts + 8);
+          if(send(sock_client, &data, 8, MSG_NOSIGNAL) < 0) break;
         }
       }
       else if(code == 13)
@@ -306,11 +313,11 @@ int main(int argc, char *argv[])
         /* set trigger slope (0 for rising, 1 for falling) */
         if(data == 0)
         {
-          *(uint8_t *)(cfg + 2) &= ~4;
+          *rst[2] &= ~4;
         }
         else if(data == 1)
         {
-          *(uint8_t *)(cfg + 2) |= 4;
+          *rst[2] |= 4;
         }
       }
       else if(code == 16)
@@ -318,11 +325,11 @@ int main(int argc, char *argv[])
         /* set trigger mode (0 for normal, 1 for auto) */
         if(data == 0)
         {
-          *(uint8_t *)(cfg + 2) &= ~8;
+          *rst[2] &= ~8;
         }
         else if(data == 1)
         {
-          *(uint8_t *)(cfg + 2) |= 8;
+          *rst[2] |= 8;
         }
       }
       else if(code == 17)
@@ -343,8 +350,8 @@ int main(int argc, char *argv[])
       else if(code == 20)
       {
         /* start oscilloscope */
-        *(uint8_t *)(cfg + 2) |= 16;
-        *(uint8_t *)(cfg + 2) &= ~16;
+        *rst[2] |= 16;
+        *rst[2] &= ~16;
       }
       else if(code == 21)
       {

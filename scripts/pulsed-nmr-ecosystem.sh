@@ -1,41 +1,29 @@
-ecosystem=ecosystem-0.92-65-35575ed
+ecosystem=ecosystem-0.95-1-6deb253
 
 rm -rf ${ecosystem}-pulsed-nmr
 
-test -f ${ecosystem}.zip || curl -O http://archives.redpitaya.com/devel/${ecosystem}.zip
+test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/${ecosystem}.zip
 
 unzip -d ${ecosystem}-pulsed-nmr ${ecosystem}.zip
 
-arm-xilinx-linux-gnueabi-gcc -static projects/pulsed_nmr/server/pulsed-nmr.c -lm -o ${ecosystem}-pulsed-nmr/bin/pulsed-nmr
-cp boot.bin devicetree.dtb uImage tmp/pulsed_nmr.bit ${ecosystem}-pulsed-nmr
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/pulsed_nmr/server/pulsed-nmr.c -lm -o ${ecosystem}-pulsed-nmr/bin/pulsed-nmr
+cp tmp/pulsed_nmr.bit ${ecosystem}-pulsed-nmr
 
-cat <<- EOF_CAT > ${ecosystem}-pulsed-nmr/uEnv.txt
+rm -f ${ecosystem}-pulsed-nmr/u-boot.scr
+cp ${ecosystem}-pulsed-nmr/u-boot.scr.buildroot ${ecosystem}-pulsed-nmr/u-boot.scr
 
-kernel_image=uImage
-
-devicetree_image=devicetree.dtb
-
-ramdisk_image=uramdisk.image.gz
-
-kernel_load_address=0x2080000
-
-devicetree_load_address=0x2000000
-
-ramdisk_load_address=0x4000000
-
-bootcmd=mmcinfo && fatload mmc 0 \${kernel_load_address} \${kernel_image} && fatload mmc 0 \${devicetree_load_address} \${devicetree_image} && load mmc 0 \${ramdisk_load_address} \${ramdisk_image} && bootm \${kernel_load_address} \${ramdisk_load_address} \${devicetree_load_address}
-
-bootargs=console=ttyPS0,115200 root=/dev/ram rw earlyprintk
-
-EOF_CAT
-
-cat <<- EOF_CAT >> ${ecosystem}-pulsed-nmr/etc/init.d/rcS
+cat <<- EOF_CAT >> ${ecosystem}-pulsed-nmr/sbin/discovery.sh
 
 # start pulsed NMR server
 
-cat /opt/pulsed_nmr.bit > /dev/xdevcfg
+devcfg=/sys/devices/soc0/amba/f8007000.devcfg
+test -d \$devcfg/fclk/fclk0 || echo fclk0 > \$devcfg/fclk_export
+echo 1 > \$devcfg/fclk/fclk0/enable
+echo 143000000 > \$devcfg/fclk/fclk0/set_rate
 
-/opt/bin/pulsed-nmr &
+cat /opt/redpitaya/pulsed_nmr.bit > /dev/xdevcfg
+
+/opt/redpitaya/bin/pulsed-nmr &
 
 EOF_CAT
 

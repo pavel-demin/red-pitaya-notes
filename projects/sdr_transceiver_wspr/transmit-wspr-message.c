@@ -14,13 +14,14 @@ int printdata = 0;
 int main(int argc, char *argv[])
 {
   int fd, i;
-  void *cfg;
-  uint8_t *rst;
-  uint32_t *fifo;
+  volatile void *cfg, *mux;
+  volatile uint8_t *rst;
+  volatile uint32_t *fifo;
   unsigned char symbols[162];
   char *message, *hashtab;
   config_t config;
   double freq, corr, dphi;
+  int chan;
 
   hashtab = malloc(sizeof(char) * 32768 * 13);
   memset(hashtab, 0, sizeof(char) * 32768 * 13);
@@ -63,6 +64,18 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  if(!config_lookup_int(&config, "chan", &chan))
+  {
+    fprintf(stderr, "No 'chan' setting in configuration file.\n", i);
+    return EXIT_FAILURE;
+  }
+
+  if(chan < 1 || chan > 2)
+  {
+    fprintf(stderr, "Wrong 'chan' setting in configuration file.\n", i);
+    return EXIT_FAILURE;
+  }
+
   if(!config_lookup_string(&config, "message", &message))
   {
     fprintf(stderr, "No 'message' setting in configuration file.\n");
@@ -83,6 +96,20 @@ int main(int argc, char *argv[])
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000B000);
+  mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000C000);
+
+  if(chan == 1)
+  {
+    *(uint32_t *)(mux + 64) = 0;
+    *(uint32_t *)(mux + 68) = 1;
+  }
+  else
+  {
+    *(uint32_t *)(mux + 64) = 1;
+    *(uint32_t *)(mux + 68) = 0;
+  }
+
+  *(uint32_t *)mux = 2;
 
   rst = (uint8_t *)(cfg + 1);
 
