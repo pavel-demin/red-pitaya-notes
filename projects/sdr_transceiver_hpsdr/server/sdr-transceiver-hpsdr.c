@@ -1,6 +1,7 @@
 /*
 19.04.2016 DC2PD: add code for bandpass and antenna switching via I2C.
 22.08.2016 DL4AOI: add code for TX drive level switching via I2C.
+22.08.2016 DL4AOI: output first four open collector outputs to the pins DIO4_P - DIO7_P of the extension connector E1
 */
 
 #include <stdio.h>
@@ -61,6 +62,7 @@ int i2c_drive = 0;
 uint16_t i2c_pene_data = 0;
 uint16_t i2c_alex_data = 0;
 uint16_t i2c_drive_data = 0;
+uint8_t oco_data = 0;
 
 ssize_t i2c_write(int fd, uint8_t addr, uint16_t data)
 {
@@ -366,6 +368,7 @@ void process_ep2(uint8_t *frame)
   uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
   uint8_t cw_internal, cw_volume, cw_delay;
   uint16_t cw_hang, cw_freq;
+  uint8_t oco;
 
   switch(frame[0])
   {
@@ -413,6 +416,13 @@ void process_ep2(uint8_t *frame)
           ioctl(i2c_fd, I2C_SLAVE, ADDR_PENE);
           i2c_write(i2c_fd, 0x02, data);
         }
+      }
+      oco = (frame[2] << 3) & 0xf0;
+      if(oco_data != oco)
+      {
+        oco_data = oco;
+        *gpio_out &= ~0xf0;
+        *gpio_out |= oco;
       }
       break;
     case 2:
