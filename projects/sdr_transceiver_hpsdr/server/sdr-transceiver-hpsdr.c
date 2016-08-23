@@ -1,4 +1,8 @@
-/* 19.04.2016 DC2PD : add code for bandpass and antenna switching via I2C. */
+/*
+19.04.2016 DC2PD: add code for bandpass and antenna switching via I2C.
+22.08.2016 DL4AOI: add code for TX drive level switching via I2C.
+22.08.2016 DL4AOI: output first four open collector outputs to the pins DIO4_P - DIO7_P of the extension connector E1
+*/
 
 #include <stdio.h>
 #include <errno.h>
@@ -25,6 +29,7 @@
 
 #define ADDR_PENE 0x20 /* PCA9555 address 0 */
 #define ADDR_ALEX 0x21 /* PCA9555 address 1 */
+#define ADDR_DRIVE 0x22 /* PCA9555 address 2 */
 
 volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex;
 volatile uint16_t *rx_cntr, *tx_cntr;
@@ -53,8 +58,11 @@ jack_ringbuffer_t *playback_data = 0;
 int i2c_fd;
 int i2c_pene = 0;
 int i2c_alex = 0;
+int i2c_drive = 0;
 uint16_t i2c_pene_data = 0;
 uint16_t i2c_alex_data = 0;
+uint16_t i2c_drive_data = 0;
+uint8_t oco_data = 0;
 
 ssize_t i2c_write(int fd, uint8_t addr, uint16_t data)
 {
@@ -180,6 +188,16 @@ int main(int argc, char *argv[])
       if(i2c_write(i2c_fd, 0x02, 0x0000) > 0)
       {
         i2c_alex = 1;
+        /* configure all pins as output */
+        i2c_write(i2c_fd, 0x06, 0x0000);
+      }
+    }
+    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE) >= 0)
+    {
+      /* set all pins to low */
+      if(i2c_write(i2c_fd, 0x02, 0x0000) > 0)
+      {
+        i2c_drive = 1;
         /* configure all pins as output */
         i2c_write(i2c_fd, 0x06, 0x0000);
       }
@@ -350,6 +368,7 @@ void process_ep2(uint8_t *frame)
   uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
   uint8_t cw_internal, cw_volume, cw_delay;
   uint16_t cw_hang, cw_freq;
+  uint8_t oco;
 
   switch(frame[0])
   {
@@ -397,6 +416,13 @@ void process_ep2(uint8_t *frame)
           ioctl(i2c_fd, I2C_SLAVE, ADDR_PENE);
           i2c_write(i2c_fd, 0x02, data);
         }
+      }
+      oco = (frame[2] << 3) & 0xf0;
+      if(oco_data != oco)
+      {
+        oco_data = oco;
+        *gpio_out &= ~0xf0;
+        *gpio_out |= oco;
       }
       break;
     case 2:
@@ -467,6 +493,17 @@ void process_ep2(uint8_t *frame)
         {
           i2c_alex_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_ALEX);
+          i2c_write(i2c_fd, 0x02, data);
+        }
+      }
+
+      /* configure drive level */
+      if(i2c_drive)
+      {
+        if(i2c_drive_data != drive)
+        {
+          i2c_drive_data = drive;
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE);
           i2c_write(i2c_fd, 0x02, data);
         }
       }
