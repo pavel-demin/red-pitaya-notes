@@ -500,9 +500,10 @@ void process_ep2(uint8_t *frame)
       /* configure drive level */
       if(i2c_drive)
       {
-        if(i2c_drive_data != drive)
+        data = drive;
+        if(i2c_drive_data != data)
         {
-          i2c_drive_data = drive;
+          i2c_drive_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE);
           i2c_write(i2c_fd, 0x02, data);
         }
