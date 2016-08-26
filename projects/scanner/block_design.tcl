@@ -200,7 +200,7 @@ cell xilinx.com:ip:util_vector_logic:2.0 xor_0 {
   C_OPERATION xor
 } {
   Op1 slice_3/Dout
-  Op2 gen_0/out
+  Op2 gen_0/dout
 }
 
 # Create util_vector_logic
@@ -209,7 +209,7 @@ cell xilinx.com:ip:util_vector_logic:2.0 xor_1 {
   C_OPERATION xor
 } {
   Op1 slice_4/Dout
-  Op2 gen_1/out
+  Op2 gen_1/dout
 }
 
 # Delete input/output port
@@ -228,8 +228,8 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
 } {
   In0 xor_0/Res
   In1 xor_1/Res
-  In2 gen_2/out
-  In3 gen_3/out
+  In2 gen_2/dout
+  In3 gen_3/dout
   dout exp_n_tri_io
 }
 
@@ -273,7 +273,7 @@ cell pavel-demin:user:axis_stepper:1.0 stepper_0 {
   AXIS_TDATA_WIDTH 32
 } {
   S_AXIS fifo_0/M_AXIS
-  trg_flag gen_2/out
+  trg_flag gen_2/dout
   aclk ps_0/FCLK_CLK0
 }
 
@@ -323,7 +323,7 @@ cell xilinx.com:ip:util_vector_logic:2.0 not_0 {
   C_SIZE 1
   C_OPERATION not
 } {
-  Op1 gen_3/out
+  Op1 gen_3/dout
 }
 
 # Create axis_variable
