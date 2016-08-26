@@ -31,7 +31,7 @@
 #define ADDR_ALEX 0x21 /* PCA9555 address 1 */
 #define ADDR_DRIVE 0x22 /* PCA9555 address 2 */
 
-volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex;
+volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux;
 volatile uint16_t *rx_cntr, *tx_cntr;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
 volatile uint64_t *rx_data;
@@ -62,7 +62,9 @@ int i2c_drive = 0;
 uint16_t i2c_pene_data = 0;
 uint16_t i2c_alex_data = 0;
 uint16_t i2c_drive_data = 0;
+
 uint8_t oco_data = 0;
+uint8_t tx_mux_data = 0;
 
 ssize_t i2c_write(int fd, uint8_t addr, uint16_t data)
 {
@@ -207,8 +209,9 @@ int main(int argc, char *argv[])
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   alex = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+  tx_mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
   rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
-  tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+  tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
 
   rx_rst = ((uint8_t *)(cfg + 0));
   tx_rst = ((uint8_t *)(cfg + 1));
@@ -241,6 +244,10 @@ int main(int argc, char *argv[])
 
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+
+  /* set default tx mux channel */
+  *(tx_mux + 16) = 0;
+  *tx_mux = 2;
 
   /* reset tx fifo */
   *tx_rst |= 1;
@@ -308,16 +315,19 @@ int main(int argc, char *argv[])
       switch(*(uint32_t *)buffer[i])
       {
         case 0x0201feef:
-          while(*tx_cntr > 16258) usleep(1000);
-          if(*tx_cntr == 0) for(j = 0; j < 1260; ++j) *tx_data = 0;
-          if((*gpio_out & 1) | (*gpio_in & 1))
+          if(tx_mux_data == 0)
           {
-            for(j = 0; j < 504; j += 8) *tx_data = *(uint32_t *)(buffer[i] + 20 + j);
-            for(j = 0; j < 504; j += 8) *tx_data = *(uint32_t *)(buffer[i] + 532 + j);
-          }
-          else
-          {
-            for(j = 0; j < 126; ++j) *tx_data = 0;
+            while(*tx_cntr > 8066) usleep(1000);
+            if(*tx_cntr == 0) for(j = 0; j < 1260; ++j) *tx_data = 0;
+            if((*gpio_out & 1) | (*gpio_in & 1))
+            {
+              for(j = 0; j < 504; j += 8) *tx_data = *(uint32_t *)(buffer[i] + 20 + j);
+              for(j = 0; j < 504; j += 8) *tx_data = *(uint32_t *)(buffer[i] + 532 + j);
+            }
+            else
+            {
+              for(j = 0; j < 126; ++j) *tx_data = 0;
+            }
           }
           for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 16 + j, 4);
           for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 528 + j, 4);
@@ -522,6 +532,12 @@ void process_ep2(uint8_t *frame)
       cw_internal = frame[1] & 1;
       cw_volume = frame[2];
       cw_delay = frame[3];
+      if(tx_mux_data != cw_internal)
+      {
+        tx_mux_data = cw_internal;
+        *(tx_mux + 16) = cw_internal;
+        *tx_mux = 2;
+      }
       break;
     case 32:
     case 33:
