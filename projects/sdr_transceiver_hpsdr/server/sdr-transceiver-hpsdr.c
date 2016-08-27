@@ -1,6 +1,6 @@
 /*
 19.04.2016 DC2PD: add code for bandpass and antenna switching via I2C.
-22.08.2016 DL4AOI: add code for TX drive level switching via I2C.
+22.08.2016 DL4AOI: add code for TX level switching via I2C.
 22.08.2016 DL4AOI: output first four open collector outputs to the pins DIO4_P - DIO7_P of the extension connector E1
 */
 
@@ -32,7 +32,7 @@
 #define ADDR_DRIVE 0x22 /* PCA9555 address 2 */
 
 volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux;
-volatile uint16_t *rx_cntr, *tx_cntr;
+volatile uint16_t *rx_cntr, *tx_cntr, *tx_level;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
 volatile uint64_t *rx_data;
 volatile uint32_t *tx_data;
@@ -58,10 +58,10 @@ jack_ringbuffer_t *playback_data = 0;
 int i2c_fd;
 int i2c_pene = 0;
 int i2c_alex = 0;
-int i2c_drive = 0;
+int i2c_level = 0;
 uint16_t i2c_pene_data = 0;
 uint16_t i2c_alex_data = 0;
-uint16_t i2c_drive_data = 0;
+uint16_t i2c_level_data = 0;
 
 uint8_t tx_mux_data = 0;
 
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
       /* set all pins to low */
       if(i2c_write(i2c_fd, 0x02, 0x0000) > 0)
       {
-        i2c_drive = 1;
+        i2c_level = 1;
         /* configure all pins as output */
         i2c_write(i2c_fd, 0x06, 0x0000);
       }
@@ -224,6 +224,7 @@ int main(int argc, char *argv[])
   rx_freq[3] = ((uint32_t *)(cfg + 20));
 
   tx_freq = ((uint32_t *)(cfg + 24));
+  tx_level = ((uint16_t *)(cfg + 28));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 14));
@@ -243,6 +244,9 @@ int main(int argc, char *argv[])
 
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+
+  /* set default tx level */
+  *tx_level = 32767;
 
   /* set default tx mux channel */
   *(tx_mux + 16) = 0;
@@ -373,7 +377,7 @@ void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
   uint16_t data;
-  uint8_t drive;
+  uint16_t level;
   uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
   uint8_t cw_internal, cw_volume, cw_delay;
   uint16_t cw_hang, cw_freq;
@@ -474,7 +478,8 @@ void process_ep2(uint8_t *frame)
       break;
     case 18:
     case 19:
-      drive = frame[1];
+      level = frame[1];
+      *tx_level = level * 165;
       data = (frame[2] & 0x40) << 9 | frame[4] << 8 | frame[3];
       if(alex_data_4 != data)
       {
@@ -494,15 +499,14 @@ void process_ep2(uint8_t *frame)
         }
       }
 
-      /* configure drive level */
-      if(i2c_drive)
+      /* configure level */
+      if(i2c_level)
       {
-        data = drive;
-        if(i2c_drive_data != data)
+        if(i2c_level_data != level)
         {
-          i2c_drive_data = data;
+          i2c_level_data = level;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE);
-          i2c_write(i2c_fd, 0x02, data);
+          i2c_write(i2c_fd, 0x02, level);
         }
       }
       break;
