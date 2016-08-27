@@ -63,6 +63,7 @@ uint16_t i2c_pene_data = 0;
 uint16_t i2c_alex_data = 0;
 uint16_t i2c_drive_data = 0;
 
+uint8_t att_data = 0;
 uint8_t oco_data = 0;
 uint8_t tx_mux_data = 0;
 
@@ -378,7 +379,7 @@ void process_ep2(uint8_t *frame)
   uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
   uint8_t cw_internal, cw_volume, cw_delay;
   uint16_t cw_hang, cw_freq;
-  uint8_t oco;
+  uint8_t att, oco;
 
   switch(frame[0])
   {
@@ -388,9 +389,22 @@ void process_ep2(uint8_t *frame)
       /* set PTT pin */
       if(frame[0] & 1) *gpio_out |= 1;
       else *gpio_out &= ~1;
-      /* set preamp pin */
-      if(frame[3] & 4) *gpio_out |= 2;
-      else *gpio_out &= ~2;
+      /* set preamp and attenuator pins */
+      att = (frame[3] << 1) & 0x0e;
+      if(att_data != att)
+      {
+        att_data = att;
+        *gpio_out &= ~0x0e;
+        *gpio_out |= att;
+      }
+      /* set open collector outputs */
+      oco = (frame[2] << 3) & 0xf0;
+      if(oco_data != oco)
+      {
+        oco_data = oco;
+        *gpio_out &= ~0xf0;
+        *gpio_out |= oco;
+      }
 
       /* set rx sample rate */
       switch(frame[1] & 3)
@@ -426,13 +440,6 @@ void process_ep2(uint8_t *frame)
           ioctl(i2c_fd, I2C_SLAVE, ADDR_PENE);
           i2c_write(i2c_fd, 0x02, data);
         }
-      }
-      oco = (frame[2] << 3) & 0xf0;
-      if(oco_data != oco)
-      {
-        oco_data = oco;
-        *gpio_out &= ~0xf0;
-        *gpio_out |= oco;
       }
       break;
     case 2:
