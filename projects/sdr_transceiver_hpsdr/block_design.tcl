@@ -135,7 +135,7 @@ create_bd_port -dir IO -from 3 -to 0 exp_n_tri_io
 # Create gpio_debouncer
 cell pavel-demin:user:gpio_debouncer:1.0 gpio_0 {
   DATA_WIDTH 4
-  CNTR_WIDTH 20
+  CNTR_WIDTH 16
 } {
   gpio_data exp_n_tri_io
   aclk ps_0/FCLK_CLK0
