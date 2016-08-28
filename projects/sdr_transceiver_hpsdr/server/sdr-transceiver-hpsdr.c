@@ -479,7 +479,7 @@ void process_ep2(uint8_t *frame)
     case 18:
     case 19:
       level = frame[1];
-      *tx_level = level * 165;
+      *tx_level = (level + 1) * 128 - 1;
       data = (frame[2] & 0x40) << 9 | frame[4] << 8 | frame[3];
       if(alex_data_4 != data)
       {
