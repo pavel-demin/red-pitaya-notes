@@ -150,6 +150,8 @@ set_property SLEW FAST [get_ports {exp_p_tri_io[*]}]
 set_property SLEW FAST [get_ports {exp_n_tri_io[*]}]
 set_property DRIVE 8 [get_ports {exp_p_tri_io[*]}]
 set_property DRIVE 8 [get_ports {exp_n_tri_io[*]}]
+set_property PULLTYPE PULLUP [get_ports {exp_p_tri_io[*]}]
+set_property PULLTYPE PULLUP [get_ports {exp_n_tri_io[*]}]
 
 set_property PACKAGE_PIN G17 [get_ports {exp_p_tri_io[0]}]
 set_property PACKAGE_PIN G18 [get_ports {exp_n_tri_io[0]}]
