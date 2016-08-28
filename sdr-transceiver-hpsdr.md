@@ -50,7 +50,11 @@ RF and GPIO connections
  - output for TX is connected to OUT1
  - output for a RX/TX switch control (PTT-out) is connected to pin DIO0_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
  - output for a pre-amplifier/attenuator control is connected to pin DIO1_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1) (this pin is controlled by the first ATT combo-box in [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR))
+ - outputs for 10 dB and 20 dB attenuators control are connected to the pins DIO2_P - DIO3_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
+ - outputs for Hermes Ctrl pins are connected to the pins DIO4_P - DIO7_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
  - inputs for PTT, DASH and DOT are connected to the pins DIO0_N, DIO1_N and DIO2_N of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
+
+![GPIO connections]({{ "/img/sdr-transceiver-hpsdr-e1-pins.png" | prepend: site.baseurl }})
 
 ALEX connections
 -----
@@ -59,7 +63,7 @@ The board and the protocol are described in the [ALEX manual](http://www.tapr.or
 
 The HPSDR signals sent to the [TPIC6B595](http://www.ti.com/product/TPIC6B595) chips are shown on the following diagram:
 
-![SDR transceiver compatible with HPSDR]({{ "/img/sdr-transceiver-hpsdr-alex-interface.png" | prepend: site.baseurl }})
+![ALEX connections]({{ "/img/sdr-transceiver-hpsdr-alex-interface.png" | prepend: site.baseurl }})
 
 I2C connections
 -----
@@ -116,7 +120,7 @@ http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/OpenHPSDR_Skins)
 Getting started
 -----
 
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.95-1-6deb253-sdr-transceiver-hpsdr.zip).
+ - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAD3bGp3ptaQ-VE-adG1SijKa/sdr/ecosystem-0.95-1-6deb253-sdr-transceiver-hpsdr.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install and run one of the HPSDR programs.
