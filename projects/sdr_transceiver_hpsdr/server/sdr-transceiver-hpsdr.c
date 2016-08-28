@@ -64,6 +64,7 @@ uint16_t i2c_alex_data = 0;
 uint16_t i2c_level_data = 0;
 
 uint8_t tx_mux_data = 0;
+uint8_t rx_att_data = 0;
 
 ssize_t i2c_write(int fd, uint8_t addr, uint16_t data)
 {
@@ -388,7 +389,7 @@ void process_ep2(uint8_t *frame)
     case 1:
       receivers = ((frame[4] >> 3) & 7) + 1;
       /* set output pins */
-      *gpio_out = (frame[2] & 0x1e) << 3 | (frame[3] & 0x03) << 2 | (frame[3] & 0x04) >> 1 | (frame[0] & 0x01);
+      *gpio_out = (frame[2] & 0x1e) << 3 | (frame[3] & 0x03) << 2 | (frame[3] & 0x04) >> 1 | (rx_att_data == 0) << 1 | (frame[0] & 0x01);
 
       /* set rx sample rate */
       switch(frame[1] & 3)
@@ -509,6 +510,10 @@ void process_ep2(uint8_t *frame)
           i2c_write(i2c_fd, 0x02, level);
         }
       }
+      break;
+    case 20:
+    case 21:
+      rx_att_data = frame[4] & 0x1f;
       break;
     case 22:
     case 23:
