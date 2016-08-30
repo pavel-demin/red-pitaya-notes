@@ -378,7 +378,6 @@ void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
   uint16_t data;
-  uint16_t level;
   uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
   uint8_t cw_internal, cw_volume, cw_delay;
   uint16_t cw_hang, cw_freq;
@@ -479,8 +478,6 @@ void process_ep2(uint8_t *frame)
       break;
     case 18:
     case 19:
-      level = frame[1];
-      *tx_level = (level + 1) * 128 - 1;
       data = (frame[2] & 0x40) << 9 | frame[4] << 8 | frame[3];
       if(alex_data_4 != data)
       {
@@ -501,14 +498,19 @@ void process_ep2(uint8_t *frame)
       }
 
       /* configure level */
+      data = frame[1];
       if(i2c_level)
       {
-        if(i2c_level_data != level)
+        if(i2c_level_data != data)
         {
-          i2c_level_data = level;
+          i2c_level_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE);
-          i2c_write(i2c_fd, 0x02, level);
+          i2c_write(i2c_fd, 0x02, data);
         }
+      }
+      else
+      {
+        *tx_level = (data + 1) * 128 - 1;
       }
       break;
     case 20:
