@@ -34,7 +34,8 @@
 #define ADDR_DRIVE 0x28 /* DS1803 address 0 */
 
 volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux;
-volatile uint16_t *rx_cntr, *tx_cntr, *tx_level;
+volatile uint16_t *rx_cntr, *tx_cntr;
+volatile uint16_t *cw_level, *tx_level;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
 volatile uint64_t *rx_data;
 volatile uint32_t *tx_data;
@@ -237,7 +238,8 @@ int main(int argc, char *argv[])
   rx_freq[3] = ((uint32_t *)(cfg + 20));
 
   tx_freq = ((uint32_t *)(cfg + 24));
-  tx_level = ((uint16_t *)(cfg + 28));
+  cw_level = ((uint16_t *)(cfg + 28));
+  tx_level = ((uint16_t *)(cfg + 30));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 14));
@@ -257,6 +259,9 @@ int main(int argc, char *argv[])
 
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+
+  /* set default cw level */
+  *cw_level = 27200;
 
   /* set default tx level */
   *tx_level = 32767;

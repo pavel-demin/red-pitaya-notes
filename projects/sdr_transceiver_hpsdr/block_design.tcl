@@ -262,6 +262,7 @@ module tx_0 {
   slice_0/Din rst_slice_1/Dout
   slice_1/Din cfg_slice_1/Dout
   slice_2/Din cfg_slice_1/Dout
+  slice_3/Din cfg_slice_1/Dout
   keyer_0/key_flag key_slice_0/Dout
   fifo_1/M_AXIS bcast_0/S_AXIS
   fifo_1/m_axis_aclk adc_0/adc_clk
