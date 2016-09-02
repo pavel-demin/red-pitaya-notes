@@ -10,13 +10,14 @@ module axis_keyer #
   input  wire                        aclk,
 
   input  wire                        key_flag,
+  input  wire [AXIS_TDATA_WIDTH-1:0] key_data,
 
   // Master side
   output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata,
   output wire                        m_axis_tvalid
 );
 
-  assign m_axis_tdata = key_flag ? {1'b0, {(AXIS_TDATA_WIDTH-1){1'b1}}} : {(AXIS_TDATA_WIDTH){1'b0}};
+  assign m_axis_tdata = key_flag ? key_data : {(AXIS_TDATA_WIDTH){1'b0}};
   assign m_axis_tvalid = 1'b1;
 
 endmodule
