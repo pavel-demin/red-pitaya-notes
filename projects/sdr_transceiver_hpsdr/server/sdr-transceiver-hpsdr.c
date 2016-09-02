@@ -1,7 +1,8 @@
 /*
 19.04.2016 DC2PD: add code for bandpass and antenna switching via I2C.
 22.08.2016 DL4AOI: add code for TX level switching via I2C.
-22.08.2016 DL4AOI: output first four open collector outputs to the pins DIO4_P - DIO7_P of the extension connector E1
+22.08.2016 DL4AOI: output first four open collector outputs to the pins DIO4_P - DIO7_P of the extension connector E1.
+02.09.2016 ON3VNA: add code for TX level switching via DS1803-10 (I2C).
 */
 
 #include <stdio.h>
@@ -29,7 +30,8 @@
 
 #define ADDR_PENE 0x20 /* PCA9555 address 0 */
 #define ADDR_ALEX 0x21 /* PCA9555 address 1 */
-#define ADDR_DRIVE 0x22 /* PCA9555 address 2 */
+#define ADDR_LEVEL 0x22 /* PCA9555 address 2 */
+#define ADDR_DRIVE 0x28 /* DS1803 address 0 */
 
 volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux;
 volatile uint16_t *rx_cntr, *tx_cntr, *tx_level;
@@ -59,9 +61,11 @@ int i2c_fd;
 int i2c_pene = 0;
 int i2c_alex = 0;
 int i2c_level = 0;
+int i2c_drive = 0;
 uint16_t i2c_pene_data = 0;
 uint16_t i2c_alex_data = 0;
 uint16_t i2c_level_data = 0;
+uint16_t i2c_drive_data = 0;
 
 uint8_t tx_mux_data = 0;
 uint8_t rx_att_data = 0;
@@ -194,7 +198,7 @@ int main(int argc, char *argv[])
         i2c_write(i2c_fd, 0x06, 0x0000);
       }
     }
-    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE) >= 0)
+    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_LEVEL) >= 0)
     {
       /* set all pins to low */
       if(i2c_write(i2c_fd, 0x02, 0x0000) > 0)
@@ -202,6 +206,14 @@ int main(int argc, char *argv[])
         i2c_level = 1;
         /* configure all pins as output */
         i2c_write(i2c_fd, 0x06, 0x0000);
+      }
+    }
+    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE) >= 0)
+    {
+      /* set both potentiometers to 0 */
+      if(i2c_write(i2c_fd, 0xa9, 0x0000) > 0)
+      {
+        i2c_drive = 1;
       }
     }
   }
@@ -504,8 +516,17 @@ void process_ep2(uint8_t *frame)
         if(i2c_level_data != data)
         {
           i2c_level_data = data;
-          ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE);
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_LEVEL);
           i2c_write(i2c_fd, 0x02, data);
+        }
+      }
+      else if(i2c_drive)
+      {
+        if(i2c_drive_data != data)
+        {
+          i2c_drive_data = data;
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE);
+          i2c_write(i2c_fd, 0xa9, data << 8 | data);
         }
       }
       else
