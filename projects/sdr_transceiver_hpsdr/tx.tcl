@@ -13,6 +13,11 @@ cell xilinx.com:ip:xlslice:1.0 slice_2 {
   DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
 }
 
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_3 {
+  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
+}
+
 # Create axi_axis_writer
 cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
   AXI_DATA_WIDTH 32
@@ -159,8 +164,9 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
 
 # Create axis_keyer
 cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
-  AXIS_TDATA_WIDTH 8
+  AXIS_TDATA_WIDTH 16
 } {
+  key_data slice_2/Dout
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -169,10 +175,10 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   INPUT_DATA_WIDTH.VALUE_SRC USER
   FILTER_TYPE Interpolation
   NUMBER_OF_STAGES 6
-  FIXED_OR_INITIAL_RATE 400
-  INPUT_SAMPLE_FREQUENCY 0.00025
+  FIXED_OR_INITIAL_RATE 250
+  INPUT_SAMPLE_FREQUENCY 0.0004
   CLOCK_FREQUENCY 125
-  INPUT_DATA_WIDTH 8
+  INPUT_DATA_WIDTH 16
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
@@ -339,7 +345,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_4 {
 cell pavel-demin:user:axis_constant:1.0 const_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_2/Dout
+  cfg_data slice_3/Dout
   aclk /ps_0/FCLK_CLK0
 }
 
