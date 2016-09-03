@@ -397,6 +397,7 @@ void process_ep2(uint8_t *frame)
   uint16_t data;
   uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
   uint8_t cw_internal, cw_volume, cw_delay;
+  uint8_t ptt, preamp;
   uint16_t cw_hang, cw_freq;
 
   switch(frame[0])
@@ -405,7 +406,9 @@ void process_ep2(uint8_t *frame)
     case 1:
       receivers = ((frame[4] >> 3) & 7) + 1;
       /* set output pins */
-      *gpio_out = (frame[2] & 0x1e) << 3 | (frame[3] & 0x03) << 2 | (frame[3] & 0x04) >> 1 | (rx_att_data == 0) << 1 | (frame[0] & 0x01);
+      ptt = frame[0] & 0x01;
+      preamp = ptt | (*gpio_in & 1) ? 0 : (frame[3] & 0x04) >> 2 | (rx_att_data == 0);
+      *gpio_out = (frame[2] & 0x1e) << 3 | (frame[3] & 0x03) << 2 | preamp << 1 | ptt;
 
       /* set rx sample rate */
       switch(frame[1] & 3)
