@@ -162,30 +162,36 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_keyer
-cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
-  AXIS_TDATA_WIDTH 16
-} {
-  key_data slice_2/Dout
-  aclk /ps_0/FCLK_CLK0
+# Create blk_mem_gen
+cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
+  MEMORY_TYPE True_Dual_Port_RAM
+  USE_BRAM_BLOCK Stand_Alone
+  WRITE_WIDTH_A 32
+  WRITE_DEPTH_A 2048
+  WRITE_WIDTH_B 32
+  ENABLE_A Always_Enabled
+  ENABLE_B Always_Enabled
+  REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
 }
 
-# Create cic_compiler
-cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
-  INPUT_DATA_WIDTH.VALUE_SRC USER
-  FILTER_TYPE Interpolation
-  NUMBER_OF_STAGES 6
-  FIXED_OR_INITIAL_RATE 250
-  INPUT_SAMPLE_FREQUENCY 0.0004
-  CLOCK_FREQUENCY 125
-  INPUT_DATA_WIDTH 16
-  QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 24
-  USE_XTREME_DSP_SLICE false
-  HAS_DOUT_TREADY true
-  HAS_ARESETN true
+# Create axi_bram_writer
+cell pavel-demin:user:axi_bram_writer:1.0 writer_1 {
+  AXI_DATA_WIDTH 32
+  AXI_ADDR_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 11
 } {
-  S_AXIS_DATA keyer_0/M_AXIS
+  BRAM_PORTA bram_0/BRAM_PORTA
+}
+
+# Create axis_keyer
+cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
+  AXIS_TDATA_WIDTH 32
+  BRAM_DATA_WIDTH 32
+  BRAM_ADDR_WIDTH 11
+} {
+  BRAM_PORTA bram_0/BRAM_PORTB
+  cfg_data slice_2/Dout
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
@@ -194,11 +200,11 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
 cell xilinx.com:ip:axis_subset_converter:1.1 subset_3 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 3
+  S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 6
   TDATA_REMAP {24'b000000000000000000000000,tdata[23:0]}
 } {
-  S_AXIS cic_0/M_AXIS_DATA
+  S_AXIS keyer_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }

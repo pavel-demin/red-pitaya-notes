@@ -34,8 +34,7 @@
 #define ADDR_DRIVE 0x28 /* DS1803 address 0 */
 
 volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux;
-volatile uint16_t *rx_cntr, *tx_cntr;
-volatile uint16_t *cw_level, *tx_level;
+volatile uint16_t *rx_cntr, *tx_cntr, *tx_level;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
 volatile uint64_t *rx_data;
 volatile uint32_t *tx_data;
@@ -161,6 +160,9 @@ int main(int argc, char *argv[])
   int fd, i, j, size;
   pthread_t thread;
   volatile void *cfg, *sts;
+  volatile int32_t *cw_ramp;
+  volatile uint16_t *cw_size;
+  float scale, ramp[2048], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   char *name = "/dev/mem";
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
   struct ifreq hwaddr;
@@ -223,6 +225,7 @@ int main(int argc, char *argv[])
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   alex = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   tx_mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
+  cw_ramp = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
   rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
   tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
 
@@ -238,7 +241,7 @@ int main(int argc, char *argv[])
   rx_freq[3] = ((uint32_t *)(cfg + 20));
 
   tx_freq = ((uint32_t *)(cfg + 24));
-  cw_level = ((uint16_t *)(cfg + 28));
+  cw_size = ((uint16_t *)(cfg + 28));
   tx_level = ((uint16_t *)(cfg + 30));
 
   rx_cntr = ((uint16_t *)(sts + 12));
@@ -260,8 +263,19 @@ int main(int argc, char *argv[])
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
 
-  /* set default cw level */
-  *cw_level = 27200;
+  /* set cw ramp */
+  size = 1001;
+  ramp[0] = 0.0;
+  for(i = 1; i <= size; ++i)
+  {
+    ramp[i] = ramp[i - 1] + a[0] - a[1] * cos(2.0 * M_PI * i / size) + a[2] * cos(4.0 * M_PI * i / size) - a[3] * cos(6.0 * M_PI * i / size);
+  }
+  scale = 6.1e6 / ramp[size];
+  for(i = 0; i <= size; ++i)
+  {
+    cw_ramp[i] = (uint32_t)floor(ramp[i] * scale + 0.5);
+  }
+  *cw_size = size;
 
   /* set default tx level */
   *tx_level = 32767;
