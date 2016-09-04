@@ -358,3 +358,12 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 
 set_property RANGE 32K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg01]
 set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg01]
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins tx_0/writer_1/S_AXI]
+
+set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_writer_1_reg0]
+set_property OFFSET 0x40004000 [get_bd_addr_segs ps_0/Data/SEG_writer_1_reg0]
