@@ -117,7 +117,7 @@ for {set i 0} {$i <= 7} {incr i} {
     APORTWIDTH 14
     BPORTWIDTH 24
     ROUNDMODE Random_Rounding
-    OUTPUTWIDTH 25
+    OUTPUTWIDTH 26
   } {
     S_AXIS_A switch_0/M0${i}_AXIS
     S_AXIS_B dds_$i/M_AXIS_DATA
