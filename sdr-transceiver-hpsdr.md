@@ -150,7 +150,7 @@ The measured delay between the key press and the start of the RF signal is about
 
 ![CW signal]({{ "/img/cw-signal.png" | prepend: site.baseurl }})
 
-The following figure shows the spectrum of the CW signal keyed at 50 PWM.
+The following figure shows the spectrum of the CW signal keyed at 50 WPM.
 
 ![CW spectrum]({{ "/img/cw-spectrum.png" | prepend: site.baseurl }})
 
