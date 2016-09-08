@@ -139,6 +139,21 @@ The following spectra illustrate how the amplifier linearization works with the 
 ![PureSignal off]({{ "/img/puresignal-off.png" | prepend: site.baseurl }})
 ![PureSignal on]({{ "/img/puresignal-on.png" | prepend: site.baseurl }})
 
+CW functionality
+-----
+
+A very basic CW functionality is currently provided. It can be used with a straight key or an external keyer connected to the pin DIO2_N of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1). The CW signal is generated when one of the CW modes is selected in [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) and the pin DIO2_N is connected to GND.
+
+The ramp generator is programmable. The default ramp's shape is the step response of the 4-term Blackman-Harris window. It's inspired by the ["CW Shaping in DSP Software"](https://github.com/pavel-demin/red-pitaya-notes/files/403696/cw-shaping-in-dsp.pdf) article appeared in the May/June, 2006 issue of QEX.
+
+The measured delay between the key press and the start of the RF signal is about 2 ms. The 10%-90% rise time of the signal is about 3.5 ms.
+
+![CW signal]({{ "/img/cw-signal.png" | prepend: site.baseurl }})
+
+The following figure shows the spectrum of the CW signal keyed at 50 PWM.
+
+![CW spectrum]({{ "/img/cw-spectrum.png" | prepend: site.baseurl }})
+
 Building from source
 -----
 
