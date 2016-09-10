@@ -163,7 +163,6 @@ int main(int argc, char *argv[])
   volatile int32_t *cw_ramp;
   volatile uint16_t *cw_size;
   float scale, ramp[2048], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
-  char *name = "/dev/mem";
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from[10];
@@ -173,7 +172,7 @@ int main(int argc, char *argv[])
   struct timespec timeout;
   int yes = 1;
 
-  if((fd = open(name, O_RDWR)) < 0)
+  if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
     perror("open");
     return EXIT_FAILURE;
@@ -590,9 +589,11 @@ void process_ep2(uint8_t *frame)
 
 void *handler_ep6(void *arg)
 {
+  FILE *file;
   int i, j, n, m, size;
   int data_offset, header_offset, buffer_offset;
   uint32_t counter;
+  int32_t ain[4];
   uint8_t data0[4096];
   uint8_t data1[4096];
   uint8_t data2[4096];
@@ -655,6 +656,28 @@ void *handler_ep6(void *arg)
       *(uint64_t *)(data3 + i) = *rx_data;
     }
 
+    memset(ain, 0, 16);
+    if(file = fopen("/sys/bus/iio/devices/iio:device0/in_voltage11_vaux8_raw", "r"))
+    {
+      fscanf(file, "%d", &ain[0]);
+      fclose(file);
+    }
+    if(file = fopen("/sys/bus/iio/devices/iio:device0/in_voltage9_vaux0_raw", "r"))
+    {
+      fscanf(file, "%d", &ain[1]);
+      fclose(file);
+    }
+    if(file = fopen("/sys/bus/iio/devices/iio:device0/in_voltage10_vaux1_raw", "r"))
+    {
+      fscanf(file, "%d", &ain[2]);
+      fclose(file);
+    }
+    if(file = fopen("/sys/bus/iio/devices/iio:device0/in_voltage12_vaux9_raw", "r"))
+    {
+      fscanf(file, "%d", &ain[3]);
+      fclose(file);
+    }
+
     data_offset = 0;
     for(i = 0; i < m; ++i)
     {
@@ -662,6 +685,20 @@ void *handler_ep6(void *arg)
 
       memcpy(buffer[i] + 8, header + header_offset, 8);
       buffer[i][11] |= *gpio_in & 7;
+      if(header_offset == 8)
+      {
+        buffer[i][12] = (ain[3] >> 7) & 0xff;
+        buffer[i][13] = (ain[3] << 1) & 0xff;
+        buffer[i][14] = (ain[0] >> 7) & 0xff;
+        buffer[i][15] = (ain[0] << 1) & 0xff;
+      }
+      else if(header_offset == 16)
+      {
+        buffer[i][12] = (ain[1] >> 7) & 0xff;
+        buffer[i][13] = (ain[1] << 1) & 0xff;
+        buffer[i][14] = (ain[2] >> 7) & 0xff;
+        buffer[i][15] = (ain[2] << 1) & 0xff;
+      }
       header_offset = header_offset >= 32 ? 0 : header_offset + 8;
       memset(buffer[i] + 16, 0, 504);
 
@@ -687,6 +724,20 @@ void *handler_ep6(void *arg)
 
       memcpy(buffer[i] + 520, header + header_offset, 8);
       buffer[i][523] |= *gpio_in & 7;
+      if(header_offset == 8)
+      {
+        buffer[i][524] = (ain[3] >> 7) & 0xff;
+        buffer[i][525] = (ain[3] << 1) & 0xff;
+        buffer[i][526] = (ain[0] >> 7) & 0xff;
+        buffer[i][527] = (ain[0] << 1) & 0xff;
+      }
+      else if(header_offset == 16)
+      {
+        buffer[i][524] = (ain[1] >> 7) & 0xff;
+        buffer[i][525] = (ain[1] << 1) & 0xff;
+        buffer[i][526] = (ain[2] >> 7) & 0xff;
+        buffer[i][527] = (ain[2] << 1) & 0xff;
+      }
       header_offset = header_offset >= 32 ? 0 : header_offset + 8;
       memset(buffer[i] + 528, 0, 504);
 

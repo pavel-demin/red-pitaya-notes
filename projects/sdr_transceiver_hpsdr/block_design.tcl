@@ -33,6 +33,29 @@ cell xilinx.com:ip:util_ds_buf:2.1 buf_1 {
   OBUF_DS_N daisy_n_o
 }
 
+# XADC
+
+# Create xadc_wiz
+cell xilinx.com:ip:xadc_wiz:3.3 xadc_0 {
+  XADC_STARUP_SELECTION independent_adc
+  CHANNEL_ENABLE_VAUXP0_VAUXN0 true
+  CHANNEL_ENABLE_VAUXP1_VAUXN1 true
+  CHANNEL_ENABLE_VAUXP8_VAUXN8 true
+  CHANNEL_ENABLE_VAUXP9_VAUXN9 true
+  CHANNEL_ENABLE_VP_VN true
+} {
+  Vp_Vn Vp_Vn
+  Vaux0 Vaux0
+  Vaux1 Vaux1
+  Vaux8 Vaux8
+  Vaux9 Vaux9
+}
+
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins xadc_0/s_axi_lite]
+
 # ADC
 
 # Create axis_red_pitaya_adc
