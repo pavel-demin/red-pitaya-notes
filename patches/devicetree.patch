@@ -63,7 +63,7 @@
  };
  &uart0 {
  	current-speed = <115200>;
-@@ -83,9 +109,9 @@
+@@ -83,11 +109,32 @@
  };
  &usb0 {
  	dr_mode = "host";
@@ -75,3 +75,26 @@
  };
  &clkc {
  	fclk-enable = <0x1>;
+ 	ps-clk-frequency = <33333333>;
+ };
++&adc {
++	xlnx,channels {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		channel@0 {
++			reg = <0>;
++		};
++		channel@1 {
++			reg = <1>;
++		};
++		channel@2 {
++			reg = <2>;
++		};
++		channel@9 {
++			reg = <9>;
++		};
++		channel@10 {
++			reg = <10>;
++		};
++	};
++};
