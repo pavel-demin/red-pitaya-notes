@@ -37,6 +37,8 @@ cell xilinx.com:ip:util_ds_buf:2.1 buf_1 {
 
 # Create xadc_wiz
 cell xilinx.com:ip:xadc_wiz:3.3 xadc_0 {
+  DCLK_FREQUENCY 143
+  ADC_CONVERSION_RATE 100
   XADC_STARUP_SELECTION independent_adc
   CHANNEL_ENABLE_VAUXP0_VAUXN0 true
   CHANNEL_ENABLE_VAUXP1_VAUXN1 true
@@ -50,11 +52,6 @@ cell xilinx.com:ip:xadc_wiz:3.3 xadc_0 {
   Vaux8 Vaux8
   Vaux9 Vaux9
 }
-
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins xadc_0/s_axi_lite]
 
 # ADC
 
@@ -390,3 +387,12 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 
 set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_writer_1_reg0]
 set_property OFFSET 0x40004000 [get_bd_addr_segs ps_0/Data/SEG_writer_1_reg0]
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins xadc_0/s_axi_lite]
+
+set_property RANGE 64K [get_bd_addr_segs ps_0/Data/SEG_xadc_0_Reg]
+set_property OFFSET 0x40020000 [get_bd_addr_segs ps_0/Data/SEG_xadc_0_Reg]

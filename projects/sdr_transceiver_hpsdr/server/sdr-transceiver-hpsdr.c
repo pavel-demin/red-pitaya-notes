@@ -38,6 +38,7 @@ volatile uint16_t *rx_cntr, *tx_cntr, *tx_level;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
 volatile uint64_t *rx_data;
 volatile uint32_t *tx_data;
+volatile int32_t *xadc;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
@@ -227,6 +228,7 @@ int main(int argc, char *argv[])
   cw_ramp = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
   rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
   tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+  xadc = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
   rx_rst = ((uint8_t *)(cfg + 0));
   tx_rst = ((uint8_t *)(cfg + 1));
@@ -589,11 +591,10 @@ void process_ep2(uint8_t *frame)
 
 void *handler_ep6(void *arg)
 {
-  FILE *file;
   int i, j, n, m, size;
   int data_offset, header_offset, buffer_offset;
   uint32_t counter;
-  int32_t ain[4];
+  int32_t value;
   uint8_t data0[4096];
   uint8_t data1[4096];
   uint8_t data2[4096];
@@ -656,28 +657,6 @@ void *handler_ep6(void *arg)
       *(uint64_t *)(data3 + i) = *rx_data;
     }
 
-    memset(ain, 0, 16);
-    if(file = fopen("/sys/bus/iio/devices/iio:device0/in_voltage11_vaux8_raw", "r"))
-    {
-      fscanf(file, "%d", &ain[0]);
-      fclose(file);
-    }
-    if(file = fopen("/sys/bus/iio/devices/iio:device0/in_voltage9_vaux0_raw", "r"))
-    {
-      fscanf(file, "%d", &ain[1]);
-      fclose(file);
-    }
-    if(file = fopen("/sys/bus/iio/devices/iio:device0/in_voltage10_vaux1_raw", "r"))
-    {
-      fscanf(file, "%d", &ain[2]);
-      fclose(file);
-    }
-    if(file = fopen("/sys/bus/iio/devices/iio:device0/in_voltage12_vaux9_raw", "r"))
-    {
-      fscanf(file, "%d", &ain[3]);
-      fclose(file);
-    }
-
     data_offset = 0;
     for(i = 0; i < m; ++i)
     {
@@ -687,17 +666,21 @@ void *handler_ep6(void *arg)
       buffer[i][11] |= *gpio_in & 7;
       if(header_offset == 8)
       {
-        buffer[i][12] = (ain[3] >> 7) & 0xff;
-        buffer[i][13] = (ain[3] << 1) & 0xff;
-        buffer[i][14] = (ain[0] >> 7) & 0xff;
-        buffer[i][15] = (ain[0] << 1) & 0xff;
+        value = xadc[153] >> 3;
+        buffer[i][12] = (value >> 8) & 0xff;
+        buffer[i][13] = value & 0xff;
+        value = xadc[152] >> 3;
+        buffer[i][14] = (value >> 8) & 0xff;
+        buffer[i][15] = value & 0xff;
       }
       else if(header_offset == 16)
       {
-        buffer[i][12] = (ain[1] >> 7) & 0xff;
-        buffer[i][13] = (ain[1] << 1) & 0xff;
-        buffer[i][14] = (ain[2] >> 7) & 0xff;
-        buffer[i][15] = (ain[2] << 1) & 0xff;
+        value = xadc[144] >> 3;
+        buffer[i][12] = (value >> 8) & 0xff;
+        buffer[i][13] = value & 0xff;
+        value = xadc[145] >> 3;
+        buffer[i][14] = (value >> 8) & 0xff;
+        buffer[i][15] = value & 0xff;
       }
       header_offset = header_offset >= 32 ? 0 : header_offset + 8;
       memset(buffer[i] + 16, 0, 504);
@@ -726,17 +709,21 @@ void *handler_ep6(void *arg)
       buffer[i][523] |= *gpio_in & 7;
       if(header_offset == 8)
       {
-        buffer[i][524] = (ain[3] >> 7) & 0xff;
-        buffer[i][525] = (ain[3] << 1) & 0xff;
-        buffer[i][526] = (ain[0] >> 7) & 0xff;
-        buffer[i][527] = (ain[0] << 1) & 0xff;
+        value = xadc[153] >> 3;
+        buffer[i][524] = (value >> 8) & 0xff;
+        buffer[i][525] = value & 0xff;
+        value = xadc[152] >> 3;
+        buffer[i][526] = (value >> 8) & 0xff;
+        buffer[i][527] = value & 0xff;
       }
       else if(header_offset == 16)
       {
-        buffer[i][524] = (ain[1] >> 7) & 0xff;
-        buffer[i][525] = (ain[1] << 1) & 0xff;
-        buffer[i][526] = (ain[2] >> 7) & 0xff;
-        buffer[i][527] = (ain[2] << 1) & 0xff;
+        value = xadc[144] >> 3;
+        buffer[i][524] = (value >> 8) & 0xff;
+        buffer[i][525] = value & 0xff;
+        value = xadc[145] >> 3;
+        buffer[i][526] = (value >> 8) & 0xff;
+        buffer[i][527] = value & 0xff;
       }
       header_offset = header_offset >= 32 ? 0 : header_offset + 8;
       memset(buffer[i] + 528, 0, 504);
