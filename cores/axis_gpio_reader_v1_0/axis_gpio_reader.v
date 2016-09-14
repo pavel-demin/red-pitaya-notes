@@ -24,7 +24,7 @@ module axis_gpio_reader #
   generate
   for(j = 0; j < AXIS_TDATA_WIDTH; j = j + 1)
   begin : GPIO
-    IOBUF gpio_iobuf (.O(int_data_wire[j]), .IO(gpio_data[j]), .I({(AXIS_TDATA_WIDTH){1'b0}}), .T(1'b1));
+    IOBUF gpio_iobuf (.O(int_data_wire[j]), .IO(gpio_data[j]), .I(1'b0), .T(1'b1));
   end
   endgenerate
 
