@@ -13,6 +13,10 @@ module axis_decimator #
   // I2S signals
   inout  wire [3:0]                  gpio_data,
 
+  // ALEX signals
+  input wire                         alex_flag,
+  input wire [3:0]                   alex_data,
+
   // Slave side
   output wire                        s_axis_tready,
   input  wire [AXIS_TDATA_WIDTH-1:0] s_axis_tdata,
@@ -42,10 +46,12 @@ module axis_decimator #
 
   wire i2s_bclk, i2s_lrclk, i2s_adc_data, i2s_dac_data;
 
-  IOBUF buf_bclk (.O(i2s_bclk), .IO(gpio_data[0]), .I(1'b0), .T(1'b1));
-  IOBUF buf_adc_data (.O(i2s_adc_data), .IO(gpio_data[1]), .I(1'b0), .T(1'b1));
-  IOBUF buf_dac_data (.O(), .IO(gpio_data[2]), .I(i2s_dac_data), .T(1'b0));
-  IOBUF buf_lrclk (.O(i2s_lrclk), .IO(gpio_data[3]), .I(1'b0), .T(1'b1));
+  wire not_alex_flag = ~alex_flag;
+
+  IOBUF buf_bclk (.O(i2s_bclk), .IO(gpio_data[0]), .I(alex_data[0]), .T(not_alex_flag));
+  IOBUF buf_adc_data (.O(i2s_adc_data), .IO(gpio_data[1]), .I(alex_data[1]), .T(not_alex_flag));
+  IOBUF buf_dac_data (.O(), .IO(gpio_data[2]), .I(alex_flag ? alex_data[2] : i2s_dac_data), .T(alex_flag));
+  IOBUF buf_lrclk (.O(i2s_lrclk), .IO(gpio_data[3]), .I(alex_data[3]), .T(not_alex_flag));
 
   always @(posedge aclk)
   begin

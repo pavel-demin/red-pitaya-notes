@@ -32,12 +32,13 @@
 #define ADDR_ALEX 0x21 /* PCA9555 address 1 */
 #define ADDR_LEVEL 0x22 /* PCA9555 address 2 */
 #define ADDR_DRIVE 0x28 /* DS1803 address 0 */
+#define ADDR_CODEC 0x1A /* WM8731 or TLV320AIC23B address 0 */
 
 volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux;
-volatile uint16_t *rx_cntr, *tx_cntr, *tx_level;
-volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst;
+volatile uint16_t *rx_cntr, *tx_cntr, *tx_level, *dac_cntr, *adc_cntr;
+volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *codec_rst;
 volatile uint64_t *rx_data;
-volatile uint32_t *tx_data;
+volatile uint32_t *tx_data, *dac_data, *adc_data;
 volatile int32_t *xadc;
 
 const uint32_t freq_min = 0;
@@ -57,12 +58,14 @@ void *handler_playback(void *arg);
 
 jack_ringbuffer_t *playback_data = 0;
 
-/* variables to handle PCA9555 board */
+/* variables to handle I2C devices */
 int i2c_fd;
 int i2c_pene = 0;
 int i2c_alex = 0;
 int i2c_level = 0;
 int i2c_drive = 0;
+int i2c_codec = 0;
+
 uint16_t i2c_pene_data = 0;
 uint16_t i2c_alex_data = 0;
 uint16_t i2c_level_data = 0;
@@ -71,7 +74,16 @@ uint16_t i2c_drive_data = 0;
 uint8_t tx_mux_data = 0;
 uint8_t rx_att_data = 0;
 
-ssize_t i2c_write(int fd, uint8_t addr, uint16_t data)
+ssize_t i2c_write8(int fd, uint8_t addr, uint8_t data)
+{
+  uint8_t buffer[2];
+  ssize_t size;
+  buffer[0] = addr;
+  buffer[1] = data;
+  return write(fd, buffer, 2);
+}
+
+ssize_t i2c_write16(int fd, uint8_t addr, uint16_t data)
 {
   uint8_t buffer[3];
   buffer[0] = addr;
@@ -96,6 +108,8 @@ void alex_write()
   uint16_t ptt = alex_data_0 & 0x01;
   uint32_t freq = 0;
   uint16_t hpf = 0, lpf = 0, data = 0;
+
+  if(i2c_codec) return;
 
   freq = alex_data_2 < alex_data_3 ? alex_data_2 : alex_data_3;
 
@@ -184,39 +198,64 @@ int main(int argc, char *argv[])
     if(ioctl(i2c_fd, I2C_SLAVE_FORCE, ADDR_PENE) >= 0)
     {
       /* set all pins to low */
-      if(i2c_write(i2c_fd, 0x02, 0x0000) > 0)
+      if(i2c_write16(i2c_fd, 0x02, 0x0000) > 0)
       {
         i2c_pene = 1;
         /* configure all pins as output */
-        i2c_write(i2c_fd, 0x06, 0x0000);
+        i2c_write16(i2c_fd, 0x06, 0x0000);
       }
     }
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_ALEX) >= 0)
     {
       /* set all pins to low */
-      if(i2c_write(i2c_fd, 0x02, 0x0000) > 0)
+      if(i2c_write16(i2c_fd, 0x02, 0x0000) > 0)
       {
         i2c_alex = 1;
         /* configure all pins as output */
-        i2c_write(i2c_fd, 0x06, 0x0000);
+        i2c_write16(i2c_fd, 0x06, 0x0000);
       }
     }
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_LEVEL) >= 0)
     {
       /* set all pins to low */
-      if(i2c_write(i2c_fd, 0x02, 0x0000) > 0)
+      if(i2c_write16(i2c_fd, 0x02, 0x0000) > 0)
       {
         i2c_level = 1;
         /* configure all pins as output */
-        i2c_write(i2c_fd, 0x06, 0x0000);
+        i2c_write16(i2c_fd, 0x06, 0x0000);
       }
     }
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE) >= 0)
     {
       /* set both potentiometers to 0 */
-      if(i2c_write(i2c_fd, 0xa9, 0x0000) > 0)
+      if(i2c_write16(i2c_fd, 0xa9, 0x0000) > 0)
       {
         i2c_drive = 1;
+      }
+    }
+    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_CODEC) >= 0)
+    {
+      /* reset */
+      if(i2c_write8(i2c_fd, 0x1e, 0x00) > 0)
+      {
+        i2c_codec = 1;
+        /* set power down register */
+        i2c_write8(i2c_fd, 0x0c, 0x51);
+        /* reset activate register */
+        i2c_write8(i2c_fd, 0x12, 0x00);
+        /* set volume to -30 dB */
+        i2c_write8(i2c_fd, 0x04, 0x5b);
+        i2c_write8(i2c_fd, 0x06, 0x5b);
+        /* set analog audio path register */
+        i2c_write8(i2c_fd, 0x08, 0x14);
+        /* set digital audio path register */
+        i2c_write8(i2c_fd, 0x0a, 0x00);
+        /* set format register */
+        i2c_write8(i2c_fd, 0x0e, 0x42);
+        /* set activate register */
+        i2c_write8(i2c_fd, 0x12, 0x01);
+        /* set power down register */
+        i2c_write8(i2c_fd, 0x0c, 0x41);
       }
     }
   }
@@ -226,13 +265,16 @@ int main(int argc, char *argv[])
   alex = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   tx_mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
   cw_ramp = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
+  dac_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
+  adc_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
   rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
   tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   xadc = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
   rx_rst = ((uint8_t *)(cfg + 0));
   tx_rst = ((uint8_t *)(cfg + 1));
-  gpio_out = ((uint8_t *)(cfg + 2));
+  codec_rst = ((uint8_t *)(cfg + 2));
+  gpio_out = ((uint8_t *)(cfg + 3));
 
   rx_rate = ((uint32_t *)(cfg + 4));
 
@@ -247,7 +289,9 @@ int main(int argc, char *argv[])
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 14));
-  gpio_in = ((uint8_t *)(sts + 16));
+  dac_cntr = ((uint16_t *)(sts + 16));
+  adc_cntr = ((uint16_t *)(sts + 18));
+  gpio_in = ((uint8_t *)(sts + 20));
 
   /* set all GPIO pins to low */
   *gpio_out = 0;
@@ -289,6 +333,29 @@ int main(int argc, char *argv[])
   *tx_rst |= 1;
   *tx_rst &= ~1;
 
+  if(i2c_codec)
+  {
+    /* reset codec fifo */
+    *codec_rst |= 1;
+    *codec_rst &= ~1;
+    /* enable I2S interface */
+    *codec_rst &= ~2;
+  }
+  else
+  {
+    /* enable ALEX interface */
+    *codec_rst |= 2;
+
+    /* create playback thread */
+    playback_data = jack_ringbuffer_create(4096);
+    if(pthread_create(&thread, NULL, handler_playback, NULL) < 0)
+    {
+      perror("pthread_create");
+      return EXIT_FAILURE;
+    }
+    pthread_detach(thread);
+  }
+
   if((sock_ep2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
   {
     perror("socket");
@@ -311,14 +378,6 @@ int main(int argc, char *argv[])
     perror("bind");
     return EXIT_FAILURE;
   }
-
-  playback_data = jack_ringbuffer_create(262144);
-  if(pthread_create(&thread, NULL, handler_playback, NULL) < 0)
-  {
-    perror("pthread_create");
-    return EXIT_FAILURE;
-  }
-  pthread_detach(thread);
 
   while(1)
   {
@@ -365,8 +424,18 @@ int main(int argc, char *argv[])
               for(j = 0; j < 126; ++j) *tx_data = 0;
             }
           }
-          for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 16 + j, 4);
-          for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 528 + j, 4);
+          if(i2c_codec)
+          {
+            while(*dac_cntr > 898) usleep(1000);
+            if(*dac_cntr == 0) for(j = 0; j < 504; ++j) *dac_data = 0;
+            for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 16 + j);
+            for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 528 + j);
+          }
+          else
+          {
+            for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 16 + j, 4);
+            for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 528 + j, 4);
+          }
           process_ep2(buffer[i] + 11);
           process_ep2(buffer[i] + 523);
           break;
@@ -457,7 +526,7 @@ void process_ep2(uint8_t *frame)
         {
           i2c_pene_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_PENE);
-          i2c_write(i2c_fd, 0x02, data);
+          i2c_write16(i2c_fd, 0x02, data);
         }
       }
       break;
@@ -528,7 +597,7 @@ void process_ep2(uint8_t *frame)
         {
           i2c_alex_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_ALEX);
-          i2c_write(i2c_fd, 0x02, data);
+          i2c_write16(i2c_fd, 0x02, data);
         }
       }
 
@@ -540,7 +609,7 @@ void process_ep2(uint8_t *frame)
         {
           i2c_level_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_LEVEL);
-          i2c_write(i2c_fd, 0x02, data);
+          i2c_write16(i2c_fd, 0x02, data);
         }
       }
       else if(i2c_drive)
@@ -549,7 +618,7 @@ void process_ep2(uint8_t *frame)
         {
           i2c_drive_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE);
-          i2c_write(i2c_fd, 0xa9, data << 8 | data);
+          i2c_write16(i2c_fd, 0xa9, data << 8 | data);
         }
       }
       else
@@ -761,16 +830,13 @@ void *handler_ep6(void *arg)
 
 void *handler_playback(void *arg)
 {
-  uint8_t buffer[65536];
+  uint8_t buffer[2048];
 
   while(1)
   {
-    if(jack_ringbuffer_read_space(playback_data) < 65536)
-    {
-      while(jack_ringbuffer_read_space(playback_data) < 196608) usleep(1000);
-    }
-    jack_ringbuffer_read(playback_data, buffer, 65536);
-    fwrite(buffer, 1, 65536, stdout);
+    while(jack_ringbuffer_read_space(playback_data) < 2048) usleep(1000);
+    jack_ringbuffer_read(playback_data, buffer, 2048);
+    write(1, buffer, 2048);
   }
   return NULL;
 }
