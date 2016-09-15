@@ -140,7 +140,7 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 256 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+  DIN_WIDTH 256 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
   Dout exp_p_tri_io
@@ -182,7 +182,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
 # ALEX
 
 # Create output port
-create_bd_port -dir O -from 3 -to 0 exp_n_alex
+create_bd_port -dir IO -from 3 -to 0 exp_n_alex
 
 # Create axi_axis_writer
 cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
@@ -206,7 +206,6 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
 # Create axis_alex
 cell pavel-demin:user:axis_alex:1.0 alex_0 {} {
   S_AXIS fifo_0/M_AXIS
-  alex_data exp_n_alex
   aclk ps_0/FCLK_CLK0
   aresetn rst_0/peripheral_aresetn
 }
@@ -289,6 +288,24 @@ module tx_0 {
   fifo_1/m_axis_aresetn const_0/dout
 }
 
+# CODEC
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
+  DIN_WIDTH 256 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
+module codec {
+  source projects/sdr_transceiver_hpsdr/codec.tcl
+} {
+  slice_0/Din rst_slice_2/Dout
+  slice_1/Din rst_slice_2/Dout
+  i2s_0/gpio_data exp_n_alex
+  i2s_0/alex_data alex_0/alex_data
+}
+
 # STS
 
 # Create xlconstant
@@ -302,23 +319,27 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_1 {
-  NUM_PORTS 5
+  NUM_PORTS 7
   IN0_WIDTH 32
   IN1_WIDTH 64
   IN2_WIDTH 16
   IN3_WIDTH 16
-  IN4_WIDTH 4
+  IN4_WIDTH 16
+  IN5_WIDTH 16
+  IN6_WIDTH 4
 } {
   In0 const_1/dout
   In1 dna_0/dna_data
   In2 rx_0/fifo_generator_0/rd_data_count
   In3 tx_0/fifo_generator_0/data_count
-  In4 not_0/Res
+  In4 codec/fifo_generator_0/data_count
+  In5 codec/fifo_generator_1/data_count
+  In6 not_0/Res
 }
 
 # Create axi_sts_register
 cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
-  STS_DATA_WIDTH 160
+  STS_DATA_WIDTH 192
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
@@ -387,6 +408,24 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 
 set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_writer_1_reg0]
 set_property OFFSET 0x40004000 [get_bd_addr_segs ps_0/Data/SEG_writer_1_reg0]
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins codec/writer_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg02]
+set_property OFFSET 0x40006000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg02]
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins codec/reader_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg01]
+set_property OFFSET 0x40007000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg01]
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
