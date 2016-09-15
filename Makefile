@@ -56,6 +56,10 @@ RTL_URL = https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1h
 
 all: boot.bin uImage devicetree.dtb fw_printenv
 
+xpr: tmp/$(NAME).xpr
+
+bit: tmp/$(NAME).bit
+
 $(UBOOT_TAR):
 	mkdir -p $(@D)
 	curl -L $(UBOOT_URL) -o $@
