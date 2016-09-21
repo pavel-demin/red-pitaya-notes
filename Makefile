@@ -14,11 +14,11 @@ PROC = ps7_cortexa9_0
 
 CORES = axi_axis_reader_v1_0 axi_axis_writer_v1_0 axi_bram_reader_v1_0 \
   axi_bram_writer_v1_0 axi_cfg_register_v1_0 axis_accumulator_v1_0 \
-  axis_alex_v1_0 axis_bram_reader_v1_0 axis_bram_writer_v1_0 \
-  axis_constant_v1_0 axis_counter_v1_0 axis_decimator_v1_0 \
-  axis_fifo_v1_0 axis_gpio_reader_v1_0 axis_histogram_v1_0 axis_i2s_v1_0 \
-  axis_interpolator_v1_0 axis_keyer_v1_0 axis_lfsr_v1_0 axis_oscilloscope_v1_0 \
-  axis_packetizer_v1_0 axis_phase_generator_v1_0 \
+  axis_alex_v1_0 axis_averager_v1_0 axis_bram_reader_v1_0 \
+  axis_bram_writer_v1_0 axis_constant_v1_0 axis_counter_v1_0 \
+  axis_decimator_v1_0 axis_fifo_v1_0 axis_gpio_reader_v1_0 axis_histogram_v1_0 \
+  axis_i2s_v1_0 axis_interpolator_v1_0 axis_keyer_v1_0 axis_lfsr_v1_0 \
+  axis_oscilloscope_v1_0 axis_packetizer_v1_0 axis_phase_generator_v1_0 \
   axis_pulse_height_analyzer_v1_0 axis_ram_writer_v1_0 \
   axis_red_pitaya_adc_v1_0 axis_red_pitaya_dac_v1_0 axis_stepper_v1_0 \
   axis_tagger_v1_0 axis_timer_v1_0 axis_trigger_v1_0 axi_sts_register_v1_0 \
