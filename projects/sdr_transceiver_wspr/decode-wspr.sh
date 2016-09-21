@@ -13,12 +13,17 @@ CONFIG=/root/write-c2-files.cfg
 DECODER=/root/wsprd/wsprd
 ALLMEPT=ALL_WSPR.TXT
 
+GPIO=/root/gpio-output
+
 date
 
 echo "Sleeping ..."
 
 SECONDS=`date +%S`
-sleep `expr 60 - $SECONDS`
+sleep `expr 59 - $SECONDS`
+
+$GPIO 0
+sleep 1
 
 date
 TIMESTAMP=`date --utc +'%y%m%d_%H%M'`
