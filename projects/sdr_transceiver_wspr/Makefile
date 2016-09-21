@@ -4,7 +4,10 @@ CFLAGS = -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-
 
 vpath %.o wsprd
 
-all: write-c2-files transmit-wspr-message
+all: gpio-output write-c2-files transmit-wspr-message
+
+gpio-output: gpio-output.c
+	gcc $(CFLAGS) -o $@ $^
 
 write-c2-files: write-c2-files.c
 	gcc $(CFLAGS) -o $@ $^ -lm -lconfig
