@@ -3,6 +3,7 @@
 22.08.2016 DL4AOI: add code for TX level switching via I2C.
 22.08.2016 DL4AOI: output first four open collector outputs to the pins DIO4_P - DIO7_P of the extension connector E1.
 02.09.2016 ON3VNA: add code for TX level switching via DS1803-10 (I2C).
+21.09.2016 DC2PD: add code for controlling AD8331 VGA with MCP4725 DAC (I2C).
 */
 
 #include <stdio.h>
@@ -33,6 +34,8 @@
 #define ADDR_LEVEL 0x22 /* PCA9555 address 2 */
 #define ADDR_DRIVE 0x28 /* DS1803 address 0 */
 #define ADDR_CODEC 0x1A /* WM8731 or TLV320AIC23B address 0 */
+#define ADDR_DAC0 0x60 /* MCP4725 address 0 */
+#define ADDR_DAC1 0x61 /* MCP4725 address 1 */
 
 volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux;
 volatile uint16_t *rx_cntr, *tx_cntr, *tx_level, *dac_cntr, *adc_cntr;
@@ -65,16 +68,20 @@ int i2c_alex = 0;
 int i2c_level = 0;
 int i2c_drive = 0;
 int i2c_codec = 0;
+int i2c_dac0 = 0;
+int i2c_dac1 = 0;
 
 uint16_t i2c_pene_data = 0;
 uint16_t i2c_alex_data = 0;
 uint16_t i2c_level_data = 0;
 uint16_t i2c_drive_data = 0;
+uint16_t i2c_dac0_data = 0xfff;
+uint16_t i2c_dac1_data = 0xfff;
 
 uint8_t tx_mux_data = 0;
 uint8_t rx_att_data = 0;
 
-ssize_t i2c_write8(int fd, uint8_t addr, uint8_t data)
+ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
   uint8_t buffer[2];
   ssize_t size;
@@ -83,13 +90,21 @@ ssize_t i2c_write8(int fd, uint8_t addr, uint8_t data)
   return write(fd, buffer, 2);
 }
 
-ssize_t i2c_write16(int fd, uint8_t addr, uint16_t data)
+ssize_t i2c_write_addr_data16(int fd, uint8_t addr, uint16_t data)
 {
   uint8_t buffer[3];
   buffer[0] = addr;
   buffer[1] = data;
   buffer[2] = data >> 8;
   return write(fd, buffer, 3);
+}
+
+ssize_t i2c_write_data16(int fd, uint16_t data)
+{
+  uint8_t buffer[2];
+  buffer[0] = data >> 8;
+  buffer[1] = data;
+  return write(fd, buffer, 2);
 }
 
 uint16_t alex_data_rx = 0;
@@ -198,64 +213,78 @@ int main(int argc, char *argv[])
     if(ioctl(i2c_fd, I2C_SLAVE_FORCE, ADDR_PENE) >= 0)
     {
       /* set all pins to low */
-      if(i2c_write16(i2c_fd, 0x02, 0x0000) > 0)
+      if(i2c_write_addr_data16(i2c_fd, 0x02, 0x0000) > 0)
       {
         i2c_pene = 1;
         /* configure all pins as output */
-        i2c_write16(i2c_fd, 0x06, 0x0000);
+        i2c_write_addr_data16(i2c_fd, 0x06, 0x0000);
       }
     }
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_ALEX) >= 0)
     {
       /* set all pins to low */
-      if(i2c_write16(i2c_fd, 0x02, 0x0000) > 0)
+      if(i2c_write_addr_data16(i2c_fd, 0x02, 0x0000) > 0)
       {
         i2c_alex = 1;
         /* configure all pins as output */
-        i2c_write16(i2c_fd, 0x06, 0x0000);
+        i2c_write_addr_data16(i2c_fd, 0x06, 0x0000);
       }
     }
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_LEVEL) >= 0)
     {
       /* set all pins to low */
-      if(i2c_write16(i2c_fd, 0x02, 0x0000) > 0)
+      if(i2c_write_addr_data16(i2c_fd, 0x02, 0x0000) > 0)
       {
         i2c_level = 1;
         /* configure all pins as output */
-        i2c_write16(i2c_fd, 0x06, 0x0000);
+        i2c_write_addr_data16(i2c_fd, 0x06, 0x0000);
       }
     }
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE) >= 0)
     {
       /* set both potentiometers to 0 */
-      if(i2c_write16(i2c_fd, 0xa9, 0x0000) > 0)
+      if(i2c_write_addr_data16(i2c_fd, 0xa9, 0x0000) > 0)
       {
         i2c_drive = 1;
+      }
+    }
+    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_DAC0) >= 0)
+    {
+      if(i2c_write_data16(i2c_fd, i2c_dac0_data) > 0)
+      {
+      i2c_dac0 = 1;
+      }
+    }
+    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_DAC1) >= 0)
+    {
+      if(i2c_write_data16(i2c_fd, i2c_dac1_data) > 0)
+      {
+      i2c_dac1 = 1;
       }
     }
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_CODEC) >= 0)
     {
       /* reset */
-      if(i2c_write8(i2c_fd, 0x1e, 0x00) > 0)
+      if(i2c_write_addr_data8(i2c_fd, 0x1e, 0x00) > 0)
       {
         i2c_codec = 1;
         /* set power down register */
-        i2c_write8(i2c_fd, 0x0c, 0x51);
+        i2c_write_addr_data8(i2c_fd, 0x0c, 0x51);
         /* reset activate register */
-        i2c_write8(i2c_fd, 0x12, 0x00);
+        i2c_write_addr_data8(i2c_fd, 0x12, 0x00);
         /* set volume to -30 dB */
-        i2c_write8(i2c_fd, 0x04, 0x5b);
-        i2c_write8(i2c_fd, 0x06, 0x5b);
+        i2c_write_addr_data8(i2c_fd, 0x04, 0x5b);
+        i2c_write_addr_data8(i2c_fd, 0x06, 0x5b);
         /* set analog audio path register */
-        i2c_write8(i2c_fd, 0x08, 0x14);
+        i2c_write_addr_data8(i2c_fd, 0x08, 0x14);
         /* set digital audio path register */
-        i2c_write8(i2c_fd, 0x0a, 0x00);
+        i2c_write_addr_data8(i2c_fd, 0x0a, 0x00);
         /* set format register */
-        i2c_write8(i2c_fd, 0x0e, 0x42);
+        i2c_write_addr_data8(i2c_fd, 0x0e, 0x42);
         /* set activate register */
-        i2c_write8(i2c_fd, 0x12, 0x01);
+        i2c_write_addr_data8(i2c_fd, 0x12, 0x01);
         /* set power down register */
-        i2c_write8(i2c_fd, 0x0c, 0x41);
+        i2c_write_addr_data8(i2c_fd, 0x0c, 0x41);
       }
     }
   }
@@ -481,7 +510,7 @@ void process_ep2(uint8_t *frame)
   uint16_t data;
   uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
   uint8_t cw_internal, cw_volume, cw_delay;
-  uint8_t ptt, preamp;
+  uint8_t ptt, preamp, att;
   uint16_t cw_hang, cw_freq;
 
   switch(frame[0])
@@ -491,8 +520,9 @@ void process_ep2(uint8_t *frame)
       receivers = ((frame[4] >> 3) & 7) + 1;
       /* set output pins */
       ptt = frame[0] & 0x01;
+      att = frame[3] & 0x03;
       preamp = ptt | (*gpio_in & 1) ? 0 : (frame[3] & 0x04) >> 2 | (rx_att_data == 0);
-      *gpio_out = (frame[2] & 0x1e) << 3 | (frame[3] & 0x03) << 2 | preamp << 1 | ptt;
+      *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1 | ptt;
 
       /* set rx sample rate */
       switch(frame[1] & 3)
@@ -526,7 +556,19 @@ void process_ep2(uint8_t *frame)
         {
           i2c_pene_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_PENE);
-          i2c_write16(i2c_fd, 0x02, data);
+          i2c_write_addr_data16(i2c_fd, 0x02, data);
+        }
+      }
+
+      if(i2c_dac0)
+      {
+        data = rx_att_data + 10 * att;
+        data = 4065 - (uint32_t)data * 4095 / 61;
+        if(i2c_dac0_data != data)
+        {
+          i2c_dac0_data = data;
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_DAC0);
+          i2c_write_data16(i2c_fd, data);
         }
       }
       break;
@@ -597,7 +639,7 @@ void process_ep2(uint8_t *frame)
         {
           i2c_alex_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_ALEX);
-          i2c_write16(i2c_fd, 0x02, data);
+          i2c_write_addr_data16(i2c_fd, 0x02, data);
         }
       }
 
@@ -609,7 +651,7 @@ void process_ep2(uint8_t *frame)
         {
           i2c_level_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_LEVEL);
-          i2c_write16(i2c_fd, 0x02, data);
+          i2c_write_addr_data16(i2c_fd, 0x02, data);
         }
       }
       else if(i2c_drive)
@@ -618,7 +660,7 @@ void process_ep2(uint8_t *frame)
         {
           i2c_drive_data = data;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_DRIVE);
-          i2c_write16(i2c_fd, 0xa9, data << 8 | data);
+          i2c_write_addr_data16(i2c_fd, 0xa9, data << 8 | data);
         }
       }
       else
