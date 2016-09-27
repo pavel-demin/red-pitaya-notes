@@ -57,7 +57,7 @@ http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/OpenHPSDR_Skins)
 Getting started
 -----
 
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.95-1-6deb253-sdr-receiver-hpsdr.zip).
+ - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAP62ge2aAqpTxTP1of5zLga/sdr/ecosystem-0.95-1-6deb253-sdr-receiver-hpsdr.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install and run one of the HPSDR programs.

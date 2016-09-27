@@ -59,7 +59,7 @@ Getting started
 
 An antenna should be connected to the IN1 connector on the Red Pitaya board.
 
-A pre-built SD card image can be downloaded from [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/red-pitaya-wspr-debian-8.4-armhf-20160522.zip).
+A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACJ8cX8AX1sGmXJ_J31zolHa/sdr/red-pitaya-wspr-debian-8.5-armhf-20160820.zip?dl=1).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 

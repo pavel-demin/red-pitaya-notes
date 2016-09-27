@@ -42,10 +42,10 @@ The [projects/vna/client](https://github.com/pavel-demin/red-pitaya-notes/tree/m
 Getting started with MS Windows (pre-built control program)
 -----
 
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/VNA/ecosystem-0.95-1-6deb253-vna.zip).
+ - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACaGYcNoWFKjqUksq8rAod-a/vna/ecosystem-0.95-1-6deb253-vna.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
- - Download and unpack the [control program](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/VNA/vna-win32-20160623.zip).
+ - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACfVqJAsXJTqv2_ySIxlfnSa/vna/vna-win32-20160623.zip?dl=1).
  - Run the `vna.exe` program.
  - Type in the IP address of the Red Pitaya board and press Connect button.
  - Perform calibration and measurements.
@@ -53,7 +53,7 @@ Getting started with MS Windows (pre-built control program)
 Getting started with MS Windows (manual Python installation)
 -----
 
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/VNA/ecosystem-0.95-1-6deb253-vna.zip).
+ - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACaGYcNoWFKjqUksq8rAod-a/vna/ecosystem-0.95-1-6deb253-vna.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
@@ -62,7 +62,7 @@ Getting started with MS Windows (manual Python installation)
 {% highlight winbatch %}
 C:\Python34\Scripts\pip.exe install matplotlib mpldatacursor
 {% endhighlight %}
- - Download and unpack the [control program](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/VNA/vna-python3-20160623.zip).
+ - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACgtsa8KWjIjwhqxTn63ZeAa/vna/vna-python3-20160623.zip?dl=1).
  - Start a command prompt using the `cmd.exe` program and run the control program:
 {% highlight winbatch %}
 C:\Python34\pythonw.exe vna.py
@@ -73,7 +73,7 @@ C:\Python34\pythonw.exe vna.py
 Getting started with GNU/Linux
 -----
 
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/VNA/ecosystem-0.95-1-6deb253-vna.zip).
+ - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACaGYcNoWFKjqUksq8rAod-a/vna/ecosystem-0.95-1-6deb253-vna.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install required Python libraries:

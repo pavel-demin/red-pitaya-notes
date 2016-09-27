@@ -99,7 +99,7 @@ P14          | select 6m LPF (0 = disable, 1 = enable)
 P15          | select 12/10m LPF (0 = disable, 1 = enable)
 P16          | select 17/15m LPF (0 = disable, 1 = enable)
 
-More information about the I2C interface can be found at [this link](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/Hermes_and_Alex_outputs.pdf).
+More information about the I2C interface can be found at [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABuxJW6dpV50d6QPvUQNCUza/sdr/Hermes_and_Alex_outputs.pdf?dl=1).
 
 Software
 -----

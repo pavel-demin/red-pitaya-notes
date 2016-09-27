@@ -51,7 +51,7 @@ Getting started with GNU Radio
    - Computer running Ubuntu 14.04 or Debian 8.
    - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.95-1-6deb253-sdr-transceiver.zip).
+ - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACymkWEpWNH9wM-ErVveckma/sdr/ecosystem-0.95-1-6deb253-sdr-transceiver.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install [GNU Radio](http://gnuradio.org):
@@ -76,11 +76,11 @@ Getting started with SDR# and HDSDR
    - Computer running MS Windows.
    - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ecosystem-0.95-1-6deb253-sdr-transceiver.zip).
+ - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACymkWEpWNH9wM-ErVveckma/sdr/ecosystem-0.95-1-6deb253-sdr-transceiver.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
- - Download and install [SDR#](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/sdrsharp_v1.0.0.1361_with_plugins.zip) or [HDSDR](http://www.hdsdr.de/).
- - Download [pre-built ExtIO plug-in](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/SDR/ExtIO_RedPitaya_TRX.dll) for SDR# and HDSDR.
+ - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](http://www.hdsdr.de/).
+ - Download [pre-built ExtIO plug-in](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAABy8xWrv4wFFbkYfmVU6DGa/sdr/ExtIO_RedPitaya_TRX.dll?dl=1) for SDR# and HDSDR.
  - Copy `ExtIO_RedPitaya_TRX.dll` into the SDR# or HDSDR installation directory.
  - Start SDR# or HDSDR.
  - Select Red Pitaya SDR TRX from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
