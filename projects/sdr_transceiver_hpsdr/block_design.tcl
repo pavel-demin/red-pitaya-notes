@@ -302,6 +302,7 @@ module codec {
 } {
   slice_0/Din rst_slice_2/Dout
   slice_1/Din rst_slice_2/Dout
+  slice_2/Din rst_slice_2/Dout
   i2s_0/gpio_data exp_n_alex
   i2s_0/alex_data alex_0/alex_data
 }

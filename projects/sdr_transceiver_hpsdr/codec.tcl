@@ -8,6 +8,11 @@ cell xilinx.com:ip:xlslice:1.0 slice_1 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 }
 
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_2 {
+  DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
+}
+
 # Create axi_axis_writer
 cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
   AXI_DATA_WIDTH 32
@@ -58,7 +63,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
 cell pavel-demin:user:axis_i2s:1.0 i2s_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  alex_flag slice_1/Dout
+  alex_flag slice_2/Dout
   S_AXIS subset_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
@@ -75,7 +80,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_1 {
   DATA_COUNT_WIDTH 11
 } {
   clk /ps_0/FCLK_CLK0
-  srst slice_0/Dout
+  srst slice_1/Dout
 }
 
 # Create axis_subset_converter
