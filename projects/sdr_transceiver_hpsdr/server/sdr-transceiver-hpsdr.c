@@ -41,13 +41,15 @@ volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux;
 volatile uint16_t *rx_cntr, *tx_cntr, *tx_level, *dac_cntr, *adc_cntr;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *codec_rst;
 volatile uint64_t *rx_data;
-volatile uint32_t *tx_data, *dac_data, *adc_data;
+volatile uint32_t *tx_data, *dac_data;
+volatile uint16_t *adc_data;
 volatile int32_t *xadc;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
 
 int receivers = 1;
+int rate = 1;
 
 int sock_ep2;
 struct sockaddr_in addr_ep6;
@@ -272,9 +274,9 @@ int main(int argc, char *argv[])
         i2c_write_addr_data8(i2c_fd, 0x0c, 0x51);
         /* reset activate register */
         i2c_write_addr_data8(i2c_fd, 0x12, 0x00);
-        /* set volume to -30 dB */
-        i2c_write_addr_data8(i2c_fd, 0x04, 0x5b);
-        i2c_write_addr_data8(i2c_fd, 0x06, 0x5b);
+        /* set volume to -10 dB */
+        i2c_write_addr_data8(i2c_fd, 0x04, 0x6f);
+        i2c_write_addr_data8(i2c_fd, 0x06, 0x6f);
         /* set analog audio path register */
         i2c_write_addr_data8(i2c_fd, 0x08, 0x14);
         /* set digital audio path register */
@@ -365,15 +367,15 @@ int main(int argc, char *argv[])
   if(i2c_codec)
   {
     /* reset codec fifo */
-    *codec_rst |= 1;
-    *codec_rst &= ~1;
+    *codec_rst |= 3;
+    *codec_rst &= ~3;
     /* enable I2S interface */
-    *codec_rst &= ~2;
+    *codec_rst &= ~4;
   }
   else
   {
     /* enable ALEX interface */
-    *codec_rst |= 2;
+    *codec_rst |= 4;
 
     /* create playback thread */
     playback_data = jack_ringbuffer_create(4096);
@@ -525,6 +527,7 @@ void process_ep2(uint8_t *frame)
       *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1 | ptt;
 
       /* set rx sample rate */
+      rate = 1 << (frame[1] & 3);
       switch(frame[1] & 3)
       {
         case 0:
@@ -702,10 +705,11 @@ void process_ep2(uint8_t *frame)
 
 void *handler_ep6(void *arg)
 {
-  int i, j, n, m, size;
+  int i, j, k, m, n, size, rate_counter;
   int data_offset, header_offset, buffer_offset;
   uint32_t counter;
   int32_t value;
+  uint16_t audio[512];
   uint8_t data0[4096];
   uint8_t data1[4096];
   uint8_t data2[4096];
@@ -722,6 +726,7 @@ void *handler_ep6(void *arg)
     127, 127, 127, 32, 66, 66, 66, 66
   };
 
+  memset(audio, 0, sizeof(audio));
   memset(iovec, 0, sizeof(iovec));
   memset(datagram, 0, sizeof(datagram));
 
@@ -738,6 +743,11 @@ void *handler_ep6(void *arg)
 
   header_offset = 0;
   counter = 0;
+  rate_counter = rate;
+
+  /* reset codec fifo */
+  *codec_rst |= 2;
+  *codec_rst &= ~2;
 
   /* reset rx fifo */
   *rx_rst |= 1;
@@ -751,14 +761,28 @@ void *handler_ep6(void *arg)
     n = 504 / size;
     m = 256 / n;
 
-    if(*rx_cntr >= 8192)
+    if(*adc_cntr >= 1024 || *rx_cntr >= 8192)
     {
+      /* reset codec fifo */
+      *codec_rst |= 2;
+      *codec_rst &= ~2;
+
       /* reset rx fifo */
       *rx_rst |= 1;
       *rx_rst &= ~1;
     }
 
     while(*rx_cntr < m * n * 16) usleep(1000);
+
+    if(--rate_counter == 0)
+    {
+      for(i = 0; i < m * n * 2; ++i)
+      {
+        audio[i] = *adc_data;
+      }
+      rate_counter = rate;
+      k = 0;
+    }
 
     for(i = 0; i < m * n * 16; i += 8)
     {
@@ -812,6 +836,7 @@ void *handler_ep6(void *arg)
         {
           memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
         }
+        memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) / rate], 2);
         data_offset += 8;
         buffer_offset += size;
       }
@@ -855,6 +880,7 @@ void *handler_ep6(void *arg)
         {
           memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
         }
+        memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) / rate], 2);
         data_offset += 8;
         buffer_offset += size;
       }
