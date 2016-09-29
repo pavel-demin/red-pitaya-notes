@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
         i2c_write_addr_data8(i2c_fd, 0x04, 0x6f);
         i2c_write_addr_data8(i2c_fd, 0x06, 0x6f);
         /* set analog audio path register */
-        i2c_write_addr_data8(i2c_fd, 0x08, 0x14);
+        i2c_write_addr_data8(i2c_fd, 0x08, 0x15);
         /* set digital audio path register */
         i2c_write_addr_data8(i2c_fd, 0x0a, 0x00);
         /* set format register */
@@ -744,6 +744,7 @@ void *handler_ep6(void *arg)
   header_offset = 0;
   counter = 0;
   rate_counter = rate;
+  k = 0;
 
   /* reset codec fifo */
   *codec_rst |= 2;
