@@ -37,8 +37,8 @@
 #define ADDR_DAC0 0x60 /* MCP4725 address 0 */
 #define ADDR_DAC1 0x61 /* MCP4725 address 1 */
 
-volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux;
-volatile uint16_t *rx_cntr, *tx_cntr, *tx_level, *dac_cntr, *adc_cntr;
+volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux, *dac_freq, *dac_mux;
+volatile uint16_t *rx_cntr, *tx_cntr, *tx_level, *dac_cntr, *dac_level, *adc_cntr;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *codec_rst;
 volatile uint64_t *rx_data;
 volatile uint32_t *tx_data, *dac_data;
@@ -194,8 +194,8 @@ int main(int argc, char *argv[])
   int fd, i, j, size;
   pthread_t thread;
   volatile void *cfg, *sts;
-  volatile int32_t *cw_ramp;
-  volatile uint16_t *cw_size;
+  volatile int32_t *tx_ramp, *dac_ramp;
+  volatile uint16_t *tx_size, *dac_size;
   float scale, ramp[2048], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
   struct ifreq hwaddr;
@@ -297,11 +297,13 @@ int main(int argc, char *argv[])
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   alex = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   tx_mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
-  cw_ramp = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
-  dac_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
-  adc_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
-  rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
-  tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+  tx_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
+  dac_mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40005000);
+  dac_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
+  dac_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
+  adc_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  tx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000a000);
+  rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   xadc = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
   rx_rst = ((uint8_t *)(cfg + 0));
@@ -317,8 +319,12 @@ int main(int argc, char *argv[])
   rx_freq[3] = ((uint32_t *)(cfg + 20));
 
   tx_freq = ((uint32_t *)(cfg + 24));
-  cw_size = ((uint16_t *)(cfg + 28));
+  tx_size = ((uint16_t *)(cfg + 28));
   tx_level = ((uint16_t *)(cfg + 30));
+
+  dac_freq = ((uint32_t *)(cfg + 32));
+  dac_size = ((uint16_t *)(cfg + 36));
+  dac_level = ((uint16_t *)(cfg + 38));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 14));
@@ -341,7 +347,7 @@ int main(int argc, char *argv[])
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
 
-  /* set cw ramp */
+  /* set tx ramp */
   size = 1001;
   ramp[0] = 0.0;
   for(i = 1; i <= size; ++i)
@@ -351,9 +357,9 @@ int main(int argc, char *argv[])
   scale = 6.1e6 / ramp[size];
   for(i = 0; i <= size; ++i)
   {
-    cw_ramp[i] = (uint32_t)floor(ramp[i] * scale + 0.5);
+    tx_ramp[i] = (int32_t)floor(ramp[i] * scale + 0.5);
   }
-  *cw_size = size;
+  *tx_size = size;
 
   /* set default tx level */
   *tx_level = 32767;
@@ -373,6 +379,30 @@ int main(int argc, char *argv[])
     *codec_rst &= ~3;
     /* enable I2S interface */
     *codec_rst &= ~4;
+
+    /* set default dac phase increment */
+    *dac_freq = (uint32_t)floor(600 / 48.0e3 * (1 << 29) + 0.5);
+
+    /* set dac ramp */
+    size = 481;
+    ramp[0] = 0.0;
+    for(i = 1; i <= size; ++i)
+    {
+      ramp[i] = ramp[i - 1] + a[0] - a[1] * cos(2.0 * M_PI * i / size) + a[2] * cos(4.0 * M_PI * i / size) - a[3] * cos(6.0 * M_PI * i / size);
+    }
+    scale = 3.2e4 / ramp[size];
+    for(i = 0; i <= size; ++i)
+    {
+      dac_ramp[i] = (int32_t)floor(ramp[i] * scale + 0.5);
+    }
+    *dac_size = size;
+
+    /* set default dac level */
+    *dac_level = 32767;
+
+    /* set default dac mux channel */
+    *(dac_mux + 16) = 0;
+    *dac_mux = 2;
   }
   else
   {
@@ -445,7 +475,7 @@ int main(int argc, char *argv[])
         case 0x0201feef:
           if(tx_mux_data == 0)
           {
-            while(*tx_cntr > 8066) usleep(1000);
+            while(*tx_cntr > 1922) usleep(1000);
             if(*tx_cntr == 0) for(j = 0; j < 1260; ++j) *tx_data = 0;
             if((*gpio_out & 1) | (*gpio_in & 1))
             {
@@ -459,10 +489,13 @@ int main(int argc, char *argv[])
           }
           if(i2c_codec)
           {
-            while(*dac_cntr > 898) usleep(1000);
-            if(*dac_cntr == 0) for(j = 0; j < 504; ++j) *dac_data = 0;
-            for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 16 + j);
-            for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 528 + j);
+            if(tx_mux_data == 0)
+            {
+              while(*dac_cntr > 898) usleep(1000);
+              if(*dac_cntr == 0) for(j = 0; j < 504; ++j) *dac_data = 0;
+              for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 16 + j);
+              for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 528 + j);
+            }
           }
           else
           {
@@ -513,9 +546,9 @@ void process_ep2(uint8_t *frame)
   uint32_t freq;
   uint16_t data;
   uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
-  uint8_t cw_internal, cw_volume, cw_delay;
+  uint8_t cw_internal, cw_delay;
   uint8_t ptt, preamp, att, boost;
-  uint16_t cw_hang, cw_freq;
+  uint16_t cw_hang;
 
   switch(frame[0])
   {
@@ -699,19 +732,32 @@ void process_ep2(uint8_t *frame)
     case 30:
     case 31:
       cw_internal = frame[1] & 1;
-      cw_volume = frame[2];
       cw_delay = frame[3];
       if(tx_mux_data != cw_internal)
       {
         tx_mux_data = cw_internal;
         *(tx_mux + 16) = cw_internal;
         *tx_mux = 2;
+        if(i2c_codec)
+        {
+          *(dac_mux + 16) = cw_internal;
+          *dac_mux = 2;
+        }
+      }
+      if(i2c_codec)
+      {
+        data = frame[2];
+        *dac_level = (data + 1) * 256 - 1;
       }
       break;
     case 32:
     case 33:
       cw_hang = (frame[1] << 2) | (frame[2] & 3);
-      cw_freq = (frame[3] << 4) | (frame[4] & 15);
+      if(i2c_codec)
+      {
+        freq = (frame[3] << 4) | (frame[4] & 255);
+        *dac_freq = (uint32_t)floor(freq / 48.0e3 * (1 << 29) + 0.5);
+      }
       break;
   }
 }

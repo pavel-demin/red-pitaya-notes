@@ -30,11 +30,11 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
-  INPUT_DEPTH 8192
+  INPUT_DEPTH 2048
   OUTPUT_DATA_WIDTH 32
-  OUTPUT_DEPTH 8192
+  OUTPUT_DEPTH 2048
   DATA_COUNT true
-  DATA_COUNT_WIDTH 14
+  DATA_COUNT_WIDTH 12
 } {
   clk /ps_0/FCLK_CLK0
   srst slice_0/Dout
@@ -167,7 +167,7 @@ cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 32
-  WRITE_DEPTH_A 2048
+  WRITE_DEPTH_A 1024
   WRITE_WIDTH_B 32
   ENABLE_A Always_Enabled
   ENABLE_B Always_Enabled
@@ -179,7 +179,7 @@ cell pavel-demin:user:axi_bram_writer:1.0 writer_1 {
   AXI_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   BRAM_DATA_WIDTH 32
-  BRAM_ADDR_WIDTH 11
+  BRAM_ADDR_WIDTH 10
 } {
   BRAM_PORTA bram_0/BRAM_PORTA
 }
@@ -188,7 +188,7 @@ cell pavel-demin:user:axi_bram_writer:1.0 writer_1 {
 cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
   AXIS_TDATA_WIDTH 32
   BRAM_DATA_WIDTH 32
-  BRAM_ADDR_WIDTH 11
+  BRAM_ADDR_WIDTH 10
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
   cfg_data slice_2/Dout
