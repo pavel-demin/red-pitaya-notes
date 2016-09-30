@@ -56,6 +56,13 @@ RF and GPIO connections
 
 ![GPIO connections]({{ "/img/sdr-transceiver-hpsdr-e1-pins.png" | prepend: site.baseurl }})
 
+I2S connections
+-----
+
+The I2S interface is sharing pins with the ALEX interface. The supported I2S audio codecs are [TLV320AIC23B](http://www.ti.com/product/TLV320AIC23B) and [WM8731](http://www.cirrus.com/en/products/pro/detail/P1307.html). The I2S audio codecs should be clocked with a 12.288 MHz oscillator crystal.
+
+The I2S interface should be connected to the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1) as shown on the above diagram. The I2C interface should be connected to the I2C pins of the [extension connector E2](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E2).
+
 ALEX connections
 -----
 The [ALEX module](http://openhpsdr.org/alex.php) can be connected to the pins DIO4_N (Serial Data), DIO5_N (Clock), DIO6_N (RX Strobe) and DIO7_N (TX Strobe) of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1).
