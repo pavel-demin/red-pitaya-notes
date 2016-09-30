@@ -49,7 +49,7 @@ const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
 
 int receivers = 1;
-int rate = 1;
+int rate = 0;
 
 int sock_ep2;
 struct sockaddr_in addr_ep6;
@@ -529,7 +529,7 @@ void process_ep2(uint8_t *frame)
       *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1 | ptt;
 
       /* set rx sample rate */
-      rate = 1 << (frame[1] & 3);
+      rate = frame[1] & 3;
       switch(frame[1] & 3)
       {
         case 0:
@@ -756,7 +756,7 @@ void *handler_ep6(void *arg)
 
   header_offset = 0;
   counter = 0;
-  rate_counter = rate;
+  rate_counter = 1 << rate;
   k = 0;
 
   /* reset codec fifo */
@@ -794,7 +794,7 @@ void *handler_ep6(void *arg)
       {
         audio[i] = *adc_data;
       }
-      rate_counter = rate;
+      rate_counter = 1 << rate;
       k = 0;
     }
 
@@ -850,7 +850,7 @@ void *handler_ep6(void *arg)
         {
           memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
         }
-        memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) / rate], 2);
+        memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) >> rate], 2);
         data_offset += 8;
         buffer_offset += size;
       }
@@ -894,7 +894,7 @@ void *handler_ep6(void *arg)
         {
           memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
         }
-        memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) / rate], 2);
+        memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) >> rate], 2);
         data_offset += 8;
         buffer_offset += size;
       }
