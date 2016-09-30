@@ -80,6 +80,8 @@ uint16_t i2c_drive_data = 0;
 uint16_t i2c_dac0_data = 0xfff;
 uint16_t i2c_dac1_data = 0xfff;
 
+uint8_t i2c_boost_data = 0;
+
 uint8_t tx_mux_data = 0;
 uint8_t rx_att_data = 0;
 
@@ -278,7 +280,7 @@ int main(int argc, char *argv[])
         i2c_write_addr_data8(i2c_fd, 0x04, 0x6f);
         i2c_write_addr_data8(i2c_fd, 0x06, 0x6f);
         /* set analog audio path register */
-        i2c_write_addr_data8(i2c_fd, 0x08, 0x15);
+        i2c_write_addr_data8(i2c_fd, 0x08, 0x14);
         /* set digital audio path register */
         i2c_write_addr_data8(i2c_fd, 0x0a, 0x00);
         /* set format register */
@@ -512,7 +514,7 @@ void process_ep2(uint8_t *frame)
   uint16_t data;
   uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
   uint8_t cw_internal, cw_volume, cw_delay;
-  uint8_t ptt, preamp, att;
+  uint8_t ptt, preamp, att, boost;
   uint16_t cw_hang, cw_freq;
 
   switch(frame[0])
@@ -669,6 +671,17 @@ void process_ep2(uint8_t *frame)
       else
       {
         *tx_level = (data + 1) * 128 - 1;
+      }
+      /* configure microphone boost */
+      if(i2c_codec)
+      {
+        boost = frame[2] & 0x01;
+        if(i2c_boost_data != boost)
+        {
+          i2c_boost_data = boost;
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_CODEC);
+          i2c_write_addr_data8(i2c_fd, 0x08, 0x14 + boost);
+        }
       }
       break;
     case 20:
