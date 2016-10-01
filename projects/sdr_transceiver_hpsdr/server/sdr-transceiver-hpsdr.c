@@ -82,7 +82,8 @@ uint16_t i2c_dac1_data = 0xfff;
 
 uint8_t i2c_boost_data = 0;
 
-uint8_t tx_mux_data = 0;
+uint8_t cw_int_data = 0;
+uint8_t cw_mux_data = 0;
 uint8_t rx_att_data = 0;
 
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
@@ -381,7 +382,7 @@ int main(int argc, char *argv[])
     *codec_rst &= ~4;
 
     /* set default dac phase increment */
-    *dac_freq = (uint32_t)floor(600 / 48.0e3 * (1 << 29) + 0.5);
+    *dac_freq = (uint32_t)floor(600 / 48.0e3 * (1 << 30) + 0.5);
 
     /* set dac ramp */
     size = 481;
@@ -473,7 +474,7 @@ int main(int argc, char *argv[])
       switch(*(uint32_t *)buffer[i])
       {
         case 0x0201feef:
-          if(tx_mux_data == 0)
+          if(!cw_mux_data)
           {
             while(*tx_cntr > 1922) usleep(1000);
             if(*tx_cntr == 0) for(j = 0; j < 1260; ++j) *tx_data = 0;
@@ -489,7 +490,7 @@ int main(int argc, char *argv[])
           }
           if(i2c_codec)
           {
-            if(tx_mux_data == 0)
+            if(!cw_mux_data)
             {
               while(*dac_cntr > 898) usleep(1000);
               if(*dac_cntr == 0) for(j = 0; j < 504; ++j) *dac_data = 0;
@@ -545,10 +546,9 @@ void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
   uint16_t data;
-  uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing;
-  uint8_t cw_internal, cw_delay;
-  uint8_t ptt, preamp, att, boost;
   uint16_t cw_hang;
+  uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing, cw_delay;
+  uint8_t ptt, preamp, att, boost;
 
   switch(frame[0])
   {
@@ -560,6 +560,19 @@ void process_ep2(uint8_t *frame)
       att = frame[3] & 0x03;
       preamp = ptt | (*gpio_in & 1) ? 0 : (frame[3] & 0x04) >> 2 | (rx_att_data == 0);
       *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1 | ptt;
+
+      data =  (ptt | (*gpio_in & 1)) & cw_int_data;
+      if(cw_mux_data != data)
+      {
+        cw_mux_data = data;
+        *(tx_mux + 16) = data;
+        *tx_mux = 2;
+        if(i2c_codec)
+        {
+          *(dac_mux + 16) = data;
+          *dac_mux = 2;
+        }
+      }
 
       /* set rx sample rate */
       rate = frame[1] & 3;
@@ -731,19 +744,8 @@ void process_ep2(uint8_t *frame)
       break;
     case 30:
     case 31:
-      cw_internal = frame[1] & 1;
+      cw_int_data = frame[1] & 1;
       cw_delay = frame[3];
-      if(tx_mux_data != cw_internal)
-      {
-        tx_mux_data = cw_internal;
-        *(tx_mux + 16) = cw_internal;
-        *tx_mux = 2;
-        if(i2c_codec)
-        {
-          *(dac_mux + 16) = cw_internal;
-          *dac_mux = 2;
-        }
-      }
       if(i2c_codec)
       {
         data = frame[2];
@@ -756,7 +758,7 @@ void process_ep2(uint8_t *frame)
       if(i2c_codec)
       {
         freq = (frame[3] << 4) | (frame[4] & 255);
-        *dac_freq = (uint32_t)floor(freq / 48.0e3 * (1 << 29) + 0.5);
+        *dac_freq = (uint32_t)floor(freq / 48.0e3 * (1 << 30) + 0.5);
       }
       break;
   }
