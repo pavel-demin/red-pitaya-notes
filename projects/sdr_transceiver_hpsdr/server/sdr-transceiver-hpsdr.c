@@ -277,9 +277,9 @@ int main(int argc, char *argv[])
         i2c_write_addr_data8(i2c_fd, 0x0c, 0x51);
         /* reset activate register */
         i2c_write_addr_data8(i2c_fd, 0x12, 0x00);
-        /* set volume to 0 dB */
-        i2c_write_addr_data8(i2c_fd, 0x04, 0x79);
-        i2c_write_addr_data8(i2c_fd, 0x06, 0x79);
+        /* set volume to -10 dB */
+        i2c_write_addr_data8(i2c_fd, 0x04, 0x6f);
+        i2c_write_addr_data8(i2c_fd, 0x06, 0x6f);
         /* set analog audio path register */
         i2c_write_addr_data8(i2c_fd, 0x08, 0x14);
         /* set digital audio path register */
