@@ -48,7 +48,7 @@ The [projects/sdr_transceiver_hpsdr/filters](https://github.com/pavel-demin/red-
 
 The [projects/sdr_transceiver_hpsdr/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr/server) directory contains the source code of the UDP server ([sdr-transceiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c)) that receives control commands and transmits/receives the I/Q data streams to/from the SDR programs.
 
-RF and GPIO connections
+RF, GPIO and XADC connections
 -----
 
  - input for RX1 is connected to IN1
@@ -59,7 +59,8 @@ RF and GPIO connections
  - outputs for 10 dB and 20 dB attenuators control are connected to the pins DIO2_P - DIO3_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
  - outputs for Hermes Ctrl pins are connected to the pins DIO4_P - DIO7_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
  - inputs for PTT, DASH and DOT are connected to the pins DIO0_N, DIO1_N and DIO2_N of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
-
+ - slow analog inputs can be used for the forward ([Analog input 0](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E2)) and reverse ([Analog input 1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E2)) power measurement
+ 
 ![GPIO connections]({{ "/img/sdr-transceiver-hpsdr-e1-pins.png" | prepend: site.baseurl }})
 
 I2S connections
