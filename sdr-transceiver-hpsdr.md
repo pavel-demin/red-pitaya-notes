@@ -32,9 +32,15 @@ The resulting I/Q data rate is configurable and four settings are available: 48,
 
 The tunable frequency range covers from 0 Hz to 61.44 MHz.
 
-The basic blocks of the digital down-converters (DDC) and of the digital up-converter (DUC) are shown on the following diagram:
+This SDR transceiver consists of four digital down-converters (DDC) and one digital up-converter (DUC). The first two digital down-converters are connected to two ADC channels. Two additional digital down-converters are required for the amplifier linearization system. One of them is connected to the second ADC channel and the other one is connected to the output of the digital up-converter.
 
-![SDR transceiver compatible with HPSDR]({{ "/img/sdr-transceiver-hpsdr.png" | prepend: site.baseurl }})
+The basic blocks of the digital down-converters are shown on the following diagram:
+
+![DDC]({{ "/img/sdr-transceiver-hpsdr-ddc.png" | prepend: site.baseurl }})
+
+The digital up-converter consists of similar blocks but arranged in an opposite order:
+
+![DUC]({{ "/img/sdr-transceiver-hpsdr-duc.png" | prepend: site.baseurl }})
 
 The [projects/sdr_transceiver_hpsdr](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
