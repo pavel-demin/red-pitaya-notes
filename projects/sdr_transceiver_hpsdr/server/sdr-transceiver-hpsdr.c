@@ -4,6 +4,7 @@
 22.08.2016 DL4AOI: output first four open collector outputs to the pins DIO4_P - DIO7_P of the extension connector E1.
 02.09.2016 ON3VNA: add code for TX level switching via DS1803-10 (I2C).
 21.09.2016 DC2PD: add code for controlling AD8331 VGA with MCP4725 DAC (I2C).
+02.10.2016 DL9LJ: add code for controlling ICOM IC-735 (UART).
 */
 
 #include <stdio.h>
@@ -16,6 +17,7 @@
 #include <fcntl.h>
 #include <math.h>
 #include <pthread.h>
+#include <termios.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -89,7 +91,6 @@ uint8_t rx_att_data = 0;
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
   uint8_t buffer[2];
-  ssize_t size;
   buffer[0] = addr;
   buffer[1] = data;
   return write(fd, buffer, 2);
@@ -190,6 +191,47 @@ void alex_write()
   }
 }
 
+int uart_fd;
+uint32_t icom_freq_data = 0;
+uint8_t icom_band_data = 0;
+
+void icom_write()
+{
+  uint32_t freq = icom_freq_data;
+  uint8_t band;
+  uint8_t buffer[10] = {0xfe, 0xfe, 0x04, 0xe0, 0x05, 0x00, 0x00, 0x08, 0x01, 0xfd};
+
+  if(freq < 2000000) band = 0x01;       /* 160m */
+  else if(freq < 4000000) band = 0x03;  /*  80m */
+  else if(freq < 8000000) band = 0x07;  /*  40m */
+  else if(freq < 11000000) band = 0x10; /*  30m */
+  else if(freq < 15000000) band = 0x14; /*  20m */
+  else if(freq < 20000000) band = 0x18; /*  17m */
+  else if(freq < 22000000) band = 0x21; /*  15m */
+  else if(freq < 26000000) band = 0x24; /*  12m */
+  else band = 0x28;                     /*  10m */
+
+  switch(band)
+  {
+    case 0x01:
+      buffer[7] = 0x80;
+      break;
+    case 0x03:
+      buffer[7] = 0x50;
+      break;
+    default:
+      buffer[7] = 0x00;
+  }
+
+  buffer[8] = band;
+
+  if(icom_band_data != band)
+  {
+    icom_band_data = band;
+    if(uart_fd >= 0) write(uart_fd, buffer, 10);
+  }
+}
+
 int main(int argc, char *argv[])
 {
   int fd, i, j, size;
@@ -199,6 +241,7 @@ int main(int argc, char *argv[])
   volatile uint16_t *tx_size, *dac_size;
   float scale, ramp[2048], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
+  struct termios tty;
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from[10];
   uint8_t buffer[10][1032];
@@ -211,6 +254,17 @@ int main(int argc, char *argv[])
   {
     perror("open");
     return EXIT_FAILURE;
+  }
+
+  if((uart_fd = open("/dev/ttyPS1", O_RDWR | O_NOCTTY | O_NDELAY)) >= 0)
+  {
+    tcgetattr(uart_fd, &tty);
+    cfsetspeed(&tty, (speed_t)B1200);
+    cfmakeraw(&tty);
+    tty.c_cflag &= ~(CSTOPB | CRTSCTS);
+    tty.c_cflag |= CLOCAL | CREAD;
+    tcflush(uart_fd, TCIFLUSH);
+    tcsetattr(uart_fd, TCSANOW, &tty);
   }
 
   if((i2c_fd = open("/dev/i2c-0", O_RDWR)) >= 0)
@@ -631,6 +685,11 @@ void process_ep2(uint8_t *frame)
       {
         alex_data_1 = freq;
         alex_write();
+      }
+      if(icom_freq_data != freq)
+      {
+        icom_freq_data = freq;
+        icom_write();
       }
       if(freq < freq_min || freq > freq_max) break;
       *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
