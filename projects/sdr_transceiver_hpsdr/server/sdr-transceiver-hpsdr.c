@@ -241,6 +241,8 @@ int main(int argc, char *argv[])
   volatile uint16_t *tx_size, *dac_size;
   float scale, ramp[2048], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
+  uint8_t id[4] = {0xef, 0xfe, 1, 6};
+  uint32_t code;
   struct termios tty;
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from[10];
@@ -504,7 +506,7 @@ int main(int argc, char *argv[])
 
     for(i = 0; i < 10; ++i)
     {
-      *(uint32_t *)(buffer[i] + 0) = 0x0601feef;
+      memcpy(buffer[i], id, 4);
       iovec[i][0].iov_base = buffer[i];
       iovec[i][0].iov_len = 1032;
       datagram[i].msg_hdr.msg_iov = iovec[i];
@@ -525,7 +527,8 @@ int main(int argc, char *argv[])
 
     for(i = 0; i < size; ++i)
     {
-      switch(*(uint32_t *)buffer[i])
+      memcpy(&code, buffer[i], 4);
+      switch(code)
       {
         case 0x0201feef:
           if(!cw_mux_data)
@@ -837,6 +840,7 @@ void *handler_ep6(void *arg)
   uint8_t buffer[25][1032];
   struct iovec iovec[25][1];
   struct mmsghdr datagram[25];
+  uint8_t id[4] = {0xef, 0xfe, 1, 6};
   uint8_t header[40] =
   {
     127, 127, 127, 0, 0, 33, 17, 21,
@@ -852,7 +856,7 @@ void *handler_ep6(void *arg)
 
   for(i = 0; i < 25; ++i)
   {
-    *(uint32_t *)(buffer[i] + 0) = 0x0601feef;
+    memcpy(buffer[i], id, 4);
     iovec[i][0].iov_base = buffer[i];
     iovec[i][0].iov_len = 1032;
     datagram[i].msg_hdr.msg_iov = iovec[i];
@@ -866,9 +870,12 @@ void *handler_ep6(void *arg)
   rate_counter = 1 << rate;
   k = 0;
 
-  /* reset codec fifo */
-  *codec_rst |= 2;
-  *codec_rst &= ~2;
+  if(i2c_codec)
+  {
+    /* reset codec fifo */
+    *codec_rst |= 2;
+    *codec_rst &= ~2;
+  }
 
   /* reset rx fifo */
   *rx_rst |= 1;
@@ -882,11 +889,14 @@ void *handler_ep6(void *arg)
     n = 504 / size;
     m = 256 / n;
 
-    if(*adc_cntr >= 1024 || *rx_cntr >= 8192)
+    if((i2c_codec && *adc_cntr >= 1024) || *rx_cntr >= 8192)
     {
-      /* reset codec fifo */
-      *codec_rst |= 2;
-      *codec_rst &= ~2;
+      if(i2c_codec)
+      {
+        /* reset codec fifo */
+        *codec_rst |= 2;
+        *codec_rst &= ~2;
+      }
 
       /* reset rx fifo */
       *rx_rst |= 1;
@@ -895,7 +905,7 @@ void *handler_ep6(void *arg)
 
     while(*rx_cntr < m * n * 16) usleep(1000);
 
-    if(--rate_counter == 0)
+    if(i2c_codec && --rate_counter == 0)
     {
       for(i = 0; i < m * n * 2; ++i)
       {
@@ -957,7 +967,7 @@ void *handler_ep6(void *arg)
         {
           memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
         }
-        memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) >> rate], 2);
+        if(i2c_codec) memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) >> rate], 2);
         data_offset += 8;
         buffer_offset += size;
       }
@@ -1001,7 +1011,7 @@ void *handler_ep6(void *arg)
         {
           memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
         }
-        memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) >> rate], 2);
+        if(i2c_codec) memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) >> rate], 2);
         data_offset += 8;
         buffer_offset += size;
       }
