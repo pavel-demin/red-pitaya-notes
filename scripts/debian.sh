@@ -9,7 +9,7 @@ mirror=http://httpredir.debian.org/debian
 distro=jessie
 arch=armhf
 
-hostapd_url=https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/rtl8192cu/hostapd-$arch
+hostapd_url=https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAQHa5NkpLYFocaOrrnft-Pa/rtl8192cu/hostapd-armhf?dl=1
 
 passwd=changeme
 timezone=Europe/Brussels
