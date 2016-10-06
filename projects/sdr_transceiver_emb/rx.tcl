@@ -271,11 +271,11 @@ for {set i 0} {$i <= 1} {incr i} {
   cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_$i {
     PERFORMANCE_OPTIONS First_Word_Fall_Through
     INPUT_DATA_WIDTH 64
-    INPUT_DEPTH 1024
+    INPUT_DEPTH 512
     OUTPUT_DATA_WIDTH 32
-    OUTPUT_DEPTH 2048
+    OUTPUT_DEPTH 1024
     READ_DATA_COUNT true
-    READ_DATA_COUNT_WIDTH 12
+    READ_DATA_COUNT_WIDTH 11
   } {
     clk /ps_0/FCLK_CLK0
     srst slice_0/Dout

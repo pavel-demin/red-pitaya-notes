@@ -28,6 +28,8 @@ void *send_handler(void *arg);
 int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
+  struct sched_param param;
+  pthread_attr_t attr;
   pthread_t thread;
   volatile void *cfg, *sts;
   char *name = "/dev/mem";
@@ -101,6 +103,12 @@ int main(int argc, char *argv[])
 
   listen(sock_server, 1024);
 
+  pthread_attr_init(&attr);
+  pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+  pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+  param.sched_priority = 99;
+  pthread_attr_setschedparam(&attr, &param);
+
   while(1)
   {
     if((sock_client = accept(sock_server, NULL, NULL)) < 0)
@@ -157,7 +165,7 @@ int main(int argc, char *argv[])
           size_thread = size;
           sock_thread = sock_client;
           jack_ringbuffer_reset(sweep_data);
-          if(pthread_create(&thread, NULL, read_handler, NULL) < 0)
+          if(pthread_create(&thread, &attr, read_handler, NULL) < 0)
           {
             perror("pthread_create");
             return EXIT_FAILURE;

@@ -10,7 +10,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_1 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 64 DIN_FROM 37 DIN_TO 32 DOUT_WIDTH 16
+  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
 }
 
 # Create xlslice
@@ -30,11 +30,11 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
-  INPUT_DEPTH 2048
+  INPUT_DEPTH 1024
   OUTPUT_DATA_WIDTH 64
-  OUTPUT_DEPTH 1024
+  OUTPUT_DEPTH 512
   WRITE_DATA_COUNT true
-  WRITE_DATA_COUNT_WIDTH 12
+  WRITE_DATA_COUNT_WIDTH 11
 } {
   clk /ps_0/FCLK_CLK0
   srst slice_0/Dout
@@ -167,7 +167,7 @@ cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 32
-  WRITE_DEPTH_A 2048
+  WRITE_DEPTH_A 1024
   WRITE_WIDTH_B 32
   ENABLE_A Always_Enabled
   ENABLE_B Always_Enabled
@@ -229,8 +229,8 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 6
   M_TDATA_NUM_BYTES 3
-  M00_TDATA_REMAP {tdata[23:0]}
-  M01_TDATA_REMAP {tdata[47:24]}
+  M00_TDATA_REMAP {tdata[47:24]}
+  M01_TDATA_REMAP {tdata[23:0]}
 } {
   S_AXIS switch_0/M00_AXIS
   aclk /ps_0/FCLK_CLK0

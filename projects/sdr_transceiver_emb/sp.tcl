@@ -1,35 +1,30 @@
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_1 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
+cell xilinx.com:ip:xlslice:1.0 slice_1 {
   DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
+cell xilinx.com:ip:xlslice:1.0 slice_2 {
   DIN_WIDTH 96 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
+cell xilinx.com:ip:xlslice:1.0 slice_3 {
   DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_5 {
+cell xilinx.com:ip:xlslice:1.0 slice_4 {
   DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_6 {
+cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 96 DIN_FROM 95 DIN_TO 80 DOUT_WIDTH 16
 }
 
@@ -46,7 +41,7 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
 cell pavel-demin:user:axis_constant:1.0 phase_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  cfg_data slice_4/Dout
+  cfg_data slice_3/Dout
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -109,7 +104,7 @@ for {set i 0} {$i <= 1} {incr i} {
   cell pavel-demin:user:axis_variable:1.0 rate_$i {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_3/Dout
+    cfg_data slice_2/Dout
     aclk /ps_0/FCLK_CLK0
     aresetn /rst_0/peripheral_aresetn
   }
@@ -263,7 +258,7 @@ cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
   BRAM_PORTA bram_0/BRAM_PORTA
   cfg_data const_1/dout
   aclk /ps_0/FCLK_CLK0
-  aresetn slice_1/Dout
+  aresetn slice_0/Dout
 }
 
 # Create axis_lfsr
@@ -434,7 +429,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   DATA_COUNT_WIDTH 11
 } {
   clk /ps_0/FCLK_CLK0
-  srst slice_2/Dout
+  srst slice_1/Dout
 }
 
 # Create axis_fifo
@@ -446,8 +441,8 @@ cell pavel-demin:user:axis_averager:1.0 avgr_0 {
   S_AXIS fp_2/M_AXIS_RESULT
   FIFO_READ fifo_generator_0/FIFO_READ
   FIFO_WRITE fifo_generator_0/FIFO_WRITE
-  pre_data slice_5/Dout
-  tot_data slice_6/Dout
+  pre_data slice_4/Dout
+  tot_data slice_5/Dout
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
@@ -463,7 +458,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_1 {
   DATA_COUNT_WIDTH 11
 } {
   clk /ps_0/FCLK_CLK0
-  srst slice_2/Dout
+  srst slice_1/Dout
 }
 
 # Create axis_fifo
