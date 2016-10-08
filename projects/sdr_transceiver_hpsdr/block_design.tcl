@@ -166,7 +166,7 @@ cell xilinx.com:ip:util_vector_logic:2.0 not_0 {
   C_SIZE 4
   C_OPERATION not
 } {
-  Op1 gpio_0/dout
+  Op1 gpio_0/deb_data
 }
 
 # Create xlconcat
