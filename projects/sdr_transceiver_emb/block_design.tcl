@@ -184,30 +184,8 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
 # Create output port
 create_bd_port -dir IO -from 3 -to 0 exp_n_alex
 
-# Create axi_axis_writer
-cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
-  AXI_DATA_WIDTH 32
-} {
-  aclk ps_0/FCLK_CLK0
-  aresetn rst_0/peripheral_aresetn
-}
-
-# Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
-  FIFO_DEPTH 1024
-} {
-  S_AXIS writer_0/M_AXIS
-  s_axis_aclk ps_0/FCLK_CLK0
-  s_axis_aresetn rst_0/peripheral_aresetn
-}
-
-# Create axis_alex
-cell pavel-demin:user:axis_alex:1.0 alex_0 {} {
-  S_AXIS fifo_0/M_AXIS
-  aclk ps_0/FCLK_CLK0
-  aresetn rst_0/peripheral_aresetn
+module alex {
+  source projects/sdr_transceiver_emb/alex.tcl
 }
 
 # RX 0
@@ -331,7 +309,7 @@ module codec {
   slice_5/Din cfg_slice_3/Dout
   keyer_0/key_flag key_slice_0/Dout
   i2s_0/gpio_data exp_n_alex
-  i2s_0/alex_data alex_0/alex_data
+  i2s_0/alex_data alex/alex_0/alex_data
 }
 
 # STS
@@ -402,7 +380,7 @@ set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Master /ps_0/M_AXI_GP0
   Clk Auto
-} [get_bd_intf_pins writer_0/S_AXI]
+} [get_bd_intf_pins alex/writer_0/S_AXI]
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
