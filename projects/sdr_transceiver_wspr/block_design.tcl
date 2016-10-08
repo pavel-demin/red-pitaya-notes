@@ -121,6 +121,29 @@ cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
   Dout exp_p_tri_io
 }
 
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_n_tri_io]
+
+# Create input/output port
+create_bd_port -dir IO -from 3 -to 0 exp_n_tri_io
+
+# Create gpio_debouncer
+cell pavel-demin:user:gpio_debouncer:1.0 gpio_0 {
+  DATA_WIDTH 4
+  CNTR_WIDTH 16
+} {
+  gpio_data exp_n_tri_io
+  aclk ps_0/FCLK_CLK0
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 pps_slice_0 {
+  DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
+} {
+  Din gpio_0/raw_data
+  Dout ps_0/GPIO_I
+}
+
 # RX 0
 
 # Create xlslice
