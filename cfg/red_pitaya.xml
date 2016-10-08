@@ -9,6 +9,8 @@
   <set param="PCW::ENET0::ENET0::IO" value="MIO 16 .. 27" />
   <set param="PCW::GPIO::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::GPIO::MIO_GPIO::ENABLE" value="1" />
+  <set param="PCW::GPIO::EMIO_GPIO::ENABLE" value="1" />
+  <set param="PCW::GPIO::EMIO_GPIO::IO" value="32" />
   <set param="PCW::I2C0::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::I2C0::I2C0::IO" value="MIO 50 .. 51" />
   <set param="PCW::I2C1::PERIPHERAL::ENABLE" value="0" />
