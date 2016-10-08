@@ -19,7 +19,7 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
 
 # Create axis_alex
 cell pavel-demin:user:axis_alex:1.0 alex_0 {} {
-  S_AXIS /fifo_0/M_AXIS
+  S_AXIS fifo_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
