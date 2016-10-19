@@ -15,16 +15,21 @@ cell xilinx.com:ip:xlslice:1.0 slice_2 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
+  DIN_WIDTH 8 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
+  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_6 {
   DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
 }
 
@@ -103,9 +108,9 @@ cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
   BRAM_ADDR_WIDTH 10
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
-  cfg_data slice_4/Dout
+  cfg_data slice_5/Dout
   aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
+  aresetn slice_2/Dout
 }
 
 # Create axis_subset_converter
@@ -125,7 +130,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
 cell pavel-demin:user:axis_constant:1.0 phase_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  cfg_data slice_3/Dout
+  cfg_data slice_4/Dout
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -184,7 +189,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
 cell pavel-demin:user:axis_constant:1.0 const_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_5/Dout
+  cfg_data slice_6/Dout
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -241,7 +246,7 @@ cell xilinx.com:ip:axis_switch:1.1 switch_0 {
 cell pavel-demin:user:axis_i2s:1.0 i2s_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  alex_flag slice_2/Dout
+  alex_flag slice_3/Dout
   S_AXIS switch_0/M00_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn

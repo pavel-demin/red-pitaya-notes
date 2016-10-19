@@ -57,6 +57,9 @@
       </font>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
       <item row="1" column="0">
        <spacer name="spacer_0">
         <property name="orientation">
@@ -69,16 +72,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="thrsCheck">
-        <property name="text">
-         <string>threshold</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0" colspan="2">
-       <widget class="QSpinBox" name="thrsValue"/>
       </item>
       <item row="2" column="0" colspan="2">
        <widget class="QWidget" name="cursWidget" native="true">
@@ -170,48 +163,23 @@
         </layout>
        </widget>
       </item>
+      <item row="3" column="0">
+       <spacer name="spacer_1">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="4" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="autoCheck">
         <property name="text">
          <string>auto update</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0" colspan="2">
-       <widget class="QPushButton" name="startButton">
-        <property name="text">
-         <string>Acquire</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0" colspan="2">
-       <widget class="QPushButton" name="saveButton">
-        <property name="text">
-         <string>Register</string>
-        </property>
-       </widget>
-      </item>
-      <item row="16" column="0" colspan="2">
-       <widget class="QPushButton" name="readButton">
-        <property name="text">
-         <string>Read file</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="0" colspan="2">
-       <widget class="QPushButton" name="recordButton">
-        <property name="text">
-         <string>Start Recording</string>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="0" colspan="2">
-       <widget class="QSpinBox" name="recordValue"/>
-      </item>
-      <item row="12" column="0">
-       <widget class="QLabel" name="recordLabel">
-        <property name="text">
-         <string>number of records</string>
         </property>
        </widget>
       </item>
@@ -228,33 +196,108 @@
         </property>
        </spacer>
       </item>
-      <item row="3" column="0">
-       <spacer name="spacer_1">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+      <item row="6" column="0">
+       <widget class="QLabel" name="trgmodeLabel">
+        <property name="text">
+         <string>trigger mode</string>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
+       </widget>
       </item>
-      <item row="11" column="0">
-       <spacer name="spacer_4">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
+      <item row="7" column="0" colspan="2">
+       <widget class="QWidget" name="trgmodeWidget" native="true">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QRadioButton" name="trgmodenormalButton">
+           <property name="text">
+            <string>normal</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QRadioButton" name="trgmodeautoButton">
+           <property name="text">
+            <string>auto</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item row="8" column="0">
+       <widget class="QLabel" name="trgsrcLabel">
+        <property name="text">
+         <string>trigger source</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0" colspan="2">
+       <widget class="QWidget" name="trgsrcWidget" native="true">
+        <layout class="QGridLayout" name="gridLayout_3">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QRadioButton" name="trgsrcch1Button">
+           <property name="text">
+            <string>channel 1</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QRadioButton" name="trgsrcch2Button">
+           <property name="text">
+            <string>channel 2</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="QLabel" name="trgslopeLabel">
+        <property name="text">
+         <string>trigger slope</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0">
+       <widget class="QLabel" name="trglevelLabel">
+        <property name="text">
+         <string>trigger level</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0" colspan="2">
+       <widget class="QSpinBox" name="trglevelValue"/>
+      </item>
+      <item row="14" column="0">
        <spacer name="spacer_3">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -267,7 +310,71 @@
         </property>
        </spacer>
       </item>
+      <item row="15" column="0" colspan="2">
+       <widget class="QPushButton" name="startButton">
+        <property name="text">
+         <string>Acquire</string>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="0" colspan="2">
+       <widget class="QPushButton" name="saveButton">
+        <property name="text">
+         <string>Register</string>
+        </property>
+       </widget>
+      </item>
       <item row="17" column="0">
+       <spacer name="spacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="18" column="0">
+       <widget class="QLabel" name="recordLabel">
+        <property name="text">
+         <string>number of records</string>
+        </property>
+       </widget>
+      </item>
+      <item row="19" column="0" colspan="2">
+       <widget class="QSpinBox" name="recordValue"/>
+      </item>
+      <item row="20" column="0" colspan="2">
+       <widget class="QPushButton" name="recordButton">
+        <property name="text">
+         <string>Start Recording</string>
+        </property>
+       </widget>
+      </item>
+      <item row="21" column="0">
+       <spacer name="spacer_5">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="22" column="0" colspan="2">
+       <widget class="QPushButton" name="readButton">
+        <property name="text">
+         <string>Read file</string>
+        </property>
+       </widget>
+      </item>
+      <item row="23" column="0">
        <spacer name="spacer_6">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -280,18 +387,40 @@
         </property>
        </spacer>
       </item>
-      <item row="15" column="0">
-       <spacer name="spacer_5">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
+      <item row="11" column="0" colspan="2">
+       <widget class="QWidget" name="trgslopeWidget" native="true">
+        <layout class="QGridLayout" name="gridLayout_4">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QRadioButton" name="trgsloperisingButton">
+           <property name="text">
+            <string>rising</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QRadioButton" name="trgslopefallingButton">
+           <property name="text">
+            <string>falling</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
      </layout>
     </widget>

@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
   volatile void *cfg, *sts;
   volatile int32_t *tx_ramp, *dac_ramp;
   volatile uint16_t *tx_size, *dac_size;
-  float scale, ramp[2048], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
+  float scale, ramp[1024], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
   uint8_t id[4] = {0xef, 0xfe, 1, 6};
   uint32_t code;
@@ -429,13 +429,18 @@ int main(int argc, char *argv[])
   *tx_rst |= 1;
   *tx_rst &= ~1;
 
+  /* disable tx keyer */
+  *tx_rst &= ~2;
+
   if(i2c_codec)
   {
     /* reset codec fifo */
     *codec_rst |= 3;
     *codec_rst &= ~3;
-    /* enable I2S interface */
+    /* disable codec keyer */
     *codec_rst &= ~4;
+    /* enable I2S interface */
+    *codec_rst &= ~8;
 
     /* set default dac phase increment */
     *dac_freq = (uint32_t)floor(600 / 48.0e3 * (1 << 30) + 0.5);
@@ -464,7 +469,7 @@ int main(int argc, char *argv[])
   else
   {
     /* enable ALEX interface */
-    *codec_rst |= 4;
+    *codec_rst |= 8;
 
     /* create playback thread */
     playback_data = jack_ringbuffer_create(4096);
@@ -622,6 +627,16 @@ void process_ep2(uint8_t *frame)
       if(cw_mux_data != data)
       {
         cw_mux_data = data;
+        if(data == 0)
+        {
+          *tx_rst &= ~2;
+          *codec_rst &= ~4;
+        }
+        else
+        {
+          *tx_rst |= 2;
+          *codec_rst |= 4;
+        }
         *(tx_mux + 16) = data;
         *tx_mux = 2;
         if(i2c_codec)

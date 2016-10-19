@@ -57,6 +57,22 @@
       </font>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
+      <item row="0" column="0">
+       <spacer name="spacer_0">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="1" column="0">
        <widget class="QCheckBox" name="logCheck">
         <property name="text">
@@ -254,19 +270,19 @@
          <item row="0" column="3">
           <widget class="QLabel" name="roiendLabel">
            <property name="text">
-            <string>end</string>
+            <string>end:</string>
            </property>
           </widget>
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="roistartLabel">
            <property name="text">
-            <string>start</string>
+            <string>start:</string>
            </property>
           </widget>
          </item>
          <item row="0" column="2">
-          <spacer name="horizontalSpacer">
+          <spacer name="spacer_13">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -344,11 +360,125 @@
         </property>
        </spacer>
       </item>
-      <item row="17" column="0" colspan="2">
-       <widget class="QSpinBox" name="thrsValue"/>
+      <item row="16" column="0">
+       <widget class="QLabel" name="baseLabel">
+        <property name="text">
+         <string>baseline subtraction mode</string>
+        </property>
+       </widget>
       </item>
-      <item row="21" column="0">
-       <spacer name="spacer_7">
+      <item row="17" column="0" colspan="2">
+       <widget class="QWidget" name="baseWidget" native="true">
+        <layout class="QGridLayout" name="gridLayout_3">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QRadioButton" name="radioButton">
+           <property name="text">
+            <string>manual</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QRadioButton" name="radioButton_2">
+           <property name="text">
+            <string>auto</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="19" column="0">
+       <widget class="QLabel" name="levelLabel">
+        <property name="text">
+         <string>baseline level</string>
+        </property>
+       </widget>
+      </item>
+      <item row="20" column="0" colspan="2">
+       <widget class="QSpinBox" name="levelValue"/>
+      </item>
+      <item row="22" column="0" colspan="2">
+       <widget class="QCheckBox" name="thrsCheck">
+        <property name="text">
+         <string>amplitude threshold</string>
+        </property>
+       </widget>
+      </item>
+      <item row="23" column="0" colspan="2">
+       <widget class="QWidget" name="thrsWidget" native="true">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="3">
+          <widget class="QLabel" name="thrsmaxLabel">
+           <property name="text">
+            <string>max:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QSpinBox" name="thrsmaxValue"/>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="thrsminLabel_2"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="thrsminLabel">
+           <property name="text">
+            <string>min:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <spacer name="spacer_14">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="25" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>time of exposure</string>
+        </property>
+       </widget>
+      </item>
+      <item row="27" column="0">
+       <spacer name="spacer_9">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -359,6 +489,136 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="28" column="0" colspan="2">
+       <widget class="QPushButton" name="startButton">
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+      </item>
+      <item row="29" column="0" colspan="2">
+       <widget class="QPushButton" name="resetButton">
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="30" column="0">
+       <spacer name="spacer_10">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="31" column="0" colspan="2">
+       <widget class="QPushButton" name="saveButton">
+        <property name="text">
+         <string>Register</string>
+        </property>
+       </widget>
+      </item>
+      <item row="32" column="0">
+       <spacer name="spacer_11">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="33" column="0" colspan="2">
+       <widget class="QPushButton" name="readButton">
+        <property name="text">
+         <string>Read file</string>
+        </property>
+       </widget>
+      </item>
+      <item row="34" column="0">
+       <spacer name="spacer_12">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="26" column="0" colspan="2">
+       <widget class="QWidget" name="timeWidget" native="true">
+        <layout class="QGridLayout" name="gridLayout_4">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QSpinBox" name="hourValue">
+           <property name="maximum">
+            <number>999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="hourLabel">
+           <property name="text">
+            <string>h</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QSpinBox" name="minValue">
+           <property name="maximum">
+            <number>59</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLabel" name="minLabel">
+           <property name="text">
+            <string>m</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QDoubleSpinBox" name="secValue">
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="maximum">
+            <double>59.999000000000002</double>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="5">
+          <widget class="QLabel" name="secLabel">
+           <property name="text">
+            <string>s</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item row="18" column="0">
        <spacer name="spacer_6">
@@ -373,8 +633,8 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="0">
-       <spacer name="spacer_0">
+      <item row="21" column="0">
+       <spacer name="spacer_7">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -386,7 +646,7 @@
         </property>
        </spacer>
       </item>
-      <item row="23" column="0">
+      <item row="24" column="0">
        <spacer name="spacer_8">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -398,54 +658,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item row="16" column="0" colspan="2">
-       <widget class="QCheckBox" name="thrsCheck">
-        <property name="text">
-         <string>amplitude threshold</string>
-        </property>
-       </widget>
-      </item>
-      <item row="20" column="0" colspan="2">
-       <widget class="QPushButton" name="resetButton">
-        <property name="text">
-         <string>Reset</string>
-        </property>
-       </widget>
-      </item>
-      <item row="19" column="0" colspan="2">
-       <widget class="QPushButton" name="startButton">
-        <property name="text">
-         <string>Start</string>
-        </property>
-       </widget>
-      </item>
-      <item row="25" column="0">
-       <spacer name="spacer_9">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="22" column="0" colspan="2">
-       <widget class="QPushButton" name="saveButton">
-        <property name="text">
-         <string>Register</string>
-        </property>
-       </widget>
-      </item>
-      <item row="24" column="0" colspan="2">
-       <widget class="QPushButton" name="readButton">
-        <property name="text">
-         <string>Read file</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
