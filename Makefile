@@ -12,6 +12,8 @@ NAME = led_blinker
 PART = xc7z010clg400-1
 PROC = ps7_cortexa9_0
 
+TEMP = tmp
+
 CORES = axi_axis_reader_v1_0 axi_axis_writer_v1_0 axi_bram_reader_v1_0 \
   axi_bram_writer_v1_0 axi_cfg_register_v1_0 axis_accumulator_v1_0 \
   axis_alex_v1_0 axis_averager_v1_0 axis_bram_reader_v1_0 \
@@ -33,13 +35,13 @@ UBOOT_TAG = xilinx-v2016.2
 LINUX_TAG = xilinx-v2016.2
 DTREE_TAG = xilinx-v2016.2
 
-UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
-LINUX_DIR = tmp/linux-xlnx-$(LINUX_TAG)
-DTREE_DIR = tmp/device-tree-xlnx-$(DTREE_TAG)
+UBOOT_DIR = $(TEMP)/u-boot-xlnx-$(UBOOT_TAG)
+LINUX_DIR = $(TEMP)/linux-xlnx-$(LINUX_TAG)
+DTREE_DIR = $(TEMP)/device-tree-xlnx-$(DTREE_TAG)
 
-UBOOT_TAR = tmp/u-boot-xlnx-$(UBOOT_TAG).tar.gz
-LINUX_TAR = tmp/linux-xlnx-$(LINUX_TAG).tar.gz
-DTREE_TAR = tmp/device-tree-xlnx-$(DTREE_TAG).tar.gz
+UBOOT_TAR = $(TEMP)/u-boot-xlnx-$(UBOOT_TAG).tar.gz
+LINUX_TAR = $(TEMP)/linux-xlnx-$(LINUX_TAG).tar.gz
+DTREE_TAR = $(TEMP)/device-tree-xlnx-$(DTREE_TAG).tar.gz
 
 UBOOT_URL = https://github.com/Xilinx/u-boot-xlnx/archive/$(UBOOT_TAG).tar.gz
 LINUX_URL = https://github.com/Xilinx/linux-xlnx/archive/$(LINUX_TAG).tar.gz
@@ -49,16 +51,16 @@ LINUX_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -
 UBOOT_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 ARMHF_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 
-RTL_TAR = tmp/rtl8192cu.tgz
+RTL_TAR = $(TEMP)/rtl8192cu.tgz
 RTL_URL = https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABNwuLz3dPHK06vEDHmG8mfa/rtl8192cu/rtl8192cu.tgz?dl=1
 
-.PRECIOUS: tmp/cores/% tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system.dts
+.PRECIOUS: $(TEMP)/cores/% $(TEMP)/%.xpr $(TEMP)/%.hwdef $(TEMP)/%.bit $(TEMP)/%.fsbl/executable.elf $(TEMP)/%.tree/system.dts
 
 all: boot.bin uImage devicetree.dtb fw_printenv
 
-xpr: tmp/$(NAME).xpr
+xpr: $(TEMP)/$(NAME).xpr
 
-bit: tmp/$(NAME).bit
+bit: $(TEMP)/$(NAME).bit
 
 $(UBOOT_TAR):
 	mkdir -p $(@D)
@@ -104,7 +106,7 @@ uImage: $(LINUX_DIR)
 	  CROSS_COMPILE=arm-linux-gnueabihf- UIMAGE_LOADADDR=0x8000 uImage
 	cp $</arch/arm/boot/uImage $@
 
-tmp/u-boot.elf: $(UBOOT_DIR)
+$(TEMP)/u-boot.elf: $(UBOOT_DIR)
 	mkdir -p $(@D)
 	make -C $< mrproper
 	make -C $< ARCH=arm zynq_red_pitaya_defconfig
@@ -112,40 +114,40 @@ tmp/u-boot.elf: $(UBOOT_DIR)
 	  CROSS_COMPILE=arm-linux-gnueabihf- all
 	cp $</u-boot $@
 
-fw_printenv: $(UBOOT_DIR) tmp/u-boot.elf
+fw_printenv: $(UBOOT_DIR) $(TEMP)/u-boot.elf
 	make -C $< ARCH=arm CFLAGS=$(ARMHF_CFLAGS) \
 	  CROSS_COMPILE=arm-linux-gnueabihf- env
 	cp $</tools/env/fw_printenv $@
 
-boot.bin: tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit tmp/u-boot.elf
-	echo "img:{[bootloader] $^}" > tmp/boot.bif
-	bootgen -image tmp/boot.bif -w -o i $@
+boot.bin: $(TEMP)/$(NAME).fsbl/executable.elf $(TEMP)/$(NAME).bit $(TEMP)/u-boot.elf
+	echo "img:{[bootloader] $^}" > $(TEMP)/boot.bif
+	bootgen -image $(TEMP)/boot.bif -w -o i $@
 
-devicetree.dtb: uImage tmp/$(NAME).tree/system.dts
+devicetree.dtb: uImage $(TEMP)/$(NAME).tree/system.dts
 	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb -o devicetree.dtb \
-	  -i tmp/$(NAME).tree tmp/$(NAME).tree/system.dts
+	  -i $(TEMP)/$(NAME).tree $(TEMP)/$(NAME).tree/system.dts
 
-tmp/cores/%: cores/%/core_config.tcl cores/%/*.v
+$(TEMP)/cores/%: cores/%/core_config.tcl cores/%/*.v
 	mkdir -p $(@D)
 	$(VIVADO) -source scripts/core.tcl -tclargs $* $(PART)
 
-tmp/%.xpr: projects/% $(addprefix tmp/cores/, $(CORES))
+$(TEMP)/%.xpr: projects/% $(addprefix $(TEMP)/cores/, $(CORES))
 	mkdir -p $(@D)
 	$(VIVADO) -source scripts/project.tcl -tclargs $* $(PART)
 
-tmp/%.hwdef: tmp/%.xpr
+$(TEMP)/%.hwdef: $(TEMP)/%.xpr
 	mkdir -p $(@D)
 	$(VIVADO) -source scripts/hwdef.tcl -tclargs $*
 
-tmp/%.bit: tmp/%.xpr
+$(TEMP)/%.bit: $(TEMP)/%.xpr
 	mkdir -p $(@D)
 	$(VIVADO) -source scripts/bitstream.tcl -tclargs $*
 
-tmp/%.fsbl/executable.elf: tmp/%.hwdef
+$(TEMP)/%.fsbl/executable.elf: $(TEMP)/%.hwdef
 	mkdir -p $(@D)
 	$(HSI) -source scripts/fsbl.tcl -tclargs $* $(PROC)
 
-tmp/%.tree/system.dts: tmp/%.hwdef $(DTREE_DIR)
+$(TEMP)/%.tree/system.dts: $(TEMP)/%.hwdef $(DTREE_DIR)
 	mkdir -p $(@D)
 	$(HSI) -source scripts/devicetree.tcl -tclargs $* $(PROC) $(DTREE_DIR)
 	patch $@ patches/devicetree.patch
@@ -153,4 +155,5 @@ tmp/%.tree/system.dts: tmp/%.hwdef $(DTREE_DIR)
 clean:
 	$(RM) uImage fw_printenv boot.bin devicetree.dtb tmp
 	$(RM) .Xil usage_statistics_webtalk.html usage_statistics_webtalk.xml
+	$(RM) vivado*.jou vivado*.log
 	$(RM) webtalk*.jou webtalk*.log
