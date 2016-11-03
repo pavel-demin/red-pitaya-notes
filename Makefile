@@ -81,7 +81,7 @@ $(RTL_TAR):
 $(UBOOT_DIR): $(UBOOT_TAR)
 	mkdir -p $@
 	tar -zxf $< --strip-components=1 --directory=$@
-	patch -d tmp -p 0 < patches/u-boot-xlnx-$(UBOOT_TAG).patch
+	patch -d $(TEMP) -p 0 < patches/u-boot-xlnx-$(UBOOT_TAG).patch
 	cp patches/zynq_red_pitaya_defconfig $@/configs
 	cp patches/zynq-red-pitaya.dts $@/arch/arm/dts
 	cp patches/zynq_red_pitaya.h $@/include/configs
@@ -91,7 +91,7 @@ $(LINUX_DIR): $(LINUX_TAR) $(RTL_TAR)
 	mkdir -p $@
 	tar -zxf $< --strip-components=1 --directory=$@
 	tar -zxf $(RTL_TAR) --directory=$@/drivers/net/wireless/realtek
-	patch -d tmp -p 0 < patches/linux-xlnx-$(LINUX_TAG).patch
+	patch -d $(TEMP) -p 0 < patches/linux-xlnx-$(LINUX_TAG).patch
 	cp patches/linux-lantiq.c $@/drivers/net/phy/lantiq.c
 
 $(DTREE_DIR): $(DTREE_TAR)
@@ -153,7 +153,7 @@ $(TEMP)/%.tree/system.dts: $(TEMP)/%.hwdef $(DTREE_DIR)
 	patch $@ patches/devicetree.patch
 
 clean:
-	$(RM) uImage fw_printenv boot.bin devicetree.dtb tmp
+	$(RM) uImage fw_printenv boot.bin devicetree.dtb $(TEMP)
 	$(RM) .Xil usage_statistics_webtalk.html usage_statistics_webtalk.xml
 	$(RM) vivado*.jou vivado*.log
 	$(RM) webtalk*.jou webtalk*.log
