@@ -85,7 +85,7 @@ if {[llength $files] > 0} {
 
 set_property VERILOG_DEFINE {TOOL_VIVADO} [current_fileset]
 
-set_property STRATEGY Flow_PerfOptimized_High [get_runs synth_1]
-set_property STRATEGY Performance_ExtraTimingOpt [get_runs impl_1]
+set_property STRATEGY Flow_PerfOptimized_high [get_runs synth_1]
+set_property STRATEGY Performance_NetDelay_high [get_runs impl_1]
 
 close_project
