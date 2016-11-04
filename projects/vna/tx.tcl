@@ -51,14 +51,14 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
 # Create dds_compiler
 cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   DDS_CLOCK_RATE 125
-  SPURIOUS_FREE_DYNAMIC_RANGE 84
+  SPURIOUS_FREE_DYNAMIC_RANGE 96
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
   HAS_TREADY true
   HAS_ARESETN true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
-  OUTPUT_WIDTH 14
+  OUTPUT_WIDTH 16
   DSP48_USE Minimal
 } {
   S_AXIS_PHASE inter_0/M_AXIS
@@ -85,7 +85,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   FLOWCONTROL Blocking
   APORTWIDTH.VALUE_SRC USER
   BPORTWIDTH.VALUE_SRC USER
-  APORTWIDTH 14
+  APORTWIDTH 16
   BPORTWIDTH 16
   ROUNDMODE Random_Rounding
   OUTPUTWIDTH 16
