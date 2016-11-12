@@ -21,7 +21,7 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
 } {
-  s_axis_aclk /adc_0/adc_clk
+  s_axis_aclk /pll_0/clk_out1
   s_axis_aresetn const_0/dout
   m_axis_aclk /ps_0/FCLK_CLK0
   m_axis_aresetn /rst_0/peripheral_aresetn
@@ -66,7 +66,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   APORTWIDTH 14
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 25
+  OUTPUTWIDTH 26
 } {
   S_AXIS_A fifo_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA

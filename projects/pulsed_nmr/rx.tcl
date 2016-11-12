@@ -21,8 +21,6 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
 } {
-  s_axis_aclk /adc_0/adc_clk
-  s_axis_aresetn const_0/dout
   m_axis_aclk /ps_0/FCLK_CLK0
   m_axis_aresetn /rst_0/peripheral_aresetn
 }

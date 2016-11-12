@@ -51,9 +51,6 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   aclk /ps_0/FCLK_CLK0
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1
-
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {
   TDATA_NUM_BYTES.VALUE_SRC USER
@@ -62,6 +59,4 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {
   S_AXIS zeroer_0/M_AXIS
   s_axis_aclk /ps_0/FCLK_CLK0
   s_axis_aresetn /rst_0/peripheral_aresetn
-  m_axis_aclk /adc_0/adc_clk
-  m_axis_aresetn const_1/dout
 }
