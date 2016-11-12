@@ -1,6 +1,6 @@
 --- system.dts.old
 +++ system.dts
-@@ -16,6 +16,13 @@
+@@ -16,6 +16,17 @@
  	chosen {
  		bootargs = "console=ttyPS0,115200 root=/dev/mmcblk0p2 ro rootfstype=ext4 earlyprintk rootwait";
  	};
@@ -10,6 +10,10 @@
 +		reg = <0xe0002000 0x1000>;
 +		view-port = <0x0170>;
 +		drv-vbus;
++	};
++	pps {
++		compatible = "pps-gpio";
++		gpios = <&gpio0 54 0>;
 +	};
  	aliases {
  		ethernet0 = &gem0;
