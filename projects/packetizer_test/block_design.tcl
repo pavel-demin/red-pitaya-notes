@@ -34,7 +34,7 @@ cell xilinx.com:ip:xlconstant:1.1 const_1
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
   S_AXIS adc_0/M_AXIS
-  s_axis_aclk adc_0/adc_clk
+  s_axis_aclk pll_0/clk_out1
   s_axis_aresetn const_1/dout
   m_axis_aclk ps_0/FCLK_CLK0
   m_axis_aresetn slice_4/Dout
