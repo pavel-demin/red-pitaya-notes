@@ -68,6 +68,10 @@ source projects/$project_name/block_design.tcl
 rename cell {}
 rename module {}
 
+if {[version -short] >= 2016.3} {
+  set_property synth_checkpoint_mode None [get_files $bd_path/system.bd]
+}
+
 generate_target all [get_files $bd_path/system.bd]
 make_wrapper -files [get_files $bd_path/system.bd] -top
 
