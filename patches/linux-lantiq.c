@@ -201,7 +201,7 @@ static int vr9_gphy_config_init(struct phy_device *phydev)
 {
 	int err;
 
-	dev_dbg(&phydev->dev, "%s\n", __func__);
+	dev_dbg(&phydev->mdio.dev, "%s\n", __func__);
 
         /* Set LED0 blinking on rx/tx. */
         vr9_gphy_mmd_write(phydev, INT_LED0H, 0);
@@ -240,7 +240,7 @@ static int vr9_gphy_config_init(struct phy_device *phydev)
         //       since we do not run as a module.
         if (!g_phydev) {
             attrs.attrs = phy11g_attrs;
-            err = sysfs_create_group(&phydev->dev.kobj, &attrs);
+            err = sysfs_create_group(&phydev->mdio.dev.kobj, &attrs);
             if (err)
                 return(err);
             g_phydev = phydev;
@@ -316,7 +316,6 @@ static struct phy_driver lantiq_phy[] = {
 		.ack_interrupt	= vr9_gphy_ack_interrupt,
 		.did_interrupt	= vr9_gphy_did_interrupt,
 		.config_intr	= vr9_gphy_config_intr,
-		.driver		= { .owner = THIS_MODULE },
 	}, {
 		.phy_id		= 0x030260D0,
 		.phy_id_mask	= 0xfffffff0,
@@ -329,7 +328,6 @@ static struct phy_driver lantiq_phy[] = {
 		.ack_interrupt	= vr9_gphy_ack_interrupt,
 		.did_interrupt	= vr9_gphy_did_interrupt,
 		.config_intr	= vr9_gphy_config_intr,
-		.driver		= { .owner = THIS_MODULE },
 	}, {
 		.phy_id		= 0xd565a408,
 		.phy_id_mask	= 0xfffffff8,
@@ -342,7 +340,6 @@ static struct phy_driver lantiq_phy[] = {
 		.ack_interrupt	= vr9_gphy_ack_interrupt,
 		.did_interrupt	= vr9_gphy_did_interrupt,
 		.config_intr	= vr9_gphy_config_intr,
-		.driver		= { .owner = THIS_MODULE },
 	}, {
 		.phy_id		= 0xd565a418,
 		.phy_id_mask	= 0xfffffff8,
@@ -355,33 +352,10 @@ static struct phy_driver lantiq_phy[] = {
 		.ack_interrupt	= vr9_gphy_ack_interrupt,
 		.did_interrupt	= vr9_gphy_did_interrupt,
 		.config_intr	= vr9_gphy_config_intr,
-		.driver		= { .owner = THIS_MODULE },
 	},
 };
 
-static int __init ltq_phy_init(void)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(lantiq_phy); i++) {
-		int err = phy_driver_register(&lantiq_phy[i]);
-		if (err)
-			pr_err("lantiq_phy: failed to load %s\n", lantiq_phy[i].name);
-	}
-
-	return 0;
-}
-
-static void __exit ltq_phy_exit(void)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(lantiq_phy); i++)
-		phy_driver_unregister(&lantiq_phy[i]);
-}
-
-module_init(ltq_phy_init);
-module_exit(ltq_phy_exit);
+module_phy_driver(lantiq_phy);
 
 MODULE_DESCRIPTION("Lantiq PHY drivers");
 MODULE_AUTHOR("Daniel Schwierzeck <daniel.schwierzeck@googlemail.com>");
