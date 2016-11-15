@@ -27,21 +27,6 @@
  	};
  };
  &gem0 {
-@@ -35,6 +42,14 @@
- 	status = "okay";
- 	xlnx,ptp-enet-clock = <0x69f6bcb>;
- };
-+&gem0 {
-+	phy-handle = <&ethernet_phy>;
-+	ethernet_phy: ethernet-phy@1 {
-+		compatible = "lantiq,phy11g";
-+		device_type = "ethernet-phy";
-+		reg = <0x1>;
-+	};
-+};
- &gpio0 {
- 	emio-gpio-width = <64>;
- 	gpio-mask-high = <0x0>;
 @@ -44,6 +59,12 @@
  	clock-frequency = <400000>;
  	status = "okay";
