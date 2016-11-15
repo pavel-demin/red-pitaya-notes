@@ -341,6 +341,18 @@ static struct phy_driver lantiq_phy[] = {
 		.did_interrupt	= vr9_gphy_did_interrupt,
 		.config_intr	= vr9_gphy_config_intr,
 	}, {
+		.phy_id		= 0xd565a401,
+		.phy_id_mask	= 0xffffffff,
+		.name		= "Lantiq XWAY VR9 GPHY 11G v1.5",
+		.features	= (PHY_GBIT_FEATURES | SUPPORTED_Pause),
+		.flags		= 0, /*PHY_HAS_INTERRUPT,*/
+		.config_init	= vr9_gphy_config_init,
+		.config_aneg	= vr9_gphy_config_aneg,
+		.read_status	= genphy_read_status,
+		.ack_interrupt	= vr9_gphy_ack_interrupt,
+		.did_interrupt	= vr9_gphy_did_interrupt,
+		.config_intr	= vr9_gphy_config_intr,
+	}, {
 		.phy_id		= 0xd565a418,
 		.phy_id_mask	= 0xfffffff8,
 		.name		= "Lantiq XWAY XRX PHY22F v1.4",
@@ -356,6 +368,17 @@ static struct phy_driver lantiq_phy[] = {
 };
 
 module_phy_driver(lantiq_phy);
+
+static struct mdio_device_id __maybe_unused lantiq_tbl[] = {
+	{ 0xd565a400, 0xfffffffe },
+	{ 0x030260D0, 0xfffffff0 },
+	{ 0xd565a408, 0xfffffff8 },
+	{ 0xd565a401, 0xffffffff },
+	{ 0xd565a418, 0xfffffff8 },
+	{ }
+};
+
+MODULE_DEVICE_TABLE(mdio, lantiq_tbl);
 
 MODULE_DESCRIPTION("Lantiq PHY drivers");
 MODULE_AUTHOR("Daniel Schwierzeck <daniel.schwierzeck@googlemail.com>");
