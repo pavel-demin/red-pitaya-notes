@@ -140,8 +140,10 @@ set guifiles {
   lib/tk8@/dialog.tcl
   lib/tk8@/entry.tcl
   lib/tk8@/focus.tcl
+  lib/tk8@/iconlist.tcl
   lib/tk8@/icons.tcl
   lib/tk8@/listbox.tcl
+  lib/tk8@/megawidget.tcl
   lib/tk8@/menu.tcl
   lib/tk8@/mkpsenc.tcl
   lib/tk8@/msgbox.tcl
