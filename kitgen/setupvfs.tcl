@@ -109,20 +109,20 @@ set clifiles {
   lib/sqlite3@/pkgIndex.tcl
   lib/g2lite0@/pkgIndex.tcl
   lib/mcpha0@/pkgIndex.tcl
-  lib/tcllib1.16/pkgIndex.tcl
-  lib/tcllib1.16/asn
-  lib/tcllib1.16/base64
-  lib/tcllib1.16/comm
-  lib/tcllib1.16/cmdline
-  lib/tcllib1.16/csv
-  lib/tcllib1.16/fileutil
-  lib/tcllib1.16/ldap
-  lib/tcllib1.16/log
-  lib/tcllib1.16/math
-  lib/tcllib1.16/ooutil
-  lib/tcllib1.16/snit
-  lib/tcllib1.16/struct
-  lib/tcllib1.16/uri
+  lib/tcllib1.18/pkgIndex.tcl
+  lib/tcllib1.18/asn
+  lib/tcllib1.18/base64
+  lib/tcllib1.18/comm
+  lib/tcllib1.18/cmdline
+  lib/tcllib1.18/csv
+  lib/tcllib1.18/fileutil
+  lib/tcllib1.18/ldap
+  lib/tcllib1.18/log
+  lib/tcllib1.18/math
+  lib/tcllib1.18/ooutil
+  lib/tcllib1.18/snit
+  lib/tcllib1.18/struct
+  lib/tcllib1.18/uri
 }
 
 if {[string equal $platform win32]} {
