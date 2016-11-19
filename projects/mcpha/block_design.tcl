@@ -17,62 +17,37 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
 
-# Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 buf_0 {
-  C_SIZE 2
-  C_BUF_TYPE IBUFDS
+# Create clk_wiz
+cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+  PRIMITIVE PLL
+  PRIM_IN_FREQ.VALUE_SRC USER
+  PRIM_IN_FREQ 125.0
+  PRIM_SOURCE Differential_clock_capable_pin
+  CLKOUT1_USED true
+  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT2_USED true
+  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT2_REQUESTED_PHASE -90.0
+  USE_RESET false
 } {
-  IBUF_DS_P daisy_p_i
-  IBUF_DS_N daisy_n_i
+  clk_in1_p adc_clk_p_i
+  clk_in1_n adc_clk_n_i
 }
 
-# Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 buf_1 {
-  C_SIZE 2
-  C_BUF_TYPE OBUFDS
-} {
-  OBUF_DS_P daisy_p_o
-  OBUF_DS_N daisy_n_o
-}
+# ADC
 
 # Create axis_red_pitaya_adc
-cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
-  adc_clk_p adc_clk_p_i
-  adc_clk_n adc_clk_n_i
+cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
+  aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
   adc_dat_b adc_dat_b_i
   adc_csn adc_csn_o
 }
 
-# Create c_counter_binary
-cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
-  Output_Width 32
-} {
-  CLK adc_0/adc_clk
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 32 DIN_FROM 26 DIN_TO 26 DOUT_WIDTH 1
-} {
-  Din cntr_0/Q
-  Dout led_o
-}
-
-# Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
-  PRIM_IN_FREQ.VALUE_SRC USER
-  PRIM_IN_FREQ 125.0
-  CLKOUT1_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 250.0
-} {
-  clk_in1 adc_0/adc_clk
-}
-
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
-  aclk adc_0/adc_clk
-  ddr_clk pll_0/clk_out1
+  aclk pll_0/clk_out1
+  ddr_clk pll_0/clk_out2
   locked pll_0/locked
   dac_clk dac_clk_o
   dac_rst dac_rst_o
@@ -162,7 +137,7 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
   TDATA_NUM_BYTES 4
 } {
   S_AXIS adc_0/M_AXIS
-  s_axis_aclk adc_0/adc_clk
+  s_axis_aclk pll_0/clk_out1
   s_axis_aresetn const_0/dout
   m_axis_aclk ps_0/FCLK_CLK0
   m_axis_aresetn rst_0/peripheral_aresetn
@@ -264,15 +239,15 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   DATA_WIDTH.VALUE_SRC USER
   DATA_WIDTH 16
-  COEFFICIENTVECTOR {1.82782312710761e-07, 1.75129078763427e-07, 1.46244807036483e-06, 5.30021633505894e-06, 3.7054840854384e-06, -1.7495599357822e-05, -4.93450686494416e-05, -4.51186166401437e-05, 2.2971479411008e-05, 9.20829943807522e-05, 7.35662477965282e-05, 3.02493639422614e-05, 0.000151416851499651, 0.00037854621183999, 0.000200740391663334, -0.000738184485162278, -0.00173150255229837, -0.00136195564467823, 0.000592409992773835, 0.00217484729624704, 0.00159815038256027, 0.000625282318735443, 0.00310524325649731, 0.00774760153246652, 0.00439890195890601, -0.0159687563376212, -0.04291664607763, -0.041938407005382, 0.0210055836255753, 0.141531808237572, 0.264102621498197, 0.316086856059048, 0.264102621498197, 0.141531808237572, 0.0210055836255753, -0.041938407005382, -0.04291664607763, -0.0159687563376212, 0.00439890195890604, 0.00774760153246652, 0.00310524325649732, 0.000625282318735444, 0.00159815038256025, 0.00217484729624704, 0.000592409992773828, -0.00136195564467824, -0.00173150255229838, -0.000738184485162278, 0.000200740391663343, 0.000378546211839996, 0.000151416851499651, 3.02493639422606e-05, 7.35662477965302e-05, 9.20829943807519e-05, 2.29714794110078e-05, -4.51186166401437e-05, -4.93450686494425e-05, -1.74955993578222e-05, 3.70548408543838e-06, 5.30021633505898e-06, 1.46244807036482e-06, 1.75129078763403e-07, 1.8278231271075e-07}
+  COEFFICIENTVECTOR {4.1811671868e-06, 2.9962842696e-05, 1.2482197822e-04, 3.4115329109e-04, 7.6531605277e-04, 1.5146861420e-03, 2.7310518774e-03, 4.5689619595e-03, 7.1784709852e-03, 1.0683018711e-02, 1.5154640468e-02, 2.0589984382e-02, 2.6891362735e-02, 3.3857037591e-02, 4.1184036845e-02, 4.8485104800e-02, 5.5319177108e-02, 6.1232429042e-02, 6.5804926185e-02, 6.8696615948e-02, 6.9686119779e-02, 6.8696615948e-02, 6.5804926185e-02, 6.1232429042e-02, 5.5319177108e-02, 4.8485104800e-02, 4.1184036845e-02, 3.3857037591e-02, 2.6891362735e-02, 2.0589984382e-02, 1.5154640468e-02, 1.0683018711e-02, 7.1784709852e-03, 4.5689619595e-03, 2.7310518774e-03, 1.5146861420e-03, 7.6531605277e-04, 3.4115329109e-04, 1.2482197822e-04, 2.9962842696e-05, 4.1811671868e-06}
   COEFFICIENT_WIDTH 16
-  QUANTIZATION Maximize_Dynamic_Range
+  QUANTIZATION Quantize_Only
   BESTPRECISION true
   NUMBER_PATHS 2
   SAMPLE_FREQUENCY 31.25
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Non_Symmetric_Rounding_Up
-  OUTPUT_WIDTH 16
+  OUTPUT_WIDTH 15
   HAS_ARESETN true
 } {
   S_AXIS_DATA comb_0/M_AXIS
@@ -357,6 +332,8 @@ module gen_0 {
   slice_0/Din rst_slice_3/Dout
   slice_1/Din cfg_slice_3/Dout
   fifo_1/M_AXIS dac_0/S_AXIS
+  fifo_1/m_axis_aclk pll_0/clk_out1
+  fifo_1/m_axis_aresetn const_0/dout
 }
 
 # Create xlconcat
