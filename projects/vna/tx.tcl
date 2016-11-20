@@ -1,21 +1,21 @@
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 128 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+  DIN_WIDTH 96 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 128 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+  DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 128 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
+  DIN_WIDTH 96 DIN_FROM 31 DIN_TO 16 DOUT_WIDTH 16
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 128 DIN_FROM 111 DIN_TO 96 DOUT_WIDTH 16
+  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 }
 
 # Create axi_axis_writer
@@ -43,7 +43,7 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   CNTR_WIDTH 32
 } {
   S_AXIS fifo_0/M_AXIS
-  cfg_data slice_2/Dout
+  cfg_data slice_3/Dout
   aclk /ps_0/FCLK_CLK0
   aresetn slice_1/Dout
 }
@@ -70,7 +70,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 cell pavel-demin:user:axis_constant:1.0 const_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_3/Dout
+  cfg_data slice_2/Dout
   aclk /ps_0/FCLK_CLK0
 }
 
