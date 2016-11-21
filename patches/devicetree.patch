@@ -1,6 +1,6 @@
 --- system.dts.old
 +++ system.dts
-@@ -16,6 +16,13 @@
+@@ -16,6 +16,17 @@
  	chosen {
  		bootargs = "console=ttyPS0,115200 root=/dev/mmcblk0p2 ro rootfstype=ext4 earlyprintk rootwait";
  	};
@@ -10,6 +10,10 @@
 +		reg = <0xe0002000 0x1000>;
 +		view-port = <0x0170>;
 +		drv-vbus;
++	};
++	pps {
++		compatible = "pps-gpio";
++		gpios = <&gpio0 54 0>;
 +	};
  	aliases {
  		ethernet0 = &gem0;
@@ -23,21 +27,6 @@
  	};
  };
  &gem0 {
-@@ -35,6 +42,14 @@
- 	status = "okay";
- 	xlnx,ptp-enet-clock = <0x69f6bcb>;
- };
-+&gem0 {
-+	phy-handle = <&ethernet_phy>;
-+	ethernet_phy: ethernet-phy@1 {
-+		compatible = "lantiq,phy11g";
-+		device_type = "ethernet-phy";
-+		reg = <0x1>;
-+	};
-+};
- &gpio0 {
- 	emio-gpio-width = <64>;
- 	gpio-mask-high = <0x0>;
 @@ -44,6 +59,12 @@
  	clock-frequency = <400000>;
  	status = "okay";

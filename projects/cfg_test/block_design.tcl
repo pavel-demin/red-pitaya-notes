@@ -3,20 +3,11 @@ source projects/base_system/block_design.tcl
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
 
-# Create axis_red_pitaya_adc
-cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
-  adc_clk_p adc_clk_p_i
-  adc_clk_n adc_clk_n_i
-  adc_dat_a adc_dat_a_i
-  adc_dat_b adc_dat_b_i
-  adc_csn   adc_csn_o
-}
-
 # Create c_counter_binary
 cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
   Output_Width 32
 } {
-  CLK adc_0/adc_clk
+  CLK pll_0/clk_out1
 }
 
 # Create xlslice
@@ -58,4 +49,3 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   In1 slice_1/Dout
   dout led_o
 }
-

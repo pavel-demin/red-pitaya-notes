@@ -43,7 +43,6 @@ Tcl_AppInitProc Tktable_Init, Tktable_SafeInit;
 #endif
 
 Tcl_AppInitProc G2lite_Init;
-Tcl_AppInitProc Mcpha_Init;
 Tcl_AppInitProc Sqlite3_Init;
 
 #ifdef WIN32
@@ -109,7 +108,6 @@ TclKit_AppInit(Tcl_Interp *interp)
 #endif
 
     Tcl_StaticPackage(0, "g2lite", G2lite_Init, NULL);
-    Tcl_StaticPackage(0, "mcpha", Mcpha_Init, NULL);
     Tcl_StaticPackage(0, "sqlite3", Sqlite3_Init, NULL);
 
     /* the tcl_rcFileName variable only exists in the initial interpreter */

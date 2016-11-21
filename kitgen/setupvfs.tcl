@@ -50,15 +50,13 @@ set platform [lindex [split [platform::generic] -] 0]
 load {} vfs
 load {} sqlite3
 load {} g2lite
-load {} mcpha
 
 # map of proper version numbers to replace @ markers in paths given to vfscopy
 # this relies on having all necessary extensions already loaded at this point
 set versmap [list tcl8@ tcl$tcl_version tk8@ tk$tcl_version \
                   vfs1@ vfs[package require vfs] \
                   sqlite3@ sqlite[package require sqlite3] \
-                  g2lite0@ g2lite[package require g2lite] \
-                  mcpha0@ mcpha[package require mcpha]]
+                  g2lite0@ g2lite[package require g2lite]]
 
 if {[string equal $platform win32]} {
   load {} registry
@@ -76,7 +74,7 @@ if {$debugOpt} {
 }
 
 # Create package index files for the static extensions.
-set exts [list g2lite mcpha]
+set exts [list g2lite]
 if {[string equal $platform win32]} {
   lappend exts registry
 }
@@ -108,21 +106,20 @@ set clifiles {
   lib/vfs1@/zipvfs.tcl
   lib/sqlite3@/pkgIndex.tcl
   lib/g2lite0@/pkgIndex.tcl
-  lib/mcpha0@/pkgIndex.tcl
-  lib/tcllib1.16/pkgIndex.tcl
-  lib/tcllib1.16/asn
-  lib/tcllib1.16/base64
-  lib/tcllib1.16/comm
-  lib/tcllib1.16/cmdline
-  lib/tcllib1.16/csv
-  lib/tcllib1.16/fileutil
-  lib/tcllib1.16/ldap
-  lib/tcllib1.16/log
-  lib/tcllib1.16/math
-  lib/tcllib1.16/ooutil
-  lib/tcllib1.16/snit
-  lib/tcllib1.16/struct
-  lib/tcllib1.16/uri
+  lib/tcllib1.18/pkgIndex.tcl
+  lib/tcllib1.18/asn
+  lib/tcllib1.18/base64
+  lib/tcllib1.18/comm
+  lib/tcllib1.18/cmdline
+  lib/tcllib1.18/csv
+  lib/tcllib1.18/fileutil
+  lib/tcllib1.18/ldap
+  lib/tcllib1.18/log
+  lib/tcllib1.18/math
+  lib/tcllib1.18/ooutil
+  lib/tcllib1.18/snit
+  lib/tcllib1.18/struct
+  lib/tcllib1.18/uri
 }
 
 if {[string equal $platform win32]} {
@@ -140,8 +137,10 @@ set guifiles {
   lib/tk8@/dialog.tcl
   lib/tk8@/entry.tcl
   lib/tk8@/focus.tcl
+  lib/tk8@/iconlist.tcl
   lib/tk8@/icons.tcl
   lib/tk8@/listbox.tcl
+  lib/tk8@/megawidget.tcl
   lib/tk8@/menu.tcl
   lib/tk8@/mkpsenc.tcl
   lib/tk8@/msgbox.tcl

@@ -15,7 +15,7 @@
 EXTDIR = ../../../../8.x
 STATIC = --disable-shared --enable-static
 OUTDIR = $(shell pwd)/build
-OBJ    = $(OUTDIR)/zvfs$O $(OUTDIR)/g2lite$O $(OUTDIR)/mcpha$O
+OBJ    = $(OUTDIR)/zvfs$O $(OUTDIR)/g2lite$O
 GUIOBJ ?= $(OBJ) $(OUTDIR)/tclAppInit$O
 TCLDIR = --with-tcl=$(OUTDIR)/lib --prefix=$(OUTDIR) --exec-prefix=$(OUTDIR)
 STRIP ?= strip
@@ -134,9 +134,6 @@ $(OUTDIR)/zvfs$O: ../../zvfs.c
 	$(CC) -o $@ $(CFLAGS) -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DSTATIC_BUILD -Ibuild/include -c $<
 
 $(OUTDIR)/g2lite$O: ../../g2lite.c
-	$(CC) -o $@ $(CFLAGS) -DSTATIC_BUILD -Ibuild/include -c $<
-
-$(OUTDIR)/mcpha$O: ../../mcpha.c
 	$(CC) -o $@ $(CFLAGS) -DSTATIC_BUILD -Ibuild/include -c $<
 
 $(OUTDIR)/tclAppInit$O: ../tcl/$(PLAT)/tclAppInit.c

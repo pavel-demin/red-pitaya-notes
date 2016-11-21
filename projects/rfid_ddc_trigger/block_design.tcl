@@ -18,46 +18,28 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
 
-# Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 buf_0 {
-  C_SIZE 2
-  C_BUF_TYPE IBUFDS
+# Create clk_wiz
+cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+  PRIMITIVE PLL
+  PRIM_IN_FREQ.VALUE_SRC USER
+  PRIM_IN_FREQ 125.0
+  PRIM_SOURCE Differential_clock_capable_pin
+  CLKOUT1_USED true
+  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  USE_RESET false
 } {
-  IBUF_DS_P daisy_p_i
-  IBUF_DS_N daisy_n_i
+  clk_in1_p adc_clk_p_i
+  clk_in1_n adc_clk_n_i
 }
 
-# Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 buf_1 {
-  C_SIZE 2
-  C_BUF_TYPE OBUFDS
-} {
-  OBUF_DS_P daisy_p_o
-  OBUF_DS_N daisy_n_o
-}
+# ADC
 
 # Create axis_red_pitaya_adc
-cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
-  adc_clk_p adc_clk_p_i
-  adc_clk_n adc_clk_n_i
+cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
+  aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
   adc_dat_b adc_dat_b_i
   adc_csn adc_csn_o
-}
-
-# Create c_counter_binary
-cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
-  Output_Width 32
-} {
-  CLK adc_0/adc_clk
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 32 DIN_FROM 26 DIN_TO 26 DOUT_WIDTH 1
-} {
-  Din cntr_0/Q
-  Dout led_o
 }
 
 # Create axi_cfg_register
@@ -138,7 +120,7 @@ cell xilinx.com:ip:xlconstant:1.1 const_0
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
   S_AXIS adc_0/M_AXIS
-  s_axis_aclk adc_0/adc_clk
+  s_axis_aclk pll_0/clk_out1
   s_axis_aresetn const_0/dout
   m_axis_aclk ps_0/FCLK_CLK0
   m_axis_aresetn rst_0/peripheral_aresetn

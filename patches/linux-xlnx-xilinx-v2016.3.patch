@@ -1,6 +1,6 @@
-diff -rupN old/linux-xlnx-xilinx-v2016.2/arch/arm/configs/xilinx_zynq_defconfig linux-xlnx-xilinx-v2016.2/arch/arm/configs/xilinx_zynq_defconfig
---- old/linux-xlnx-xilinx-v2016.2/arch/arm/configs/xilinx_zynq_defconfig
-+++ linux-xlnx-xilinx-v2016.2/arch/arm/configs/xilinx_zynq_defconfig
+diff -rupN old/linux-xlnx-xilinx-v2016.3/arch/arm/configs/xilinx_zynq_defconfig linux-xlnx-xilinx-v2016.3/arch/arm/configs/xilinx_zynq_defconfig
+--- old/linux-xlnx-xilinx-v2016.3/arch/arm/configs/xilinx_zynq_defconfig
++++ linux-xlnx-xilinx-v2016.3/arch/arm/configs/xilinx_zynq_defconfig
 @@ -114,6 +114,7 @@ CONFIG_XILINX_PS_EMAC=y
  CONFIG_MARVELL_PHY=y
  CONFIG_VITESSE_PHY=y
@@ -9,7 +9,7 @@ diff -rupN old/linux-xlnx-xilinx-v2016.2/arch/arm/configs/xilinx_zynq_defconfig 
  CONFIG_MDIO_BITBANG=y
  CONFIG_INPUT_SPARSEKMAP=y
  CONFIG_INPUT_EVDEV=y
-@@ -241,3 +242,118 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
+@@ -239,3 +240,118 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
  CONFIG_FONTS=y
  CONFIG_FONT_8x8=y
  CONFIG_FONT_8x16=y
@@ -128,9 +128,9 @@ diff -rupN old/linux-xlnx-xilinx-v2016.2/arch/arm/configs/xilinx_zynq_defconfig 
 +CONFIG_FB_TFT_WATTEROTT=y
 +CONFIG_FB_FLEX=y
 +CONFIG_FB_TFT_FBTFT_DEVICE=y
-diff -rupN old/linux-xlnx-xilinx-v2016.2/drivers/iio/adc/xilinx-xadc-core.c linux-xlnx-xilinx-v2016.2/drivers/iio/adc/xilinx-xadc-core.c
---- old/linux-xlnx-xilinx-v2016.2/drivers/iio/adc/xilinx-xadc-core.c
-+++ linux-xlnx-xilinx-v2016.2/drivers/iio/adc/xilinx-xadc-core.c
+diff -rupN old/linux-xlnx-xilinx-v2016.3/drivers/iio/adc/xilinx-xadc-core.c linux-xlnx-xilinx-v2016.3/drivers/iio/adc/xilinx-xadc-core.c
+--- old/linux-xlnx-xilinx-v2016.3/drivers/iio/adc/xilinx-xadc-core.c
++++ linux-xlnx-xilinx-v2016.3/drivers/iio/adc/xilinx-xadc-core.c
 @@ -1090,7 +1090,7 @@ static int xadc_parse_dt(struct iio_dev
  	unsigned int num_channels;
  	const char *external_mux;
@@ -157,10 +157,10 @@ diff -rupN old/linux-xlnx-xilinx-v2016.2/drivers/iio/adc/xilinx-xadc-core.c linu
  			if (of_property_read_bool(child, "xlnx,bipolar"))
  				channels[num_channels].scan_type.sign = 's';
  
-diff -rupN old/linux-xlnx-xilinx-v2016.2/drivers/misc/eeprom/at24.c linux-xlnx-xilinx-v2016.2/drivers/misc/eeprom/at24.c
---- old/linux-xlnx-xilinx-v2016.2/drivers/misc/eeprom/at24.c
-+++ linux-xlnx-xilinx-v2016.2/drivers/misc/eeprom/at24.c
-@@ -506,6 +506,9 @@ static int at24_probe(struct i2c_client
+diff -rupN old/linux-xlnx-xilinx-v2016.3/drivers/misc/eeprom/at24.c linux-xlnx-xilinx-v2016.3/drivers/misc/eeprom/at24.c
+--- old/linux-xlnx-xilinx-v2016.3/drivers/misc/eeprom/at24.c
++++ linux-xlnx-xilinx-v2016.3/drivers/misc/eeprom/at24.c
+@@ -508,6 +508,9 @@ static int at24_probe(struct i2c_client
  		 * is recommended anyhow.
  		 */
  		chip.page_size = 1;
@@ -170,9 +170,9 @@ diff -rupN old/linux-xlnx-xilinx-v2016.2/drivers/misc/eeprom/at24.c linux-xlnx-x
  
  		/* update chipdata if OF is present */
  		at24_get_ofdata(client, &chip);
-diff -rupN old/linux-xlnx-xilinx-v2016.2/drivers/net/phy/Kconfig linux-xlnx-xilinx-v2016.2/drivers/net/phy/Kconfig
---- old/linux-xlnx-xilinx-v2016.2/drivers/net/phy/Kconfig
-+++ linux-xlnx-xilinx-v2016.2/drivers/net/phy/Kconfig
+diff -rupN old/linux-xlnx-xilinx-v2016.3/drivers/net/phy/Kconfig linux-xlnx-xilinx-v2016.3/drivers/net/phy/Kconfig
+--- old/linux-xlnx-xilinx-v2016.3/drivers/net/phy/Kconfig
++++ linux-xlnx-xilinx-v2016.3/drivers/net/phy/Kconfig
 @@ -156,6 +156,11 @@ config MICROCHIP_PHY
  	help
  	  Supports the LAN88XX PHYs.
@@ -185,33 +185,32 @@ diff -rupN old/linux-xlnx-xilinx-v2016.2/drivers/net/phy/Kconfig linux-xlnx-xili
  config FIXED_PHY
  	tristate "Driver for MDIO Bus/PHY emulation with fixed speed/link PHYs"
  	depends on PHYLIB
-diff -rupN old/linux-xlnx-xilinx-v2016.2/drivers/net/phy/Makefile linux-xlnx-xilinx-v2016.2/drivers/net/phy/Makefile
---- old/linux-xlnx-xilinx-v2016.2/drivers/net/phy/Makefile
-+++ linux-xlnx-xilinx-v2016.2/drivers/net/phy/Makefile
+diff -rupN old/linux-xlnx-xilinx-v2016.3/drivers/net/phy/Makefile linux-xlnx-xilinx-v2016.3/drivers/net/phy/Makefile
+--- old/linux-xlnx-xilinx-v2016.3/drivers/net/phy/Makefile
++++ linux-xlnx-xilinx-v2016.3/drivers/net/phy/Makefile
 @@ -30,6 +30,7 @@ obj-$(CONFIG_DP83848_PHY)	+= dp83848.o
  obj-$(CONFIG_DP83867_PHY)	+= dp83867.o
  obj-$(CONFIG_STE10XP)		+= ste10Xp.o
  obj-$(CONFIG_MICREL_PHY)	+= micrel.o
 +obj-$(CONFIG_LANTIQ_PHY)	+= lantiq.o
  obj-$(CONFIG_MDIO_OCTEON)	+= mdio-octeon.o
- obj-$(CONFIG_MICREL_KS8995MA)	+= spi_ks8995.o
- obj-$(CONFIG_AT803X_PHY)	+= at803x.o
-diff -rupN old/linux-xlnx-xilinx-v2016.2/drivers/net/wireless/Kconfig linux-xlnx-xilinx-v2016.2/drivers/net/wireless/Kconfig
---- old/linux-xlnx-xilinx-v2016.2/drivers/net/wireless/Kconfig
-+++ linux-xlnx-xilinx-v2016.2/drivers/net/wireless/Kconfig
-@@ -278,8 +278,7 @@ source "drivers/net/wireless/orinoco/Kco
- source "drivers/net/wireless/p54/Kconfig"
- source "drivers/net/wireless/rt2x00/Kconfig"
- source "drivers/net/wireless/mediatek/Kconfig"
+ obj-$(CONFIG_MDIO_THUNDER)	+= mdio-thunder.o
+ obj-$(CONFIG_MDIO_CAVIUM)	+= mdio-cavium.o
+diff -rupN old/linux-xlnx-xilinx-v2016.3/drivers/net/wireless/realtek/Kconfig linux-xlnx-xilinx-v2016.3/drivers/net/wireless/realtek/Kconfig
+--- old/linux-xlnx-xilinx-v2016.3/drivers/net/wireless/realtek/Kconfig
++++ linux-xlnx-xilinx-v2016.3/drivers/net/wireless/realtek/Kconfig
+@@ -12,7 +12,6 @@ config WLAN_VENDOR_REALTEK
+ if WLAN_VENDOR_REALTEK
+ 
+ source "drivers/net/wireless/realtek/rtl818x/Kconfig"
 -source "drivers/net/wireless/realtek/rtlwifi/Kconfig"
 -source "drivers/net/wireless/realtek/rtl8xxxu/Kconfig"
 +source "drivers/net/wireless/realtek/rtl8192cu/Kconfig"
- source "drivers/net/wireless/ti/Kconfig"
- source "drivers/net/wireless/zd1211rw/Kconfig"
- source "drivers/net/wireless/mwifiex/Kconfig"
-diff -rupN old/linux-xlnx-xilinx-v2016.2/drivers/net/wireless/realtek/Makefile linux-xlnx-xilinx-v2016.2/drivers/net/wireless/realtek/Makefile
---- old/linux-xlnx-xilinx-v2016.2/drivers/net/wireless/realtek/Makefile
-+++ linux-xlnx-xilinx-v2016.2/drivers/net/wireless/realtek/Makefile
+ 
+ endif # WLAN_VENDOR_REALTEK
+diff -rupN old/linux-xlnx-xilinx-v2016.3/drivers/net/wireless/realtek/Makefile linux-xlnx-xilinx-v2016.3/drivers/net/wireless/realtek/Makefile
+--- old/linux-xlnx-xilinx-v2016.3/drivers/net/wireless/realtek/Makefile
++++ linux-xlnx-xilinx-v2016.3/drivers/net/wireless/realtek/Makefile
 @@ -4,6 +4,5 @@
  
  obj-$(CONFIG_RTL8180)		+= rtl818x/

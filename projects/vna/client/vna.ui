@@ -463,16 +463,16 @@
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
          <property name="minimum">
-          <number>1</number>
+          <number>10</number>
          </property>
          <property name="maximum">
-          <number>16383</number>
+          <number>16380</number>
          </property>
          <property name="singleStep">
-          <number>100</number>
+          <number>10</number>
          </property>
          <property name="value">
-          <number>600</number>
+          <number>6000</number>
          </property>
         </widget>
        </item>
@@ -491,10 +491,10 @@
           <number>0</number>
          </property>
          <property name="maximum">
-          <number>62000</number>
+          <number>62500</number>
          </property>
          <property name="singleStep">
-          <number>100</number>
+          <number>10</number>
          </property>
          <property name="value">
           <number>60000</number>
@@ -516,13 +516,13 @@
           <number>0</number>
          </property>
          <property name="maximum">
-          <number>62000</number>
+          <number>62500</number>
          </property>
          <property name="singleStep">
-          <number>100</number>
+          <number>10</number>
          </property>
          <property name="value">
-          <number>100</number>
+          <number>10</number>
          </property>
         </widget>
        </item>
