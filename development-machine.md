@@ -19,7 +19,7 @@ Creating virtual machine with Ubuntu 14.04.5 (amd64) or Debian 8.6 (amd64)
 
   - From the "File" menu select "Preferences"
 
-  - Select "Network" and then "Host-only network"
+  - Select "Network" and then "Host-only Networks"
 
   - Click the small "+" icon
 
