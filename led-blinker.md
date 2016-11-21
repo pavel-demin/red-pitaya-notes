@@ -10,7 +10,7 @@ Introduction
 For my experiments with the [Red Pitaya](http://wiki.redpitaya.com), I'd like to have the following development environment:
 
  - recent version of the [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado)
- - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2016.2)
+ - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2016.3)
  - recent version of the [Debian distribution](http://www.debian.org/releases/jessie) on the development machine
  - recent version of the [Debian distribution](http://www.debian.org/releases/jessie) on the Red Pitaya
  - basic project with all the [Red Pitaya](http://wiki.redpitaya.com) peripherals connected
@@ -24,9 +24,9 @@ Pre-requirements
 
 My development machine has the following installed:
 
- - [Debian](http://www.debian.org/releases/jessie) 8.5 (amd64)
+ - [Debian](http://www.debian.org/releases/jessie) 8.6 (amd64)
 
- - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2016.2 with full SDK
+ - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2016.3 with full SDK
 
 The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
 
@@ -123,8 +123,8 @@ Getting started
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2016.2/settings64.sh
-source /opt/Xilinx/SDK/2016.2/settings64.sh
+source /opt/Xilinx/Vivado/2016.3/settings64.sh
+source /opt/Xilinx/SDK/2016.3/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
@@ -148,10 +148,10 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.5-armhf.img
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.5-armhf.img 1024
 {% endhighlight %}
 
-The SD card image size is 512 MB, so it should fit on any SD card starting from 1 GB.
+The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
 To write the image to a SD card, the `dd` command-line utility can be used on GNU/Linux and Mac OS X or [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/) can be used on MS Windows.
 

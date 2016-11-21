@@ -28,8 +28,6 @@ The basic blocks of the system are shown on the following diagram:
 
 The [projects/vna](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/vna) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
-The source code of the [R](http://www.r-project.org) script used to calculate the coefficients of the FIR filter can be found in [projects/vna/filters/fir_0.r](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/filters/fir_0.r).
-
 Software
 -----
 
@@ -102,8 +100,8 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2016.2/settings64.sh
-source /opt/Xilinx/SDK/2016.2/settings64.sh
+source /opt/Xilinx/Vivado/2016.3/settings64.sh
+source /opt/Xilinx/SDK/2016.3/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
@@ -119,7 +117,7 @@ make NAME=vna tmp/vna.bit
 
 Building `vna`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad projects/vna/server/vna.c -o vna -Iprojects/vna/server -lm -lpthread
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad projects/vna/server/vna.c -o vna -lm -lpthread
 {% endhighlight %}
 
 Building SD card image zip file:
