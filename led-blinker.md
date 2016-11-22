@@ -148,7 +148,7 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.5-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.6-armhf.img 1024
 {% endhighlight %}
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
