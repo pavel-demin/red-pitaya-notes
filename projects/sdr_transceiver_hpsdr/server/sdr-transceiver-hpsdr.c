@@ -84,9 +84,13 @@ uint16_t i2c_dac1_data = 0xfff;
 
 uint8_t i2c_boost_data = 0;
 
+uint8_t dac_mux_data = 0;
+uint8_t dac_level_data = 0;
+
 uint8_t cw_int_data = 0;
-uint8_t cw_mux_data = 0;
 uint8_t rx_att_data = 0;
+uint8_t tx_mux_data = 0;
+uint8_t tx_ptt_data = 0;
 
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
@@ -536,7 +540,7 @@ int main(int argc, char *argv[])
       switch(code)
       {
         case 0x0201feef:
-          if(!cw_mux_data)
+          if(!tx_mux_data)
           {
             while(*tx_cntr > 1922) usleep(1000);
             if(*tx_cntr == 0) for(j = 0; j < 1260; ++j) *tx_data = 0;
@@ -552,7 +556,7 @@ int main(int argc, char *argv[])
           }
           if(i2c_codec)
           {
-            if(!cw_mux_data)
+            if(!dac_mux_data)
             {
               while(*dac_cntr > 898) usleep(1000);
               if(*dac_cntr == 0) for(j = 0; j < 504; ++j) *dac_data = 0;
@@ -621,12 +625,21 @@ void process_ep2(uint8_t *frame)
       ptt = frame[0] & 0x01;
       att = frame[3] & 0x03;
       preamp = ptt | (*gpio_in & 1) ? 0 : (frame[3] & 0x04) >> 2 | (rx_att_data == 0);
+      if(tx_ptt_data != ptt)
+      {
+        tx_ptt_data = ptt;
+        if(ptt)
+        {
+          *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1;
+          usleep(1000);
+        }
+      }
       *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1 | ptt;
 
-      data =  (ptt | (*gpio_in & 1)) & cw_int_data;
-      if(cw_mux_data != data)
+      data = (ptt | (*gpio_in & 1)) & cw_int_data;
+      if(tx_mux_data != data)
       {
-        cw_mux_data = data;
+        tx_mux_data = data;
         if(data == 0)
         {
           *tx_rst &= ~2;
@@ -639,6 +652,11 @@ void process_ep2(uint8_t *frame)
         }
         *(tx_mux + 16) = data;
         *tx_mux = 2;
+      }
+      data &= (dac_level_data > 0);
+      if(dac_mux_data != data)
+      {
+        dac_mux_data = data;
         if(i2c_codec)
         {
           *(dac_mux + 16) = data;
@@ -822,10 +840,11 @@ void process_ep2(uint8_t *frame)
     case 30:
     case 31:
       cw_int_data = frame[1] & 1;
+      dac_level_data = frame[2];
       cw_delay = frame[3];
       if(i2c_codec)
       {
-        data = frame[2];
+        data = dac_level_data;
         *dac_level = (data + 1) * 256 - 1;
       }
       break;
