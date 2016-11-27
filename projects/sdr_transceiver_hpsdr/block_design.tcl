@@ -232,22 +232,15 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
   Din cfg_0/cfg_data
 }
 
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 key_slice_0 {
-  DIN_WIDTH 4 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
-} {
-  Din not_0/Res
-}
-
 module tx_0 {
   source projects/sdr_transceiver_hpsdr/tx.tcl
 } {
   slice_0/Din rst_slice_1/Dout
   slice_1/Din rst_slice_1/Dout
-  slice_2/Din cfg_slice_1/Dout
+  slice_2/Din rst_slice_1/Dout
   slice_3/Din cfg_slice_1/Dout
   slice_4/Din cfg_slice_1/Dout
-  keyer_0/key_flag key_slice_0/Dout
+  slice_5/Din cfg_slice_1/Dout
   fifo_1/M_AXIS bcast_0/S_AXIS
   fifo_1/m_axis_aclk pll_0/clk_out1
   fifo_1/m_axis_aresetn const_0/dout
@@ -276,10 +269,10 @@ module codec {
   slice_1/Din rst_slice_2/Dout
   slice_2/Din rst_slice_2/Dout
   slice_3/Din rst_slice_2/Dout
-  slice_4/Din cfg_slice_2/Dout
+  slice_4/Din rst_slice_2/Dout
   slice_5/Din cfg_slice_2/Dout
   slice_6/Din cfg_slice_2/Dout
-  keyer_0/key_flag key_slice_0/Dout
+  slice_7/Din cfg_slice_2/Dout
   i2s_0/gpio_data exp_n_alex
   i2s_0/alex_data alex_0/alex_data
 }

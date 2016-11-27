@@ -62,6 +62,7 @@ int active_thread = 0;
 void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
 void *handler_playback(void *arg);
+void *handler_keyer(void *arg);
 
 jack_ringbuffer_t *playback_data = 0;
 
@@ -239,6 +240,8 @@ void icom_write()
 int main(int argc, char *argv[])
 {
   int fd, i, j, size;
+  struct sched_param param;
+  pthread_attr_t attr;
   pthread_t thread;
   volatile void *cfg, *sts;
   volatile int32_t *tx_ramp, *dac_ramp;
@@ -507,6 +510,18 @@ int main(int argc, char *argv[])
     perror("bind");
     return EXIT_FAILURE;
   }
+
+  pthread_attr_init(&attr);
+  pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+  pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+  param.sched_priority = 99;
+  pthread_attr_setschedparam(&attr, &param);
+  if(pthread_create(&thread, &attr, handler_keyer, NULL) < 0)
+  {
+    perror("pthread_create");
+    return EXIT_FAILURE;
+  }
+  pthread_detach(thread);
 
   while(1)
   {
@@ -1071,5 +1086,29 @@ void *handler_playback(void *arg)
     jack_ringbuffer_read(playback_data, buffer, 2048);
     write(1, buffer, 2048);
   }
+
+  return NULL;
+}
+
+void *handler_keyer(void *arg)
+{
+  uint8_t input;
+
+  while(1)
+  {
+    usleep(1000);
+    input = (*gpio_in >> 1) & 3;
+    if(input & 2)
+    {
+      *tx_rst |= 4;
+      *codec_rst |= 16;
+    }
+    else
+    {
+      *tx_rst &= ~4;
+      *codec_rst &= ~16;
+    }
+  }
+
   return NULL;
 }
