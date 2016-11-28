@@ -20,14 +20,13 @@ int main(int argc, char *argv[])
   volatile void *sts, *cfg, *trg, *gen;
   void *hst[2], *ram, *buf;
   volatile uint8_t *rst[4];
-  char *name = "/dev/mem";
   struct sockaddr_in addr;
   int yes = 1;
   uint32_t start, pre, tot;
   uint64_t command, data;
   uint8_t code, chan;
 
-  if((fd = open(name, O_RDWR)) < 0)
+  if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
     perror("open");
     return EXIT_FAILURE;
@@ -44,11 +43,11 @@ int main(int argc, char *argv[])
 
   rst[0] = cfg + 0;
   rst[1] = cfg + 1;
-  rst[2] = cfg + 4;
-  rst[3] = cfg + 5;
+  rst[2] = cfg + 2;
+  rst[3] = cfg + 3;
 
   /* set sample rate */
-  *(uint16_t *)(cfg + 6) = 125;
+  *(uint16_t *)(cfg + 4) = 125;
 
   /* set trigger channel */
   *(uint32_t *)(trg + 64) = 0;
@@ -65,8 +64,8 @@ int main(int argc, char *argv[])
   *rst[2] |= 3;
 
   /* reset generator */
-  *rst[3] &= ~1;
-  *rst[3] |= 1;
+  *rst[3] &= ~128;
+  *rst[3] |= 128;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -142,13 +141,13 @@ int main(int argc, char *argv[])
       else if(code == 3)
       {
         /* reset generator */
-        *rst[3] &= ~1;
-        *rst[3] |= 1;
+        *rst[3] &= ~128;
+        *rst[3] |= 128;
       }
       else if(code == 4)
       {
         /* set sample rate */
-        *(uint16_t *)(cfg + 6) = data;
+        *(uint16_t *)(cfg + 4) = data;
       }
       else if(code == 5)
       {
