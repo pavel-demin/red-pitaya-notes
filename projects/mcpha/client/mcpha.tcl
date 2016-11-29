@@ -24,7 +24,11 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   proc validate {min max size value} {
-    if {![regexp -- {^-?[0-9]*$} $value]} {
+    if {[string equal $value {}]} {
+      return 1
+    } elseif {[string equal $value {-}]} {
+      return 1
+    } elseif {![regexp -- {^-?[0-9]*$} $value]} {
       return 0
     } elseif {[regexp -- {^0[0-9]+$} $value]} {
       return 0
@@ -42,7 +46,9 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   proc doublevalidate {max value} {
-    if {![regexp -- {^[0-9]{0,2}\.?[0-9]{0,3}$} $value]} {
+    if {[string equal $value {}]} {
+      return 1
+    } elseif {![regexp -- {^[0-9]{0,2}\.?[0-9]{0,3}$} $value]} {
       return 0
     } elseif {[regexp -- {^0[0-9]+$} $value]} {
       return 0
@@ -52,6 +58,8 @@ namespace eval ::mcpha {
       return 1
     }
   }
+
+# -------------------------------------------------------------------------
 
   proc addrvalidate {value} {
     set ipnum {\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]}
@@ -144,7 +152,7 @@ namespace eval ::mcpha {
     label ${master}.rate_label -text {Decimation factor:}
     spinbox ${master}.rate_field -from 4 -to 8192 \
       -increment 4 -width 10 -textvariable [my varname rate] \
-      -validate all -vcmd {::mcpha::validate 4 8192 4 %P}
+      -validate all -vcmd {::mcpha::validate 0 8192 4 %P}
 
     grid ${master}.addr_label ${master}.address_field ${master}.connect \
       ${master}.spc1 ${master}.rate_label ${master}.rate_field -padx 5
@@ -306,6 +314,12 @@ namespace eval ::mcpha {
   oo::define CfgDisplay method rate_update args {
     my variable rate
 
+    if {[string equal $rate {}]} {
+      set rate 4
+    } elseif {$rate < 4} {
+      set rate 4
+    }
+
     my command 4 0 $rate
   }
 
@@ -357,6 +371,9 @@ namespace eval ::mcpha {
     trace add variable [my varname thrs] write [mymethod thrs_update]
     trace add variable [my varname thrs_min] write [mymethod thrs_update]
     trace add variable [my varname thrs_max] write [mymethod thrs_update]
+    trace add variable [my varname cntr_h] write [mymethod cntr_update]
+    trace add variable [my varname cntr_m] write [mymethod cntr_update]
+    trace add variable [my varname cntr_s] write [mymethod cntr_update]
 
     ${config}.axis_check select
 
@@ -691,7 +708,7 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   oo::define HstDisplay method base_val_update args {
-    my variable controller number base_typ base_val
+    my variable controller number base_val
 
     if {[string equal $base_val {}]} {
       set base_val 0
@@ -704,6 +721,7 @@ namespace eval ::mcpha {
 
   oo::define HstDisplay method delay_update args {
     my variable controller number
+
     $controller command 7 $number 100
   }
 
@@ -737,6 +755,24 @@ namespace eval ::mcpha {
 
     $controller command 8 $number $min
     $controller command 9 $number $max
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define HstDisplay method cntr_update args {
+    my variable cntr_h cntr_m cntr_s
+
+    if {[string equal $cntr_h {}]} {
+      set cntr_h 0
+    }
+
+    if {[string equal $cntr_m {}]} {
+      set cntr_m 0
+    }
+
+    if {[string equal $cntr_s {}]} {
+      set cntr_s 0
+    }
   }
 
 # -------------------------------------------------------------------------
@@ -926,7 +962,9 @@ namespace eval ::mcpha {
 
     my base_update
     my base_val_update
+    my delay_update
     my thrs_update
+
     $controller command 11 $number 1
 
     set auto 1
@@ -1325,9 +1363,11 @@ namespace eval ::mcpha {
 
   oo::define OscDisplay method recs_val_update args {
     my variable recs_val recs_bak
+
     if {[string equal $recs_val {}]} {
       set recs_val 0
     }
+
     set recs_bak $recs_val
   }
 
@@ -1378,6 +1418,10 @@ namespace eval ::mcpha {
 
   oo::define OscDisplay method level_update args {
     my variable controller level
+
+    if {[string equal $level {}]} {
+      set level 0
+    }
 
     $controller command 17 0 $level
   }
