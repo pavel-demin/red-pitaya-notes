@@ -253,10 +253,11 @@ int main(int argc, char *argv[])
   struct termios tty;
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from[10];
-  uint8_t buffer[10][1032];
-  struct iovec iovec[10][1];
-  struct mmsghdr datagram[10];
-  struct timespec timeout;
+  uint8_t buffer[8][1032];
+  struct iovec iovec[8][1];
+  struct mmsghdr datagram[8];
+  struct timeval tv;
+  struct timespec ts;
   int yes = 1;
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
@@ -500,6 +501,10 @@ int main(int argc, char *argv[])
 
   setsockopt(sock_ep2, SOL_SOCKET, SO_REUSEADDR, (void *)&yes , sizeof(yes));
 
+  tv.tv_sec = 0;
+  tv.tv_usec = 1000;
+  setsockopt(sock_ep2, SOL_SOCKET, SO_RCVTIMEO, (void *)&tv , sizeof(tv));
+
   memset(&addr_ep2, 0, sizeof(addr_ep2));
   addr_ep2.sin_family = AF_INET;
   addr_ep2.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -528,7 +533,7 @@ int main(int argc, char *argv[])
     memset(iovec, 0, sizeof(iovec));
     memset(datagram, 0, sizeof(datagram));
 
-    for(i = 0; i < 10; ++i)
+    for(i = 0; i < 8; ++i)
     {
       memcpy(buffer[i], id, 4);
       iovec[i][0].iov_base = buffer[i];
@@ -539,11 +544,11 @@ int main(int argc, char *argv[])
       datagram[i].msg_hdr.msg_namelen = sizeof(addr_from[i]);
     }
 
-    timeout.tv_sec = 0;
-    timeout.tv_nsec = 1000000;
+    ts.tv_sec = 0;
+    ts.tv_nsec = 1000000;
 
-    size = recvmmsg(sock_ep2, datagram, 10, 0, &timeout);
-    if(size < 0)
+    size = recvmmsg(sock_ep2, datagram, 8, 0, &ts);
+    if(size < 0 && errno != EAGAIN)
     {
       perror("recvfrom");
       return EXIT_FAILURE;
