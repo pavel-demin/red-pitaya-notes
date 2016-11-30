@@ -62,6 +62,7 @@ int active_thread = 0;
 void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
 void *handler_playback(void *arg);
+void *handler_keyer(void *arg);
 
 jack_ringbuffer_t *playback_data = 0;
 
@@ -84,9 +85,13 @@ uint16_t i2c_dac1_data = 0xfff;
 
 uint8_t i2c_boost_data = 0;
 
+uint8_t dac_mux_data = 0;
+uint8_t dac_level_data = 0;
+
 uint8_t cw_int_data = 0;
-uint8_t cw_mux_data = 0;
 uint8_t rx_att_data = 0;
+uint8_t tx_mux_data = 0;
+uint8_t tx_ptt_data = 0;
 
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
@@ -235,6 +240,8 @@ void icom_write()
 int main(int argc, char *argv[])
 {
   int fd, i, j, size;
+  struct sched_param param;
+  pthread_attr_t attr;
   pthread_t thread;
   volatile void *cfg, *sts;
   volatile int32_t *tx_ramp, *dac_ramp;
@@ -246,10 +253,11 @@ int main(int argc, char *argv[])
   struct termios tty;
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from[10];
-  uint8_t buffer[10][1032];
-  struct iovec iovec[10][1];
-  struct mmsghdr datagram[10];
-  struct timespec timeout;
+  uint8_t buffer[8][1032];
+  struct iovec iovec[8][1];
+  struct mmsghdr datagram[8];
+  struct timeval tv;
+  struct timespec ts;
   int yes = 1;
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
@@ -493,6 +501,10 @@ int main(int argc, char *argv[])
 
   setsockopt(sock_ep2, SOL_SOCKET, SO_REUSEADDR, (void *)&yes , sizeof(yes));
 
+  tv.tv_sec = 0;
+  tv.tv_usec = 1000;
+  setsockopt(sock_ep2, SOL_SOCKET, SO_RCVTIMEO, (void *)&tv , sizeof(tv));
+
   memset(&addr_ep2, 0, sizeof(addr_ep2));
   addr_ep2.sin_family = AF_INET;
   addr_ep2.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -504,12 +516,24 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  pthread_attr_init(&attr);
+  pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+  pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+  param.sched_priority = 99;
+  pthread_attr_setschedparam(&attr, &param);
+  if(pthread_create(&thread, &attr, handler_keyer, NULL) < 0)
+  {
+    perror("pthread_create");
+    return EXIT_FAILURE;
+  }
+  pthread_detach(thread);
+
   while(1)
   {
     memset(iovec, 0, sizeof(iovec));
     memset(datagram, 0, sizeof(datagram));
 
-    for(i = 0; i < 10; ++i)
+    for(i = 0; i < 8; ++i)
     {
       memcpy(buffer[i], id, 4);
       iovec[i][0].iov_base = buffer[i];
@@ -520,11 +544,11 @@ int main(int argc, char *argv[])
       datagram[i].msg_hdr.msg_namelen = sizeof(addr_from[i]);
     }
 
-    timeout.tv_sec = 0;
-    timeout.tv_nsec = 1000000;
+    ts.tv_sec = 0;
+    ts.tv_nsec = 1000000;
 
-    size = recvmmsg(sock_ep2, datagram, 10, 0, &timeout);
-    if(size < 0)
+    size = recvmmsg(sock_ep2, datagram, 8, 0, &ts);
+    if(size < 0 && errno != EAGAIN)
     {
       perror("recvfrom");
       return EXIT_FAILURE;
@@ -536,7 +560,7 @@ int main(int argc, char *argv[])
       switch(code)
       {
         case 0x0201feef:
-          if(!cw_mux_data)
+          if(!tx_mux_data)
           {
             while(*tx_cntr > 1922) usleep(1000);
             if(*tx_cntr == 0) for(j = 0; j < 1260; ++j) *tx_data = 0;
@@ -552,7 +576,7 @@ int main(int argc, char *argv[])
           }
           if(i2c_codec)
           {
-            if(!cw_mux_data)
+            if(!dac_mux_data)
             {
               while(*dac_cntr > 898) usleep(1000);
               if(*dac_cntr == 0) for(j = 0; j < 504; ++j) *dac_data = 0;
@@ -621,12 +645,21 @@ void process_ep2(uint8_t *frame)
       ptt = frame[0] & 0x01;
       att = frame[3] & 0x03;
       preamp = ptt | (*gpio_in & 1) ? 0 : (frame[3] & 0x04) >> 2 | (rx_att_data == 0);
+      if(tx_ptt_data != ptt)
+      {
+        tx_ptt_data = ptt;
+        if(ptt)
+        {
+          *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1;
+          usleep(1000);
+        }
+      }
       *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1 | ptt;
 
-      data =  (ptt | (*gpio_in & 1)) & cw_int_data;
-      if(cw_mux_data != data)
+      data = (ptt | (*gpio_in & 1)) & cw_int_data;
+      if(tx_mux_data != data)
       {
-        cw_mux_data = data;
+        tx_mux_data = data;
         if(data == 0)
         {
           *tx_rst &= ~2;
@@ -639,6 +672,11 @@ void process_ep2(uint8_t *frame)
         }
         *(tx_mux + 16) = data;
         *tx_mux = 2;
+      }
+      data &= (dac_level_data > 0);
+      if(dac_mux_data != data)
+      {
+        dac_mux_data = data;
         if(i2c_codec)
         {
           *(dac_mux + 16) = data;
@@ -822,10 +860,11 @@ void process_ep2(uint8_t *frame)
     case 30:
     case 31:
       cw_int_data = frame[1] & 1;
+      dac_level_data = frame[2];
       cw_delay = frame[3];
       if(i2c_codec)
       {
-        data = frame[2];
+        data = dac_level_data;
         *dac_level = (data + 1) * 256 - 1;
       }
       break;
@@ -1052,5 +1091,29 @@ void *handler_playback(void *arg)
     jack_ringbuffer_read(playback_data, buffer, 2048);
     write(1, buffer, 2048);
   }
+
+  return NULL;
+}
+
+void *handler_keyer(void *arg)
+{
+  uint8_t input;
+
+  while(1)
+  {
+    usleep(1000);
+    input = (*gpio_in >> 1) & 3;
+    if(input & 2)
+    {
+      *tx_rst |= 4;
+      *codec_rst |= 16;
+    }
+    else
+    {
+      *tx_rst &= ~4;
+      *codec_rst &= ~16;
+    }
+  }
+
   return NULL;
 }

@@ -28,6 +28,7 @@ module axis_keyer #
 );
 
   reg [BRAM_ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
+  reg [BRAM_ADDR_WIDTH-1:0] int_data_reg;
   reg [1:0] int_case_reg, int_case_next;
 
   wire [1:0] int_comp_wire;
@@ -37,16 +38,18 @@ module axis_keyer #
     if(~aresetn)
     begin
       int_addr_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
+      int_data_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
       int_case_reg <= 2'd0;
     end
     else
     begin
       int_addr_reg <= int_addr_next;
+      int_data_reg <= cfg_data;
       int_case_reg <= int_case_next;
     end
   end
 
-  assign int_comp_wire = {|int_addr_reg, int_addr_reg < cfg_data};
+  assign int_comp_wire = {|int_addr_reg, int_addr_reg < int_data_reg};
 
   always @*
   begin

@@ -17,24 +17,23 @@
 int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
-  volatile void *cfg, *sts, *trg, *gen;
+  volatile void *sts, *cfg, *trg, *gen;
   void *hst[2], *ram, *buf;
   volatile uint8_t *rst[4];
-  char *name = "/dev/mem";
   struct sockaddr_in addr;
   int yes = 1;
   uint32_t start, pre, tot;
   uint64_t command, data;
   uint8_t code, chan;
 
-  if((fd = open(name, O_RDWR)) < 0)
+  if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
     perror("open");
     return EXIT_FAILURE;
   }
 
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   trg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   hst[0] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   hst[1] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
@@ -65,8 +64,8 @@ int main(int argc, char *argv[])
   *rst[2] |= 3;
 
   /* reset generator */
-  *rst[3] &= ~1;
-  *rst[3] |= 1;
+  *rst[3] &= ~128;
+  *rst[3] |= 128;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -110,20 +109,6 @@ int main(int argc, char *argv[])
         /* reset timer */
         if(chan == 0)
         {
-          *rst[0] &= ~1;
-          *rst[0] |= 1;
-        }
-        else if(chan == 1)
-        {
-          *rst[1] &= ~1;
-          *rst[1] |= 1;
-        }
-      }
-      else if(code == 1)
-      {
-        /* reset histogram*/
-        if(chan == 0)
-        {
           *rst[0] &= ~2;
           *rst[0] |= 2;
         }
@@ -131,6 +116,20 @@ int main(int argc, char *argv[])
         {
           *rst[1] &= ~2;
           *rst[1] |= 2;
+        }
+      }
+      else if(code == 1)
+      {
+        /* reset histogram*/
+        if(chan == 0)
+        {
+          *rst[0] &= ~1;
+          *rst[0] |= 1;
+        }
+        else if(chan == 1)
+        {
+          *rst[1] &= ~1;
+          *rst[1] |= 1;
         }
       }
       else if(code == 2)
@@ -142,8 +141,8 @@ int main(int argc, char *argv[])
       else if(code == 3)
       {
         /* reset generator */
-        *rst[3] &= ~1;
-        *rst[3] |= 1;
+        *rst[3] &= ~128;
+        *rst[3] |= 128;
       }
       else if(code == 4)
       {
@@ -271,12 +270,12 @@ int main(int argc, char *argv[])
         /* read timer */
         if(chan == 0)
         {
-          data = *(uint64_t *)(sts + 0);
+          data = *(uint64_t *)(sts + 12);
           if(send(sock_client, &data, 8, MSG_NOSIGNAL) < 0) break;
         }
         else if(chan == 1)
         {
-          data = *(uint64_t *)(sts + 8);
+          data = *(uint64_t *)(sts + 20);
           if(send(sock_client, &data, 8, MSG_NOSIGNAL) < 0) break;
         }
       }
@@ -335,17 +334,17 @@ int main(int argc, char *argv[])
       else if(code == 17)
       {
         /* set trigger level */
-        *(uint16_t *)(cfg + 48) = data;
+        *(uint16_t *)(cfg + 80) = data;
       }
       else if(code == 18)
       {
         /* set number of samples before trigger */
-        *(uint32_t *)(cfg + 40) = data - 1;
+        *(uint32_t *)(cfg + 72) = data - 1;
       }
       else if(code == 19)
       {
         /* set total number of samples */
-        *(uint32_t *)(cfg + 44) = data - 1;
+        *(uint32_t *)(cfg + 76) = data - 1;
       }
       else if(code == 20)
       {
@@ -356,15 +355,15 @@ int main(int argc, char *argv[])
       else if(code == 21)
       {
         /* read oscilloscope status */
-        *(uint32_t *)buf = *(uint32_t *)(sts + 16) & 1;
+        *(uint32_t *)buf = *(uint32_t *)(sts + 44) & 1;
         if(send(sock_client, buf, 4, MSG_NOSIGNAL) < 0) break;
       }
       else if(code == 22)
       {
         /* read oscilloscope data */
-        pre = *(uint32_t *)(cfg + 40) + 1;
-        tot = *(uint32_t *)(cfg + 44) + 1;
-        start = *(uint32_t *)(sts + 16) >> 1;
+        pre = *(uint32_t *)(cfg + 72) + 1;
+        tot = *(uint32_t *)(cfg + 76) + 1;
+        start = *(uint32_t *)(sts + 44) >> 1;
         start = (start - pre) & 0x007FFFFF;
         if(start + tot <= 0x007FFFFF)
         {
