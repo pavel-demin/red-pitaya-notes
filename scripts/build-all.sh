@@ -1,11 +1,11 @@
 DATE=`date +%Y%m%d`
 
-source /opt/Xilinx/Vivado/2016.2/settings64.sh
-source /opt/Xilinx/SDK/2016.2/settings64.sh
+source /opt/Xilinx/Vivado/2016.3/settings64.sh
+source /opt/Xilinx/SDK/2016.3/settings64.sh
 
 make NAME=led_blinker all
 
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.6-armhf-$DATE.img
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.6-armhf-$DATE.img 1024
 zip red-pitaya-debian-8.6-armhf-$DATE.zip red-pitaya-debian-8.6-armhf-$DATE.img
 
 sudo sh scripts/image.sh scripts/debian-ecosystem.sh red-pitaya-ecosystem-0.95-debian-8.6-armhf-$DATE.img 1024
