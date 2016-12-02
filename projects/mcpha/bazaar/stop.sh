@@ -4,3 +4,4 @@ echo 1 > $devcfg/fclk/fclk0/enable
 echo 125000000 > $devcfg/fclk/fclk0/set_rate
 
 killall mcpha-server
+killall pha-server
