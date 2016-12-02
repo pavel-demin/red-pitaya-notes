@@ -277,7 +277,7 @@ namespace eval ::pha {
 # -------------------------------------------------------------------------
 
   oo::define RecDisplay method connected {} {
-    my variable master socket after
+    my variable master socket output after
 
     after cancel $after
     fileevent $socket writable {}
@@ -299,21 +299,21 @@ namespace eval ::pha {
         return
       }
 
-      if {[catch {open $fname w+} result]} {
+      if {[catch {open $fname w+} output]} {
         tk_messageBox -icon error \
           -message "An error occurred while opening \"$fname\""
         my disconnect
         return
       }
 
-      fconfigure $result -translation binary -encoding binary
+      fconfigure $output -translation binary -encoding binary
       fconfigure $socket -translation binary -encoding binary
 
       my pha_setup
 
-      my command 8 0 0
+      my command 9 0
 
-      fcopy $socket $result -command [list close $result]
+      fcopy $socket $output -command [mymethod disconnect]
 
       ${master}.connect configure -state active -text Stop \
         -bg yellow -activebackground yellow -command [mymethod disconnect]
@@ -324,10 +324,11 @@ namespace eval ::pha {
 
 # -------------------------------------------------------------------------
 
-  oo::define RecDisplay method disconnect {} {
-    my variable master config socket
+  oo::define RecDisplay method disconnect {args} {
+    my variable master config socket output
 
     catch {close $socket}
+    catch {close $output}
 
     my config_enable ${config}
     ${master}.connect configure -state active -text Start \
@@ -358,16 +359,21 @@ namespace eval ::pha {
 # -------------------------------------------------------------------------
 
   oo::define RecDisplay method pha_setup {} {
-    my variable base base_val_1 base_val_2
+    my variable rate base base_val_1 base_val_2
     my variable thrs thrs_min_1 thrs_max_1 thrs_min_2 thrs_max_2
 
-    my command 2 0 $base
+    my command 0 0
+    my command 1 0
 
-    my command 3 0 $base_val_1
-    my command 3 1 $base_val_2
+    my command 2 0 $rate
 
-    my command 4 0 100
-    my command 4 1 100
+    my command 3 0 $base
+
+    my command 4 0 $base_val_1
+    my command 4 1 $base_val_2
+
+    my command 5 0 100
+    my command 5 1 100
 
     switch -- $thrs {
       1 {
@@ -384,14 +390,14 @@ namespace eval ::pha {
       }
     }
 
-    my command 5 0 $min_1
-    my command 6 0 $max_1
+    my command 6 0 $min_1
+    my command 7 0 $max_1
 
-    my command 5 1 $min_2
-    my command 6 1 $max_2
+    my command 6 1 $min_2
+    my command 7 1 $max_2
 
-    my command 7 0 0xffffffffffffff
-    my command 7 1 0xffffffffffffff
+    my command 8 0 0xffffffffffffff
+    my command 8 1 0xffffffffffffff
   }
 
 # -------------------------------------------------------------------------
