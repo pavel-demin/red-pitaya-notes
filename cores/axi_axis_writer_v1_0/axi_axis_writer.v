@@ -4,7 +4,7 @@
 module axi_axis_writer #
 (
   parameter integer AXI_DATA_WIDTH = 32,
-  parameter integer AXI_ADDR_WIDTH = 32
+  parameter integer AXI_ADDR_WIDTH = 16
 )
 (
   // System signals
