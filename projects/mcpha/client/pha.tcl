@@ -3,7 +3,7 @@ lappend auto_path [pwd]
 package require TclOO
 package require oo::util
 
-wm minsize . 230 340
+wm minsize . 230 360
 
 # -------------------------------------------------------------------------
 
