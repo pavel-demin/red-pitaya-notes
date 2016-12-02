@@ -106,7 +106,7 @@ case $cli-$dyn-$gui in 0-0-0) cli=1 dyn=1 gui=1 ;; esac
 
   echo "PLAT       = $plat"
   case $plat in unix)
-    echo "PRIV       = install-private-headers" ;;
+    echo "PRIV       = install-headers install-private-headers" ;;
   esac
   case $b64 in 1)
     echo "TCL_OPTS   += --enable-64bit" 

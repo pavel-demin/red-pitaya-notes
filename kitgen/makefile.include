@@ -72,12 +72,12 @@ build/tcl:
 	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
 	  sh ../../../tcl/$(PLAT)/configure $(STATIC) $(TCL_OPTS) \
 	    --prefix=$(OUTDIR) --exec-prefix=$(OUTDIR) && \
-	  $(MAKE) install-binaries install-libraries install-headers $(PRIV)
+	  $(MAKE) install-binaries install-libraries $(PRIV)
 
 build/tk: build/tcl
 	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
 	  sh ../../../tk/$(PLAT)/configure $(STATIC) $(TCLDIR) $(TK_OPTS) && \
-	  $(MAKE) install-binaries install-libraries install-headers $(PRIV) && \
+	  $(MAKE) install-binaries install-libraries $(PRIV) && \
 	  cp ../../../tk/generic/tk3d.h ../include && \
 	  cp ../../../tk/generic/tkFont.h ../include
 
