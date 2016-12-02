@@ -6,7 +6,8 @@ test -f ${ecosystem}.zip || curl -O http://downloads.redpitaya.com/downloads/${e
 
 unzip -d ${ecosystem}-mcpha ${ecosystem}.zip
 
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/mcpha/server/mcpha-server.c -lm -o ${ecosystem}-mcpha/bin/mcpha-server
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/mcpha/server/mcpha-server.c -o ${ecosystem}-mcpha/bin/mcpha-server
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/mcpha/server/pha-server.c -lpthread -o ${ecosystem}-mcpha/bin/pha-server
 cp tmp/mcpha.bit ${ecosystem}-mcpha
 
 rm -f ${ecosystem}-mcpha/u-boot.scr
