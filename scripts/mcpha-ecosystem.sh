@@ -14,7 +14,7 @@ cp ${ecosystem}-mcpha/u-boot.scr.buildroot ${ecosystem}-mcpha/u-boot.scr
 
 cat <<- EOF_CAT >> ${ecosystem}-mcpha/sbin/discovery.sh
 
-# start mcpha server
+# start mcpha servers
 
 devcfg=/sys/devices/soc0/amba/f8007000.devcfg
 test -d \$devcfg/fclk/fclk0 || echo fclk0 > \$devcfg/fclk_export
@@ -24,6 +24,7 @@ echo 143000000 > \$devcfg/fclk/fclk0/set_rate
 cat /opt/redpitaya/mcpha.bit > /dev/xdevcfg
 
 /opt/redpitaya/bin/mcpha-server &
+/opt/redpitaya/bin/pha-server &
 
 EOF_CAT
 

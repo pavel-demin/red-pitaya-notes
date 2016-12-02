@@ -4,7 +4,7 @@
 module axi_bram_writer #
 (
   parameter integer AXI_DATA_WIDTH = 32,
-  parameter integer AXI_ADDR_WIDTH = 32,
+  parameter integer AXI_ADDR_WIDTH = 16,
   parameter integer BRAM_DATA_WIDTH = 32,
   parameter integer BRAM_ADDR_WIDTH = 10
 )

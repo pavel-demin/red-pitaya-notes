@@ -52,7 +52,7 @@
 </ul>
 </li>
 <li>Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.</li>
-<li>Download and unpack the <a href="https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAjKn9z46erVWpZbC2arhwba/mcpha/mcpha-win32-20160103.zip?dl=1">control program</a>.</li>
+<li>Download and unpack the <a href="https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAjKn9z46erVWpZbC2arhwba/mcpha/mcpha-win32-20161202.zip?dl=1">control program</a>.</li>
 <li>Run the control program.</li>
 <li>Type in the IP address of the Red Pitaya board and press Connect button.</li>
 <li>Select Spectrum histogram 1 or Spectrum histogram 2 tab.</li>
@@ -74,7 +74,6 @@
 <div class="highlight"><pre><code class="language-bash" data-lang="bash">git clone https://github.com/pavel-demin/red-pitaya-notes</code></pre></div>
 <li>Run the control program:</li>
 <div class="highlight"><pre><code class="language-bash" data-lang="bash">cd red-pitaya-notes/projects/mcpha/client
-gcc -shared -fPIC -I /usr/include/tcl8.6 mcpha.c -o mcpha.so -lBLT
 wish8.6 mcpha.tcl</code></pre></div>
 <li>Type in the IP address of the Red Pitaya board and press Connect button.</li>
 <li>Select Spectrum histogram 1 or Spectrum histogram 2 tab.</li>

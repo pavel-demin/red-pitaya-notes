@@ -4,3 +4,4 @@ echo 1 > $devcfg/fclk/fclk0/enable
 echo 143000000 > $devcfg/fclk/fclk0/set_rate
 
 /opt/redpitaya/www/apps/mcpha/mcpha-server &
+/opt/redpitaya/www/apps/mcpha/pha-server &

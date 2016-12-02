@@ -843,9 +843,9 @@ namespace eval ::mcpha {
   oo::define HstDisplay method cntr_setup {} {
     my variable controller number cntr_val
 
-    # send counter value
     $controller command 10 $number $cntr_val
-  }
+    $controller command 0 $number
+ }
 
 # -------------------------------------------------------------------------
 
@@ -859,7 +859,6 @@ namespace eval ::mcpha {
     $controller command 1 $number
 
     set cntr_val $cntr_bak
-    my cntr_setup
 
     set cntr_old $cntr_bak
     set yvec_bak 0.0
@@ -1016,8 +1015,8 @@ namespace eval ::mcpha {
       return
     }
 
-    catch {set cntr_val $result}
-    catch {set cntr_new $result}
+    set cntr_new [expr {$cntr_bak - $result}]
+    catch {set cntr_val $cntr_new}
 
     $controller commandReadVec 13 $number $size u4 [my varname yvec]
     set yvec_new [blt::vector expr "sum([my varname yvec](0:16383))"]

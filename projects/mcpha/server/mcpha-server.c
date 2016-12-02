@@ -229,14 +229,10 @@ int main(int argc, char *argv[])
         if(chan == 0)
         {
           *(uint64_t *)(cfg + 8) = data;
-          *rst[0] |= 16;
-          *rst[0] &= ~16;
         }
         else if(chan == 1)
         {
           *(uint64_t *)(cfg + 24) = data;
-          *rst[1] |= 16;
-          *rst[1] &= ~16;
         }
       }
       else if(code == 11)

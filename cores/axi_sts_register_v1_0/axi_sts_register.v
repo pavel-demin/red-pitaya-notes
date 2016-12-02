@@ -5,7 +5,7 @@ module axi_sts_register #
 (
   parameter integer STS_DATA_WIDTH = 1024,
   parameter integer AXI_DATA_WIDTH = 32,
-  parameter integer AXI_ADDR_WIDTH = 32
+  parameter integer AXI_ADDR_WIDTH = 16
 )
 (
   // System signals

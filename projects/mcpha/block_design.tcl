@@ -313,12 +313,11 @@ module pha_0 {
   slice_1/Din rst_slice_0/Dout
   slice_2/Din rst_slice_0/Dout
   slice_3/Din rst_slice_0/Dout
-  slice_4/Din rst_slice_0/Dout
+  slice_4/Din cfg_slice_0/Dout
   slice_5/Din cfg_slice_0/Dout
   slice_6/Din cfg_slice_0/Dout
   slice_7/Din cfg_slice_0/Dout
   slice_8/Din cfg_slice_0/Dout
-  slice_9/Din cfg_slice_0/Dout
   timer_0/S_AXIS bcast_0/M04_AXIS
   pha_0/S_AXIS bcast_1/M00_AXIS
 }
@@ -337,12 +336,11 @@ module pha_1 {
   slice_1/Din rst_slice_1/Dout
   slice_2/Din rst_slice_1/Dout
   slice_3/Din rst_slice_1/Dout
-  slice_4/Din rst_slice_1/Dout
+  slice_4/Din cfg_slice_1/Dout
   slice_5/Din cfg_slice_1/Dout
   slice_6/Din cfg_slice_1/Dout
   slice_7/Din cfg_slice_1/Dout
   slice_8/Din cfg_slice_1/Dout
-  slice_9/Din cfg_slice_1/Dout
   timer_0/S_AXIS bcast_0/M05_AXIS
   pha_0/S_AXIS bcast_1/M01_AXIS
 }
@@ -379,14 +377,14 @@ module pha_2 {
   slice_1/Din rst_slice_3/Dout
   slice_2/Din rst_slice_3/Dout
   slice_3/Din rst_slice_3/Dout
-  slice_4/Din rst_slice_3/Dout
+  slice_4/Din cfg_slice_2/Dout
   slice_5/Din cfg_slice_2/Dout
   slice_6/Din cfg_slice_2/Dout
   slice_7/Din cfg_slice_2/Dout
   slice_8/Din cfg_slice_2/Dout
-  slice_9/Din cfg_slice_2/Dout
   timer_0/S_AXIS bcast_0/M06_AXIS
   pha_0/S_AXIS bcast_2/M00_AXIS
+  vldtr_0/m_axis_tready const_0/dout
 }
 
 module pha_3 {
@@ -396,25 +394,51 @@ module pha_3 {
   slice_1/Din rst_slice_3/Dout
   slice_2/Din rst_slice_3/Dout
   slice_3/Din rst_slice_3/Dout
-  slice_4/Din rst_slice_3/Dout
+  slice_4/Din cfg_slice_3/Dout
   slice_5/Din cfg_slice_3/Dout
   slice_6/Din cfg_slice_3/Dout
   slice_7/Din cfg_slice_3/Dout
   slice_8/Din cfg_slice_3/Dout
-  slice_9/Din cfg_slice_3/Dout
   timer_0/S_AXIS bcast_0/M07_AXIS
   pha_0/S_AXIS bcast_2/M01_AXIS
+  vldtr_0/m_axis_tready const_0/dout
 }
 
-# Create axis_combiner
-cell  xilinx.com:ip:axis_combiner:1.1 comb_2 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 16
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_2 {
+  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
 } {
-  S00_AXIS pha_2/timer_0/M_AXIS
-  S01_AXIS pha_3/timer_0/M_AXIS
-  aclk ps_0/FCLK_CLK0
-  aresetn rst_0/peripheral_aresetn
+  Din pha_2/timer_0/sts_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_3 {
+  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+} {
+  Din pha_2/timer_0/sts_data
+}
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+  NUM_PORTS 4
+  IN0_WIDTH 32
+  IN1_WIDTH 32
+  IN2_WIDTH 32
+  IN3_WIDTH 32
+} {
+  In0 pha_3/vldtr_0/m_axis_tdata
+  In1 pha_2/vldtr_0/m_axis_tdata
+  In2 slice_3/Dout
+  In3 slice_2/Dout
+}
+
+# Create util_vector_logic
+cell xilinx.com:ip:util_vector_logic:2.0 or_0 {
+  C_SIZE 1
+  C_OPERATION or
+} {
+  Op1 pha_2/vldtr_0/m_axis_tvalid
+  Op2 pha_3/vldtr_0/m_axis_tvalid
 }
 
 # Create fifo_generator
@@ -433,10 +457,11 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
 
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
-  S_AXIS_TDATA_WIDTH 256
+  S_AXIS_TDATA_WIDTH 128
   M_AXIS_TDATA_WIDTH 32
 } {
-  S_AXIS comb_2/M_AXIS
+  s_axis_tdata concat_0/dout
+  s_axis_tvalid or_0/Res
   FIFO_READ fifo_generator_0/FIFO_READ
   FIFO_WRITE fifo_generator_0/FIFO_WRITE
   aclk ps_0/FCLK_CLK0
@@ -471,8 +496,8 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
-  NUM_PORTS 8
+cell xilinx.com:ip:xlconcat:2.1 concat_1 {
+  NUM_PORTS 9
   IN0_WIDTH 32
   IN1_WIDTH 64
   IN2_WIDTH 64
@@ -481,6 +506,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN5_WIDTH 64
   IN6_WIDTH 32
   IN7_WIDTH 32
+  IN8_WIDTH 16
 } {
   In0 const_1/dout
   In1 dna_0/dna_data
@@ -490,15 +516,16 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   In5 pha_3/timer_0/sts_data
   In6 osc_0/scope_0/sts_data
   In7 osc_0/writer_0/sts_data
+  In8 fifo_generator_0/rd_data_count
 }
 
 # Create axi_sts_register
 cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
-  STS_DATA_WIDTH 416
+  STS_DATA_WIDTH 448
   AXI_ADDR_WIDTH 6
   AXI_DATA_WIDTH 32
 } {
-  sts_data concat_0/dout
+  sts_data concat_1/dout
 }
 
 # Create all required interconnections
