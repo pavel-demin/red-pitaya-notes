@@ -20,9 +20,9 @@ The basic blocks of the system are shown on the following diagram:
 
 ![Multichannel Pulse Height Analyzer]({{ "/img/mcpha.png" | prepend: site.baseurl }})
 
-The [projects/mcpha](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha) directory contains four Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/block_design.tcl), [hst.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/hst.tcl), [osc.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/osc.tcl), [gen.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/gen.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/mcpha](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha) directory contains five Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/block_design.tcl), [pha.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/pha.tcl), [hst.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/hst.tcl), [osc.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/osc.tcl), [gen.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/gen.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
-The source code of the [R](http://www.r-project.org) script used to calculate the coefficients of the FIR filter can be found in [projects/mcpha/fir_0.r](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/fir_0.r).
+The source code of the [R](http://www.r-project.org) script used to calculate the coefficients of the FIR filter can be found in [projects/mcpha/filters/fir_0.r](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/filters/fir_0.r).
 
 Software
 -----
@@ -43,7 +43,7 @@ Getting started with MS Windows
  - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABFn0Tal_b23MT_E3PSCAjZa/mcpha/ecosystem-0.95-1-6deb253-mcpha.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
- - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAjKn9z46erVWpZbC2arhwba/mcpha/mcpha-win32-20160103.zip?dl=1).
+ - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAi-JAVIf25RJXHQW1O17xJa/mcpha/mcpha-win32-20161202.zip?dl=1).
  - Run the control program.
  - Type in the IP address of the Red Pitaya board and press Connect button.
  - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
@@ -71,7 +71,6 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
  - Run the control program:
 {% highlight bash %}
 cd red-pitaya-notes/projects/mcpha/client
-gcc -shared -fPIC -I /usr/include/tcl8.6 mcpha.c -o mcpha.so -lBLT
 wish8.6 mcpha.tcl
 {% endhighlight %}
  - Type in the IP address of the Red Pitaya board and press Connect button.
@@ -103,9 +102,12 @@ Building `mcpha.bit`:
 make NAME=mcpha tmp/mcpha.bit
 {% endhighlight %}
 
-Building `mcpha-server`:
+Building `mcpha-server` and `pha-server`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/mcpha/server/mcpha-server.c -o mcpha-server -lm
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/mcpha/server/mcpha-server.c -o mcpha-server
+{% endhighlight %}
+{% highlight bash %}
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/mcpha/server/pha-server.c -o pha-server -lpthread
 {% endhighlight %}
 
 Building SD card image zip file:
