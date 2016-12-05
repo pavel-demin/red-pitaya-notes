@@ -5,6 +5,7 @@
 02.09.2016 ON3VNA: add code for TX level switching via DS1803-10 (I2C).
 21.09.2016 DC2PD: add code for controlling AD8331 VGA with MCP4725 DAC (I2C).
 02.10.2016 DL9LJ: add code for controlling ICOM IC-735 (UART).
+03.12.2016 KA6S: add CW keyer code.
 */
 
 #include <stdio.h>
@@ -24,8 +25,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <net/if.h>
-
-#include "jack/ringbuffer.c"
 
 #define I2C_SLAVE       0x0703 /* Use this slave address */
 #define I2C_SLAVE_FORCE 0x0706 /* Use this slave address, even if it
@@ -61,10 +60,7 @@ int active_thread = 0;
 
 void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
-void *handler_playback(void *arg);
 void *handler_keyer(void *arg);
-
-jack_ringbuffer_t *playback_data = 0;
 
 /* variables to handle I2C devices */
 int i2c_fd;
@@ -92,6 +88,15 @@ uint8_t cw_int_data = 0;
 uint8_t rx_att_data = 0;
 uint8_t tx_mux_data = 0;
 uint8_t tx_ptt_data = 0;
+
+uint16_t cw_hang = 0;
+uint8_t cw_reversed = 0;
+uint8_t cw_speed = 25;
+uint8_t cw_mode = 0;
+uint8_t cw_weight = 50;
+uint8_t cw_spacing = 0;
+uint8_t cw_delay = 0;
+uint8_t cw_state = 0;
 
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
@@ -430,8 +435,8 @@ int main(int argc, char *argv[])
   *tx_level = 32767;
 
   /* set default tx mux channel */
-  *(tx_mux + 16) = 0;
-  *tx_mux = 2;
+  tx_mux[16] = 0;
+  tx_mux[0] = 2;
 
   /* reset tx fifo */
   *tx_rst |= 1;
@@ -471,22 +476,13 @@ int main(int argc, char *argv[])
     *dac_level = 32767;
 
     /* set default dac mux channel */
-    *(dac_mux + 16) = 0;
-    *dac_mux = 2;
+    dac_mux[16] = 0;
+    dac_mux[0] = 2;
   }
   else
   {
     /* enable ALEX interface */
     *codec_rst |= 8;
-
-    /* create playback thread */
-    playback_data = jack_ringbuffer_create(4096);
-    if(pthread_create(&thread, NULL, handler_playback, NULL) < 0)
-    {
-      perror("pthread_create");
-      return EXIT_FAILURE;
-    }
-    pthread_detach(thread);
   }
 
   if((sock_ep2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
@@ -584,11 +580,6 @@ int main(int argc, char *argv[])
               for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 528 + j);
             }
           }
-          else
-          {
-            for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 16 + j, 4);
-            for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 528 + j, 4);
-          }
           process_ep2(buffer[i] + 11);
           process_ep2(buffer[i] + 523);
           break;
@@ -632,8 +623,6 @@ void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
   uint16_t data;
-  uint16_t cw_hang;
-  uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing, cw_delay;
   uint8_t ptt, preamp, att, boost;
 
   switch(frame[0])
@@ -670,8 +659,8 @@ void process_ep2(uint8_t *frame)
           *tx_rst |= 2;
           *codec_rst |= 4;
         }
-        *(tx_mux + 16) = data;
-        *tx_mux = 2;
+        tx_mux[16] = data;
+        tx_mux[0] = 2;
       }
       data &= (dac_level_data > 0);
       if(dac_mux_data != data)
@@ -679,8 +668,8 @@ void process_ep2(uint8_t *frame)
         dac_mux_data = data;
         if(i2c_codec)
         {
-          *(dac_mux + 16) = data;
-          *dac_mux = 2;
+          dac_mux[16] = data;
+          dac_mux[0] = 2;
         }
       }
 
@@ -883,7 +872,7 @@ void process_ep2(uint8_t *frame)
 void *handler_ep6(void *arg)
 {
   int i, j, k, m, n, size, rate_counter;
-  int data_offset, header_offset, buffer_offset;
+  int data_offset, header_offset;
   uint32_t counter;
   int32_t value;
   uint16_t audio[512];
@@ -891,7 +880,8 @@ void *handler_ep6(void *arg)
   uint8_t data1[4096];
   uint8_t data2[4096];
   uint8_t data3[4096];
-  uint8_t buffer[25][1032];
+  uint8_t buffer[25 * 1032];
+  uint8_t *pointer;
   struct iovec iovec[25][1];
   struct mmsghdr datagram[25];
   uint8_t id[4] = {0xef, 0xfe, 1, 6};
@@ -910,8 +900,8 @@ void *handler_ep6(void *arg)
 
   for(i = 0; i < 25; ++i)
   {
-    memcpy(buffer[i], id, 4);
-    iovec[i][0].iov_base = buffer[i];
+    memcpy(buffer + i * 1032, id, 4);
+    iovec[i][0].iov_base = buffer + i * 1032;
     iovec[i][0].iov_len = 1032;
     datagram[i].msg_hdr.msg_iov = iovec[i];
     datagram[i].msg_hdr.msg_iovlen = 1;
@@ -980,97 +970,56 @@ void *handler_ep6(void *arg)
     data_offset = 0;
     for(i = 0; i < m; ++i)
     {
-      *(uint32_t *)(buffer[i] + 4) = htonl(counter);
-
-      memcpy(buffer[i] + 8, header + header_offset, 8);
-      buffer[i][11] |= *gpio_in & 7;
-      if(header_offset == 8)
-      {
-        value = xadc[153] >> 3;
-        buffer[i][12] = (value >> 8) & 0xff;
-        buffer[i][13] = value & 0xff;
-        value = xadc[152] >> 3;
-        buffer[i][14] = (value >> 8) & 0xff;
-        buffer[i][15] = value & 0xff;
-      }
-      else if(header_offset == 16)
-      {
-        value = xadc[144] >> 3;
-        buffer[i][12] = (value >> 8) & 0xff;
-        buffer[i][13] = value & 0xff;
-        value = xadc[145] >> 3;
-        buffer[i][14] = (value >> 8) & 0xff;
-        buffer[i][15] = value & 0xff;
-      }
-      header_offset = header_offset >= 32 ? 0 : header_offset + 8;
-      memset(buffer[i] + 16, 0, 504);
-
-      buffer_offset = 16;
-      for(j = 0; j < n; ++j)
-      {
-        memcpy(buffer[i] + buffer_offset, data0 + data_offset, 6);
-        if(size > 8)
-        {
-          memcpy(buffer[i] + buffer_offset + 6, data1 + data_offset, 6);
-        }
-        if(size > 14)
-        {
-          memcpy(buffer[i] + buffer_offset + 12, data2 + data_offset, 6);
-        }
-        if(size > 20)
-        {
-          memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
-        }
-        if(i2c_codec) memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) >> rate], 2);
-        data_offset += 8;
-        buffer_offset += size;
-      }
-
-      memcpy(buffer[i] + 520, header + header_offset, 8);
-      buffer[i][523] |= *gpio_in & 7;
-      if(header_offset == 8)
-      {
-        value = xadc[153] >> 3;
-        buffer[i][524] = (value >> 8) & 0xff;
-        buffer[i][525] = value & 0xff;
-        value = xadc[152] >> 3;
-        buffer[i][526] = (value >> 8) & 0xff;
-        buffer[i][527] = value & 0xff;
-      }
-      else if(header_offset == 16)
-      {
-        value = xadc[144] >> 3;
-        buffer[i][524] = (value >> 8) & 0xff;
-        buffer[i][525] = value & 0xff;
-        value = xadc[145] >> 3;
-        buffer[i][526] = (value >> 8) & 0xff;
-        buffer[i][527] = value & 0xff;
-      }
-      header_offset = header_offset >= 32 ? 0 : header_offset + 8;
-      memset(buffer[i] + 528, 0, 504);
-
-      buffer_offset = 528;
-      for(j = 0; j < n; ++j)
-      {
-        memcpy(buffer[i] + buffer_offset, data0 + data_offset, 6);
-        if(size > 8)
-        {
-          memcpy(buffer[i] + buffer_offset + 6, data1 + data_offset, 6);
-        }
-        if(size > 14)
-        {
-          memcpy(buffer[i] + buffer_offset + 12, data2 + data_offset, 6);
-        }
-        if(size > 20)
-        {
-          memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
-        }
-        if(i2c_codec) memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) >> rate], 2);
-        data_offset += 8;
-        buffer_offset += size;
-      }
-
+      *(uint32_t *)(buffer + i * 1032 + 4) = htonl(counter);
       ++counter;
+    }
+
+    for(i = 0; i < m * 2; ++i)
+    {
+      pointer = buffer + i * 516 - i % 2 * 4 + 8;
+      memcpy(pointer, header + header_offset, 8);
+      pointer[3] |= *gpio_in & 7;
+      if(header_offset == 8)
+      {
+        value = xadc[153] >> 3;
+        pointer[4] = (value >> 8) & 0xff;
+        pointer[5] = value & 0xff;
+        value = xadc[152] >> 3;
+        pointer[6] = (value >> 8) & 0xff;
+        pointer[7] = value & 0xff;
+      }
+      else if(header_offset == 16)
+      {
+        value = xadc[144] >> 3;
+        pointer[4] = (value >> 8) & 0xff;
+        pointer[5] = value & 0xff;
+        value = xadc[145] >> 3;
+        pointer[6] = (value >> 8) & 0xff;
+        pointer[7] = value & 0xff;
+      }
+      header_offset = header_offset >= 32 ? 0 : header_offset + 8;
+
+      pointer += 8;
+      memset(pointer, 0, 504);
+      for(j = 0; j < n; ++j)
+      {
+        memcpy(pointer, data0 + data_offset, 6);
+        if(size > 8)
+        {
+          memcpy(pointer + 6, data1 + data_offset, 6);
+        }
+        if(size > 14)
+        {
+          memcpy(pointer + 12, data2 + data_offset, 6);
+        }
+        if(size > 20)
+        {
+          memcpy(pointer + 18, data3 + data_offset, 6);
+        }
+        data_offset += 8;
+        pointer += size;
+        if(i2c_codec) memcpy(pointer - 2, &audio[(k++) >> rate], 2);
+      }
     }
 
     sendmmsg(sock_ep2, datagram, m, 0);
@@ -1081,37 +1030,100 @@ void *handler_ep6(void *arg)
   return NULL;
 }
 
-void *handler_playback(void *arg)
+inline void cw_on()
 {
-  uint8_t buffer[2048];
+  *tx_rst |= 4;
+  *codec_rst |= 16;
+}
 
-  while(1)
-  {
-    while(jack_ringbuffer_read_space(playback_data) < 2048) usleep(1000);
-    jack_ringbuffer_read(playback_data, buffer, 2048);
-    write(1, buffer, 2048);
-  }
+inline void cw_off()
+{
+  *tx_rst &= ~4;
+  *codec_rst &= ~16;
+}
 
-  return NULL;
+inline void cw_dit()
+{
+  cw_on();
+  usleep(1200000 / cw_speed);
+  cw_off();
+  usleep(1200000 / cw_speed);
+  cw_state = 1;
+}
+
+inline void cw_dah()
+{
+  cw_on();
+  usleep(3600000 * cw_weight / (50 * cw_speed));
+  cw_off();
+  usleep(1200000 / cw_speed);
+  cw_state = 2;
+}
+
+inline void cw_space()
+{
+  usleep(2400000 / cw_speed);
+  cw_state = 0;
+}
+
+inline void cw_idle()
+{
+  usleep(1000);
+  cw_state = 0;
 }
 
 void *handler_keyer(void *arg)
 {
-  uint8_t input;
+  uint8_t input, dit[2], dah[2];
 
   while(1)
   {
-    usleep(1000);
     input = (*gpio_in >> 1) & 3;
-    if(input & 2)
+
+    dit[1] = dit[0];
+    dah[1] = dah[0];
+
+    dit[0] = input >> 1;
+    dah[0] = input & 1;
+
+    if(cw_reversed)
     {
-      *tx_rst |= 4;
-      *codec_rst |= 16;
+      dah[0] = input >> 1;
+      dit[0] = input & 1;
     }
-    else
+
+    if(cw_mode == 0)
     {
-      *tx_rst &= ~4;
-      *codec_rst &= ~16;
+      if(dah[0]) cw_on();
+      else if(dit[0]) cw_dit();
+      else cw_off();
+      cw_idle();
+      continue;
+    }
+
+    switch(cw_state)
+    {
+      case 0:
+        if(dit[0]) cw_dit();
+        else if(dah[0]) cw_dah();
+        else cw_idle();
+        break;
+
+      case 1:
+        if(dah[0]) cw_dah();
+        else if(dit[0]) cw_dit();
+        else if(dit[1] && cw_mode == 2) cw_dah();
+        else if(cw_spacing) cw_space();
+        else cw_idle();
+        break;
+
+      case 2:
+        if(dit[0]) cw_dit();
+        else if(dah[0]) cw_dah();
+        else if(dah[1] && cw_mode == 2) cw_dit();
+        else if(cw_spacing) cw_space();
+        else cw_idle();
+        break;
     }
   }
 
