@@ -25,8 +25,6 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
-#include "jack/ringbuffer.c"
-
 #define I2C_SLAVE       0x0703 /* Use this slave address */
 #define I2C_SLAVE_FORCE 0x0706 /* Use this slave address, even if it
                                   is already in use by a driver! */
@@ -61,10 +59,7 @@ int active_thread = 0;
 
 void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
-void *handler_playback(void *arg);
 void *handler_keyer(void *arg);
-
-jack_ringbuffer_t *playback_data = 0;
 
 /* variables to handle I2C devices */
 int i2c_fd;
@@ -478,15 +473,6 @@ int main(int argc, char *argv[])
   {
     /* enable ALEX interface */
     *codec_rst |= 8;
-
-    /* create playback thread */
-    playback_data = jack_ringbuffer_create(4096);
-    if(pthread_create(&thread, NULL, handler_playback, NULL) < 0)
-    {
-      perror("pthread_create");
-      return EXIT_FAILURE;
-    }
-    pthread_detach(thread);
   }
 
   if((sock_ep2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
@@ -583,11 +569,6 @@ int main(int argc, char *argv[])
               for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 16 + j);
               for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 528 + j);
             }
-          }
-          else
-          {
-            for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 16 + j, 4);
-            for(j = 0; j < 504; j += 8) jack_ringbuffer_write(playback_data, buffer[i] + 528 + j, 4);
           }
           process_ep2(buffer[i] + 11);
           process_ep2(buffer[i] + 523);
@@ -1077,20 +1058,6 @@ void *handler_ep6(void *arg)
   }
 
   active_thread = 0;
-
-  return NULL;
-}
-
-void *handler_playback(void *arg)
-{
-  uint8_t buffer[2048];
-
-  while(1)
-  {
-    while(jack_ringbuffer_read_space(playback_data) < 2048) usleep(1000);
-    jack_ringbuffer_read(playback_data, buffer, 2048);
-    write(1, buffer, 2048);
-  }
 
   return NULL;
 }
