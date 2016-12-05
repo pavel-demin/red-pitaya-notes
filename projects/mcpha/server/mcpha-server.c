@@ -17,9 +17,10 @@
 int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
-  volatile void *sts, *cfg, *trg, *gen;
+  volatile void *sts, *cfg, *gen;
   void *hst[2], *ram, *buf;
   volatile uint8_t *rst[4];
+  volatile uint32_t *trg;
   struct sockaddr_in addr;
   int yes = 1;
   uint32_t start, pre, tot;
@@ -50,8 +51,8 @@ int main(int argc, char *argv[])
   *(uint16_t *)(cfg + 4) = 125;
 
   /* set trigger channel */
-  *(uint32_t *)(trg + 64) = 0;
-  *(uint32_t *)(trg + 0) = 2;
+  trg[16] = 0;
+  trg[0] = 2;
 
   /* reset timers and histograms */
   *rst[0] &= ~3;
@@ -294,13 +295,13 @@ int main(int argc, char *argv[])
         /* set trigger source (0 for channel 1, 1 for channel 2) */
         if(chan == 0)
         {
-          *(uint32_t *)(trg + 64) = 0;
-          *(uint32_t *)(trg + 0) = 2;
+          trg[16] = 0;
+          trg[0] = 2;
         }
         else if(chan == 1)
         {
-          *(uint32_t *)(trg + 64) = 1;
-          *(uint32_t *)(trg + 0) = 2;
+          trg[16] = 1;
+          trg[0] = 2;
         }
       }
       else if(code == 15)
