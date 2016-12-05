@@ -14,9 +14,9 @@ int printdata = 0;
 int main(int argc, char *argv[])
 {
   int fd, i;
-  volatile void *cfg, *mux;
+  volatile void *cfg;
   volatile uint8_t *rst;
-  volatile uint32_t *fifo;
+  volatile uint32_t *fifo, *mux;
   unsigned char symbols[162];
   char *message, *hashtab;
   config_t config;
@@ -100,16 +100,16 @@ int main(int argc, char *argv[])
 
   if(chan == 1)
   {
-    *(uint32_t *)(mux + 64) = 0;
-    *(uint32_t *)(mux + 68) = 1;
+    mux[16] = 0;
+    mux[17] = 1;
   }
   else
   {
-    *(uint32_t *)(mux + 64) = 1;
-    *(uint32_t *)(mux + 68) = 0;
+    mux[16] = 1;
+    mux[17] = 0;
   }
 
-  *(uint32_t *)mux = 2;
+  mux[0] = 2;
 
   rst = (uint8_t *)(cfg + 1);
 

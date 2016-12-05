@@ -15,10 +15,11 @@ int main(int argc, char *argv[])
   int fd, offset, length, i, j;
   time_t t;
   struct tm *gmt;
-  volatile void *cfg, *sts, *mux, *ptr;
+  volatile void *cfg, *sts;
   volatile uint64_t *fifo[8];
   volatile uint8_t *rst;
   volatile uint16_t *cntr;
+  volatile uint32_t *mux;
   int32_t type = 2;
   uint64_t buffer[8][45000];
   config_t config;
@@ -128,16 +129,15 @@ int main(int argc, char *argv[])
 
   for(i = 0; i < 8; ++i)
   {
-    ptr = mux + 64 + i * 4;
     val = i * 2 + chan[i] - 1;
-    if(*(uint32_t *)ptr != val)
+    if(mux[16 + i] != val)
     {
-      *(uint32_t *)ptr = val;
+      mux[16 + i] = val;
       upd = 1;
     }
   }
 
-  if(upd) *(uint32_t *)mux = 2;
+  if(upd) mux[0] = 2;
 
   rst = (uint8_t *)(cfg + 0);
   cntr = (uint16_t *)(sts + 12);
