@@ -864,7 +864,7 @@ void process_ep2(uint8_t *frame)
 void *handler_ep6(void *arg)
 {
   int i, j, k, m, n, size, rate_counter;
-  int data_offset, header_offset, buffer_offset;
+  int data_offset, header_offset;
   uint32_t counter;
   int32_t value;
   uint16_t audio[512];
@@ -872,7 +872,8 @@ void *handler_ep6(void *arg)
   uint8_t data1[4096];
   uint8_t data2[4096];
   uint8_t data3[4096];
-  uint8_t buffer[25][1032];
+  uint8_t buffer[25 * 1032];
+  uint8_t *pointer;
   struct iovec iovec[25][1];
   struct mmsghdr datagram[25];
   uint8_t id[4] = {0xef, 0xfe, 1, 6};
@@ -891,8 +892,8 @@ void *handler_ep6(void *arg)
 
   for(i = 0; i < 25; ++i)
   {
-    memcpy(buffer[i], id, 4);
-    iovec[i][0].iov_base = buffer[i];
+    memcpy(buffer + i * 1032, id, 4);
+    iovec[i][0].iov_base = buffer + i * 1032;
     iovec[i][0].iov_len = 1032;
     datagram[i].msg_hdr.msg_iov = iovec[i];
     datagram[i].msg_hdr.msg_iovlen = 1;
@@ -961,97 +962,56 @@ void *handler_ep6(void *arg)
     data_offset = 0;
     for(i = 0; i < m; ++i)
     {
-      *(uint32_t *)(buffer[i] + 4) = htonl(counter);
-
-      memcpy(buffer[i] + 8, header + header_offset, 8);
-      buffer[i][11] |= *gpio_in & 7;
-      if(header_offset == 8)
-      {
-        value = xadc[153] >> 3;
-        buffer[i][12] = (value >> 8) & 0xff;
-        buffer[i][13] = value & 0xff;
-        value = xadc[152] >> 3;
-        buffer[i][14] = (value >> 8) & 0xff;
-        buffer[i][15] = value & 0xff;
-      }
-      else if(header_offset == 16)
-      {
-        value = xadc[144] >> 3;
-        buffer[i][12] = (value >> 8) & 0xff;
-        buffer[i][13] = value & 0xff;
-        value = xadc[145] >> 3;
-        buffer[i][14] = (value >> 8) & 0xff;
-        buffer[i][15] = value & 0xff;
-      }
-      header_offset = header_offset >= 32 ? 0 : header_offset + 8;
-      memset(buffer[i] + 16, 0, 504);
-
-      buffer_offset = 16;
-      for(j = 0; j < n; ++j)
-      {
-        memcpy(buffer[i] + buffer_offset, data0 + data_offset, 6);
-        if(size > 8)
-        {
-          memcpy(buffer[i] + buffer_offset + 6, data1 + data_offset, 6);
-        }
-        if(size > 14)
-        {
-          memcpy(buffer[i] + buffer_offset + 12, data2 + data_offset, 6);
-        }
-        if(size > 20)
-        {
-          memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
-        }
-        if(i2c_codec) memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) >> rate], 2);
-        data_offset += 8;
-        buffer_offset += size;
-      }
-
-      memcpy(buffer[i] + 520, header + header_offset, 8);
-      buffer[i][523] |= *gpio_in & 7;
-      if(header_offset == 8)
-      {
-        value = xadc[153] >> 3;
-        buffer[i][524] = (value >> 8) & 0xff;
-        buffer[i][525] = value & 0xff;
-        value = xadc[152] >> 3;
-        buffer[i][526] = (value >> 8) & 0xff;
-        buffer[i][527] = value & 0xff;
-      }
-      else if(header_offset == 16)
-      {
-        value = xadc[144] >> 3;
-        buffer[i][524] = (value >> 8) & 0xff;
-        buffer[i][525] = value & 0xff;
-        value = xadc[145] >> 3;
-        buffer[i][526] = (value >> 8) & 0xff;
-        buffer[i][527] = value & 0xff;
-      }
-      header_offset = header_offset >= 32 ? 0 : header_offset + 8;
-      memset(buffer[i] + 528, 0, 504);
-
-      buffer_offset = 528;
-      for(j = 0; j < n; ++j)
-      {
-        memcpy(buffer[i] + buffer_offset, data0 + data_offset, 6);
-        if(size > 8)
-        {
-          memcpy(buffer[i] + buffer_offset + 6, data1 + data_offset, 6);
-        }
-        if(size > 14)
-        {
-          memcpy(buffer[i] + buffer_offset + 12, data2 + data_offset, 6);
-        }
-        if(size > 20)
-        {
-          memcpy(buffer[i] + buffer_offset + 18, data3 + data_offset, 6);
-        }
-        if(i2c_codec) memcpy(buffer[i] + buffer_offset + size - 2, &audio[(k++) >> rate], 2);
-        data_offset += 8;
-        buffer_offset += size;
-      }
-
+      *(uint32_t *)(buffer + i * 1032 + 4) = htonl(counter);
       ++counter;
+    }
+
+    for(i = 0; i < m * 2; ++i)
+    {
+      pointer = buffer + i * 516 - i % 2 * 4 + 8;
+      memcpy(pointer, header + header_offset, 8);
+      pointer[3] |= *gpio_in & 7;
+      if(header_offset == 8)
+      {
+        value = xadc[153] >> 3;
+        pointer[4] = (value >> 8) & 0xff;
+        pointer[5] = value & 0xff;
+        value = xadc[152] >> 3;
+        pointer[6] = (value >> 8) & 0xff;
+        pointer[7] = value & 0xff;
+      }
+      else if(header_offset == 16)
+      {
+        value = xadc[144] >> 3;
+        pointer[4] = (value >> 8) & 0xff;
+        pointer[5] = value & 0xff;
+        value = xadc[145] >> 3;
+        pointer[6] = (value >> 8) & 0xff;
+        pointer[7] = value & 0xff;
+      }
+      header_offset = header_offset >= 32 ? 0 : header_offset + 8;
+
+      pointer += 8;
+      memset(pointer, 0, 504);
+      for(j = 0; j < n; ++j)
+      {
+        memcpy(pointer, data0 + data_offset, 6);
+        if(size > 8)
+        {
+          memcpy(pointer + 6, data1 + data_offset, 6);
+        }
+        if(size > 14)
+        {
+          memcpy(pointer + 12, data2 + data_offset, 6);
+        }
+        if(size > 20)
+        {
+          memcpy(pointer + 18, data3 + data_offset, 6);
+        }
+        data_offset += 8;
+        pointer += size;
+        if(i2c_codec) memcpy(pointer - 2, &audio[(k++) >> rate], 2);
+      }
     }
 
     sendmmsg(sock_ep2, datagram, m, 0);
