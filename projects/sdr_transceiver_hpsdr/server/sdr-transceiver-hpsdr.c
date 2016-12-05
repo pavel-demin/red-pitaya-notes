@@ -5,6 +5,7 @@
 02.09.2016 ON3VNA: add code for TX level switching via DS1803-10 (I2C).
 21.09.2016 DC2PD: add code for controlling AD8331 VGA with MCP4725 DAC (I2C).
 02.10.2016 DL9LJ: add code for controlling ICOM IC-735 (UART).
+03.12.2016 KA6S: add CW keyer code.
 */
 
 #include <stdio.h>
@@ -87,6 +88,15 @@ uint8_t cw_int_data = 0;
 uint8_t rx_att_data = 0;
 uint8_t tx_mux_data = 0;
 uint8_t tx_ptt_data = 0;
+
+uint16_t cw_hang = 0;
+uint8_t cw_reversed = 0;
+uint8_t cw_speed = 25;
+uint8_t cw_mode = 0;
+uint8_t cw_weight = 50;
+uint8_t cw_spacing = 0;
+uint8_t cw_delay = 0;
+uint8_t cw_state = 0;
 
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
@@ -425,8 +435,8 @@ int main(int argc, char *argv[])
   *tx_level = 32767;
 
   /* set default tx mux channel */
-  *(tx_mux + 16) = 0;
-  *tx_mux = 2;
+  tx_mux[16] = 0;
+  tx_mux[0] = 2;
 
   /* reset tx fifo */
   *tx_rst |= 1;
@@ -466,8 +476,8 @@ int main(int argc, char *argv[])
     *dac_level = 32767;
 
     /* set default dac mux channel */
-    *(dac_mux + 16) = 0;
-    *dac_mux = 2;
+    dac_mux[16] = 0;
+    dac_mux[0] = 2;
   }
   else
   {
@@ -613,8 +623,6 @@ void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
   uint16_t data;
-  uint16_t cw_hang;
-  uint8_t cw_reversed, cw_speed, cw_mode, cw_weight, cw_spacing, cw_delay;
   uint8_t ptt, preamp, att, boost;
 
   switch(frame[0])
@@ -651,8 +659,8 @@ void process_ep2(uint8_t *frame)
           *tx_rst |= 2;
           *codec_rst |= 4;
         }
-        *(tx_mux + 16) = data;
-        *tx_mux = 2;
+        tx_mux[16] = data;
+        tx_mux[0] = 2;
       }
       data &= (dac_level_data > 0);
       if(dac_mux_data != data)
@@ -660,8 +668,8 @@ void process_ep2(uint8_t *frame)
         dac_mux_data = data;
         if(i2c_codec)
         {
-          *(dac_mux + 16) = data;
-          *dac_mux = 2;
+          dac_mux[16] = data;
+          dac_mux[0] = 2;
         }
       }
 
@@ -1022,23 +1030,100 @@ void *handler_ep6(void *arg)
   return NULL;
 }
 
+inline void cw_on()
+{
+  *tx_rst |= 4;
+  *codec_rst |= 16;
+}
+
+inline void cw_off()
+{
+  *tx_rst &= ~4;
+  *codec_rst &= ~16;
+}
+
+inline void cw_dit()
+{
+  cw_on();
+  usleep(1200000 / cw_speed);
+  cw_off();
+  usleep(1200000 / cw_speed);
+  cw_state = 1;
+}
+
+inline void cw_dah()
+{
+  cw_on();
+  usleep(3600000 * cw_weight / (50 * cw_speed));
+  cw_off();
+  usleep(1200000 / cw_speed);
+  cw_state = 2;
+}
+
+inline void cw_space()
+{
+  usleep(2400000 / cw_speed);
+  cw_state = 0;
+}
+
+inline void cw_idle()
+{
+  usleep(1000);
+  cw_state = 0;
+}
+
 void *handler_keyer(void *arg)
 {
-  uint8_t input;
+  uint8_t input, dit[2], dah[2];
 
   while(1)
   {
-    usleep(1000);
     input = (*gpio_in >> 1) & 3;
-    if(input & 2)
+
+    dit[1] = dit[0];
+    dah[1] = dah[0];
+
+    dit[0] = input >> 1;
+    dah[0] = input & 1;
+
+    if(cw_reversed)
     {
-      *tx_rst |= 4;
-      *codec_rst |= 16;
+      dah[0] = input >> 1;
+      dit[0] = input & 1;
     }
-    else
+
+    if(cw_mode == 0)
     {
-      *tx_rst &= ~4;
-      *codec_rst &= ~16;
+      if(dah[0]) cw_on();
+      else if(dit[0]) cw_dit();
+      else cw_off();
+      cw_idle();
+      continue;
+    }
+
+    switch(cw_state)
+    {
+      case 0:
+        if(dit[0]) cw_dit();
+        else if(dah[0]) cw_dah();
+        else cw_idle();
+        break;
+
+      case 1:
+        if(dah[0]) cw_dah();
+        else if(dit[0]) cw_dit();
+        else if(dit[1] && cw_mode == 2) cw_dah();
+        else if(cw_spacing) cw_space();
+        else cw_idle();
+        break;
+
+      case 2:
+        if(dit[0]) cw_dit();
+        else if(dah[0]) cw_dah();
+        else if(dah[1] && cw_mode == 2) cw_dit();
+        else if(cw_spacing) cw_space();
+        else cw_idle();
+        break;
     }
   }
 
