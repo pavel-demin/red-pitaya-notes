@@ -1112,7 +1112,7 @@ void *handler_keyer(void *arg)
       case 1:
         if(dah[0]) cw_dah();
         else if(dit[0]) cw_dit();
-        else if(dit[1] && cw_mode == 2) cw_dah();
+        else if(dah[1] && cw_mode == 2) cw_dah();
         else if(cw_spacing) cw_space();
         else cw_idle();
         break;
@@ -1120,7 +1120,7 @@ void *handler_keyer(void *arg)
       case 2:
         if(dit[0]) cw_dit();
         else if(dah[0]) cw_dah();
-        else if(dah[1] && cw_mode == 2) cw_dit();
+        else if(dit[1] && cw_mode == 2) cw_dit();
         else if(cw_spacing) cw_space();
         else cw_idle();
         break;
