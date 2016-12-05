@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
           }
           pthread_detach(thread);
           freq = start;
-          for(i = 0; i <= size; ++i)
+          for(i = 0; i < size; ++i)
           {
             if(i > 0) freq = start + (stop - start) * (i - 1) / (size - 1);
             freq *= (1.0 + 1.0e-9 * corr);

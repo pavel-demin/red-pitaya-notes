@@ -60,6 +60,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   PHASE_WIDTH 30
   OUTPUT_WIDTH 16
   DSP48_USE Minimal
+  OUTPUT_SELECTION Sine
 } {
   S_AXIS_PHASE inter_0/M_AXIS
   aclk /ps_0/FCLK_CLK0

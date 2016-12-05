@@ -39,7 +39,8 @@ int main(int argc, char *argv[])
   int fd, i;
   ssize_t size;
   pthread_t thread;
-  volatile void *cfg, *sts, *mux, *ptr;
+  volatile void *cfg, *sts;
+  volatile uint32_t *mux;
   char *end, *name = "/dev/mem";
   uint8_t buffer[1032];
   uint8_t reply[20] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1, 'R', '_', 'P', 'I', 'T', 'A', 'Y', 'A', 6};
@@ -47,7 +48,7 @@ int main(int argc, char *argv[])
   struct sockaddr_in addr_ep2, addr_from;
   socklen_t size_from;
   int yes = 1;
-  int val, chan[6] = {1, 1, 1, 1, 1, 1};
+  int chan[6] = {1, 1, 1, 1, 1, 1};
   long number;
 
   for(i = 0; i < 6; ++i)
@@ -84,12 +85,10 @@ int main(int argc, char *argv[])
 
   for(i = 0; i < 6; ++i)
   {
-    ptr = mux + 64 + i * 4;
-    val = i * 2 + chan[i] - 1;
-    *(uint32_t *)ptr = val;
+    mux[16 + i] = i * 2 + chan[i] - 1;
   }
 
-  *(uint32_t *)mux = 2;
+  mux[0] = 2;
 
   rx_rst = ((uint8_t *)(cfg + 0));
 

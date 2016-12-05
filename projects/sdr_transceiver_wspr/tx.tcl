@@ -19,7 +19,7 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
 } {
   S_AXIS writer_0/M_AXIS
   s_axis_aclk /ps_0/FCLK_CLK0
-  s_axis_aresetn /rst_0/peripheral_aresetn
+  s_axis_aresetn slice_0/Dout
 }
 
 # Create xlconstant
@@ -36,7 +36,7 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   S_AXIS fifo_0/M_AXIS
   cfg_data const_0/dout
   aclk /ps_0/FCLK_CLK0
-  aresetn /rst_0/peripheral_aresetn
+  aresetn slice_0/Dout
 }
 
 # Create dds_compiler
@@ -51,6 +51,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   PHASE_WIDTH 30
   OUTPUT_WIDTH 14
   DSP48_USE Minimal
+  OUTPUT_SELECTION Sine
 } {
   S_AXIS_PHASE inter_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
@@ -96,5 +97,5 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {
 } {
   S_AXIS comb_0/M_AXIS
   s_axis_aclk /ps_0/FCLK_CLK0
-  s_axis_aresetn /rst_0/peripheral_aresetn
+  s_axis_aresetn slice_0/Dout
 }
