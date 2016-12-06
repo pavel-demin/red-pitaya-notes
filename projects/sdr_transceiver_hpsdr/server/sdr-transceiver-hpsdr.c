@@ -96,7 +96,8 @@ uint8_t cw_mode = 0;
 uint8_t cw_weight = 50;
 uint8_t cw_spacing = 0;
 uint8_t cw_delay = 0;
-uint8_t cw_state = 0;
+
+int cw_memory[2] = {0, 0};
 
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
@@ -1042,88 +1043,76 @@ inline void cw_off()
   *codec_rst &= ~16;
 }
 
-inline void cw_dit()
+inline int cw_input()
 {
+  int input = (*gpio_in >> 1) & 3;
+  if(cw_reversed) input = (input & 1) << 1 | input >> 1;
+  return input;
+}
+
+inline void cw_signal(int code)
+{
+  int delay = code ? 1200 / cw_speed : 3600 * cw_weight / (50 * cw_speed);
   cw_on();
-  usleep(1200000 / cw_speed);
+  while(--delay)
+  {
+    usleep(1000);
+    cw_memory[0] = cw_input();
+    if(cw_mode == 1 && !cw_memory[0]) cw_memory[1] = 0;
+    else cw_memory[1] |= cw_memory[0];
+  }
+}
+
+inline void cw_space(int code)
+{
+  int delay = code ? 1200 / cw_speed : 2400 / cw_speed;
   cw_off();
-  usleep(1200000 / cw_speed);
-  cw_state = 1;
-}
-
-inline void cw_dah()
-{
-  cw_on();
-  usleep(3600000 * cw_weight / (50 * cw_speed));
-  cw_off();
-  usleep(1200000 / cw_speed);
-  cw_state = 2;
-}
-
-inline void cw_space()
-{
-  usleep(2400000 / cw_speed);
-  cw_state = 0;
-}
-
-inline void cw_idle()
-{
-  usleep(1000);
-  cw_state = 0;
+  while(--delay)
+  {
+    usleep(1000);
+    cw_memory[0] = cw_input();
+    cw_memory[1] |= cw_memory[0];
+  }
 }
 
 void *handler_keyer(void *arg)
 {
-  uint8_t input, dit[2], dah[2];
+  int state;
 
   while(1)
   {
-    input = (*gpio_in >> 1) & 3;
-
-    dit[1] = dit[0];
-    dah[1] = dah[0];
-
-    dit[0] = input >> 1;
-    dah[0] = input & 1;
-
-    if(cw_reversed)
-    {
-      dah[0] = input >> 1;
-      dit[0] = input & 1;
-    }
+    usleep(1000);
+    cw_memory[0] = cw_input();
 
     if(cw_mode == 0)
     {
-      if(dah[0]) cw_on();
-      else if(dit[0]) cw_dit();
+      if(cw_memory[0] & 1) cw_on();
+      else if(cw_memory[0] & 2)
+      {
+        cw_on();
+        usleep(1200000 / cw_speed);
+        cw_off();
+        usleep(1200000 / cw_speed);
+      }
       else cw_off();
-      cw_idle();
-      continue;
     }
-
-    switch(cw_state)
+    else if(cw_memory[0])
     {
-      case 0:
-        if(dit[0]) cw_dit();
-        else if(dah[0]) cw_dah();
-        else cw_idle();
-        break;
-
-      case 1:
-        if(dah[0]) cw_dah();
-        else if(dit[0]) cw_dit();
-        else if(dah[1] && cw_mode == 2) cw_dah();
-        else if(cw_spacing) cw_space();
-        else cw_idle();
-        break;
-
-      case 2:
-        if(dit[0]) cw_dit();
-        else if(dah[0]) cw_dah();
-        else if(dit[1] && cw_mode == 2) cw_dit();
-        else if(cw_spacing) cw_space();
-        else cw_idle();
-        break;
+      state = 1;
+      cw_memory[1] = cw_memory[0];
+      while(cw_memory[1])
+      {
+        if(cw_memory[1] & (1 << state))
+        {
+          cw_memory[1] = 0;
+          cw_signal(state);
+          cw_space(1);
+          cw_memory[1] &= ~(1 << state);
+          cw_memory[1] |= cw_memory[0];
+        }
+        state ^= 1;
+      }
+      if(cw_spacing) cw_space(0);
     }
   }
 
