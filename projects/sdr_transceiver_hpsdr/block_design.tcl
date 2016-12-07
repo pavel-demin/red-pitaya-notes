@@ -107,20 +107,6 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 # GPIO
 
 # Delete input/output port
-delete_bd_objs [get_bd_ports exp_p_tri_io]
-
-# Create output port
-create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
-} {
-  Din cfg_0/cfg_data
-  Dout exp_p_tri_io
-}
-
-# Delete input/output port
 delete_bd_objs [get_bd_ports exp_n_tri_io]
 
 # Create input/output port
@@ -141,6 +127,45 @@ cell xilinx.com:ip:util_vector_logic:2.0 not_0 {
   C_OPERATION not
 } {
   Op1 gpio_0/deb_data
+}
+
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_p_tri_io]
+
+# Create output port
+create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 ptt_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 12 DIN_TO 12 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create util_vector_logic
+cell xilinx.com:ip:util_vector_logic:2.0 or_0 {
+  C_SIZE 1
+  C_OPERATION or
+} {
+  Op1 ptt_slice_0/Dout
+  Op2 not_0/Res
+}
+
+# Create util_vector_logic
+cell xilinx.com:ip:util_vector_logic:2.0 or_1 {
+  C_SIZE 8
+  C_OPERATION or
+} {
+  Op1 out_slice_0/Dout
+  Op2 or_0/Res
+  Res exp_p_tri_io
 }
 
 # ALEX
@@ -220,7 +245,28 @@ module rx_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+  DIN_WIDTH 320 DIN_FROM 8 DIN_TO 8 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
+  DIN_WIDTH 320 DIN_FROM 9 DIN_TO 9 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 key_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 10 DIN_TO 10 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 key_slice_1 {
+  DIN_WIDTH 320 DIN_FROM 11 DIN_TO 11 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
@@ -235,12 +281,11 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
 module tx_0 {
   source projects/sdr_transceiver_hpsdr/tx.tcl
 } {
-  slice_0/Din rst_slice_1/Dout
-  slice_1/Din rst_slice_1/Dout
-  slice_2/Din rst_slice_1/Dout
-  slice_3/Din cfg_slice_1/Dout
-  slice_4/Din cfg_slice_1/Dout
-  slice_5/Din cfg_slice_1/Dout
+  fifo_generator_0/srst rst_slice_1/Dout
+  keyer_0/key_flag key_slice_0/Dout
+  slice_0/Din cfg_slice_1/Dout
+  slice_1/Din cfg_slice_1/Dout
+  slice_2/Din cfg_slice_1/Dout
   fifo_1/M_AXIS bcast_0/S_AXIS
   fifo_1/m_axis_aclk pll_0/clk_out1
   fifo_1/m_axis_aresetn const_0/dout
@@ -249,7 +294,7 @@ module tx_0 {
 # CODEC
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
+cell xilinx.com:ip:xlslice:1.0 rst_slice_3 {
   DIN_WIDTH 320 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
@@ -265,14 +310,13 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
 module codec {
   source projects/sdr_transceiver_hpsdr/codec.tcl
 } {
-  slice_0/Din rst_slice_2/Dout
-  slice_1/Din rst_slice_2/Dout
-  slice_2/Din rst_slice_2/Dout
-  slice_3/Din rst_slice_2/Dout
-  slice_4/Din rst_slice_2/Dout
-  slice_5/Din cfg_slice_2/Dout
-  slice_6/Din cfg_slice_2/Dout
-  slice_7/Din cfg_slice_2/Dout
+  fifo_generator_0/srst rst_slice_2/Dout
+  keyer_0/key_flag key_slice_1/Dout
+  slice_0/Din rst_slice_3/Dout
+  slice_1/Din rst_slice_3/Dout
+  slice_2/Din cfg_slice_2/Dout
+  slice_3/Din cfg_slice_2/Dout
+  slice_4/Din cfg_slice_2/Dout
   i2s_0/gpio_data exp_n_alex
   i2s_0/alex_data alex_0/alex_data
 }

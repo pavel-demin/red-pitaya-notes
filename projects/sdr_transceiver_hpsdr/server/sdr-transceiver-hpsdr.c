@@ -98,6 +98,7 @@ uint8_t cw_spacing = 0;
 uint8_t cw_delay = 0;
 
 int cw_memory[2] = {0, 0};
+int cw_ptt_delay = 0;
 
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
@@ -439,22 +440,17 @@ int main(int argc, char *argv[])
   tx_mux[16] = 0;
   tx_mux[0] = 2;
 
-  /* reset tx fifo */
-  *tx_rst |= 1;
-  *tx_rst &= ~1;
-
-  /* disable tx keyer */
-  *tx_rst &= ~2;
+  /* reset tx and codec DAC fifo */
+  *tx_rst |= 3;
+  *tx_rst &= ~3;
 
   if(i2c_codec)
   {
-    /* reset codec fifo */
-    *codec_rst |= 3;
-    *codec_rst &= ~3;
-    /* disable codec keyer */
-    *codec_rst &= ~4;
+    /* reset codec ADC fifo */
+    *codec_rst |= 1;
+    *codec_rst &= ~1;
     /* enable I2S interface */
-    *codec_rst &= ~8;
+    *codec_rst &= ~2;
 
     /* set default dac phase increment */
     *dac_freq = (uint32_t)floor(600 / 48.0e3 * (1 << 30) + 0.5);
@@ -483,7 +479,7 @@ int main(int argc, char *argv[])
   else
   {
     /* enable ALEX interface */
-    *codec_rst |= 8;
+    *codec_rst |= 2;
   }
 
   if((sock_ep2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
@@ -645,34 +641,6 @@ void process_ep2(uint8_t *frame)
         }
       }
       *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1 | ptt;
-
-      data = (ptt | (*gpio_in & 1)) & cw_int_data;
-      if(tx_mux_data != data)
-      {
-        tx_mux_data = data;
-        if(data == 0)
-        {
-          *tx_rst &= ~2;
-          *codec_rst &= ~4;
-        }
-        else
-        {
-          *tx_rst |= 2;
-          *codec_rst |= 4;
-        }
-        tx_mux[16] = data;
-        tx_mux[0] = 2;
-      }
-      data &= (dac_level_data > 0);
-      if(dac_mux_data != data)
-      {
-        dac_mux_data = data;
-        if(i2c_codec)
-        {
-          dac_mux[16] = data;
-          dac_mux[0] = 2;
-        }
-      }
 
       /* set rx sample rate */
       rate = frame[1] & 3;
@@ -917,9 +885,9 @@ void *handler_ep6(void *arg)
 
   if(i2c_codec)
   {
-    /* reset codec fifo */
-    *codec_rst |= 2;
-    *codec_rst &= ~2;
+    /* reset codec ADC fifo */
+    *codec_rst |= 1;
+    *codec_rst &= ~1;
   }
 
   /* reset rx fifo */
@@ -938,9 +906,9 @@ void *handler_ep6(void *arg)
     {
       if(i2c_codec)
       {
-        /* reset codec fifo */
-        *codec_rst |= 2;
-        *codec_rst &= ~2;
+        /* reset codec ADC fifo */
+        *codec_rst |= 1;
+        *codec_rst &= ~1;
       }
 
       /* reset rx fifo */
@@ -1031,18 +999,6 @@ void *handler_ep6(void *arg)
   return NULL;
 }
 
-inline void cw_on()
-{
-  *tx_rst |= 4;
-  *codec_rst |= 16;
-}
-
-inline void cw_off()
-{
-  *tx_rst &= ~4;
-  *codec_rst &= ~16;
-}
-
 inline int cw_input()
 {
   int input = (*gpio_in >> 1) & 3;
@@ -1050,11 +1006,76 @@ inline int cw_input()
   return input;
 }
 
-inline void cw_signal(int code)
+inline void cw_on()
+{
+  int delay = 1200 / cw_speed;
+  if(cw_delay < delay) delay = cw_delay;
+  *tx_rst |= 16; /* PTT on */
+  tx_mux[16] = 1;
+  tx_mux[0] = 2;
+  tx_mux_data = 1;
+  if(i2c_codec && dac_level_data > 0)
+  {
+    dac_mux[16] = 1;
+    dac_mux[0] = 2;
+    dac_mux_data = 1;
+    *tx_rst |= 8; /* sidetone on */
+  }
+  while(delay--)
+  {
+    usleep(1000);
+    cw_memory[0] = cw_input();
+    if(cw_mode == 1 && !cw_memory[0]) cw_memory[1] = 0;
+    else cw_memory[1] |= cw_memory[0];
+  }
+  *tx_rst |= 4; /* RF on */
+}
+
+inline void cw_off()
+{
+  int delay = 1200 / cw_speed;
+  if(cw_delay < delay) delay = cw_delay;
+  if(i2c_codec && dac_mux_data)
+  {
+    *tx_rst &= ~8; /* sidetone off */
+  }
+  while(delay--)
+  {
+    usleep(1000);
+    cw_memory[0] = cw_input();
+    cw_memory[1] |= cw_memory[0];
+  }
+  *tx_rst &= ~4; /* RF off */
+  cw_ptt_delay = cw_hang > 0 ? cw_hang : 10;
+}
+
+inline void cw_ptt_off()
+{
+  if(--cw_ptt_delay > 0) return;
+  *tx_rst &= ~16; /* PTT off */
+  /* reset tx fifo */
+  *tx_rst |= 1;
+  *tx_rst &= ~1;
+  tx_mux[16] = 0;
+  tx_mux[0] = 2;
+  tx_mux_data = 0;
+  if(i2c_codec && dac_mux_data)
+  {
+    /* reset codec DAC fifo */
+    *tx_rst |= 2;
+    *tx_rst &= ~2;
+    dac_mux[16] = 0;
+    dac_mux[0] = 2;
+    dac_mux_data = 0;
+  }
+}
+
+inline void cw_signal_delay(int code)
 {
   int delay = code ? 1200 / cw_speed : 3600 * cw_weight / (50 * cw_speed);
-  cw_on();
-  while(--delay)
+  delay -= cw_delay;
+  if(delay < 0) delay = 0;
+  while(delay--)
   {
     usleep(1000);
     cw_memory[0] = cw_input();
@@ -1063,13 +1084,14 @@ inline void cw_signal(int code)
   }
 }
 
-inline void cw_space(int code)
+inline void cw_space_delay(int code)
 {
-  int delay = code ? 1200 / cw_speed : 2400 / cw_speed;
-  cw_off();
-  while(--delay)
+  int delay = code ? 1200 / cw_speed - cw_delay : 2400 / cw_speed;
+  if(delay < 0) delay = 0;
+  while(delay--)
   {
     usleep(1000);
+    if(tx_mux_data) cw_ptt_off();
     cw_memory[0] = cw_input();
     cw_memory[1] |= cw_memory[0];
   }
@@ -1077,11 +1099,12 @@ inline void cw_space(int code)
 
 void *handler_keyer(void *arg)
 {
-  int state;
+  int state, delay;
 
   while(1)
   {
     usleep(1000);
+    if(tx_mux_data) cw_ptt_off();
     cw_memory[0] = cw_input();
 
     if(cw_mode == 0)
@@ -1090,29 +1113,44 @@ void *handler_keyer(void *arg)
       else if(cw_memory[0] & 2)
       {
         cw_on();
-        usleep(1200000 / cw_speed);
+        delay = 1200 / cw_speed - cw_delay;
+        if(delay > 0) usleep(delay * 1000);
         cw_off();
-        usleep(1200000 / cw_speed);
+        cw_space_delay(1);
       }
-      else cw_off();
+      else if(tx_mux_data) cw_off();
     }
     else if(cw_memory[0])
     {
       state = 1;
       cw_memory[1] = cw_memory[0];
-      while(cw_memory[1])
+      while(1)
       {
         if(cw_memory[1] & (1 << state))
         {
           cw_memory[1] = 0;
-          cw_signal(state);
-          cw_space(1);
+          cw_on();
+          cw_signal_delay(state);
+          cw_off();
+          cw_space_delay(1);
           cw_memory[1] &= ~(1 << state);
           cw_memory[1] |= cw_memory[0];
         }
-        state ^= 1;
+        if(cw_memory[1])
+        {
+          state ^= 1;
+        }
+        else
+        {
+          if(cw_spacing)
+          {
+            state = 1;
+            cw_space_delay(0);
+            if(cw_memory[1]) continue;
+          }
+          break;
+        }
       }
-      if(cw_spacing) cw_space(0);
     }
   }
 
