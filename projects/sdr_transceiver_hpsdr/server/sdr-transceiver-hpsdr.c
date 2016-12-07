@@ -87,7 +87,6 @@ uint8_t dac_level_data = 0;
 uint8_t cw_int_data = 0;
 uint8_t rx_att_data = 0;
 uint8_t tx_mux_data = 0;
-uint8_t tx_ptt_data = 0;
 
 uint16_t cw_hang = 0;
 uint8_t cw_reversed = 0;
@@ -631,15 +630,6 @@ void process_ep2(uint8_t *frame)
       ptt = frame[0] & 0x01;
       att = frame[3] & 0x03;
       preamp = ptt | (*gpio_in & 1) ? 0 : (frame[3] & 0x04) >> 2 | (rx_att_data == 0);
-      if(tx_ptt_data != ptt)
-      {
-        tx_ptt_data = ptt;
-        if(ptt)
-        {
-          *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1;
-          usleep(1000);
-        }
-      }
       *gpio_out = (frame[2] & 0x1e) << 3 | att << 2 | preamp << 1 | ptt;
 
       /* set rx sample rate */
