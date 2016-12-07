@@ -98,7 +98,7 @@ uint8_t cw_spacing = 0;
 uint8_t cw_delay = 0;
 
 int cw_memory[2] = {0, 0};
-int cw_ptt = 0;
+int cw_ptt_delay = 0;
 
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
@@ -1008,17 +1008,19 @@ inline int cw_input()
 
 inline void cw_on()
 {
-  int delay = cw_delay;
+  int delay = 1200 / cw_speed;
+  if(cw_delay < delay) delay = cw_delay;
+  *tx_rst |= 16; /* PTT on */
   tx_mux[16] = 1;
   tx_mux[0] = 2;
-  if(i2c_codec && dac_level_data > 0);
+  tx_mux_data = 1;
+  if(i2c_codec && dac_level_data > 0)
   {
     dac_mux[16] = 1;
     dac_mux[0] = 2;
     dac_mux_data = 1;
+    *tx_rst |= 8; /* sidetone on */
   }
-  *tx_rst |= 16; /* PTT on */
-  *tx_rst |= 8; /* sidetone on */
   while(delay--)
   {
     usleep(1000);
@@ -1031,8 +1033,12 @@ inline void cw_on()
 
 inline void cw_off()
 {
-  int delay = cw_delay;
-  *tx_rst &= ~8; /* sidetone off */
+  int delay = 1200 / cw_speed;
+  if(cw_delay < delay) delay = cw_delay;
+  if(i2c_codec && dac_mux_data)
+  {
+    *tx_rst &= ~8; /* sidetone off */
+  }
   while(delay--)
   {
     usleep(1000);
@@ -1040,25 +1046,25 @@ inline void cw_off()
     cw_memory[1] |= cw_memory[0];
   }
   *tx_rst &= ~4; /* RF off */
-  cw_ptt = cw_hang + 10;
+  cw_ptt_delay = cw_hang > 0 ? cw_hang : 10;
 }
 
 inline void cw_ptt_off()
 {
-  if(cw_ptt == 0) return;
-  if(--cw_ptt > 0) return;
+  if(--cw_ptt_delay > 0) return;
   *tx_rst &= ~16; /* PTT off */
   /* reset tx fifo */
   *tx_rst |= 1;
   *tx_rst &= ~1;
-  tx_mux[16] = 1;
+  tx_mux[16] = 0;
   tx_mux[0] = 2;
-  if(i2c_codec && dac_mux_data);
+  tx_mux_data = 0;
+  if(i2c_codec && dac_mux_data)
   {
     /* reset codec DAC fifo */
     *tx_rst |= 2;
     *tx_rst &= ~2;
-    dac_mux[16] = 1;
+    dac_mux[16] = 0;
     dac_mux[0] = 2;
     dac_mux_data = 0;
   }
@@ -1068,6 +1074,7 @@ inline void cw_signal_delay(int code)
 {
   int delay = code ? 1200 / cw_speed : 3600 * cw_weight / (50 * cw_speed);
   delay -= cw_delay;
+  if(delay < 0) delay = 0;
   while(delay--)
   {
     usleep(1000);
@@ -1080,10 +1087,11 @@ inline void cw_signal_delay(int code)
 inline void cw_space_delay(int code)
 {
   int delay = code ? 1200 / cw_speed - cw_delay : 2400 / cw_speed;
+  if(delay < 0) delay = 0;
   while(delay--)
   {
     usleep(1000);
-    cw_ptt_off();
+    if(tx_mux_data) cw_ptt_off();
     cw_memory[0] = cw_input();
     cw_memory[1] |= cw_memory[0];
   }
@@ -1091,12 +1099,12 @@ inline void cw_space_delay(int code)
 
 void *handler_keyer(void *arg)
 {
-  int state;
+  int state, delay;
 
   while(1)
   {
     usleep(1000);
-    cw_ptt_off();
+    if(tx_mux_data) cw_ptt_off();
     cw_memory[0] = cw_input();
 
     if(cw_mode == 0)
@@ -1105,11 +1113,12 @@ void *handler_keyer(void *arg)
       else if(cw_memory[0] & 2)
       {
         cw_on();
-        usleep((1200 / cw_speed - cw_delay) * 1000);
+        delay = 1200 / cw_speed - cw_delay;
+        if(delay > 0) usleep(delay * 1000);
         cw_off();
         cw_space_delay(1);
       }
-      else cw_off();
+      else if(tx_mux_data) cw_off();
     }
     else if(cw_memory[0])
     {

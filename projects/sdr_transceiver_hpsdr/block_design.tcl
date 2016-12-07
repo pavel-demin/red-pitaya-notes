@@ -144,7 +144,7 @@ cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 ptt_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 11 DIN_TO 11 DOUT_WIDTH 1
+  DIN_WIDTH 320 DIN_FROM 12 DIN_TO 12 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
