@@ -60,7 +60,7 @@ RF, GPIO and XADC connections
  - outputs for Hermes Ctrl pins are connected to the pins DIO4_P - DIO7_P of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
  - inputs for PTT, DASH and DOT are connected to the pins DIO0_N, DIO1_N and DIO2_N of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1)
  - slow analog inputs can be used for the forward ([Analog input 0](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E2)) and reverse ([Analog input 1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E2)) power measurement
- 
+
 ![GPIO connections]({{ "/img/sdr-transceiver-hpsdr-e1-pins.png" | prepend: site.baseurl }})
 
 I2S connections
@@ -156,7 +156,7 @@ The following spectra illustrate how the amplifier linearization works with the 
 CW functionality
 -----
 
-A very basic CW functionality is currently provided. It can be used with a straight key or an external keyer connected to the pin DIO2_N of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1). The CW signal is generated when one of the CW modes is selected in [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) and the pin DIO2_N is connected to GND.
+The CW keyer can be used with a straight or iambic key connected to the pins DIO2_N and DIO3_N of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1). The CW signal is generated when one of the CW modes is selected in [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) and the pins DIO2_N and DIO3_N are connected to GND.
 
 The ramp generator is programmable. The default ramp's shape is the step response of the 4-term Blackman-Harris window. It's inspired by the ["CW Shaping in DSP Software"](https://github.com/pavel-demin/red-pitaya-notes/files/403696/cw-shaping-in-dsp.pdf) article appeared in the May/June, 2006 issue of QEX.
 
