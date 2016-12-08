@@ -991,7 +991,9 @@ void *handler_ep6(void *arg)
 
 inline int cw_input()
 {
-  int input = (*gpio_in >> 1) & 3;
+  int input;
+  if(!cw_int_data) return 0;
+  input = (*gpio_in >> 1) & 3;
   if(cw_reversed) input = (input & 1) << 1 | input >> 1;
   return input;
 }
@@ -1095,12 +1097,21 @@ void *handler_keyer(void *arg)
   {
     usleep(1000);
     if(tx_mux_data) cw_ptt_off();
-    cw_memory[0] = cw_input();
+    if(!(cw_memory[0] = cw_input())) continue;
 
     if(cw_mode == 0)
     {
-      if(cw_memory[0] & 1) cw_on();
-      else if(cw_memory[0] & 2)
+      if(cw_memory[0] & 1)
+      {
+        cw_on();
+        while(cw_memory[0] & 1)
+        {
+          usleep(1000);
+          cw_memory[0] = cw_input();
+        }
+        cw_off();
+      }
+      else
       {
         cw_on();
         delay = 1200 / cw_speed - cw_delay;
@@ -1108,9 +1119,8 @@ void *handler_keyer(void *arg)
         cw_off();
         cw_space_delay(1);
       }
-      else if(tx_mux_data) cw_off();
     }
-    else if(cw_memory[0])
+    else
     {
       state = 1;
       cw_memory[1] = cw_memory[0];
