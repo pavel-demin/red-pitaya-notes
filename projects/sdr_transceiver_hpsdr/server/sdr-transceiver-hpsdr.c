@@ -33,6 +33,7 @@
 #define ADDR_PENE 0x20 /* PCA9555 address 0 */
 #define ADDR_ALEX 0x21 /* PCA9555 address 1 */
 #define ADDR_LEVEL 0x22 /* PCA9555 address 2 */
+#define ADDR_MISC 0x23 /* PCA9555 address 3 */
 #define ADDR_DRIVE 0x28 /* DS1803 address 0 */
 #define ADDR_CODEC 0x1A /* WM8731 or TLV320AIC23B address 0 */
 #define ADDR_DAC0 0x60 /* MCP4725 address 0 */
@@ -67,6 +68,7 @@ int i2c_fd;
 int i2c_pene = 0;
 int i2c_alex = 0;
 int i2c_level = 0;
+int i2c_misc = 0;
 int i2c_drive = 0;
 int i2c_codec = 0;
 int i2c_dac0 = 0;
@@ -75,6 +77,7 @@ int i2c_dac1 = 0;
 uint16_t i2c_pene_data = 0;
 uint16_t i2c_alex_data = 0;
 uint16_t i2c_level_data = 0;
+uint16_t i2c_misc_data = 0;
 uint16_t i2c_drive_data = 0;
 uint16_t i2c_dac0_data = 0xfff;
 uint16_t i2c_dac1_data = 0xfff;
@@ -127,26 +130,25 @@ ssize_t i2c_write_data16(int fd, uint16_t data)
 uint16_t alex_data_rx = 0;
 uint16_t alex_data_tx = 0;
 uint16_t alex_data_0 = 0;
-uint32_t alex_data_1 = 0;
-uint32_t alex_data_2 = 0;
-uint32_t alex_data_3 = 0;
-uint16_t alex_data_4 = 0;
+uint16_t alex_data_1 = 0;
+
+uint32_t freq_data[3] = {0, 0, 0};
 
 void alex_write()
 {
-  uint32_t max = alex_data_2 > alex_data_3 ? alex_data_2 : alex_data_3;
-  uint16_t manual = (alex_data_4 >> 15) & 0x01;
-  uint16_t preamp = manual ? (alex_data_4 >> 6) & 0x01 : max > 50000000;
+  uint32_t max = freq_data[1] > freq_data[2] ? freq_data[1] : freq_data[2];
+  uint16_t manual = (alex_data_1 >> 15) & 0x01;
+  uint16_t preamp = manual ? (alex_data_1 >> 6) & 0x01 : max > 50000000;
   uint16_t ptt = alex_data_0 & 0x01;
   uint32_t freq = 0;
   uint16_t hpf = 0, lpf = 0, data = 0;
 
   if(i2c_codec) return;
 
-  freq = alex_data_2 < alex_data_3 ? alex_data_2 : alex_data_3;
+  freq = freq_data[1] < freq_data[2] ? freq_data[1] : freq_data[2];
 
   if(preamp) hpf = 0;
-  else if(manual) hpf = alex_data_4 & 0x3f;
+  else if(manual) hpf = alex_data_1 & 0x3f;
   else if(freq < 1416000) hpf = 0x20; /* bypass */
   else if(freq < 6500000) hpf = 0x10; /* 1.5 MHz HPF */
   else if(freq < 9500000) hpf = 0x08; /* 6.5 MHz HPF */
@@ -174,9 +176,9 @@ void alex_write()
     *alex = 1 << 16 | data;
   }
 
-  freq = ptt ? alex_data_1 : max;
+  freq = ptt ? freq_data[0] : max;
 
-  if(manual) lpf = (alex_data_4 >> 8) & 0x7f;
+  if(manual) lpf = (alex_data_1 >> 8) & 0x7f;
   else if(freq > 32000000) lpf = 0x10; /* bypass */
   else if(freq > 22000000) lpf = 0x20; /* 12/10 meters */
   else if(freq > 15000000) lpf = 0x40; /* 17/15 meters */
@@ -188,7 +190,7 @@ void alex_write()
   data =
     ((lpf >> 4) & 0x07) << 13 |
     ptt << 12 |
-    (~(alex_data_4 >> 7) & ptt) << 11 |
+    (~(alex_data_1 >> 7) & ptt) << 11 |
     (((alex_data_0 >> 8) & 0x03) == 0x02) << 10 |
     (((alex_data_0 >> 8) & 0x03) == 0x01) << 9 |
     (((alex_data_0 >> 8) & 0x03) == 0x00) << 8 |
@@ -202,13 +204,48 @@ void alex_write()
   }
 }
 
+uint16_t misc_data_0 = 0;
+
+inline int lower_bound(int *array, int size, int value)
+{
+  int i = 0, j = size, k;
+  while(i < j)
+  {
+    k = (i + j) / 2;
+    if(value > array[k]) i = k + 1;
+    else j = k;
+  }
+  return i;
+}
+
+void misc_write()
+{
+  uint16_t code, data = 0;
+  int i, freqs[20] = {1700000, 2100000, 3400000, 4100000, 6900000, 7350000, 9950000, 10200000, 13850000, 14500000, 18000000, 18250000, 20850000, 21650000, 24700000, 25150000, 27000000, 30000000, 49000000, 55000000};
+
+  for(i = 0; i < 3; ++i)
+  {
+    code = lower_bound(freqs, 20, freq_data[i]);
+    code = code % 2 ? code / 2 + 1 : 0;
+    data |= code << (i * 4);
+  }
+
+  data |= (misc_data_0 & 0x18) << 9;
+
+  if(i2c_misc_data != data)
+  {
+    i2c_misc_data = data;
+    ioctl(i2c_fd, I2C_SLAVE, ADDR_MISC);
+    i2c_write_addr_data16(i2c_fd, 0x02, data);
+  }
+}
+
 int uart_fd;
-uint32_t icom_freq_data = 0;
 uint8_t icom_band_data = 0;
 
 void icom_write()
 {
-  uint32_t freq = icom_freq_data;
+  uint32_t freq = freq_data[0];
   uint8_t band;
   uint8_t buffer[10] = {0xfe, 0xfe, 0x04, 0xe0, 0x05, 0x00, 0x00, 0x08, 0x01, 0xfd};
 
@@ -311,6 +348,16 @@ int main(int argc, char *argv[])
       if(i2c_write_addr_data16(i2c_fd, 0x02, 0x0000) > 0)
       {
         i2c_level = 1;
+        /* configure all pins as output */
+        i2c_write_addr_data16(i2c_fd, 0x06, 0x0000);
+      }
+    }
+    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_MISC) >= 0)
+    {
+      /* set all pins to low */
+      if(i2c_write_addr_data16(i2c_fd, 0x02, 0x0000) > 0)
+      {
+        i2c_misc = 1;
         /* configure all pins as output */
         i2c_write_addr_data16(i2c_fd, 0x06, 0x0000);
       }
@@ -685,15 +732,12 @@ void process_ep2(uint8_t *frame)
     case 3:
       /* set tx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(alex_data_1 != freq)
+      if(freq_data[0] != freq)
       {
-        alex_data_1 = freq;
+        freq_data[0] = freq;
         alex_write();
-      }
-      if(icom_freq_data != freq)
-      {
-        icom_freq_data = freq;
         icom_write();
+        if(i2c_misc) misc_write();
       }
       if(freq < freq_min || freq > freq_max) break;
       *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
@@ -702,10 +746,11 @@ void process_ep2(uint8_t *frame)
     case 5:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(alex_data_2 != freq)
+      if(freq_data[1] != freq)
       {
-        alex_data_2 = freq;
+        freq_data[1] = freq;
         alex_write();
+        if(i2c_misc) misc_write();
       }
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
@@ -714,10 +759,11 @@ void process_ep2(uint8_t *frame)
     case 7:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(alex_data_3 != freq)
+      if(freq_data[2] != freq)
       {
-        alex_data_3 = freq;
+        freq_data[2] = freq;
         alex_write();
+        if(i2c_misc) misc_write();
       }
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
@@ -739,9 +785,9 @@ void process_ep2(uint8_t *frame)
     case 18:
     case 19:
       data = (frame[2] & 0x40) << 9 | frame[4] << 8 | frame[3];
-      if(alex_data_4 != data)
+      if(alex_data_1 != data)
       {
-        alex_data_4 = data;
+        alex_data_1 = data;
         alex_write();
       }
 
@@ -799,6 +845,12 @@ void process_ep2(uint8_t *frame)
       break;
     case 22:
     case 23:
+      data = frame[1] & 0x1f;
+      if(misc_data_0 != data)
+      {
+        misc_data_0 = data;
+        if(i2c_misc) misc_write();
+      }
       cw_reversed = (frame[2] >> 6) & 1;
       cw_speed = frame[3] & 63;
       cw_mode = (frame[3] >> 6) & 3;
