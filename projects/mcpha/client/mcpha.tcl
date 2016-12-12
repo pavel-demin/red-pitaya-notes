@@ -132,6 +132,8 @@ namespace eval ::mcpha {
     my variable master
 
     trace add variable [my varname rate] write [mymethod rate_update]
+    trace add variable [my varname neg_0] write [mymethod neg_0_update]
+    trace add variable [my varname neg_1] write [mymethod neg_1_update]
 
     ${master}.rate_field set 4
   }
@@ -149,15 +151,22 @@ namespace eval ::mcpha {
 
     frame ${master}.spc1 -width 10
 
-    label ${master}.rate_label -text {Decimation factor:}
+    checkbutton ${master}.neg_check_0 -text {negative IN1} -variable [my varname neg_0]
+    checkbutton ${master}.neg_check_1 -text {negative IN2} -variable [my varname neg_1]
+
+    frame ${master}.spc2 -width 10
+
+    label ${master}.rate_label -text {decimation factor:}
     spinbox ${master}.rate_field -from 4 -to 8192 \
       -increment 4 -width 10 -textvariable [my varname rate] \
       -validate all -vcmd {::mcpha::validate 0 8192 4 %P}
 
     grid ${master}.addr_label ${master}.address_field ${master}.connect \
-      ${master}.spc1 ${master}.rate_label ${master}.rate_field -padx 5
+      ${master}.spc1 ${master}.neg_check_0 ${master}.neg_check_1 ${master}.spc2 \
+      ${master}.rate_label ${master}.rate_field -padx 5
 
     grid columnconfigure ${master} 3 -weight 1
+    grid columnconfigure ${master} 6 -weight 1
   }
 
 # -------------------------------------------------------------------------
@@ -220,6 +229,8 @@ namespace eval ::mcpha {
         -bg yellow -activebackground yellow -command [mymethod disconnect]
 
       my rate_update
+      my neg_0_update
+      my neg_1_update
     } else {
       my display_error
     }
@@ -321,6 +332,22 @@ namespace eval ::mcpha {
     }
 
     my command 4 0 $rate
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define CfgDisplay method neg_0_update args {
+    my variable neg_0
+
+    my command 5 0 $neg_0
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define CfgDisplay method neg_1_update args {
+    my variable neg_1
+
+    my command 5 1 $neg_1
   }
 
 # -------------------------------------------------------------------------
@@ -693,16 +720,13 @@ namespace eval ::mcpha {
   oo::define HstDisplay method base_update args {
     my variable controller config number base
 
-    switch -- $base {
-      1 {
-        ${config}.base_field configure -state disabled
-      }
-      0 {
-        ${config}.base_field configure -state normal
-      }
+    if {$base} {
+      ${config}.base_field configure -state disabled
+    } else {
+      ${config}.base_field configure -state normal
     }
 
-    $controller command 5 $number $base
+    $controller command 6 $number $base
   }
 
 # -------------------------------------------------------------------------
@@ -714,7 +738,7 @@ namespace eval ::mcpha {
       set base_val 0
     }
 
-    $controller command 6 $number $base_val
+    $controller command 7 $number $base_val
   }
 
 # -------------------------------------------------------------------------
@@ -722,7 +746,7 @@ namespace eval ::mcpha {
   oo::define HstDisplay method delay_update args {
     my variable controller number
 
-    $controller command 7 $number 100
+    $controller command 8 $number 100
   }
 
 # -------------------------------------------------------------------------
@@ -738,23 +762,20 @@ namespace eval ::mcpha {
       set thrs_max 0
     }
 
-    switch -- $thrs {
-      1 {
-        ${config}.thrs_frame.min_field configure -state normal
-        set min $thrs_min
-        ${config}.thrs_frame.max_field configure -state normal
-        set max $thrs_max
-      }
-      0 {
-        ${config}.thrs_frame.min_field configure -state disabled
-        set min 0
-        ${config}.thrs_frame.max_field configure -state disabled
-        set max 16380
-      }
+    if {$thrs} {
+      ${config}.thrs_frame.min_field configure -state normal
+      set min $thrs_min
+      ${config}.thrs_frame.max_field configure -state normal
+      set max $thrs_max
+    } else {
+      ${config}.thrs_frame.min_field configure -state disabled
+      set min 0
+      ${config}.thrs_frame.max_field configure -state disabled
+      set max 16380
     }
 
-    $controller command 8 $number $min
-    $controller command 9 $number $max
+    $controller command 9 $number $min
+    $controller command 10 $number $max
   }
 
 # -------------------------------------------------------------------------
@@ -843,7 +864,7 @@ namespace eval ::mcpha {
   oo::define HstDisplay method cntr_setup {} {
     my variable controller number cntr_val
 
-    $controller command 10 $number $cntr_val
+    $controller command 11 $number $cntr_val
     $controller command 0 $number
  }
 
@@ -964,7 +985,7 @@ namespace eval ::mcpha {
     my delay_update
     my thrs_update
 
-    $controller command 11 $number 1
+    $controller command 12 $number 1
 
     set auto 1
 
@@ -978,7 +999,7 @@ namespace eval ::mcpha {
 
     set date_val(stop) [clock format [clock seconds] -format {%d/%m/%Y %H:%M:%S}]
 
-    $controller command 11 $number 0
+    $controller command 12 $number 0
 
     set auto 0
 
@@ -1009,7 +1030,7 @@ namespace eval ::mcpha {
     set size 16384
 
     set result {}
-    $controller commandReadHex 12 $number 8 result
+    $controller commandReadHex 13 $number 8 result
 
     if {[string length $result] == 0} {
       return
@@ -1018,7 +1039,7 @@ namespace eval ::mcpha {
     set cntr_new [expr {$cntr_bak - $result}]
     catch {set cntr_val $cntr_new}
 
-    $controller commandReadVec 13 $number $size u4 [my varname yvec]
+    $controller commandReadVec 14 $number $size u4 [my varname yvec]
     set yvec_new [blt::vector expr "sum([my varname yvec](0:16383))"]
 
     if {$cntr_new < $cntr_old} {
@@ -1385,16 +1406,13 @@ namespace eval ::mcpha {
   oo::define OscDisplay method mode_update args {
     my variable controller config mode
 
-    switch -- $mode {
-      1 {
-        ${config}.level_field configure -state disabled
-      }
-      0 {
-        ${config}.level_field configure -state normal
-      }
+    if {$mode} {
+      ${config}.level_field configure -state disabled
+    } else {
+      ${config}.level_field configure -state normal
     }
 
-    $controller command 16 0 $mode
+    $controller command 17 0 $mode
   }
 
 # -------------------------------------------------------------------------
@@ -1402,7 +1420,7 @@ namespace eval ::mcpha {
   oo::define OscDisplay method source_update args {
     my variable controller source
 
-    $controller command 14 $source
+    $controller command 15 $source
   }
 
 # -------------------------------------------------------------------------
@@ -1410,7 +1428,7 @@ namespace eval ::mcpha {
   oo::define OscDisplay method slope_update args {
     my variable controller slope
 
-    $controller command 15 0 $slope
+    $controller command 16 0 $slope
   }
 
 # -------------------------------------------------------------------------
@@ -1422,7 +1440,7 @@ namespace eval ::mcpha {
       set level 0
     }
 
-    $controller command 17 0 $level
+    $controller command 18 0 $level
   }
 
 # -------------------------------------------------------------------------
@@ -1443,9 +1461,9 @@ namespace eval ::mcpha {
 
     set waiting 1
 
-    $controller command 18 0 5000
-    $controller command 19 0 65536
-    $controller command 20 0
+    $controller command 19 0 5000
+    $controller command 20 0 65536
+    $controller command 21 0
 
     after 200 [mymethod acquire_loop]
   }
@@ -1459,7 +1477,7 @@ namespace eval ::mcpha {
     set size 65536
 
     set status {}
-    $controller commandReadHex 21 0 4 status
+    $controller commandReadHex 22 0 4 status
 
     if {[string length $status] == 0} {
       set auto 0
@@ -1468,7 +1486,7 @@ namespace eval ::mcpha {
     }
 
     if {$status == 0} {
-      $controller commandReadVec 22 0 [expr {$size * 2}] i2 $data
+      $controller commandReadVec 23 0 [expr {$size * 2}] i2 $data
       $data split tmp1 tmp2
       [dict get $yvec 1] set tmp1
       [dict get $yvec 2] set tmp2

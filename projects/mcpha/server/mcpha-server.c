@@ -152,6 +152,32 @@ int main(int argc, char *argv[])
       }
       else if(code == 5)
       {
+        /* set negator mode (0 for disabled, 1 for enabled) */
+        if(chan == 0)
+        {
+          if(data == 0)
+          {
+            *rst[0] &= ~16;
+          }
+          else if(data == 1)
+          {
+            *rst[0] |= 16;
+          }
+        }
+        else if(chan == 1)
+        {
+          if(data == 0)
+          {
+            *rst[1] &= ~16;
+          }
+          else if(data == 1)
+          {
+            *rst[1] |= 16;
+          }
+        }
+      }
+      else if(code == 6)
+      {
         /* set baseline mode (0 for none, 1 for auto) */
         if(chan == 0)
         {
@@ -176,7 +202,7 @@ int main(int argc, char *argv[])
           }
         }
       }
-      else if(code == 6)
+      else if(code == 7)
       {
         /* set baseline level */
         if(chan == 0)
@@ -188,7 +214,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 32) = data;
         }
       }
-      else if(code == 7)
+      else if(code == 8)
       {
         /* set pha delay */
         if(chan == 0)
@@ -200,7 +226,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 34) = data;
         }
       }
-      else if(code == 8)
+      else if(code == 9)
       {
         /* set pha min threshold */
         if(chan == 0)
@@ -212,7 +238,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 36) = data;
         }
       }
-      else if(code == 9)
+      else if(code == 10)
       {
         /* set pha max threshold */
         if(chan == 0)
@@ -224,7 +250,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 38) = data;
         }
       }
-      else if(code == 10)
+      else if(code == 11)
       {
         /* set timer */
         if(chan == 0)
@@ -236,7 +262,7 @@ int main(int argc, char *argv[])
           *(uint64_t *)(cfg + 24) = data;
         }
       }
-      else if(code == 11)
+      else if(code == 12)
       {
         /* set timer mode (0 for stop, 1 for running) */
         if(chan == 0)
@@ -262,7 +288,7 @@ int main(int argc, char *argv[])
           }
         }
       }
-      else if(code == 12)
+      else if(code == 13)
       {
         /* read timer */
         if(chan == 0)
@@ -276,7 +302,7 @@ int main(int argc, char *argv[])
           if(send(sock_client, &data, 8, MSG_NOSIGNAL) < 0) break;
         }
       }
-      else if(code == 13)
+      else if(code == 14)
       {
         /* read histogram */
         if(chan == 0)
@@ -290,7 +316,7 @@ int main(int argc, char *argv[])
           if(send(sock_client, buf, 65536, MSG_NOSIGNAL) < 0) break;
         }
       }
-      else if(code == 14)
+      else if(code == 15)
       {
         /* set trigger source (0 for channel 1, 1 for channel 2) */
         if(chan == 0)
@@ -304,7 +330,7 @@ int main(int argc, char *argv[])
           trg[0] = 2;
         }
       }
-      else if(code == 15)
+      else if(code == 16)
       {
         /* set trigger slope (0 for rising, 1 for falling) */
         if(data == 0)
@@ -316,7 +342,7 @@ int main(int argc, char *argv[])
           *rst[2] |= 4;
         }
       }
-      else if(code == 16)
+      else if(code == 17)
       {
         /* set trigger mode (0 for normal, 1 for auto) */
         if(data == 0)
@@ -328,34 +354,34 @@ int main(int argc, char *argv[])
           *rst[2] |= 8;
         }
       }
-      else if(code == 17)
+      else if(code == 18)
       {
         /* set trigger level */
         *(uint16_t *)(cfg + 80) = data;
       }
-      else if(code == 18)
+      else if(code == 19)
       {
         /* set number of samples before trigger */
         *(uint32_t *)(cfg + 72) = data - 1;
       }
-      else if(code == 19)
+      else if(code == 20)
       {
         /* set total number of samples */
         *(uint32_t *)(cfg + 76) = data - 1;
       }
-      else if(code == 20)
+      else if(code == 21)
       {
         /* start oscilloscope */
         *rst[2] |= 16;
         *rst[2] &= ~16;
       }
-      else if(code == 21)
+      else if(code == 22)
       {
         /* read oscilloscope status */
         *(uint32_t *)buf = *(uint32_t *)(sts + 44) & 1;
         if(send(sock_client, buf, 4, MSG_NOSIGNAL) < 0) break;
       }
-      else if(code == 22)
+      else if(code == 23)
       {
         /* read oscilloscope data */
         pre = *(uint32_t *)(cfg + 72) + 1;

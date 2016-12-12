@@ -3,7 +3,7 @@ lappend auto_path [pwd]
 package require TclOO
 package require oo::util
 
-wm minsize . 230 360
+wm minsize . 230 400
 
 # -------------------------------------------------------------------------
 
@@ -139,17 +139,23 @@ namespace eval ::pha {
     spinbox ${config}.rate_field -from 4 -to 8192 \
       -increment 4 -width 10 -textvariable [my varname rate] \
       -validate all -vcmd {::pha::validate 0 8192 4 %P}
+    frame ${config}.neg_frame -borderwidth 0
+    checkbutton ${config}.neg_frame.neg_check_0 -text {negative IN1} -variable [my varname neg_0]
+    checkbutton ${config}.neg_frame.neg_check_1 -text {negative IN2} -variable [my varname neg_1]
 
     frame ${config}.spc2 -height 10
+
+    grid ${config}.neg_frame.neg_check_0 ${config}.neg_frame.neg_check_1
+
+    frame ${config}.spc3 -height 10
 
     frame ${config}.base_frame -borderwidth 0
 
     label ${config}.base_frame.mode_label -text {baseline subtraction mode}
     radiobutton ${config}.base_frame.mode_0 -variable [my varname base] -text {manual} -value 0
     radiobutton ${config}.base_frame.mode_1 -variable [my varname base] -text {auto} -value 1
-    grid ${config}.base_frame.mode_label -columnspan 2 -sticky w
-    grid ${config}.base_frame.mode_0 -row 1 -column 0 -sticky w
-    grid ${config}.base_frame.mode_1 -row 1 -column 1 -sticky w
+    grid ${config}.base_frame.mode_label -columnspan 2 -sticky w -padx 3
+    grid ${config}.base_frame.mode_0 ${config}.base_frame.mode_1 -sticky w
 
     for {set i 1} {$i <= 2} {incr i} {
 
@@ -159,7 +165,7 @@ namespace eval ::pha {
         -validate all -vcmd {::pha::validate -16380 16380 6 %P}
     }
 
-    frame ${config}.spc3 -height 10
+    frame ${config}.spc4 -height 10
 
     checkbutton ${config}.thrs_check -text {amplitude threshold} -variable [my varname thrs]
 
@@ -182,7 +188,7 @@ namespace eval ::pha {
       grid columnconfigure ${config}.thrs_frame_${i} 3 -weight 1
     }
 
-    frame ${config}.spc4 -height 10
+    frame ${config}.spc5 -height 10
 
     button ${master}.connect -text Start \
       -bg lightgreen -activebackground lightgreen -command [mymethod connect]
@@ -193,16 +199,18 @@ namespace eval ::pha {
     grid ${config}.rate_label -sticky w -padx 3
     grid ${config}.rate_field -sticky ew -padx 5
     grid ${config}.spc2
-    grid ${config}.base_frame -sticky ew -padx 3
+    grid ${config}.neg_frame -sticky ew
+    grid ${config}.spc3
+    grid ${config}.base_frame -sticky ew
     grid ${config}.base_label_1 -sticky w -padx 3
     grid ${config}.base_field_1 -sticky ew -padx 5
     grid ${config}.base_label_2 -sticky w -padx 3
     grid ${config}.base_field_2 -sticky ew -padx 5
-    grid ${config}.spc3
+    grid ${config}.spc4
     grid ${config}.thrs_check -sticky w
     grid ${config}.thrs_frame_1 -sticky ew -padx 5
     grid ${config}.thrs_frame_2 -sticky ew -padx 5
-    grid ${config}.spc4
+    grid ${config}.spc5
 
     grid ${config}
 
@@ -311,7 +319,7 @@ namespace eval ::pha {
 
       my pha_setup
 
-      my command 9 0
+      my command 10 0
 
       fcopy $socket $output -command [mymethod disconnect]
 
@@ -359,7 +367,7 @@ namespace eval ::pha {
 # -------------------------------------------------------------------------
 
   oo::define RecDisplay method pha_setup {} {
-    my variable rate base base_val_1 base_val_2
+    my variable rate neg_0 neg_1 base base_val_1 base_val_2
     my variable thrs thrs_min_1 thrs_max_1 thrs_min_2 thrs_max_2
 
     my command 0 0
@@ -367,13 +375,16 @@ namespace eval ::pha {
 
     my command 2 0 $rate
 
-    my command 3 0 $base
+    my command 3 0 $neg_0
+    my command 3 1 $neg_1
 
-    my command 4 0 $base_val_1
-    my command 4 1 $base_val_2
+    my command 4 0 $base
 
-    my command 5 0 100
-    my command 5 1 100
+    my command 5 0 $base_val_1
+    my command 5 1 $base_val_2
+
+    my command 6 0 100
+    my command 6 1 100
 
     switch -- $thrs {
       1 {
@@ -390,14 +401,14 @@ namespace eval ::pha {
       }
     }
 
-    my command 6 0 $min_1
-    my command 7 0 $max_1
+    my command 7 0 $min_1
+    my command 8 0 $max_1
 
-    my command 6 1 $min_2
-    my command 7 1 $max_2
+    my command 7 1 $min_2
+    my command 8 1 $max_2
 
-    my command 8 0 0xffffffffffffff
-    my command 8 1 0xffffffffffffff
+    my command 9 0 0xffffffffffffff
+    my command 9 1 0xffffffffffffff
   }
 
 # -------------------------------------------------------------------------
