@@ -43,7 +43,7 @@ Getting started with MS Windows
  - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABFn0Tal_b23MT_E3PSCAjZa/mcpha/ecosystem-0.95-1-6deb253-mcpha.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
- - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAi-JAVIf25RJXHQW1O17xJa/mcpha/mcpha-win32-20161202.zip?dl=1).
+ - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACWFlEXorOJT8Tqv8aoZW43a/mcpha/mcpha-win32-20161212.zip?dl=1).
  - Run the control program.
  - Type in the IP address of the Red Pitaya board and press Connect button.
  - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
