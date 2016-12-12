@@ -71,8 +71,22 @@ cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
 }
 
 # Create xlslice
+cell xilinx.com:ip:xlslice:1.0 neg_slice_0 {
+  DIN_WIDTH 704 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
   DIN_WIDTH 704 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 neg_slice_1 {
+  DIN_WIDTH 704 DIN_FROM 12 DIN_TO 12 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
@@ -87,6 +101,20 @@ cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_3 {
   DIN_WIDTH 704 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 neg_slice_2 {
+  DIN_WIDTH 704 DIN_FROM 28 DIN_TO 28 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 neg_slice_3 {
+  DIN_WIDTH 704 DIN_FROM 29 DIN_TO 29 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
@@ -203,6 +231,15 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 
 for {set i 0} {$i <= 3} {incr i} {
 
+  # Create axis_negator
+  cell pavel-demin:user:axis_negator:1.0 neg_${i} {
+    AXIS_TDATA_WIDTH 16
+  } {
+    S_AXIS bcast_0/M0${i}_AXIS
+    cfg_flag neg_slice_${i}/Dout
+    aclk ps_0/FCLK_CLK0
+  }
+
   # Create axis_variable
   cell pavel-demin:user:axis_variable:1.0 rate_${i} {
     AXIS_TDATA_WIDTH 16
@@ -229,7 +266,7 @@ for {set i 0} {$i <= 3} {incr i} {
     USE_XTREME_DSP_SLICE false
     HAS_ARESETN true
   } {
-    S_AXIS_DATA bcast_0/M0${i}_AXIS
+    S_AXIS_DATA neg_${i}/M_AXIS
     S_AXIS_CONFIG rate_${i}/M_AXIS
     aclk ps_0/FCLK_CLK0
     aresetn rst_0/peripheral_aresetn
