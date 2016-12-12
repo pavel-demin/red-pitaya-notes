@@ -385,7 +385,7 @@ module pha_1 {
 module hst_1 {
   source projects/mcpha/hst.tcl
 } {
-  slice_0/Din rst_slice_0/Dout
+  slice_0/Din rst_slice_1/Dout
   hst_0/S_AXIS pha_1/vldtr_0/M_AXIS
 }
 
