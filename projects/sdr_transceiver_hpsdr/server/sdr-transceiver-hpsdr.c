@@ -205,6 +205,7 @@ void alex_write()
 }
 
 uint16_t misc_data_0 = 0;
+uint16_t misc_data_1 = 0;
 
 inline int lower_bound(int *array, int size, int value)
 {
@@ -230,7 +231,7 @@ void misc_write()
     data |= code << (i * 4);
   }
 
-  data |= (misc_data_0 & 0x18) << 9;
+  data |= (misc_data_0 & 0x03) << 14 | (misc_data_1 & 0x18) << 9;
 
   if(i2c_misc_data != data)
   {
@@ -707,7 +708,7 @@ void process_ep2(uint8_t *frame)
       /* configure PENELOPE */
       if(i2c_pene)
       {
-        data = (frame[4] & 0x03) << 11 | (frame[3] & 0x60) << 4 | (frame[3] & 0x03) << 7 | frame[2] >> 1;
+        data = (frame[3] & 0x1c) << 11 | (frame[4] & 0x03) << 11 | (frame[3] & 0x60) << 4 | (frame[3] & 0x03) << 7 | frame[2] >> 1;
         if(i2c_pene_data != data)
         {
           i2c_pene_data = data;
@@ -791,6 +792,16 @@ void process_ep2(uint8_t *frame)
         alex_write();
       }
 
+      if(i2c_misc)
+      {
+        data = (frame[3] & 0x80) >> 6 | (frame[3] & 0x20) >> 5;
+        if(misc_data_0 != data)
+        {
+          misc_data_0 = data;
+          misc_write();
+        }
+      }
+
       /* configure ALEX */
       if(i2c_alex)
       {
@@ -845,11 +856,14 @@ void process_ep2(uint8_t *frame)
       break;
     case 22:
     case 23:
-      data = frame[1] & 0x1f;
-      if(misc_data_0 != data)
+      if(i2c_misc)
       {
-        misc_data_0 = data;
-        if(i2c_misc) misc_write();
+        data = frame[1] & 0x1f;
+        if(misc_data_1 != data)
+        {
+          misc_data_1 = data;
+          misc_write();
+        }
       }
       cw_reversed = (frame[2] >> 6) & 1;
       cw_speed = frame[3] & 63;
