@@ -153,7 +153,13 @@ Blt_Init(interp)
      * the same ones that BLT was compiled against.
      */
 
-    if (Tcl_PkgRequire(interp, "Tcl", TCL_VERSION, EXACT) == NULL) {
+    if (
+#ifdef USE_TCL_STUBS
+        Tcl_InitStubs(interp, TCL_VERSION, EXACT)
+#else
+        Tcl_PkgRequire(interp, "Tcl", TCL_VERSION, EXACT)
+#endif
+        == NULL) {
         return TCL_ERROR;
     }
 
