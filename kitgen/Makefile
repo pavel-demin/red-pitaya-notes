@@ -1,7 +1,5 @@
 TCLLIB_URL  = http://heanet.dl.sourceforge.net/project/tcllib/tcllib/1.18/tcllib-1.18.tar.gz
 ZLIB_URL    = http://heanet.dl.sourceforge.net/project/libpng/zlib/1.2.3/zlib-1.2.3.tar.gz
-TKTABLE_URL = http://heanet.dl.sourceforge.net/project/tktable/tktable/2.10/Tktable2.10.tar.gz
-SQLITE_URL  = http://www.sqlite.org/2016/sqlite-autoconf-3150100.tar.gz
 TCL_URL     = http://heanet.dl.sourceforge.net/project/tcl/Tcl/8.6.6/tcl8.6.6-src.tar.gz
 TK_URL      = http://heanet.dl.sourceforge.net/project/tcl/Tcl/8.6.6/tk8.6.6-src.tar.gz
 
@@ -18,9 +16,7 @@ tars:
 	  curl -LO $(TK_URL)
 	mkdir -p 8.x && cd 8.x && \
 	  curl -LO $(TCLLIB_URL) && \
-	  curl -LO $(ZLIB_URL) && \
-	  curl -LO $(TKTABLE_URL) && \
-	  curl -LO $(SQLITE_URL)
+	  curl -LO $(ZLIB_URL)
 
 untar:
 	mkdir -p 8.6 && cd 8.6 && \
@@ -31,12 +27,8 @@ untar:
 	mkdir -p 8.x && cd 8.x && \
 	  tar xfz tcllib-1.18.tar.gz && \
 	  tar xfz zlib-1.2.3.tar.gz && \
-	  tar xfz Tktable2.10.tar.gz && \
-	  tar xfz sqlite-autoconf-3150100.tar.gz && \
 	  mv tcllib-1.18 tcllib && \
-	  mv zlib-1.2.3 zlib && \
-	  mv Tktable2.10 Tktable && \
-	  mv sqlite-autoconf-3150100 sqlite
+	  mv zlib-1.2.3 zlib
 
 configs:
 	sh config.sh 8.6/base-std

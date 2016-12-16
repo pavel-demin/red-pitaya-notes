@@ -39,11 +39,9 @@ Tcl_AppInitProc Dde_Init, Registry_Init;
 #endif
 #ifdef KIT_INCLUDES_TK
 Tcl_AppInitProc Blt_Init, Blt_SafeInit;
-Tcl_AppInitProc Tktable_Init, Tktable_SafeInit;
 #endif
 
 Tcl_AppInitProc G2lite_Init;
-Tcl_AppInitProc Sqlite3_Init;
 
 #ifdef WIN32
 #define DEV_NULL "NUL"
@@ -104,11 +102,9 @@ TclKit_AppInit(Tcl_Interp *interp)
 #ifdef KIT_INCLUDES_TK
     Tcl_StaticPackage(0, "Tk", Tk_Init, Tk_SafeInit);
     Tcl_StaticPackage(0, "Blt", Blt_Init, Blt_SafeInit);
-    Tcl_StaticPackage(0, "Tktable", Tktable_Init, Tktable_SafeInit);
 #endif
 
     Tcl_StaticPackage(0, "g2lite", G2lite_Init, NULL);
-    Tcl_StaticPackage(0, "sqlite3", Sqlite3_Init, NULL);
 
     /* the tcl_rcFileName variable only exists in the initial interpreter */
 #ifdef _WIN32
