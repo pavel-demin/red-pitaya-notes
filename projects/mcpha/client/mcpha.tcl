@@ -1,7 +1,6 @@
 lappend auto_path [pwd]
 
 package require TclOO
-package require oo::util
 package require BLT
 
 wm minsize . 880 680
@@ -16,6 +15,12 @@ image create bitmap rightarrow -data "
 #define rightarrow_height 5\n
 static unsigned char rightarrow_bits\[\] = {\n
 0x01, 0x07, 0x1F, 0x07, 0x01};"
+
+# -------------------------------------------------------------------------
+
+proc mymethod {method args} {
+  list [uplevel 1 {namespace which my}] $method {*}$args
+}
 
 # -------------------------------------------------------------------------
 
