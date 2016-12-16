@@ -1,12 +1,10 @@
-lappend auto_path [pwd]
-
 package require TclOO
 
 wm minsize . 230 400
 
 # -------------------------------------------------------------------------
 
-proc mymethod {method args} {
+proc ::oo::Helpers::mymethod {method args} {
   list [uplevel 1 {namespace which my}] $method {*}$args
 }
 
