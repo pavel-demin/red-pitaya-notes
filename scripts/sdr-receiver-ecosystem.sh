@@ -12,6 +12,12 @@ cp tmp/sdr_receiver.bit ${ecosystem}-sdr-receiver
 rm -f ${ecosystem}-sdr-receiver/u-boot.scr
 cp ${ecosystem}-sdr-receiver/u-boot.scr.buildroot ${ecosystem}-sdr-receiver/u-boot.scr
 
+cat <<- EOF_CAT >> ${ecosystem}-mcpha/etc/network/config
+
+PATH=\$PATH:\$PATH_REDPITAYA/sbin:\$PATH_REDPITAYA/bin
+
+EOF_CAT
+
 cat <<- EOF_CAT >> ${ecosystem}-sdr-receiver/sbin/discovery.sh
 
 # start SDR receiver
