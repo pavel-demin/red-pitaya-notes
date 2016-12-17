@@ -13,6 +13,12 @@ cp tmp/mcpha.bit ${ecosystem}-mcpha
 rm -f ${ecosystem}-mcpha/u-boot.scr
 cp ${ecosystem}-mcpha/u-boot.scr.buildroot ${ecosystem}-mcpha/u-boot.scr
 
+cat <<- EOF_CAT >> ${ecosystem}-mcpha/etc/network/config
+
+PATH=\$PATH:\$PATH_REDPITAYA/sbin:\$PATH_REDPITAYA/bin
+
+EOF_CAT
+
 cat <<- EOF_CAT >> ${ecosystem}-mcpha/sbin/discovery.sh
 
 # start mcpha servers

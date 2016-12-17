@@ -12,6 +12,12 @@ cp tmp/scanner.bit ${ecosystem}-scanner
 rm -f ${ecosystem}-scanner/u-boot.scr
 cp ${ecosystem}-scanner/u-boot.scr.buildroot ${ecosystem}-scanner/u-boot.scr
 
+cat <<- EOF_CAT >> ${ecosystem}-mcpha/etc/network/config
+
+PATH=\$PATH:\$PATH_REDPITAYA/sbin:\$PATH_REDPITAYA/bin
+
+EOF_CAT
+
 cat <<- EOF_CAT >> ${ecosystem}-scanner/sbin/discovery.sh
 
 # start scanner server
