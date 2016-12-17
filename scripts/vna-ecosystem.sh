@@ -12,6 +12,12 @@ cp tmp/vna.bit ${ecosystem}-vna
 rm -f ${ecosystem}-vna/u-boot.scr
 cp ${ecosystem}-vna/u-boot.scr.buildroot ${ecosystem}-vna/u-boot.scr
 
+cat <<- EOF_CAT >> ${ecosystem}-mcpha/etc/network/config
+
+PATH=\$PATH:\$PATH_REDPITAYA/sbin:\$PATH_REDPITAYA/bin
+
+EOF_CAT
+
 cat <<- EOF_CAT >> ${ecosystem}-vna/sbin/discovery.sh
 
 # start vna server
