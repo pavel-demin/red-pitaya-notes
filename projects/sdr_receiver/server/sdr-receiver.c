@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
   int fd, sockServer, sockClient;
   int position, limit, offset;
   pid_t pid;
-  void *cfg, *sts, *ram;
-  char *name = "/dev/mem";
+  volatile uint32_t *slcr;
+  volatile void *cfg, *sts, *ram;
   int size = 0;
   struct sockaddr_in addr;
   uint32_t command = 600000;
@@ -35,15 +35,20 @@ int main(int argc, char *argv[])
   uint32_t freqMax = 60000000;
   int yes = 1;
 
-  if((fd = open(name, O_RDWR)) < 0)
+  if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
     perror("open");
     return 1;
   }
 
+  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   ram = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+
+  /* set FPGA clock to 143 MHz */
+  slcr[2] = 0xDF0D;
+  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
 
   if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {

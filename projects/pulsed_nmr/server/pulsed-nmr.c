@@ -14,8 +14,7 @@ int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
   void *cfg, *sts;
-  char *name = "/dev/mem";
-  volatile uint32_t *rx_freq, *rx_rate;
+  volatile uint32_t *slcr, *rx_freq, *rx_rate;
   volatile uint16_t *rx_cntr, *tx_size;
   volatile uint8_t *rx_rst, *tx_rst;
   volatile uint64_t *rx_data;
@@ -27,12 +26,13 @@ int main(int argc, char *argv[])
   uint64_t buffer[8192];
   int i, j, size, yes = 1;
 
-  if((fd = open(name, O_RDWR)) < 0)
+  if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
     perror("open");
     return EXIT_FAILURE;
   }
 
+  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
@@ -45,6 +45,10 @@ int main(int argc, char *argv[])
 
   tx_rst = ((uint8_t *)(cfg + 1));
   tx_size = ((uint16_t *)(cfg + 12));
+
+  /* set FPGA clock to 143 MHz */
+  slcr[2] = 0xDF0D;
+  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
 
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);

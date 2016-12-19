@@ -287,6 +287,7 @@ int main(int argc, char *argv[])
   struct sched_param param;
   pthread_attr_t attr;
   pthread_t thread;
+  volatile uint32_t *slcr;
   volatile void *cfg, *sts;
   volatile int32_t *tx_ramp, *dac_ramp;
   volatile uint16_t *tx_size, *dac_size;
@@ -412,6 +413,7 @@ int main(int argc, char *argv[])
     }
   }
 
+  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   alex = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
@@ -450,6 +452,10 @@ int main(int argc, char *argv[])
   dac_cntr = ((uint16_t *)(sts + 16));
   adc_cntr = ((uint16_t *)(sts + 18));
   gpio_in = ((uint8_t *)(sts + 20));
+
+  /* set FPGA clock to 143 MHz */
+  slcr[2] = 0xDF0D;
+  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
 
   /* set all GPIO pins to low */
   *gpio_out = 0;

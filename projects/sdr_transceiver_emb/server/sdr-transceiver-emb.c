@@ -37,8 +37,9 @@ int main(int argc, char *argv[])
     tx_ctrl_handler,
     tx_data_handler
   };
+  volatile uint32_t *slcr;
   volatile void *cfg, *sts;
-  char *end, *name = "/dev/mem";
+  char *end;
   struct sockaddr_in addr;
   uint16_t port;
   uint32_t command;
@@ -54,11 +55,13 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  if((fd = open(name, O_RDWR)) < 0)
+  if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
     perror("open");
     return EXIT_FAILURE;
   }
+
+  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
 
   switch(number)
   {
@@ -89,6 +92,10 @@ int main(int argc, char *argv[])
   tx_freq = ((uint32_t *)(cfg + 12));
   tx_rate = ((uint32_t *)(cfg + 16));
   tx_cntr = ((uint16_t *)(sts + 2));
+
+  /* set FPGA clock to 143 MHz */
+  slcr[2] = 0xDF0D;
+  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
 
   /* set PTT pin to low */
   *gpio = 0;

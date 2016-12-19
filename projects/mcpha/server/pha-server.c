@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
   struct sched_param param;
   pthread_attr_t attr;
   pthread_t thread;
+  volatile uint32_t *slcr;
   volatile uint8_t *rst;
   struct sockaddr_in addr;
   int yes = 1;
@@ -40,11 +41,16 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   pha = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
 
   rst = cfg + 3;
+
+  /* set FPGA clock to 143 MHz */
+  slcr[2] = 0xDF0D;
+  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
 
   /* set sample rate */
   *(uint16_t *)(cfg + 6) = 125;

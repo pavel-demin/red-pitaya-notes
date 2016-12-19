@@ -22,21 +22,10 @@ cat <<- EOF_CAT >> ${ecosystem}-sdr-transceiver-hpsdr/sbin/discovery.sh
 
 # start SDR transceiver
 
-devcfg=/sys/devices/soc0/amba/f8007000.devcfg
-test -d \$devcfg/fclk/fclk0 || echo fclk0 > \$devcfg/fclk_export
-echo 1 > \$devcfg/fclk/fclk0/enable
-echo 143000000 > \$devcfg/fclk/fclk0/set_rate
-
 cat /opt/redpitaya/sdr_transceiver_hpsdr.bit > /dev/xdevcfg
 
-server=/opt/redpitaya/bin/sdr-transceiver-hpsdr
+/opt/redpitaya/bin/sdr-transceiver-hpsdr &
 
-if aplay --list-devices | grep 'card 0:'
-then
-  \$server | aplay --format=S16_BE --channels=2 --rate=48000 &
-else
-  \$server > /dev/null &
-fi
 EOF_CAT
 
 cd ${ecosystem}-sdr-transceiver-hpsdr
