@@ -41,7 +41,7 @@ vncserver -geometry 1200x700
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADH-0Kw23LXRU1s3sPi6LZ0a/red-pitaya-ecosystem/red-pitaya-ecosystem-0.95-debian-8.6-armhf-20161122.zip?dl=1).
+A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACgwgFqr-3aRbf66xz8j5xga/red-pitaya-ecosystem/red-pitaya-ecosystem-0.95-debian-8.6-armhf-20161219.zip?dl=1).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
