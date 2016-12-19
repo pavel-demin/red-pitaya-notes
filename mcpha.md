@@ -43,7 +43,7 @@ Getting started with MS Windows
  - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABFn0Tal_b23MT_E3PSCAjZa/mcpha/ecosystem-0.95-1-6deb253-mcpha.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
- - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACWFlEXorOJT8Tqv8aoZW43a/mcpha/mcpha-win32-20161212.zip?dl=1).
+ - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADau01Q0u7WKV5LLlyJJTzYa/mcpha/mcpha-win32-20161219.zip?dl=1).
  - Run the control program.
  - Type in the IP address of the Red Pitaya board and press Connect button.
  - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
@@ -62,7 +62,7 @@ Getting started with GNU/Linux
  - Insert the SD card in Red Pitaya and connect the power.
  - Install Tcl 8.6 and all the required libraries:
 {% highlight bash %}
-sudo apt-get install tcl8.6-dev tk8.6-dev blt-dev tk8.6-blt2.5 tcllib
+sudo apt-get install tk8.6 tk8.6-blt2.5
 {% endhighlight %}
  - Clone the source code repository:
 {% highlight bash %}
