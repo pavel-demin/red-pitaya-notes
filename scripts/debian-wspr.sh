@@ -65,6 +65,7 @@ cp projects/sdr_transceiver_wspr/transmit-wspr.sh $root_dir/root/
 cp projects/sdr_transceiver_wspr/write-c2-files.c $root_dir/root/
 cp projects/sdr_transceiver_wspr/write-c2-files.cfg $root_dir/root/
 cp projects/sdr_transceiver_wspr/decode-wspr.sh $root_dir/root/
+cp projects/sdr_transceiver_wspr/gpio-output.c $root_dir/root/
 cp projects/sdr_transceiver_wspr/wspr.cron $root_dir/root/
 cp projects/sdr_transceiver_wspr/README $root_dir/root/
 cp projects/sdr_transceiver_wspr/Makefile $root_dir/root/
