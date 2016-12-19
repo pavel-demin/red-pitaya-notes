@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   volatile uint64_t *fifo[8];
   volatile uint8_t *rst;
   volatile uint16_t *cntr;
-  volatile uint32_t *mux;
+  volatile uint32_t *slcr, *mux;
   int32_t type = 2;
   uint64_t buffer[8][45000];
   config_t config;
@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
@@ -124,6 +125,10 @@ int main(int argc, char *argv[])
     fifo[i] = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000 + i * 0x1000);
     *(uint32_t *)(cfg + 4 + i * 4) = (uint32_t)floor((1.0 + 1.0e-6 * corr) * freq[i] / 125.0 * (1<<30) + 0.5);
   }
+
+  /* set FPGA clock to 143 MHz */
+  slcr[2] = 0xDF0D;
+  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
 
   upd = 0;
 

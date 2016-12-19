@@ -22,11 +22,6 @@ cat <<- EOF_CAT >> ${ecosystem}-sdr-transceiver/sbin/discovery.sh
 
 # start SDR transceiver
 
-devcfg=/sys/devices/soc0/amba/f8007000.devcfg
-test -d \$devcfg/fclk/fclk0 || echo fclk0 > \$devcfg/fclk_export
-echo 1 > \$devcfg/fclk/fclk0/enable
-echo 143000000 > \$devcfg/fclk/fclk0/set_rate
-
 cat /opt/redpitaya/sdr_transceiver.bit > /dev/xdevcfg
 
 /opt/redpitaya/bin/sdr-transceiver 1 &

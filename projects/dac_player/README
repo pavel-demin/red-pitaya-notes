@@ -14,11 +14,6 @@ Building dac_player.bit:
 
 Configuring FPGA:
 
-  devcfg=/sys/devices/soc0/amba/f8007000.devcfg
-  echo fclk0 > $devcfg/fclk_export
-  echo 1 > $devcfg/fclk/fclk0/enable
-  echo 143000000 > $devcfg/fclk/fclk0/set_rate
-
   cat dac_player.bit > /dev/xdevcfg
 
 Compiling and running ADC recorder:

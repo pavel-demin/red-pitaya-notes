@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
   int fd, i;
   volatile void *cfg;
   volatile uint8_t *rst;
-  volatile uint32_t *fifo, *mux;
+  volatile uint32_t *slcr, *fifo, *mux;
   unsigned char symbols[162];
   char *message, *hashtab;
   config_t config;
@@ -94,9 +94,14 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000B000);
   mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000C000);
+
+  /* set FPGA clock to 143 MHz */
+  slcr[2] = 0xDF0D;
+  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
 
   if(chan == 1)
   {

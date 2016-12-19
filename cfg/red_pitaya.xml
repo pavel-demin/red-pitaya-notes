@@ -34,8 +34,6 @@
   <set param="PCW::SPI1::SPI1::IO" value="MIO 10 .. 15" />
   <set param="PCW::TTC0::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::FPGA0::PERIPHERAL::FREQMHZ" value="143" />
-  <set param="PCW::FPGA1::PERIPHERAL::FREQMHZ" value="250" />
-  <set param="PCW::FPGA3::PERIPHERAL::FREQMHZ" value="200" />
   <set param="PCW::CAN::PERIPHERAL::FREQMHZ" value="100" />
   <set param="PCW::QSPI::PERIPHERAL::FREQMHZ" value="125" />
   <set param="PCW::ENET0::PERIPHERAL::FREQMHZ" value="1000 Mbps" />

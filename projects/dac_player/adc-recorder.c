@@ -26,21 +26,31 @@ int main(int argc, char *argv[])
   FILE *fileOut;
   int pipefd[2], mmapfd;
   int position, limit, offset;
-  void *cfg, *sts, *adc, *buf;
-  char *end, *name = "/dev/mem";
+  volatile uint32_t *slcr, *axi_hp0;
+  volatile void *cfg, *sts, *adc, *buf;
+  char *end;
   int buffer = 0;
   long number;
 
-  if((mmapfd = open(name, O_RDWR)) < 0)
+  if((mmapfd = open("/dev/mem", O_RDWR)) < 0)
   {
     perror("open");
     return 1;
   }
 
+  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
+  axi_hp0 = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8008000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40001000);
   adc = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x1E000000);
   buf = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+
+  /* set FPGA clock to 143 MHz and HP0 bus width to 64 bits */
+  slcr[2] = 0xDF0D;
+  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
+  slcr[144] = 0;
+  axi_hp0[0] &= ~1;
+  axi_hp0[5] &= ~1;
 
   errno = 0;
   number = (argc == 3) ? strtol(argv[1], &end, 10) : -1;

@@ -26,10 +26,9 @@ int main(int argc, char *argv[])
   struct sched_param param;
   pthread_attr_t attr;
   pthread_t thread;
+  volatile uint32_t *slcr;
   volatile void *cfg, *sts;
-  char *name = "/dev/mem";
-  volatile uint32_t *rx_freq, *tx_freq;
-  volatile uint32_t *tx_size;
+  volatile uint32_t *rx_freq, *tx_freq, *tx_size;
   volatile int16_t *tx_level;
   volatile uint8_t *rst;
   struct sockaddr_in addr;
@@ -38,12 +37,13 @@ int main(int argc, char *argv[])
   int64_t start, stop, size, freq;
   int i, yes = 1;
 
-  if((fd = open(name, O_RDWR)) < 0)
+  if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
     perror("open");
     return EXIT_FAILURE;
   }
 
+  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
@@ -55,6 +55,10 @@ int main(int argc, char *argv[])
   rst = ((uint8_t *)(cfg + 0));
   tx_level = ((int16_t *)(cfg + 2));
   tx_size = ((uint32_t *)(cfg + 4));
+
+  /* set FPGA clock to 143 MHz */
+  slcr[2] = 0xDF0D;
+  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
 
   *tx_level = 32767;
   *tx_size = 5000 - 1;
