@@ -26,32 +26,32 @@ make NAME=sdr_transceiver_hpsdr tmp/sdr_transceiver_hpsdr.bit
 make NAME=sdr_receiver_hpsdr tmp/sdr_receiver_hpsdr.bit
 make NAME=sdr_transceiver_wide tmp/sdr_transceiver_wide.bit
 
-source scripts/sdr-transceiver-ecosystem.sh
-source scripts/sdr-transceiver-bazaar.sh
+source helpers/sdr-transceiver-ecosystem.sh
+source helpers/sdr-transceiver-bazaar.sh
 
-source scripts/sdr-transceiver-hpsdr-ecosystem.sh
-source scripts/sdr-transceiver-hpsdr-bazaar.sh
+source helpers/sdr-transceiver-hpsdr-ecosystem.sh
+source helpers/sdr-transceiver-hpsdr-bazaar.sh
 
-source scripts/sdr-receiver-hpsdr-ecosystem.sh
-source scripts/sdr-receiver-hpsdr-bazaar.sh
+source helpers/sdr-receiver-hpsdr-ecosystem.sh
+source helpers/sdr-receiver-hpsdr-bazaar.sh
 
-source scripts/sdr-transceiver-wide-ecosystem.sh
-source scripts/sdr-transceiver-wide-bazaar.sh
+source helpers/sdr-transceiver-wide-ecosystem.sh
+source helpers/sdr-transceiver-wide-bazaar.sh
 
 make NAME=mcpha tmp/mcpha.bit
 
-source scripts/mcpha-ecosystem.sh
-source scripts/mcpha-bazaar.sh
+source helpers/mcpha-ecosystem.sh
+source helpers/mcpha-bazaar.sh
 
 make NAME=pulsed_nmr tmp/pulsed_nmr.bit
 
-source scripts/pulsed-nmr-ecosystem.sh
+source helpers/pulsed-nmr-ecosystem.sh
 
 make NAME=scanner tmp/scanner.bit
 
-source scripts/scanner-ecosystem.sh
+source helpers/scanner-ecosystem.sh
 
 make NAME=vna tmp/vna.bit
 
-source scripts/vna-ecosystem.sh
-source scripts/vna-bazaar.sh
+source helpers/vna-ecosystem.sh
+source helpers/vna-bazaar.sh
