@@ -156,7 +156,7 @@ The following spectra illustrate how the amplifier linearization works with the 
 CW functionality
 -----
 
-The CW keyer can be used with a straight or iambic key connected to the pins DIO2_N and DIO3_N of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1). The CW signal is generated when one of the CW modes is selected in [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) and the pins DIO2_N and DIO3_N are connected to GND.
+The CW keyer can be used with a straight or iambic key connected to the pins DIO1_N and DIO2_N of the [extension connector E1](http://wiki.redpitaya.com/index.php?title=Extension_connectors#Extension_connector_E1). The CW signal is generated when one of the CW modes is selected in [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) and the pins DIO2_N and DIO3_N are connected to GND.
 
 The ramp generator is programmable. The default ramp's shape is the step response of the 4-term Blackman-Harris window. It's inspired by the ["CW Shaping in DSP Software"](https://github.com/pavel-demin/red-pitaya-notes/files/403696/cw-shaping-in-dsp.pdf) article appeared in the May/June, 2006 issue of QEX.
 
@@ -177,8 +177,8 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2016.3/settings64.sh
-source /opt/Xilinx/SDK/2016.3/settings64.sh
+source /opt/Xilinx/Vivado/2016.4/settings64.sh
+source /opt/Xilinx/SDK/2016.4/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
