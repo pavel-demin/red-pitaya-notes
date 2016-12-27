@@ -64,7 +64,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   APORTWIDTH 14
   BPORTWIDTH 24
   ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 25
+  OUTPUTWIDTH 26
 } {
   S_AXIS_A fifo_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
