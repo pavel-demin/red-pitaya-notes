@@ -9,7 +9,7 @@ diff -rupN old/linux-xlnx-xilinx-v2016.4/arch/arm/configs/xilinx_zynq_defconfig 
  CONFIG_MDIO_BITBANG=y
  CONFIG_INPUT_SPARSEKMAP=y
  CONFIG_INPUT_EVDEV=y
-@@ -239,3 +240,122 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
+@@ -239,3 +240,123 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
  CONFIG_FONTS=y
  CONFIG_FONT_8x8=y
  CONFIG_FONT_8x16=y
@@ -79,7 +79,6 @@ diff -rupN old/linux-xlnx-xilinx-v2016.4/arch/arm/configs/xilinx_zynq_defconfig 
 +CONFIG_FB_DEFERRED_IO=y
 +CONFIG_FB_MODE_HELPERS=y
 +CONFIG_FB_UDL=y
-+CONFIG_NOP_USB_XCEIV=y
 +CONFIG_FUSE_FS=y
 +CONFIG_SPI_SPIDEV=y
 +CONFIG_XILINX_PS_EMAC_HWTSTAMP=y
@@ -132,6 +131,8 @@ diff -rupN old/linux-xlnx-xilinx-v2016.4/arch/arm/configs/xilinx_zynq_defconfig 
 +CONFIG_FB_TFT_WATTEROTT=y
 +CONFIG_FB_FLEX=y
 +CONFIG_FB_TFT_FBTFT_DEVICE=y
++CONFIG_USB_ACM=y
++CONFIG_USB_TMC=y
 diff -rupN old/linux-xlnx-xilinx-v2016.4/drivers/iio/adc/xilinx-xadc-core.c linux-xlnx-xilinx-v2016.4/drivers/iio/adc/xilinx-xadc-core.c
 --- old/linux-xlnx-xilinx-v2016.4/drivers/iio/adc/xilinx-xadc-core.c
 +++ linux-xlnx-xilinx-v2016.4/drivers/iio/adc/xilinx-xadc-core.c
