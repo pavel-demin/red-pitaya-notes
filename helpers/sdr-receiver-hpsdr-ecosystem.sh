@@ -12,7 +12,7 @@ cp tmp/sdr_receiver_hpsdr.bit ${ecosystem}-sdr-receiver-hpsdr
 rm -f ${ecosystem}-sdr-receiver-hpsdr/u-boot.scr
 cp ${ecosystem}-sdr-receiver-hpsdr/u-boot.scr.buildroot ${ecosystem}-sdr-receiver-hpsdr/u-boot.scr
 
-cat <<- EOF_CAT >> ${ecosystem}-mcpha/etc/network/config
+cat <<- EOF_CAT >> ${ecosystem}-sdr-receiver-hpsdr/etc/network/config
 
 PATH=\$PATH:\$PATH_REDPITAYA/sbin:\$PATH_REDPITAYA/bin
 
