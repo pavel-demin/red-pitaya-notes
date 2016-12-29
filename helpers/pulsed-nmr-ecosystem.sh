@@ -12,7 +12,7 @@ cp tmp/pulsed_nmr.bit ${ecosystem}-pulsed-nmr
 rm -f ${ecosystem}-pulsed-nmr/u-boot.scr
 cp ${ecosystem}-pulsed-nmr/u-boot.scr.buildroot ${ecosystem}-pulsed-nmr/u-boot.scr
 
-cat <<- EOF_CAT >> ${ecosystem}-mcpha/etc/network/config
+cat <<- EOF_CAT >> ${ecosystem}-pulsed-nmr/etc/network/config
 
 PATH=\$PATH:\$PATH_REDPITAYA/sbin:\$PATH_REDPITAYA/bin
 
