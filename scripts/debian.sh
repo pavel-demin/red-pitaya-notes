@@ -279,3 +279,5 @@ rm $root_dir/usr/bin/qemu-arm-static
 umount $boot_dir $root_dir
 
 rmdir $boot_dir $root_dir
+
+zerofree $root_dev
