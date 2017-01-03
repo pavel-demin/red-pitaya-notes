@@ -398,6 +398,7 @@ cell xilinx.com:ip:floating_point:7.1 fp_0 {
 cell xilinx.com:ip:floating_point:7.1 fp_1 {
   OPERATION_TYPE Logarithm
   RESULT_PRECISION_TYPE Single
+  C_MULT_USAGE No_Usage
   HAS_ARESETN true
 } {
   S_AXIS_A fp_0/M_AXIS_RESULT
