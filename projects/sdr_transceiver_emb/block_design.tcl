@@ -15,24 +15,6 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
 
-# Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 buf_0 {
-  C_SIZE 2
-  C_BUF_TYPE IBUFDS
-} {
-  IBUF_DS_P daisy_p_i
-  IBUF_DS_N daisy_n_i
-}
-
-# Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 buf_1 {
-  C_SIZE 2
-  C_BUF_TYPE OBUFDS
-} {
-  OBUF_DS_P daisy_p_o
-  OBUF_DS_N daisy_n_o
-}
-
 # XADC
 
 # Create xadc_wiz
@@ -53,12 +35,30 @@ cell xilinx.com:ip:xadc_wiz:3.3 xadc_0 {
   Vaux9 Vaux9
 }
 
+# PLL
+
+# Create clk_wiz
+cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+  PRIMITIVE PLL
+  PRIM_IN_FREQ.VALUE_SRC USER
+  PRIM_IN_FREQ 125.0
+  PRIM_SOURCE Differential_clock_capable_pin
+  CLKOUT1_USED true
+  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT2_USED true
+  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT2_REQUESTED_PHASE -90.0
+  USE_RESET false
+} {
+  clk_in1_p adc_clk_p_i
+  clk_in1_n adc_clk_n_i
+}
+
 # ADC
 
 # Create axis_red_pitaya_adc
-cell pavel-demin:user:axis_red_pitaya_adc:1.0 adc_0 {} {
-  adc_clk_p adc_clk_p_i
-  adc_clk_n adc_clk_n_i
+cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
+  aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
   adc_dat_b adc_dat_b_i
   adc_csn adc_csn_o
@@ -77,42 +77,16 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M01_TDATA_REMAP {tdata[31:0]}
 } {
   S_AXIS adc_0/M_AXIS
-  aclk adc_0/adc_clk
+  aclk pll_0/clk_out1
   aresetn const_0/dout
-}
-
-# LED
-
-# Create c_counter_binary
-cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
-  Output_Width 32
-} {
-  CLK adc_0/adc_clk
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 32 DIN_FROM 26 DIN_TO 26 DOUT_WIDTH 1
-} {
-  Din cntr_0/Q
 }
 
 # DAC
 
-# Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
-  PRIM_IN_FREQ.VALUE_SRC USER
-  PRIM_IN_FREQ 125.0
-  CLKOUT1_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 250.0
-} {
-  clk_in1 adc_0/adc_clk
-}
-
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
-  aclk adc_0/adc_clk
-  ddr_clk pll_0/clk_out1
+  aclk pll_0/clk_out1
+  ddr_clk pll_0/clk_out2
   locked pll_0/locked
   dac_clk dac_clk_o
   dac_rst dac_rst_o
@@ -169,16 +143,6 @@ cell xilinx.com:ip:util_vector_logic:2.0 not_0 {
   Op1 gpio_0/deb_data
 }
 
-# Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
-  IN0_WIDTH 1
-  IN1_WIDTH 4
-} {
-  In0 slice_0/Dout
-  In1 not_0/Res
-  dout led_o
-}
-
 # ALEX
 
 # Create output port
@@ -211,7 +175,7 @@ module rx_0 {
   slice_1/Din cfg_slice_0/Dout
   slice_2/Din cfg_slice_0/Dout
   fifo_0/S_AXIS bcast_0/M00_AXIS
-  fifo_0/s_axis_aclk adc_0/adc_clk
+  fifo_0/s_axis_aclk pll_0/clk_out1
   fifo_0/s_axis_aresetn const_0/dout
 }
 
@@ -241,7 +205,7 @@ module sp_0 {
   slice_4/Din cfg_slice_1/Dout
   slice_5/Din cfg_slice_1/Dout
   fifo_0/S_AXIS bcast_0/M01_AXIS
-  fifo_0/s_axis_aclk adc_0/adc_clk
+  fifo_0/s_axis_aclk pll_0/clk_out1
   fifo_0/s_axis_aresetn const_0/dout
 }
 
@@ -277,7 +241,7 @@ module tx_0 {
   slice_3/Din cfg_slice_2/Dout
   keyer_0/key_flag key_slice_0/Dout
   fifo_1/M_AXIS dac_0/S_AXIS
-  fifo_1/m_axis_aclk adc_0/adc_clk
+  fifo_1/m_axis_aclk pll_0/clk_out1
   fifo_1/m_axis_aresetn const_0/dout
 }
 
@@ -324,7 +288,7 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_1 {
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   NUM_PORTS 10
   IN0_WIDTH 32
   IN1_WIDTH 64
@@ -355,7 +319,7 @@ cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
-  sts_data concat_1/dout
+  sts_data concat_0/dout
 }
 
 # Create all required interconnections
