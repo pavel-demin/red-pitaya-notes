@@ -7,13 +7,16 @@ GRID=
 JOBS=2
 NICE=10
 
-RECORDER=/root/write-c2-files
-CONFIG=/root/write-c2-files.cfg
+#default the run directory to this scripts directory
+DIR=$(dirname "$0")
 
-DECODER=/root/wsprd/wsprd
+RECORDER=$DIR/write-c2-files
+CONFIG=$DIR/write-c2-files.cfg
+
+DECODER=$DIR/wsprd/wsprd
 ALLMEPT=ALL_WSPR.TXT
 
-GPIO=/root/gpio-output
+GPIO=$DIR/gpio-output
 
 date
 
