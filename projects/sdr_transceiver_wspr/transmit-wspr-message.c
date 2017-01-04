@@ -66,13 +66,13 @@ int main(int argc, char *argv[])
 
   if(!config_lookup_int(&config, "chan", &chan))
   {
-    fprintf(stderr, "No 'chan' setting in configuration file.\n", i);
+    fprintf(stderr, "No 'chan' setting in configuration file.\n");
     return EXIT_FAILURE;
   }
 
   if(chan < 1 || chan > 2)
   {
-    fprintf(stderr, "Wrong 'chan' setting in configuration file.\n", i);
+    fprintf(stderr, "Wrong 'chan' setting in configuration file.\n");
     return EXIT_FAILURE;
   }
 
