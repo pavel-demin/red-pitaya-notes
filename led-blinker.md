@@ -32,15 +32,11 @@ The installation of the development machine is described at [this link]({{ "/dev
 
 Here are the commands to install all the other required packages:
 {% highlight bash %}
-sudo echo "deb http://emdebian.org/tools/debian jessie main" > /etc/apt/sources.list.d/emdebian.list
-sudo wget -O - http://emdebian.org/tools/debian/emdebian-toolchain-archive.key | apt-key add -
-sudo dpkg --add-architecture armhf
 sudo apt-get update
 
 sudo apt-get --no-install-recommends install \
   build-essential git curl ca-certificates sudo \
   libxrender1 libxtst6 libxi6 lib32ncurses5 \
-  crossbuild-essential-armhf \
   bc u-boot-tools device-tree-compiler libncurses5-dev \
   libssl-dev qemu-user-static binfmt-support \
   dosfstools parted debootstrap
@@ -124,7 +120,6 @@ Getting started
 Setting up the Vivado environment:
 {% highlight bash %}
 source /opt/Xilinx/Vivado/2016.4/settings64.sh
-source /opt/Xilinx/SDK/2016.4/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
