@@ -7,8 +7,7 @@ GRID=
 JOBS=2
 NICE=10
 
-#default the run directory to this scripts directory
-DIR=$(dirname "$0")
+DIR=`dirname $0`
 
 RECORDER=$DIR/write-c2-files
 CONFIG=$DIR/write-c2-files.cfg
