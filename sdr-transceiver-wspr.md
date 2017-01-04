@@ -49,9 +49,9 @@ The recorded .c2 files are processed with the [WSPR decoder](https://sourceforge
 
 The decoded data are uploaded to [wsprnet.org](http://wsprnet.org) using [curl](https://curl.haxx.se).
 
-The [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/decode-wspr.sh) script launches `write-c2-files`, `wsprd` and `curl` one after another. This script is run every two minutes by the following crontab entry:
+The [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/decode-wspr.sh) script launches `write-c2-files`, `wsprd` and `curl` one after another. This script is run every two minutes by the following cron entry:
 {% highlight bash %}
-1-59/2 * * * * cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log
+1-59/2 * * * * root cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log 2>&1
 {% endhighlight %}
 
 The [transmit-wspr-message.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/transmit-wspr-message.c) program transmits WSPR messages.
