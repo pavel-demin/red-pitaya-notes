@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # CALL and GRID should be specified to enable uploads
 CALL=
