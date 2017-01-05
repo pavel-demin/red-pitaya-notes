@@ -4,6 +4,10 @@
 CALL=
 GRID=
 
+#WSPRD OPTIONS; these options are passed directly to wsprd decoder stack the (examples d deeper inspection, q quick inspection, w wide band inspection)
+WSPROPTIONS="-wJC 5000"
+
+#options for paralles
 JOBS=2
 NICE=10
 
@@ -37,7 +41,7 @@ $RECORDER $CONFIG
 
 echo "Decoding ..."
 
-parallel --keep-order --jobs $JOBS --nice $NICE $DECODER -JC 5000 ::: wspr_*_$TIMESTAMP.c2
+parallel --keep-order --jobs $JOBS --nice $NICE $DECODER $WSPROPTIONS ::: wspr_*_$TIMESTAMP.c2
 rm -f wspr_*_$TIMESTAMP.c2
 
 test -n "$CALL" -a -n "$GRID" -a -s $ALLMEPT || exit
