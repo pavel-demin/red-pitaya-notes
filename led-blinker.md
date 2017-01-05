@@ -39,7 +39,7 @@ sudo apt-get --no-install-recommends install \
   libxrender1 libxtst6 libxi6 lib32ncurses5 \
   bc u-boot-tools device-tree-compiler libncurses5-dev \
   libssl-dev qemu-user-static binfmt-support \
-  dosfstools parted debootstrap
+  dosfstools parted debootstrap zerofree
 
 sudo ln -s make /usr/bin/gmake
 {% endhighlight %}
