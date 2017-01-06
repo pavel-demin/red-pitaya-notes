@@ -58,6 +58,7 @@ Getting started with MS Windows (manual Python installation)
  - Download and install [PyQt 5.5](http://heanet.dl.sourceforge.net/project/pyqt/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe).
  - Start a command prompt using the `cmd.exe` program and run the `pip` command to install `matplotlib`:
 {% highlight winbatch %}
+C:\Python34\python.exe -m pip install --upgrade pip
 C:\Python34\Scripts\pip.exe install matplotlib mpldatacursor
 {% endhighlight %}
  - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAD7bIejuKXAr5im152FWcw_a/vna/vna-python3-20161213.zip?dl=1).
