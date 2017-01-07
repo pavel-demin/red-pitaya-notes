@@ -1,6 +1,7 @@
 #! /bin/sh
 
-DIR=`dirname $0`
+DIR=`readlink -f $0`
+DIR=`dirname $DIR`
 
 TRANSMITTER=$DIR/transmit-wspr-message
 CONFIG=$DIR/transmit-wspr-message.cfg

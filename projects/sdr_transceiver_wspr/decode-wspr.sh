@@ -7,7 +7,8 @@ GRID=
 JOBS=2
 NICE=10
 
-DIR=`dirname $0`
+DIR=`readlink -f $0`
+DIR=`dirname $DIR`
 
 RECORDER=$DIR/write-c2-files
 CONFIG=$DIR/write-c2-files.cfg
