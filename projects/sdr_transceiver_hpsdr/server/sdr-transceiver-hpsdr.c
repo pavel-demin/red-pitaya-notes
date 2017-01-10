@@ -221,17 +221,17 @@ inline int lower_bound(int *array, int size, int value)
 
 void misc_write()
 {
-  uint16_t code, data = 0;
-  int i, freqs[20] = {1700000, 2100000, 3400000, 4100000, 6900000, 7350000, 9950000, 10200000, 13850000, 14500000, 18000000, 18250000, 20850000, 21650000, 24700000, 25150000, 27000000, 30000000, 49000000, 55000000};
+  uint16_t code[3], data = 0;
+  int i, freqs[20] = {1700000, 2100000, 3400000, 4100000, 6900000, 7350000, 9950000, 10200000, 12075000, 16209000, 16210000, 19584000, 19585000, 23170000, 23171000, 26465000, 26466000, 39850000, 39851000, 61000000};
 
   for(i = 0; i < 3; ++i)
   {
-    code = lower_bound(freqs, 20, freq_data[i]);
-    code = code % 2 ? code / 2 + 1 : 0;
-    data |= code << (i * 4);
+    code[i] = lower_bound(freqs, 20, freq_data[i]);
+    code[i] = code[i] % 2 ? code[i] / 2 + 1 : 0;
   }
 
-  data |= (misc_data_0 & 0x03) << 14 | (misc_data_1 & 0x18) << 9;
+  data |= (code[0] != code[1]) << 8 | code[2] << 4 | code[1];
+  data |= (misc_data_0 & 0x03) << 11 | (misc_data_1 & 0x18) << 6;
 
   if(i2c_misc_data != data)
   {
