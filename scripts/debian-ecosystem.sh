@@ -1,7 +1,7 @@
 device=$1
 
-boot_dir=/tmp/BOOT
-root_dir=/tmp/ROOT
+boot_dir=`mktemp -d /tmp/BOOT.XXXXXXXXXX`
+root_dir=`mktemp -d /tmp/ROOT.XXXXXXXXXX`
 
 ecosystem_tar=red-pitaya-ecosystem-0.95-20160526.tgz
 ecosystem_url=https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADrueq0P1OJFy9z6AaJ72nWa/red-pitaya-ecosystem/red-pitaya-ecosystem-0.95-20160526.tgz?dl=1
@@ -32,8 +32,6 @@ mkfs.vfat -v $boot_dev
 mkfs.ext4 -F -j $root_dev
 
 # Mount file systems
-
-mkdir -p $boot_dir $root_dir
 
 mount $boot_dev $boot_dir
 mount $root_dev $root_dir
