@@ -18,6 +18,8 @@ Mf <- c(Mp, matrix(0, 1, length(fs)))
 
 h <- fir2(L, f, Mf, window=kaiser(L+1, Beta))
 
+h <- h / sum(h)
+
 # Print filter coefficients
 paste(sprintf("%.10e", h), collapse=", ")
 
