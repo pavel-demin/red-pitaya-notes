@@ -117,5 +117,5 @@ arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex
 
 Building SD card image zip file:
 {% highlight bash %}
-source scripts/sdr-transceiver-ecosystem.sh
+source helpers/sdr-transceiver-ecosystem.sh
 {% endhighlight %}

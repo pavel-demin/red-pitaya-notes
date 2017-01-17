@@ -162,5 +162,5 @@ arm-linux-gnueabihf-gcc projects/sdr_receiver/server/sdr-receiver.c -o sdr-recei
 
 Building SD card image zip file:
 {% highlight bash %}
-source scripts/sdr-receiver-ecosystem.sh
+source helpers/sdr-receiver-ecosystem.sh
 {% endhighlight %}

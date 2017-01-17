@@ -111,5 +111,5 @@ arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex
 
 Building SD card image zip file:
 {% highlight bash %}
-source scripts/mcpha-ecosystem.sh
+source helpers/mcpha-ecosystem.sh
 {% endhighlight %}

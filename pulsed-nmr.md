@@ -100,5 +100,5 @@ arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex
 
 Building SD card image zip file:
 {% highlight bash %}
-source scripts/pulsed-nmr-ecosystem.sh
+source helpers/pulsed-nmr-ecosystem.sh
 {% endhighlight %}
