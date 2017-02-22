@@ -33,7 +33,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
   S_AXIS_TDATA_WIDTH 32
-  M_AXIS_TDATA_WIDTH 64
+  M_AXIS_TDATA_WIDTH 128
 } {
   S_AXIS writer_0/M_AXIS
   FIFO_READ fifo_generator_0/FIFO_READ
