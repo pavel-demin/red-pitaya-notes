@@ -76,6 +76,7 @@ d-i preseed/late_command string \
   in-target apt-get update; \
   in-target apt-get --yes --no-install-recommends install \
   network-manager openssh-server virtualbox-guest-dkms \
+  module-assistant linux-headers-amd64 \
   autofs samba git curl ca-certificates xauth \
   build-essential less vim screen sudo psmisc \
   libxrender1 libxtst6 libxi6 lib32ncurses5 \
