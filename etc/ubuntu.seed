@@ -77,7 +77,6 @@ d-i grub-installer/with_other_os boolean true
 d-i finish-install/reboot_in_progress note
 
 d-i preseed/late_command string \
-  printf "\nallow-hotplug eth1\niface eth1 inet dhcp\n" > /target/etc/network/interfaces.d/eth1; \
   in-target apt-get --yes --no-install-recommends install \
   openssh-server virtualbox-guest-dkms module-assistant \
   autofs samba git curl ca-certificates xauth \
