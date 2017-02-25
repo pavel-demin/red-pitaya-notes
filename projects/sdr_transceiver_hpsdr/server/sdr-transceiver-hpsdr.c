@@ -98,6 +98,7 @@ uint8_t cw_mode = 0;
 uint8_t cw_weight = 50;
 uint8_t cw_spacing = 0;
 uint8_t cw_delay = 0;
+uint8_t cw_ptt = 0;
 
 int cw_memory[2] = {0, 0};
 int cw_ptt_delay = 0;
@@ -1009,7 +1010,7 @@ void *handler_ep6(void *arg)
     {
       pointer = buffer + i * 516 - i % 2 * 4 + 8;
       memcpy(pointer, header + header_offset, 8);
-      pointer[3] |= *gpio_in & 7;
+      pointer[3] |= *gpio_in & 7 | cw_ptt;
       if(header_offset == 8)
       {
         value = xadc[153] >> 3;
@@ -1074,7 +1075,9 @@ inline void cw_on()
 {
   int delay = 1200 / cw_speed;
   if(cw_delay < delay) delay = cw_delay;
-  *tx_rst |= 16; /* PTT on */
+  /* PTT on */
+  *tx_rst |= 16;
+  cw_ptt = 1;
   tx_mux[16] = 1;
   tx_mux[0] = 2;
   tx_mux_data = 1;
@@ -1116,7 +1119,9 @@ inline void cw_off()
 inline void cw_ptt_off()
 {
   if(--cw_ptt_delay > 0) return;
-  *tx_rst &= ~16; /* PTT off */
+  /* PTT off */
+  *tx_rst &= ~16;
+  cw_ptt = 0;
   /* reset tx fifo */
   *tx_rst |= 1;
   *tx_rst &= ~1;

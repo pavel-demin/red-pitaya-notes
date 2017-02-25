@@ -5,7 +5,8 @@ module axis_packetizer #
 (
   parameter integer AXIS_TDATA_WIDTH = 32,
   parameter integer CNTR_WIDTH = 32,
-  parameter         CONTINUOUS = "FALSE"
+  parameter         CONTINUOUS = "FALSE",
+  parameter         ALWAYS_READY = "FALSE"
 )
 (
   // System signals
@@ -98,7 +99,17 @@ module axis_packetizer #
     end
   endgenerate
 
-  assign s_axis_tready = int_enbl_reg & m_axis_tready;
+  generate
+    if(ALWAYS_READY == "TRUE")
+    begin : READY
+      assign s_axis_tready = 1'b1;
+    end
+    else
+    begin : BLOCKING
+      assign s_axis_tready = int_enbl_reg & m_axis_tready;
+    end
+  endgenerate
+
   assign m_axis_tdata = s_axis_tdata;
   assign m_axis_tvalid = int_tvalid_wire;
   assign m_axis_tlast = int_enbl_reg & int_tlast_wire;
