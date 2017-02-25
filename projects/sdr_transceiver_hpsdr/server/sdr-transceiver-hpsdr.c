@@ -1010,7 +1010,7 @@ void *handler_ep6(void *arg)
     {
       pointer = buffer + i * 516 - i % 2 * 4 + 8;
       memcpy(pointer, header + header_offset, 8);
-      pointer[3] |= *gpio_in & 7 | cw_ptt;
+      pointer[3] |= (*gpio_in & 7) | cw_ptt;
       if(header_offset == 8)
       {
         value = xadc[153] >> 3;
