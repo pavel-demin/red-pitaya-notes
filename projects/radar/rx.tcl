@@ -8,13 +8,15 @@ cell xilinx.com:ip:xlslice:1.0 slice_1 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_2 {
+  DIN_WIDTH 96 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
+}
 
 # Create axis_clock_converter
 cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
+  TDATA_NUM_BYTES 6
 } {
   m_axis_aclk /ps_0/FCLK_CLK0
   m_axis_aresetn slice_0/Dout
@@ -24,11 +26,12 @@ cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 8
+  S_TDATA_NUM_BYTES 6
   M_TDATA_NUM_BYTES 2
-  NUM_MI 2
+  NUM_MI 3
   M00_TDATA_REMAP {tdata[15:0]}
   M01_TDATA_REMAP {tdata[31:16]}
+  M02_TDATA_REMAP {tdata[47:32]}
 } {
   S_AXIS fifo_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
@@ -38,15 +41,15 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 for {set i 0} {$i <= 1} {incr i} {
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 2] {
-    DIN_WIDTH 64 DIN_FROM [expr 32 * $i + 31] DIN_TO [expr 32 * $i] DOUT_WIDTH 32
+  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 3] {
+    DIN_WIDTH 96 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32] DOUT_WIDTH 32
   }
 
   # Create axis_constant
   cell pavel-demin:user:axis_constant:1.0 phase_$i {
     AXIS_TDATA_WIDTH 32
   } {
-    cfg_data slice_[expr $i + 2]/Dout
+    cfg_data slice_[expr $i + 3]/Dout
     aclk /ps_0/FCLK_CLK0
   }
 
@@ -221,6 +224,35 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
   aresetn slice_0/Dout
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
+# Create axis_trigger
+cell pavel-demin:user:axis_trigger:1.0 trig_0 {
+  AXIS_TDATA_WIDTH 8
+  AXIS_TDATA_SIGNED FALSE
+} {
+  S_AXIS bcast_0/M02_AXIS
+  pol_data const_0/dout
+  msk_data const_0/dout
+  lvl_data const_0/dout
+  aclk /ps_0/FCLK_CLK0
+}
+
+# Create axis_packetizer
+cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
+  AXIS_TDATA_WIDTH 128
+  CNTR_WIDTH 14
+} {
+  S_AXIS conv_1/M_AXIS
+  run_flag trig_0/trg_flag
+  trg_flag const_0/dout
+  pre_data const_0/dout
+  tot_data slice_2/Dout
+  aclk /ps_0/FCLK_CLK0
+  aresetn slice_0/Dout
+}
+
 # Create fifo_generator
 cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
@@ -240,7 +272,7 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
   S_AXIS_TDATA_WIDTH 128
   M_AXIS_TDATA_WIDTH 32
 } {
-  S_AXIS conv_1/M_AXIS
+  S_AXIS scope_0/M_AXIS
   FIFO_READ fifo_generator_0/FIFO_READ
   FIFO_WRITE fifo_generator_0/FIFO_WRITE
   aclk /ps_0/FCLK_CLK0
