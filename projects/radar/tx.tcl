@@ -8,6 +8,11 @@ cell xilinx.com:ip:xlslice:1.0 slice_1 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 }
 
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_2 {
+  DIN_WIDTH 96 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
+}
+
 # Create axi_axis_writer
 cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
   AXI_DATA_WIDTH 32
@@ -41,13 +46,36 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
   aclk /ps_0/FCLK_CLK0
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
+# Create axis_packetizer
+cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
+  AXIS_TDATA_WIDTH 128
+  CNTR_WIDTH 14
+} {
+  S_AXIS fifo_0/M_AXIS
+  trg_flag const_0/dout
+  pre_data const_0/dout
+  tot_data slice_2/Dout
+  aclk /ps_0/FCLK_CLK0
+  aresetn slice_0/Dout
+}
+
+# Create axis_zeroer
+cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
+  AXIS_TDATA_WIDTH 128
+} {
+  aclk /ps_0/FCLK_CLK0
+}
+
 # Create axis_dwidth_converter
 cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 16
   M_TDATA_NUM_BYTES 4
 } {
-  S_AXIS fifo_0/M_AXIS
+  S_AXIS scope_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
   aresetn slice_0/Dout
 }
@@ -156,15 +184,15 @@ for {set i 0} {$i <= 1} {incr i} {
   }
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 2] {
-    DIN_WIDTH 64 DIN_FROM [expr 32 * $i + 31] DIN_TO [expr 32 * $i] DOUT_WIDTH 32
+  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 3] {
+    DIN_WIDTH 96 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32] DOUT_WIDTH 32
   }
 
   # Create axis_constant
   cell pavel-demin:user:axis_constant:1.0 phase_$i {
     AXIS_TDATA_WIDTH 32
   } {
-    cfg_data slice_[expr $i + 2]/Dout
+    cfg_data slice_[expr $i + 3]/Dout
     aclk /ps_0/FCLK_CLK0
   }
 

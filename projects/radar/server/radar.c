@@ -15,6 +15,7 @@
 
 volatile uint64_t *rx_data, *tx_data;
 volatile uint32_t *rx_freq, *rx_rate, *tx_freq, *tx_rate;
+volatile uint16_t *rx_size, *tx_size;
 volatile uint16_t *gpio, *rx_cntr, *tx_cntr;
 volatile uint8_t *rx_rst, *tx_rst;
 
@@ -61,13 +62,15 @@ int main(int argc, char *argv[])
   gpio = ((uint16_t *)(cfg + 2));
 
   rx_rst = ((uint8_t *)(cfg + 0));
-  rx_freq = ((uint32_t *)(cfg + 4));
-  rx_rate = ((uint32_t *)(cfg + 8));
+  rx_size = ((uint16_t *)(cfg + 4));
+  rx_freq = ((uint32_t *)(cfg + 8));
+  rx_rate = ((uint32_t *)(cfg + 12));
   rx_cntr = ((uint16_t *)(sts + 0));
 
   tx_rst = ((uint8_t *)(cfg + 1));
-  tx_freq = ((uint32_t *)(cfg + 12));
-  tx_rate = ((uint32_t *)(cfg + 16));
+  tx_size = ((uint16_t *)(cfg + 16));
+  tx_freq = ((uint32_t *)(cfg + 20));
+  tx_rate = ((uint32_t *)(cfg + 24));
   tx_cntr = ((uint16_t *)(sts + 2));
 
   /* set FPGA clock to 143 MHz */

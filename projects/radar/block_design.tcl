@@ -70,7 +70,7 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 288
+  CFG_DATA_WIDTH 224
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -80,54 +80,37 @@ cell xilinx.com:ip:xlconstant:1.1 const_0
 
 # GPIO
 
-# Delete input/output port
-delete_bd_objs [get_bd_ports exp_p_tri_io]
-
-# Create output port
-create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 288 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+# Create axis_gpio_reader
+cell pavel-demin:user:axis_gpio_reader:1.0 gpio_0 {
+  AXIS_TDATA_WIDTH 8
 } {
-  Din cfg_0/cfg_data
-  Dout exp_p_tri_io
+  gpio_data exp_p_tri_io
+  aclk pll_0/clk_out1
 }
 
-# Delete input/output port
-delete_bd_objs [get_bd_ports exp_n_tri_io]
-
-# Create input/output port
-create_bd_port -dir I -from 3 -to 0 exp_n_tri_io
-
-# Create shift_register
-cell pavel-demin:user:shift_register:1.0 reg_0 {
-  DATA_WIDTH 4
+# Create axis_combiner
+cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 4
 } {
-  din exp_n_tri_io
-  aclk ps_0/FCLK_CLK0
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 pps_slice_0 {
-  DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
-} {
-  Din reg_0/dout
-  Dout ps_0/GPIO_I
+  S00_AXIS adc_0/M_AXIS
+  S01_AXIS gpio_0/M_AXIS
+  aclk pll_0/clk_out1
+  aresetn const_0/dout
 }
 
 # RX 0
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+  DIN_WIDTH 224 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 160 DIN_FROM 95 DIN_TO 32 DOUT_WIDTH 64
+  DIN_WIDTH 224 DIN_FROM 127 DIN_TO 32 DOUT_WIDTH 96
 } {
   Din cfg_0/cfg_data
 }
@@ -139,7 +122,8 @@ module rx_0 {
   slice_1/Din rst_slice_0/Dout
   slice_2/Din cfg_slice_0/Dout
   slice_3/Din cfg_slice_0/Dout
-  fifo_0/S_AXIS adc_0/M_AXIS
+  slice_4/Din cfg_slice_0/Dout
+  fifo_0/S_AXIS comb_0/M_AXIS
   fifo_0/s_axis_aclk pll_0/clk_out1
   fifo_0/s_axis_aresetn const_0/dout
 }
@@ -148,14 +132,14 @@ module rx_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+  DIN_WIDTH 224 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 160 DIN_FROM 159 DIN_TO 96 DOUT_WIDTH 64
+  DIN_WIDTH 224 DIN_FROM 223 DIN_TO 128 DOUT_WIDTH 96
 } {
   Din cfg_0/cfg_data
 }
@@ -166,6 +150,9 @@ module tx_0 {
   slice_0/Din rst_slice_1/Dout
   slice_1/Din rst_slice_1/Dout
   slice_2/Din cfg_slice_1/Dout
+  slice_3/Din cfg_slice_1/Dout
+  slice_4/Din cfg_slice_1/Dout
+  scope_0/run_flag rx_0/trig_0/trg_flag
   fifo_1/M_AXIS zeroer_0/S_AXIS
   fifo_1/m_axis_aclk pll_0/clk_out1
   fifo_1/m_axis_aresetn const_0/dout
