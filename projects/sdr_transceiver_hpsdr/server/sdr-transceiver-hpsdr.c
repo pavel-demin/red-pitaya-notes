@@ -657,6 +657,7 @@ int main(int argc, char *argv[])
           addr_ep6.sin_port = addr_from[i].sin_port;
           enable_thread = 1;
           active_thread = 1;
+          rx_sync_data = 0;
           /* reset all los */
           *lo_rst &= ~15;
           *lo_rst |= 15;
@@ -771,35 +772,35 @@ void process_ep2(uint8_t *frame)
     case 5:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      if(rx_sync_data) *rx_freq[1] = *rx_freq[0];
       if(freq_data[1] != freq)
       {
         freq_data[1] = freq;
+        if(rx_sync_data)
+        {
+          /* reset first two los */
+          *lo_rst &= ~3;
+          *lo_rst |= 3;
+        }
         alex_write();
         if(i2c_misc) misc_write();
-      }
-      if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
-      if(rx_sync_data)
-      {
-        *rx_freq[1] = *rx_freq[0];
-        /* reset first two los */
-        *lo_rst &= ~3;
-        *lo_rst |= 3;
       }
       break;
     case 6:
     case 7:
       /* set rx phase increment */
+      if(rx_sync_data) break;
       freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       if(freq_data[2] != freq)
       {
         freq_data[2] = freq;
         alex_write();
         if(i2c_misc) misc_write();
       }
-      if(rx_sync_data) break;
-      if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 8:
     case 9:
