@@ -758,6 +758,8 @@ void process_ep2(uint8_t *frame)
     case 3:
       /* set tx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       if(freq_data[0] != freq)
       {
         freq_data[0] = freq;
@@ -765,8 +767,6 @@ void process_ep2(uint8_t *frame)
         icom_write();
         if(i2c_misc) misc_write();
       }
-      if(freq < freq_min || freq > freq_max) break;
-      *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 4:
     case 5:
