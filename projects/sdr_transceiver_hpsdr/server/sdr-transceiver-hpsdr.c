@@ -41,7 +41,7 @@
 
 volatile uint32_t *rx_freq[4], *rx_rate, *tx_freq, *alex, *tx_mux, *dac_freq, *dac_mux;
 volatile uint16_t *rx_cntr, *tx_cntr, *tx_level, *dac_cntr, *dac_level, *adc_cntr;
-volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *codec_rst;
+volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *lo_rst;
 volatile uint64_t *rx_data;
 volatile uint32_t *tx_data, *dac_data;
 volatile uint16_t *adc_data;
@@ -102,6 +102,8 @@ uint8_t cw_ptt = 0;
 
 int cw_memory[2] = {0, 0};
 int cw_ptt_delay = 0;
+
+uint16_t rx_sync_data = 0;
 
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
@@ -429,8 +431,8 @@ int main(int argc, char *argv[])
   xadc = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
   rx_rst = ((uint8_t *)(cfg + 0));
-  tx_rst = ((uint8_t *)(cfg + 1));
-  codec_rst = ((uint8_t *)(cfg + 2));
+  lo_rst = ((uint8_t *)(cfg + 1));
+  tx_rst = ((uint8_t *)(cfg + 2));
   gpio_out = ((uint8_t *)(cfg + 3));
 
   rx_rate = ((uint32_t *)(cfg + 4));
@@ -501,10 +503,10 @@ int main(int argc, char *argv[])
   if(i2c_codec)
   {
     /* reset codec ADC fifo */
-    *codec_rst |= 1;
-    *codec_rst &= ~1;
+    *rx_rst |= 2;
+    *rx_rst &= ~2;
     /* enable I2S interface */
-    *codec_rst &= ~2;
+    *rx_rst &= ~4;
 
     /* set default dac phase increment */
     *dac_freq = (uint32_t)floor(600 / 48.0e3 * (1 << 30) + 0.5);
@@ -533,7 +535,7 @@ int main(int argc, char *argv[])
   else
   {
     /* enable ALEX interface */
-    *codec_rst |= 2;
+    *rx_rst |= 4;
   }
 
   if((sock_ep2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
@@ -655,6 +657,10 @@ int main(int argc, char *argv[])
           addr_ep6.sin_port = addr_from[i].sin_port;
           enable_thread = 1;
           active_thread = 1;
+          rx_sync_data = 0;
+          /* reset all los */
+          *lo_rst &= ~15;
+          *lo_rst |= 15;
           if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
           {
             perror("pthread_create");
@@ -681,6 +687,18 @@ void process_ep2(uint8_t *frame)
     case 0:
     case 1:
       receivers = ((frame[4] >> 3) & 7) + 1;
+      data = (frame[4] >> 7) & 1;
+      if(rx_sync_data != data)
+      {
+        rx_sync_data = data;
+        if(rx_sync_data)
+        {
+          *rx_freq[1] = *rx_freq[0];
+          /* reset first two los */
+          *lo_rst &= ~3;
+          *lo_rst |= 3;
+        }
+      }
       /* set output pins */
       ptt = frame[0] & 0x01;
       att = frame[3] & 0x03;
@@ -740,6 +758,8 @@ void process_ep2(uint8_t *frame)
     case 3:
       /* set tx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       if(freq_data[0] != freq)
       {
         freq_data[0] = freq;
@@ -747,34 +767,40 @@ void process_ep2(uint8_t *frame)
         icom_write();
         if(i2c_misc) misc_write();
       }
-      if(freq < freq_min || freq > freq_max) break;
-      *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 4:
     case 5:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      if(rx_sync_data) *rx_freq[1] = *rx_freq[0];
       if(freq_data[1] != freq)
       {
         freq_data[1] = freq;
+        if(rx_sync_data)
+        {
+          /* reset first two los */
+          *lo_rst &= ~3;
+          *lo_rst |= 3;
+        }
         alex_write();
         if(i2c_misc) misc_write();
       }
-      if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 6:
     case 7:
       /* set rx phase increment */
+      if(rx_sync_data) break;
       freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       if(freq_data[2] != freq)
       {
         freq_data[2] = freq;
         alex_write();
         if(i2c_misc) misc_write();
       }
-      if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 8:
     case 9:
@@ -949,8 +975,8 @@ void *handler_ep6(void *arg)
   if(i2c_codec)
   {
     /* reset codec ADC fifo */
-    *codec_rst |= 1;
-    *codec_rst &= ~1;
+    *rx_rst |= 2;
+    *rx_rst &= ~2;
   }
 
   /* reset rx fifo */
@@ -970,8 +996,8 @@ void *handler_ep6(void *arg)
       if(i2c_codec)
       {
         /* reset codec ADC fifo */
-        *codec_rst |= 1;
-        *codec_rst &= ~1;
+        *rx_rst |= 2;
+        *rx_rst &= ~2;
       }
 
       /* reset rx fifo */

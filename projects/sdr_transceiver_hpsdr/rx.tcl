@@ -4,7 +4,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_1 {
+cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 160 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
 }
 
@@ -37,7 +37,12 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 for {set i 0} {$i <= 3} {incr i} {
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 2] {
+  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 1] {
+    DIN_WIDTH 8 DIN_FROM $i DIN_TO $i DOUT_WIDTH 1
+  }
+
+  # Create xlslice
+  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 6] {
     DIN_WIDTH 160 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32] DOUT_WIDTH 32
   }
 
@@ -45,7 +50,7 @@ for {set i 0} {$i <= 3} {incr i} {
   cell pavel-demin:user:axis_constant:1.0 phase_$i {
     AXIS_TDATA_WIDTH 32
   } {
-    cfg_data slice_[expr $i + 2]/Dout
+    cfg_data slice_[expr $i + 6]/Dout
     aclk /ps_0/FCLK_CLK0
   }
 
@@ -56,6 +61,7 @@ for {set i 0} {$i <= 3} {incr i} {
     FREQUENCY_RESOLUTION 0.2
     PHASE_INCREMENT Streaming
     HAS_TREADY true
+    HAS_ARESETN true
     HAS_PHASE_OUT false
     PHASE_WIDTH 30
     OUTPUT_WIDTH 24
@@ -64,6 +70,7 @@ for {set i 0} {$i <= 3} {incr i} {
   } {
     S_AXIS_PHASE phase_$i/M_AXIS
     aclk /ps_0/FCLK_CLK0
+    aresetn slice_[expr $i + 1]/Dout
   }
 
   # Create axis_lfsr
@@ -110,7 +117,7 @@ for {set i 0} {$i <= 7} {incr i} {
   cell pavel-demin:user:axis_variable:1.0 rate_$i {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_1/Dout
+    cfg_data slice_5/Dout
     aclk /ps_0/FCLK_CLK0
     aresetn /rst_0/peripheral_aresetn
   }

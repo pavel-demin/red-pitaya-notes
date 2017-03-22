@@ -221,6 +221,13 @@ cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
 }
 
 # Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
+  DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
   DIN_WIDTH 320 DIN_FROM 191 DIN_TO 32 DOUT_WIDTH 160
 } {
@@ -231,11 +238,15 @@ module rx_0 {
   source projects/sdr_transceiver_hpsdr/rx.tcl
 } {
   slice_0/Din rst_slice_0/Dout
-  slice_1/Din cfg_slice_0/Dout
-  slice_2/Din cfg_slice_0/Dout
-  slice_3/Din cfg_slice_0/Dout
-  slice_4/Din cfg_slice_0/Dout
+  slice_1/Din rst_slice_1/Dout
+  slice_2/Din rst_slice_1/Dout
+  slice_3/Din rst_slice_1/Dout
+  slice_4/Din rst_slice_1/Dout
   slice_5/Din cfg_slice_0/Dout
+  slice_6/Din cfg_slice_0/Dout
+  slice_7/Din cfg_slice_0/Dout
+  slice_8/Din cfg_slice_0/Dout
+  slice_9/Din cfg_slice_0/Dout
   fifo_0/S_AXIS comb_0/M_AXIS
   fifo_0/s_axis_aclk pll_0/clk_out1
   fifo_0/s_axis_aresetn const_0/dout
@@ -244,29 +255,29 @@ module rx_0 {
 # TX 0
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 8 DIN_TO 8 DOUT_WIDTH 1
+cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
+  DIN_WIDTH 320 DIN_FROM 16 DIN_TO 16 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
-  DIN_WIDTH 320 DIN_FROM 9 DIN_TO 9 DOUT_WIDTH 1
+cell xilinx.com:ip:xlslice:1.0 rst_slice_3 {
+  DIN_WIDTH 320 DIN_FROM 17 DIN_TO 17 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 key_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 10 DIN_TO 10 DOUT_WIDTH 1
+  DIN_WIDTH 320 DIN_FROM 18 DIN_TO 18 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 key_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 11 DIN_TO 11 DOUT_WIDTH 1
+  DIN_WIDTH 320 DIN_FROM 19 DIN_TO 19 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
@@ -281,7 +292,7 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
 module tx_0 {
   source projects/sdr_transceiver_hpsdr/tx.tcl
 } {
-  fifo_generator_0/srst rst_slice_1/Dout
+  fifo_generator_0/srst rst_slice_2/Dout
   keyer_0/key_flag key_slice_0/Dout
   slice_0/Din cfg_slice_1/Dout
   slice_1/Din cfg_slice_1/Dout
@@ -294,13 +305,6 @@ module tx_0 {
 # CODEC
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_3 {
-  DIN_WIDTH 320 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
-} {
-  Din cfg_0/cfg_data
-}
-
-# Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
   DIN_WIDTH 320 DIN_FROM 319 DIN_TO 256 DOUT_WIDTH 64
 } {
@@ -310,10 +314,10 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
 module codec {
   source projects/sdr_transceiver_hpsdr/codec.tcl
 } {
-  fifo_generator_0/srst rst_slice_2/Dout
+  fifo_generator_0/srst rst_slice_3/Dout
   keyer_0/key_flag key_slice_1/Dout
-  slice_0/Din rst_slice_3/Dout
-  slice_1/Din rst_slice_3/Dout
+  slice_0/Din rst_slice_0/Dout
+  slice_1/Din rst_slice_0/Dout
   slice_2/Din cfg_slice_2/Dout
   slice_3/Din cfg_slice_2/Dout
   slice_4/Din cfg_slice_2/Dout
