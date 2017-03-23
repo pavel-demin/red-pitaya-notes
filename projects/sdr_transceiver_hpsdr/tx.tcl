@@ -1,15 +1,20 @@
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
+  DIN_WIDTH 8 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
+  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_3 {
   DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
 }
 
@@ -185,7 +190,7 @@ cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
   BRAM_ADDR_WIDTH 10
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
-  cfg_data slice_1/Dout
+  cfg_data slice_2/Dout
   aclk /ps_0/FCLK_CLK0
   aresetn /rst_0/peripheral_aresetn
 }
@@ -286,7 +291,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 cell pavel-demin:user:axis_constant:1.0 phase_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  cfg_data slice_0/Dout
+  cfg_data slice_1/Dout
   aclk /ps_0/FCLK_CLK0
 }
 
@@ -297,6 +302,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
   HAS_TREADY true
+  HAS_ARESETN true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
   OUTPUT_WIDTH 24
@@ -304,6 +310,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 } {
   S_AXIS_PHASE phase_0/M_AXIS
   aclk /ps_0/FCLK_CLK0
+  aresetn slice_0/Dout
 }
 
 # Create axis_lfsr
@@ -345,7 +352,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_4 {
 cell pavel-demin:user:axis_constant:1.0 const_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_2/Dout
+  cfg_data slice_3/Dout
   aclk /ps_0/FCLK_CLK0
 }
 
