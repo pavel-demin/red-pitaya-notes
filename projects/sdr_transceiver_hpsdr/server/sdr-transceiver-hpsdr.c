@@ -659,8 +659,8 @@ int main(int argc, char *argv[])
           active_thread = 1;
           rx_sync_data = 0;
           /* reset all los */
-          *lo_rst &= ~15;
-          *lo_rst |= 15;
+          *lo_rst &= ~31;
+          *lo_rst |= 31;
           if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
           {
             perror("pthread_create");

@@ -144,7 +144,7 @@ cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 ptt_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 12 DIN_TO 12 DOUT_WIDTH 1
+  DIN_WIDTH 320 DIN_FROM 20 DIN_TO 20 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
@@ -294,9 +294,10 @@ module tx_0 {
 } {
   fifo_generator_0/srst rst_slice_2/Dout
   keyer_0/key_flag key_slice_0/Dout
-  slice_0/Din cfg_slice_1/Dout
+  slice_0/Din rst_slice_1/Dout
   slice_1/Din cfg_slice_1/Dout
   slice_2/Din cfg_slice_1/Dout
+  slice_3/Din cfg_slice_1/Dout
   fifo_1/M_AXIS bcast_0/S_AXIS
   fifo_1/m_axis_aclk pll_0/clk_out1
   fifo_1/m_axis_aresetn const_0/dout
