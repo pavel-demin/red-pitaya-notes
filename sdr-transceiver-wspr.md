@@ -14,6 +14,7 @@ Some interesting links on the Weak Signal Propagation Reporter (WSPR) protocol:
  - [WSPRnet](http://wsprnet.org)
  - [WSPRnet map](http://wsprnet.org/drupal/wsprnet/map)
  - [WSPRnet protocol](http://wsprnet.org/automate.txt)
+ - [WSPRlive](https://wsprlive.net)
 
 Short description
 -----
@@ -120,7 +121,7 @@ make NAME=sdr_transceiver_wspr all
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.5-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.6-armhf.img 1024
 {% endhighlight %}
 
 Feedback and results
