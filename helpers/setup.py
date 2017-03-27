@@ -18,7 +18,7 @@ includes = [
   'PyQt5.QtXml',
   'numpy',
   'matplotlib.backends.backend_qt5agg',
-  'smithplot'
+  'mpldatacursor'
 ]
 
 setup(
