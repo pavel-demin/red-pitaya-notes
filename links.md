@@ -3,6 +3,8 @@ layout: page
 title: Links
 permalink: /links/
 ---
+ - [Red Pitaya Documentation](http://redpitaya.readthedocs.io)
+
  - [Red Pitaya Wiki](http://wiki.redpitaya.com)
 
  - [Red Pitaya Forum](http://forum.redpitaya.com)
