@@ -41,8 +41,7 @@ Software
 
 This SDR receiver should work with most of the programs that support the HPSDR/Metis communication protocol:
 
- - [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) that can be downloaded from [this link](http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/PowerSDR_Installers) and its skins can be downloaded from [this link](
-http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/OpenHPSDR_Skins)
+ - [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) that can be downloaded from [this link](https://github.com/TAPR/OpenHPSDR-PowerSDR/releases)
 
  - [QUISK](http://james.ahlstrom.name/quisk) with the `hermes/quisk_conf.py` configuration file
 
