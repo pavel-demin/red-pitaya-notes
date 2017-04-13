@@ -13,3 +13,21 @@ in write-c2-files.cfg.
 The bands list in write-c2-files.cfg contains all the WSPR frequencies. They
 can be enabled or disabled by uncommenting or by commenting the corresponding
 lines.
+
+use of this project detailed at http://pavel-demin.github.io/red-pitaya-notes/sdr-transceiver-wspr/
+
+To run the WSPR transceiver project on the Red Pitaya native SD Card/OS
+
+apt-get install libc6 curl parallel ntp cron libfftw3-bin libfftw3-dev libconfig-dev subversion
+
+git clone https://github.com/pavel-demin/red-pitaya-notes
+cd red-pitaya-notes/projects/sdr_transceiver_wspr
+
+svn co svn://svn.code.sf.net/p/wsjt/wsjt/branches/wsjtx/lib/wsprd
+make -C wsprd CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd
+
+make
+
+wget https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACSA6RMQm4OxU5yqfDz8-rHa/sdr/sdr_transceiver_wspr.bit
+## use the start and stop scripts or this to run the appications
+cat sdr_transceiver_wspr.bit > /dev/xdevcfg
