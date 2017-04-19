@@ -20,8 +20,8 @@ timezone=Europe/Brussels
 # Create partitions
 
 parted -s $device mklabel msdos
-parted -s $device mkpart primary fat16 4MB 16MB
-parted -s $device mkpart primary ext4 16MB 100%
+parted -s $device mkpart primary fat16 4MiB 16MiB
+parted -s $device mkpart primary ext4 16MiB 100%
 
 boot_dev=/dev/`lsblk -lno NAME $device | sed '2!d'`
 root_dev=/dev/`lsblk -lno NAME $device | sed '3!d'`
