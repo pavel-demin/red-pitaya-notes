@@ -5,8 +5,6 @@ permalink: /links/
 ---
  - [Red Pitaya Documentation](http://redpitaya.readthedocs.io)
 
- - [Red Pitaya Wiki](http://wiki.redpitaya.com)
-
  - [Red Pitaya Forum](http://forum.redpitaya.com)
  
  - [LTC2145-14, dual 14-bit ADC](http://www.linear.com/product/LTC2145-14)
@@ -17,11 +15,11 @@ permalink: /links/
 
  - [Xilinx University Program - Vivado-Based Workshops](http://www.xilinx.com/support/university/vivado/vivado-workshops.html)
 
- - [Digilent Embedded Linux Development Guide](http://www.digilentinc.com/Data/Products/EMBEDDED-LINUX/Digilent_Embedded_Linux_Guide.pdf)
+ - [Digilent Embedded Linux Development Guide](https://reference.digilentinc.com/_media/digilent_embedded_linux_guide.pdf)
 
- - [Digilent Embedded Linux Hands-on Tutorial for ZedBoard](http://www.digilentinc.com/Data/Documents/Product%20Documentation/ZedBoard_ELHoT.zip)
+ - [Digilent Tutorials for ZedBoard](https://reference.digilentinc.com/reference/programmable-logic/zedboard/start)
 
- - [Digilent Embedded Linux Hands-on Tutorial for ZYBO](http://www.digilentinc.com/Data/Products/ZYBO/ZYBO-Embedded_Linux_Hands-on_Tutorial.pdf)
+ - [Digilent Tutorials for ZYBO](https://reference.digilentinc.com/reference/programmable-logic/zybo/start)
 
  - [Installing Debian On Xilinx ZC702](http://wiki.debian.org/InstallingDebianOn/Xilinx/ZC702/wheezy)
 
