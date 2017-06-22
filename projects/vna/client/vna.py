@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Control program for the Red Pitaya vector network analyzer
 # Copyright (C) 2016  Pavel Demin
@@ -192,27 +192,28 @@ class VNA(QMainWindow, Ui_VNA):
     self.dutSweep.setEnabled(True)
 
   def read_data(self):
-    if not self.reading:
-      self.socket.readAll()
-      return
-    size = self.socket.bytesAvailable()
-    self.progress.setValue((self.offset + size) / 24)
-    limit = 24 * self.sweep_size
-    if self.offset + size < limit:
-      self.buffer[self.offset:self.offset + size] = self.socket.read(size)
-      self.offset += size
-    else:
-      self.buffer[self.offset:limit] = self.socket.read(limit - self.offset)
-      adc1 = self.data[0::3]
-      adc2 = self.data[1::3]
-      dac = self.data[2::3]
-      attr = getattr(self, self.mode)
-      size = attr.freq.size
-      attr.data = adc1[0:size] / dac[0:size]
-      getattr(self, 'plot_%s' % self.mode)()
-      self.reading = False
-      self.sweepFrame.setEnabled(True)
-      self.selectFrame.setEnabled(True)
+    while(self.socket.bytesAvailable() > 0):
+      if not self.reading:
+        self.socket.readAll()
+        return
+      size = self.socket.bytesAvailable()
+      self.progress.setValue((self.offset + size) / 24)
+      limit = 24 * self.sweep_size
+      if self.offset + size < limit:
+        self.buffer[self.offset:self.offset + size] = self.socket.read(size)
+        self.offset += size
+      else:
+        self.buffer[self.offset:limit] = self.socket.read(limit - self.offset)
+        adc1 = self.data[0::3]
+        adc2 = self.data[1::3]
+        dac = self.data[2::3]
+        attr = getattr(self, self.mode)
+        size = attr.freq.size
+        attr.data = adc1[0:size] / dac[0:size]
+        getattr(self, 'plot_%s' % self.mode)()
+        self.reading = False
+        self.sweepFrame.setEnabled(True)
+        self.selectFrame.setEnabled(True)
 
   def display_error(self, socketError):
     self.startTimer.stop()
