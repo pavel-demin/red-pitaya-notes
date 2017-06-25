@@ -122,10 +122,22 @@ update-locale LANG=en_US.UTF-8
 echo $timezone > etc/timezone
 dpkg-reconfigure --frontend=noninteractive tzdata
 
-apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
+apt-get -y install openssh-server ca-certificates fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
   iw firmware-realtek firmware-ralink firmware-atheros firmware-brcm80211 \
-  build-essential subversion libfftw3-dev libconfig-dev parallel ifplugd ntfs-3g
+  build-essential subversion libfftw3-dev libconfig-dev ifplugd ntfs-3g \
+  parallel pps-tools
+
+apt-get -y build-dep ntp
+
+mkdir root/ntp
+cd root/ntp
+apt-get -y source ntp
+cd ntp-*
+dpkg-buildpackage -b
+cd ..
+dpkg -i ntp*.deb
+cd ../..
 
 cd root
 svn co svn://svn.code.sf.net/p/wsjt/wsjt/branches/wsjtx/lib/wsprd
@@ -138,6 +150,16 @@ ln -sf /root/wspr.cron etc/cron.d/wspr
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
 touch etc/udev/rules.d/75-persistent-net-generator.rules
+
+cat <<- EOF_CAT > etc/udev/rules.d/80-gps-to-ntp.rules
+KERNEL=="ttyPS1", SYMLINK+="gps0"
+KERNEL=="pps0", SYMLINK+="gpspps0"
+EOF_CAT
+
+sed -i '/^# You do need to talk to an NTP server/i\
+server 127.127.20.0 mode 18 minpoll 4 maxpoll 4 prefer\
+fudge 127.127.20.0 flag1 1 flag2 0 flag3 1 time2 0.500\
+' etc/ntp.conf
 
 cat <<- EOF_CAT > etc/network/interfaces.d/eth0
 iface eth0 inet dhcp
