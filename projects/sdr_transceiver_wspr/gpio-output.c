@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   number = (argc == 2) ? strtol(argv[1], &end, 10) : -1;
   if(errno != 0 || end == argv[1] || number < 0 || number > 255)
   {
-    printf("Usage: gpio-output [0-255]\n");
+    fprintf(stderr, "Usage: gpio-output [0-255]\n");
     return EXIT_FAILURE;
   }
 
