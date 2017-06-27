@@ -11,7 +11,7 @@ DIR=`readlink -f $0`
 DIR=`dirname $DIR`
 
 RECORDER=$DIR/write-c2-files
-CONFIG=$DIR/write-c2-files.cfg
+CONFIG=write-c2-files.cfg
 
 DECODER=$DIR/wsprd/wsprd
 ALLMEPT=ALL_WSPR.TXT
@@ -20,10 +20,12 @@ GPIO=$DIR/gpio-output
 
 date
 
+test -f $CONFIG || cp $DIR/$CONFIG $CONFIG
+
 echo "Sleeping ..."
 
-SECONDS=`date +%S`
-sleep `expr 59 - $SECONDS`
+SECONDS=`date '+\`expr 58 - %-S\`.\`expr 999999999 - %-N\`'`
+sleep `eval echo $SECONDS`
 
 $GPIO 0
 sleep 1

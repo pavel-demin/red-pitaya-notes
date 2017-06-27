@@ -8,7 +8,7 @@ module shift_register #
 (
   input  wire                  aclk,
 
-  inout  wire [DATA_WIDTH-1:0] din,
+  input  wire [DATA_WIDTH-1:0] din,
 
   output wire [DATA_WIDTH-1:0] dout
 );

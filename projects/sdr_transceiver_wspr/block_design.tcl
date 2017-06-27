@@ -97,7 +97,7 @@ cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
 # Delete input/output port
 delete_bd_objs [get_bd_ports exp_n_tri_io]
 
-# Create input/output port
+# Create input port
 create_bd_port -dir I -from 3 -to 0 exp_n_tri_io
 
 # Create gpio_debouncer
@@ -167,6 +167,52 @@ module tx_0 {
   fifo_1/m_axis_aresetn const_0/dout
 }
 
+# PPS
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 pps_slice_1 {
+  DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
+} {
+  Din exp_n_tri_io
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
+  DIN_WIDTH 288 DIN_FROM 24 DIN_TO 24 DOUT_WIDTH 1
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create axis_pps_counter
+cell pavel-demin:user:axis_pps_counter:1.0 cntr_0 {} {
+  pps_data pps_slice_1/Dout
+  aclk pll_0/clk_out1
+  aresetn const_0/dout
+}
+
+# Create axis_clock_converter
+cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 4
+  IS_ACLK_ASYNC 1
+  FIFO_DEPTH 1024
+} {
+  S_AXIS cntr_0/M_AXIS
+  s_axis_aclk pll_0/clk_out1
+  s_axis_aresetn const_0/dout
+  m_axis_aclk ps_0/FCLK_CLK0
+  m_axis_aresetn rst_slice_2/Dout
+}
+
+# Create axi_axis_reader
+cell pavel-demin:user:axi_axis_reader:1.0 reader_0 {
+  AXI_DATA_WIDTH 32
+} {
+  S_AXIS fifo_0/M_AXIS
+  aclk ps_0/FCLK_CLK0
+  aresetn rst_0/peripheral_aresetn
+}
+
 # STS
 
 # Create xlconstant
@@ -180,7 +226,7 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_0 {
-  NUM_PORTS 10
+  NUM_PORTS 11
   IN0_WIDTH 32
   IN1_WIDTH 64
   IN2_WIDTH 16
@@ -191,6 +237,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN7_WIDTH 16
   IN8_WIDTH 16
   IN9_WIDTH 16
+  IN10_WIDTH 16
 } {
   In0 const_1/dout
   In1 dna_0/dna_data
@@ -202,11 +249,12 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   In7 rx_0/fifo_generator_5/rd_data_count
   In8 rx_0/fifo_generator_6/rd_data_count
   In9 rx_0/fifo_generator_7/rd_data_count
+  In10 fifo_0/axis_rd_data_count
 }
 
 # Create axi_sts_register
 cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
-  STS_DATA_WIDTH 224
+  STS_DATA_WIDTH 256
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
@@ -270,3 +318,12 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg1]
 set_property OFFSET 0x4000C000 [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg1]
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins reader_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg01]
+set_property OFFSET 0x4000D000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg01]

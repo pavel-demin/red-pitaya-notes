@@ -4,16 +4,18 @@ DIR=`readlink -f $0`
 DIR=`dirname $DIR`
 
 TRANSMITTER=$DIR/transmit-wspr-message
-CONFIG=$DIR/transmit-wspr-message.cfg
+CONFIG=transmit-wspr-message.cfg
 
 GPIO=$DIR/gpio-output
 
 date
 
+test -f $CONFIG || cp $DIR/$CONFIG $CONFIG
+
 echo "Sleeping ..."
 
-SECONDS=`date +%S`
-sleep `expr 60 - $SECONDS`
+SECONDS=`date '+\`expr 59 - %-S\`.\`expr 999999999 - %-N\`'`
+sleep `eval echo $SECONDS`
 
 $GPIO 1
 sleep 1
