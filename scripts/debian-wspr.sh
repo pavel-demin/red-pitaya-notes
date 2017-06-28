@@ -156,9 +156,9 @@ KERNEL=="ttyPS1", SYMLINK+="gps0"
 KERNEL=="pps0", SYMLINK+="gpspps0"
 EOF_CAT
 
-sed -i '/^# You do need to talk to an NTP server/i\
-server 127.127.20.0 mode 18 minpoll 4 maxpoll 4 prefer\
-fudge 127.127.20.0 flag1 1 flag2 0 flag3 1 time2 0.500\
+sed -i '/^# You do need to talk to an NTP server/i\\
+server 127.127.20.0 mode 18 minpoll 4 maxpoll 4 prefer\\
+fudge 127.127.20.0 flag1 1 flag2 0 flag3 1 time2 0.500\\
 ' etc/ntp.conf
 
 cat <<- EOF_CAT > etc/network/interfaces.d/eth0
