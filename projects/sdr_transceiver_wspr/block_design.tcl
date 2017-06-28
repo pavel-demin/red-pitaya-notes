@@ -100,19 +100,11 @@ delete_bd_objs [get_bd_ports exp_n_tri_io]
 # Create input port
 create_bd_port -dir I -from 3 -to 0 exp_n_tri_io
 
-# Create gpio_debouncer
-cell pavel-demin:user:shift_register:1.0 reg_0 {
-  DATA_WIDTH 4
-} {
-  din exp_n_tri_io
-  aclk ps_0/FCLK_CLK0
-}
-
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 pps_slice_0 {
   DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
 } {
-  Din reg_0/dout
+  Din exp_n_tri_io
   Dout ps_0/GPIO_I
 }
 
@@ -170,13 +162,6 @@ module tx_0 {
 # PPS
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 pps_slice_1 {
-  DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
-} {
-  Din exp_n_tri_io
-}
-
-# Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
   DIN_WIDTH 288 DIN_FROM 24 DIN_TO 24 DOUT_WIDTH 1
 } {
@@ -185,7 +170,7 @@ cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
 
 # Create axis_pps_counter
 cell pavel-demin:user:axis_pps_counter:1.0 cntr_0 {} {
-  pps_data pps_slice_1/Dout
+  pps_data pps_slice_0/Dout
   aclk pll_0/clk_out1
   aresetn const_0/dout
 }
