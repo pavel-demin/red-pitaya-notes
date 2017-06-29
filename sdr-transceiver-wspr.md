@@ -57,10 +57,22 @@ The [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master
 
 The [transmit-wspr-message.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/transmit-wspr-message.c) program transmits WSPR messages.
 
+GPS interface
+-----
+
+A GPS module can be used for the automatic measurement and correction of the frequency deviation.
+
+The PPS signal should be connected to the pin DIO3_N of the [extension connector E1](http://redpitaya.readthedocs.io/en/latest/doc/developerGuide/125-14/extent.html#extension-connector-e1).
+
+The measurement and correction of the frequency deviation is disabled by default and should be enabled by uncommenting the following line in [wspr.cron](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/wspr.cron):
+{% highlight bash %}
+1-59/2 * * * * root cd /dev/shm && /root/update-corr.sh >> update-corr.log 2>&1
+{% endhighlight %}
+
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAC0VZNZVbgipNyi5Z81yuu1a/sdr/red-pitaya-wspr-debian-8.6-armhf-20161219.zip?dl=1).
+A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAYNPy0bw9TlXcUAAkCeLfha/sdr/red-pitaya-wspr-debian-8.8-armhf-20170629.zip?dl=1).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
@@ -121,7 +133,7 @@ make NAME=sdr_transceiver_wspr all
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.6-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.8-armhf.img 1024
 {% endhighlight %}
 
 Feedback and results
