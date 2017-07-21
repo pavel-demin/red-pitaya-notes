@@ -10,7 +10,7 @@ GPIO=$DIR/gpio-output
 
 date
 
-test -f $CONFIG || cp $DIR/$CONFIG $CONFIG
+test $DIR/$CONFIG -ot $CONFIG || cp $DIR/$CONFIG $CONFIG
 
 echo "Sleeping ..."
 
