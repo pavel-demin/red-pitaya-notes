@@ -17,8 +17,8 @@ zip red-pitaya-gnuradio-debian-8.8-armhf-$DATE.zip red-pitaya-gnuradio-debian-8.
 
 make NAME=sdr_transceiver_wspr all
 
-sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.8-armhf-$DATE.img 1024
-zip red-pitaya-wspr-debian-8.8-armhf-$DATE.zip red-pitaya-wspr-debian-8.8-armhf-$DATE.img
+sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-9.0-armhf-$DATE.img 1024
+zip red-pitaya-wspr-debian-9.0-armhf-$DATE.zip red-pitaya-wspr-debian-9.0-armhf-$DATE.img
 
 make NAME=sdr_transceiver tmp/sdr_transceiver.bit
 make NAME=sdr_transceiver_hpsdr tmp/sdr_transceiver_hpsdr.bit
