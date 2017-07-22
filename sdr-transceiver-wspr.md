@@ -72,7 +72,7 @@ The measurement and correction of the frequency deviation is disabled by default
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAYNPy0bw9TlXcUAAkCeLfha/sdr/red-pitaya-wspr-debian-9.0-armhf-20170629.zip?dl=1).
+A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAACZrgE_cKJCVz8-rGRcLOUa/sdr/red-pitaya-wspr-debian-9.0-armhf-20170722.zip?dl=1).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
