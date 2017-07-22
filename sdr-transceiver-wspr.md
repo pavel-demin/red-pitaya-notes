@@ -60,9 +60,9 @@ The [transmit-wspr-message.c](https://github.com/pavel-demin/red-pitaya-notes/tr
 GPS interface
 -----
 
-A GPS module can be used for the automatic measurement and correction of the frequency deviation.
+A GPS module can be used for the time synchronization and for the automatic measurement and correction of the frequency deviation.
 
-The PPS signal should be connected to the pin DIO3_N of the [extension connector E1](http://redpitaya.readthedocs.io/en/latest/doc/developerGuide/125-14/extent.html#extension-connector-e1).
+The PPS signal should be connected to the pin DIO3_N of the [extension connector E1](http://redpitaya.readthedocs.io/en/latest/developerGuide/125-14/extent.html#extension-connector-e1). The UART interface should be connected to the UART pins of the [extension connector E2](http://redpitaya.readthedocs.io/en/latest/developerGuide/125-14/extent.html#extension-connector-e2).
 
 The measurement and correction of the frequency deviation is disabled by default and should be enabled by uncommenting the following line in [wspr.cron](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/wspr.cron):
 {% highlight bash %}
@@ -72,7 +72,7 @@ The measurement and correction of the frequency deviation is disabled by default
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAYNPy0bw9TlXcUAAkCeLfha/sdr/red-pitaya-wspr-debian-8.8-armhf-20170629.zip?dl=1).
+A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAYNPy0bw9TlXcUAAkCeLfha/sdr/red-pitaya-wspr-debian-9.0-armhf-20170629.zip?dl=1).
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
