@@ -8,7 +8,7 @@ The following is a list of components that can be used with Red Pitaya.
 RS Components
 -----
 
- - [Red Pitaya Open Source Instrument](http://uk.rs-online.com/web/c/?searchTerm=9010302)
+ - [Red Pitaya STEMLab125-14 Digital Oscilloscope](http://uk.rs-online.com/web/c/?searchTerm=1271086)
 
  - [Red Pitaya Case](http://uk.rs-online.com/web/c/?searchTerm=8194077)
 
@@ -16,8 +16,6 @@ RS Components
 
 Premier Farnell
 -----
-
- - [Power supply, micro USB, 5 V, 2 A](http://uk.farnell.com/jsp/search/productdetail.jsp?id=2427499)
 
  - [Fan, 30 x 30 x 6 mm, 5 V](http://uk.farnell.com/jsp/search/productdetail.jsp?id=1924848)
 
