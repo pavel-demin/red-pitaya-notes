@@ -80,6 +80,7 @@ Getting started with SDR# and HDSDR
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](http://www.hdsdr.de/).
+ - Download and install [Microsoft Visual C++ 2015 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=53587).
  - Download [pre-built ExtIO plug-in](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAABy8xWrv4wFFbkYfmVU6DGa/sdr/ExtIO_RedPitaya_TRX.dll?dl=1) for SDR# and HDSDR.
  - Copy `ExtIO_RedPitaya_TRX.dll` into the SDR# or HDSDR installation directory.
  - Start SDR# or HDSDR.
