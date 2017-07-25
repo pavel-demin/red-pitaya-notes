@@ -9,7 +9,7 @@ permalink: /links/
  
  - [LTC2145-14, dual 14-bit ADC](http://www.linear.com/product/LTC2145-14)
 
- - [DAC1401D125, dual 14-bit DAC](http://www.nxp.com/documents/data_sheet/DAC1401D125.pdf)
+ - [DAC1401D125, dual 14-bit DAC](http://www.idt.com/document/dst/dac1401d125-datasheet)
 
  - [Xilinx Wiki](http://www.wiki.xilinx.com)
 
