@@ -1,31 +1,50 @@
-source projects/packetizer_test/block_design.tcl
+# Create processing_system7
+cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+} {
+  M_AXI_GP0_ACLK ps_0/FCLK_CLK0
+}
 
-# Create clk_wiz
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
+  make_external {FIXED_IO, DDR}
+  Master Disable
+  Slave Disable
+} [get_bd_cells ps_0]
+
 cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+  PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
+  PRIM_SOURCE Differential_clock_capable_pin
   CLKOUT1_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 250.0
+  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT2_USED true
+  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT2_REQUESTED_PHASE -90.0
+  USE_RESET false
 } {
-  clk_in1 adc_0/adc_clk
+  clk_in1_p adc_clk_p_i
+  clk_in1_n adc_clk_n_i
 }
 
 # Create dds_compiler
 cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   DDS_CLOCK_RATE 125
-  SPURIOUS_FREE_DYNAMIC_RANGE 84
-  FREQUENCY_RESOLUTION 0.5
-  AMPLITUDE_MODE Unit_Circle
+  SPURIOUS_FREE_DYNAMIC_RANGE 78
+  NOISE_SHAPING Taylor_Series_Corrected
+  FREQUENCY_RESOLUTION 0.2
   HAS_PHASE_OUT false
-  OUTPUT_FREQUENCY1 0.9765625
+  OUTPUT_WIDTH 14
+  OUTPUT_FREQUENCY1 14.0
 } {
-  aclk adc_0/adc_clk
+  aclk pll_0/clk_out1
 }
 
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
-  aclk adc_0/adc_clk
-  ddr_clk pll_0/clk_out1
+  aclk pll_0/clk_out1
+  ddr_clk pll_0/clk_out2
   locked pll_0/locked
   S_AXIS dds_0/M_AXIS_DATA
   dac_clk dac_clk_o
