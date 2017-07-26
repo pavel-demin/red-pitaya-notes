@@ -39,7 +39,7 @@ Creating virtual machine with Ubuntu 14.04.5 (amd64) or Debian 8.6 (amd64)
 
   - Select "Dynamically allocated"
 
-  - Set the image size to at least 33 GB
+  - Set the image size to at least 129 GB
 
   - Select the newly created virtual machine and click the yellow "Settings" icon
 
