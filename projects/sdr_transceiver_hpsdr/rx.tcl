@@ -8,15 +8,6 @@ cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 160 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
 }
 
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 8
-} {
-  m_axis_aclk /ps_0/FCLK_CLK0
-  m_axis_aresetn /rst_0/peripheral_aresetn
-}
-
 # Create axis_broadcaster
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
@@ -29,8 +20,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M02_TDATA_REMAP {tdata[31:16]}
   M03_TDATA_REMAP {tdata[47:32]}
 } {
-  S_AXIS fifo_0/M_AXIS
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -51,7 +41,7 @@ for {set i 0} {$i <= 3} {incr i} {
     AXIS_TDATA_WIDTH 32
   } {
     cfg_data slice_[expr $i + 6]/Dout
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
   }
 
   # Create dds_compiler
@@ -60,7 +50,6 @@ for {set i 0} {$i <= 3} {incr i} {
     SPURIOUS_FREE_DYNAMIC_RANGE 138
     FREQUENCY_RESOLUTION 0.2
     PHASE_INCREMENT Streaming
-    HAS_TREADY true
     HAS_ARESETN true
     HAS_PHASE_OUT false
     PHASE_WIDTH 30
@@ -69,19 +58,18 @@ for {set i 0} {$i <= 3} {incr i} {
     NEGATIVE_SINE true
   } {
     S_AXIS_PHASE phase_$i/M_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn slice_[expr $i + 1]/Dout
   }
 
   # Create axis_lfsr
   cell pavel-demin:user:axis_lfsr:1.0 lfsr_$i {} {
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
 
   # Create cmpy
   cell xilinx.com:ip:cmpy:6.0 mult_$i {
-    FLOWCONTROL Blocking
     APORTWIDTH.VALUE_SRC USER
     BPORTWIDTH.VALUE_SRC USER
     APORTWIDTH 14
@@ -92,7 +80,7 @@ for {set i 0} {$i <= 3} {incr i} {
     S_AXIS_A bcast_0/M0${i}_AXIS
     S_AXIS_B dds_$i/M_AXIS_DATA
     S_AXIS_CTRL lfsr_$i/M_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
   }
 
   # Create axis_broadcaster
@@ -105,7 +93,7 @@ for {set i 0} {$i <= 3} {incr i} {
     M01_TDATA_REMAP {tdata[55:32]}
   } {
     S_AXIS mult_$i/M_AXIS_DOUT
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
 
@@ -118,7 +106,7 @@ for {set i 0} {$i <= 7} {incr i} {
     AXIS_TDATA_WIDTH 16
   } {
     cfg_data slice_5/Dout
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
 
@@ -137,12 +125,11 @@ for {set i 0} {$i <= 7} {incr i} {
     QUANTIZATION Truncation
     OUTPUT_DATA_WIDTH 24
     USE_XTREME_DSP_SLICE false
-    HAS_DOUT_TREADY true
     HAS_ARESETN true
   } {
     S_AXIS_DATA bcast_[expr $i / 2 + 1]/M0[expr $i % 2]_AXIS
     S_AXIS_CONFIG rate_$i/M_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
 
@@ -162,7 +149,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   S05_AXIS cic_5/M_AXIS_DATA
   S06_AXIS cic_6/M_AXIS_DATA
   S07_AXIS cic_7/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -173,7 +160,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   M_TDATA_NUM_BYTES 3
 } {
   S_AXIS comb_0/M_AXIS
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -195,11 +182,10 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
-  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA conv_0/M_AXIS
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -212,7 +198,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   TDATA_REMAP {tdata[23:0]}
 } {
   S_AXIS fir_0/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -234,11 +220,10 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_1 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
-  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA subset_0/M_AXIS
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -251,7 +236,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
   TDATA_REMAP {tdata[23:0]}
 } {
   S_AXIS fir_1/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -271,11 +256,10 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_2 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 26
-  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA subset_1/M_AXIS
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -286,7 +270,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
   M_TDATA_NUM_BYTES 32
 } {
   S_AXIS fir_2/M_AXIS_DATA
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -299,7 +283,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
   TDATA_REMAP {tdata[23:16],tdata[39:32],tdata[47:40],tdata[55:48],16'b0000000000000000,tdata[7:0],tdata[15:8],tdata[87:80],tdata[103:96],tdata[111:104],tdata[119:112],16'b0000000000000000,tdata[71:64],tdata[79:72],tdata[151:144],tdata[167:160],tdata[175:168],tdata[183:176],16'b0000000000000000,tdata[135:128],tdata[143:136],tdata[215:208],tdata[231:224],tdata[239:232],tdata[247:240],16'b0000000000000000,tdata[199:192],tdata[207:200]}
 } {
   S_AXIS conv_1/M_AXIS
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -313,26 +297,26 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   READ_DATA_COUNT true
   READ_DATA_COUNT_WIDTH 14
 } {
-  clk /ps_0/FCLK_CLK0
+  clk /pll_0/clk_out1
   srst slice_0/Dout
 }
 
 # Create axis_fifo
-cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
+cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
   S_AXIS_TDATA_WIDTH 256
   M_AXIS_TDATA_WIDTH 32
 } {
   S_AXIS subset_2/M_AXIS
   FIFO_READ fifo_generator_0/FIFO_READ
   FIFO_WRITE fifo_generator_0/FIFO_WRITE
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
 }
 
 # Create axi_axis_reader
 cell pavel-demin:user:axi_axis_reader:1.0 reader_0 {
   AXI_DATA_WIDTH 32
 } {
-  S_AXIS fifo_1/M_AXIS
-  aclk /ps_0/FCLK_CLK0
+  S_AXIS fifo_0/M_AXIS
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }

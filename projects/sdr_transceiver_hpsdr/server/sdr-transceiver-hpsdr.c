@@ -456,10 +456,6 @@ int main(int argc, char *argv[])
   adc_cntr = ((uint16_t *)(sts + 18));
   gpio_in = ((uint8_t *)(sts + 20));
 
-  /* set FPGA clock to 143 MHz */
-  slcr[2] = 0xDF0D;
-  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
-
   /* set all GPIO pins to low */
   *gpio_out = 0;
 

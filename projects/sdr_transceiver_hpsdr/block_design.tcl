@@ -1,8 +1,25 @@
+# Create clk_wiz
+cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+  PRIMITIVE PLL
+  PRIM_IN_FREQ.VALUE_SRC USER
+  PRIM_IN_FREQ 125.0
+  PRIM_SOURCE Differential_clock_capable_pin
+  CLKOUT1_USED true
+  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT2_USED true
+  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT2_REQUESTED_PHASE -90.0
+  USE_RESET false
+} {
+  clk_in1_p adc_clk_p_i
+  clk_in1_n adc_clk_n_i
+}
+
 # Create processing_system7
 cell xilinx.com:ip:processing_system7:5.5 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
 } {
-  M_AXI_GP0_ACLK ps_0/FCLK_CLK0
+  M_AXI_GP0_ACLK pll_0/clk_out1
 }
 
 # Create all required interconnections
@@ -12,8 +29,13 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
   Slave Disable
 } [get_bd_cells ps_0]
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
 # Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
+cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+  ext_reset_in const_0/dout
+}
 
 # XADC
 
@@ -35,25 +57,6 @@ cell xilinx.com:ip:xadc_wiz:3.3 xadc_0 {
   Vaux9 Vaux9
 }
 
-# PLL
-
-# Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
-  PRIMITIVE PLL
-  PRIM_IN_FREQ.VALUE_SRC USER
-  PRIM_IN_FREQ 125.0
-  PRIM_SOURCE Differential_clock_capable_pin
-  CLKOUT1_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 125.0
-  CLKOUT2_USED true
-  CLKOUT2_REQUESTED_OUT_FREQ 250.0
-  CLKOUT2_REQUESTED_PHASE -90.0
-  USE_RESET false
-} {
-  clk_in1_p adc_clk_p_i
-  clk_in1_n adc_clk_n_i
-}
-
 # ADC
 
 # Create axis_red_pitaya_adc
@@ -66,9 +69,6 @@ cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
 
 # DAC
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
-
 # Create axis_broadcaster
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
@@ -79,7 +79,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M01_TDATA_REMAP {tdata[15:0]}
 } {
   aclk pll_0/clk_out1
-  aresetn const_0/dout
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create axis_red_pitaya_dac
@@ -118,7 +118,7 @@ cell pavel-demin:user:gpio_debouncer:1.0 gpio_0 {
   CNTR_WIDTH 16
 } {
   gpio_data exp_n_tri_io
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
 }
 
 # Create util_vector_logic
@@ -177,7 +177,7 @@ create_bd_port -dir IO -from 3 -to 0 exp_n_alex
 cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
   AXI_DATA_WIDTH 32
 } {
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -188,14 +188,14 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
   FIFO_DEPTH 1024
 } {
   S_AXIS writer_0/M_AXIS
-  s_axis_aclk ps_0/FCLK_CLK0
+  s_axis_aclk pll_0/clk_out1
   s_axis_aresetn rst_0/peripheral_aresetn
 }
 
 # Create axis_alex
 cell pavel-demin:user:axis_alex:1.0 alex_0 {} {
   S_AXIS fifo_0/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -210,7 +210,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   S00_AXIS adc_0/M_AXIS
   S01_AXIS bcast_0/M01_AXIS
   aclk pll_0/clk_out1
-  aresetn const_0/dout
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create xlslice
@@ -247,9 +247,7 @@ module rx_0 {
   slice_7/Din cfg_slice_0/Dout
   slice_8/Din cfg_slice_0/Dout
   slice_9/Din cfg_slice_0/Dout
-  fifo_0/S_AXIS comb_0/M_AXIS
-  fifo_0/s_axis_aclk pll_0/clk_out1
-  fifo_0/s_axis_aresetn const_0/dout
+  bcast_0/S_AXIS comb_0/M_AXIS
 }
 
 # TX 0
@@ -298,9 +296,7 @@ module tx_0 {
   slice_1/Din cfg_slice_1/Dout
   slice_2/Din cfg_slice_1/Dout
   slice_3/Din cfg_slice_1/Dout
-  fifo_1/M_AXIS bcast_0/S_AXIS
-  fifo_1/m_axis_aclk pll_0/clk_out1
-  fifo_1/m_axis_aresetn const_0/dout
+  mult_1/M_AXIS_DOUT bcast_0/S_AXIS
 }
 
 # CODEC
@@ -328,12 +324,9 @@ module codec {
 
 # STS
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1
-
 # Create dna_reader
 cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -348,7 +341,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN5_WIDTH 16
   IN6_WIDTH 4
 } {
-  In0 const_1/dout
+  In0 const_0/dout
   In1 dna_0/dna_data
   In2 rx_0/fifo_generator_0/rd_data_count
   In3 tx_0/fifo_generator_0/data_count
