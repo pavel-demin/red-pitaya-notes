@@ -8,7 +8,7 @@ set_property DESCRIPTION $display_name $core
 core_parameter AXIS_TDATA_WIDTH {AXIS TDATA WIDTH} {Width of the M_AXIS and S_AXIS data buses.}
 core_parameter CNTR_WIDTH {CNTR WIDTH} {Width of the counter register.}
 core_parameter CONTINUOUS {CONTINUOUS} {If TRUE, packetizer runs continuously.}
-core_parameter ALWAYS_READY {ALWAYS_READY} {If TRUE, s_axis_tready is always high.}
+core_parameter ALWAYS_READY {ALWAYS READY} {If TRUE, s_axis_tready is always high.}
 
 set bus [ipx::get_bus_interfaces -of_objects $core m_axis]
 set_property NAME M_AXIS $bus
