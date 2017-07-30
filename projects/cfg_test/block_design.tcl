@@ -21,7 +21,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
   CFG_DATA_WIDTH 1024
-  AXI_ADDR_WIDTH 32
+  AXI_ADDR_WIDTH 7
   AXI_DATA_WIDTH 32
 }
 

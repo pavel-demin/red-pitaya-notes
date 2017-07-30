@@ -47,7 +47,7 @@ cell pavel-demin:user:axis_constant:1.0 const_0 {
   AXIS_TDATA_WIDTH 32
 } {
   cfg_data slice_5/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
 }
 
 # Create axis_phase_generator
@@ -56,7 +56,7 @@ cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
   PHASE_WIDTH 30
 } {
   cfg_data slice_6/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_2/Dout
 }
 
@@ -72,7 +72,7 @@ cell xilinx.com:ip:cordic:6.0 cordic_0 {
 } {
   S_AXIS_CARTESIAN const_0/M_AXIS
   S_AXIS_PHASE phase_0/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
 }
 
 # Create axis_packetizer
@@ -83,7 +83,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
 } {
   S_AXIS cordic_0/M_AXIS_DOUT
   cfg_data slice_7/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_3/Dout
 }
 
@@ -94,7 +94,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   M_TDATA_NUM_BYTES 8
 } {
   S_AXIS pktzr_0/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_4/Dout
 }
 
@@ -109,7 +109,7 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {} {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
   cfg_data const_1/dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_4/Dout
 }
 

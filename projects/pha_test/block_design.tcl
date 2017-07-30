@@ -59,7 +59,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   HAS_PHASE_OUT false
   OUTPUT_FREQUENCY1 0.9765625
 } {
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
 }
 
 # Create axis_pulse_height_analyzer
@@ -72,7 +72,7 @@ cell pavel-demin:user:axis_pulse_height_analyzer:1.0 pha_0 {
   cfg_data slice_5/Dout
   min_data slice_6/Dout
   max_data slice_7/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_2/Dout
 }
 
@@ -84,7 +84,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
 } {
   S_AXIS pha_0/M_AXIS
   cfg_data slice_8/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_3/Dout
 }
 
@@ -95,12 +95,12 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   M_TDATA_NUM_BYTES 8
 } {
   S_AXIS pktzr_0/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_4/Dout
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1 {
+cell xilinx.com:ip:xlconstant:1.1 const_0 {
   CONST_WIDTH 32
   CONST_VAL 503316480
 }
@@ -109,8 +109,8 @@ cell xilinx.com:ip:xlconstant:1.1 const_1 {
 cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {} {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
-  cfg_data const_1/dout
-  aclk ps_0/FCLK_CLK0
+  cfg_data const_0/dout
+  aclk pll_0/clk_out1
   aresetn slice_4/Dout
 }
 

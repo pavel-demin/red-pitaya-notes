@@ -80,7 +80,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_12 {
 # Create axis_counter
 cell pavel-demin:user:axis_counter:1.0 cntr_1 {} {
   cfg_data slice_9/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_2/Dout
 }
 
@@ -103,7 +103,7 @@ cell pavel-demin:user:axis_histogram:1.0 hist_0 {
 } {
   S_AXIS cntr_1/M_AXIS
   BRAM_PORTA bram_0/BRAM_PORTA
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_3/Dout
 }
 
@@ -116,14 +116,14 @@ cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
   cfg_data slice_10/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_4/Dout
 }
 
 # Create axis_counter
 cell pavel-demin:user:axis_counter:1.0 cntr_2 {} {
   cfg_data slice_11/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_5/Dout
 }
 
@@ -146,7 +146,7 @@ cell pavel-demin:user:axis_histogram:1.0 hist_1 {
 } {
   S_AXIS cntr_2/M_AXIS
   BRAM_PORTA bram_1/BRAM_PORTA
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_6/Dout
 }
 
@@ -159,7 +159,7 @@ cell pavel-demin:user:axis_bram_reader:1.0 reader_1 {
 } {
   BRAM_PORTA bram_1/BRAM_PORTB
   cfg_data slice_12/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_7/Dout
 }
 
@@ -173,7 +173,7 @@ cell xilinx.com:ip:axis_switch:1.1 switch_0 {
 } {
   S00_AXIS reader_0/M_AXIS
   S01_AXIS reader_1/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -184,12 +184,12 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   M_TDATA_NUM_BYTES 8
 } {
   S_AXIS switch_0/M00_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_8/Dout
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_2 {
+cell xilinx.com:ip:xlconstant:1.1 const_0 {
   CONST_WIDTH 32
   CONST_VAL 503316480
 }
@@ -198,8 +198,8 @@ cell xilinx.com:ip:xlconstant:1.1 const_2 {
 cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {} {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
-  cfg_data const_2/dout
-  aclk ps_0/FCLK_CLK0
+  cfg_data const_0/dout
+  aclk pll_0/clk_out1
   aresetn slice_8/Dout
 }
 
