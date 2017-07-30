@@ -1,8 +1,25 @@
+# Create clk_wiz
+cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+  PRIMITIVE PLL
+  PRIM_IN_FREQ.VALUE_SRC USER
+  PRIM_IN_FREQ 125.0
+  PRIM_SOURCE Differential_clock_capable_pin
+  CLKOUT1_USED true
+  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT2_USED true
+  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT2_REQUESTED_PHASE -90.0
+  USE_RESET false
+} {
+  clk_in1_p adc_clk_p_i
+  clk_in1_n adc_clk_n_i
+}
+
 # Create processing_system7
 cell xilinx.com:ip:processing_system7:5.5 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
 } {
-  M_AXI_GP0_ACLK ps_0/FCLK_CLK0
+  M_AXI_GP0_ACLK pll_0/clk_out1
 }
 
 # Create all required interconnections
@@ -12,8 +29,13 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
   Slave Disable
 } [get_bd_cells ps_0]
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
 # Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
+cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+  ext_reset_in const_0/dout
+}
 
 # XADC
 
@@ -35,25 +57,6 @@ cell xilinx.com:ip:xadc_wiz:3.3 xadc_0 {
   Vaux9 Vaux9
 }
 
-# PLL
-
-# Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
-  PRIMITIVE PLL
-  PRIM_IN_FREQ.VALUE_SRC USER
-  PRIM_IN_FREQ 125.0
-  PRIM_SOURCE Differential_clock_capable_pin
-  CLKOUT1_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 125.0
-  CLKOUT2_USED true
-  CLKOUT2_REQUESTED_OUT_FREQ 250.0
-  CLKOUT2_REQUESTED_PHASE -90.0
-  USE_RESET false
-} {
-  clk_in1_p adc_clk_p_i
-  clk_in1_n adc_clk_n_i
-}
-
 # ADC
 
 # Create axis_red_pitaya_adc
@@ -63,9 +66,6 @@ cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
   adc_dat_b adc_dat_b_i
   adc_csn adc_csn_o
 }
-
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
 
 # Create axis_broadcaster
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
@@ -78,7 +78,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 } {
   S_AXIS adc_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn const_0/dout
+  aresetn rst_0/peripheral_aresetn
 }
 
 # DAC
@@ -132,7 +132,7 @@ cell pavel-demin:user:gpio_debouncer:1.0 gpio_0 {
   CNTR_WIDTH 16
 } {
   gpio_data exp_n_tri_io
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
 }
 
 # Create util_vector_logic
@@ -174,9 +174,7 @@ module rx_0 {
   slice_0/Din rst_slice_0/Dout
   slice_1/Din cfg_slice_0/Dout
   slice_2/Din cfg_slice_0/Dout
-  fifo_0/S_AXIS bcast_0/M00_AXIS
-  fifo_0/s_axis_aclk pll_0/clk_out1
-  fifo_0/s_axis_aresetn const_0/dout
+  bcast_0/S_AXIS bcast_0/M00_AXIS
 }
 
 # SP 0
@@ -204,9 +202,7 @@ module sp_0 {
   slice_3/Din cfg_slice_1/Dout
   slice_4/Din cfg_slice_1/Dout
   slice_5/Din cfg_slice_1/Dout
-  fifo_0/S_AXIS bcast_0/M01_AXIS
-  fifo_0/s_axis_aclk pll_0/clk_out1
-  fifo_0/s_axis_aresetn const_0/dout
+  mult_0/S_AXIS_A bcast_0/M01_AXIS
 }
 
 # TX 0
@@ -240,9 +236,7 @@ module tx_0 {
   slice_2/Din cfg_slice_2/Dout
   slice_3/Din cfg_slice_2/Dout
   keyer_0/key_flag key_slice_0/Dout
-  fifo_1/M_AXIS dac_0/S_AXIS
-  fifo_1/m_axis_aclk pll_0/clk_out1
-  fifo_1/m_axis_aresetn const_0/dout
+  mult_1/M_AXIS_DOUT dac_0/S_AXIS
 }
 
 # CODEC
@@ -278,12 +272,9 @@ module codec {
 
 # STS
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1
-
 # Create dna_reader
 cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -301,7 +292,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN8_WIDTH 16
   IN9_WIDTH 4
 } {
-  In0 const_1/dout
+  In0 const_0/dout
   In1 dna_0/dna_data
   In2 rx_0/fifo_generator_0/rd_data_count
   In3 rx_0/fifo_generator_1/rd_data_count
