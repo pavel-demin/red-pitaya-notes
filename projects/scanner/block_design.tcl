@@ -1,22 +1,3 @@
-# Create processing_system7
-cell xilinx.com:ip:processing_system7:5.5 ps_0 {
-  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
-} {
-  M_AXI_GP0_ACLK ps_0/FCLK_CLK0
-}
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
-  make_external {FIXED_IO, DDR}
-  Master Disable
-  Slave Disable
-} [get_bd_cells ps_0]
-
-# Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
-
-# PLL
-
 # Create clk_wiz
 cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   PRIMITIVE PLL
@@ -32,6 +13,28 @@ cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
 } {
   clk_in1_p adc_clk_p_i
   clk_in1_n adc_clk_n_i
+}
+
+# Create processing_system7
+cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+} {
+  M_AXI_GP0_ACLK pll_0/clk_out1
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
+  make_external {FIXED_IO, DDR}
+  Master Disable
+  Slave Disable
+} [get_bd_cells ps_0]
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
+# Create proc_sys_reset
+cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+  ext_reset_in const_0/dout
 }
 
 # ADC
@@ -142,28 +145,28 @@ cell xilinx.com:ip:xlslice:1.0 slice_10 {
 # Create axis_packetizer
 cell pavel-demin:user:pulse_generator:1.0 gen_0 {} {
   cfg slice_7/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_1/Dout
 }
 
 # Create axis_packetizer
 cell pavel-demin:user:pulse_generator:1.0 gen_1 {} {
   cfg slice_8/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_1/Dout
 }
 
 # Create axis_packetizer
 cell pavel-demin:user:pulse_generator:1.0 gen_2 {} {
   cfg slice_9/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_1/Dout
 }
 
 # Create axis_packetizer
 cell pavel-demin:user:pulse_generator:1.0 gen_3 {} {
   cfg slice_10/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_1/Dout
 }
 
@@ -212,7 +215,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
 cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
   AXI_DATA_WIDTH 32
 } {
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -226,7 +229,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   DATA_COUNT true
   DATA_COUNT_WIDTH 15
 } {
-  clk /ps_0/FCLK_CLK0
+  clk /pll_0/clk_out1
   srst slice_2/Dout
 }
 
@@ -238,7 +241,7 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
   S_AXIS writer_0/M_AXIS
   FIFO_READ fifo_generator_0/FIFO_READ
   FIFO_WRITE fifo_generator_0/FIFO_WRITE
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
 }
 
 # Create axis_stepper
@@ -246,36 +249,12 @@ cell pavel-demin:user:axis_stepper:1.0 stepper_0 {
   AXIS_TDATA_WIDTH 32
 } {
   S_AXIS fifo_0/M_AXIS
-  trg_flag gen_2/dout
-  aclk ps_0/FCLK_CLK0
-}
-
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
-
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {} {
-  S_AXIS stepper_0/M_AXIS
   M_AXIS dac_0/S_AXIS
-  s_axis_aclk ps_0/FCLK_CLK0
-  s_axis_aresetn rst_0/peripheral_aresetn
-  m_axis_aclk pll_0/clk_out1
-  m_axis_aresetn const_0/dout
+  trg_flag gen_2/dout
+  aclk pll_0/clk_out1
 }
 
 # Acquisition
-
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1
-
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_2 {} {
-  S_AXIS adc_0/M_AXIS
-  s_axis_aclk pll_0/clk_out1
-  s_axis_aresetn const_1/dout
-  m_axis_aclk ps_0/FCLK_CLK0
-  m_axis_aresetn rst_0/peripheral_aresetn
-}
 
 # Create axis_broadcaster
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
@@ -286,8 +265,8 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M00_TDATA_REMAP {tdata[15:0]}
   M01_TDATA_REMAP {tdata[31:16]}
 } {
-  S_AXIS fifo_2/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  S_AXIS adc_0/M_AXIS
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -309,7 +288,7 @@ cell pavel-demin:user:axis_accumulator:1.0 accu_0 {
 } {
   S_AXIS bcast_0/M00_AXIS
   cfg_data slice_5/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn not_0/Res
 }
 
@@ -323,7 +302,7 @@ cell pavel-demin:user:axis_accumulator:1.0 accu_1 {
 } {
   S_AXIS accu_0/M_AXIS
   cfg_data slice_6/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -337,7 +316,7 @@ cell pavel-demin:user:axis_accumulator:1.0 accu_2 {
 } {
   S_AXIS bcast_0/M01_AXIS
   cfg_data slice_5/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn not_0/Res
 }
 
@@ -351,18 +330,18 @@ cell pavel-demin:user:axis_accumulator:1.0 accu_3 {
 } {
   S_AXIS accu_2/M_AXIS
   cfg_data slice_6/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
 # Create axis_combiner
-cell  xilinx.com:ip:axis_combiner:1.1 comb_1 {
+cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
 } {
   S00_AXIS accu_3/M_AXIS
   S01_AXIS accu_1/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -376,7 +355,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_1 {
   READ_DATA_COUNT true
   READ_DATA_COUNT_WIDTH 16
 } {
-  clk /ps_0/FCLK_CLK0
+  clk /pll_0/clk_out1
   srst slice_2/Dout
 }
 
@@ -385,10 +364,10 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_3 {
   S_AXIS_TDATA_WIDTH 64
   M_AXIS_TDATA_WIDTH 32
 } {
-  S_AXIS comb_1/M_AXIS
+  S_AXIS comb_0/M_AXIS
   FIFO_READ fifo_generator_1/FIFO_READ
   FIFO_WRITE fifo_generator_1/FIFO_WRITE
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
 }
 
 # Create axi_axis_reader
@@ -396,7 +375,7 @@ cell pavel-demin:user:axi_axis_reader:1.0 reader_0 {
   AXI_DATA_WIDTH 32
 } {
   S_AXIS fifo_3/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
