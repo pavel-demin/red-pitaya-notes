@@ -1,22 +1,3 @@
-# Create processing_system7
-cell xilinx.com:ip:processing_system7:5.5 ps_0 {
-  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
-} {
-  M_AXI_GP0_ACLK ps_0/FCLK_CLK0
-}
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
-  make_external {FIXED_IO, DDR}
-  Master Disable
-  Slave Disable
-} [get_bd_cells ps_0]
-
-# Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
-
-# PLL
-
 # Create clk_wiz
 cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   PRIMITIVE PLL
@@ -31,6 +12,28 @@ cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   clk_in1_n adc_clk_n_i
 }
 
+# Create processing_system7
+cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+} {
+  M_AXI_GP0_ACLK pll_0/clk_out1
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
+  make_external {FIXED_IO, DDR}
+  Master Disable
+  Slave Disable
+} [get_bd_cells ps_0]
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
+# Create proc_sys_reset
+cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+  ext_reset_in const_0/dout
+}
+
 # ADC
 
 # Create axis_red_pitaya_adc
@@ -40,9 +43,6 @@ cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
   adc_dat_b adc_dat_b_i
   adc_csn adc_csn_o
 }
-
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
 
 # CFG
 
@@ -79,19 +79,14 @@ module rx_0 {
   slice_4/Din cfg_slice_0/Dout
   slice_5/Din cfg_slice_0/Dout
   slice_6/Din cfg_slice_0/Dout
-  fifo_0/S_AXIS adc_0/M_AXIS
-  fifo_0/s_axis_aclk pll_0/clk_out1
-  fifo_0/s_axis_aresetn const_0/dout
+  bcast_0/S_AXIS adc_0/M_AXIS
 }
 
 # STS
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1
-
 # Create dna_reader
 cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -107,7 +102,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN6_WIDTH 16
   IN7_WIDTH 16
 } {
-  In0 const_1/dout
+  In0 const_0/dout
   In1 dna_0/dna_data
   In2 rx_0/fifo_generator_0/rd_data_count
   In3 rx_0/fifo_generator_1/rd_data_count
