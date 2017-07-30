@@ -60,7 +60,7 @@ cell xilinx.com:ip:axis_switch:1.1 switch_0 {
   TDATA_NUM_BYTES 2
   ROUTING_MODE 1
 } {
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -79,7 +79,7 @@ cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   pol_data slice_2/Dout
   msk_data const_0/dout
   lvl_data slice_7/Dout
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
 }
 
 # Create util_vector_logic
@@ -96,7 +96,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
 } {
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
@@ -110,7 +110,7 @@ cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
   trg_flag or_0/Res
   pre_data slice_5/Dout
   tot_data slice_6/Dout
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn slice_0/Dout
 }
 
@@ -121,7 +121,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   M_TDATA_NUM_BYTES 8
 } {
   S_AXIS scope_0/M_AXIS
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn slice_1/Dout
 }
 
@@ -137,6 +137,6 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
 } {
   S_AXIS conv_0/M_AXIS
   cfg_data const_1/dout
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn slice_1/Dout
 }
