@@ -56,10 +56,6 @@ int main(int argc, char *argv[])
   tx_level = ((int16_t *)(cfg + 2));
   tx_size = ((uint32_t *)(cfg + 4));
 
-  /* set FPGA clock to 143 MHz */
-  slcr[2] = 0xDF0D;
-  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
-
   *tx_level = 32767;
   *tx_size = 5000 - 1;
 
