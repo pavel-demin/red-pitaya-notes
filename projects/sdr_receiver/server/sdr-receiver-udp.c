@@ -48,10 +48,6 @@ int main(int argc, char *argv[])
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40001000);
   ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, file, 0x40002000);
 
-  /* set FPGA clock to 143 MHz */
-  slcr[2] = 0xDF0D;
-  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
-
   if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     perror("socket");
