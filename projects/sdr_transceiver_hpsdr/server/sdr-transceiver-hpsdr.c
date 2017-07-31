@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
   volatile int32_t *tx_ramp, *dac_ramp;
   volatile uint16_t *tx_size, *dac_size;
   float scale, ramp[1024], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
-  uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 21, 0};
+  uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 32, 1};
   uint8_t id[4] = {0xef, 0xfe, 1, 6};
   uint32_t code;
   struct termios tty;
