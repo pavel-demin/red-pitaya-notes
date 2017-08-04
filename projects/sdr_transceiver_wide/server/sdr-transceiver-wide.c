@@ -70,10 +70,6 @@ int main(int argc, char *argv[])
   tx_rate = ((uint32_t *)(cfg + 16));
   tx_cntr = ((uint16_t *)(sts + 2));
 
-  /* set FPGA clock to 143 MHz */
-  slcr[2] = 0xDF0D;
-  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
-
   /* set PTT pin to low */
   *gpio = 0;
 

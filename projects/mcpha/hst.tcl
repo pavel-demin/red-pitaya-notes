@@ -27,7 +27,7 @@ cell pavel-demin:user:axis_histogram:1.0 hst_0 {
   AXIS_TDATA_WIDTH 16
 } {
   BRAM_PORTA bram_0/BRAM_PORTA
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn slice_0/Dout
 }
 

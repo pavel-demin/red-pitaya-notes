@@ -1,20 +1,3 @@
-# Create processing_system7
-cell xilinx.com:ip:processing_system7:5.5 ps_0 {
-  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
-} {
-  M_AXI_GP0_ACLK ps_0/FCLK_CLK0
-}
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
-  make_external {FIXED_IO, DDR}
-  Master Disable
-  Slave Disable
-} [get_bd_cells ps_0]
-
-# Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
-
 # Create clk_wiz
 cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   PRIMITIVE PLL
@@ -30,6 +13,28 @@ cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
 } {
   clk_in1_p adc_clk_p_i
   clk_in1_n adc_clk_n_i
+}
+
+# Create processing_system7
+cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+} {
+  M_AXI_GP0_ACLK pll_0/clk_out1
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
+  make_external {FIXED_IO, DDR}
+  Master Disable
+  Slave Disable
+} [get_bd_cells ps_0]
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
+# Create proc_sys_reset
+cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+  ext_reset_in const_0/dout
 }
 
 # ADC
@@ -114,18 +119,6 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
   Din cfg_0/cfg_data
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
-
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
-  S_AXIS adc_0/M_AXIS
-  s_axis_aclk pll_0/clk_out1
-  s_axis_aresetn const_0/dout
-  m_axis_aclk ps_0/FCLK_CLK0
-  m_axis_aresetn rst_slice_0/Dout
-}
-
 # Create axis_subset_converter
 cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
@@ -134,8 +127,8 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   M_TDATA_NUM_BYTES 2
   TDATA_REMAP {tdata[31:16]}
 } {
-  S_AXIS fifo_0/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  S_AXIS adc_0/M_AXIS
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -147,7 +140,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M_TDATA_NUM_BYTES 2
 } {
   S_AXIS subset_0/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -272,17 +265,8 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
   TDATA_REMAP {tdata[15:0],16'b0000000000000000}
 } {
   S_AXIS tx_0/mult_0/M_AXIS_DOUT
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
-}
-
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {} {
-  S_AXIS subset_1/M_AXIS
-  s_axis_aclk ps_0/FCLK_CLK0
-  s_axis_aresetn rst_slice_4/Dout
-  m_axis_aclk pll_0/clk_out1
-  m_axis_aresetn const_0/dout
 }
 
 # Create axis_red_pitaya_dac
@@ -290,7 +274,7 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   aclk pll_0/clk_out1
   ddr_clk pll_0/clk_out2
   locked pll_0/locked
-  S_AXIS fifo_1/M_AXIS
+  S_AXIS subset_1/M_AXIS
   dac_clk dac_clk_o
   dac_rst dac_rst_o
   dac_sel dac_sel_o

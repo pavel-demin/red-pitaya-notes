@@ -37,10 +37,6 @@ int main()
 
   rst = cfg;
 
-  /* set FPGA clock to 143 MHz */
-  slcr[2] = 0xDF0D;
-  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
-
   /* stop pulse generators */
   *rst &= ~1;
 

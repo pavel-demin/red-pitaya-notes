@@ -40,7 +40,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1 {
+cell xilinx.com:ip:xlconstant:1.1 const_0 {
   CONST_WIDTH 32
   CONST_VAL 503316480
 }
@@ -49,7 +49,7 @@ cell xilinx.com:ip:xlconstant:1.1 const_1 {
 cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {} {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
-  cfg_data const_1/dout
+  cfg_data const_0/dout
   aclk ps_0/FCLK_CLK0
   aresetn slice_3/Dout
 }

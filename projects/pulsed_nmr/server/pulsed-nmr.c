@@ -46,10 +46,6 @@ int main(int argc, char *argv[])
   tx_rst = ((uint8_t *)(cfg + 1));
   tx_size = ((uint16_t *)(cfg + 12));
 
-  /* set FPGA clock to 143 MHz */
-  slcr[2] = 0xDF0D;
-  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
-
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
   /* set default rx sample rate */

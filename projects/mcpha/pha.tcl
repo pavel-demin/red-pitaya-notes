@@ -67,7 +67,7 @@ cell pavel-demin:user:axis_timer:1.0 timer_0 {
 } {
   run_flag slice_3/Dout
   cfg_data slice_4/Dout
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn slice_1/Dout
 }
 # Create axis_pulse_height_analyzer
@@ -81,7 +81,7 @@ cell pavel-demin:user:axis_pulse_height_analyzer:1.0 pha_0 {
   cfg_data slice_6/Dout
   min_data slice_7/Dout
   max_data slice_8/Dout
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn slice_0/Dout
 }
 
@@ -91,5 +91,5 @@ cell pavel-demin:user:axis_validator:1.0 vldtr_0 {
 } {
   S_AXIS pha_0/M_AXIS
   trg_flag timer_0/trg_flag
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
 }

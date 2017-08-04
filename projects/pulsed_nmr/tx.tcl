@@ -39,7 +39,7 @@ cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
   cfg_data slice_1/Dout
-  aclk /ps_0/FCLK_CLK0
+  aclk /pll_0/clk_out1
   aresetn slice_0/Dout
 }
 
@@ -48,15 +48,5 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   AXIS_TDATA_WIDTH 16
 } {
   S_AXIS reader_0/M_AXIS
-  aclk /ps_0/FCLK_CLK0
-}
-
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_1 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 2
-} {
-  S_AXIS zeroer_0/M_AXIS
-  s_axis_aclk /ps_0/FCLK_CLK0
-  s_axis_aresetn /rst_0/peripheral_aresetn
+  aclk /pll_0/clk_out1
 }

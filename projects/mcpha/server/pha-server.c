@@ -48,10 +48,6 @@ int main(int argc, char *argv[])
 
   rst = cfg + 3;
 
-  /* set FPGA clock to 143 MHz */
-  slcr[2] = 0xDF0D;
-  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
-
   /* set sample rate */
   *(uint16_t *)(cfg + 6) = 125;
 

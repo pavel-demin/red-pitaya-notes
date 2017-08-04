@@ -1,24 +1,3 @@
-# Create processing_system7
-cell xilinx.com:ip:processing_system7:5.5 ps_0 {
-  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
-  PCW_USE_S_AXI_HP0 1
-} {
-  M_AXI_GP0_ACLK ps_0/FCLK_CLK0
-  S_AXI_HP0_ACLK ps_0/FCLK_CLK0
-}
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
-  make_external {FIXED_IO, DDR}
-  Master Disable
-  Slave Disable
-} [get_bd_cells ps_0]
-
-# Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
-
-# PLL
-
 # Create clk_wiz
 cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   PRIMITIVE PLL
@@ -34,6 +13,30 @@ cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
 } {
   clk_in1_p adc_clk_p_i
   clk_in1_n adc_clk_n_i
+}
+
+# Create processing_system7
+cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+  PCW_USE_S_AXI_HP0 1
+} {
+  M_AXI_GP0_ACLK pll_0/clk_out1
+  S_AXI_HP0_ACLK pll_0/clk_out1
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
+  make_external {FIXED_IO, DDR}
+  Master Disable
+  Slave Disable
+} [get_bd_cells ps_0]
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
+# Create proc_sys_reset
+cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+  ext_reset_in const_0/dout
 }
 
 # ADC
@@ -99,26 +102,14 @@ cell xilinx.com:ip:xlslice:1.0 slice_4 {
 
 # RX
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
-
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_0 {} {
-  S_AXIS adc_0/M_AXIS
-  s_axis_aclk pll_0/clk_out1
-  s_axis_aresetn const_0/dout
-  m_axis_aclk ps_0/FCLK_CLK0
-  m_axis_aresetn rst_0/peripheral_aresetn
-}
-
 # Create axis_decimator
 cell pavel-demin:user:axis_decimator:1.0 dcmtr_0 {
   AXIS_TDATA_WIDTH 32
   CNTR_WIDTH 16
 } {
-  S_AXIS fifo_0/M_AXIS
+  S_AXIS adc_0/M_AXIS
   cfg_data slice_3/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -136,7 +127,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
 } {
   S_AXIS dcmtr_0/M_AXIS
   cfg_data const_1/dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_1/Dout
 }
 
@@ -147,7 +138,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   M_TDATA_NUM_BYTES 8
 } {
   S_AXIS pktzr_0/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_2/Dout
 }
 
@@ -164,7 +155,7 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
   cfg_data const_2/dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_2/Dout
 }
 
@@ -176,7 +167,7 @@ assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
 cell pavel-demin:user:axi_axis_writer:1.0 writer_1 {
   AXI_DATA_WIDTH 32
 } {
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
@@ -187,7 +178,7 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_1 {
   FIFO_DEPTH 32768
 } {
   S_AXIS writer_1/M_AXIS
-  s_axis_aclk ps_0/FCLK_CLK0
+  s_axis_aclk pll_0/clk_out1
   s_axis_aresetn rst_0/peripheral_aresetn
 }
 
@@ -196,7 +187,7 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   AXIS_TDATA_WIDTH 32
 } {
   S_AXIS fifo_1/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
 }
 
 # Create axis_interpolator
@@ -205,22 +196,10 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   CNTR_WIDTH 16
 } {
   S_AXIS zeroer_0/M_AXIS
-  cfg_data slice_4/Dout
-  aclk ps_0/FCLK_CLK0
-  aresetn rst_0/peripheral_aresetn
-}
-
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_3
-
-# Create axis_clock_converter
-cell xilinx.com:ip:axis_clock_converter:1.1 fifo_2 {} {
-  S_AXIS inter_0/M_AXIS
   M_AXIS dac_0/S_AXIS
-  s_axis_aclk ps_0/FCLK_CLK0
-  s_axis_aresetn rst_0/peripheral_aresetn
-  m_axis_aclk pll_0/clk_out1
-  m_axis_aresetn const_3/dout
+  cfg_data slice_4/Dout
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
 }
 
 # STS

@@ -42,10 +42,6 @@ int main(int argc, char *argv[])
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40001000);
   dac = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40020000);
 
-  /* set FPGA clock to 143 MHz */
-  slcr[2] = 0xDF0D;
-  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
-
   errno = 0;
   number = (argc == 3) ? strtol(argv[1], &end, 10) : -1;
   if(errno != 0 || end == argv[1] || number < 10 || number > 65535)

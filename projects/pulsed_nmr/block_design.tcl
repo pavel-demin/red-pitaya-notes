@@ -1,20 +1,3 @@
-# Create processing_system7
-cell xilinx.com:ip:processing_system7:5.5 ps_0 {
-  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
-} {
-  M_AXI_GP0_ACLK ps_0/FCLK_CLK0
-}
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
-  make_external {FIXED_IO, DDR}
-  Master Disable
-  Slave Disable
-} [get_bd_cells ps_0]
-
-# Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0
-
 # Create clk_wiz
 cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   PRIMITIVE PLL
@@ -31,6 +14,36 @@ cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
   clk_in1_p adc_clk_p_i
   clk_in1_n adc_clk_n_i
 }
+
+# Create processing_system7
+cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+} {
+  M_AXI_GP0_ACLK pll_0/clk_out1
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
+  make_external {FIXED_IO, DDR}
+  Master Disable
+  Slave Disable
+} [get_bd_cells ps_0]
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
+# Create proc_sys_reset
+cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+  ext_reset_in const_0/dout
+}
+
+# GPIO
+
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_p_tri_io]
+
+# Create output port
+create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # ADC
 
@@ -73,6 +86,7 @@ cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
   DIN_WIDTH 128 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
+  Dout exp_p_tri_io
 }
 
 # Create xlslice
@@ -89,18 +103,13 @@ cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
   Din cfg_0/cfg_data
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
-
 module rx_0 {
   source projects/pulsed_nmr/rx.tcl
 } {
   slice_0/Din rst_slice_0/Dout
   slice_1/Din cfg_slice_0/Dout
   slice_2/Din cfg_slice_0/Dout
-  fifo_0/S_AXIS adc_0/M_AXIS
-  fifo_0/s_axis_aclk pll_0/clk_out1
-  fifo_0/s_axis_aresetn const_0/dout
+  mult_0/S_AXIS_A adc_0/M_AXIS
 }
 
 module tx_0 {
@@ -108,9 +117,7 @@ module tx_0 {
 } {
   slice_0/Din rst_slice_1/Dout
   slice_1/Din cfg_slice_1/Dout
-  fifo_1/M_AXIS dac_0/S_AXIS
-  fifo_1/m_axis_aclk pll_0/clk_out1
-  fifo_1/m_axis_aresetn const_0/dout
+  zeroer_0/M_AXIS dac_0/S_AXIS
 }
 
 # Create axi_sts_register

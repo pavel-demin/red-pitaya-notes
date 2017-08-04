@@ -27,7 +27,7 @@ module tx_0 {
   } {
     BRAM_PORTA bram_0/BRAM_PORTA
     cfg_data const_0/dout
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn /rst_slice_3/Dout
   }
 
@@ -41,7 +41,7 @@ module tx_0 {
     M01_TDATA_REMAP {tdata[63:32]}
   } {
     S_AXIS reader_0/M_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
 
@@ -53,7 +53,7 @@ module tx_0 {
     C_RESULT_FRACTION_WIDTH 22
   } {
     S_AXIS_A bcast_0/M00_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
   }
 
   # Create floating_point
@@ -64,7 +64,7 @@ module tx_0 {
     C_RESULT_FRACTION_WIDTH 22
   } {
     S_AXIS_A bcast_0/M01_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
   }
 
   # Create axis_combiner
@@ -74,7 +74,7 @@ module tx_0 {
   } {
     S00_AXIS fp_0/M_AXIS_RESULT
     S01_AXIS fp_1/M_AXIS_RESULT
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
 
@@ -95,7 +95,7 @@ module tx_0 {
     OUTPUT_WIDTH 24
   } {
     S_AXIS_DATA comb_0/M_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
   }
 
   # Create axis_broadcaster
@@ -108,7 +108,7 @@ module tx_0 {
     M01_TDATA_REMAP {tdata[23:0]}
   } {
     S_AXIS fir_0/M_AXIS_DATA
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
 
@@ -126,7 +126,7 @@ module tx_0 {
     USE_XTREME_DSP_SLICE false
   } {
     S_AXIS_DATA bcast_1/M00_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
   }
 
   # Create cic_compiler
@@ -143,7 +143,7 @@ module tx_0 {
     USE_XTREME_DSP_SLICE false
   } {
     S_AXIS_DATA bcast_1/M01_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
   }
 
   # Create axis_combiner
@@ -153,7 +153,7 @@ module tx_0 {
   } {
     S00_AXIS cic_0/M_AXIS_DATA
     S01_AXIS cic_1/M_AXIS_DATA
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
 
@@ -162,7 +162,7 @@ module tx_0 {
     AXIS_TDATA_WIDTH 32
   } {
     cfg_data /cfg_slice_2/Dout
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
   }
 
   # Create dds_compiler
@@ -172,25 +172,23 @@ module tx_0 {
     FREQUENCY_RESOLUTION 0.2
     PHASE_INCREMENT Streaming
     DSP48_USE Maximal
-    HAS_TREADY true
     HAS_PHASE_OUT false
     PHASE_WIDTH 30
     OUTPUT_WIDTH 24
     DSP48_USE Minimal
   } {
     S_AXIS_PHASE phase_0/M_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
   }
 
   # Create axis_lfsr
   cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
     aresetn /rst_slice_3/Dout
   }
 
   # Create cmpy
   cell xilinx.com:ip:cmpy:6.0 mult_0 {
-    FLOWCONTROL Blocking
     APORTWIDTH.VALUE_SRC USER
     BPORTWIDTH.VALUE_SRC USER
     APORTWIDTH 24
@@ -201,6 +199,6 @@ module tx_0 {
     S_AXIS_A comb_1/M_AXIS
     S_AXIS_B dds_0/M_AXIS_DATA
     S_AXIS_CTRL lfsr_0/M_AXIS
-    aclk /ps_0/FCLK_CLK0
+    aclk /pll_0/clk_out1
   }
 }

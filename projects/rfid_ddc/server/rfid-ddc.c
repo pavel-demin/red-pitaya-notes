@@ -48,9 +48,8 @@ int main(int argc, char *argv[])
   ram = mmap(NULL, 64*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
   buf = mmap(NULL, 64*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 
-  /* set FPGA clock to 143 MHz and HP0 bus width to 64 bits */
+  /* set HP0 bus width to 64 bits */
   slcr[2] = 0xDF0D;
-  slcr[92] = (slcr[92] & ~0x03F03F30) | 0x00100700;
   slcr[144] = 0;
   axi_hp0[0] &= ~1;
   axi_hp0[5] &= ~1;

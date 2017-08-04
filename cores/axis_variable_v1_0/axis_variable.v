@@ -3,7 +3,8 @@
 
 module axis_variable #
 (
-  parameter integer AXIS_TDATA_WIDTH = 32
+  parameter integer AXIS_TDATA_WIDTH = 32,
+  parameter         HAS_TREADY = "FALSE"
 )
 (
   // System signals
@@ -35,20 +36,42 @@ module axis_variable #
     end
   end
 
-  always @*
-  begin
-    int_tvalid_next = int_tvalid_reg;
+  generate
+    if(HAS_TREADY == "TRUE")
+    begin : HAS_TREADY
+      always @*
+      begin
+        int_tvalid_next = int_tvalid_reg;
 
-    if(int_tdata_reg != cfg_data)
-    begin
-      int_tvalid_next = 1'b1;
-    end
+        if(int_tdata_reg != cfg_data)
+        begin
+          int_tvalid_next = 1'b1;
+        end
 
-    if(m_axis_tready & int_tvalid_reg)
-    begin
-      int_tvalid_next = 1'b0;
+        if(m_axis_tready & int_tvalid_reg)
+        begin
+          int_tvalid_next = 1'b0;
+        end
+      end
     end
-  end
+    else
+    begin : NO_TREADY
+      always @*
+      begin
+        int_tvalid_next = int_tvalid_reg;
+
+        if(int_tdata_reg != cfg_data)
+        begin
+          int_tvalid_next = 1'b1;
+        end
+
+        if(int_tvalid_reg)
+        begin
+          int_tvalid_next = 1'b0;
+        end
+      end
+    end
+  endgenerate
 
   assign m_axis_tdata = int_tdata_reg;
   assign m_axis_tvalid = int_tvalid_reg;
