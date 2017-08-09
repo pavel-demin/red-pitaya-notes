@@ -69,6 +69,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   SPURIOUS_FREE_DYNAMIC_RANGE 138
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
+  HAS_TREADY true
   HAS_ARESETN true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
@@ -100,13 +101,16 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
 for {set i 0} {$i <= 2} {incr i} {
 
   # Create axis_lfsr
-  cell pavel-demin:user:axis_lfsr:1.0 lfsr_$i {} {
+  cell pavel-demin:user:axis_lfsr:1.0 lfsr_$i {
+    HAS_TREADY TRUE
+  } {
     aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
 
   # Create cmpy
   cell xilinx.com:ip:cmpy:6.0 mult_$i {
+    FLOWCONTROL Blocking
     APORTWIDTH.VALUE_SRC USER
     BPORTWIDTH.VALUE_SRC USER
     APORTWIDTH 14
@@ -151,6 +155,7 @@ for {set i 0} {$i <= 5} {incr i} {
     QUANTIZATION Truncation
     OUTPUT_DATA_WIDTH 24
     USE_XTREME_DSP_SLICE false
+    HAS_DOUT_TREADY true
     HAS_ARESETN true
   } {
     S_AXIS_DATA bcast_[expr $i / 2 + 2]/M0[expr $i % 2]_AXIS
