@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
   pthread_t thread;
   volatile void *cfg, *sts;
   volatile int32_t *tx_ramp, *dac_ramp;
-  volatile uint16_t *tx_size, *dac_size;
+  volatile uint16_t *tx_size, *ps_level, *dac_size;
   float scale, ramp[1024], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 32, 1};
   uint8_t id[4] = {0xef, 0xfe, 1, 6};
@@ -443,10 +443,11 @@ int main(int argc, char *argv[])
   tx_freq = ((uint32_t *)(cfg + 24));
   tx_size = ((uint16_t *)(cfg + 28));
   tx_level = ((uint16_t *)(cfg + 30));
+  ps_level = ((uint16_t *)(cfg + 32));
 
-  dac_freq = ((uint32_t *)(cfg + 32));
-  dac_size = ((uint16_t *)(cfg + 36));
-  dac_level = ((uint16_t *)(cfg + 38));
+  dac_freq = ((uint32_t *)(cfg + 36));
+  dac_size = ((uint16_t *)(cfg + 40));
+  dac_level = ((uint16_t *)(cfg + 42));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 14));
@@ -485,6 +486,9 @@ int main(int argc, char *argv[])
 
   /* set default tx level */
   *tx_level = 32767;
+
+  /* set ps level */
+  *ps_level = 23080;
 
   /* set default tx mux channel */
   tx_mux[16] = 0;

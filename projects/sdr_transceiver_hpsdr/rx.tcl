@@ -8,15 +8,6 @@ cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 160 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
 }
 
-# Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 8
-} {
-  s_axis_aclk /pll_0/clk_out1
-  s_axis_aresetn /rst_0/peripheral_aresetn
-}
-
 # Create axis_broadcaster
 cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
@@ -29,7 +20,6 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   M02_TDATA_REMAP {tdata[31:16]}
   M03_TDATA_REMAP {tdata[47:32]}
 } {
-  S_AXIS fifo_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
@@ -131,7 +121,7 @@ for {set i 0} {$i <= 7} {incr i} {
     NUMBER_OF_STAGES 6
     SAMPLE_RATE_CHANGES Programmable
     MINIMUM_RATE 125
-    MAXIMUM_RATE 8192
+    MAXIMUM_RATE 2000
     FIXED_OR_INITIAL_RATE 500
     INPUT_SAMPLE_FREQUENCY 125
     CLOCK_FREQUENCY 125
