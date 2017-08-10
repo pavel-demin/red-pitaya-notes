@@ -151,7 +151,7 @@ module tx_0 {
   source projects/sdr_transceiver_wspr/tx.tcl
 } {
   slice_0/Din rst_slice_1/Dout
-  comb_0/M_AXIS zeroer_0/S_AXIS
+  fifo_1/M_AXIS zeroer_0/S_AXIS
 }
 
 # PPS
@@ -170,7 +170,7 @@ cell pavel-demin:user:axis_pps_counter:1.0 cntr_0 {} {
   aresetn rst_0/peripheral_aresetn
 }
 
-# Create axis_clock_converter
+# Create axis_data_fifo
 cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
