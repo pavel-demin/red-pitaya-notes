@@ -129,6 +129,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   SPURIOUS_FREE_DYNAMIC_RANGE 96
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
+  HAS_TREADY true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
   OUTPUT_WIDTH 16
@@ -139,13 +140,16 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {
+  HAS_TREADY TRUE
+} {
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
 # Create cmpy
 cell xilinx.com:ip:cmpy:6.0 mult_0 {
+  FLOWCONTROL Blocking
   APORTWIDTH.VALUE_SRC USER
   BPORTWIDTH.VALUE_SRC USER
   APORTWIDTH 16
@@ -181,13 +185,16 @@ cell pavel-demin:user:axis_constant:1.0 const_0 {
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr:1.0 lfsr_1 {} {
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_1 {
+  HAS_TREADY TRUE
+} {
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
 # Create cmpy
 cell xilinx.com:ip:cmpy:6.0 mult_1 {
+  FLOWCONTROL Blocking
   APORTWIDTH.VALUE_SRC USER
   BPORTWIDTH.VALUE_SRC USER
   APORTWIDTH 16

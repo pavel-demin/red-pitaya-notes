@@ -247,7 +247,7 @@ module rx_0 {
   slice_7/Din cfg_slice_0/Dout
   slice_8/Din cfg_slice_0/Dout
   slice_9/Din cfg_slice_0/Dout
-  bcast_0/S_AXIS comb_0/M_AXIS
+  fifo_0/S_AXIS comb_0/M_AXIS
 }
 
 # TX 0
