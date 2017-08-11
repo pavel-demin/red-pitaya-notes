@@ -3,19 +3,23 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
   DIN_WIDTH 8 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
 }
 
-# Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
+  DIN_WIDTH 96 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+  DIN_WIDTH 96 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
+  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_4 {
+  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
 }
 
 # Create axi_axis_writer
@@ -90,6 +94,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA conv_0/M_AXIS
@@ -128,6 +133,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_1 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 26
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA subset_1/M_AXIS
@@ -246,6 +252,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
+  HAS_DOUT_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M00_AXIS
@@ -265,6 +272,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_2 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
+  HAS_DOUT_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M01_AXIS
@@ -297,6 +305,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   SPURIOUS_FREE_DYNAMIC_RANGE 138
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
+  HAS_TREADY true
   HAS_ARESETN true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
@@ -309,13 +318,19 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {
+  HAS_TREADY TRUE
+} {
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
 # Create cmpy
 cell xilinx.com:ip:cmpy:6.0 mult_0 {
+  FLOWCONTROL Blocking
   APORTWIDTH.VALUE_SRC USER
   BPORTWIDTH.VALUE_SRC USER
   APORTWIDTH 24
@@ -326,27 +341,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   S_AXIS_A comb_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
   S_AXIS_CTRL lfsr_0/M_AXIS
-  aclk /pll_0/clk_out1
-}
-
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_4 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 8
-  M_TDATA_NUM_BYTES 6
-  TDATA_REMAP {24'b000000000000000000000000,tdata[23:0]}
-} {
-  S_AXIS mult_0/M_AXIS_DOUT
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 const_0 {
-  AXIS_TDATA_WIDTH 16
-} {
-  cfg_data slice_3/Dout
+  m_axis_dout_tready const_0/dout
   aclk /pll_0/clk_out1
 }
 
@@ -356,17 +351,32 @@ cell pavel-demin:user:axis_lfsr:1.0 lfsr_1 {} {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create cmpy
-cell xilinx.com:ip:cmpy:6.0 mult_1 {
-  APORTWIDTH.VALUE_SRC USER
-  BPORTWIDTH.VALUE_SRC USER
-  APORTWIDTH 24
-  BPORTWIDTH 16
-  ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 17
+cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_1 {
+  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+  A_WIDTH.VALUE_SRC USER
+  B_WIDTH.VALUE_SRC USER
+  OUTPUT_PROPERTIES User_Defined
+  A_WIDTH 24
+  B_WIDTH 16
+  P_WIDTH 16
 } {
-  S_AXIS_A subset_4/M_AXIS
-  S_AXIS_B const_0/M_AXIS
-  S_AXIS_CTRL lfsr_1/M_AXIS
-  aclk /pll_0/clk_out1
+  A mult_0/m_axis_dout_tdata
+  B slice_3/Dout
+  CARRYIN lfsr_1/m_axis_tdata
+  CLK /pll_0/clk_out1
+}
+
+cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_2 {
+  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+  A_WIDTH.VALUE_SRC USER
+  B_WIDTH.VALUE_SRC USER
+  OUTPUT_PROPERTIES User_Defined
+  A_WIDTH 24
+  B_WIDTH 16
+  P_WIDTH 16
+} {
+  A mult_0/m_axis_dout_tdata
+  B slice_4/Dout
+  CARRYIN lfsr_1/m_axis_tdata
+  CLK /pll_0/clk_out1
 }

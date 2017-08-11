@@ -45,6 +45,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   SPURIOUS_FREE_DYNAMIC_RANGE 84
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
+  HAS_TREADY true
   HAS_ARESETN true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
@@ -87,4 +88,14 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   S01_AXIS switch_0/M01_AXIS
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
+}
+
+# Create axis_data_fifo
+cell xilinx.com:ip:axis_data_fifo:1.1 fifo_1 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 4
+} {
+  S_AXIS comb_0/M_AXIS
+  s_axis_aclk /pll_0/clk_out1
+  s_axis_aresetn slice_0/Dout
 }

@@ -79,6 +79,7 @@ for {set i 0} {$i <= 7} {incr i} {
     SPURIOUS_FREE_DYNAMIC_RANGE 138
     FREQUENCY_RESOLUTION 0.2
     PHASE_INCREMENT Streaming
+    HAS_TREADY true
     HAS_PHASE_OUT false
     PHASE_WIDTH 30
     OUTPUT_WIDTH 24
@@ -90,13 +91,16 @@ for {set i 0} {$i <= 7} {incr i} {
   }
 
   # Create axis_lfsr
-  cell pavel-demin:user:axis_lfsr:1.0 lfsr_$i {} {
+  cell pavel-demin:user:axis_lfsr:1.0 lfsr_$i {
+    HAS_TREADY TRUE
+  } {
     aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
 
   # Create cmpy
   cell xilinx.com:ip:cmpy:6.0 mult_$i {
+    FLOWCONTROL Blocking
     APORTWIDTH.VALUE_SRC USER
     BPORTWIDTH.VALUE_SRC USER
     APORTWIDTH 14
@@ -141,6 +145,7 @@ for {set i 0} {$i <= 15} {incr i} {
     QUANTIZATION Truncation
     OUTPUT_DATA_WIDTH 24
     USE_XTREME_DSP_SLICE false
+    HAS_DOUT_TREADY true
     HAS_ARESETN true
   } {
     S_AXIS_DATA bcast_[expr $i / 2]/M0[expr $i % 2]_AXIS
@@ -201,6 +206,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_16 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 32
   USE_XTREME_DSP_SLICE false
+  HAS_DOUT_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA conv_0/M_AXIS
@@ -226,6 +232,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 33
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA cic_16/M_AXIS_DATA
@@ -262,6 +269,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_1 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 33
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA subset_0/M_AXIS
