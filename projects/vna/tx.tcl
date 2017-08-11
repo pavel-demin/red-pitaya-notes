@@ -5,47 +5,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
   DIN_WIDTH 96 DIN_FROM 31 DIN_TO 16 DOUT_WIDTH 16
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
-}
-
-# Create axi_axis_writer
-cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
-  AXI_DATA_WIDTH 32
-} {
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
-  FIFO_DEPTH 16384
-} {
-  S_AXIS writer_0/M_AXIS
-  s_axis_aclk /pll_0/clk_out1
-  s_axis_aresetn slice_1/Dout
-}
-
-# Create axis_interpolator
-cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
-  AXIS_TDATA_WIDTH 32
-  CNTR_WIDTH 32
-} {
-  S_AXIS fifo_0/M_AXIS
-  cfg_data slice_3/Dout
-  aclk /pll_0/clk_out1
-  aresetn slice_1/Dout
 }
 
 # Create dds_compiler
@@ -62,39 +22,39 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   DSP48_USE Minimal
   OUTPUT_SELECTION Sine
 } {
-  S_AXIS_PHASE inter_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn slice_0/Dout
 }
 
-# Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 const_0 {
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
+# Create axis_zeroer
+cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_2/Dout
+  S_AXIS dds_0/M_AXIS_DATA
+  m_axis_tready const_0/dout
   aclk /pll_0/clk_out1
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {
-  HAS_TREADY TRUE
-} {
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
   aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
+  aresetn slice_0/Dout
 }
 
-# Create cmpy
-cell xilinx.com:ip:cmpy:6.0 mult_0 {
-  FLOWCONTROL Blocking
-  APORTWIDTH.VALUE_SRC USER
-  BPORTWIDTH.VALUE_SRC USER
-  APORTWIDTH 16
-  BPORTWIDTH 16
-  ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 16
+cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_0 {
+  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+  A_WIDTH.VALUE_SRC USER
+  B_WIDTH.VALUE_SRC USER
+  OUTPUT_PROPERTIES User_Defined
+  A_WIDTH 16
+  B_WIDTH 16
+  P_WIDTH 15
 } {
-  S_AXIS_A dds_0/M_AXIS_DATA
-  S_AXIS_B const_0/M_AXIS
-  S_AXIS_CTRL lfsr_0/M_AXIS
-  aclk /pll_0/clk_out1
+  A zeroer_0/m_axis_tdata
+  B slice_1/Dout
+  CARRYIN lfsr_0/m_axis_tdata
+  CLK /pll_0/clk_out1
 }

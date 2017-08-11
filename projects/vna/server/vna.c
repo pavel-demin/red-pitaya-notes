@@ -26,9 +26,8 @@ int main(int argc, char *argv[])
   struct sched_param param;
   pthread_attr_t attr;
   pthread_t thread;
-  volatile uint32_t *slcr;
   volatile void *cfg, *sts;
-  volatile uint32_t *rx_freq, *tx_freq, *tx_size;
+  volatile uint32_t *rx_freq, *rx_size;
   volatile int16_t *tx_level;
   volatile uint8_t *rst;
   struct sockaddr_in addr;
@@ -43,21 +42,19 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-  rx_freq = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
-  tx_freq = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+  rx_freq = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
   rx_cntr = ((uint16_t *)(sts + 12));
 
   rst = ((uint8_t *)(cfg + 0));
   tx_level = ((int16_t *)(cfg + 2));
-  tx_size = ((uint32_t *)(cfg + 4));
+  rx_size = ((uint32_t *)(cfg + 4));
 
   *tx_level = 32767;
-  *tx_size = 5000 - 1;
+  *rx_size = 5000 - 1;
 
   start = 10000;
   stop = 60000000;
@@ -122,14 +119,14 @@ int main(int argc, char *argv[])
           break;
         case 2:
           /* set size */
-          if(value < 1 || value > 16384) continue;
+          if(value < 1 || value > 32768) continue;
           size = value;
           break;
         case 3:
           /* set rate */
           if(value < 1 || value > 100000) continue;
           rate = value;
-          *tx_size = 2500 * (rate + 1) - 1;
+          *rx_size = 2500 * (rate + 1) - 1;
           break;
         case 4:
           /* set correction */
@@ -162,7 +159,6 @@ int main(int argc, char *argv[])
             if(i > 0) freq = start + (stop - start) * (i - 1) / (size - 1);
             freq *= (1.0 + 1.0e-9 * corr);
             *rx_freq = (uint32_t)floor(freq / 125.0e6 * (1<<30) + 0.5);
-            *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1<<30) + 0.5);
           }
           *rst |= 1;
           break;

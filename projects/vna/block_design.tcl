@@ -56,20 +56,6 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   aclk pll_0/clk_out1
 }
 
-# Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 2
-  M_TDATA_NUM_BYTES 2
-  M00_TDATA_REMAP {tdata[15:0]}
-  M01_TDATA_REMAP {tdata[15:0]}
-} {
-  S_AXIS zeroer_0/M_AXIS
-  aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
-}
-
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   aclk pll_0/clk_out1
@@ -80,7 +66,7 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   dac_sel dac_sel_o
   dac_wrt dac_wrt_o
   dac_dat dac_dat_o
-  S_AXIS bcast_0/M00_AXIS
+  s_axis_tvalid const_0/dout
 }
 
 # CFG
@@ -94,18 +80,6 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 
 # RX 0
 
-# Create axis_combiner
-cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
-  NUM_SI 2
-} {
-  S00_AXIS adc_0/M_AXIS
-  S01_AXIS bcast_0/M01_AXIS
-  aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
-}
-
 module rx_0 {
   source projects/vna/rx.tcl
 } {
@@ -113,7 +87,6 @@ module rx_0 {
   slice_1/Din cfg_0/cfg_data
   slice_2/Din cfg_0/cfg_data
   slice_3/Din cfg_0/cfg_data
-  bcast_0/S_AXIS comb_0/M_AXIS
 }
 
 # TX 0
@@ -123,9 +96,10 @@ module tx_0 {
 } {
   slice_0/Din cfg_0/cfg_data
   slice_1/Din cfg_0/cfg_data
-  slice_2/Din cfg_0/cfg_data
-  slice_3/Din cfg_0/cfg_data
-  mult_0/M_AXIS_DOUT zeroer_0/S_AXIS
+  dds_0/S_AXIS_PHASE rx_0/bcast_0/M01_AXIS
+  mult_0/P dac_0/s_axis_tdata
+  mult_0/P rx_0/adc_slice_4/Din
+  mult_0/P rx_0/adc_slice_5/Din
 }
 
 # STS
@@ -190,14 +164,5 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins rx_0/writer_0/S_AXI]
 
-set_property RANGE 64K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
-set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins tx_0/writer_0/S_AXI]
-
-set_property RANGE 64K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg01]
-set_property OFFSET 0x40020000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg01]
+set_property RANGE 128K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+set_property OFFSET 0x40020000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
