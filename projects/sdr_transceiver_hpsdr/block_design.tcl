@@ -86,7 +86,7 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 352
+  CFG_DATA_WIDTH 320
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -124,14 +124,14 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 352 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
+  DIN_WIDTH 320 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 ptt_slice_0 {
-  DIN_WIDTH 352 DIN_FROM 20 DIN_TO 20 DOUT_WIDTH 1
+  DIN_WIDTH 320 DIN_FROM 20 DIN_TO 20 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
@@ -190,32 +190,23 @@ cell pavel-demin:user:axis_alex:1.0 alex_0 {} {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 352 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 352 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+  DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 352 DIN_FROM 191 DIN_TO 32 DOUT_WIDTH 160
+  DIN_WIDTH 320 DIN_FROM 159 DIN_TO 32 DOUT_WIDTH 128
 } {
   Din cfg_0/cfg_data
-}
-
-# Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
-  NUM_PORTS 2
-  IN0_WIDTH 32
-  IN1_WIDTH 16
-} {
-  In0 adc_0/m_axis_tdata
 }
 
 module rx_0 {
@@ -225,49 +216,45 @@ module rx_0 {
   slice_1/Din rst_slice_1/Dout
   slice_2/Din rst_slice_1/Dout
   slice_3/Din rst_slice_1/Dout
-  slice_4/Din rst_slice_1/Dout
+  slice_4/Din cfg_slice_0/Dout
   slice_5/Din cfg_slice_0/Dout
   slice_6/Din cfg_slice_0/Dout
   slice_7/Din cfg_slice_0/Dout
-  slice_8/Din cfg_slice_0/Dout
-  slice_9/Din cfg_slice_0/Dout
-  bcast_0/s_axis_tdata concat_0/dout
-  bcast_0/s_axis_tvalid const_0/dout
 }
 
 # TX 0
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
-  DIN_WIDTH 352 DIN_FROM 16 DIN_TO 16 DOUT_WIDTH 1
+  DIN_WIDTH 320 DIN_FROM 16 DIN_TO 16 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_3 {
-  DIN_WIDTH 352 DIN_FROM 17 DIN_TO 17 DOUT_WIDTH 1
+  DIN_WIDTH 320 DIN_FROM 17 DIN_TO 17 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 key_slice_0 {
-  DIN_WIDTH 352 DIN_FROM 18 DIN_TO 18 DOUT_WIDTH 1
+  DIN_WIDTH 320 DIN_FROM 18 DIN_TO 18 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 key_slice_1 {
-  DIN_WIDTH 352 DIN_FROM 19 DIN_TO 19 DOUT_WIDTH 1
+  DIN_WIDTH 320 DIN_FROM 19 DIN_TO 19 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 352 DIN_FROM 287 DIN_TO 192 DOUT_WIDTH 96
+  DIN_WIDTH 320 DIN_FROM 255 DIN_TO 160 DOUT_WIDTH 96
 } {
   Din cfg_0/cfg_data
 }
@@ -283,14 +270,15 @@ module tx_0 {
   slice_3/Din cfg_slice_1/Dout
   slice_4/Din cfg_slice_1/Dout
   mult_1/P dac_0/s_axis_tdata
-  mult_2/P concat_0/In1
+  mult_2/P rx_0/adc_slice_6/Din
+  mult_2/P rx_0/adc_slice_7/Din
 }
 
 # CODEC
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
-  DIN_WIDTH 352 DIN_FROM 351 DIN_TO 288 DOUT_WIDTH 64
+  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 256 DOUT_WIDTH 64
 } {
   Din cfg_0/cfg_data
 }
@@ -318,7 +306,7 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_1 {
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   NUM_PORTS 7
   IN0_WIDTH 32
   IN1_WIDTH 64
@@ -343,7 +331,7 @@ cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
-  sts_data concat_1/dout
+  sts_data concat_0/dout
 }
 
 # Create all required interconnections

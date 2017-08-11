@@ -1,6 +1,6 @@
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 8 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
+  DIN_WIDTH 8 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
 }
 
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
