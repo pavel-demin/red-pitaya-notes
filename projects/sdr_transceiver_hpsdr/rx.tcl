@@ -48,7 +48,6 @@ for {set i 0} {$i <= 2} {incr i} {
 
 }
 
-
 for {set i 0} {$i <= 3} {incr i} {
 
   # Create xlslice
@@ -91,7 +90,6 @@ for {set i 0} {$i <= 1} {incr i} {
 
 }
 
-
 # Create axis_lfsr
 cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
   aclk /pll_0/clk_out1
@@ -103,6 +101,7 @@ cell xilinx.com:ip:xlconstant:1.1 const_0
 
 for {set i 0} {$i <= 7} {incr i} {
 
+  # Create xbip_dsp48_macro
   cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_$i {
     INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
     A_WIDTH.VALUE_SRC USER
