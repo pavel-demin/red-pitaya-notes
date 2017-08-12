@@ -59,7 +59,6 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   dac_sel dac_sel_o
   dac_wrt dac_wrt_o
   dac_dat dac_dat_o
-  s_axis_tvalid const_0/dout
 }
 
 # CFG
