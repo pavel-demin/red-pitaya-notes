@@ -26,7 +26,7 @@ The basic blocks of the system are shown on the following diagram:
 
 ![Multichannel Pulse Height Analyzer]({{ "/img/vna.png" | prepend: site.baseurl }})
 
-The [projects/vna](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/vna) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/vna](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/vna) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
 Software
 -----
