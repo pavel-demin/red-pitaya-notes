@@ -3,6 +3,16 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
 }
 
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_1 {
+  DIN_WIDTH 32 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_2 {
+  DIN_WIDTH 32 DIN_FROM 31 DIN_TO 16 DOUT_WIDTH 16
+}
+
 # Create axi_axis_writer
 cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
   AXI_DATA_WIDTH 32
@@ -39,63 +49,82 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   aresetn slice_0/Dout
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_1
+
 # Create dds_compiler
 cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   DDS_CLOCK_RATE 125
-  SPURIOUS_FREE_DYNAMIC_RANGE 84
+  SPURIOUS_FREE_DYNAMIC_RANGE 96
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
   HAS_TREADY true
   HAS_ARESETN true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
-  OUTPUT_WIDTH 14
+  OUTPUT_WIDTH 16
   DSP48_USE Minimal
   OUTPUT_SELECTION Sine
 } {
   S_AXIS_PHASE inter_0/M_AXIS
+  m_axis_data_tready const_1/dout
   aclk /pll_0/clk_out1
   aresetn slice_0/Dout
 }
 
-# Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 zero_0 {
-  AXIS_TDATA_WIDTH 16
-} {
+# Create axis_lfsr
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
   aclk /pll_0/clk_out1
+  aresetn slice_0/Dout
 }
 
-# Create axis_switch
-cell xilinx.com:ip:axis_switch:1.1 switch_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 2
-  ROUTING_MODE 1
-  NUM_SI 2
-  NUM_MI 2
+# Create xbip_dsp48_macro
+cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_0 {
+  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+  A_WIDTH.VALUE_SRC USER
+  B_WIDTH.VALUE_SRC USER
+  OUTPUT_PROPERTIES User_Defined
+  A_WIDTH 16
+  B_WIDTH 16
+  P_WIDTH 15
 } {
-  S00_AXIS dds_0/M_AXIS_DATA
-  S01_AXIS zero_0/M_AXIS
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
+  A dds_0/m_axis_data_tdata
+  B slice_1/Dout
+  CARRYIN lfsr_0/m_axis_tdata
+  CLK /pll_0/clk_out1
 }
 
-cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 2
-  NUM_SI 2
+# Create xbip_dsp48_macro
+cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_1 {
+  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+  A_WIDTH.VALUE_SRC USER
+  B_WIDTH.VALUE_SRC USER
+  OUTPUT_PROPERTIES User_Defined
+  A_WIDTH 16
+  B_WIDTH 16
+  P_WIDTH 15
 } {
-  S00_AXIS switch_0/M00_AXIS
-  S01_AXIS switch_0/M01_AXIS
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
+  A dds_0/m_axis_data_tdata
+  B slice_2/Dout
+  CARRYIN lfsr_0/m_axis_tdata
+  CLK /pll_0/clk_out1
 }
 
-# Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo:1.1 fifo_1 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+  NUM_PORTS 2
+  IN0_WIDTH 16
+  IN1_WIDTH 16
 } {
-  S_AXIS comb_0/M_AXIS
-  s_axis_aclk /pll_0/clk_out1
-  s_axis_aresetn slice_0/Dout
+  In0 mult_0/P
+  In1 mult_1/P
+}
+
+# Create axis_zeroer
+cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
+  AXIS_TDATA_WIDTH 32
+} {
+  s_axis_tdata concat_0/dout
+  s_axis_tvalid dds_0/m_axis_data_tvalid
+  aclk /pll_0/clk_out1
 }

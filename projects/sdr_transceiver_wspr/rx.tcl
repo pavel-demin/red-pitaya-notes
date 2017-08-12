@@ -79,7 +79,6 @@ for {set i 0} {$i <= 7} {incr i} {
     SPURIOUS_FREE_DYNAMIC_RANGE 138
     FREQUENCY_RESOLUTION 0.2
     PHASE_INCREMENT Streaming
-    HAS_TREADY true
     HAS_PHASE_OUT false
     PHASE_WIDTH 30
     OUTPUT_WIDTH 24
@@ -90,47 +89,47 @@ for {set i 0} {$i <= 7} {incr i} {
     aclk /pll_0/clk_out1
   }
 
-  # Create axis_lfsr
-  cell pavel-demin:user:axis_lfsr:1.0 lfsr_$i {
-    HAS_TREADY TRUE
-  } {
-    aclk /pll_0/clk_out1
-    aresetn /rst_0/peripheral_aresetn
-  }
-
-  # Create cmpy
-  cell xilinx.com:ip:cmpy:6.0 mult_$i {
-    FLOWCONTROL Blocking
-    APORTWIDTH.VALUE_SRC USER
-    BPORTWIDTH.VALUE_SRC USER
-    APORTWIDTH 14
-    BPORTWIDTH 24
-    ROUNDMODE Random_Rounding
-    OUTPUTWIDTH 26
-  } {
-    S_AXIS_A switch_0/M0${i}_AXIS
-    S_AXIS_B dds_$i/M_AXIS_DATA
-    S_AXIS_CTRL lfsr_$i/M_AXIS
-    aclk /pll_0/clk_out1
-  }
-
-  # Create axis_broadcaster
-  cell xilinx.com:ip:axis_broadcaster:1.1 bcast_$i {
-    S_TDATA_NUM_BYTES.VALUE_SRC USER
-    M_TDATA_NUM_BYTES.VALUE_SRC USER
-    S_TDATA_NUM_BYTES 8
-    M_TDATA_NUM_BYTES 3
-    M00_TDATA_REMAP {tdata[23:0]}
-    M01_TDATA_REMAP {tdata[55:32]}
-  } {
-    S_AXIS mult_$i/M_AXIS_DOUT
-    aclk /pll_0/clk_out1
-    aresetn /rst_0/peripheral_aresetn
-  }
-
 }
 
+# Create axis_lfsr
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
+  aclk /pll_0/clk_out1
+  aresetn /rst_0/peripheral_aresetn
+}
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant:1.1 const_0
+
 for {set i 0} {$i <= 15} {incr i} {
+
+  # Create xlslice
+  cell xilinx.com:ip:xlslice:1.0 adc_slice_$i {
+    DIN_WIDTH 128 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)] DOUT_WIDTH 14
+  } {
+    Din switch_0/m_axis_tdata
+  }
+
+  # Create xlslice
+  cell xilinx.com:ip:xlslice:1.0 dds_slice_$i {
+    DIN_WIDTH 48 DIN_FROM [expr 24 * ($i % 2) + 23] DIN_TO [expr 24 * ($i % 2)] DOUT_WIDTH 24
+  } {
+    Din dds_[expr $i / 2]/m_axis_data_tdata
+  }
+
+  cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_$i {
+    INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+    A_WIDTH.VALUE_SRC USER
+    B_WIDTH.VALUE_SRC USER
+    OUTPUT_PROPERTIES User_Defined
+    A_WIDTH 24
+    B_WIDTH 14
+    P_WIDTH 25
+  } {
+    A dds_slice_$i/Dout
+    B adc_slice_$i/Dout
+    CARRYIN lfsr_0/m_axis_tdata
+    CLK /pll_0/clk_out1
+  }
 
   # Create cic_compiler
   cell xilinx.com:ip:cic_compiler:4.0 cic_$i {
@@ -148,7 +147,8 @@ for {set i 0} {$i <= 15} {incr i} {
     HAS_DOUT_TREADY true
     HAS_ARESETN true
   } {
-    S_AXIS_DATA bcast_[expr $i / 2]/M0[expr $i % 2]_AXIS
+    s_axis_data_tdata mult_$i/P
+    s_axis_data_tvalid const_0/dout
     aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }

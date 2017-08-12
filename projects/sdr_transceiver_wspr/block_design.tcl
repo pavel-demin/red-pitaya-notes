@@ -49,19 +49,11 @@ cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
 
 # DAC
 
-# Create axis_zeroer
-cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
-  AXIS_TDATA_WIDTH 32
-} {
-  aclk pll_0/clk_out1
-}
-
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   aclk pll_0/clk_out1
   ddr_clk pll_0/clk_out2
   locked pll_0/locked
-  S_AXIS zeroer_0/M_AXIS
   dac_clk dac_clk_o
   dac_rst dac_rst_o
   dac_sel dac_sel_o
@@ -73,7 +65,7 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 288
+  CFG_DATA_WIDTH 320
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -88,7 +80,7 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 288 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+  DIN_WIDTH 320 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
   Dout exp_p_tri_io
@@ -112,14 +104,14 @@ cell xilinx.com:ip:xlslice:1.0 pps_slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 288 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 288 DIN_FROM 287 DIN_TO 32 DOUT_WIDTH 256
+  DIN_WIDTH 320 DIN_FROM 287 DIN_TO 32 DOUT_WIDTH 256
 } {
   Din cfg_0/cfg_data
 }
@@ -142,7 +134,14 @@ module rx_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 288 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+  DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
+  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 288 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
@@ -151,14 +150,16 @@ module tx_0 {
   source projects/sdr_transceiver_wspr/tx.tcl
 } {
   slice_0/Din rst_slice_1/Dout
-  fifo_1/M_AXIS zeroer_0/S_AXIS
+  slice_1/Din cfg_slice_1/Dout
+  slice_2/Din cfg_slice_1/Dout
+  zeroer_0/M_AXIS dac_0/S_AXIS
 }
 
 # PPS
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
-  DIN_WIDTH 288 DIN_FROM 24 DIN_TO 24 DOUT_WIDTH 1
+  DIN_WIDTH 320 DIN_FROM 24 DIN_TO 24 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
@@ -288,16 +289,7 @@ set_property OFFSET 0x4000B000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Master /ps_0/M_AXI_GP0
   Clk Auto
-} [get_bd_intf_pins tx_0/switch_0/S_AXI_CTRL]
-
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg1]
-set_property OFFSET 0x4000C000 [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg1]
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
 } [get_bd_intf_pins reader_0/S_AXI]
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg01]
-set_property OFFSET 0x4000D000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg01]
+set_property OFFSET 0x4000C000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg01]
