@@ -59,7 +59,6 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   dac_sel dac_sel_o
   dac_wrt dac_wrt_o
   dac_dat dac_dat_o
-  s_axis_tvalid const_0/dout
 }
 
 # CFG
@@ -206,12 +205,22 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_6 {
   CLK pll_0/clk_out1
 }
 
+# Create c_shift_ram
+cell xilinx.com:ip:c_shift_ram:12.0 delay_0 {
+  WIDTH.VALUE_SRC USER
+  WIDTH 1
+  DEPTH 4
+} {
+  D dds_0/m_axis_data_tvalid
+  CLK pll_0/clk_out1
+}
+
 # Create axis_zeroer
 cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   AXIS_TDATA_WIDTH 16
 } {
   s_axis_tdata mult_6/P
-  s_axis_tvalid dds_0/m_axis_data_tvalid
+  s_axis_tvalid delay_0/Q
   M_AXIS dac_0/S_AXIS
   aclk pll_0/clk_out1
 }
