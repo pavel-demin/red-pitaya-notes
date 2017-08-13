@@ -98,7 +98,7 @@ cd red-pitaya-notes
 
 Building `mcpha.bit`:
 {% highlight bash %}
-make NAME=mcpha tmp/mcpha.bit
+make NAME=mcpha bit
 {% endhighlight %}
 
 Building `mcpha-server` and `pha-server`:

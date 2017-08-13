@@ -112,7 +112,7 @@ cd red-pitaya-notes
 
 Building `vna.bit`:
 {% highlight bash %}
-make NAME=vna tmp/vna.bit
+make NAME=vna bit
 {% endhighlight %}
 
 Building `vna`:

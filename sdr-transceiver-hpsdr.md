@@ -187,7 +187,7 @@ cd red-pitaya-notes
 
 Building `sdr_transceiver_hpsdr.bit`:
 {% highlight bash %}
-make NAME=sdr_transceiver_hpsdr tmp/sdr_transceiver_hpsdr.bit
+make NAME=sdr_transceiver_hpsdr bit
 {% endhighlight %}
 
 Building `sdr-transceiver-hpsdr`:

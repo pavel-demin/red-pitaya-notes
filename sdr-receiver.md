@@ -153,7 +153,7 @@ cd red-pitaya-notes
 
 Building `sdr_receiver.bit`:
 {% highlight bash %}
-make NAME=sdr_receiver tmp/sdr_receiver.bit
+make NAME=sdr_receiver bit
 {% endhighlight %}
 
 Building `sdr-receiver`:

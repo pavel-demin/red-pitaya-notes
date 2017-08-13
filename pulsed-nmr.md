@@ -90,7 +90,7 @@ cd red-pitaya-notes
 
 Building `pulsed_nmr.bit`:
 {% highlight bash %}
-make NAME=pulsed_nmr tmp/pulsed_nmr.bit
+make NAME=pulsed_nmr bit
 {% endhighlight %}
 
 Building `pulsed-nmr`:

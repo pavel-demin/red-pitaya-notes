@@ -90,7 +90,7 @@ cd red-pitaya-notes
 
 Building `sdr_receiver_hpsdr.bit`:
 {% highlight bash %}
-make NAME=sdr_receiver_hpsdr tmp/sdr_receiver_hpsdr.bit
+make NAME=sdr_receiver_hpsdr bit
 {% endhighlight %}
 
 Building `sdr-receiver-hpsdr`:

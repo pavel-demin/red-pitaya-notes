@@ -110,7 +110,7 @@ cd red-pitaya-notes
 
 Building `scanner.bit`:
 {% highlight bash %}
-make NAME=scanner tmp/scanner.bit
+make NAME=scanner bit
 {% endhighlight %}
 
 Building `scanner`:
