@@ -11,7 +11,7 @@ The [High Performance Software Defined Radio](http://openhpsdr.org) (HPSDR) proj
 
 This version of the Red Pitaya SDR transceiver makes it usable with the software developed by the HPSDR project and other SDR programs that support the HPSDR/Metis communication protocol.
 
-This SDR transceiver emulates a HPSDR transceiver with one [Metis](http://openhpsdr.org/metis.php) network interface module, two [Mercury](http://openhpsdr.org/mercury.php) receivers and one [Pennylane](http://openhpsdr.org/penny.php) transmitter.
+This SDR transceiver emulates a HPSDR transceiver similar to [Hermes](http://openhpsdr.org/hermes.php) with a network interface, two receivers and one transmitter.
 
 The HPSDR/Metis communication protocol is described in the following documents:
 
