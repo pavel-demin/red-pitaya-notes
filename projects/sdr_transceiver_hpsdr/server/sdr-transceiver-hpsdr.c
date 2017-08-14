@@ -483,7 +483,7 @@ int main(int argc, char *argv[])
   *tx_size = size;
 
   /* set default tx level */
-  *tx_level = 32767;
+  *tx_level = 32766;
 
   /* set ps level */
   *ps_level = 23080;
@@ -522,7 +522,7 @@ int main(int argc, char *argv[])
     *dac_size = size;
 
     /* set default dac level */
-    *dac_level = 32767;
+    *dac_level = 32766;
 
     /* set default dac mux channel */
     dac_mux[16] = 0;
@@ -858,7 +858,7 @@ void process_ep2(uint8_t *frame)
       }
       else
       {
-        *tx_level = (data + 1) * 128 - 1;
+        *tx_level = (data + 1) * 128 - 2;
       }
       /* configure microphone boost */
       if(i2c_codec)
@@ -901,7 +901,7 @@ void process_ep2(uint8_t *frame)
       if(i2c_codec)
       {
         data = dac_level_data;
-        *dac_level = (data + 1) * 256 - 1;
+        *dac_level = (data + 1) * 256 - 2;
       }
       break;
     case 32:

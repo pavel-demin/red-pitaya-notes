@@ -243,7 +243,7 @@ class VNA(QMainWindow, Ui_VNA):
 
   def set_level(self, value):
     if self.idle: return
-    self.socket.write(struct.pack('<I', 5<<28 | int(32767 * np.power(10.0, value / 20.0))))
+    self.socket.write(struct.pack('<I', 5<<28 | int(32766 * np.power(10.0, value / 20.0))))
 
   def sweep(self, mode):
     if self.idle: return
