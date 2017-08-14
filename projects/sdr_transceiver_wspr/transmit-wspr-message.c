@@ -103,13 +103,13 @@ int main(int argc, char *argv[])
 
   if(chan == 1)
   {
-    *level[0] = 32767;
+    *level[0] = 32766;
     *level[1] = 0;
   }
   else
   {
     *level[0] = 0;
-    *level[1] = 32767;
+    *level[1] = 32766;
   }
 
   rst = (uint8_t *)(cfg + 1);

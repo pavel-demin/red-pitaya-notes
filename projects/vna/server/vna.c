@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
   tx_level = ((int16_t *)(cfg + 2));
   rx_size = ((uint32_t *)(cfg + 4));
 
-  *tx_level = 32767;
+  *tx_level = 32766;
   *rx_size = 5000 - 1;
 
   start = 10000;
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
           break;
         case 5:
           /* set level */
-          if(value < -32767 || value > 32767) continue;
+          if(value < -32766 || value > 32766) continue;
           *tx_level = value;
           break;
         case 6:
