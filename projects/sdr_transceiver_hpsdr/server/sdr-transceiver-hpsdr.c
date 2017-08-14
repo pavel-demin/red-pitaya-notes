@@ -40,7 +40,8 @@
 #define ADDR_DAC1 0x61 /* MCP4725 address 1 */
 
 volatile uint32_t *rx_freq[3], *rx_rate, *tx_freq, *alex, *tx_mux, *dac_freq, *dac_mux;
-volatile uint16_t *rx_cntr, *tx_cntr, *tx_level, *dac_cntr, *dac_level, *adc_cntr;
+volatile uint16_t *rx_cntr, *tx_cntr, *dac_cntr, *adc_cntr;
+volatile int16_t *tx_level, *dac_level;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *lo_rst;
 volatile uint64_t *rx_data;
 volatile uint32_t *tx_data, *dac_data;
@@ -292,7 +293,8 @@ int main(int argc, char *argv[])
   pthread_t thread;
   volatile void *cfg, *sts;
   volatile int32_t *tx_ramp, *dac_ramp;
-  volatile uint16_t *tx_size, *ps_level, *dac_size;
+  volatile uint16_t *tx_size, *dac_size;
+  volatile int16_t *ps_level;
   float scale, ramp[1024], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 32, 1};
   uint8_t id[4] = {0xef, 0xfe, 1, 6};
@@ -441,12 +443,12 @@ int main(int argc, char *argv[])
 
   tx_freq = ((uint32_t *)(cfg + 20));
   tx_size = ((uint16_t *)(cfg + 24));
-  tx_level = ((uint16_t *)(cfg + 26));
-  ps_level = ((uint16_t *)(cfg + 28));
+  tx_level = ((int16_t *)(cfg + 26));
+  ps_level = ((int16_t *)(cfg + 28));
 
   dac_freq = ((uint32_t *)(cfg + 32));
   dac_size = ((uint16_t *)(cfg + 36));
-  dac_level = ((uint16_t *)(cfg + 38));
+  dac_level = ((int16_t *)(cfg + 38));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 14));
@@ -858,7 +860,7 @@ void process_ep2(uint8_t *frame)
       }
       else
       {
-        *tx_level = (data + 1) * 128 - 2;
+        *tx_level = (int16_t)floor(data * 128.494 + 0.5);
       }
       /* configure microphone boost */
       if(i2c_codec)
@@ -901,7 +903,7 @@ void process_ep2(uint8_t *frame)
       if(i2c_codec)
       {
         data = dac_level_data;
-        *dac_level = (data + 1) * 256 - 2;
+        *dac_level = (int16_t)floor(data * 128.494 + 0.5);
       }
       break;
     case 32:
