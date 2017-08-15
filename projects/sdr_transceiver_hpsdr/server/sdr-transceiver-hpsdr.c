@@ -498,6 +498,10 @@ int main(int argc, char *argv[])
   *tx_rst |= 3;
   *tx_rst &= ~3;
 
+  /* reset tx lo */
+  *lo_rst &= ~8;
+  *lo_rst |= 8;
+
   if(i2c_codec)
   {
     /* reset codec ADC fifo */
@@ -656,9 +660,9 @@ int main(int argc, char *argv[])
           enable_thread = 1;
           active_thread = 1;
           rx_sync_data = 0;
-          /* reset all los */
-          *lo_rst &= ~15;
-          *lo_rst |= 15;
+          /* reset rx los */
+          *lo_rst &= ~7;
+          *lo_rst |= 7;
           if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
           {
             perror("pthread_create");
