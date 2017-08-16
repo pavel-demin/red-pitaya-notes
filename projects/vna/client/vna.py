@@ -77,7 +77,7 @@ class Measurement:
 
 class VNA(QMainWindow, Ui_VNA):
 
-  max_size = 16384
+  max_size = 32768
 
   def __init__(self):
     super(VNA, self).__init__()
@@ -93,7 +93,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.sweep_stop = 60000
     self.sweep_size = 6000
     # buffer and offset for the incoming samples
-    self.buffer = bytearray(24 * VNA.max_size)
+    self.buffer = bytearray(16 * VNA.max_size)
     self.offset = 0
     self.data = np.frombuffer(self.buffer, np.complex64)
     self.open = Measurement(self.sweep_start, self.sweep_stop, self.sweep_size)
@@ -197,19 +197,18 @@ class VNA(QMainWindow, Ui_VNA):
         self.socket.readAll()
         return
       size = self.socket.bytesAvailable()
-      self.progress.setValue((self.offset + size) / 24)
-      limit = 24 * self.sweep_size
+      self.progress.setValue((self.offset + size) / 16)
+      limit = 16 * self.sweep_size
       if self.offset + size < limit:
         self.buffer[self.offset:self.offset + size] = self.socket.read(size)
         self.offset += size
       else:
         self.buffer[self.offset:limit] = self.socket.read(limit - self.offset)
-        adc1 = self.data[0::3]
-        adc2 = self.data[1::3]
-        dac = self.data[2::3]
+        adc1 = self.data[0::2]
+        adc2 = self.data[1::2]
         attr = getattr(self, self.mode)
         size = attr.freq.size
-        attr.data = adc1[0:size] / dac[0:size]
+        attr.data = adc1[0:size].copy()
         getattr(self, 'plot_%s' % self.mode)()
         self.reading = False
         self.sweepFrame.setEnabled(True)
@@ -244,6 +243,7 @@ class VNA(QMainWindow, Ui_VNA):
   def set_level(self, value):
     if self.idle: return
     self.socket.write(struct.pack('<I', 5<<28 | int(32766 * np.power(10.0, value / 20.0))))
+    self.socket.write(struct.pack('<I', 6<<28 | int(0)))
 
   def sweep(self, mode):
     if self.idle: return
@@ -257,7 +257,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.write(struct.pack('<I', 0<<28 | int(self.sweep_start * 1000)))
     self.socket.write(struct.pack('<I', 1<<28 | int(self.sweep_stop * 1000)))
     self.socket.write(struct.pack('<I', 2<<28 | int(self.sweep_size)))
-    self.socket.write(struct.pack('<I', 6<<28))
+    self.socket.write(struct.pack('<I', 7<<28))
     self.progress = QProgressDialog('Sweep status', 'Cancel', 0, self.sweep_size)
     self.progress.setModal(True)
     self.progress.setMinimumDuration(1000)
@@ -266,7 +266,7 @@ class VNA(QMainWindow, Ui_VNA):
   def cancel(self):
     self.offset = 0
     self.reading = False
-    self.socket.write(struct.pack('<I', 7<<28))
+    self.socket.write(struct.pack('<I', 8<<28))
     self.sweepFrame.setEnabled(True)
     self.selectFrame.setEnabled(True)
 

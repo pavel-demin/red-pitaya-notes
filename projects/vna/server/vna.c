@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   pthread_t thread;
   volatile void *cfg, *sts;
   volatile uint32_t *rx_freq, *rx_size;
-  volatile int16_t *tx_level;
+  volatile int16_t *tx_level[2];
   volatile uint8_t *rst;
   struct sockaddr_in addr;
   uint32_t command, rate;
@@ -50,10 +50,12 @@ int main(int argc, char *argv[])
   rx_cntr = ((uint16_t *)(sts + 12));
 
   rst = ((uint8_t *)(cfg + 0));
-  tx_level = ((int16_t *)(cfg + 2));
   rx_size = ((uint32_t *)(cfg + 4));
+  tx_level[0] = ((int16_t *)(cfg + 8));
+  tx_level[1] = ((int16_t *)(cfg + 10));
 
-  *tx_level = 32766;
+  *tx_level[0] = 32766;
+  *tx_level[1] = 0;
   *rx_size = 5000 - 1;
 
   start = 10000;
@@ -136,9 +138,14 @@ int main(int argc, char *argv[])
         case 5:
           /* set level */
           if(value < -32766 || value > 32766) continue;
-          *tx_level = value;
+          *tx_level[0] = value;
           break;
         case 6:
+          /* set level */
+          if(value < -32766 || value > 32766) continue;
+          *tx_level[1] = value;
+          break;
+        case 7:
           /* sweep */
           *rst &= ~3;
           *rst |= 4;
@@ -162,7 +169,7 @@ int main(int argc, char *argv[])
           }
           *rst |= 1;
           break;
-        case 7:
+        case 8:
           /* cancel */
           *rst &= ~3;
           *rst |= 4;
@@ -187,7 +194,7 @@ void *read_handler(void *arg)
   int i, j, cntr;
   uint32_t rate = rate_thread;
   uint32_t size = size_thread;
-  float buffer[8];
+  float buffer[4];
 
   i = 0;
   cntr = 0;
@@ -195,7 +202,7 @@ void *read_handler(void *arg)
   {
     if(sock_thread < 0) break;
 
-    if(*rx_cntr < 8)
+    if(*rx_cntr < 4)
     {
       usleep(1000);
       continue;
@@ -203,7 +210,7 @@ void *read_handler(void *arg)
 
     if(i == 0)
     {
-      for(j = 0; j < 8; ++j)
+      for(j = 0; j < 4; ++j)
       {
         buffer[j] = *rx_data;
       }
@@ -211,7 +218,7 @@ void *read_handler(void *arg)
     }
     else
     {
-      for(j = 0; j < 8; ++j)
+      for(j = 0; j < 4; ++j)
       {
         buffer[j] += *rx_data;
       }
@@ -224,12 +231,12 @@ void *read_handler(void *arg)
 
     i = 0;
 
-    for(j = 0; j < 8; ++j)
+    for(j = 0; j < 4; ++j)
     {
       buffer[j] /= rate;
     }
 
-    if(send(sock_thread, buffer + 2, 24, MSG_NOSIGNAL) < 0) break;
+    if(send(sock_thread, buffer, 16, MSG_NOSIGNAL) < 0) break;
   }
 
   return NULL;
