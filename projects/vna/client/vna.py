@@ -208,7 +208,7 @@ class VNA(QMainWindow, Ui_VNA):
         adc2 = self.data[1::2]
         attr = getattr(self, self.mode)
         size = attr.freq.size
-        attr.data[0:size] = adc1[0:size]
+        attr.data = adc1[0:size].copy()
         getattr(self, 'plot_%s' % self.mode)()
         self.reading = False
         self.sweepFrame.setEnabled(True)
