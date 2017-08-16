@@ -6,6 +6,7 @@
 21.09.2016 DC2PD: add code for controlling AD8331 VGA with MCP4725 DAC (I2C).
 02.10.2016 DL9LJ: add code for controlling ICOM IC-735 (UART).
 03.12.2016 KA6S: add CW keyer code.
+16.08.2017 G8NJJ: add code for controlling G8NJJ Arduino sketch (I2C).
 */
 
 #include <stdio.h>
@@ -38,6 +39,7 @@
 #define ADDR_CODEC 0x1A /* WM8731 or TLV320AIC23B address 0 */
 #define ADDR_DAC0 0x60 /* MCP4725 address 0 */
 #define ADDR_DAC1 0x61 /* MCP4725 address 1 */
+#define ADDR_ARDUINO 0x40 /* G8NJJ Arduino sketch */
 
 volatile uint32_t *rx_freq[3], *rx_rate, *tx_freq, *alex, *tx_mux, *dac_freq, *dac_mux;
 volatile uint16_t *rx_cntr, *tx_cntr, *dac_cntr, *adc_cntr;
@@ -74,6 +76,7 @@ int i2c_drive = 0;
 int i2c_codec = 0;
 int i2c_dac0 = 0;
 int i2c_dac1 = 0;
+int i2c_arduino = 0;
 
 uint16_t i2c_pene_data = 0;
 uint16_t i2c_alex_data = 0;
@@ -82,6 +85,16 @@ uint16_t i2c_misc_data = 0;
 uint16_t i2c_drive_data = 0;
 uint16_t i2c_dac0_data = 0xfff;
 uint16_t i2c_dac1_data = 0xfff;
+
+uint16_t i2c_ard_frx1_data = 0; /* rx 1 freq in kHz */
+uint16_t i2c_ard_frx2_data = 0; /* rx 2 freq in kHz */
+uint16_t i2c_ard_ftx_data = 0; /* tx freq in kHz */
+uint32_t i2c_ard_ocant_data = 0; /* oc output and ant */
+uint32_t i2c_ard_txatt_data = 0; /* tx attenuation and oddments  */
+uint16_t i2c_ard_rxatt_data = 0; /* rx attenuation */
+
+uint8_t log_table_lookup[256]; /* lookup table from linear scale to
+                                  6 bit / 0.5 dB attenuation */
 
 uint8_t i2c_boost_data = 0;
 
@@ -123,6 +136,16 @@ ssize_t i2c_write_addr_data16(int fd, uint8_t addr, uint16_t data)
   return write(fd, buffer, 3);
 }
 
+ssize_t i2c_write_addr_data24(int fd, uint8_t addr, uint32_t data)
+{
+  uint8_t buffer[4];
+  buffer[0] = addr;
+  buffer[1] = data;
+  buffer[2] = data >> 8;
+  buffer[3] = data >> 16;
+  return write(fd, buffer, 4);
+}
+
 ssize_t i2c_write_data16(int fd, uint16_t data)
 {
   uint8_t buffer[2];
@@ -137,6 +160,30 @@ uint16_t alex_data_0 = 0;
 uint16_t alex_data_1 = 0;
 
 uint32_t freq_data[3] = {0, 0, 0};
+
+
+/* calculate lookup table from drive scale value to 0.5 dB attenuation units */
+void calc_log_lookup()
+{
+  int index;
+  float value;
+  uint8_t att;
+
+  log_table_lookup[0] = 63; /* max att if no drive */
+  for(index = 1; index < 256; ++index)
+  {
+    value = -40.0 * log10((float)index / 255.0);
+    if(value > 63.0)
+    {
+      att = 63;
+    }
+    else
+    {
+      att = (uint8_t)value;
+    }
+    log_table_lookup[index] = att;
+  }
+}
 
 void alex_write()
 {
@@ -390,6 +437,13 @@ int main(int argc, char *argv[])
       i2c_dac1 = 1;
       }
     }
+    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_ARDUINO) >= 0)
+    {
+      if(i2c_write_addr_data16(i2c_fd, 0x1, i2c_ard_frx1_data) > 0)
+      {
+        i2c_arduino = 1;
+      }
+    }
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_CODEC) >= 0)
     {
       /* reset */
@@ -540,6 +594,8 @@ int main(int argc, char *argv[])
     *rx_rst |= 4;
   }
 
+  calc_log_lookup();
+
   if((sock_ep2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
   {
     perror("socket");
@@ -682,7 +738,9 @@ void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
   uint16_t data;
+  uint32_t data32;
   uint8_t ptt, preamp, att, boost;
+  uint8_t data8;
 
   switch(frame[0])
   {
@@ -755,6 +813,44 @@ void process_ep2(uint8_t *frame)
           i2c_write_data16(i2c_fd, data);
         }
       }
+
+      if(i2c_arduino)
+      {
+        /*
+        24 bit data field: 000RRRTT0XXXXXXX0YYYYYYY
+        RRR=RX ant
+        TT=TX ant
+        XXXXXXX=RX OC
+        YYYYYYY=TX OC
+        */
+        if(frame[0] & 0x01)
+        {
+          data32 = i2c_ard_ocant_data & 0x00fc7f00;
+          data32 |= (frame[2] >> 1); /* add back in OC bits */
+          data32 |= (frame[4] & 0x03) << 16;  /* add back TX ant bits */
+        }
+        else
+        {
+          data32 = i2c_ard_ocant_data & 0xe0003007f;
+          data32 |= (frame[2] << 7); /* add back in OC bits */
+          data8 = (frame[3] & 0x60) >> 5; /* RX aux bits */
+          if(data8 == 0)
+          {
+            data32 |= (frame[4] & 0x03) << 18; /* TX bit positions */
+          }
+          else
+          {
+            data8 += 2;
+            data32 |= (data8 & 0x07) << 18; /* TX bit positions */
+          }
+        }
+        if(data32 != i2c_ard_ocant_data)
+        {
+          i2c_ard_ocant_data = data32;
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_ARDUINO);
+          i2c_write_addr_data24(i2c_fd, 0x4, data32);
+        }
+      }
       break;
     case 2:
     case 3:
@@ -768,6 +864,16 @@ void process_ep2(uint8_t *frame)
         alex_write();
         icom_write();
         if(i2c_misc) misc_write();
+        if(i2c_arduino)
+        {
+          data = freq / 1000;
+          if(data != i2c_ard_ftx_data)
+          {
+            i2c_ard_ftx_data = data;
+            ioctl(i2c_fd, I2C_SLAVE, ADDR_ARDUINO);
+            i2c_write_addr_data16(i2c_fd, 0x03, data);
+          }
+        }
       }
       break;
     case 4:
@@ -788,6 +894,17 @@ void process_ep2(uint8_t *frame)
         }
         alex_write();
         if(i2c_misc) misc_write();
+
+        if(i2c_arduino)
+        {
+          data = freq / 1000;
+          if(data != i2c_ard_frx1_data)
+          {
+            i2c_ard_frx1_data = data;
+            ioctl(i2c_fd, I2C_SLAVE, ADDR_ARDUINO);
+            i2c_write_addr_data16(i2c_fd, 0x01, data);
+          }
+        }
       }
       break;
     case 6:
@@ -802,6 +919,16 @@ void process_ep2(uint8_t *frame)
         freq_data[2] = freq;
         alex_write();
         if(i2c_misc) misc_write();
+        if(i2c_arduino)
+        {
+          data = freq / 1000;
+          if(data != i2c_ard_frx2_data)
+          {
+            i2c_ard_frx2_data = data;
+            ioctl(i2c_fd, I2C_SLAVE, ADDR_ARDUINO);
+            i2c_write_addr_data16(i2c_fd, 0x02, data);
+          }
+        }
       }
       break;
     case 8:
@@ -862,6 +989,24 @@ void process_ep2(uint8_t *frame)
           i2c_write_addr_data16(i2c_fd, 0xa9, data << 8 | data);
         }
       }
+      else if(i2c_arduino)
+      {
+        /*
+        24 bit data field 000000BA000RRRRR00TTTTTT
+        BA=PA disable, 6m LNA
+        RRRRR=5 bits RX att when in TX
+        TTTTTT=6 bits TX att (0.5 dB units)
+        */
+        data32 = i2c_ard_txatt_data & 0x00001f00; /* remove TX att */
+        data32 |= log_table_lookup[data];
+        data32 |= (frame[3] & 0xc0) << 10;
+        if(data32 != i2c_ard_txatt_data)
+        {
+          i2c_ard_txatt_data = data32;
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_ARDUINO);
+          i2c_write_addr_data24(i2c_fd, 0x05, data32);
+        }
+      }
       else
       {
         *tx_level = (int16_t)floor(data * 128.494 + 0.5);
@@ -881,6 +1026,22 @@ void process_ep2(uint8_t *frame)
     case 20:
     case 21:
       rx_att_data = frame[4] & 0x1f;
+      if(i2c_arduino)
+      {
+        /*
+        16 bit data field 000RRRRR000TTTTT
+        RRRRR=RX2
+        TTTTT=RX1
+        */
+        data = i2c_ard_rxatt_data & 0x00001f00; /* remove RX1 att */
+        data |= (frame[4] & 0x1f);
+        if(data != i2c_ard_rxatt_data)
+        {
+          i2c_ard_rxatt_data = data;
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_ARDUINO);
+          i2c_write_addr_data16(i2c_fd, 0x06, data);
+        }
+      }
       break;
     case 22:
     case 23:
@@ -898,6 +1059,43 @@ void process_ep2(uint8_t *frame)
       cw_mode = (frame[3] >> 6) & 3;
       cw_weight = frame[4] & 127;
       cw_spacing = (frame[4] >> 7) & 1;
+
+      if(i2c_arduino)
+      {
+        /*
+        16 bit data field 000RRRRR000TTTTT
+        RRRRR=RX2;
+        TTTTT=RX1
+        */
+        data = i2c_ard_rxatt_data & 0x1f; /* remove RX2 att */
+        data |= (frame[1] & 0x1f) << 8;
+        if(data != i2c_ard_rxatt_data)
+        {
+          i2c_ard_rxatt_data = data;
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_ARDUINO);
+          i2c_write_addr_data16(i2c_fd, 0x06, data);
+        }
+      }
+      break;
+    case 28:
+    case 29:
+      if(i2c_arduino)
+      {
+        /*
+        24 bit data field 000000BA000RRRRR00TTTTTT
+        BA=PA disable, 6m LNA
+        RRRRR=5 bits RX att when in TX
+        TTTTTT=6 bits TX att (0.5 dB units)
+        */
+        data32 = i2c_ard_txatt_data & 0x0003003f; /* remove RX att */
+        data32 |= (frame[3] & 0x1f) << 8;
+        if(data32 != i2c_ard_txatt_data)
+        {
+          i2c_ard_txatt_data = data32;
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_ARDUINO);
+          i2c_write_addr_data24(i2c_fd, 0x05, data32);
+        }
+      }
       break;
     case 30:
     case 31:
