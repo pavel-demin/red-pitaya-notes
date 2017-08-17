@@ -815,7 +815,7 @@ void process_ep2(uint8_t *frame)
       if(i2c_arduino)
       {
         /*
-        24 bit data field: 000RRRTT0XXXXXXX0YYYYYYY
+        24 bit data field: 0RRR00TT0XXXXXXX0YYYYYYY
         RRR=RX ant
         TT=TX ant
         XXXXXXX=RX OC
@@ -829,17 +829,17 @@ void process_ep2(uint8_t *frame)
         }
         else
         {
-          data32 = i2c_ard_ocant_data & 0x00e3007f;
+          data32 = i2c_ard_ocant_data & 0x0003007f;
           data32 |= (frame[2] << 7); /* add back in OC bits */
           data8 = (frame[3] & 0x60) >> 5; /* RX aux bits */
           if(data8 == 0)
           {
-            data32 |= (frame[4] & 0x03) << 18; /* TX bit positions */
+            data32 |= (frame[4] & 0x03) << 20; /* use TX bit positions */
           }
           else
           {
             data8 += 2;
-            data32 |= (data8 & 0x07) << 18; /* TX bit positions */
+            data32 |= (data8 & 0x07) << 20; /* RX bit positions */
           }
         }
         if(data32 != i2c_ard_ocant_data)
