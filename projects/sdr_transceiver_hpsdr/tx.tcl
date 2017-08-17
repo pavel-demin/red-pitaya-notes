@@ -1,6 +1,6 @@
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 8 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
+  DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
 }
 
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
@@ -252,7 +252,6 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
-  HAS_DOUT_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M00_AXIS
@@ -272,7 +271,6 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_2 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
-  HAS_DOUT_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M01_AXIS
@@ -305,7 +303,6 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   SPURIOUS_FREE_DYNAMIC_RANGE 138
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
-  HAS_TREADY true
   HAS_ARESETN true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
@@ -318,19 +315,13 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {
-  HAS_TREADY TRUE
-} {
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
-
 # Create cmpy
 cell xilinx.com:ip:cmpy:6.0 mult_0 {
-  FLOWCONTROL Blocking
   APORTWIDTH.VALUE_SRC USER
   BPORTWIDTH.VALUE_SRC USER
   APORTWIDTH 24
@@ -339,9 +330,9 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   OUTPUTWIDTH 26
 } {
   S_AXIS_A comb_0/M_AXIS
-  S_AXIS_B dds_0/M_AXIS_DATA
+  s_axis_b_tdata dds_0/m_axis_data_tdata
+  s_axis_b_tvalid dds_0/m_axis_data_tvalid
   S_AXIS_CTRL lfsr_0/M_AXIS
-  m_axis_dout_tready const_0/dout
   aclk /pll_0/clk_out1
 }
 

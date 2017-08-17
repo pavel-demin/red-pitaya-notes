@@ -41,8 +41,8 @@
 #define ADDR_DAC1 0x61 /* MCP4725 address 1 */
 #define ADDR_ARDUINO 0x40 /* G8NJJ Arduino sketch */
 
-volatile uint32_t *rx_freq[3], *rx_rate, *tx_freq, *alex, *tx_mux, *dac_freq, *dac_mux;
-volatile uint16_t *rx_cntr, *tx_cntr, *dac_cntr, *adc_cntr;
+volatile uint32_t *rx_freq[2], *tx_freq, *alex, *tx_mux, *dac_freq, *dac_mux;
+volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr, *dac_cntr, *adc_cntr;
 volatile int16_t *tx_level, *dac_level;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *lo_rst;
 volatile uint64_t *rx_data;
@@ -489,20 +489,19 @@ int main(int argc, char *argv[])
   tx_rst = ((uint8_t *)(cfg + 2));
   gpio_out = ((uint8_t *)(cfg + 3));
 
-  rx_rate = ((uint32_t *)(cfg + 4));
+  rx_rate = ((uint16_t *)(cfg + 4));
 
   rx_freq[0] = ((uint32_t *)(cfg + 8));
   rx_freq[1] = ((uint32_t *)(cfg + 12));
-  rx_freq[2] = ((uint32_t *)(cfg + 16));
 
-  tx_freq = ((uint32_t *)(cfg + 20));
-  tx_size = ((uint16_t *)(cfg + 24));
-  tx_level = ((int16_t *)(cfg + 26));
-  ps_level = ((int16_t *)(cfg + 28));
+  tx_freq = ((uint32_t *)(cfg + 16));
+  tx_size = ((uint16_t *)(cfg + 20));
+  tx_level = ((int16_t *)(cfg + 22));
+  ps_level = ((int16_t *)(cfg + 24));
 
-  dac_freq = ((uint32_t *)(cfg + 32));
-  dac_size = ((uint16_t *)(cfg + 36));
-  dac_level = ((int16_t *)(cfg + 38));
+  dac_freq = ((uint32_t *)(cfg + 28));
+  dac_size = ((uint16_t *)(cfg + 32));
+  dac_level = ((int16_t *)(cfg + 34));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 14));
@@ -516,7 +515,6 @@ int main(int argc, char *argv[])
   /* set default rx phase increment */
   *rx_freq[0] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
   *rx_freq[1] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
-  *rx_freq[2] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
 
   /* set default rx sample rate */
   *rx_rate = 1000;
@@ -553,8 +551,8 @@ int main(int argc, char *argv[])
   *tx_rst &= ~3;
 
   /* reset tx lo */
-  *lo_rst &= ~8;
-  *lo_rst |= 8;
+  *lo_rst &= ~4;
+  *lo_rst |= 4;
 
   if(i2c_codec)
   {
@@ -717,8 +715,8 @@ int main(int argc, char *argv[])
           active_thread = 1;
           rx_sync_data = 0;
           /* reset rx los */
-          *lo_rst &= ~7;
-          *lo_rst |= 7;
+          *lo_rst &= ~3;
+          *lo_rst |= 3;
           if(pthread_create(&thread, NULL, handler_ep6, NULL) < 0)
           {
             perror("pthread_create");
@@ -754,7 +752,7 @@ void process_ep2(uint8_t *frame)
         if(rx_sync_data)
         {
           *rx_freq[1] = *rx_freq[0];
-          /* reset first two los */
+          /* reset rx los */
           *lo_rst &= ~3;
           *lo_rst |= 3;
         }
@@ -888,7 +886,7 @@ void process_ep2(uint8_t *frame)
         freq_data[1] = freq;
         if(rx_sync_data)
         {
-          /* reset first two los */
+          /* reset rx los */
           *lo_rst &= ~3;
           *lo_rst |= 3;
         }
@@ -930,13 +928,6 @@ void process_ep2(uint8_t *frame)
           }
         }
       }
-      break;
-    case 8:
-    case 9:
-      /* set rx phase increment */
-      freq = ntohl(*(uint32_t *)(frame + 1));
-      if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[2] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 18:
     case 19:

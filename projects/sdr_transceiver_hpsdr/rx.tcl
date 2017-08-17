@@ -4,11 +4,11 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 128 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
+cell xilinx.com:ip:xlslice:1.0 slice_3 {
+  DIN_WIDTH 96 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
 }
 
-for {set i 0} {$i <= 2} {incr i} {
+for {set i 0} {$i <= 1} {incr i} {
 
   # Create xlslice
   cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 1] {
@@ -16,15 +16,15 @@ for {set i 0} {$i <= 2} {incr i} {
   }
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 5] {
-    DIN_WIDTH 128 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32] DOUT_WIDTH 32
+  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 4] {
+    DIN_WIDTH 96 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32] DOUT_WIDTH 32
   }
 
   # Create axis_constant
   cell pavel-demin:user:axis_constant:1.0 phase_$i {
     AXIS_TDATA_WIDTH 32
   } {
-    cfg_data slice_[expr $i + 5]/Dout
+    cfg_data slice_[expr $i + 4]/Dout
     aclk /pll_0/clk_out1
   }
 
@@ -66,9 +66,7 @@ for {set i 0} {$i <= 3} {incr i} {
 
   # Create xlslice
   cell xilinx.com:ip:xlslice:1.0 dds_slice_[expr $i + 4] {
-    DIN_WIDTH 48 DIN_FROM [expr 24 * ($i % 2) + 23] DIN_TO [expr 24 * ($i % 2)] DOUT_WIDTH 24
-  } {
-    Din dds_2/m_axis_data_tdata
+    DIN_WIDTH 48 DIN_FROM [expr 47 - 24 * ($i % 2)] DIN_TO [expr 24 - 24 * ($i % 2)] DOUT_WIDTH 24
   }
 
 }
@@ -121,7 +119,7 @@ for {set i 0} {$i <= 7} {incr i} {
   cell pavel-demin:user:axis_variable:1.0 rate_$i {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_4/Dout
+    cfg_data slice_3/Dout
     aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
