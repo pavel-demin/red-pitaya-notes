@@ -34,11 +34,11 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
-  INPUT_DEPTH 2048
-  OUTPUT_DATA_WIDTH 32
+  INPUT_DEPTH 4096
+  OUTPUT_DATA_WIDTH 64
   OUTPUT_DEPTH 2048
-  DATA_COUNT true
-  DATA_COUNT_WIDTH 12
+  WRITE_DATA_COUNT true
+  WRITE_DATA_COUNT_WIDTH 13
 } {
   clk /pll_0/clk_out1
 }
@@ -46,7 +46,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
   S_AXIS_TDATA_WIDTH 32
-  M_AXIS_TDATA_WIDTH 32
+  M_AXIS_TDATA_WIDTH 64
 } {
   S_AXIS writer_0/M_AXIS
   FIFO_READ fifo_generator_0/FIFO_READ
@@ -58,9 +58,9 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
 cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 4
-  TDATA_REMAP {tdata[7:0],tdata[15:8],tdata[23:16],tdata[31:24]}
+  S_TDATA_NUM_BYTES 8
+  M_TDATA_NUM_BYTES 8
+  TDATA_REMAP {tdata[39:32],tdata[47:40],tdata[55:48],tdata[63:56],tdata[7:0],tdata[15:8],tdata[23:16],tdata[31:24]}
 } {
   S_AXIS fifo_0/M_AXIS
   aclk /pll_0/clk_out1
@@ -70,7 +70,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
 # Create axis_dwidth_converter
 cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
+  S_TDATA_NUM_BYTES 8
   M_TDATA_NUM_BYTES 2
 } {
   S_AXIS subset_0/M_AXIS
@@ -88,7 +88,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   BESTPRECISION true
   FILTER_TYPE Interpolation
   INTERPOLATION_RATE 2
-  NUMBER_CHANNELS 2
+  NUMBER_CHANNELS 4
   NUMBER_PATHS 1
   SAMPLE_FREQUENCY 0.048
   CLOCK_FREQUENCY 125
@@ -127,7 +127,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_1 {
   RATE_CHANGE_TYPE Fixed_Fractional
   INTERPOLATION_RATE 25
   DECIMATION_RATE 24
-  NUMBER_CHANNELS 2
+  NUMBER_CHANNELS 4
   NUMBER_PATHS 1
   SAMPLE_FREQUENCY 0.096
   CLOCK_FREQUENCY 125
@@ -158,9 +158,23 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
 cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 3
-  M_TDATA_NUM_BYTES 6
+  M_TDATA_NUM_BYTES 12
 } {
   S_AXIS subset_2/M_AXIS
+  aclk /pll_0/clk_out1
+  aresetn /rst_0/peripheral_aresetn
+}
+
+# Create axis_broadcaster
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  M_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 12
+  M_TDATA_NUM_BYTES 6
+  M00_TDATA_REMAP {tdata[47:0]}
+  M01_TDATA_REMAP {tdata[95:48]}
+} {
+  S_AXIS conv_1/M_AXIS
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
@@ -220,14 +234,14 @@ cell xilinx.com:ip:axis_switch:1.1 switch_0 {
   NUM_SI 2
   NUM_MI 1
 } {
-  S00_AXIS conv_1/M_AXIS
+  S00_AXIS bcast_0/M00_AXIS
   S01_AXIS subset_3/M_AXIS
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 6
@@ -240,42 +254,41 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create cic_compiler
-cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
-  INPUT_DATA_WIDTH.VALUE_SRC USER
-  FILTER_TYPE Interpolation
-  NUMBER_OF_STAGES 6
-  FIXED_OR_INITIAL_RATE 1250
-  INPUT_SAMPLE_FREQUENCY 0.1
-  CLOCK_FREQUENCY 125
-  INPUT_DATA_WIDTH 24
-  QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 24
-  USE_XTREME_DSP_SLICE false
-  HAS_ARESETN true
+# Create axis_broadcaster
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_2 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  M_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 6
+  M_TDATA_NUM_BYTES 3
+  M00_TDATA_REMAP {tdata[23:0]}
+  M01_TDATA_REMAP {tdata[47:24]}
 } {
-  S_AXIS_DATA bcast_0/M00_AXIS
+  S_AXIS bcast_0/M01_AXIS
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create cic_compiler
-cell xilinx.com:ip:cic_compiler:4.0 cic_2 {
-  INPUT_DATA_WIDTH.VALUE_SRC USER
-  FILTER_TYPE Interpolation
-  NUMBER_OF_STAGES 6
-  FIXED_OR_INITIAL_RATE 1250
-  INPUT_SAMPLE_FREQUENCY 0.1
-  CLOCK_FREQUENCY 125
-  INPUT_DATA_WIDTH 24
-  QUANTIZATION Truncation
-  OUTPUT_DATA_WIDTH 24
-  USE_XTREME_DSP_SLICE false
-  HAS_ARESETN true
-} {
-  S_AXIS_DATA bcast_0/M01_AXIS
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
+for {set i 0} {$i <= 3} {incr i} {
+
+  # Create cic_compiler
+  cell xilinx.com:ip:cic_compiler:4.0 cic_$i {
+    INPUT_DATA_WIDTH.VALUE_SRC USER
+    FILTER_TYPE Interpolation
+    NUMBER_OF_STAGES 6
+    FIXED_OR_INITIAL_RATE 1250
+    INPUT_SAMPLE_FREQUENCY 0.1
+    CLOCK_FREQUENCY 125
+    INPUT_DATA_WIDTH 24
+    QUANTIZATION Truncation
+    OUTPUT_DATA_WIDTH 24
+    USE_XTREME_DSP_SLICE false
+    HAS_ARESETN true
+  } {
+    S_AXIS_DATA bcast_[expr $i / 2 + 1]/M0[expr $i % 2]_AXIS
+    aclk /pll_0/clk_out1
+    aresetn /rst_0/peripheral_aresetn
+  }
+
 }
 
 # Create axis_combiner
@@ -283,8 +296,8 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 3
 } {
-  S00_AXIS cic_1/M_AXIS_DATA
-  S01_AXIS cic_2/M_AXIS_DATA
+  S00_AXIS cic_0/M_AXIS_DATA
+  S01_AXIS cic_1/M_AXIS_DATA
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
@@ -372,4 +385,39 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_2 {
   B slice_4/Dout
   CARRYIN lfsr_1/m_axis_tdata
   CLK /pll_0/clk_out1
+}
+
+# Create axis_combiner
+cell  xilinx.com:ip:axis_combiner:1.1 comb_1 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 3
+} {
+  S00_AXIS cic_2/M_AXIS_DATA
+  S01_AXIS cic_3/M_AXIS_DATA
+  aclk /pll_0/clk_out1
+  aresetn /rst_0/peripheral_aresetn
+}
+
+# Create cordic
+cell xilinx.com:ip:cordic:6.0 cordic_0 {
+  INPUT_WIDTH.VALUE_SRC USER
+  FUNCTIONAL_SELECTION Translate
+  PIPELINING_MODE Optimal
+  INPUT_WIDTH 24
+  OUTPUT_WIDTH 15
+  ROUND_MODE Round_Pos_Neg_Inf
+  COMPENSATION_SCALING Embedded_Multiplier
+} {
+  S_AXIS_CARTESIAN comb_1/M_AXIS
+  aclk /pll_0/clk_out1
+}
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+  NUM_PORTS 2
+  IN0_WIDTH 16
+  IN1_WIDTH 16
+} {
+  In0 mult_1/P
+  In1 cordic_0/m_axis_dout_tdata
 }

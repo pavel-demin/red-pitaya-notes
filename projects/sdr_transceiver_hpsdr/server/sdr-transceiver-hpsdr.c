@@ -104,6 +104,7 @@ uint8_t dac_level_data = 0;
 uint8_t cw_int_data = 0;
 uint8_t rx_att_data = 0;
 uint8_t tx_mux_data = 0;
+uint8_t tx_eer_data = 0;
 
 uint16_t cw_hang = 0;
 uint8_t cw_reversed = 0;
@@ -480,7 +481,7 @@ int main(int argc, char *argv[])
   dac_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
   dac_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
   adc_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
-  tx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000a000);
+  tx_data = mmap(NULL, 4*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000c000);
   rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   xadc = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
@@ -667,12 +668,20 @@ int main(int argc, char *argv[])
         case 0x0201feef:
           if(!tx_mux_data)
           {
-            while(*tx_cntr > 1922) usleep(1000);
-            if(*tx_cntr == 0) for(j = 0; j < 1260; ++j) *tx_data = 0;
+            while(*tx_cntr > 3844) usleep(1000);
+            if(*tx_cntr == 0) for(j = 0; j < 2520; ++j) *tx_data = 0;
             if((*gpio_out & 1) | (*gpio_in & 1))
             {
-              for(j = 0; j < 504; j += 8) *tx_data = *(uint32_t *)(buffer[i] + 20 + j);
-              for(j = 0; j < 504; j += 8) *tx_data = *(uint32_t *)(buffer[i] + 532 + j);
+              for(j = 0; j < 504; j += 8)
+              {
+                *tx_data = tx_eer_data ? *(uint32_t *)(buffer[i] + 16 + j) : 0;
+                *tx_data = *(uint32_t *)(buffer[i] + 20 + j);
+              }
+              for(j = 0; j < 504; j += 8)
+              {
+                *tx_data = tx_eer_data ? *(uint32_t *)(buffer[i] + 528 + j) : 0;
+                *tx_data = *(uint32_t *)(buffer[i] + 532 + j);
+              }
             }
             else
             {
@@ -757,6 +766,8 @@ void process_ep2(uint8_t *frame)
           *lo_rst |= 3;
         }
       }
+      tx_eer_data = frame[2] & 1;
+
       /* set output pins */
       ptt = frame[0] & 0x01;
       att = frame[3] & 0x03;
