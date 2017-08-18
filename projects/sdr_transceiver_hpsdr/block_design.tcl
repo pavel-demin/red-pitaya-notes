@@ -271,7 +271,7 @@ module tx_0 {
   dds_0/m_axis_data_tdata rx_0/dds_slice_5/Din
   dds_0/m_axis_data_tdata rx_0/dds_slice_6/Din
   dds_0/m_axis_data_tdata rx_0/dds_slice_7/Din
-  mult_1/P dac_0/s_axis_tdata
+  concat_0/dout dac_0/s_axis_tdata
   mult_2/P rx_0/adc_slice_6/Din
   mult_2/P rx_0/adc_slice_7/Din
 }
@@ -321,7 +321,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   In0 const_0/dout
   In1 dna_0/dna_data
   In2 rx_0/fifo_generator_0/rd_data_count
-  In3 tx_0/fifo_generator_0/data_count
+  In3 tx_0/fifo_generator_0/wr_data_count
   In4 codec/fifo_generator_0/data_count
   In5 codec/fifo_generator_1/data_count
   In6 not_0/Res
@@ -378,8 +378,8 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins tx_0/writer_0/S_AXI]
 
-set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg01]
-set_property OFFSET 0x4000A000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg01]
+set_property RANGE 16K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg01]
+set_property OFFSET 0x4000C000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg01]
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
