@@ -112,7 +112,10 @@ class VNA(QMainWindow, Ui_VNA):
     self.cursor = None
     # remove subplots action
     actions = self.toolbar.actions()
-    self.toolbar.removeAction(actions[7])
+    if int(matplotlib.__version__[0]) < 2:
+      self.toolbar.removeAction(actions[7])
+    else:
+      self.toolbar.removeAction(actions[6])
     self.plotLayout.addWidget(self.toolbar)
     # create TCP socket
     self.socket = QTcpSocket(self)
