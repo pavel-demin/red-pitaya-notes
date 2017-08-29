@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
           break;
         case 3:
           /* set rate */
-          if(value < 1 || value > 100000) continue;
+          if(value < 1 || value > 50000) continue;
           rate = value;
           *rx_size = 2500 * (rate + 1) - 1;
           break;
