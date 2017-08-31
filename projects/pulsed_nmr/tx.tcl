@@ -18,11 +18,6 @@ cell xilinx.com:ip:xlslice:1.0 slice_3 {
   DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
 }
 
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 64 DIN_FROM 57 DIN_TO 48 DOUT_WIDTH 10
-}
-
 # Create axi_axis_writer
 cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
   AXI_DATA_WIDTH 32
@@ -75,6 +70,24 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   In2 gen_0/sync
 }
 
+cell xilinx.com:ip:c_shift_ram:12.0 delay_0 {
+  WIDTH.VALUE_SRC USER
+  WIDTH 1
+  DEPTH 11
+} {
+  D gen_0/dout
+  CLK /pll_0/clk_out1
+}
+
+# Create util_vector_logic
+cell xilinx.com:ip:util_vector_logic:2.0 or_0 {
+  C_SIZE 1
+  C_OPERATION or
+} {
+  Op1 gen_0/dout
+  Op2 delay_0/Q
+}
+
 # Create dds_compiler
 cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   DDS_CLOCK_RATE 125
@@ -91,7 +104,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   RESYNC true
 } {
   s_axis_phase_tdata concat_0/dout
-  s_axis_phase_tvalid gen_0/dout
+  s_axis_phase_tvalid or_0/Res
   aclk /pll_0/clk_out1
   aresetn slice_1/Dout
 }
@@ -119,13 +132,11 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_0 {
 }
 
 # Create c_shift_ram
-cell xilinx.com:ip:c_shift_ram:12.0 delay_0 {
+cell xilinx.com:ip:c_shift_ram:12.0 delay_1 {
   WIDTH.VALUE_SRC USER
   WIDTH 1
-  DEPTH 1024
-  SHIFTREGTYPE Variable_Length_Lossless
+  DEPTH 15
 } {
-  A slice_4/Dout
   D gen_0/dout
   CLK /pll_0/clk_out1
 }
@@ -135,6 +146,6 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   AXIS_TDATA_WIDTH 32
 } {
   s_axis_tdata mult_0/P
-  s_axis_tvalid delay_0/Q
+  s_axis_tvalid delay_1/Q
   aclk /pll_0/clk_out1
 }

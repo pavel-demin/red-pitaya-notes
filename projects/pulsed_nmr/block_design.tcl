@@ -127,7 +127,6 @@ module tx_0 {
   slice_1/Din rst_slice_0/Dout
   slice_2/Din cfg_slice_1/Dout
   slice_3/Din cfg_slice_1/Dout
-  slice_4/Din cfg_slice_1/Dout
   zeroer_0/M_AXIS dac_0/S_AXIS
 }
 
