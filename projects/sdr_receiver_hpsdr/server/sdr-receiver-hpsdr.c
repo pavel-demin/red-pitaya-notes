@@ -15,8 +15,8 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
-volatile uint32_t *rx_freq[6], *rx_rate;
-volatile uint16_t *rx_cntr[6];
+volatile uint32_t *rx_freq[6];
+volatile uint16_t *rx_rate, *rx_cntr[6];
 volatile uint8_t *rx_rst;
 volatile uint64_t *rx_data[6];
 
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
   rx_rst = ((uint8_t *)(cfg + 0));
 
-  rx_rate = ((uint32_t *)(cfg + 4));
+  rx_rate = ((uint16 *)(cfg + 4));
 
   /* set default rx sample rate */
   *rx_rate = 1000;
