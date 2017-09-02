@@ -117,9 +117,9 @@ int main ()
     while(!interrupted)
     {
       /* enter reset mode */
-      *((uint32_t *)(cfg + 0)) &= ~15;
+      *((uint16_t *)(cfg + 0)) &= ~1;
       /* set default sample rate */
-      *((uint32_t *)(cfg + 4)) = 4;
+      *((uint16_t *)(cfg + 2)) = 4;
 
       if((sockClient = accept(sockServer, NULL, NULL)) < 0)
       {
@@ -132,7 +132,7 @@ int main ()
       printf("new connection\n");
 
       /* enter normal operating mode */
-      *((uint32_t *)(cfg + 0)) |= 15;
+      *((uint16_t *)(cfg + 0)) |= 1;
 
       while(!interrupted)
       {
@@ -148,7 +148,7 @@ int main ()
     }
 
     /* enter reset mode */
-    *((uint32_t *)(cfg + 0)) &= ~15;
+    *((uint16_t *)(cfg + 0)) &= ~1;
 
     close(sockServer);
 
