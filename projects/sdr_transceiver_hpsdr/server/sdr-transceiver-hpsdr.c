@@ -1011,7 +1011,7 @@ void process_ep2(uint8_t *frame)
       }
       else
       {
-        *tx_level = (int16_t)floor(data * 128.494 + 0.5);
+        *tx_level = (int16_t)floor(data * 125.92 + 0.5);
       }
       /* configure microphone boost */
       if(i2c_codec)
