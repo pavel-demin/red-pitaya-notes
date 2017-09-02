@@ -63,7 +63,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 64
+  CFG_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -79,35 +79,14 @@ set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 64 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+  DIN_WIDTH 32 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 64 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
-} {
-  Din cfg_0/cfg_data
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 64 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
-} {
-  Din cfg_0/cfg_data
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 64 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
-} {
-  Din cfg_0/cfg_data
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 64
+  DIN_WIDTH 32 DIN_FROM 31 DIN_TO 16 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
@@ -126,23 +105,12 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
 }
 
 # Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 rate_0 {
+cell pavel-demin:user:axis_variable:1.0 rate_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_5/Dout
+  cfg_data slice_2/Dout
   aclk pll_0/clk_out1
-}
-
-# Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
-  AXIS_TDATA_WIDTH 16
-  CNTR_WIDTH 1
-  CONTINUOUS FALSE
-} {
-  S_AXIS rate_0/M_AXIS
-  cfg_data const_0/dout
-  aclk pll_0/clk_out1
-  aresetn slice_2/Dout
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create cic_compiler
@@ -159,30 +127,13 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   INPUT_DATA_WIDTH 16
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 16
+  USE_XTREME_DSP_SLICE false
   HAS_ARESETN true
 } {
   S_AXIS_DATA subset_0/M_AXIS
-  S_AXIS_CONFIG pktzr_0/M_AXIS
+  S_AXIS_CONFIG rate_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn slice_2/Dout
-}
-
-# Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1 {
-  CONST_WIDTH 9
-  CONST_VAL 511
-}
-
-# Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_1 {
-  AXIS_TDATA_WIDTH 16
-  CNTR_WIDTH 9
-  CONTINUOUS TRUE
-} {
-  S_AXIS cic_0/M_AXIS_DATA
-  cfg_data const_1/dout
-  aclk pll_0/clk_out1
-  aresetn slice_3/Dout
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create axis_dwidth_converter
@@ -191,13 +142,13 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   S_TDATA_NUM_BYTES 2
   M_TDATA_NUM_BYTES 8
 } {
-  S_AXIS pktzr_1/M_AXIS
+  S_AXIS cic_0/M_AXIS_DATA
   aclk pll_0/clk_out1
-  aresetn slice_4/Dout
+  aresetn slice_1/Dout
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_2 {
+cell xilinx.com:ip:xlconstant:1.1 const_1 {
   CONST_WIDTH 32
   CONST_VAL 503316480
 }
@@ -208,9 +159,9 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
 } {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
-  cfg_data const_2/dout
+  cfg_data const_1/dout
   aclk pll_0/clk_out1
-  aresetn slice_4/Dout
+  aresetn slice_1/Dout
 }
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
