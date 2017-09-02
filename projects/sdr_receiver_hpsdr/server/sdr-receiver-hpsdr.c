@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
   rx_rst = ((uint8_t *)(cfg + 0));
 
-  rx_rate = ((uint16 *)(cfg + 4));
+  rx_rate = ((uint16_t *)(cfg + 4));
 
   /* set default rx sample rate */
   *rx_rate = 1000;
