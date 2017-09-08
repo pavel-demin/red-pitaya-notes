@@ -214,7 +214,7 @@ void *read_handler(void *arg)
       {
         buffer[j] = *rx_data;
       }
-      memset(buffer, 0, 32);
+      memset(buffer, 0, 16);
     }
     else
     {
