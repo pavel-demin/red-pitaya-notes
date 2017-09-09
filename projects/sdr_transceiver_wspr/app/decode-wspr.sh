@@ -18,14 +18,15 @@ ALLMEPT=ALL_WSPR.TXT
 
 GPIO=$DIR/gpio-output
 
+SLEEP=$DIR/sleep-to-59
+
 date
 
 test $DIR/$CONFIG -ot $CONFIG || cp $DIR/$CONFIG $CONFIG
 
 echo "Sleeping ..."
 
-SECONDS=`date '+\`expr 58 - %-S\`.\`expr 999999999 - %-N\`'`
-sleep `eval echo $SECONDS`
+$SLEEP
 
 $GPIO 0
 sleep 1
@@ -35,7 +36,7 @@ TIMESTAMP=`date --utc +'%y%m%d_%H%M'`
 
 echo "Recording ..."
 
-killall -v $RECORDER
+killall -q $RECORDER
 $RECORDER $CONFIG
 
 echo "Decoding ..."
@@ -48,6 +49,8 @@ do
   done
   nice -n $NICE $DECODER -JC 5000 $file &
 done
+
+wait
 
 rm -f wspr_*_$TIMESTAMP.c2
 

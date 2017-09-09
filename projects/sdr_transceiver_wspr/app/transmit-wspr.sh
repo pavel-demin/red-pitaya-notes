@@ -8,22 +8,23 @@ CONFIG=transmit-wspr-message.cfg
 
 GPIO=$DIR/gpio-output
 
+SLEEP=$DIR/sleep-to-59
+
 date
 
 test $DIR/$CONFIG -ot $CONFIG || cp $DIR/$CONFIG $CONFIG
 
 echo "Sleeping ..."
 
-SECONDS=`date '+\`expr 59 - %-S\`.\`expr 999999999 - %-N\`'`
-sleep `eval echo $SECONDS`
+$SLEEP
 
 $GPIO 1
-sleep 1
+sleep 2
 
 date
 TIMESTAMP=`date --utc +'%y%m%d_%H%M'`
 
 echo "Transmitting ..."
 
-killall -v $TRANSMITTER
+killall -q $TRANSMITTER
 $TRANSMITTER $CONFIG
