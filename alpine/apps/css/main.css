@@ -1,0 +1,21 @@
+body { font-family: Calibri, Verdana, Liberation Sans, DejaVu Sans, sans-serif; background-color: #f5f5f5; max-width: 800px; line-height: 1.4; margin-left: auto; margin-right: auto; padding-bottom: 3em; }
+h1, h2, h3, h4 { font-weight: normal; }
+a { color: #bf2334; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre, code { font-family: Consolas, Menlo, Liberation Mono, DejaVu Sans Mono, monospace; background: #f5f5f5; border-radius: 0.3em }
+code { padding: 0 0.3em; white-space: nowrap; }
+pre { padding: 0.1em 0.3em; overflow-x: auto; }
+pre > code { padding: 0; background: 0; white-space: pre }
+td, th { border: 1px solid #d3d3d3; padding: 0.1em 0.3em; }
+th { text-align: left; background-color: #f5f5f5; }
+tr.even td { background-color: #f5f5f5; }
+img { max-width: 100%; }
+
+#header { color: #bf2334; padding: 0 1em; }
+#header a { color: #bf2334; text-decoration: none; }
+#logo { margin-bottom: -1.4em; }
+#menu { padding-bottom: 0.3em; text-align: right; }
+#menu a { padding-left: 1em; }
+#content { background-color: #fff; padding: 1em 1em; border-radius: 0.6em; }
+
+@media print { #header { display: none; } }

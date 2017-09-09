@@ -1,11 +1,15 @@
-
 kernel_image=uImage
 
 devicetree_image=devicetree.dtb
+
+ramdisk_image=uInitrd
 
 kernel_load_address=0x2080000
 
 devicetree_load_address=0x2000000
 
-bootcmd=mmcinfo && fatload mmc 0 ${kernel_load_address} ${kernel_image} && fatload mmc 0 ${devicetree_load_address} ${devicetree_image} && bootm ${kernel_load_address} - ${devicetree_load_address}
+ramdisk_load_address=0x3000000
 
+bootcmd=mmcinfo && fatload mmc 0 ${kernel_load_address} ${kernel_image} && fatload mmc 0 ${devicetree_load_address} ${devicetree_image} && load mmc 0 ${ramdisk_load_address} ${ramdisk_image} && bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}
+
+bootargs=console=ttyPS0,115200 earlyprintk firmware_class.path=/media/mmcblk0p1/firmware
