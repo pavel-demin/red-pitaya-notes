@@ -40,7 +40,7 @@ The [projects/sdr_transceiver/server](https://github.com/pavel-demin/red-pitaya-
 
 The [projects/sdr_transceiver/ExtIO_RedPitaya_TRX](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/ExtIO_RedPitaya_TRX) directory contains the source code of the ExtIO plug-in.
 
-The [projects/sdr_transceiver/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](http://gnuradio.org/redmine/projects/gnuradio/wiki/GNURadioCompanion).
+The [projects/sdr_transceiver/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
 
 An interface with [QSDR](http://dl2stg.de/stefan/hiqsdr/qsdr.html) is currently [being developed](https://github.com/pavel-demin/QSDR).
 

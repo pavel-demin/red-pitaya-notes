@@ -26,7 +26,7 @@ The [projects/sdr_transceiver_emb](https://github.com/pavel-demin/red-pitaya-not
 Software
 -----
 
-The [projects/sdr_transceiver_emb/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks, a few examples written in Python and a few flow graph configurations for [GNU Radio Companion](http://gnuradio.org/redmine/projects/gnuradio/wiki/GNURadioCompanion).
+The [projects/sdr_transceiver_emb/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks, a few examples written in Python and a few flow graph configurations for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
 
 Getting started
 -----
