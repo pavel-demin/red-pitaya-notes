@@ -9,7 +9,7 @@ diff -rupN old/linux-xlnx-xilinx-v2016.4/arch/arm/configs/xilinx_zynq_defconfig 
  CONFIG_MDIO_BITBANG=y
  CONFIG_INPUT_SPARSEKMAP=y
  CONFIG_INPUT_EVDEV=y
-@@ -239,3 +240,127 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
+@@ -239,3 +240,128 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=60
  CONFIG_FONTS=y
  CONFIG_FONT_8x8=y
  CONFIG_FONT_8x16=y
@@ -55,6 +55,7 @@ diff -rupN old/linux-xlnx-xilinx-v2016.4/arch/arm/configs/xilinx_zynq_defconfig 
 +CONFIG_IP_NF_NAT=y
 +CONFIG_IP_NF_TARGET_MASQUERADE=y
 +CONFIG_IP_NF_MANGLE=y
++CONFIG_SYN_COOKIES=y
 +CONFIG_TUN=y
 +CONFIG_INPUT_TOUCHSCREEN=y
 +CONFIG_OF_TOUCHSCREEN=y
