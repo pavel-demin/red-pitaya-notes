@@ -74,7 +74,7 @@ echo $alpine_url/community >> $root_dir/etc/apk/repositories
 chroot $root_dir /bin/sh <<- EOF_CHROOT
 
 apk update
-apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables dcron chrony gpsd git subversion make gcc musl-dev fftw-dev libconfig-dev curl nano
+apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables dcron chrony gpsd subversion make gcc musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget nano
 
 ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
 ln -s /etc/init.d/hostname etc/runlevels/boot/hostname
