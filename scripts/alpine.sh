@@ -124,6 +124,7 @@ make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr
 
 lbu add root
 lbu delete etc/resolv.conf
+lbu delete etc/periodic/wspr
 lbu delete root/.ash_history
 
 lbu commit -d
