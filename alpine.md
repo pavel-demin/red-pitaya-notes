@@ -33,7 +33,7 @@ Enabling wireless:
 wpa_passphrase SSID PASSPHRASE > /etc/wpa_supplicant/wpa_supplicant.conf
 
 # save configuration changes to SD card
-lbu commit
+lbu commit -d
 
 # restart WPA supplicant
 service wpa_supplicant restart
@@ -43,14 +43,14 @@ Changing password:
 {% highlight bash %}
 passwd
 
-lbu commit
+lbu commit -d
 {% endhighlight %}
 
 Installing packages:
 {% highlight bash %}
 apk add python3
 
-lbu commit
+lbu commit -d
 {% endhighlight %}
 
 Editing WSPR configuration:
