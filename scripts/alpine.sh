@@ -92,12 +92,13 @@ ln -s /etc/init.d/dmesg etc/runlevels/sysinit/dmesg
 ln -s /etc/init.d/mdev etc/runlevels/sysinit/mdev
 
 rc-update add wpa_supplicant default
-rc-update add dhcpcd default
+rc-update add avahi-daemon default
 rc-update add chronyd default
+rc-update add dhcpcd default
 rc-update add inetd default
+rc-update add local default
 rc-update add dcron default
 rc-update add sshd default
-rc-update add avahi-daemon default
 
 echo root:$passwd | chpasswd
 
