@@ -16,9 +16,11 @@ Getting started
 
  - Download [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACQTJG2DcrgOTdjrsRqY_Wla/red-pitaya-alpine-3.6-armhf-20170910.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
- - Optionally, to start one of the applications automatically at boot time copy its `start.sh` file from `apps\<application>` to the topmost directory on the SD card.
+ - Optionally, to start one of the applications automatically at boot time copy its `start.sh` file from `apps/<application>` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Applications can be started from the web interface.
+
+The default password for the `root` account is `changeme`.
 
 Useful commands
 -----
