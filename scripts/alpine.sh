@@ -74,7 +74,7 @@ echo $alpine_url/community >> $root_dir/etc/apk/repositories
 chroot $root_dir /bin/sh <<- EOF_CHROOT
 
 apk update
-apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables dcron chrony gpsd subversion make gcc musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget less nano
+apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dcron chrony gpsd subversion make gcc musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget less nano bc
 
 ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
 ln -s /etc/init.d/hostname etc/runlevels/boot/hostname
@@ -97,11 +97,25 @@ rc-update add chronyd default
 rc-update add inetd default
 rc-update add dcron default
 rc-update add sshd default
+rc-update add avahi-daemon default
 
 echo root:$passwd | chpasswd
 
 setup-hostname red-pitaya
 hostname red-pitaya
+
+cat <<- EOF_CAT >> etc/dhcpcd.conf
+
+# define static profile
+profile static_eth0
+static ip_address=192.168.1.100/24
+static routers=192.168.1.1
+static domain_name_servers=192.168.1.1
+
+# fallback to static profile on eth0
+interface eth0
+fallback static_eth0
+EOF_CAT
 
 sed -i 's/# LBU_MEDIA=.*/LBU_MEDIA=mmcblk0p1/' etc/lbu/lbu.conf
 
@@ -133,7 +147,7 @@ EOF_CHROOT
 
 cp -r $root_dir/media/mmcblk0p1/apps .
 cp -r $root_dir/media/mmcblk0p1/cache .
-cp -r $root_dir/media/mmcblk0p1/red-pitaya.apkovl.tar.gz .
+cp $root_dir/media/mmcblk0p1/red-pitaya.apkovl.tar.gz .
 
 hostname -F /etc/hostname
 
