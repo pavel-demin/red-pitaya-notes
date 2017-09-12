@@ -1,6 +1,6 @@
 {
     "name": "SDR transceiver compatible with HPSDR",
-    "version": "0.94-BUILD_NUMBER",
+    "version": "VERSION",
     "revision": "REVISION",
     "description": "SDR transceiver emulating a HPSDR transceiver with one network interface module, two receivers and one transmitter. (by Pavel Demin)"
 }
