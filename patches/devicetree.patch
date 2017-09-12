@@ -2,7 +2,7 @@
 +++ system.dts
 @@ -16,6 +16,17 @@
  	chosen {
- 		bootargs = "console=ttyPS0,115200 root=/dev/mmcblk0p2 ro rootfstype=ext4 earlyprintk rootwait";
+ 		bootargs = "console=ttyPS0,115200 earlyprintk";
  	};
 +	usb_phy0: phy0 {
 +		#phy-cells = <0>;

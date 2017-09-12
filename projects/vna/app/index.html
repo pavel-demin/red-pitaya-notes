@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Vector Network Analyzer</title>
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+<div id="header">
+<div id="logo">
+<a href="/">Back to all apps</a>
+</div>
+<div id="menu">
+<a href="https://github.com/pavel-demin/red-pitaya-notes" target="_blank">Source</a>
+<a href="https://github.com/pavel-demin/red-pitaya-notes/issues" target="_blank">Issues</a>
+</div>
+</div>
+<div id="content">
+<h1>Vector Network Analyzer</h1>
+<p>The Red Pitaya VNA application is ready.</p>
+<p>Now you can run the control program.</p>
+<p>More details about this application can be found at <a href="http://pavel-demin.github.io/red-pitaya-notes/vna/" target="_blank">this link</a>.
+<h2>Getting started with MS Windows</h2>
+<ul>
+<li>Download and unpack the <a href="https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACxA0DwC627fdsD9NH8mJPta/vna/vna-win32-20170819.zip?dl=1">control program</a>.</li>
+<li>Run the <code>vna.exe</code> program.</li>
+<li>Type in the IP address of the Red Pitaya board and press Connect button.</li>
+<li>Perform calibration and measurements.</li>
+</ul>
+<h2>Getting started with GNU/Linux</h2>
+<ul>
+<li>Install Python 3 and all the required libraries:</li>
+</ul>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5 libfreetype6-dev
+sudo pip3 install matplotlib mpldatacursor</code></pre></figure>
+<ul>
+<li>Clone the source code repository:</li>
+</ul>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git clone https://github.com/pavel-demin/red-pitaya-notes</code></pre></figure>
+<ul>
+<li>Run the control program:</li>
+</ul>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">cd red-pitaya-notes/projects/vna/client
+python3 vna.py</code></pre></figure>
+<ul>
+<li>Type in the IP address of the Red Pitaya board and press Connect button.</li>
+<li>Perform calibration and measurements.</li>
+</ul>
+</div>
+</body>
+</html>

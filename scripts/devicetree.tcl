@@ -5,7 +5,7 @@ set proc_name [lindex $argv 1]
 
 set repo_path [lindex $argv 2]
 
-set boot_args {console=ttyPS0,115200 root=/dev/mmcblk0p2 ro rootfstype=ext4 earlyprintk rootwait}
+set boot_args {console=ttyPS0,115200 earlyprintk}
 
 set hard_path tmp/$project_name.hard
 set tree_path tmp/$project_name.tree
