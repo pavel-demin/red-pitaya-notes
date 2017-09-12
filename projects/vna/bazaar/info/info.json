@@ -1,6 +1,6 @@
 {
     "name": "Vector Network Analyzer",
-    "version": "0.94-BUILD_NUMBER",
+    "version": "VERSION",
     "revision": "REVISION",
     "description": "Vector Network Analyzer. (by Pavel Demin)"
 }
