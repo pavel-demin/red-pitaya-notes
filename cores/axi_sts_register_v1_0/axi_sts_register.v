@@ -92,5 +92,11 @@ module axi_sts_register #
   assign s_axi_arready = 1'b1;
   assign s_axi_rdata = int_rdata_reg;
   assign s_axi_rvalid = int_rvalid_reg;
+  
+  // Patch for opt_design errors due to trimming of unused paths
+  assign s_axi_bresp = 2'd0;
+  assign s_axi_awready = 1'd0;
+  assign s_axi_bvalid = 1'd0;
+  assign s_axi_wready = 1'd0;
 
 endmodule
