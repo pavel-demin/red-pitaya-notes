@@ -100,6 +100,8 @@ rc-update add local default
 rc-update add dcron default
 rc-update add sshd default
 
+sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
+
 echo root:$passwd | chpasswd
 
 setup-hostname red-pitaya
