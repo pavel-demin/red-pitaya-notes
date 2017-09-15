@@ -107,19 +107,6 @@ echo root:$passwd | chpasswd
 setup-hostname red-pitaya
 hostname red-pitaya
 
-cat <<- EOF_CAT >> etc/dhcpcd.conf
-
-# define static profile
-profile static_eth0
-static ip_address=192.168.1.100/24
-static routers=192.168.1.1
-static domain_name_servers=192.168.1.1
-
-# fallback to static profile on eth0
-interface eth0
-fallback static_eth0
-EOF_CAT
-
 sed -i '^s/# LBU_MEDIA=.*/LBU_MEDIA=mmcblk0p1/' etc/lbu/lbu.conf
 
 cat <<- EOF_CAT > root/.profile
