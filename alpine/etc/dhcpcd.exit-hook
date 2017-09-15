@@ -1,5 +1,3 @@
-case "$reason" in
-BOUND|BOUND6|STATIC)
+if $if_up; then
 	chronyc online
-	;;
-esac
+fi
