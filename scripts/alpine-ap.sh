@@ -91,14 +91,18 @@ ln -s /etc/init.d/devfs etc/runlevels/sysinit/devfs
 ln -s /etc/init.d/dmesg etc/runlevels/sysinit/dmesg
 ln -s /etc/init.d/mdev etc/runlevels/sysinit/mdev
 
-rc-update add wpa_supplicant default
 rc-update add avahi-daemon default
+rc-update add iptables default
 rc-update add chronyd default
+rc-update add dnsmasq default
+rc-update add hostapd default
 rc-update add dhcpcd default
 rc-update add inetd default
 rc-update add local default
 rc-update add dcron default
 rc-update add sshd default
+
+sed -i 's/^IPFORWARD=.*/IPFORWARD="yes"/' etc/conf.d/iptables
 
 sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
@@ -107,7 +111,14 @@ echo root:$passwd | chpasswd
 setup-hostname red-pitaya
 hostname red-pitaya
 
-sed -i '^s/# LBU_MEDIA=.*/LBU_MEDIA=mmcblk0p1/' etc/lbu/lbu.conf
+cat <<- EOF_CAT >> etc/dhcpcd.conf
+
+# Static IP address for Wi-Fi access point.
+interface wlan0
+static ip_address=192.168.42.1/24
+EOF_CAT
+
+sed -i 's/^# LBU_MEDIA=.*/LBU_MEDIA=mmcblk0p1/' etc/lbu/lbu.conf
 
 cat <<- EOF_CAT > root/.profile
 alias rw='mount -o rw,remount /media/mmcblk0p1'
@@ -143,6 +154,6 @@ hostname -F /etc/hostname
 
 rm -rf $root_dir alpine-apk 
 
-zip -r red-pitaya-alpine-3.6-armhf-`date +%Y%m%d`.zip apks apps boot.bin cache devicetree.dtb firmware red-pitaya.apkovl.tar.gz uEnv.txt uImage uInitrd
+zip -r red-pitaya-alpine-3.6-armhf-`date +%Y%m%d`-ap.zip apks apps boot.bin cache devicetree.dtb firmware red-pitaya.apkovl.tar.gz uEnv.txt uImage uInitrd
 
 rm -rf apks apps cache firmware red-pitaya.apkovl.tar.gz uInitrd
