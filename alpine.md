@@ -14,7 +14,7 @@ To simplify maintenance and distribution of the pre-built applications described
 Getting started
 -----
 
- - Download [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAbWvUPrcuHcmLeEt5vLxdja/red-pitaya-alpine-3.6-armhf-20170913.zip?dl=1).
+ - Download [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADYU-1WH496VRW0cEMIFWlza/red-pitaya-alpine-3.6-armhf-20170916.zip?dl=1).
  - Copy the content of the SD card image zip file to an SD card.
  - Optionally, to start one of the applications automatically at boot time copy its `start.sh` file from `apps/<application>` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
@@ -22,21 +22,32 @@ Getting started
 
 The default password for the `root` account is `changeme`.
 
+Wi-Fi is by default configured in hotspot mode with the network name (SSID) and password both set to `RedPitaya`.
+
 Useful commands
 -----
 
 The [Alpine Wiki](http://wiki.alpinelinux.org) contains a lot of information about administrating [Alpine Linux](https://alpinelinux.org). The following is a list of some useful commands.
 
-Enabling wireless:
+Switching to client Wi-Fi mode:
 {% highlight bash %}
 # configure WPA supplicant
 wpa_passphrase SSID PASSPHRASE > /etc/wpa_supplicant/wpa_supplicant.conf
 
+# configure services for client Wi-Fi mode
+./wifi/client.sh
+
 # save configuration changes to SD card
 lbu commit -d
+{% endhighlight %}
 
-# restart WPA supplicant
-service wpa_supplicant restart
+Switching to hotspot Wi-Fi mode:
+{% highlight bash %}
+# configure services for hotspot Wi-Fi mode
+./wifi/hotspot.sh
+
+# save configuration changes to SD card
+lbu commit -d
 {% endhighlight %}
 
 Changing password:
