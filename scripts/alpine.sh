@@ -107,7 +107,7 @@ echo root:$passwd | chpasswd
 setup-hostname red-pitaya
 hostname red-pitaya
 
-sed -i '^s/# LBU_MEDIA=.*/LBU_MEDIA=mmcblk0p1/' etc/lbu/lbu.conf
+sed -i 's/^# LBU_MEDIA=.*/LBU_MEDIA=mmcblk0p1/' etc/lbu/lbu.conf
 
 cat <<- EOF_CAT > root/.profile
 alias rw='mount -o rw,remount /media/mmcblk0p1'
