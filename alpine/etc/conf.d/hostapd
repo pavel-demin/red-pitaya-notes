@@ -1,0 +1,12 @@
+# Space separated list of configuration files
+CONFIGS="/etc/hostapd/hostapd.conf"
+
+# Extra options to pass to hostapd, see hostapd(8)
+OPTIONS=""
+
+iw wlan0 info > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+  sed -i '/^driver/s/=.*/=nl80211/' $CONFIGS
+else
+  sed -i '/^driver/s/=.*/=rtl871xdrv/' $CONFIGS
+fi
