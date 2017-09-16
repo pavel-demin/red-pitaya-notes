@@ -18,6 +18,9 @@ volatile uint32_t *rx_freq, *tx_freq;
 volatile uint16_t *gpio, *rx_rate, *rx_cntr, *tx_rate, *tx_cntr;
 volatile uint8_t *rx_rst, *tx_rst;
 
+const uint32_t freq_min = 0;
+const uint32_t freq_max = 62500000;
+
 int sock_thread[4] = {-1, -1, -1, -1};
 
 void *rx_ctrl_handler(void *arg);
@@ -162,8 +165,6 @@ void *rx_ctrl_handler(void *arg)
 {
   int sock_client = sock_thread[0];
   uint32_t command, freq;
-  uint32_t freq_min = 50000;
-  uint32_t freq_max = 60000000;
 
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
@@ -186,27 +187,21 @@ void *rx_ctrl_handler(void *arg)
         switch(command & 7)
         {
           case 0:
-            freq_min = 10000;
             *rx_rate = 3125;
             break;
           case 1:
-            freq_min = 25000;
             *rx_rate = 1250;
             break;
           case 2:
-            freq_min = 50000;
             *rx_rate = 625;
             break;
           case 3:
-            freq_min = 125000;
             *rx_rate = 250;
             break;
           case 4:
-            freq_min = 250000;
             *rx_rate = 125;
             break;
           case 5:
-            freq_min = 625000;
             *rx_rate = 50;
             break;
         }
@@ -257,8 +252,6 @@ void *tx_ctrl_handler(void *arg)
 {
   int sock_client = sock_thread[2];
   uint32_t command, freq;
-  uint32_t freq_min = 50000;
-  uint32_t freq_max = 60000000;
 
   /* set PTT pin to low */
   *gpio = 0;
@@ -283,27 +276,21 @@ void *tx_ctrl_handler(void *arg)
         switch(command & 7)
         {
           case 0:
-            freq_min = 10000;
             *tx_rate = 3125;
             break;
           case 1:
-            freq_min = 25000;
             *tx_rate = 1250;
             break;
           case 2:
-            freq_min = 50000;
             *tx_rate = 625;
             break;
           case 3:
-	    freq_min = 125000;
             *tx_rate = 250;
             break;
           case 4:
-            freq_min = 250000;
             *tx_rate = 125;
             break;
           case 5:
-            freq_min = 625000;
             *tx_rate = 50;
             break;
         }
