@@ -1,0 +1,91 @@
+pkgname=hostapd-rtl871xdrv
+pkgver=2.6
+pkgrel=1
+pkgdesc="daemon for wireless software access points with rtl871xdrv patches"
+url="https://github.com/pritambaral/hostapd-rtl871xdrv"
+arch="all"
+license="custom"
+depends=
+makedepends="libressl-dev libnl3-dev linux-headers"
+install=
+subpackages="$pkgname-doc"
+patches="
+	CVE-2012-4445.patch
+	libressl-compat.patch
+	rtlxdrv.patch
+	"
+
+source="https://w1.fi/releases/hostapd-$pkgver.tar.gz
+	$patches
+	hostapd.initd
+	hostapd.confd"
+
+builddir="$srcdir"/hostapd-$pkgver/hostapd
+
+prepare() {
+	local conf="$builddir/.config"
+
+	cd "$builddir"/..
+	for i in $patches; do
+		msg $i
+		patch -p1 -i "$srcdir"/$i || return 1
+	done
+
+	cd "$builddir"
+	sed -i -e "s:/etc/hostapd:/etc/hostapd/hostapd:g" \
+		hostapd.conf
+
+	# toolchain setup
+	sed \
+		-e '/^#CONFIG_DRIVER_NL80211=y/s/^#//' \
+		-e '/^#CONFIG_RADIUS_SERVER=y/s/^#//' \
+		-e '/^#CONFIG_DRIVER_WIRED=y/s/^#//' \
+		-e '/^#CONFIG_DRIVER_NONE=y/s/^#//' \
+		-e '/^#CONFIG_IEEE80211N=y/s/^#//' \
+		-e '/^#CONFIG_IEEE80211R=y/s/^#//' \
+		-e '/^#CONFIG_IEEE80211AC=y/s/^#//' \
+		-e '/^#CONFIG_FULL_DYNAMIC_VLAN=y/s/^#//' \
+		-e '/^#CONFIG_LIBNL32=y/s/^#//' \
+		-e '/^#CONFIG_ACS=y/s/^#//' \
+		defconfig >> .config
+	echo "CONFIG_DRIVER_RTW=y" >> .config
+	echo "CC ?= ${CC:-gcc}" >> .config
+	echo "CFLAGS += -I/usr/include/libnl3" >> .config
+	echo "LIBS += -L/usr/lib" >> .config
+}
+
+build() {
+	cd "$builddir"
+	make || return 1
+	msg "nt_password_hash"
+	make nt_password_hash || return 1
+}
+
+package() {
+	cd "$builddir"
+	install -d "$pkgdir"/etc/hostapd
+	install hostapd.conf hostapd.accept hostapd.deny hostapd.eap_user \
+		hostapd.radius_clients hostapd.sim_db hostapd.wpa_psk \
+		"$pkgdir"/etc/hostapd/ || return 1
+
+	install -Dm755 hostapd "$pkgdir"/usr/sbin/hostapd \
+		&& install -Dm755 hostapd_cli "$pkgdir"/usr/bin/hostapd_cli \
+		&& install -Dm755 nt_password_hash \
+			"$pkgdir"/usr/bin/nt_password_hash \
+		&& install -Dm755 "$srcdir"/hostapd.initd \
+			"$pkgdir"/etc/init.d/hostapd \
+		&& install -Dm644 "$srcdir"/hostapd.confd \
+			"$pkgdir"/etc/conf.d/hostapd \
+		&& install -Dm644 hostapd.8 \
+			"$pkgdir"/usr/share/man/man8/hostapd.8 \
+		&& install -Dm644 hostapd_cli.1 \
+			"$pkgdir"/usr/share/man/man1/hostapd_cli \
+		|| return 1
+}
+
+sha512sums="e60baaa092786250b8de9935f5417c7626f5d749210cce9f83d776b65c19fc92a8141f41923389f05c16295d482a15ae8d8b744f4667425040c99e3c2f5b1bda  hostapd-2.6.tar.gz
+619acce84516dead1e03e5da71657ea4c4b6f3ca8271574409773aeb316cbddc88095b50320804f457f001f4f3fe83053e660c008d8409f59bb4d3bfe058b601  CVE-2012-4445.patch
+e6428a7fde025550e8d8252a04dd3a9009f95b6cab064c1f76bf4e5c321bc6acba9a21511e25f996fe98f6c9f1c057bc5af7aa9e6dd19e0bbc537b2be67d494f  libressl-compat.patch
+b398fce88fdb541e6e034939dd530e4b3e8043c2a5ecb4dc94dabb794148cbe6ee4c0e2a8caf8ef2bd6c4f4d0499133f2849c90455174918d33ac86c0e591915  rtlxdrv.patch
+b54b7c6aa17e5cb86a9b354a516eb2dbefb544df18471339c61d82776de447011a2ac290bea1e6c8beae4b6cebefafb8174683ea42fb773e9e8fe6c679f33ba3  hostapd.initd
+0882263bbd7c0b05bf51f51d66e11a23a0b8ca7da2a3b8a30166d2c5f044c0c134e6bccb1d02c9e81819ca8fb0c0fb55c7121a08fe7233ccaa73ff8ab9a238fe  hostapd.confd"

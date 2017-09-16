@@ -3,22 +3,26 @@ alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.6
 uboot_tar=alpine-uboot-3.6.2-armhf.tar.gz
 uboot_url=$alpine_url/releases/armhf/$uboot_tar
 
-apk_tar=apk-tools-static-2.7.2-r0.apk
-apk_url=$alpine_url/main/armhf/$apk_tar
+tools_tar=apk-tools-static-2.7.2-r0.apk
+tools_url=$alpine_url/main/armhf/$tools_tar
 
 firmware_tar=linux-firmware-20170330-r1.apk
 firmware_url=$alpine_url/main/armhf/$firmware_tar
 
+apks_tar=apks.tgz
+apks_url=https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADaQEPEtSBiYXU814k4jDR4a/apks.tgz?dl=1
+
 passwd=changeme
 
-test -f $uboot_tar || curl -LO $uboot_url
-test -f $apk_tar || curl -LO $apk_url
-test -f $firmware_tar || curl -LO $firmware_url
-
-mkdir apks
-touch apks/.boot_repository
+test -f $uboot_tar || curl -L $uboot_url -o $uboot_tar
+test -f $tools_tar || curl -L $tools_url -o $tools_tar
+test -f $firmware_tar || curl -L $firmware_url -o $firmware_tar
+test -f $apks_tar || curl -L $apks_url -o $apks_tar
 
 tar -zxf $firmware_tar --strip-components=1 --wildcards lib/firmware/ar* lib/firmware/ath* lib/firmware/brcm* lib/firmware/ht* lib/firmware/rt* lib/firmware/RT*
+
+tar -zxf $apks_tar
+touch apks/.boot_repository
 
 mkdir alpine-uboot
 tar -zxf $uboot_tar -C alpine-uboot
@@ -55,6 +59,8 @@ ln -s /media/mmcblk0p1/cache $root_dir/etc/apk/cache
 
 cp -r alpine/etc $root_dir/
 cp -r alpine/apps $root_dir/media/mmcblk0p1/
+
+cp -r apks $root_dir/media/mmcblk0p1/
  
 for project in led_blinker sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_hpsdr sdr_transceiver_wspr mcpha vna
 do
@@ -68,13 +74,14 @@ cp -r alpine-apk/sbin $root_dir/
 
 chroot $root_dir /sbin/apk.static --repository $alpine_url/main --update-cache --allow-untrusted --initdb add alpine-base
 
-echo $alpine_url/main > $root_dir/etc/apk/repositories
+echo /media/mmcblk0p1/apks > $root_dir/etc/apk/repositories
+echo $alpine_url/main >> $root_dir/etc/apk/repositories
 echo $alpine_url/community >> $root_dir/etc/apk/repositories
 
 chroot $root_dir /bin/sh <<- EOF_CHROOT
 
 apk update
-apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dcron chrony gpsd subversion make gcc musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget less nano bc
+apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd-rtl871xdrv iptables avahi dcron chrony gpsd subversion make gcc musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget less nano bc
 
 ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
 ln -s /etc/init.d/hostname etc/runlevels/boot/hostname
@@ -91,7 +98,6 @@ ln -s /etc/init.d/devfs etc/runlevels/sysinit/devfs
 ln -s /etc/init.d/dmesg etc/runlevels/sysinit/dmesg
 ln -s /etc/init.d/mdev etc/runlevels/sysinit/mdev
 
-rc-update add wpa_supplicant default
 rc-update add avahi-daemon default
 rc-update add chronyd default
 rc-update add dhcpcd default
@@ -99,6 +105,15 @@ rc-update add inetd default
 rc-update add local default
 rc-update add dcron default
 rc-update add sshd default
+
+mkdir -p etc/runlevels/wifi
+rc-update -s add default wifi
+
+rc-update add iptables wifi
+rc-update add dnsmasq wifi
+rc-update add hostapd wifi
+
+sed -i 's/^SAVE_ON_STOP=.*/SAVE_ON_STOP="no"/;s/^IPFORWARD=.*/IPFORWARD="yes"/' etc/conf.d/iptables
 
 sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
@@ -115,6 +130,7 @@ alias ro='mount -o ro,remount /media/mmcblk0p1'
 EOF_CAT
 
 ln -s /media/mmcblk0p1/apps root/apps
+ln -s /media/mmcblk0p1/wifi root/wifi
 
 for project in server sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_hpsdr mcpha vna
 do
@@ -139,10 +155,12 @@ cp -r $root_dir/media/mmcblk0p1/apps .
 cp -r $root_dir/media/mmcblk0p1/cache .
 cp $root_dir/media/mmcblk0p1/red-pitaya.apkovl.tar.gz .
 
+cp -r alpine/wifi .
+
 hostname -F /etc/hostname
 
 rm -rf $root_dir alpine-apk 
 
-zip -r red-pitaya-alpine-3.6-armhf-`date +%Y%m%d`.zip apks apps boot.bin cache devicetree.dtb firmware red-pitaya.apkovl.tar.gz uEnv.txt uImage uInitrd
+zip -r red-pitaya-alpine-3.6-armhf-`date +%Y%m%d`.zip apks apps boot.bin cache devicetree.dtb firmware red-pitaya.apkovl.tar.gz uEnv.txt uImage uInitrd wifi
 
-rm -rf apks apps cache firmware red-pitaya.apkovl.tar.gz uInitrd
+rm -rf apks apps cache firmware red-pitaya.apkovl.tar.gz uInitrd wifi
