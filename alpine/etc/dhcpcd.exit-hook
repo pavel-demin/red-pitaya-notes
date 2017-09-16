@@ -1,7 +1,7 @@
 if [ "$interface" = wlan0 ]; then
   case "$reason" in
-    PREINIT) (sleep 3; openrc wifi) & ;;
-    DEPARTED) (sleep 3; openrc default) & ;;
+    PREINIT) (sleep 3; openrc wifi > /dev/null 2>&1) & ;;
+    DEPARTED) (sleep 3; openrc default > /dev/null 2>&1) & ;;
   esac
 fi
 
