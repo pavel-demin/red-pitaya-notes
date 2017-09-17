@@ -50,8 +50,8 @@ LINUX_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -
 UBOOT_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 ARMHF_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 
-RTL_TAR = tmp/rtl8192cu.tgz
-RTL_URL = https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABNwuLz3dPHK06vEDHmG8mfa/rtl8192cu/rtl8192cu.tgz?dl=1
+RTL_TAR = tmp/rtl8192cu-fixes-master.tar.gz
+RTL_URL = https://github.com/pvaret/rtl8192cu-fixes/archive/master.tar.gz
 
 .PRECIOUS: tmp/cores/% tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system.dts
 
@@ -89,7 +89,8 @@ $(UBOOT_DIR): $(UBOOT_TAR)
 $(LINUX_DIR): $(LINUX_TAR) $(RTL_TAR)
 	mkdir -p $@
 	tar -zxf $< --strip-components=1 --directory=$@
-	tar -zxf $(RTL_TAR) --directory=$@/drivers/net/wireless/realtek
+	mkdir -p $@/drivers/net/wireless/realtek/rtl8192cu
+	tar -zxf $(RTL_TAR) --strip-components=1 --directory=$@/drivers/net/wireless/realtek/rtl8192cu
 	patch -d tmp -p 0 < patches/linux-xlnx-$(LINUX_TAG).patch
 	cp patches/linux-lantiq.c $@/drivers/net/phy/lantiq.c
 
