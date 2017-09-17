@@ -86,6 +86,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA fp_0/M_AXIS_RESULT
@@ -151,6 +152,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_0 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
+  HAS_DOUT_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M00_AXIS
@@ -174,6 +176,7 @@ cell xilinx.com:ip:cic_compiler:4.0 cic_1 {
   QUANTIZATION Truncation
   OUTPUT_DATA_WIDTH 24
   USE_XTREME_DSP_SLICE false
+  HAS_DOUT_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA bcast_0/M01_AXIS
@@ -207,6 +210,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   SPURIOUS_FREE_DYNAMIC_RANGE 138
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
+  HAS_TREADY true
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
   OUTPUT_WIDTH 24
@@ -217,13 +221,16 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
+cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {
+  HAS_TREADY TRUE
+} {
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
 # Create cmpy
 cell xilinx.com:ip:cmpy:6.0 mult_0 {
+  FLOWCONTROL Blocking
   APORTWIDTH.VALUE_SRC USER
   BPORTWIDTH.VALUE_SRC USER
   APORTWIDTH 24
@@ -235,4 +242,14 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   S_AXIS_B dds_0/M_AXIS_DATA
   S_AXIS_CTRL lfsr_0/M_AXIS
   aclk /pll_0/clk_out1
+}
+
+# Create axis_data_fifo
+cell xilinx.com:ip:axis_data_fifo:1.1 fifo_1 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 2
+} {
+  S_AXIS mult_0/M_AXIS_DOUT
+  s_axis_aclk /pll_0/clk_out1
+  s_axis_aresetn /rst_0/peripheral_aresetn
 }
