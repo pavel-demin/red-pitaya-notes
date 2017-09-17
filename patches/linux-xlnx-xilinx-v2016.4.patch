@@ -229,3 +229,16 @@ diff -rupN old/linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/Makefile l
 -obj-$(CONFIG_RTL8XXXU)		+= rtl8xxxu/
 +obj-$(CONFIG_RTL8192CU)		+= rtl8192cu/
  
+diff -rupN old/linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig
+--- old/linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig	1970-01-01 01:00:00.000000000 +0100
++++ linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig
+@@ -0,0 +1,9 @@
++config RTL8192CU
++	tristate "Realtek 8192C USB WiFi"
++	depends on MAC80211 && USB
++	select CFG80211_WEXT
++	select WIRELESS_EXT
++	select WEXT_PRIV
++	---help---
++	  This option adds the Realtek RTL8192CU USB device such as Edimax EW-7811Un.
++
