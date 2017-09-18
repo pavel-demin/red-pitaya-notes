@@ -128,7 +128,7 @@ module trx_0 {
 } {
   out_slice_0/Dout exp_p_tri_io
   rx_0/mult_0/S_AXIS_A bcast_0/M00_AXIS
-  tx_0/fifo_1/M_AXIS comb_0/S00_AXIS
+  tx_0/mult_0/M_AXIS_DOUT comb_0/S00_AXIS
 }
 
 # Create all required interconnections
@@ -178,7 +178,7 @@ module trx_1 {
 } {
   out_slice_0/Dout exp_n_tri_io
   rx_0/mult_0/S_AXIS_A bcast_0/M01_AXIS
-  tx_0/fifo_1/M_AXIS comb_0/S01_AXIS
+  tx_0/mult_0/M_AXIS_DOUT comb_0/S01_AXIS
 }
 
 # Create all required interconnections
