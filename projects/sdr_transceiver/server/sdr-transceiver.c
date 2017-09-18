@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
     tx_ctrl_handler,
     tx_data_handler
   };
-  volatile uint32_t *slcr;
   volatile void *cfg, *sts;
   char *end;
   struct sockaddr_in addr;
@@ -63,8 +62,6 @@ int main(int argc, char *argv[])
     perror("open");
     return EXIT_FAILURE;
   }
-
-  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
 
   switch(number)
   {
@@ -103,11 +100,13 @@ int main(int argc, char *argv[])
 
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *rx_sync = 0;
   /* set default rx sample rate */
   *rx_rate = 625;
 
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *tx_sync = 0;
   /* set default tx sample rate */
   *tx_rate = 625;
 
@@ -170,6 +169,7 @@ void *rx_ctrl_handler(void *arg)
 
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *rx_sync = 0;
   /* set default rx sample rate */
   *rx_rate = 625;
 
@@ -214,6 +214,7 @@ void *rx_ctrl_handler(void *arg)
 
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *rx_sync = 0;
   /* set default rx sample rate */
   *rx_rate = 625;
 
@@ -260,6 +261,7 @@ void *tx_ctrl_handler(void *arg)
   *gpio = 0;
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *tx_sync = 0;
   /* set default tx sample rate */
   *tx_rate = 625;
 
@@ -314,6 +316,7 @@ void *tx_ctrl_handler(void *arg)
   *gpio = 0;
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *tx_sync = 0;
   /* set default tx sample rate */
   *tx_rate = 625;
 
