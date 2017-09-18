@@ -61,6 +61,8 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   aresetn rst_0/peripheral_aresetn
 }
 
+# DAC
+
 # Create axis_combiner
 cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
@@ -82,6 +84,8 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   dac_wrt dac_wrt_o
   dac_dat dac_dat_o
 }
+
+# DNA
 
 # Create dna_reader
 cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
@@ -117,11 +121,15 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
 set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
 
+# GPIO
+
 # Delete input/output port
 delete_bd_objs [get_bd_ports exp_p_tri_io]
 
 # Create output port
 create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
+
+# TRX
 
 module trx_0 {
   source projects/sdr_transceiver/trx.tcl
