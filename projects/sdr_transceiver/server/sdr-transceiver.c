@@ -16,7 +16,7 @@
 volatile uint64_t *rx_data, *tx_data;
 volatile uint32_t *rx_freq, *tx_freq;
 volatile uint16_t *gpio, *rx_rate, *rx_cntr, *tx_rate, *tx_cntr;
-volatile uint8_t *rx_rst, *tx_rst;
+volatile uint8_t *rx_rst, *rx_sync, *tx_rst, *tx_sync;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 62500000;
@@ -88,12 +88,14 @@ int main(int argc, char *argv[])
 
   rx_rst = ((uint8_t *)(cfg + 0));
   rx_freq = ((uint32_t *)(cfg + 4));
-  rx_rate = ((uint16_t *)(cfg + 8));
+  rx_sync = ((uint8_t *)(cfg + 8));
+  rx_rate = ((uint16_t *)(cfg + 10));
   rx_cntr = ((uint16_t *)(sts + 0));
 
   tx_rst = ((uint8_t *)(cfg + 1));
   tx_freq = ((uint32_t *)(cfg + 12));
-  tx_rate = ((uint16_t *)(cfg + 16));
+  tx_sync = ((uint8_t *)(cfg + 16));
+  tx_rate = ((uint16_t *)(cfg + 18));
   tx_cntr = ((uint16_t *)(sts + 2));
 
   /* set PTT pin to low */
@@ -181,6 +183,7 @@ void *rx_ctrl_handler(void *arg)
         freq = command & 0xfffffff;
         if(freq < freq_min || freq > freq_max) continue;
         *rx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+        *rx_sync = freq > 0 ? 0 : 1;
         break;
       case 1:
         /* set rx sample rate */
@@ -270,6 +273,7 @@ void *tx_ctrl_handler(void *arg)
         freq = command & 0xfffffff;
         if(freq < freq_min || freq > freq_max) continue;
         *tx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+        *tx_sync = freq > 0 ? 0 : 1;
         break;
       case 1:
         /* set tx sample rate */

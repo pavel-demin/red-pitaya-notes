@@ -5,12 +5,12 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
+  DIN_WIDTH 64 DIN_FROM 39 DIN_TO 0 DOUT_WIDTH 40
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
 }
 
 # Create axi_axis_writer
@@ -86,6 +86,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA fp_0/M_AXIS_RESULT
@@ -195,7 +196,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 
 # Create axis_constant
 cell pavel-demin:user:axis_constant:1.0 phase_0 {
-  AXIS_TDATA_WIDTH 32
+  AXIS_TDATA_WIDTH 40
 } {
   cfg_data slice_1/Dout
   aclk /pll_0/clk_out1
@@ -211,6 +212,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   PHASE_WIDTH 30
   OUTPUT_WIDTH 24
   DSP48_USE Minimal
+  RESYNC true
 } {
   S_AXIS_PHASE phase_0/M_AXIS
   aclk /pll_0/clk_out1
