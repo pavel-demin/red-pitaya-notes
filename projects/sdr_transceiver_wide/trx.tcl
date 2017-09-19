@@ -47,6 +47,8 @@ module rx_0 {
   slice_0/Din rst_slice_0/Dout
   slice_1/Din cfg_slice_0/Dout
   slice_2/Din cfg_slice_0/Dout
+  slice_3/Din cfg_slice_0/Dout
+  slice_4/Din cfg_slice_0/Dout
 }
 
 module tx_0 {
@@ -55,6 +57,8 @@ module tx_0 {
   slice_0/Din rst_slice_1/Dout
   slice_1/Din cfg_slice_1/Dout
   slice_2/Din cfg_slice_1/Dout
+  slice_3/Din cfg_slice_1/Dout
+  slice_4/Din cfg_slice_1/Dout
 }
 
 # Create xlconcat

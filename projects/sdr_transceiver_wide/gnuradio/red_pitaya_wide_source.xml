@@ -27,11 +27,13 @@
         port=$port,
         freq=$freq,
         rate=$rate,
+        mask=$mask,
         corr=$corr
 )
   </make>
   <callback>set_freq($freq, $corr)</callback>
   <callback>set_rate($rate)</callback>
+  <callback>set_mask($mask)</callback>
   <param>
     <name>Address</name>
     <key>addr</key>
@@ -54,6 +56,12 @@
     <name>Sample Rate</name>
     <key>rate</key>
     <value>100000</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>IQ Bitmask</name>
+    <key>mask</key>
+    <value>1</value>
     <type>int</type>
   </param>
   <param>

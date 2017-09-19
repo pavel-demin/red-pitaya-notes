@@ -272,7 +272,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 287)</value>
+      <value>(8, 312)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -306,6 +306,10 @@
       <value>rx_samp_rate</value>
     </param>
     <param>
+      <key>mask</key>
+      <value>1</value>
+    </param>
+    <param>
       <key>corr</key>
       <value>0</value>
     </param>
@@ -327,7 +331,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 175)</value>
+      <value>(8, 168)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -582,7 +586,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 181)</value>
+      <value>(248, 184)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -616,6 +620,10 @@
       <value>tx_samp_rate</value>
     </param>
     <param>
+      <key>mask</key>
+      <value>1</value>
+    </param>
+    <param>
       <key>corr</key>
       <value>0</value>
     </param>
@@ -633,7 +641,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 281)</value>
+      <value>(248, 296)</value>
     </param>
     <param>
       <key>_rotation</key>
