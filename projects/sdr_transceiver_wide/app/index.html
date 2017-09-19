@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Wideband SDR transceiver</title>
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+<div id="header">
+<div id="logo">
+<a href="/">Back to all apps</a>
+</div>
+<div id="menu">
+<a href="https://github.com/pavel-demin/red-pitaya-notes" target="_blank">Source</a>
+<a href="https://github.com/pavel-demin/red-pitaya-notes/issues" target="_blank">Issues</a>
+</div>
+</div>
+<div id="content">
+<h1>Wideband SDR transceiver</h1>
+<p>The Red Pitaya SDR transceiver is ready.</p>
+<p>Now you can start experimenting with GNU Radio.</p>
+<p>More details about this application can be found at <a href="http://pavel-demin.github.io/red-pitaya-notes/sdr-transceiver-wide/" target="_blank">this link</a>.
+<h2>Getting started with GNU Radio</h2>
+<ul>
+<li>Connect an antenna to the IN1 connector on the Red Pitaya board.</li>
+<li>Install <a href="http://gnuradio.org" target="_blank">GNU Radio</a>:</li>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo apt-get install gnuradio python-numpy python-gtk2</code></pre></div>
+<li>Clone the Red Pitaya SDR transceiver source code repository:</li>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">git clone https://github.com/pavel-demin/red-pitaya-notes</code></pre></div>
+<li>Run <a href="https://wiki.gnuradio.org/index.php/GNURadioCompanion" target="_blank">GNU Radio Companion</a> and open a flow graph:</li>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">cd red-pitaya-notes/projects/sdr_transceiver_wide/gnuradio
+export GRC_BLOCKS_PATH=.
+gnuradio-companion trx_wide_template.grc</code></pre></div>
+</ul>
+</div>
+</body>
+</html>
