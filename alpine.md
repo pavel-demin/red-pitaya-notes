@@ -26,7 +26,7 @@ Wi-Fi is by default configured in hotspot mode with the network name (SSID) and 
 
 From systems with enabled DNS Service Discovery (DNS-SD), Red Pitaya can be accessed as `rp-f0xxxx.local`, where `f0xxxx` are the last 6 characters from the MAC address written on the Ethernet connector.
 
-In the local networks with enabled local DNS, Red Pitaya can be also accessed as `rp-f0xxxx`.
+In the local networks with enabled local DNS, Red Pitaya can also be accessed as `rp-f0xxxx`.
 
 Useful commands
 -----
