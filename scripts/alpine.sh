@@ -62,7 +62,7 @@ cp -r alpine/apps $root_dir/media/mmcblk0p1/
 
 cp -r apks $root_dir/media/mmcblk0p1/
  
-for project in led_blinker sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_hpsdr sdr_transceiver_wspr mcpha vna
+for project in led_blinker sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_hpsdr sdr_transceiver_wide sdr_transceiver_wspr mcpha vna
 do
   mkdir -p $root_dir/media/mmcblk0p1/apps/$project
   cp projects/$project/server/* $root_dir/media/mmcblk0p1/apps/$project/
@@ -132,7 +132,7 @@ EOF_CAT
 ln -s /media/mmcblk0p1/apps root/apps
 ln -s /media/mmcblk0p1/wifi root/wifi
 
-for project in server sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_hpsdr mcpha vna
+for project in server sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_hpsdr sdr_transceiver_wide mcpha vna
 do
   make -C /media/mmcblk0p1/apps/\$project clean
   make -C /media/mmcblk0p1/apps/\$project
