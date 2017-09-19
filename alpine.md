@@ -22,7 +22,11 @@ Getting started
 
 The default password for the `root` account is `changeme`.
 
-Wi-Fi is by default configured in hotspot mode with the network name (SSID) and password both set to `RedPitaya`.
+Wi-Fi is by default configured in hotspot mode with the network name (SSID) and password both set to `RedPitaya`. When in hotspot mode, the IP address of Red Pitaya is [192.168.42.1](http://192.168.42.1).
+
+From systems with enabled DNS Service Discovery (DNS-SD), Red Pitaya can be accessed as `rp-f0xxxx.local`, where `f0xxxx` are the last 6 characters from the MAC address written on the Ethernet connector.
+
+In the local networks with enabled local DNS, Red Pitaya can be also accessed as `rp-f0xxxx`.
 
 Useful commands
 -----
