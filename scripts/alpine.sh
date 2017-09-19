@@ -37,6 +37,7 @@ gzip -dc ../alpine-uboot/boot/initramfs-hardened | cpio -vid
 rm -rf etc/modprobe.d
 rm -rf lib/firmware
 rm -rf lib/modules
+patch -p 0 < ../patches/alpine-init.patch
 find . | sort | cpio --quiet -o -H newc | gzip -9 > ../initrd.gz
 
 cd ..
