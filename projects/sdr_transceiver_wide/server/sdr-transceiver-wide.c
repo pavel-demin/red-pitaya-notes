@@ -15,7 +15,7 @@
 volatile uint64_t *rx_data, *tx_data;
 volatile uint32_t *rx_freq, *tx_freq;
 volatile uint16_t *gpio, *rx_rate, *rx_cntr, *tx_rate, *tx_cntr;
-volatile uint8_t *rx_rst, *tx_rst;
+volatile uint8_t *rx_rst, *rx_sync, *rx_mask, *tx_rst, *tx_sync, *tx_mask;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 62500000;
@@ -39,9 +39,7 @@ int main(int argc, char *argv[])
     tx_ctrl_handler,
     tx_data_handler
   };
-  volatile uint32_t *slcr;
   volatile void *cfg, *sts;
-  char *end;
   struct sockaddr_in addr;
   uint16_t port;
   uint32_t command;
@@ -55,9 +53,8 @@ int main(int argc, char *argv[])
   }
 
   port = 1001;
-  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   rx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
@@ -65,12 +62,16 @@ int main(int argc, char *argv[])
 
   rx_rst = ((uint8_t *)(cfg + 0));
   rx_freq = ((uint32_t *)(cfg + 4));
-  rx_rate = ((uint16_t *)(cfg + 8));
+  rx_sync = ((uint8_t *)(cfg + 8));
+  rx_mask = ((uint8_t *)(cfg + 9));
+  rx_rate = ((uint16_t *)(cfg + 10));
   rx_cntr = ((uint16_t *)(sts + 0));
 
   tx_rst = ((uint8_t *)(cfg + 1));
   tx_freq = ((uint32_t *)(cfg + 12));
-  tx_rate = ((uint16_t *)(cfg + 16));
+  tx_sync = ((uint8_t *)(cfg + 16));
+  tx_mask = ((uint8_t *)(cfg + 17));
+  tx_rate = ((uint16_t *)(cfg + 18));
   tx_cntr = ((uint16_t *)(sts + 2));
 
   /* set PTT pin to low */
@@ -78,11 +79,17 @@ int main(int argc, char *argv[])
 
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *rx_sync = 0;
+  /* set default rx mask */
+  *rx_mask = 1;
   /* set default rx sample rate */
   *rx_rate = 625;
 
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *tx_sync = 0;
+  /* set default tx mask */
+  *tx_mask = 1;
   /* set default tx sample rate */
   *tx_rate = 625;
 
@@ -145,6 +152,9 @@ void *rx_ctrl_handler(void *arg)
 
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *rx_sync = 0;
+  /* set default rx mask */
+  *rx_mask = 1;
   /* set default rx sample rate */
   *rx_rate = 625;
 
@@ -158,6 +168,7 @@ void *rx_ctrl_handler(void *arg)
         freq = command & 0xfffffff;
         if(freq < freq_min || freq > freq_max) continue;
         *rx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+        *rx_sync = freq > 0 ? 0 : 1;
         break;
       case 1:
         /* set rx sample rate */
@@ -186,11 +197,18 @@ void *rx_ctrl_handler(void *arg)
             break;
         }
         break;
+      case 2:
+        /* set rx mask */
+        *rx_mask = command & 3;
+        break;
     }
   }
 
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *rx_sync = 0;
+  /* set default rx mask */
+  *rx_mask = 1;
   /* set default rx sample rate */
   *rx_rate = 625;
 
@@ -237,6 +255,9 @@ void *tx_ctrl_handler(void *arg)
   *gpio = 0;
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *tx_sync = 0;
+  /* set default tx mask */
+  *tx_mask = 1;
   /* set default tx sample rate */
   *tx_rate = 625;
 
@@ -250,6 +271,7 @@ void *tx_ctrl_handler(void *arg)
         freq = command & 0xfffffff;
         if(freq < freq_min || freq > freq_max) continue;
         *tx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+        *tx_sync = freq > 0 ? 0 : 1;
         break;
       case 1:
         /* set tx sample rate */
@@ -279,12 +301,11 @@ void *tx_ctrl_handler(void *arg)
         }
         break;
       case 2:
-        /* set PTT pin to high */
-        *gpio = 1;
-        break;
+        /* set tx mask */
+        *tx_mask = command & 3;
       case 3:
-        /* set PTT pin to low */
-        *gpio = 0;
+        /* set PTT pin */
+        *gpio = command & 1;
         break;
     }
   }
@@ -293,6 +314,9 @@ void *tx_ctrl_handler(void *arg)
   *gpio = 0;
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *tx_sync = 0;
+  /* set default tx mask */
+  *tx_mask = 1;
   /* set default tx sample rate */
   *tx_rate = 625;
 

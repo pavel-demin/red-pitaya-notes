@@ -28,7 +28,7 @@ class source(gr.hier_block2):
 
   rates = {20000:0, 50000:1, 100000:2, 250000:3, 500000:4, 1250000:5, 2500000:6}
 
-  def __init__(self, addr, port, freq, rate, corr):
+  def __init__(self, addr, port, freq, rate, mask, corr):
     gr.hier_block2.__init__(
       self,
       name = "red_pitaya_source",
@@ -45,6 +45,7 @@ class source(gr.hier_block2):
     self.connect(blocks.file_descriptor_source(gr.sizeof_gr_complex, fd), self)
     self.set_freq(freq, corr)
     self.set_rate(rate)
+    self.set_mask(mask)
 
   def set_freq(self, freq, corr):
     self.ctrl_sock.send(struct.pack('<I', 0<<28 | int((1.0 + 1e-6 * corr) * freq)))
@@ -56,12 +57,15 @@ class source(gr.hier_block2):
     else:
       raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k, 1250k, 2500k")
 
+  def set_mask(self, mask):
+    self.ctrl_sock.send(struct.pack('<I', 2<<28 | mask))
+
 class sink(gr.hier_block2):
   '''Red Pitaya Wide Sink'''
 
   rates = {20000:0, 50000:1, 100000:2, 250000:3, 500000:4, 1250000:5, 2500000:6}
 
-  def __init__(self, addr, port, freq, rate, corr, ptt):
+  def __init__(self, addr, port, freq, rate, mask, corr, ptt):
     gr.hier_block2.__init__(
       self,
       name = "red_pitaya_sink",
@@ -79,13 +83,14 @@ class sink(gr.hier_block2):
     self.file_sink = blocks.file_descriptor_sink(gr.sizeof_gr_complex, fd)
     self.set_freq(freq, corr)
     self.set_rate(rate)
+    self.set_mask(mask)
     if ptt:
       self.ptt = True
-      self.ctrl_sock.send(struct.pack('<I', 2<<28))
+      self.ctrl_sock.send(struct.pack('<I', 3<<28 | 1))
       self.connect(self, self.file_sink)
     else:
       self.ptt = False
-      self.ctrl_sock.send(struct.pack('<I', 3<<28))
+      self.ctrl_sock.send(struct.pack('<I', 3<<28 | 0))
       self.connect(self, self.null_sink)
 
   def set_freq(self, freq, corr):
@@ -98,17 +103,20 @@ class sink(gr.hier_block2):
     else:
       raise ValueError("acceptable sample rates are 20k, 50k, 100k, 250k, 500k, 1250k, 2500k")
 
+  def set_mask(self, mask):
+    self.ctrl_sock.send(struct.pack('<I', 2<<28 | mask))
+
   def set_ptt(self, ptt):
     if ptt and not self.ptt:
       self.ptt = True
-      self.ctrl_sock.send(struct.pack('<I', 2<<28))
+      self.ctrl_sock.send(struct.pack('<I', 3<<28 | 1))
       self.lock()
       self.disconnect(self, self.null_sink)
       self.connect(self, self.file_sink)
       self.unlock()
     elif not ptt and self.ptt:
       self.ptt = False
-      self.ctrl_sock.send(struct.pack('<I', 3<<28))
+      self.ctrl_sock.send(struct.pack('<I', 3<<28 | 0))
       self.lock()
       self.disconnect(self, self.file_sink)
       self.connect(self, self.null_sink)
