@@ -139,7 +139,6 @@ for {set i 0} {$i <= 7} {incr i} {
     QUANTIZATION Truncation
     OUTPUT_DATA_WIDTH 24
     USE_XTREME_DSP_SLICE false
-    HAS_DOUT_TREADY true
     HAS_ARESETN true
   } {
     s_axis_data_tdata mult_$i/P
