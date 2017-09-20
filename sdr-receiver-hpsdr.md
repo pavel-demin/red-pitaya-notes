@@ -56,8 +56,9 @@ This SDR receiver should work with most of the programs that support the HPSDR/M
 Getting started
 -----
 
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAP62ge2aAqpTxTP1of5zLga/sdr/ecosystem-0.95-1-6deb253-sdr-receiver-hpsdr.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_receiver_hpsdr` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install and run one of the HPSDR programs.
 
@@ -95,10 +96,10 @@ make NAME=sdr_receiver_hpsdr bit
 
 Building `sdr-receiver-hpsdr`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/sdr_receiver_hpsdr/server/sdr-receiver-hpsdr.c -o sdr-receiver-hpsdr -D_GNU_SOURCE -lm -lpthread
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -D_GNU_SOURCE projects/sdr_receiver_hpsdr/server/sdr-receiver-hpsdr.c -o sdr-receiver-hpsdr -lm -lpthread
 {% endhighlight %}
 
 Building SD card image zip file:
 {% highlight bash %}
-source helpers/sdr-receiver-hpsdr-ecosystem.sh
+source helpers/build-all.sh
 {% endhighlight %}
