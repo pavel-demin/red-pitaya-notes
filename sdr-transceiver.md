@@ -48,7 +48,7 @@ Getting started with GNU Radio
 -----
 
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download [SD card image zip file]({{ site.release-image }}).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the content of the SD card image zip file to an SD card.
  - Optionally, to start the application automatically at boot time copy its `start.sh` file from `apps/sdr_transceiver` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
@@ -70,12 +70,10 @@ gnuradio-companion trx_am.grc
 Getting started with SDR# and HDSDR
 -----
 
- - Requirements:
-   - Computer running MS Windows.
-   - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACymkWEpWNH9wM-ErVveckma/sdr/ecosystem-0.95-1-6deb253-sdr-transceiver.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time copy its `start.sh` file from `apps/sdr_transceiver` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](http://www.hdsdr.de/).
  - Download and install [Microsoft Visual C++ 2015 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=53587).
