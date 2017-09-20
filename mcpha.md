@@ -53,12 +53,10 @@ Getting started with MS Windows
 Getting started with GNU/Linux
 -----
 
- - Requirements:
-   - Computer running Debian 8.
-   - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABFn0Tal_b23MT_E3PSCAjZa/mcpha/ecosystem-0.95-1-6deb253-mcpha.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install Tcl 8.6 and all the required libraries:
 {% highlight bash %}
@@ -111,5 +109,5 @@ arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex
 
 Building SD card image zip file:
 {% highlight bash %}
-source helpers/mcpha-ecosystem.sh
+source helpers/build-all.sh
 {% endhighlight %}
