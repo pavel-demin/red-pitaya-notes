@@ -36,12 +36,10 @@ The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree
 Getting started with MS Windows
 -----
 
- - Requirements:
-   - Computer running MS Windows.
-   - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABFn0Tal_b23MT_E3PSCAjZa/mcpha/ecosystem-0.95-1-6deb253-mcpha.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADau01Q0u7WKV5LLlyJJTzYa/mcpha/mcpha-win32-20161219.zip?dl=1).
  - Run the control program.
