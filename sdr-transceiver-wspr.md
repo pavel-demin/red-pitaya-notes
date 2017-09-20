@@ -44,18 +44,18 @@ The [projects/sdr_transceiver_wspr](https://github.com/pavel-demin/red-pitaya-no
 Software
 -----
 
-The [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/write-c2-files.c) program accumulates 42000 samples at 375 samples per second for each of the eight bands and saves the samples to eight .c2 files.
+The [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/write-c2-files.c) program accumulates 42000 samples at 375 samples per second for each of the eight bands and saves the samples to eight .c2 files.
 
 The recorded .c2 files are processed with the [WSPR decoder](https://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wsjtx/lib/wsprd/).
 
 The decoded data are uploaded to [wsprnet.org](http://wsprnet.org) using [curl](https://curl.haxx.se).
 
-The [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/decode-wspr.sh) script launches `write-c2-files`, `wsprd` and `curl` one after another. This script is run every two minutes by the following cron entry:
+The [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/decode-wspr.sh) script launches `write-c2-files`, `wsprd` and `curl` one after another. This script is run every two minutes by the following cron entry in [wspr.cron](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/wspr.cron):
 {% highlight bash %}
-1-59/2 * * * * root cd /dev/shm && /root/decode-wspr.sh >> decode-wspr.log 2>&1
+1-59/2 * * * * cd /dev/shm && /media/mmcblk0p1/apps/sdr_transceiver_wspr/decode-wspr.sh >> decode-wspr.log 2>&1 &
 {% endhighlight %}
 
-The [transmit-wspr-message.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/transmit-wspr-message.c) program transmits WSPR messages.
+The [transmit-wspr-message.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/transmit-wspr-message.c) program transmits WSPR messages.
 
 GPS interface
 -----
@@ -64,48 +64,36 @@ A GPS module can be used for the time synchronization and for the automatic meas
 
 The PPS signal should be connected to the pin DIO3_N of the [extension connector E1](http://redpitaya.readthedocs.io/en/latest/developerGuide/125-14/extent.html#extension-connector-e1). The UART interface should be connected to the UART pins of the [extension connector E2](http://redpitaya.readthedocs.io/en/latest/developerGuide/125-14/extent.html#extension-connector-e2).
 
-The measurement and correction of the frequency deviation is disabled by default and should be enabled by uncommenting the following line in [wspr.cron](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/wspr.cron):
+The measurement and correction of the frequency deviation is disabled by default and should be enabled by uncommenting the following line in [wspr.cron](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/wspr.cron):
 {% highlight bash %}
-1-59/2 * * * * root cd /dev/shm && /root/update-corr.sh >> update-corr.log 2>&1
+1-59/2 * * * * cd /dev/shm && /media/mmcblk0p1/apps/sdr_transceiver_wspr/update-corr.sh >> update-corr.log 2>&1 &
 {% endhighlight %}
 
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAACZrgE_cKJCVz8-rGRcLOUa/sdr/red-pitaya-wspr-debian-9.0-armhf-20170722.zip?dl=1).
-
-The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
-
-To write the image to a SD card, the `dd` command-line utility can be used on GNU/Linux and Mac OS X or [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/) can be used on MS Windows.
-
-The default password for the `root` account is `changeme`.
-
-To use the full size of a SD card, the SD card partitions should be resized with the following commands:
-
-{% highlight bash %}
-# delete second partition
-echo -e "d\n2\nw" | fdisk /dev/mmcblk0
-# recreate partition
-parted -s /dev/mmcblk0 mkpart primary ext4 16MB 100%
-# resize partition
-resize2fs /dev/mmcblk0p2
-{% endhighlight %}
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_wspr` to the topmost directory on the SD card.
+ - Insert the SD card in Red Pitaya and connect the power.
 
 Configuring WSPR receiver
 -----
 
 By default, the uploads to [wsprnet.org](http://wsprnet.org) are disabled and all the decoded data are accumulated in `/dev/shm/ALL_WSPR.TXT`.
 
-To enable uploads, the `CALL` and `GRID` variables should be specified in [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/decode-wspr.sh#L4). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
+All the configuration files and scripts can be found in the `apps/sdr_transceiver_wspr` directory on the SD card.
 
-The frequency correction ppm value can be adjusted by editing the corr parameter in [write-c2-files.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/write-c2-files.cfg).
+To enable uploads, the `CALL` and `GRID` variables should be specified in [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/decode-wspr.sh#L4). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
 
-The bands list in [write-c2-files.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/write-c2-files.cfg) contains all the WSPR frequencies. They can be enabled or disabled by uncommenting or by commenting the corresponding lines.
+The frequency correction ppm value can be adjusted by editing the corr parameter in [write-c2-files.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/write-c2-files.cfg).
+
+The bands list in [write-c2-files.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/write-c2-files.cfg) contains all the WSPR frequencies. They can be enabled or disabled by uncommenting or by commenting the corresponding lines.
 
 Configuring WSPR transmitter
 -----
 
-The WSPR message, transmit frequency and frequency ppm value can be adjusted by editing [transmit-wspr-message.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/transmit-wspr-message.cfg).
+The WSPR message, transmit frequency and frequency ppm value can be adjusted by editing [transmit-wspr-message.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/transmit-wspr-message.cfg).
 
 
 Building from source
@@ -126,14 +114,14 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 {% endhighlight %}
 
-Building `boot.bin`, `devicetree.dtb` and `uImage`:
+Building `sdr_transceiver_wspr.bit`:
 {% highlight bash %}
-make NAME=sdr_transceiver_wspr all
+make NAME=sdr_transceiver_wspr bit
 {% endhighlight %}
 
-Building a bootable SD card image:
+Building SD card image zip file:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian-wspr.sh red-pitaya-wspr-debian-8.8-armhf.img 1024
+source helpers/build-all.sh
 {% endhighlight %}
 
 Feedback and results
