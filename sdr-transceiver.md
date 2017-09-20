@@ -47,12 +47,10 @@ An interface with [QSDR](http://dl2stg.de/stefan/hiqsdr/qsdr.html) is currently 
 Getting started with GNU Radio
 -----
 
- - Requirements:
-   - Computer running Ubuntu 14.04 or Debian 8.
-   - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACymkWEpWNH9wM-ErVveckma/sdr/ecosystem-0.95-1-6deb253-sdr-transceiver.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}).
  - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time copy its `start.sh` file from `apps/sdr_transceiver` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install [GNU Radio](http://gnuradio.org):
 {% highlight bash %}
@@ -118,5 +116,5 @@ arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex
 
 Building SD card image zip file:
 {% highlight bash %}
-source helpers/sdr-transceiver-ecosystem.sh
+source helpers/build-all.sh
 {% endhighlight %}
