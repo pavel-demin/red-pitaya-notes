@@ -133,8 +133,9 @@ This SDR transceiver should work with most of the programs that support the HPSD
 Getting started
 -----
 
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAD3bGp3ptaQ-VE-adG1SijKa/sdr/ecosystem-0.95-1-6deb253-sdr-transceiver-hpsdr.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_hpsdr` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install and run one of the HPSDR programs.
 
@@ -192,10 +193,10 @@ make NAME=sdr_transceiver_hpsdr bit
 
 Building `sdr-transceiver-hpsdr`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -o sdr-transceiver-hpsdr -D_GNU_SOURCE -Iprojects/sdr_transceiver_hpsdr/server -lm -lpthread
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -D_GNU_SOURCE projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c -o sdr-transceiver-hpsdr -lm -lpthread
 {% endhighlight %}
 
 Building SD card image zip file:
 {% highlight bash %}
-source helpers/sdr-transceiver-hpsdr-ecosystem.sh
+source helpers/build-all.sh
 {% endhighlight %}
