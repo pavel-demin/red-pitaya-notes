@@ -4,8 +4,6 @@ title: Alpine with pre-built applications
 permalink: /alpine/
 ---
 
-This is a work in progress...
-
 Introduction
 -----
 
