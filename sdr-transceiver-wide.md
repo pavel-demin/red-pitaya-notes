@@ -35,12 +35,10 @@ The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-
 Getting started
 -----
 
- - Requirements:
-   - Computer running Ubuntu 14.04 or Debian 8.
-   - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAD99HKLx4gE1OmNLsjAidWAa/sdr/ecosystem-0.95-1-6deb253-sdr-transceiver-wide.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_wide` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install [GNU Radio](http://gnuradio.org):
 {% highlight bash %}
@@ -82,10 +80,10 @@ make NAME=sdr_transceiver_wide bit
 
 Building `sdr-transceiver`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/sdr_transceiver_wide/server/sdr-transceiver-wide.c -o sdr-transceiver -lm -lpthread
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/sdr_transceiver_wide/server/sdr-transceiver-wide.c -o sdr-transceiver-wide -lm -lpthread
 {% endhighlight %}
 
 Building SD card image zip file:
 {% highlight bash %}
-source helpers/sdr-transceiver-wide-ecosystem.sh
+source helpers/build-all.sh
 {% endhighlight %}
