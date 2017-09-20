@@ -14,9 +14,9 @@ To simplify maintenance and distribution of the pre-built applications described
 Getting started
 -----
 
- - Download [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAn5aji7Tkcu2SGUlcmhkc9a/red-pitaya-alpine-3.6-armhf-20170919.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}).
  - Copy the content of the SD card image zip file to an SD card.
- - Optionally, to start one of the applications automatically at boot time copy its `start.sh` file from `apps/<application>` to the topmost directory on the SD card.
+ - Optionally, to start one of the applications automatically at boot time, copy its `start.sh` file from `apps/<application>` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Applications can be started from the web interface.
 
