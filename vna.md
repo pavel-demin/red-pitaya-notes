@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Vector Network Analyzer 
+title: Vector Network Analyzer
 permalink: /vna/
 ---
 
@@ -12,7 +12,7 @@ Some interesting links on network analyzers:
  - [VNA Operating Guide](http://www.wetterlin.org/sam/SA/Operation/VNA_Guide.pdf)
 
  - [Three-Bead-Balun Reflection Bridge](http://www.wetterlin.org/sam/Reflection/3BeadBalunBridge.pdf)
- 
+
  - [Ham VNA](http://dxatlas.com/HamVNA)
 
  - [Fundamentals of Vector Network Analysis Primer](http://rohde-schwarz-scopes.com/designcon/VNA%20fundamentals%20primer.pdf)
@@ -40,8 +40,9 @@ The [projects/vna/client](https://github.com/pavel-demin/red-pitaya-notes/tree/m
 Getting started with MS Windows (pre-built control program)
 -----
 
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACaGYcNoWFKjqUksq8rAod-a/vna/ecosystem-0.95-1-6deb253-vna.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACxA0DwC627fdsD9NH8mJPta/vna/vna-win32-20170819.zip?dl=1).
  - Run the `vna.exe` program.
@@ -51,8 +52,9 @@ Getting started with MS Windows (pre-built control program)
 Getting started with MS Windows (manual Python installation)
 -----
 
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACaGYcNoWFKjqUksq8rAod-a/vna/ecosystem-0.95-1-6deb253-vna.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
  - Download and install [PyQt 5.5](http://download.sourceforge.net/project/pyqt/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe).
@@ -72,8 +74,9 @@ C:\Python34\pythonw.exe vna.py
 Getting started with GNU/Linux
 -----
 
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACaGYcNoWFKjqUksq8rAod-a/vna/ecosystem-0.95-1-6deb253-vna.zip?dl=1).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install required Python libraries:
 {% highlight bash %}
@@ -117,10 +120,10 @@ make NAME=vna bit
 
 Building `vna`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad projects/vna/server/vna.c -o vna -lm -lpthread
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/vna/server/vna.c -o vna -lm -lpthread
 {% endhighlight %}
 
 Building SD card image zip file:
 {% highlight bash %}
-source helpers/vna-ecosystem.sh
+source helpers/build-all.sh
 {% endhighlight %}
