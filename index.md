@@ -12,7 +12,6 @@ layout: default
 1. [SDR transceiver]({{ "/sdr-transceiver/" | prepend: site.baseurl }})
 1. [SDR transceiver compatible with HPSDR]({{ "/sdr-transceiver-hpsdr/" | prepend: site.baseurl }})
 1. [SDR receiver compatible with HPSDR]({{ "/sdr-receiver-hpsdr/" | prepend: site.baseurl }})
-1. [SDR transceiver with FFT]({{ "/sdr-transceiver-fft/" | prepend: site.baseurl }})
 1. [Embedded SDR transceiver]({{ "/sdr-transceiver-emb/" | prepend: site.baseurl }})
 1. [Wideband SDR transceiver]({{ "/sdr-transceiver-wide/" | prepend: site.baseurl }})
 1. [Multiband WSPR transceiver]({{ "/sdr-transceiver-wspr/" | prepend: site.baseurl }})
@@ -20,5 +19,4 @@ layout: default
 1. [Multichannel Pulse Height Analyzer]({{ "/mcpha/" | prepend: site.baseurl }})
 1. [Scanning system]({{ "/scanner/" | prepend: site.baseurl }})
 1. [Vector Network Analyzer]({{ "/vna/" | prepend: site.baseurl }})
-1. [Debian with Red Pitaya ecosystem]({{ "/debian-ecosystem/" | prepend: site.baseurl }})
 1. [Alpine with pre-built applications]({{ "/alpine/" | prepend: site.baseurl }})
