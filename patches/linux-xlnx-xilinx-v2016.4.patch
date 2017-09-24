@@ -230,7 +230,7 @@ diff -rupN old/linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/Makefile l
 +obj-$(CONFIG_RTL8192CU)		+= rtl8192cu/
  
 diff -rupN old/linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig
---- old/linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig	1970-01-01 01:00:00.000000000 +0100
+--- old/linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig
 +++ linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig
 @@ -0,0 +1,9 @@
 +config RTL8192CU
@@ -242,3 +242,15 @@ diff -rupN old/linux-xlnx-xilinx-v2016.4/drivers/net/wireless/realtek/rtl8192cu/
 +	---help---
 +	  This option adds the Realtek RTL8192CU USB device such as Edimax EW-7811Un.
 +
+diff -rupN old/linux-xlnx-xilinx-v2016.4/drivers/pps/clients/pps-gpio.c linux-xlnx-xilinx-v2016.4/drivers/pps/clients/pps-gpio.c
+--- old/linux-xlnx-xilinx-v2016.4/drivers/pps/clients/pps-gpio.c
++++ linux-xlnx-xilinx-v2016.4/drivers/pps/clients/pps-gpio.c
+@@ -119,6 +119,8 @@ static int pps_gpio_probe(struct platfor
+ 
+ 		if (of_get_property(np, "assert-falling-edge", NULL))
+ 			data->assert_falling_edge = true;
++		if (of_get_property(np, "capture-clear", NULL))
++			data->capture_clear = true;
+ 	}
+ 
+ 	/* GPIO setup */

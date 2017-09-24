@@ -127,14 +127,23 @@ set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
 delete_bd_objs [get_bd_ports exp_p_tri_io]
 
 # Create output port
-create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
+create_bd_port -dir O -from 1 -to 0 exp_p_tri_io
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_1 {
+  NUM_PORTS 2
+  IN0_WIDTH 1
+  IN1_WIDTH 1
+} {
+  dout exp_p_tri_io
+}
 
 # TRX
 
 module trx_0 {
   source projects/sdr_transceiver/trx.tcl
 } {
-  out_slice_0/Dout exp_p_tri_io
+  out_slice_0/Dout concat_1/In0
   rx_0/mult_0/S_AXIS_A bcast_0/M00_AXIS
   tx_0/mult_0/M_AXIS_DOUT comb_0/S00_AXIS
 }
@@ -175,16 +184,10 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 32K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 set_property OFFSET 0x40018000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 
-# Delete input/output port
-delete_bd_objs [get_bd_ports exp_n_tri_io]
-
-# Create output port
-create_bd_port -dir O -from 7 -to 0 exp_n_tri_io
-
 module trx_1 {
   source projects/sdr_transceiver/trx.tcl
 } {
-  out_slice_0/Dout exp_n_tri_io
+  out_slice_0/Dout concat_1/In1
   rx_0/mult_0/S_AXIS_A bcast_0/M01_AXIS
   tx_0/mult_0/M_AXIS_DOUT comb_0/S01_AXIS
 }

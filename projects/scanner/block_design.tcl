@@ -189,10 +189,10 @@ cell xilinx.com:ip:util_vector_logic:2.0 xor_1 {
 }
 
 # Delete input/output port
-delete_bd_objs [get_bd_ports exp_n_tri_io]
+delete_bd_objs [get_bd_ports exp_p_tri_io]
 
 # Create output port
-create_bd_port -dir O -from 7 -to 0 exp_n_tri_io
+create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_0 {
@@ -206,7 +206,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   In1 xor_1/Res
   In2 gen_2/dout
   In3 gen_3/dout
-  dout exp_n_tri_io
+  dout exp_p_tri_io
 }
 
 # Scan control
