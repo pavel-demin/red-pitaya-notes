@@ -61,12 +61,7 @@ chroot $root_dir <<- EOF_CHROOT
 export LANG=C
 export LC_ALL=C
 
-# Add missing paths
-
-echo :$PATH: | grep -q :/sbin: || export PATH=$PATH:/sbin
-echo :$PATH: | grep -q :/bin: || export PATH=$PATH:/bin
-echo :$PATH: | grep -q :/usr/sbin: || export PATH=$PATH:/usr/sbin
-echo :$PATH: | grep -q :/usr/bin: || export PATH=$PATH:/usr/bin
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 /debootstrap/debootstrap --second-stage
 
