@@ -15,8 +15,8 @@
 
 volatile uint64_t *rx_data, *tx_data;
 volatile uint32_t *rx_freq, *tx_freq;
-volatile uint16_t *gpio, *rx_rate, *rx_cntr, *tx_rate, *tx_cntr;
-volatile uint8_t *rx_rst, *rx_sync, *tx_rst, *tx_sync;
+volatile uint16_t *rx_rate, *rx_cntr, *tx_rate, *tx_cntr;
+volatile uint8_t *gpio, *rx_rst, *rx_sync, *tx_rst, *tx_sync;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 62500000;
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
       break;
   }
 
-  gpio = ((uint16_t *)(cfg + 2));
+  gpio = ((uint8_t *)(cfg + 2));
 
   rx_rst = ((uint8_t *)(cfg + 0));
   rx_freq = ((uint32_t *)(cfg + 4));
