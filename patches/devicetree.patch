@@ -1,6 +1,6 @@
 --- system.dts.old
 +++ system.dts
-@@ -16,6 +16,17 @@
+@@ -16,6 +16,18 @@
  	chosen {
  		bootargs = "console=ttyPS0,115200 earlyprintk";
  	};
@@ -14,6 +14,7 @@
 +	pps {
 +		compatible = "pps-gpio";
 +		gpios = <&gpio0 54 0>;
++		capture-clear;
 +	};
  	aliases {
  		ethernet0 = &gem0;
