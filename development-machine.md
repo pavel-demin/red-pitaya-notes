@@ -90,7 +90,7 @@ linux initrd=initrd.gz url=goo.gl/eagfri auto=true priority=critical interface=a
 Accessing the virtual machine
 -----
 
-The virtual machine can be accessed via SSH. To display applications with graphical user interfaces, a X11 server ([Xming](http://sourceforge.net/projects/xming) for MS Windows or [XQuartz](http://xquartz.macosforge.org) for Mac OS X) should be installed on the host computer.
+The virtual machine can be accessed via SSH. To display applications with graphical user interfaces, a X11 server ([Xming](http://sourceforge.net/projects/xming) for MS Windows or [XQuartz](http://xquartz.macosforge.org) for Mac OS X) should be installed on the host computer. X11 forwarding should be enabled in the SSH client.
 
 Installing Vivado Design Suite
 -----
