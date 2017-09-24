@@ -1,0 +1,3 @@
+DEVICE="/dev/ttyPS1 /dev/pps0"
+BAUDRATE="9600"
+ARGS="-n "
