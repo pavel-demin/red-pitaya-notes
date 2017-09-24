@@ -4,14 +4,14 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Ubuntu](http://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 14.04.5 (amd64) or [Debian](http://www.debian.org/releases/jessie) 8.6 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2016.4 with full SDK.
+The following are the instructions for installing a virtual machine with [Debian](http://www.debian.org/releases/jessie) 8.9 (amd64) and [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2016.4 with full SDK.
 
-Creating virtual machine with Ubuntu 14.04.5 (amd64) or Debian 8.6 (amd64)
+Creating virtual machine with Debian 8.9 (amd64)
 -----
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](http://ftp.heanet.ie/pub/ubuntu/dists/trusty-updates/main/installer-amd64/current/images/netboot/mini.iso) for Ubuntu 14.04.5 or [mini.iso](http://ftp.heanet.ie/pub/debian/dists/jessie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 8.6
+- Download [mini.iso](http://ftp.heanet.ie/pub/debian/dists/jessie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 8.9
 
 - Start VirtualBox
 
@@ -29,7 +29,7 @@ Creating virtual machine with Ubuntu 14.04.5 (amd64) or Debian 8.6 (amd64)
 
   - Click the blue "New" icon
 
-  - Pick a name for the machine, then select "Linux" and "Ubuntu (64 bit)" or "Debian (64 bit)"
+  - Pick a name for the machine, then select "Linux" and "Debian (64 bit)"
 
   - Set the memory size to at least 2048 MB
 
@@ -59,15 +59,7 @@ Creating virtual machine with Ubuntu 14.04.5 (amd64) or Debian 8.6 (amd64)
 
 - Press TAB when the "Installer boot menu" appears
 
-- For Ubuntu, edit the boot parameters at the bottom of the boot screen to make them look like the following:
-
-  (the content of the `goo.gl/A6R6Dm` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/ubuntu.seed))
-
-{% highlight bash %}
-linux initrd=initrd.gz url=goo.gl/A6R6Dm auto=true priority=critical interface=auto
-{% endhighlight %}
-
-- For Debian, edit the boot parameters at the bottom of the boot screen to make them look like the following:
+- Edit the boot parameters at the bottom of the boot screen to make them look like the following:
 
   (the content of the `goo.gl/eagfri` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/debian.seed))
 
@@ -109,7 +101,7 @@ sed -i '/uname -i/s/ -i/ -m/' xsetup
 
 - Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page (for detailed information on installation, see [UG973](http://www.xilinx.com/support/documentation/sw_manuals/xilinx2016_3/ug973-vivado-release-notes-install-license.pdf))
 
-- Xilinx SDK requires `gmake` that is unavailable on Ubuntu and Debian. The following command creates a symbolic link called `gmake` and pointing to `make`:
+- Xilinx SDK requires `gmake` that is unavailable on Debian. The following command creates a symbolic link called `gmake` and pointing to `make`:
 {% highlight bash %}
 ln -s make /usr/bin/gmake
 {% endhighlight %}
