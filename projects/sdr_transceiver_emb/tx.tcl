@@ -91,6 +91,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA fp_0/M_AXIS_RESULT
@@ -129,6 +130,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_1 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 26
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA subset_0/M_AXIS
@@ -313,44 +315,24 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   aclk /pll_0/clk_out1
 }
 
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_3 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 8
-  M_TDATA_NUM_BYTES 6
-  TDATA_REMAP {24'b000000000000000000000000,tdata[23:0]}
-} {
-  S_AXIS mult_0/M_AXIS_DOUT
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 const_0 {
-  AXIS_TDATA_WIDTH 16
-} {
-  cfg_data slice_3/Dout
-  aclk /pll_0/clk_out1
-}
-
 # Create axis_lfsr
 cell pavel-demin:user:axis_lfsr:1.0 lfsr_1 {} {
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create cmpy
-cell xilinx.com:ip:cmpy:6.0 mult_1 {
-  APORTWIDTH.VALUE_SRC USER
-  BPORTWIDTH.VALUE_SRC USER
-  APORTWIDTH 24
-  BPORTWIDTH 16
-  ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 17
+# Create xbip_dsp48_macro
+cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_1 {
+  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+  A_WIDTH.VALUE_SRC USER
+  B_WIDTH.VALUE_SRC USER
+  OUTPUT_PROPERTIES User_Defined
+  A_WIDTH 24
+  B_WIDTH 16
+  P_WIDTH 16
 } {
-  S_AXIS_A subset_3/M_AXIS
-  S_AXIS_B const_0/M_AXIS
-  S_AXIS_CTRL lfsr_1/M_AXIS
-  aclk /pll_0/clk_out1
+  A mult_0/m_axis_dout_tdata
+  B slice_3/Dout
+  CARRYIN lfsr_1/m_axis_tdata
+  CLK /pll_0/clk_out1
 }
