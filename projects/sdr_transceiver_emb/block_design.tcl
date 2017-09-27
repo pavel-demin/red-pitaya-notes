@@ -67,20 +67,6 @@ cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
   adc_csn adc_csn_o
 }
 
-# Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 4
-  M00_TDATA_REMAP {tdata[31:0]}
-  M01_TDATA_REMAP {tdata[31:0]}
-} {
-  S_AXIS adc_0/M_AXIS
-  aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
-}
-
 # DAC
 
 # Create axis_red_pitaya_dac
@@ -93,6 +79,7 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   dac_sel dac_sel_o
   dac_wrt dac_wrt_o
   dac_dat dac_dat_o
+  s_axis_tvalid const_0/dout
 }
 
 # CFG
@@ -174,7 +161,6 @@ module rx_0 {
   slice_0/Din rst_slice_0/Dout
   slice_1/Din cfg_slice_0/Dout
   slice_2/Din cfg_slice_0/Dout
-  bcast_0/S_AXIS bcast_0/M00_AXIS
 }
 
 # SP 0
@@ -202,7 +188,6 @@ module sp_0 {
   slice_3/Din cfg_slice_1/Dout
   slice_4/Din cfg_slice_1/Dout
   slice_5/Din cfg_slice_1/Dout
-  mult_0/S_AXIS_A bcast_0/M01_AXIS
 }
 
 # TX 0
@@ -236,7 +221,7 @@ module tx_0 {
   slice_2/Din cfg_slice_2/Dout
   slice_3/Din cfg_slice_2/Dout
   keyer_0/key_flag key_slice_0/Dout
-  mult_1/M_AXIS_DOUT dac_0/S_AXIS
+  mult_1/P dac_0/s_axis_tdata
 }
 
 # CODEC
