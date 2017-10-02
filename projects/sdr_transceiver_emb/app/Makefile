@@ -8,7 +8,6 @@ WDSP_URL = https://github.com/g0orx/wdsp/archive/$(WDSP_TAG).tar.gz
 all: sdr-transceiver-emb
 
 $(WDSP_TAR):
-	mkdir -p $(@D)
 	curl -L $(WDSP_URL) -o $@
 
 $(WDSP_DIR): $(WDSP_TAR)
