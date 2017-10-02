@@ -138,7 +138,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.startValue.valueChanged.connect(self.set_start)
     self.stopValue.valueChanged.connect(self.set_stop)
     self.sizeValue.valueChanged.connect(self.set_size)
-    self.rateValue.addItems(['50000', '10000', '5000', '1000', '500', '100', '50', '10', '5', '1'])
+    self.rateValue.addItems(['10000', '5000', '1000', '500', '100', '50', '10', '5', '1'])
     self.rateValue.lineEdit().setReadOnly(True)
     self.rateValue.lineEdit().setAlignment(Qt.AlignRight)
     for i in range(0, self.rateValue.count()):
@@ -236,7 +236,7 @@ class VNA(QMainWindow, Ui_VNA):
 
   def set_rate(self, value):
     if self.idle: return
-    rate = [1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000][value]
+    rate = [5, 10, 50, 100, 500, 1000, 5000, 10000, 50000][value]
     self.socket.write(struct.pack('<I', 3<<28 | int(rate)))
 
   def set_corr(self, value):
