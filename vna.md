@@ -61,7 +61,7 @@ Getting started with MS Windows (manual Python installation)
  - Start a command prompt using the `cmd.exe` program and run the `pip` command to install `matplotlib`:
 {% highlight winbatch %}
 C:\Python34\python.exe -m pip install --upgrade pip
-C:\Python34\Scripts\pip.exe install matplotlib mpldatacursor
+C:\Python34\Scripts\pip.exe install matplotlib
 {% endhighlight %}
  - Download and unpack the [control program](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACzuOnK3XffmtyxK_67_xRWa/vna/vna-python3-20170819.zip?dl=1).
  - Start a command prompt using the `cmd.exe` program and run the control program:
@@ -81,7 +81,7 @@ Getting started with GNU/Linux
  - Install required Python libraries:
 {% highlight bash %}
 sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5 libfreetype6-dev
-sudo pip3 install matplotlib mpldatacursor
+sudo pip3 install matplotlib
 {% endhighlight %}
  - Clone the source code repository:
 {% highlight bash %}
