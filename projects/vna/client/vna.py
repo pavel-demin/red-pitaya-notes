@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Control program for the Red Pitaya vector network analyzer
-# Copyright (C) 2016  Pavel Demin
+# Copyright (C) 2017  Pavel Demin
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ import sys
 import struct
 import warnings
 
+from functools import partial
+
 import numpy as np
 
 import matplotlib
@@ -29,12 +31,10 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from matplotlib.figure import Figure
 from matplotlib.ticker import Formatter, FuncFormatter
 
-from mpldatacursor import datacursor
-
 from PyQt5.uic import loadUiType
 from PyQt5.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
 from PyQt5.QtGui import QRegExpValidator
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QDialog, QFileDialog, QProgressDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QHBoxLayout, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QDialog, QFileDialog, QProgressDialog, QComboBox, QPushButton, QProgressBar, QLabel, QSpinBox
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_VNA, QMainWindow = loadUiType('vna.ui')
@@ -42,65 +42,62 @@ Ui_VNA, QMainWindow = loadUiType('vna.ui')
 def metric_prefix(x, pos = None):
   if x == 0.0:
     return '0'
+  elif abs(x) >= 1.0e9:
+    return '%.4gG' % (x * 1.0e-9)
   elif abs(x) >= 1.0e6:
-    return '%gM' % (x * 1.0e-6)
+    return '%.4gM' % (x * 1.0e-6)
   elif abs(x) >= 1.0e3:
-    return '%gk' % (x * 1.0e-3)
+    return '%.4gk' % (x * 1.0e-3)
   elif abs(x) >= 1.0e0:
-    return '%g' % x
+    return '%.4g' % x
   elif abs(x) >= 1.0e-3:
-    return '%gm' % (x * 1e+3)
+    return '%.4gm' % (x * 1e+3)
   elif abs(x) >= 1.0e-6:
-    return '%gu' % (x * 1e+6)
+    return '%.4gu' % (x * 1e+6)
+  elif abs(x) >= 1.0e-9:
+    return '%.4gn' % (x * 1e+9)
+  elif abs(x) >= 1.0e-12:
+    return '%.4gp' % (x * 1e+12)
+  elif abs(x) < 1.0e-12:
+    return '0'
   else:
-    return '%g' % x
-
-class SmithFormatter:
-  def __init__(self, freq):
-    self.freq = freq
-  def __call__(self, x = None, y = None, ind = None, **kwargs):
-    gamma = complex(x, y)
-    z = 50.0 * (1.0 + gamma)/(1.0 - gamma)
-    if z.imag >= 0.0:
-      return u'Z: %s\u03A9 + j%s\u03A9\nFrequency: %sHz' % (metric_prefix(z.real), metric_prefix(z.imag), metric_prefix(self.freq[ind[0]]))
-    else:
-      return u'Z: %s\u03A9 \u2212 j%s\u03A9\nFrequency: %sHz' % (metric_prefix(z.real), metric_prefix(-z.imag), metric_prefix(self.freq[ind[0]]))
-
-class LabelFormatter:
-  def __call__(self, x = None, y = None, label = None, **kwargs):
-    return '%s: %s\nFrequency: %sHz'  % (label, metric_prefix(y), metric_prefix(x))
+    return '%.4g' % x
 
 class Measurement:
   def __init__(self, start, stop, size):
     self.freq = np.linspace(start, stop, size) * 1000
     self.data = np.zeros(size, np.complex64)
+    self.period = 62500 * 1000
 
 class VNA(QMainWindow, Ui_VNA):
-
-  max_size = 32768
+  cursors = [15000, 45000]
+  colors = ['orange', 'violet']
 
   def __init__(self):
     super(VNA, self).__init__()
     self.setupUi(self)
+    self.settings = QSettings('vna.ini', QSettings.IniFormat)
     # IP address validator
     rx = QRegExp('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
     self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
     # state variables
     self.idle = True
     self.reading = False
+    self.auto = False
     # sweep parameters
     self.sweep_start = 10
     self.sweep_stop = 60000
     self.sweep_size = 6000
     # buffer and offset for the incoming samples
-    self.buffer = bytearray(16 * VNA.max_size)
+    self.buffer = bytearray(16 * 32768)
     self.offset = 0
     self.data = np.frombuffer(self.buffer, np.complex64)
     self.open = Measurement(self.sweep_start, self.sweep_stop, self.sweep_size)
     self.short = Measurement(self.sweep_start, self.sweep_stop, self.sweep_size)
     self.load = Measurement(self.sweep_start, self.sweep_stop, self.sweep_size)
     self.dut = Measurement(self.sweep_start, self.sweep_stop, self.sweep_size)
-    self.mode = 'dut'
+    self.sweep_mode = 'open'
+    self.plot_mode = 'open'
     # create figure
     self.figure = Figure()
     self.figure.set_facecolor('none')
@@ -108,14 +105,41 @@ class VNA(QMainWindow, Ui_VNA):
     self.plotLayout.addWidget(self.canvas)
     # create navigation toolbar
     self.toolbar = NavigationToolbar(self.canvas, self.plotWidget, False)
-    # initialize cursor
-    self.cursor = None
+    self.toolbar.layout().setSpacing(6)
     # remove subplots action
     actions = self.toolbar.actions()
     if int(matplotlib.__version__[0]) < 2:
       self.toolbar.removeAction(actions[7])
+      self.toolbar.removeAction(actions[9])
     else:
       self.toolbar.removeAction(actions[6])
+      self.toolbar.removeAction(actions[7])
+    self.toolbar.addSeparator()
+    self.cursorLabels = {}
+    self.cursorValues = {}
+    self.cursorMarkers = {}
+    for i in range(len(VNA.cursors)):
+      self.cursorMarkers[i] = None
+      self.cursorLabels[i] = QLabel('Cursor %d, kHz' % (i + 1), self)
+      self.cursorLabels[i].setStyleSheet('color: %s' % VNA.colors[i])
+      self.cursorValues[i] = QSpinBox(self)
+      self.cursorValues[i].setMinimumSize(75, 0)
+      self.cursorValues[i].setRange(self.sweep_start, self.sweep_stop)
+      self.cursorValues[i].setSingleStep(10)
+      self.cursorValues[i].setValue(VNA.cursors[i])
+      self.cursorValues[i].setAlignment(Qt.AlignRight | Qt.AlignTrailing | Qt.AlignVCenter)
+      self.toolbar.addWidget(self.cursorLabels[i])
+      self.toolbar.addWidget(self.cursorValues[i])
+      self.cursorValues[i].valueChanged.connect(partial(self.set_cursor, i))
+    self.toolbar.addSeparator()
+    self.plotValue = QComboBox(self)
+    self.toolbar.addWidget(self.plotValue)
+    self.plotButton = QPushButton('Rescale', self)
+    self.toolbar.addWidget(self.plotButton)
+    self.toolbar.addSeparator()
+    self.progress = QProgressBar()
+    self.progress.setTextVisible(False)
+    self.toolbar.addWidget(self.progress)
     self.plotLayout.addWidget(self.toolbar)
     # create TCP socket
     self.socket = QTcpSocket(self)
@@ -123,42 +147,40 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.readyRead.connect(self.read_data)
     self.socket.error.connect(self.display_error)
     # connect signals from buttons and boxes
-    self.sweepFrame.setEnabled(False)
-    self.dutSweep.setEnabled(False)
+    self.sweepWidget.setEnabled(False)
+    self.stopWidget.setEnabled(False)
     self.connectButton.clicked.connect(self.start)
     self.writeButton.clicked.connect(self.write_cfg)
     self.readButton.clicked.connect(self.read_cfg)
-    self.openSweep.clicked.connect(self.sweep_open)
-    self.shortSweep.clicked.connect(self.sweep_short)
-    self.loadSweep.clicked.connect(self.sweep_load)
-    self.dutSweep.clicked.connect(self.sweep_dut)
+    self.openSweep.clicked.connect(partial(self.sweep, 'open'))
+    self.shortSweep.clicked.connect(partial(self.sweep, 'short'))
+    self.loadSweep.clicked.connect(partial(self.sweep, 'load'))
+    self.singleSweep.clicked.connect(partial(self.sweep, 'dut'))
+    self.autoSweep.clicked.connect(self.sweep_auto)
+    self.stopSweep.clicked.connect(self.cancel)
     self.csvButton.clicked.connect(self.write_csv)
     self.s1pButton.clicked.connect(self.write_s1p)
-    self.s2pButton.clicked.connect(self.write_s2p)
+    self.s2pshortButton.clicked.connect(self.write_s2p_short)
+    self.s2popenButton.clicked.connect(self.write_s2p_open)
     self.startValue.valueChanged.connect(self.set_start)
     self.stopValue.valueChanged.connect(self.set_stop)
     self.sizeValue.valueChanged.connect(self.set_size)
     self.rateValue.addItems(['10000', '5000', '1000', '500', '100', '50', '10', '5', '1'])
     self.rateValue.lineEdit().setReadOnly(True)
     self.rateValue.lineEdit().setAlignment(Qt.AlignRight)
-    for i in range(0, self.rateValue.count()):
+    for i in range(self.rateValue.count()):
       self.rateValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
     self.rateValue.currentIndexChanged.connect(self.set_rate)
     self.corrValue.valueChanged.connect(self.set_corr)
     self.levelValue.valueChanged.connect(self.set_level)
-    self.openPlot.clicked.connect(self.plot_open)
-    self.shortPlot.clicked.connect(self.plot_short)
-    self.loadPlot.clicked.connect(self.plot_load)
-    self.dutPlot.clicked.connect(self.plot_dut)
-    self.smithPlot.clicked.connect(self.plot_smith)
-    self.impPlot.clicked.connect(self.plot_imp)
-    self.rcPlot.clicked.connect(self.plot_rc)
-    self.swrPlot.clicked.connect(self.plot_swr)
-    self.rlPlot.clicked.connect(self.plot_rl)
-    self.gainPlot.clicked.connect(self.plot_gain)
-    # create timer
+    self.plotValue.addItems(['Open data', 'Short data', 'Load data', 'DUT data', 'Smith chart', 'Impedance', 'SWR', 'Refl. coeff.', 'Return loss', 'Gain short', 'Gain open'])
+    self.plotValue.currentIndexChanged.connect(self.set_plot_mode)
+    self.plotButton.clicked.connect(self.plot)
+    # create timers
     self.startTimer = QTimer(self)
     self.startTimer.timeout.connect(self.timeout)
+    self.sweepTimer = QTimer(self)
+    self.sweepTimer.timeout.connect(self.sweep_timeout)
 
   def start(self):
     if self.idle:
@@ -170,12 +192,12 @@ class VNA(QMainWindow, Ui_VNA):
 
   def stop(self):
     self.idle = True
+    self.cancel()
     self.socket.abort()
     self.connectButton.setText('Connect')
     self.connectButton.setEnabled(True)
-    self.sweepFrame.setEnabled(False)
-    self.selectFrame.setEnabled(True)
-    self.dutSweep.setEnabled(False)
+    self.sweepWidget.setEnabled(False)
+    self.stopWidget.setEnabled(False)
 
   def timeout(self):
     self.display_error('timeout')
@@ -191,8 +213,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.set_level(self.levelValue.value())
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
-    self.sweepFrame.setEnabled(True)
-    self.dutSweep.setEnabled(True)
+    self.sweepWidget.setEnabled(True)
+    self.stopWidget.setEnabled(True)
 
   def read_data(self):
     while(self.socket.bytesAvailable() > 0):
@@ -209,13 +231,24 @@ class VNA(QMainWindow, Ui_VNA):
         self.buffer[self.offset:limit] = self.socket.read(limit - self.offset)
         adc1 = self.data[0::2]
         adc2 = self.data[1::2]
-        attr = getattr(self, self.mode)
-        size = attr.freq.size
+        attr = getattr(self, self.sweep_mode)
+        start = self.sweep_start
+        stop = self.sweep_stop
+        size = self.sweep_size
+        attr.freq = np.linspace(start, stop, size) * 1000
         attr.data = adc1[0:size].copy()
-        getattr(self, 'plot_%s' % self.mode)()
+        min = np.minimum(start, stop)
+        max = np.maximum(start, stop)
+        getattr(self, 'update_%s' % self.plot_mode)()
+        for i in range(len(VNA.cursors)):
+          self.cursorValues[i].setRange(min, max)
+          self.set_cursor(i, self.cursorValues[i].value())
         self.reading = False
-        self.sweepFrame.setEnabled(True)
-        self.selectFrame.setEnabled(True)
+        if not self.auto:
+          self.progress.setValue(0)
+          self.sweepWidget.setEnabled(True)
+          self.singleSweep.setEnabled(True)
+          self.autoSweep.setEnabled(True)
 
   def display_error(self, socketError):
     self.startTimer.stop()
@@ -248,122 +281,226 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.write(struct.pack('<I', 5<<28 | int(32766 * np.power(10.0, value / 20.0))))
     self.socket.write(struct.pack('<I', 6<<28 | int(0)))
 
+  def set_plot_mode(self, value):
+    plot_mode = ['open', 'short', 'load', 'dut', 'smith', 'imp', 'swr', 'rc', 'rl', 'gain_short', 'gain_open'][value]
+    getattr(self, 'plot_%s' % plot_mode)()
+
   def sweep(self, mode):
     if self.idle: return
-    self.sweepFrame.setEnabled(False)
-    self.selectFrame.setEnabled(False)
-    self.mode = mode
-    attr = getattr(self, mode)
-    attr.freq = np.linspace(self.sweep_start, self.sweep_stop, self.sweep_size) * 1000
+    self.sweepWidget.setEnabled(False)
+    self.singleSweep.setEnabled(False)
+    self.autoSweep.setEnabled(False)
+    self.sweep_mode = mode
     self.offset = 0
     self.reading = True
     self.socket.write(struct.pack('<I', 0<<28 | int(self.sweep_start * 1000)))
     self.socket.write(struct.pack('<I', 1<<28 | int(self.sweep_stop * 1000)))
     self.socket.write(struct.pack('<I', 2<<28 | int(self.sweep_size)))
     self.socket.write(struct.pack('<I', 7<<28))
-    self.progress = QProgressDialog('Sweep status', 'Cancel', 0, self.sweep_size)
-    self.progress.setModal(True)
-    self.progress.setMinimumDuration(1000)
-    self.progress.canceled.connect(self.cancel)
+    self.progress.setMinimum(0)
+    self.progress.setMaximum(self.sweep_size)
+    self.progress.setValue(0)
 
   def cancel(self):
-    self.offset = 0
+    self.sweepTimer.stop()
+    self.auto = False
     self.reading = False
     self.socket.write(struct.pack('<I', 8<<28))
-    self.sweepFrame.setEnabled(True)
-    self.selectFrame.setEnabled(True)
+    self.progress.setValue(0)
+    self.sweepWidget.setEnabled(True)
+    self.singleSweep.setEnabled(True)
+    self.autoSweep.setEnabled(True)
 
-  def sweep_open(self):
-    self.sweep('open')
+  def sweep_auto(self):
+    self.auto = True
+    self.sweepTimer.start(100)
 
-  def sweep_short(self):
-    self.sweep('short')
+  def sweep_timeout(self):
+    if not self.reading:
+      self.sweep('dut')
 
-  def sweep_load(self):
-    self.sweep('load')
+  def gain_short(self, freq):
+    short = np.interp(freq, self.short.freq, self.short.data, period = self.short.period)
+    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
+    return np.divide(dut, short)
 
-  def sweep_dut(self):
-    self.sweep('dut')
+  def gain_open(self, freq):
+    open = np.interp(freq, self.open.freq, self.open.data, period = self.open.period)
+    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
+    return np.divide(dut, open)
 
-  def interp(self, freq, data):
-    real = np.interp(self.dut.freq, freq, data.real)
-    imag = np.interp(self.dut.freq, freq, data.imag)
-    return real + 1j * imag
+  def impedance(self, freq):
+    open = np.interp(freq, self.open.freq, self.open.data, period = self.open.period)
+    short = np.interp(freq, self.short.freq, self.short.data, period = self.short.period)
+    load = np.interp(freq, self.load.freq, self.load.data, period = self.load.period)
+    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
+    return np.divide(50.0 * (open - load) * (dut - short), (load - short) * (open - dut))
 
-  def gain(self):
-    return self.dut.data/self.interp(self.short.freq, self.short.data)
+  def gamma(self, freq):
+    z = self.impedance(freq)
+    return np.divide(z - 50.0, z + 50.0)
 
-  def impedance(self):
-    open = self.interp(self.open.freq, self.open.data)
-    short = self.interp(self.short.freq, self.short.data)
-    load = self.interp(self.load.freq, self.load.data)
-    dut = self.dut.data
-    return 50.0 * (open - load) * (dut - short) / ((load - short) * (open - dut))
+  def swr(self, freq):
+    magnitude = np.absolute(self.gamma(freq))
+    swr = np.divide(1.0 + magnitude, 1.0 - magnitude)
+    return np.maximum(1.0, np.minimum(10.0, swr))
 
-  def gamma(self):
-    z = self.impedance()
-    return (z - 50.0)/(z + 50.0)
+  def add_cursors(self, axes):
+    if self.plot_mode == 'gain_short' or self.plot_mode == 'gain_open':
+      columns = ['Freq., kHz', 'G', r'$\angle$ G']
+    else:
+      columns = ['Freq., kHz', 'Re(Z)', 'Im(Z)', '|Z|', r'$\angle$ Z', 'SWR', r'|$\Gamma$|', r'$\angle$ $\Gamma$', 'RL']
+    y = len(VNA.cursors) * 0.04 + 0.01
+    for i in range(len(columns)):
+      self.figure.text(0.19 + 0.1 * i, y, columns[i], horizontalalignment = 'right')
+    self.cursorRows = {}
+    for i in range(len(VNA.cursors)):
+      y = len(VNA.cursors) * 0.04 - 0.03 - 0.04 * i
+      self.figure.text(0.01, y, 'Cursor %d' % (i + 1), color = VNA.colors[i])
+      self.cursorRows[i] = {}
+      for j in range(len(columns)):
+        self.cursorRows[i][j] = self.figure.text(0.19 + 0.1 * j, y, '', horizontalalignment = 'right')
+      if self.plot_mode == 'smith':
+        self.cursorMarkers[i], = axes.plot(0.0, 0.0, marker = 'o', color = VNA.colors[i])
+      else:
+        self.cursorMarkers[i] = axes.axvline(0.0, color = VNA.colors[i], linewidth = 2)
+      self.set_cursor(i, self.cursorValues[i].value())
 
-  def plot_gain(self):
-    if self.cursor is not None: self.cursor.hide().disable()
+  def set_cursor(self, index, value):
+    marker = self.cursorMarkers[index]
+    if marker is None: return
+    row = self.cursorRows[index]
+    freq = value * 1000
+    gamma = self.gamma(freq)
+    if self.plot_mode == 'smith':
+      marker.set_xdata(gamma.real)
+      marker.set_ydata(gamma.imag)
+    else:
+      marker.set_xdata(freq)
+    row[0].set_text('%d' % value)
+    if self.plot_mode == 'gain_short':
+      gain = self.gain_short(freq)
+      row[1].set_text('%.2f' % (20.0 * np.log10(np.absolute(gain))))
+      row[2].set_text(metric_prefix(np.angle(gain, deg = True)))
+    elif self.plot_mode == 'gain_open':
+      gain = self.gain_open(freq)
+      row[1].set_text('%.2f' % (20.0 * np.log10(np.absolute(gain))))
+      row[2].set_text(metric_prefix(np.angle(gain, deg = True)))
+    else:
+      swr = self.swr(freq)
+      z = self.impedance(freq)
+      rl = 20.0 * np.log10(np.absolute(gamma))
+      row[1].set_text(metric_prefix(z.real))
+      row[2].set_text(metric_prefix(z.imag))
+      row[3].set_text(metric_prefix(np.absolute(z)))
+      row[4].set_text(metric_prefix(np.angle(z, deg = True)))
+      row[5].set_text(metric_prefix(swr))
+      row[6].set_text(metric_prefix(np.absolute(gamma)))
+      row[7].set_text(metric_prefix(np.angle(gamma, deg = True)))
+      row[8].set_text('%.2f' % rl)
+    self.canvas.draw()
+
+  def plot(self):
+    getattr(window, 'plot_%s' % self.plot_mode)()
+
+  def plot_curves(self, data1, label1, data2, label2):
     matplotlib.rcdefaults()
     self.figure.clf()
-    self.figure.subplots_adjust(left = 0.12, bottom = 0.12, right = 0.88, top = 0.98)
+    bottom = len(VNA.cursors) * 0.04 + 0.12
+    self.figure.subplots_adjust(left = 0.12, bottom = bottom, right = 0.88, top = 0.98)
     axes1 = self.figure.add_subplot(111)
     axes1.cla()
+    axes1.grid()
     axes1.xaxis.set_major_formatter(FuncFormatter(metric_prefix))
     axes1.yaxis.set_major_formatter(FuncFormatter(metric_prefix))
+    axes1.set_xlabel('Hz')
+    axes1.set_ylabel(label1)
+    self.curve1, = axes1.plot(self.dut.freq, data1, color = 'blue', label = label1)
+    self.add_cursors(axes1)
+    if data2 is None:
+      self.canvas.draw()
+      return
     axes1.tick_params('y', color = 'blue', labelcolor = 'blue')
     axes1.yaxis.label.set_color('blue')
-    gain = self.gain()
-    axes1.plot(self.dut.freq, 20.0 * np.log10(np.absolute(gain)), color = 'blue', label = 'Gain')
     axes2 = axes1.twinx()
     axes2.spines['left'].set_color('blue')
     axes2.spines['right'].set_color('red')
-    axes1.set_xlabel('Hz')
-    axes1.set_ylabel('Gain, dB')
-    axes2.set_ylabel('Phase angle')
+    axes2.yaxis.set_major_formatter(FuncFormatter(metric_prefix))
+    axes2.set_ylabel(label2)
     axes2.tick_params('y', color = 'red', labelcolor = 'red')
     axes2.yaxis.label.set_color('red')
-    axes2.plot(self.dut.freq, np.angle(gain, deg = True), color = 'red', label = 'Phase angle')
-    self.cursor = datacursor(axes = self.figure.get_axes(), formatter = LabelFormatter(), display = 'multiple')
+    self.curve2, = axes2.plot(self.dut.freq, data2, color = 'red', label = label2)
     self.canvas.draw()
+
+  def plot_gain(self, gain):
+    self.plot_curves(20.0 * np.log10(np.absolute(gain)), 'Gain, dB', np.angle(gain, deg = True), 'Phase angle')
+
+  def plot_gain_short(self):
+    self.plot_mode = 'gain_short'
+    self.plot_gain(self.gain_short(self.dut.freq))
+
+  def plot_gain_open(self):
+    self.plot_mode = 'gain_open'
+    self.plot_gain(self.gain_open(self.dut.freq))
+
+  def update_gain(self, gain, plot_mode):
+    if self.plot_mode == plot_mode:
+      self.curve1.set_xdata(self.dut.freq)
+      self.curve1.set_ydata(20.0 * np.log10(np.absolute(gain)))
+      self.curve2.set_xdata(self.dut.freq)
+      self.curve2.set_ydata(np.angle(gain, deg = True))
+      self.canvas.draw()
+    else:
+      self.plot_mode = plot_mode
+      self.plot_gain(gain)
+
+  def update_gain_short(self):
+    self.update_gain(self.gain_short(self.dut.freq), 'gain_short')
+
+  def update_gain_open(self):
+    self.update_gain(self.gain_open(self.dut.freq), 'gain_open')
 
   def plot_magphase(self, freq, data):
-    if self.cursor is not None: self.cursor.hide().disable()
-    matplotlib.rcdefaults()
-    self.figure.clf()
-    self.figure.subplots_adjust(left = 0.12, bottom = 0.12, right = 0.88, top = 0.98)
-    axes1 = self.figure.add_subplot(111)
-    axes1.cla()
-    axes1.xaxis.set_major_formatter(FuncFormatter(metric_prefix))
-    axes1.yaxis.set_major_formatter(FuncFormatter(metric_prefix))
-    axes1.tick_params('y', color = 'blue', labelcolor = 'blue')
-    axes1.yaxis.label.set_color('blue')
-    axes1.plot(freq, np.absolute(data), color = 'blue', label = 'Magnitude')
-    axes2 = axes1.twinx()
-    axes2.spines['left'].set_color('blue')
-    axes2.spines['right'].set_color('red')
-    axes1.set_xlabel('Hz')
-    axes1.set_ylabel('Magnitude')
-    axes2.set_ylabel('Phase angle')
-    axes2.tick_params('y', color = 'red', labelcolor = 'red')
-    axes2.yaxis.label.set_color('red')
-    axes2.plot(freq, np.angle(data, deg = True), color = 'red', label = 'Phase angle')
-    self.cursor = datacursor(axes = self.figure.get_axes(), formatter = LabelFormatter(), display = 'multiple')
-    self.canvas.draw()
+    self.plot_curves(np.absolute(data), 'Magnitude', np.angle(data, deg = True), 'Phase angle')
+
+  def update_magphase(self, freq, data, plot_mode):
+    if self.plot_mode == plot_mode:
+      self.curve1.set_xdata(freq)
+      self.curve1.set_ydata(np.absolute(data))
+      self.curve2.set_xdata(freq)
+      self.curve2.set_ydata(np.angle(data, deg = True))
+      self.canvas.draw()
+    else:
+      self.plot_mode = plot_mode
+      self.plot_magphase(freq, data)
 
   def plot_open(self):
+    self.plot_mode = 'open'
     self.plot_magphase(self.open.freq, self.open.data)
 
+  def update_open(self):
+    self.update_magphase(self.open.freq, self.open.data, 'open')
+
   def plot_short(self):
+    self.plot_mode = 'short'
     self.plot_magphase(self.short.freq, self.short.data)
 
+  def update_short(self):
+    self.update_magphase(self.short.freq, self.short.data, 'short')
+
   def plot_load(self):
+    self.plot_mode = 'load'
     self.plot_magphase(self.load.freq, self.load.data)
 
+  def update_load(self):
+    self.update_magphase(self.load.freq, self.load.data, 'load')
+
   def plot_dut(self):
+    self.plot_mode = 'dut'
     self.plot_magphase(self.dut.freq, self.dut.data)
+
+  def update_dut(self):
+    self.update_magphase(self.dut.freq, self.dut.data, 'dut')
 
   def plot_smith_grid(self, axes, color):
     load = 50.0
@@ -396,14 +533,15 @@ class VNA(QMainWindow, Ui_VNA):
       axes.text(x, -y, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = -angle, fontsize = 12.0)
 
   def plot_smith(self):
-    if self.cursor is not None: self.cursor.hide().disable()
+    self.plot_mode = 'smith'
     matplotlib.rcdefaults()
     self.figure.clf()
-    self.figure.subplots_adjust(left = 0.0, bottom = 0.0, right = 1.0, top = 1.0)
+    bottom = len(VNA.cursors) * 0.04 + 0.04
+    self.figure.subplots_adjust(left = 0.0, bottom = bottom, right = 1.0, top = 1.0)
     axes1 = self.figure.add_subplot(111)
     self.plot_smith_grid(axes1, 'blue')
-    gamma = self.gamma()
-    plot, = axes1.plot(gamma.real, gamma.imag, color = 'red')
+    gamma = self.gamma(self.dut.freq)
+    self.curve1, = axes1.plot(gamma.real, gamma.imag, color = 'red')
     axes1.axis('equal')
     axes1.set_xlim(-1.12, 1.12)
     axes1.set_ylim(-1.12, 1.12)
@@ -411,50 +549,62 @@ class VNA(QMainWindow, Ui_VNA):
     axes1.yaxis.set_visible(False)
     for loc, spine in axes1.spines.items():
       spine.set_visible(False)
-    self.cursor = datacursor(plot, formatter = SmithFormatter(self.dut.freq), display = 'multiple')
+    self.add_cursors(axes1)
     self.canvas.draw()
+
+  def update_smith(self):
+    if self.plot_mode == 'smith':
+      gamma = self.gamma(self.dut.freq)
+      self.curve1.set_xdata(gamma.real)
+      self.curve1.set_ydata(gamma.imag)
+      self.canvas.draw()
+    else:
+      self.plot_smith()
 
   def plot_imp(self):
-    self.plot_magphase(self.dut.freq, self.impedance())
+    self.plot_mode = 'imp'
+    self.plot_magphase(self.dut.freq, self.impedance(self.dut.freq))
 
-  def plot_rc(self):
-    self.plot_magphase(self.dut.freq, self.gamma())
+  def update_imp(self):
+    self.update_magphase(self.dut.freq, self.impedance(self.dut.freq), 'imp')
 
   def plot_swr(self):
-    if self.cursor is not None: self.cursor.hide().disable()
-    matplotlib.rcdefaults()
-    self.figure.clf()
-    self.figure.subplots_adjust(left = 0.12, bottom = 0.12, right = 0.88, top = 0.98)
-    axes1 = self.figure.add_subplot(111)
-    axes1.cla()
-    axes1.xaxis.set_major_formatter(FuncFormatter(metric_prefix))
-    axes1.yaxis.set_major_formatter(FuncFormatter(metric_prefix))
-    axes1.set_xlabel('Hz')
-    axes1.set_ylabel('SWR')
-    magnitude = np.absolute(self.gamma())
-    swr = np.maximum(1.0, np.minimum(100.0, (1.0 + magnitude) / np.maximum(1.0e-20, 1.0 - magnitude)))
-    axes1.plot(self.dut.freq, swr, color = 'blue', label = 'SWR')
-    self.cursor = datacursor(axes = self.figure.get_axes(), formatter = LabelFormatter(), display = 'multiple')
-    self.canvas.draw()
+    self.plot_mode = 'swr'
+    self.plot_curves(self.swr(self.dut.freq), 'SWR', None, None)
+
+  def update_swr(self):
+    if self.plot_mode == 'swr':
+      self.curve1.set_xdata(self.dut.freq)
+      self.curve1.set_ydata(self.swr(self.dut.freq))
+      self.canvas.draw()
+    else:
+      self.plot_swr()
+
+  def plot_rc(self):
+    self.plot_mode = 'rc'
+    self.plot_magphase(self.dut.freq, self.gamma(self.dut.freq))
+
+  def update_rc(self):
+    self.update_magphase(self.dut.freq, self.gamma(self.dut.freq), 'rc')
 
   def plot_rl(self):
-    if self.cursor is not None: self.cursor.hide().disable()
-    matplotlib.rcdefaults()
-    self.figure.clf()
-    self.figure.subplots_adjust(left = 0.12, bottom = 0.12, right = 0.88, top = 0.98)
-    axes1 = self.figure.add_subplot(111)
-    axes1.cla()
-    axes1.xaxis.set_major_formatter(FuncFormatter(metric_prefix))
-    axes1.set_xlabel('Hz')
-    axes1.set_ylabel('Return loss, dB')
-    magnitude = np.absolute(self.gamma())
-    axes1.plot(self.dut.freq, 20.0 * np.log10(magnitude), color = 'blue', label = 'Return loss')
-    self.cursor = datacursor(axes = self.figure.get_axes(), formatter = LabelFormatter(), display = 'multiple')
-    self.canvas.draw()
+    self.plot_mode = 'rl'
+    magnitude = np.absolute(self.gamma(self.dut.freq))
+    self.plot_curves(20.0 * np.log10(magnitude), 'Return loss, dB', None, None)
+
+  def update_rl(self):
+    if self.plot_mode == 'rl':
+      magnitude = np.absolute(self.gamma(self.dut.freq))
+      self.curve1.set_xdata(self.dut.freq)
+      self.curve1.set_ydata(20.0 * np.log10(magnitude))
+      self.canvas.draw()
+    else:
+      self.plot_rl()
 
   def write_cfg(self):
     dialog = QFileDialog(self, 'Write configuration settings', '.', '*.ini')
     dialog.setDefaultSuffix('ini')
+    dialog.selectFile('vna.ini')
     dialog.setAcceptMode(QFileDialog.AcceptSave)
     dialog.setOptions(QFileDialog.DontConfirmOverwrite)
     if dialog.exec() == QDialog.Accepted:
@@ -465,16 +615,21 @@ class VNA(QMainWindow, Ui_VNA):
   def read_cfg(self):
     dialog = QFileDialog(self, 'Read configuration settings', '.', '*.ini')
     dialog.setDefaultSuffix('ini')
+    dialog.selectFile('vna.ini')
     dialog.setAcceptMode(QFileDialog.AcceptOpen)
     if dialog.exec() == QDialog.Accepted:
       name = dialog.selectedFiles()
       settings = QSettings(name[0], QSettings.IniFormat)
       self.read_cfg_settings(settings)
+      window.plot()
 
   def write_cfg_settings(self, settings):
     settings.setValue('addr', self.addrValue.text())
+    settings.setValue('plot', self.plotValue.currentIndex())
     settings.setValue('rate', self.rateValue.currentIndex())
     settings.setValue('corr', self.corrValue.value())
+    for i in range(len(VNA.cursors)):
+      settings.setValue('cursor_%d' % i, self.cursorValues[i].value())
     settings.setValue('open_start', int(self.open.freq[0]))
     settings.setValue('open_stop', int(self.open.freq[-1]))
     settings.setValue('open_size', self.open.freq.size)
@@ -488,26 +643,29 @@ class VNA(QMainWindow, Ui_VNA):
     settings.setValue('dut_stop', int(self.dut.freq[-1]))
     settings.setValue('dut_size', self.dut.freq.size)
     data = self.open.data
-    for i in range(0, self.open.freq.size):
+    for i in range(self.open.freq.size):
       settings.setValue('open_real_%d' % i, float(data.real[i]))
       settings.setValue('open_imag_%d' % i, float(data.imag[i]))
     data = self.short.data
-    for i in range(0, self.short.freq.size):
+    for i in range(self.short.freq.size):
       settings.setValue('short_real_%d' % i, float(data.real[i]))
       settings.setValue('short_imag_%d' % i, float(data.imag[i]))
     data = self.load.data
-    for i in range(0, self.load.freq.size):
+    for i in range(self.load.freq.size):
       settings.setValue('load_real_%d' % i, float(data.real[i]))
       settings.setValue('load_imag_%d' % i, float(data.imag[i]))
     data = self.dut.data
-    for i in range(0, self.dut.freq.size):
+    for i in range(self.dut.freq.size):
       settings.setValue('dut_real_%d' % i, float(data.real[i]))
       settings.setValue('dut_imag_%d' % i, float(data.imag[i]))
 
   def read_cfg_settings(self, settings):
     self.addrValue.setText(settings.value('addr', '192.168.1.100'))
+    self.plotValue.setCurrentIndex(settings.value('plot', 0, type = int))
     self.rateValue.setCurrentIndex(settings.value('rate', 0, type = int))
     self.corrValue.setValue(settings.value('corr', 0, type = int))
+    for i in range(len(VNA.cursors)):
+      self.cursorValues[i].setValue(settings.value('cursor_%d' % i, VNA.cursors[i], type = int))
     open_start = settings.value('open_start', 10000, type = int) // 1000
     open_stop = settings.value('open_stop', 60000000, type = int) // 1000
     open_size = settings.value('open_size', 6000, type = int)
@@ -524,22 +682,22 @@ class VNA(QMainWindow, Ui_VNA):
     self.stopValue.setValue(dut_stop)
     self.sizeValue.setValue(dut_size)
     self.open = Measurement(open_start, open_stop, open_size)
-    for i in range(0, open_size):
+    for i in range(open_size):
       real = settings.value('open_real_%d' % i, 0.0, type = float)
       imag = settings.value('open_imag_%d' % i, 0.0, type = float)
       self.open.data[i] = real + 1.0j * imag
     self.short = Measurement(short_start, short_stop, short_size)
-    for i in range(0, short_size):
+    for i in range(short_size):
       real = settings.value('short_real_%d' % i, 0.0, type = float)
       imag = settings.value('short_imag_%d' % i, 0.0, type = float)
       self.short.data[i] = real + 1.0j * imag
     self.load = Measurement(load_start, load_stop, load_size)
-    for i in range(0, load_size):
+    for i in range(load_size):
       real = settings.value('load_real_%d' % i, 0.0, type = float)
       imag = settings.value('load_imag_%d' % i, 0.0, type = float)
       self.load.data[i] = real + 1.0j * imag
     self.dut = Measurement(dut_start, dut_stop, dut_size)
-    for i in range(0, dut_size):
+    for i in range(dut_size):
       real = settings.value('dut_real_%d' % i, 0.0, type = float)
       imag = settings.value('dut_imag_%d' % i, 0.0, type = float)
       self.dut.data[i] = real + 1.0j * imag
@@ -552,13 +710,13 @@ class VNA(QMainWindow, Ui_VNA):
     if dialog.exec() == QDialog.Accepted:
       name = dialog.selectedFiles()
       fh = open(name[0], 'w')
-      o = self.interp(self.open.freq, self.open.data)
-      s = self.interp(self.short.freq, self.short.data)
-      l = self.interp(self.load.freq, self.load.data)
-      d = self.dut.data
       f = self.dut.freq
+      o = np.interp(f, self.open.freq, self.open.data, period = self.open.period)
+      s = np.interp(f, self.short.freq, self.short.data, period = self.short.period)
+      l = np.interp(f, self.load.freq, self.load.data, period = self.load.period)
+      d = self.dut.data
       fh.write('frequency;open.real;open.imag;short.real;short.imag;load.real;load.imag;dut.real;dut.imag\n')
-      for i in range(0, f.size):
+      for i in range(f.size):
         fh.write('0.0%.8d;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f\n' % (f[i], o.real[i], o.imag[i], s.real[i], s.imag[i], l.real[i], l.imag[i], d.real[i], d.imag[i]))
       fh.close()
 
@@ -570,14 +728,14 @@ class VNA(QMainWindow, Ui_VNA):
     if dialog.exec() == QDialog.Accepted:
       name = dialog.selectedFiles()
       fh = open(name[0], 'w')
-      gamma = self.gamma()
       freq = self.dut.freq
+      gamma = self.gamma(freq)
       fh.write('# GHz S MA R 50\n')
-      for i in range(0, freq.size):
+      for i in range(freq.size):
         fh.write('0.0%.8d   %8.6f %7.2f\n' % (freq[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
       fh.close()
 
-  def write_s2p(self):
+  def write_s2p(self, gain):
     dialog = QFileDialog(self, 'Write s2p file', '.', '*.s2p')
     dialog.setDefaultSuffix('s2p')
     dialog.setAcceptMode(QFileDialog.AcceptSave)
@@ -585,16 +743,23 @@ class VNA(QMainWindow, Ui_VNA):
     if dialog.exec() == QDialog.Accepted:
       name = dialog.selectedFiles()
       fh = open(name[0], 'w')
-      gain = self.gain()
-      gamma = self.gamma()
       freq = self.dut.freq
+      gamma = self.gamma(freq)
       fh.write('# GHz S MA R 50\n')
-      for i in range(0, freq.size):
+      for i in range(freq.size):
         fh.write('0.0%.8d   %8.6f %7.2f   %8.6f %7.2f   0.000000    0.00   0.000000    0.00\n' % (freq[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True), np.absolute(gain[i]), np.angle(gain[i], deg = True)))
       fh.close()
+
+  def write_s2p_short(self):
+    self.write_s2p(self.gain_short(self.dut.freq))
+
+  def write_s2p_open(self):
+    self.write_s2p(self.gain_open(self.dut.freq))
 
 warnings.filterwarnings('ignore')
 app = QApplication(sys.argv)
 window = VNA()
+window.read_cfg_settings(window.settings)
+window.plot()
 window.show()
 sys.exit(app.exec())
