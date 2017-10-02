@@ -34,7 +34,7 @@ from matplotlib.ticker import Formatter, FuncFormatter
 from PyQt5.uic import loadUiType
 from PyQt5.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
 from PyQt5.QtGui import QRegExpValidator
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QDialog, QFileDialog, QProgressDialog, QComboBox, QPushButton, QProgressBar, QLabel, QSpinBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QHBoxLayout, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QDialog, QFileDialog, QProgressDialog, QComboBox, QPushButton, QProgressBar, QLabel, QSpinBox
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_VNA, QMainWindow = loadUiType('vna.ui')
@@ -42,18 +42,26 @@ Ui_VNA, QMainWindow = loadUiType('vna.ui')
 def metric_prefix(x, pos = None):
   if x == 0.0:
     return '0'
+  elif abs(x) >= 1.0e9:
+    return '%.4gG' % (x * 1.0e-9)
   elif abs(x) >= 1.0e6:
-    return '%gM' % (x * 1.0e-6)
+    return '%.4gM' % (x * 1.0e-6)
   elif abs(x) >= 1.0e3:
-    return '%gk' % (x * 1.0e-3)
+    return '%.4gk' % (x * 1.0e-3)
   elif abs(x) >= 1.0e0:
-    return '%g' % x
+    return '%.4g' % x
   elif abs(x) >= 1.0e-3:
-    return '%gm' % (x * 1e+3)
+    return '%.4gm' % (x * 1e+3)
   elif abs(x) >= 1.0e-6:
-    return '%gu' % (x * 1e+6)
+    return '%.4gu' % (x * 1e+6)
+  elif abs(x) >= 1.0e-9:
+    return '%.4gn' % (x * 1e+9)
+  elif abs(x) >= 1.0e-12:
+    return '%.4gp' % (x * 1e+12)
+  elif abs(x) < 1.0e-12:
+    return '0'
   else:
-    return '%g' % x
+    return '%.4g' % x
 
 class Measurement:
   def __init__(self, start, stop, size):
@@ -63,7 +71,7 @@ class Measurement:
 
 class VNA(QMainWindow, Ui_VNA):
   cursors = [15000, 45000]
-  colors = ['magenta', 'orange']
+  colors = ['orange', 'violet']
 
   def __init__(self):
     super(VNA, self).__init__()
@@ -97,19 +105,22 @@ class VNA(QMainWindow, Ui_VNA):
     self.plotLayout.addWidget(self.canvas)
     # create navigation toolbar
     self.toolbar = NavigationToolbar(self.canvas, self.plotWidget, False)
+    self.toolbar.layout().setSpacing(6)
     # remove subplots action
     actions = self.toolbar.actions()
     if int(matplotlib.__version__[0]) < 2:
       self.toolbar.removeAction(actions[7])
+      self.toolbar.removeAction(actions[9])
     else:
       self.toolbar.removeAction(actions[6])
+      self.toolbar.removeAction(actions[7])
     self.toolbar.addSeparator()
     self.cursorLabels = {}
     self.cursorValues = {}
     self.cursorMarkers = {}
     for i in range(len(VNA.cursors)):
       self.cursorMarkers[i] = None
-      self.cursorLabels[i] = QLabel(' Cursor %d, kHz ' % i, self)
+      self.cursorLabels[i] = QLabel('Cursor %d, kHz' % (i + 1), self)
       self.cursorLabels[i].setStyleSheet('color: %s' % VNA.colors[i])
       self.cursorValues[i] = QSpinBox(self)
       self.cursorValues[i].setMinimumSize(75, 0)
@@ -136,15 +147,15 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.readyRead.connect(self.read_data)
     self.socket.error.connect(self.display_error)
     # connect signals from buttons and boxes
-    self.sweepFrame.setEnabled(False)
-    self.stopFrame.setEnabled(False)
+    self.sweepWidget.setEnabled(False)
+    self.stopWidget.setEnabled(False)
     self.connectButton.clicked.connect(self.start)
     self.writeButton.clicked.connect(self.write_cfg)
     self.readButton.clicked.connect(self.read_cfg)
     self.openSweep.clicked.connect(partial(self.sweep, 'open'))
     self.shortSweep.clicked.connect(partial(self.sweep, 'short'))
     self.loadSweep.clicked.connect(partial(self.sweep, 'load'))
-    self.singleSweep.clicked.connect(partial(self.sweep, 'single'))
+    self.singleSweep.clicked.connect(partial(self.sweep, 'dut'))
     self.autoSweep.clicked.connect(self.sweep_auto)
     self.stopSweep.clicked.connect(self.cancel)
     self.csvButton.clicked.connect(self.write_csv)
@@ -185,8 +196,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.abort()
     self.connectButton.setText('Connect')
     self.connectButton.setEnabled(True)
-    self.sweepFrame.setEnabled(False)
-    self.stopFrame.setEnabled(False)
+    self.sweepWidget.setEnabled(False)
+    self.stopWidget.setEnabled(False)
 
   def timeout(self):
     self.display_error('timeout')
@@ -202,8 +213,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.set_level(self.levelValue.value())
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
-    self.sweepFrame.setEnabled(True)
-    self.stopFrame.setEnabled(True)
+    self.sweepWidget.setEnabled(True)
+    self.stopWidget.setEnabled(True)
 
   def read_data(self):
     while(self.socket.bytesAvailable() > 0):
@@ -235,7 +246,7 @@ class VNA(QMainWindow, Ui_VNA):
         self.reading = False
         if not self.auto:
           self.progress.setValue(0)
-          self.sweepFrame.setEnabled(True)
+          self.sweepWidget.setEnabled(True)
           self.singleSweep.setEnabled(True)
           self.autoSweep.setEnabled(True)
 
@@ -276,7 +287,7 @@ class VNA(QMainWindow, Ui_VNA):
 
   def sweep(self, mode):
     if self.idle: return
-    self.sweepFrame.setEnabled(False)
+    self.sweepWidget.setEnabled(False)
     self.singleSweep.setEnabled(False)
     self.autoSweep.setEnabled(False)
     self.sweep_mode = mode
@@ -296,7 +307,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.reading = False
     self.socket.write(struct.pack('<I', 8<<28))
     self.progress.setValue(0)
-    self.sweepFrame.setEnabled(True)
+    self.sweepWidget.setEnabled(True)
     self.singleSweep.setEnabled(True)
     self.autoSweep.setEnabled(True)
 
@@ -345,7 +356,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.cursorRows = {}
     for i in range(len(VNA.cursors)):
       y = len(VNA.cursors) * 0.04 - 0.03 - 0.04 * i
-      self.figure.text(0.01, y, 'Cursor %d' % i, color = VNA.colors[i])
+      self.figure.text(0.01, y, 'Cursor %d' % (i + 1), color = VNA.colors[i])
       self.cursorRows[i] = {}
       for j in range(len(columns)):
         self.cursorRows[i][j] = self.figure.text(0.19 + 0.1 * j, y, '', horizontalalignment = 'right')
