@@ -17,8 +17,7 @@ includes = [
   'PyQt5.QtWidgets',
   'PyQt5.QtXml',
   'numpy',
-  'matplotlib.backends.backend_qt5agg',
-  'mpldatacursor'
+  'matplotlib.backends.backend_qt5agg'
 ]
 
 setup(
