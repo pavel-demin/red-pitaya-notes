@@ -118,8 +118,10 @@ class VNA(QMainWindow, Ui_VNA):
     self.cursorLabels = {}
     self.cursorValues = {}
     self.cursorMarkers = {}
+    self.cursorPressed = {}
     for i in range(len(VNA.cursors)):
       self.cursorMarkers[i] = None
+      self.cursorPressed[i] = False
       self.cursorLabels[i] = QLabel('Cursor %d, kHz' % (i + 1), self)
       self.cursorLabels[i].setStyleSheet('color: %s' % VNA.colors[i])
       self.cursorValues[i] = QSpinBox(self)
@@ -131,6 +133,9 @@ class VNA(QMainWindow, Ui_VNA):
       self.toolbar.addWidget(self.cursorLabels[i])
       self.toolbar.addWidget(self.cursorValues[i])
       self.cursorValues[i].valueChanged.connect(partial(self.set_cursor, i))
+      self.canvas.mpl_connect('button_press_event', partial(self.press_marker, i))
+      self.canvas.mpl_connect('motion_notify_event', partial(self.move_marker, i))
+      self.canvas.mpl_connect('button_release_event', partial(self.release_marker, i))
     self.toolbar.addSeparator()
     self.plotValue = QComboBox(self)
     self.toolbar.addWidget(self.plotValue)
@@ -400,10 +405,28 @@ class VNA(QMainWindow, Ui_VNA):
       row[8].set_text('%.2f' % rl)
     self.canvas.draw()
 
+  def press_marker(self, index, event):
+    if not event.inaxes: return
+    if self.plot_mode == 'smith': return
+    marker = self.cursorMarkers[index]
+    if marker is None: return
+    contains, misc = marker.contains(event)
+    if not contains: return
+    self.cursorPressed[index] = True
+
+  def move_marker(self, index, event):
+    if not event.inaxes: return
+    if self.plot_mode == 'smith': return
+    if not self.cursorPressed[index]: return
+    self.cursorValues[index].setValue(event.xdata // 1000)
+
+  def release_marker(self, index, event):
+    self.cursorPressed[index] = False
+
   def plot(self):
     getattr(window, 'plot_%s' % self.plot_mode)()
 
-  def plot_curves(self, data1, label1, data2, label2):
+  def plot_curves(self, freq, data1, label1, data2, label2):
     matplotlib.rcdefaults()
     self.figure.clf()
     bottom = len(VNA.cursors) * 0.04 + 0.12
@@ -415,7 +438,7 @@ class VNA(QMainWindow, Ui_VNA):
     axes1.yaxis.set_major_formatter(FuncFormatter(metric_prefix))
     axes1.set_xlabel('Hz')
     axes1.set_ylabel(label1)
-    self.curve1, = axes1.plot(self.dut.freq, data1, color = 'blue', label = label1)
+    self.curve1, = axes1.plot(freq, data1, color = 'blue', label = label1)
     self.add_cursors(axes1)
     if data2 is None:
       self.canvas.draw()
@@ -429,11 +452,11 @@ class VNA(QMainWindow, Ui_VNA):
     axes2.set_ylabel(label2)
     axes2.tick_params('y', color = 'red', labelcolor = 'red')
     axes2.yaxis.label.set_color('red')
-    self.curve2, = axes2.plot(self.dut.freq, data2, color = 'red', label = label2)
+    self.curve2, = axes2.plot(freq, data2, color = 'red', label = label2)
     self.canvas.draw()
 
   def plot_gain(self, gain):
-    self.plot_curves(20.0 * np.log10(np.absolute(gain)), 'Gain, dB', np.angle(gain, deg = True), 'Phase angle')
+    self.plot_curves(self.dut.freq, 20.0 * np.log10(np.absolute(gain)), 'Gain, dB', np.angle(gain, deg = True), 'Phase angle')
 
   def plot_gain_short(self):
     self.plot_mode = 'gain_short'
@@ -461,7 +484,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.update_gain(self.gain_open(self.dut.freq), 'gain_open')
 
   def plot_magphase(self, freq, data):
-    self.plot_curves(np.absolute(data), 'Magnitude', np.angle(data, deg = True), 'Phase angle')
+    self.plot_curves(freq, np.absolute(data), 'Magnitude', np.angle(data, deg = True), 'Phase angle')
 
   def update_magphase(self, freq, data, plot_mode):
     if self.plot_mode == plot_mode:
@@ -570,7 +593,7 @@ class VNA(QMainWindow, Ui_VNA):
 
   def plot_swr(self):
     self.plot_mode = 'swr'
-    self.plot_curves(self.swr(self.dut.freq), 'SWR', None, None)
+    self.plot_curves(self.dut.freq, self.swr(self.dut.freq), 'SWR', None, None)
 
   def update_swr(self):
     if self.plot_mode == 'swr':
@@ -590,7 +613,7 @@ class VNA(QMainWindow, Ui_VNA):
   def plot_rl(self):
     self.plot_mode = 'rl'
     magnitude = np.absolute(self.gamma(self.dut.freq))
-    self.plot_curves(20.0 * np.log10(magnitude), 'Return loss, dB', None, None)
+    self.plot_curves(self.dut.freq, 20.0 * np.log10(magnitude), 'Return loss, dB', None, None)
 
   def update_rl(self):
     if self.plot_mode == 'rl':
@@ -664,8 +687,6 @@ class VNA(QMainWindow, Ui_VNA):
     self.plotValue.setCurrentIndex(settings.value('plot', 0, type = int))
     self.rateValue.setCurrentIndex(settings.value('rate', 0, type = int))
     self.corrValue.setValue(settings.value('corr', 0, type = int))
-    for i in range(len(VNA.cursors)):
-      self.cursorValues[i].setValue(settings.value('cursor_%d' % i, VNA.cursors[i], type = int))
     open_start = settings.value('open_start', 10000, type = int) // 1000
     open_stop = settings.value('open_stop', 60000000, type = int) // 1000
     open_size = settings.value('open_size', 6000, type = int)
@@ -681,6 +702,11 @@ class VNA(QMainWindow, Ui_VNA):
     self.startValue.setValue(dut_start)
     self.stopValue.setValue(dut_stop)
     self.sizeValue.setValue(dut_size)
+    min = np.minimum(dut_start, dut_stop)
+    max = np.maximum(dut_start, dut_stop)
+    for i in range(len(VNA.cursors)):
+      self.cursorValues[i].setRange(min, max)
+      self.cursorValues[i].setValue(settings.value('cursor_%d' % i, VNA.cursors[i], type = int))
     self.open = Measurement(open_start, open_stop, open_size)
     for i in range(open_size):
       real = settings.value('open_real_%d' % i, 0.0, type = float)
