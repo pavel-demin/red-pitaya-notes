@@ -18,8 +18,9 @@ echo "Sleeping ..."
 
 $SLEEP
 
+sleep 1
 $GPIO 1
-sleep 2
+sleep 1
 
 date
 TIMESTAMP=`date --utc +'%y%m%d_%H%M'`
