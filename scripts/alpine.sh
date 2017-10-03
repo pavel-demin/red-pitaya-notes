@@ -66,8 +66,8 @@ cp -r apks $root_dir/media/mmcblk0p1/
 for project in led_blinker sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_emb sdr_transceiver_hpsdr sdr_transceiver_wide sdr_transceiver_wspr mcpha vna
 do
   mkdir -p $root_dir/media/mmcblk0p1/apps/$project
-  cp projects/$project/server/* $root_dir/media/mmcblk0p1/apps/$project/
-  cp projects/$project/app/* $root_dir/media/mmcblk0p1/apps/$project/
+  cp -r projects/$project/server/* $root_dir/media/mmcblk0p1/apps/$project/
+  cp -r projects/$project/app/* $root_dir/media/mmcblk0p1/apps/$project/
   cp tmp/$project.bit $root_dir/media/mmcblk0p1/apps/$project/
 done
 

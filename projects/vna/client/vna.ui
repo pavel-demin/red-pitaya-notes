@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>880</width>
+    <width>990</width>
     <height>660</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>880</width>
+    <width>990</width>
     <height>660</height>
    </size>
   </property>
@@ -70,7 +70,7 @@
         <widget class="QSpinBox" name="sizeValue">
          <property name="minimumSize">
           <size>
-           <width>75</width>
+           <width>90</width>
            <height>0</height>
           </size>
          </property>
@@ -95,7 +95,7 @@
         <widget class="QSpinBox" name="stopValue">
          <property name="minimumSize">
           <size>
-           <width>75</width>
+           <width>90</width>
            <height>0</height>
           </size>
          </property>
@@ -120,7 +120,7 @@
         <widget class="QSpinBox" name="startValue">
          <property name="minimumSize">
           <size>
-           <width>75</width>
+           <width>90</width>
            <height>0</height>
           </size>
          </property>
@@ -185,7 +185,7 @@
         <widget class="QSpinBox" name="corrValue">
          <property name="minimumSize">
           <size>
-           <width>75</width>
+           <width>90</width>
            <height>0</height>
           </size>
          </property>
@@ -217,7 +217,7 @@
         <widget class="QComboBox" name="rateValue">
          <property name="minimumSize">
           <size>
-           <width>75</width>
+           <width>90</width>
            <height>0</height>
           </size>
          </property>
@@ -240,7 +240,7 @@
         <widget class="QSpinBox" name="levelValue">
          <property name="minimumSize">
           <size>
-           <width>75</width>
+           <width>90</width>
            <height>0</height>
           </size>
          </property>

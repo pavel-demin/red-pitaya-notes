@@ -123,7 +123,7 @@ class VNA(QMainWindow, Ui_VNA):
       self.cursorLabels[i] = QLabel('Cursor %d, kHz' % (i + 1), self)
       self.cursorLabels[i].setStyleSheet('color: %s' % VNA.colors[i])
       self.cursorValues[i] = QSpinBox(self)
-      self.cursorValues[i].setMinimumSize(75, 0)
+      self.cursorValues[i].setMinimumSize(90, 0)
       self.cursorValues[i].setRange(self.sweep_start, self.sweep_stop)
       self.cursorValues[i].setSingleStep(10)
       self.cursorValues[i].setValue(VNA.cursors[i])
