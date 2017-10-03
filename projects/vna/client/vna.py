@@ -118,8 +118,10 @@ class VNA(QMainWindow, Ui_VNA):
     self.cursorLabels = {}
     self.cursorValues = {}
     self.cursorMarkers = {}
+    self.cursorPressed = {}
     for i in range(len(VNA.cursors)):
       self.cursorMarkers[i] = None
+      self.cursorPressed[i] = False
       self.cursorLabels[i] = QLabel('Cursor %d, kHz' % (i + 1), self)
       self.cursorLabels[i].setStyleSheet('color: %s' % VNA.colors[i])
       self.cursorValues[i] = QSpinBox(self)
@@ -131,6 +133,9 @@ class VNA(QMainWindow, Ui_VNA):
       self.toolbar.addWidget(self.cursorLabels[i])
       self.toolbar.addWidget(self.cursorValues[i])
       self.cursorValues[i].valueChanged.connect(partial(self.set_cursor, i))
+      self.canvas.mpl_connect('button_press_event', partial(self.press_marker, i))
+      self.canvas.mpl_connect('motion_notify_event', partial(self.move_marker, i))
+      self.canvas.mpl_connect('button_release_event', partial(self.release_marker, i))
     self.toolbar.addSeparator()
     self.plotValue = QComboBox(self)
     self.toolbar.addWidget(self.plotValue)
@@ -399,6 +404,24 @@ class VNA(QMainWindow, Ui_VNA):
       row[7].set_text(metric_prefix(np.angle(gamma, deg = True)))
       row[8].set_text('%.2f' % rl)
     self.canvas.draw()
+
+  def press_marker(self, index, event):
+    if not event.inaxes: return
+    if self.plot_mode == 'smith': return
+    marker = self.cursorMarkers[index]
+    if marker is None: return
+    contains, misc = marker.contains(event)
+    if not contains: return
+    self.cursorPressed[index] = True
+
+  def move_marker(self, index, event):
+    if not event.inaxes: return
+    if self.plot_mode == 'smith': return
+    if not self.cursorPressed[index]: return
+    self.cursorValues[index].setValue(event.xdata // 1000)
+
+  def release_marker(self, index, event):
+    self.cursorPressed[index] = False
 
   def plot(self):
     getattr(window, 'plot_%s' % self.plot_mode)()
