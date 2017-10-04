@@ -110,10 +110,8 @@ class VNA(QMainWindow, Ui_VNA):
     actions = self.toolbar.actions()
     if int(matplotlib.__version__[0]) < 2:
       self.toolbar.removeAction(actions[7])
-      self.toolbar.removeAction(actions[9])
     else:
       self.toolbar.removeAction(actions[6])
-      self.toolbar.removeAction(actions[7])
     self.toolbar.addSeparator()
     self.cursorLabels = {}
     self.cursorValues = {}
