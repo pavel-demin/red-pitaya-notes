@@ -61,6 +61,14 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
   dac_dat dac_dat_o
 }
 
+# GPIO
+
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_p_tri_io]
+
+# Create output port
+create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
+
 # CFG
 
 # Create axi_cfg_register
@@ -93,20 +101,28 @@ cell xilinx.com:ip:xlslice:1.0 slice_2 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
+  DIN_WIDTH 96 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+} {
+  Din cfg_0/cfg_data
+  Dout exp_p_tri_io
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_4 {
   DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
+cell xilinx.com:ip:xlslice:1.0 slice_5 {
   DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_5 {
+cell xilinx.com:ip:xlslice:1.0 slice_6 {
   DIN_WIDTH 96 DIN_FROM 95 DIN_TO 80 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
@@ -139,7 +155,7 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   CNTR_WIDTH 32
 } {
   S_AXIS fifo_0/M_AXIS
-  cfg_data slice_3/Dout
+  cfg_data slice_4/Dout
   aclk pll_0/clk_out1
   aresetn slice_1/Dout
 }
@@ -207,7 +223,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_4 {
   P_WIDTH 15
 } {
   A dds_slice_1/Dout
-  B slice_4/Dout
+  B slice_5/Dout
   CARRYIN lfsr_0/m_axis_tdata
   CLK pll_0/clk_out1
 }
@@ -223,7 +239,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_5 {
   P_WIDTH 15
 } {
   A dds_slice_1/Dout
-  B slice_5/Dout
+  B slice_6/Dout
   CARRYIN lfsr_0/m_axis_tdata
   CLK pll_0/clk_out1
 }

@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
   volatile void *cfg, *sts;
   volatile uint32_t *rx_freq, *rx_size;
   volatile int16_t *tx_level[2];
-  volatile uint8_t *rst;
+  volatile uint8_t *rst, *gpio;
   struct sockaddr_in addr;
   uint32_t command, rate;
   int32_t value, corr;
@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
   rx_cntr = ((uint16_t *)(sts + 12));
 
   rst = ((uint8_t *)(cfg + 0));
+  gpio = ((uint8_t *)(cfg + 1));
   rx_size = ((uint32_t *)(cfg + 4));
   tx_level[0] = ((int16_t *)(cfg + 8));
   tx_level[1] = ((int16_t *)(cfg + 10));
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
 
   *rst &= ~3;
   *rst |= 4;
+  *gpio = 0;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -102,6 +104,8 @@ int main(int argc, char *argv[])
       perror("accept");
       return EXIT_FAILURE;
     }
+
+    *gpio = 1;
 
     while(1)
     {
@@ -179,6 +183,7 @@ int main(int argc, char *argv[])
 
     *rst &= ~3;
     *rst |= 4;
+    *gpio = 0;
     sock_thread = -1;
     close(sock_client);
   }
