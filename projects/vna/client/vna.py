@@ -427,7 +427,7 @@ class VNA(QMainWindow, Ui_VNA):
   def plot_curves(self, freq, data1, label1, data2, label2):
     matplotlib.rcdefaults()
     self.figure.clf()
-    bottom = len(VNA.cursors) * 0.04 + 0.12
+    bottom = len(VNA.cursors) * 0.04 + 0.13
     self.figure.subplots_adjust(left = 0.12, bottom = bottom, right = 0.88, top = 0.98)
     axes1 = self.figure.add_subplot(111)
     axes1.cla()
@@ -557,7 +557,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.plot_mode = 'smith'
     matplotlib.rcdefaults()
     self.figure.clf()
-    bottom = len(VNA.cursors) * 0.04 + 0.04
+    bottom = len(VNA.cursors) * 0.04 + 0.05
     self.figure.subplots_adjust(left = 0.0, bottom = bottom, right = 1.0, top = 1.0)
     axes1 = self.figure.add_subplot(111)
     self.plot_smith_grid(axes1, 'blue')
