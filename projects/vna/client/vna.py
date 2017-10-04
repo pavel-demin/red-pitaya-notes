@@ -137,8 +137,6 @@ class VNA(QMainWindow, Ui_VNA):
     self.toolbar.addSeparator()
     self.plotValue = QComboBox(self)
     self.toolbar.addWidget(self.plotValue)
-    self.plotButton = QPushButton('Rescale', self)
-    self.toolbar.addWidget(self.plotButton)
     self.toolbar.addSeparator()
     self.progress = QProgressBar()
     self.progress.setTextVisible(False)
@@ -178,7 +176,6 @@ class VNA(QMainWindow, Ui_VNA):
     self.levelValue.valueChanged.connect(self.set_level)
     self.plotValue.addItems(['Open data', 'Short data', 'Load data', 'DUT data', 'Smith chart', 'Impedance', 'SWR', 'Refl. coeff.', 'Return loss', 'Gain short', 'Gain open'])
     self.plotValue.currentIndexChanged.connect(self.set_plot_mode)
-    self.plotButton.clicked.connect(self.plot)
     # create timers
     self.startTimer = QTimer(self)
     self.startTimer.timeout.connect(self.timeout)
@@ -346,7 +343,7 @@ class VNA(QMainWindow, Ui_VNA):
   def swr(self, freq):
     magnitude = np.absolute(self.gamma(freq))
     swr = np.divide(1.0 + magnitude, 1.0 - magnitude)
-    return np.maximum(1.0, np.minimum(10.0, swr))
+    return np.maximum(1.0, np.minimum(100.0, swr))
 
   def add_cursors(self, axes):
     if self.plot_mode == 'gain_short' or self.plot_mode == 'gain_open':
@@ -424,18 +421,17 @@ class VNA(QMainWindow, Ui_VNA):
   def plot(self):
     getattr(window, 'plot_%s' % self.plot_mode)()
 
-  def plot_curves(self, freq, data1, label1, data2, label2):
+  def plot_curves(self, freq, data1, label1, limit1, data2, label2, limit2):
     matplotlib.rcdefaults()
     self.figure.clf()
     bottom = len(VNA.cursors) * 0.04 + 0.13
-    self.figure.subplots_adjust(left = 0.12, bottom = bottom, right = 0.88, top = 0.98)
+    self.figure.subplots_adjust(left = 0.12, bottom = bottom, right = 0.88, top = 0.96)
     axes1 = self.figure.add_subplot(111)
     axes1.cla()
-    axes1.grid()
-    axes1.xaxis.set_major_formatter(FuncFormatter(metric_prefix))
-    axes1.yaxis.set_major_formatter(FuncFormatter(metric_prefix))
+    axes1.xaxis.grid()
     axes1.set_xlabel('Hz')
     axes1.set_ylabel(label1)
+    if limit1 is not None: axes1.set_ylim(limit1)
     self.curve1, = axes1.plot(freq, data1, color = 'blue', label = label1)
     self.add_cursors(axes1)
     if data2 is None:
@@ -446,15 +442,18 @@ class VNA(QMainWindow, Ui_VNA):
     axes2 = axes1.twinx()
     axes2.spines['left'].set_color('blue')
     axes2.spines['right'].set_color('red')
-    axes2.yaxis.set_major_formatter(FuncFormatter(metric_prefix))
     axes2.set_ylabel(label2)
+    if limit2 is not None: axes2.set_ylim(limit2)
     axes2.tick_params('y', color = 'red', labelcolor = 'red')
     axes2.yaxis.label.set_color('red')
     self.curve2, = axes2.plot(freq, data2, color = 'red', label = label2)
     self.canvas.draw()
 
   def plot_gain(self, gain):
-    self.plot_curves(self.dut.freq, 20.0 * np.log10(np.absolute(gain)), 'Gain, dB', np.angle(gain, deg = True), 'Phase angle')
+    freq = self.dut.freq
+    data1 = 20.0 * np.log10(np.absolute(gain))
+    data2 = np.angle(gain, deg = True)
+    self.plot_curves(freq, data1, 'Gain, dB', (-110, 110.0), data2, 'Phase angle', (-198, 198))
 
   def plot_gain_short(self):
     self.plot_mode = 'gain_short'
@@ -482,7 +481,10 @@ class VNA(QMainWindow, Ui_VNA):
     self.update_gain(self.gain_open(self.dut.freq), 'gain_open')
 
   def plot_magphase(self, freq, data):
-    self.plot_curves(freq, np.absolute(data), 'Magnitude', np.angle(data, deg = True), 'Phase angle')
+    data1 = np.absolute(data)
+    data2 = np.angle(data, deg = True)
+    max = np.maximum(0.001, data1.max())
+    self.plot_curves(freq, data1, 'Magnitude', (-0.05 * max, 1.05 * max), data2, 'Phase angle', (-198, 198))
 
   def update_magphase(self, freq, data, plot_mode):
     if self.plot_mode == plot_mode:
@@ -584,14 +586,17 @@ class VNA(QMainWindow, Ui_VNA):
 
   def plot_imp(self):
     self.plot_mode = 'imp'
-    self.plot_magphase(self.dut.freq, self.impedance(self.dut.freq))
+    freq = self.dut.freq
+    self.plot_magphase(freq, self.impedance(freq))
 
   def update_imp(self):
     self.update_magphase(self.dut.freq, self.impedance(self.dut.freq), 'imp')
 
   def plot_swr(self):
     self.plot_mode = 'swr'
-    self.plot_curves(self.dut.freq, self.swr(self.dut.freq), 'SWR', None, None)
+    freq = self.dut.freq
+    data1 = self.swr(freq)
+    self.plot_curves(freq, data1, 'SWR', (0.6, 9.4), None, None, None)
 
   def update_swr(self):
     if self.plot_mode == 'swr':
@@ -603,15 +608,18 @@ class VNA(QMainWindow, Ui_VNA):
 
   def plot_rc(self):
     self.plot_mode = 'rc'
-    self.plot_magphase(self.dut.freq, self.gamma(self.dut.freq))
+    freq = self.dut.freq
+    self.plot_magphase(freq, self.gamma(freq))
 
   def update_rc(self):
     self.update_magphase(self.dut.freq, self.gamma(self.dut.freq), 'rc')
 
   def plot_rl(self):
     self.plot_mode = 'rl'
-    magnitude = np.absolute(self.gamma(self.dut.freq))
-    self.plot_curves(self.dut.freq, 20.0 * np.log10(magnitude), 'Return loss, dB', None, None)
+    freq = self.dut.freq
+    gamma = self.gamma(freq)
+    data1 = 20.0 * np.log10(np.absolute(gamma))
+    self.plot_curves(freq, data1, 'Return loss, dB', (-105, 5.0), None, None, None)
 
   def update_rl(self):
     if self.plot_mode == 'rl':
