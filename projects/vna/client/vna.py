@@ -537,21 +537,21 @@ class VNA(QMainWindow, Ui_VNA):
       axes.plot(gamma.real, gamma.imag, color = color, linewidth = 0.4, alpha = 0.3)
       axes.plot(gamma.real, -gamma.imag, color = color, linewidth = 0.4, alpha = 0.3)
       if tick == 0.0:
-        axes.text(1.0, 0.0, u'\u221E', color = color, ha = 'left', va = 'center', clip_on = True, fontsize = 18.0)
-        axes.text(-1.0, 0.0, u'0\u03A9', color = color, ha = 'left', va = 'bottom', clip_on = True, fontsize = 12.0)
+        axes.text(1.0, 0.0, u'\u221E', color = color, ha = 'left', va = 'center', clip_on = True, fontsize = 'x-large')
+        axes.text(-1.0, 0.0, u'0\u03A9', color = color, ha = 'left', va = 'bottom', clip_on = True)
         continue
       lab = u'%d\u03A9' % tick
       x = (tick - load) / (tick + load)
-      axes.text(x, 0.0, lab, color = color, ha = 'left', va = 'bottom', clip_on = True, fontsize = 12.0)
+      axes.text(x, 0.0, lab, color = color, ha = 'left', va = 'bottom', clip_on = True)
       lab = u'j%d\u03A9' % tick
       z =  1.0j * tick
       gamma = (z - load)/(z + load) * 1.05
       x = gamma.real
       y = gamma.imag
       angle = np.angle(gamma) * 180.0 / np.pi - 90.0
-      axes.text(x, y, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = angle, fontsize = 12.0)
+      axes.text(x, y, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = angle)
       lab = u'-j%d\u03A9' % tick
-      axes.text(x, -y, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = -angle, fontsize = 12.0)
+      axes.text(x, -y, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = -angle)
 
   def plot_smith(self):
     self.plot_mode = 'smith'
