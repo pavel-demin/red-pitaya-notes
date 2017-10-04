@@ -98,6 +98,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.dut = Measurement(self.sweep_start, self.sweep_stop, self.sweep_size)
     self.sweep_mode = 'open'
     self.plot_mode = 'open'
+    self.set_plot_xlim(self.sweep_start, self.sweep_stop)
     # create figure
     self.figure = Figure()
     self.figure.set_facecolor('none')
@@ -239,6 +240,7 @@ class VNA(QMainWindow, Ui_VNA):
         attr.data = adc1[0:size].copy()
         min = np.minimum(start, stop)
         max = np.maximum(start, stop)
+        self.set_plot_xlim(min, max)
         getattr(self, 'update_%s' % self.plot_mode)()
         for i in range(len(VNA.cursors)):
           self.cursorValues[i].setRange(min, max)
@@ -418,6 +420,10 @@ class VNA(QMainWindow, Ui_VNA):
   def release_marker(self, index, event):
     self.cursorPressed[index] = False
 
+  def set_plot_xlim(self, min, max):
+    margin = (max - min) * 20
+    self.plot_xlim = (min * 1000 - margin, max * 1000 + margin)
+
   def plot(self):
     getattr(window, 'plot_%s' % self.plot_mode)()
 
@@ -431,6 +437,7 @@ class VNA(QMainWindow, Ui_VNA):
     axes1.xaxis.grid()
     axes1.set_xlabel('Hz')
     axes1.set_ylabel(label1)
+    axes1.set_xlim(self.plot_xlim)
     if limit1 is not None: axes1.set_ylim(limit1)
     self.curve1, = axes1.plot(freq, data1, color = 'blue', label = label1)
     self.add_cursors(axes1)
@@ -443,6 +450,7 @@ class VNA(QMainWindow, Ui_VNA):
     axes2.spines['left'].set_color('blue')
     axes2.spines['right'].set_color('red')
     axes2.set_ylabel(label2)
+    axes2.set_xlim(self.plot_xlim)
     if limit2 is not None: axes2.set_ylim(limit2)
     axes2.tick_params('y', color = 'red', labelcolor = 'red')
     axes2.yaxis.label.set_color('red')
@@ -710,6 +718,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.sizeValue.setValue(dut_size)
     min = np.minimum(dut_start, dut_stop)
     max = np.maximum(dut_start, dut_stop)
+    self.set_plot_xlim(min, max)
     for i in range(len(VNA.cursors)):
       self.cursorValues[i].setRange(min, max)
       self.cursorValues[i].setValue(settings.value('cursor_%d' % i, VNA.cursors[i], type = int))
