@@ -20,6 +20,11 @@ includes = [
   'matplotlib.backends.backend_qt5agg'
 ]
 
+excludes = [
+  'six.moves.urllib.parse',
+  'six.moves.urllib.request'
+]
+
 setup(
   windows = [{'script': 'exec.py'}],
   data_files = matplotlib.get_py2exe_datafiles() + [
@@ -29,6 +34,7 @@ setup(
   options = {
     'py2exe':{
       'includes': includes,
+      'excludes': excludes,
       'bundle_files': 3,
       'compressed': True
     }
