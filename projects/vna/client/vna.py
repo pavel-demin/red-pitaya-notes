@@ -39,35 +39,39 @@ from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_VNA, QMainWindow = loadUiType('vna.ui')
 
+def unicode_minus(s):
+  return s.replace('-', '\u2212')
+
 def metric_prefix(x, pos = None):
   if x == 0.0:
-    return '0'
+    s = '0'
   elif abs(x) >= 1.0e9:
-    return '%.4gG' % (x * 1.0e-9)
+    s = '%.4gG' % (x * 1.0e-9)
   elif abs(x) >= 1.0e6:
-    return '%.4gM' % (x * 1.0e-6)
+    s = '%.4gM' % (x * 1.0e-6)
   elif abs(x) >= 1.0e3:
-    return '%.4gk' % (x * 1.0e-3)
+    s = '%.4gk' % (x * 1.0e-3)
   elif abs(x) >= 1.0e0:
-    return '%.4g' % x
+    s = '%.4g' % x
   elif abs(x) >= 1.0e-3:
-    return '%.4gm' % (x * 1e+3)
+    s = '%.4gm' % (x * 1e+3)
   elif abs(x) >= 1.0e-6:
-    return '%.4gu' % (x * 1e+6)
+    s = '%.4gu' % (x * 1e+6)
   elif abs(x) >= 1.0e-9:
-    return '%.4gn' % (x * 1e+9)
+    s = '%.4gn' % (x * 1e+9)
   elif abs(x) >= 1.0e-12:
-    return '%.4gp' % (x * 1e+12)
+    s = '%.4gp' % (x * 1e+12)
   elif abs(x) < 1.0e-12:
-    return '0'
+    s = '0'
   else:
-    return '%.4g' % x
+    s = '%.4g' % x
+  return unicode_minus(s)
 
 class Measurement:
   def __init__(self, start, stop, size):
-    self.freq = np.linspace(start, stop, size) * 1000
+    self.freq = np.linspace(start, stop, size)
     self.data = np.zeros(size, np.complex64)
-    self.period = 62500 * 1000
+    self.period = 62500
 
 class VNA(QMainWindow, Ui_VNA):
   cursors = [15000, 45000]
@@ -138,6 +142,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.toolbar.addSeparator()
     self.plotValue = QComboBox(self)
     self.toolbar.addWidget(self.plotValue)
+    self.plotButton = QPushButton('Rescale', self)
+    self.toolbar.addWidget(self.plotButton)
     self.toolbar.addSeparator()
     self.progress = QProgressBar()
     self.progress.setTextVisible(False)
@@ -177,6 +183,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.levelValue.valueChanged.connect(self.set_level)
     self.plotValue.addItems(['Open data', 'Short data', 'Load data', 'DUT data', 'Smith chart', 'Impedance', 'SWR', 'Refl. coeff.', 'Return loss', 'Gain short', 'Gain open'])
     self.plotValue.currentIndexChanged.connect(self.set_plot_mode)
+    self.plotButton.clicked.connect(self.plot)
     # create timers
     self.startTimer = QTimer(self)
     self.startTimer.timeout.connect(self.timeout)
@@ -236,7 +243,7 @@ class VNA(QMainWindow, Ui_VNA):
         start = self.sweep_start
         stop = self.sweep_stop
         size = self.sweep_size
-        attr.freq = np.linspace(start, stop, size) * 1000
+        attr.freq = np.linspace(start, stop, size)
         attr.data = adc1[0:size].copy()
         min = np.minimum(start, stop)
         max = np.maximum(start, stop)
@@ -372,7 +379,7 @@ class VNA(QMainWindow, Ui_VNA):
     marker = self.cursorMarkers[index]
     if marker is None: return
     row = self.cursorRows[index]
-    freq = value * 1000
+    freq = value
     gamma = self.gamma(freq)
     if self.plot_mode == 'smith':
       marker.set_xdata(gamma.real)
@@ -382,11 +389,11 @@ class VNA(QMainWindow, Ui_VNA):
     row[0].set_text('%d' % value)
     if self.plot_mode == 'gain_short':
       gain = self.gain_short(freq)
-      row[1].set_text('%.2f' % (20.0 * np.log10(np.absolute(gain))))
+      row[1].set_text(unicode_minus('%.2f' % (20.0 * np.log10(np.absolute(gain)))))
       row[2].set_text(metric_prefix(np.angle(gain, deg = True)))
     elif self.plot_mode == 'gain_open':
       gain = self.gain_open(freq)
-      row[1].set_text('%.2f' % (20.0 * np.log10(np.absolute(gain))))
+      row[1].set_text(unicode_minus('%.2f' % (20.0 * np.log10(np.absolute(gain)))))
       row[2].set_text(metric_prefix(np.angle(gain, deg = True)))
     else:
       swr = self.swr(freq)
@@ -399,7 +406,7 @@ class VNA(QMainWindow, Ui_VNA):
       row[5].set_text(metric_prefix(swr))
       row[6].set_text(metric_prefix(np.absolute(gamma)))
       row[7].set_text(metric_prefix(np.angle(gamma, deg = True)))
-      row[8].set_text('%.2f' % rl)
+      row[8].set_text(unicode_minus('%.2f' % rl))
     self.canvas.draw()
 
   def press_marker(self, index, event):
@@ -415,14 +422,14 @@ class VNA(QMainWindow, Ui_VNA):
     if not event.inaxes: return
     if self.plot_mode == 'smith': return
     if not self.cursorPressed[index]: return
-    self.cursorValues[index].setValue(event.xdata // 1000)
+    self.cursorValues[index].setValue(event.xdata)
 
   def release_marker(self, index, event):
     self.cursorPressed[index] = False
 
   def set_plot_xlim(self, min, max):
-    margin = (max - min) * 20
-    self.plot_xlim = (min * 1000 - margin, max * 1000 + margin)
+    margin = (max - min) / 50
+    self.plot_xlim = (min - margin, max + margin)
 
   def plot(self):
     getattr(window, 'plot_%s' % self.plot_mode)()
@@ -435,7 +442,7 @@ class VNA(QMainWindow, Ui_VNA):
     axes1 = self.figure.add_subplot(111)
     axes1.cla()
     axes1.xaxis.grid()
-    axes1.set_xlabel('Hz')
+    axes1.set_xlabel('kHz')
     axes1.set_ylabel(label1)
     axes1.set_xlim(self.plot_xlim)
     if limit1 is not None: axes1.set_ylim(limit1)
@@ -488,7 +495,8 @@ class VNA(QMainWindow, Ui_VNA):
   def update_gain_open(self):
     self.update_gain(self.gain_open(self.dut.freq), 'gain_open')
 
-  def plot_magphase(self, freq, data):
+  def plot_magphase(self, freq, data, plot_mode):
+    self.plot_mode = plot_mode
     data1 = np.absolute(data)
     data2 = np.angle(data, deg = True)
     max = np.maximum(0.001, data1.max())
@@ -502,33 +510,28 @@ class VNA(QMainWindow, Ui_VNA):
       self.curve2.set_ydata(np.angle(data, deg = True))
       self.canvas.draw()
     else:
-      self.plot_mode = plot_mode
-      self.plot_magphase(freq, data)
+      self.plot_magphase(freq, data, plot_mode)
 
   def plot_open(self):
-    self.plot_mode = 'open'
-    self.plot_magphase(self.open.freq, self.open.data)
+    self.plot_magphase(self.open.freq, self.open.data, 'open')
 
   def update_open(self):
     self.update_magphase(self.open.freq, self.open.data, 'open')
 
   def plot_short(self):
-    self.plot_mode = 'short'
-    self.plot_magphase(self.short.freq, self.short.data)
+    self.plot_magphase(self.short.freq, self.short.data, 'short')
 
   def update_short(self):
     self.update_magphase(self.short.freq, self.short.data, 'short')
 
   def plot_load(self):
-    self.plot_mode = 'load'
-    self.plot_magphase(self.load.freq, self.load.data)
+    self.plot_magphase(self.load.freq, self.load.data, 'load')
 
   def update_load(self):
     self.update_magphase(self.load.freq, self.load.data, 'load')
 
   def plot_dut(self):
-    self.plot_mode = 'dut'
-    self.plot_magphase(self.dut.freq, self.dut.data)
+    self.plot_magphase(self.dut.freq, self.dut.data, 'dut')
 
   def update_dut(self):
     self.update_magphase(self.dut.freq, self.dut.data, 'dut')
@@ -560,7 +563,7 @@ class VNA(QMainWindow, Ui_VNA):
       y = gamma.imag
       angle = np.angle(gamma) * 180.0 / np.pi - 90.0
       axes.text(x, y, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = angle)
-      lab = u'-j%d\u03A9' % tick
+      lab = u'\u2212j%d\u03A9' % tick
       axes.text(x, -y, lab, color = color, ha = 'center', va = 'center', clip_on = True, rotation = -angle)
 
   def plot_smith(self):
@@ -593,9 +596,7 @@ class VNA(QMainWindow, Ui_VNA):
       self.plot_smith()
 
   def plot_imp(self):
-    self.plot_mode = 'imp'
-    freq = self.dut.freq
-    self.plot_magphase(freq, self.impedance(freq))
+    self.plot_magphase(self.dut.freq, self.impedance(self.dut.freq), 'imp')
 
   def update_imp(self):
     self.update_magphase(self.dut.freq, self.impedance(self.dut.freq), 'imp')
@@ -604,7 +605,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.plot_mode = 'swr'
     freq = self.dut.freq
     data1 = self.swr(freq)
-    self.plot_curves(freq, data1, 'SWR', (0.6, 9.4), None, None, None)
+    self.plot_curves(freq, data1, 'SWR', (0.9, 3.1), None, None, None)
 
   def update_swr(self):
     if self.plot_mode == 'swr':
@@ -615,9 +616,7 @@ class VNA(QMainWindow, Ui_VNA):
       self.plot_swr()
 
   def plot_rc(self):
-    self.plot_mode = 'rc'
-    freq = self.dut.freq
-    self.plot_magphase(freq, self.gamma(freq))
+    self.plot_magphase(self.dut.freq, self.gamma(self.dut.freq), 'rc')
 
   def update_rc(self):
     self.update_magphase(self.dut.freq, self.gamma(self.dut.freq), 'rc')
@@ -631,9 +630,11 @@ class VNA(QMainWindow, Ui_VNA):
 
   def update_rl(self):
     if self.plot_mode == 'rl':
-      magnitude = np.absolute(self.gamma(self.dut.freq))
-      self.curve1.set_xdata(self.dut.freq)
-      self.curve1.set_ydata(20.0 * np.log10(magnitude))
+      freq = self.dut.freq
+      gamma = self.gamma(freq)
+      data1 = 20.0 * np.log10(np.absolute(gamma))
+      self.curve1.set_xdata(freq)
+      self.curve1.set_ydata(data1)
       self.canvas.draw()
     else:
       self.plot_rl()
@@ -701,17 +702,17 @@ class VNA(QMainWindow, Ui_VNA):
     self.plotValue.setCurrentIndex(settings.value('plot', 0, type = int))
     self.rateValue.setCurrentIndex(settings.value('rate', 0, type = int))
     self.corrValue.setValue(settings.value('corr', 0, type = int))
-    open_start = settings.value('open_start', 10000, type = int) // 1000
-    open_stop = settings.value('open_stop', 60000000, type = int) // 1000
+    open_start = settings.value('open_start', 10, type = int)
+    open_stop = settings.value('open_stop', 60000, type = int)
     open_size = settings.value('open_size', 6000, type = int)
-    short_start = settings.value('short_start', 10000, type = int) // 1000
-    short_stop = settings.value('short_stop', 60000000, type = int) // 1000
+    short_start = settings.value('short_start', 10, type = int)
+    short_stop = settings.value('short_stop', 60000, type = int)
     short_size = settings.value('short_size', 6000, type = int)
-    load_start = settings.value('load_start', 10000, type = int) // 1000
-    load_stop = settings.value('load_stop', 60000000, type = int) // 1000
+    load_start = settings.value('load_start', 10, type = int)
+    load_stop = settings.value('load_stop', 60000, type = int)
     load_size = settings.value('load_size', 6000, type = int)
-    dut_start = settings.value('dut_start', 10000, type = int) // 1000
-    dut_stop = settings.value('dut_stop', 60000000, type = int) // 1000
+    dut_start = settings.value('dut_start', 10, type = int)
+    dut_stop = settings.value('dut_stop', 60000, type = int)
     dut_size = settings.value('dut_size', 6000, type = int)
     self.startValue.setValue(dut_start)
     self.stopValue.setValue(dut_stop)
@@ -758,7 +759,7 @@ class VNA(QMainWindow, Ui_VNA):
       d = self.dut.data
       fh.write('frequency;open.real;open.imag;short.real;short.imag;load.real;load.imag;dut.real;dut.imag\n')
       for i in range(f.size):
-        fh.write('0.0%.8d;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f\n' % (f[i], o.real[i], o.imag[i], s.real[i], s.imag[i], l.real[i], l.imag[i], d.real[i], d.imag[i]))
+        fh.write('0.0%.8d;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f;%12.9f\n' % (f[i] * 1000, o.real[i], o.imag[i], s.real[i], s.imag[i], l.real[i], l.imag[i], d.real[i], d.imag[i]))
       fh.close()
 
   def write_s1p(self):
@@ -773,7 +774,7 @@ class VNA(QMainWindow, Ui_VNA):
       gamma = self.gamma(freq)
       fh.write('# GHz S MA R 50\n')
       for i in range(freq.size):
-        fh.write('0.0%.8d   %8.6f %7.2f\n' % (freq[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
+        fh.write('0.0%.8d   %8.6f %7.2f\n' % (freq[i] * 1000, np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
       fh.close()
 
   def write_s2p(self, gain):
@@ -788,7 +789,7 @@ class VNA(QMainWindow, Ui_VNA):
       gamma = self.gamma(freq)
       fh.write('# GHz S MA R 50\n')
       for i in range(freq.size):
-        fh.write('0.0%.8d   %8.6f %7.2f   %8.6f %7.2f   0.000000    0.00   0.000000    0.00\n' % (freq[i], np.absolute(gamma[i]), np.angle(gamma[i], deg = True), np.absolute(gain[i]), np.angle(gain[i], deg = True)))
+        fh.write('0.0%.8d   %8.6f %7.2f   %8.6f %7.2f   0.000000    0.00   0.000000    0.00\n' % (freq[i] * 1000, np.absolute(gamma[i]), np.angle(gamma[i], deg = True), np.absolute(gain[i]), np.angle(gain[i], deg = True)))
       fh.close()
 
   def write_s2p_short(self):
