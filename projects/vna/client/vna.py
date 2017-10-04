@@ -436,6 +436,7 @@ class VNA(QMainWindow, Ui_VNA):
 
   def plot_curves(self, freq, data1, label1, limit1, data2, label2, limit2):
     matplotlib.rcdefaults()
+    matplotlib.rcParams['axes.formatter.use_mathtext'] = True
     self.figure.clf()
     bottom = len(VNA.cursors) * 0.04 + 0.13
     self.figure.subplots_adjust(left = 0.12, bottom = bottom, right = 0.88, top = 0.96)
