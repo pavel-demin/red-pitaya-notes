@@ -667,6 +667,7 @@ class VNA(QMainWindow, Ui_VNA):
     settings.setValue('plot', self.plotValue.currentIndex())
     settings.setValue('rate', self.rateValue.currentIndex())
     settings.setValue('corr', self.corrValue.value())
+    settings.setValue('level', self.levelValue.value())
     for i in range(len(VNA.cursors)):
       settings.setValue('cursor_%d' % i, self.cursorValues[i].value())
     settings.setValue('open_start', int(self.open.freq[0]))
@@ -703,6 +704,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.plotValue.setCurrentIndex(settings.value('plot', 0, type = int))
     self.rateValue.setCurrentIndex(settings.value('rate', 0, type = int))
     self.corrValue.setValue(settings.value('corr', 0, type = int))
+    self.levelValue.setValue(settings.value('level', 0, type = int))
     open_start = settings.value('open_start', 10, type = int)
     open_stop = settings.value('open_stop', 60000, type = int)
     open_size = settings.value('open_size', 6000, type = int)
