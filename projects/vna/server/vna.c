@@ -15,8 +15,8 @@ volatile uint16_t *rx_cntr;
 volatile float *rx_data;
 
 int sock_thread = -1;
-uint32_t rate_thread = 1;
-uint32_t size_thread = 600;
+uint32_t rate_thread = 5;
+uint32_t size_thread = 6000;
 
 void *read_handler(void *arg);
 
@@ -31,10 +31,9 @@ int main(int argc, char *argv[])
   volatile int16_t *tx_level[2];
   volatile uint8_t *rst, *gpio;
   struct sockaddr_in addr;
-  uint32_t command, rate;
+  uint32_t command, freq, rate, start, stop, size, i;
   int32_t value, corr;
-  int64_t start, stop, size, freq;
-  int i, yes = 1;
+  int yes = 1;
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
