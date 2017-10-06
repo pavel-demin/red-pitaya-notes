@@ -351,8 +351,7 @@ class VNA(QMainWindow, Ui_VNA):
 
   def swr(self, freq):
     magnitude = np.absolute(self.gamma(freq))
-    swr = np.divide(1.0 + magnitude, 1.0 - magnitude)
-    return np.maximum(1.0, np.minimum(100.0, swr))
+    return np.divide(1.0 + magnitude, 1.0 - magnitude)
 
   def add_cursors(self, axes):
     if self.plot_mode == 'gain_short' or self.plot_mode == 'gain_open':
