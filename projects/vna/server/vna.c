@@ -31,8 +31,9 @@ int main(int argc, char *argv[])
   volatile int16_t *tx_level[2];
   volatile uint8_t *rst, *gpio;
   struct sockaddr_in addr;
-  uint32_t command, freq, rate, start, stop, size, i;
+  uint32_t command, freq, rate, size, i;
   int32_t value, corr;
+  int64_t start, stop;
   int yes = 1;
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
