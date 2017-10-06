@@ -356,9 +356,9 @@ class VNA(QMainWindow, Ui_VNA):
 
   def add_cursors(self, axes):
     if self.plot_mode == 'gain_short' or self.plot_mode == 'gain_open':
-      columns = ['Freq., kHz', 'G', r'$\angle$ G']
+      columns = ['Freq., kHz', 'G, dB', r'$\angle$ G, deg']
     else:
-      columns = ['Freq., kHz', 'Re(Z)', 'Im(Z)', '|Z|', r'$\angle$ Z', 'SWR', r'|$\Gamma$|', r'$\angle$ $\Gamma$', 'RL']
+      columns = ['Freq., kHz', 'Re(Z), \u03A9', 'Im(Z), \u03A9', '|Z|, \u03A9', r'$\angle$ Z, deg', 'SWR', r'|$\Gamma$|', r'$\angle$ $\Gamma$, deg', 'RL, dB']
     y = len(VNA.cursors) * 0.04 + 0.01
     for i in range(len(columns)):
       self.figure.text(0.19 + 0.1 * i, y, columns[i], horizontalalignment = 'right')
@@ -469,7 +469,7 @@ class VNA(QMainWindow, Ui_VNA):
     freq = self.dut.freq
     data1 = 20.0 * np.log10(np.absolute(gain))
     data2 = np.angle(gain, deg = True)
-    self.plot_curves(freq, data1, 'Gain, dB', (-110, 110.0), data2, 'Phase angle', (-198, 198))
+    self.plot_curves(freq, data1, 'G, dB', (-110, 110.0), data2, r'$\angle$ G, deg', (-198, 198))
 
   def plot_gain_short(self):
     self.plot_mode = 'gain_short'
@@ -496,12 +496,16 @@ class VNA(QMainWindow, Ui_VNA):
   def update_gain_open(self):
     self.update_gain(self.gain_open(self.dut.freq), 'gain_open')
 
-  def plot_magphase(self, freq, data, plot_mode):
+  def plot_magphase(self, freq, data, label, units, plot_mode):
     self.plot_mode = plot_mode
     data1 = np.absolute(data)
     data2 = np.angle(data, deg = True)
     max = np.maximum(0.001, data1.max())
-    self.plot_curves(freq, data1, 'Magnitude', (-0.05 * max, 1.05 * max), data2, 'Phase angle', (-198, 198))
+    if units is None:
+      label1 = r'|%s|' % label
+    else:
+      label1 = r'|%s|, %s' % (label, units)
+    self.plot_curves(freq, data1, label1, (-0.05 * max, 1.05 * max), data2, r'$\angle$ %s, deg' % label, (-198, 198))
 
   def update_magphase(self, freq, data, plot_mode):
     if self.plot_mode == plot_mode:
@@ -514,25 +518,25 @@ class VNA(QMainWindow, Ui_VNA):
       self.plot_magphase(freq, data, plot_mode)
 
   def plot_open(self):
-    self.plot_magphase(self.open.freq, self.open.data, 'open')
+    self.plot_magphase(self.open.freq, self.open.data, 'open', None, 'open')
 
   def update_open(self):
     self.update_magphase(self.open.freq, self.open.data, 'open')
 
   def plot_short(self):
-    self.plot_magphase(self.short.freq, self.short.data, 'short')
+    self.plot_magphase(self.short.freq, self.short.data, 'short', None, 'short')
 
   def update_short(self):
     self.update_magphase(self.short.freq, self.short.data, 'short')
 
   def plot_load(self):
-    self.plot_magphase(self.load.freq, self.load.data, 'load')
+    self.plot_magphase(self.load.freq, self.load.data, 'load', None, 'load')
 
   def update_load(self):
     self.update_magphase(self.load.freq, self.load.data, 'load')
 
   def plot_dut(self):
-    self.plot_magphase(self.dut.freq, self.dut.data, 'dut')
+    self.plot_magphase(self.dut.freq, self.dut.data, 'dut', None, 'dut')
 
   def update_dut(self):
     self.update_magphase(self.dut.freq, self.dut.data, 'dut')
@@ -597,7 +601,7 @@ class VNA(QMainWindow, Ui_VNA):
       self.plot_smith()
 
   def plot_imp(self):
-    self.plot_magphase(self.dut.freq, self.impedance(self.dut.freq), 'imp')
+    self.plot_magphase(self.dut.freq, self.impedance(self.dut.freq), 'Z', '\u03A9', 'imp')
 
   def update_imp(self):
     self.update_magphase(self.dut.freq, self.impedance(self.dut.freq), 'imp')
@@ -617,7 +621,7 @@ class VNA(QMainWindow, Ui_VNA):
       self.plot_swr()
 
   def plot_rc(self):
-    self.plot_magphase(self.dut.freq, self.gamma(self.dut.freq), 'rc')
+    self.plot_magphase(self.dut.freq, self.gamma(self.dut.freq), r'$\Gamma$', None, 'rc')
 
   def update_rc(self):
     self.update_magphase(self.dut.freq, self.gamma(self.dut.freq), 'rc')
@@ -627,7 +631,7 @@ class VNA(QMainWindow, Ui_VNA):
     freq = self.dut.freq
     gamma = self.gamma(freq)
     data1 = 20.0 * np.log10(np.absolute(gamma))
-    self.plot_curves(freq, data1, 'Return loss, dB', (-105, 5.0), None, None, None)
+    self.plot_curves(freq, data1, 'RL, dB', (-105, 5.0), None, None, None)
 
   def update_rl(self):
     if self.plot_mode == 'rl':
