@@ -251,7 +251,7 @@ class FigureTab:
     matplotlib.rcParams['axes.formatter.use_mathtext'] = True
     self.figure.clf()
     bottom = len(self.cursors) * 0.04 + 0.13
-    self.figure.subplots_adjust(left = 0.12, bottom = bottom, right = 0.88, top = 0.96)
+    self.figure.subplots_adjust(left = 0.16, bottom = bottom, right = 0.84, top = 0.96)
     axes1 = self.figure.add_subplot(111)
     axes1.cla()
     axes1.xaxis.grid()
