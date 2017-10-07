@@ -34,7 +34,7 @@ from matplotlib.ticker import Formatter, FuncFormatter
 from PyQt5.uic import loadUiType
 from PyQt5.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
 from PyQt5.QtGui import QRegExpValidator
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QHBoxLayout, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QDialog, QFileDialog, QProgressDialog, QComboBox, QPushButton, QProgressBar, QLabel, QSpinBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_VNA, QMainWindow = loadUiType('vna.ui')
@@ -80,6 +80,8 @@ class FigureTab:
   def __init__(self, layout, open, short, load, dut):
     # create figure
     self.figure = Figure()
+    if sys.platform != 'win32':
+      self.figure.set_facecolor('none')
     self.canvas = FigureCanvas(self.figure)
     layout.addWidget(self.canvas)
     # create navigation toolbar
@@ -493,8 +495,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.rateValue.lineEdit().setAlignment(Qt.AlignRight)
     for i in range(self.rateValue.count()):
       self.rateValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
-    self.sweepWidget.setEnabled(False)
-    self.stopWidget.setEnabled(False)
+    self.set_enabled(False)
     # read settings
     settings = QSettings('vna.ini', QSettings.IniFormat)
     self.read_cfg_settings(settings)
@@ -530,6 +531,11 @@ class VNA(QMainWindow, Ui_VNA):
     self.sweepTimer = QTimer(self)
     self.sweepTimer.timeout.connect(self.sweep_timeout)
 
+  def set_enabled(self, enabled):
+    widgets = [self.corrValue, self.rateValue, self.levelValue, self.sizeValue, self.stopValue, self.startValue, self.openSweep, self.shortSweep, self.loadSweep, self.singleSweep, self.autoSweep]
+    for entry in widgets:
+      entry.setEnabled(enabled)
+
   def start(self):
     if self.idle:
       self.connectButton.setEnabled(False)
@@ -544,8 +550,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.abort()
     self.connectButton.setText('Connect')
     self.connectButton.setEnabled(True)
-    self.sweepWidget.setEnabled(False)
-    self.stopWidget.setEnabled(False)
+    self.set_enabled(False)
 
   def timeout(self):
     self.display_error('timeout')
@@ -561,8 +566,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.set_level(self.levelValue.value())
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
-    self.sweepWidget.setEnabled(True)
-    self.stopWidget.setEnabled(True)
+    self.set_enabled(True)
 
   def read_data(self):
     while(self.socket.bytesAvailable() > 0):
@@ -589,9 +593,7 @@ class VNA(QMainWindow, Ui_VNA):
         self.reading = False
         if not self.auto:
           self.progressBar.setValue(0)
-          self.sweepWidget.setEnabled(True)
-          self.singleSweep.setEnabled(True)
-          self.autoSweep.setEnabled(True)
+          self.set_enabled(True)
 
   def display_error(self, socketError):
     self.startTimer.stop()
@@ -626,9 +628,7 @@ class VNA(QMainWindow, Ui_VNA):
 
   def sweep(self, mode):
     if self.idle: return
-    self.sweepWidget.setEnabled(False)
-    self.singleSweep.setEnabled(False)
-    self.autoSweep.setEnabled(False)
+    self.set_enabled(False)
     self.mode = mode
     self.offset = 0
     self.reading = True
@@ -646,9 +646,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.reading = False
     self.socket.write(struct.pack('<I', 8<<28))
     self.progressBar.setValue(0)
-    self.sweepWidget.setEnabled(True)
-    self.singleSweep.setEnabled(True)
-    self.autoSweep.setEnabled(True)
+    self.set_enabled(True)
 
   def sweep_auto(self):
     self.auto = True

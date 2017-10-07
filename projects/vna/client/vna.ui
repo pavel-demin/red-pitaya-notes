@@ -36,142 +36,85 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <item row="0" column="1">
-     <widget class="QWidget" name="sweepWidget" native="true">
-      <layout class="QGridLayout" name="sweepLayout">
-       <property name="leftMargin">
-        <number>3</number>
-       </property>
+    <item row="0" column="0">
+     <widget class="QWidget" name="cfgWidget" native="true">
+      <layout class="QGridLayout" name="cfgLayout">
        <property name="rightMargin">
         <number>3</number>
        </property>
-       <item row="1" column="8">
-        <widget class="QPushButton" name="shortSweep">
-         <property name="text">
-          <string>Short</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="8">
-        <widget class="QPushButton" name="loadSweep">
-         <property name="text">
-          <string>Load</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="8">
-        <widget class="QPushButton" name="openSweep">
-         <property name="text">
-          <string>Open</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="6">
-        <widget class="QSpinBox" name="sizeValue">
-         <property name="minimumSize">
-          <size>
-           <width>90</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-         <property name="minimum">
-          <number>10</number>
-         </property>
-         <property name="maximum">
-          <number>32760</number>
-         </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>6000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="6">
-        <widget class="QSpinBox" name="stopValue">
-         <property name="minimumSize">
-          <size>
-           <width>90</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>62500</number>
-         </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>60000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="6">
-        <widget class="QSpinBox" name="startValue">
-         <property name="minimumSize">
-          <size>
-           <width>90</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>62500</number>
-         </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="5">
-        <widget class="QLabel" name="sizeLabel">
-         <property name="text">
-          <string>Points</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="5">
-        <widget class="QLabel" name="stopLabel">
-         <property name="text">
-          <string>Stop, kHz</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="5">
-        <widget class="QLabel" name="startLabel">
-         <property name="text">
-          <string>Start, kHz</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
+        <widget class="QPushButton" name="connectButton">
+         <property name="text">
+          <string>Connect</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="writeButton">
+         <property name="text">
+          <string>Write cfg.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="readButton">
+         <property name="text">
+          <string>Read cfg.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2">
+        <widget class="QLineEdit" name="addrValue">
+         <property name="text">
+          <string>192.168.1.100</string>
+         </property>
+         <property name="maxLength">
+          <number>15</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="csvButton">
+         <property name="text">
+          <string>Write csv</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="s1pButton">
+         <property name="text">
+          <string>Write s1p</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="s2pshortButton">
+         <property name="text">
+          <string>Write s2p short</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="s2popenButton">
+         <property name="text">
+          <string>Write s2p open</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <spacer name="spacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="4">
         <widget class="QLabel" name="corrLabel">
          <property name="text">
           <string>Freq. corr., ppb</string>
@@ -181,7 +124,27 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
+       <item row="1" column="4">
+        <widget class="QLabel" name="rateLabel">
+         <property name="text">
+          <string>Bandwidth, Hz</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="4">
+        <widget class="QLabel" name="levelLabel">
+         <property name="text">
+          <string>Level, dB</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
         <widget class="QSpinBox" name="corrValue">
          <property name="minimumSize">
           <size>
@@ -203,17 +166,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="rateLabel">
-         <property name="text">
-          <string>Bandwidth, Hz</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
+       <item row="1" column="5">
         <widget class="QComboBox" name="rateValue">
          <property name="minimumSize">
           <size>
@@ -226,17 +179,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="levelLabel">
-         <property name="text">
-          <string>Level, dB</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
+       <item row="2" column="5">
         <widget class="QSpinBox" name="levelValue">
          <property name="minimumSize">
           <size>
@@ -261,38 +204,170 @@
          </property>
         </widget>
        </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QWidget" name="stopWidget" native="true">
-      <layout class="QGridLayout" name="stopLayout">
-       <property name="leftMargin">
-        <number>3</number>
-       </property>
-       <item row="1" column="0">
+       <item row="2" column="6">
+        <widget class="QLabel" name="sizeLabel">
+         <property name="text">
+          <string>Points</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QLabel" name="stopLabel">
+         <property name="text">
+          <string>Stop, kHz</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QLabel" name="startLabel">
+         <property name="text">
+          <string>Start, kHz</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="7">
+        <widget class="QSpinBox" name="sizeValue">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="minimum">
+          <number>10</number>
+         </property>
+         <property name="maximum">
+          <number>32760</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>6000</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="7">
+        <widget class="QSpinBox" name="stopValue">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>62500</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>60000</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
+        <widget class="QSpinBox" name="startValue">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>62500</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="8">
+        <widget class="QPushButton" name="openSweep">
+         <property name="text">
+          <string>Open</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="8">
+        <widget class="QPushButton" name="shortSweep">
+         <property name="text">
+          <string>Short</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="8">
+        <widget class="QPushButton" name="loadSweep">
+         <property name="text">
+          <string>Load</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="9">
         <widget class="QPushButton" name="singleSweep">
          <property name="text">
           <string>Single</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="1" column="9">
         <widget class="QPushButton" name="autoSweep">
          <property name="text">
           <string>Auto</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="2" column="9">
         <widget class="QPushButton" name="stopSweep">
          <property name="text">
           <string>Stop</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1" rowspan="3">
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QWidget" name="progressWidget" native="true">
+      <layout class="QGridLayout" name="progressLayout">
+       <property name="leftMargin">
+        <number>3</number>
+       </property>
+       <item row="0" column="0">
         <widget class="QProgressBar" name="progressBar">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="textVisible">
           <bool>false</bool>
          </property>
@@ -304,358 +379,253 @@
       </layout>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QWidget" name="cfgWidget" native="true">
-      <layout class="QGridLayout" name="cfgLayout">
-       <item row="0" column="0">
-        <widget class="QPushButton" name="connectButton">
-         <property name="text">
-          <string>Connect</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" colspan="2">
-        <widget class="QLineEdit" name="addrValue">
-         <property name="text">
-          <string>192.168.1.100</string>
-         </property>
-         <property name="maxLength">
-          <number>15</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <spacer name="spacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="writeButton">
-         <property name="text">
-          <string>Write cfg.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="csvButton">
-         <property name="text">
-          <string>Write csv</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="s2pshortButton">
-         <property name="text">
-          <string>Write s2p short</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="readButton">
-         <property name="text">
-          <string>Read cfg.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QPushButton" name="s1pButton">
-         <property name="text">
-          <string>Write s1p</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QPushButton" name="s2popenButton">
-         <property name="text">
-          <string>Write s2p open</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="3">
-     <widget class="QWidget" name="plotWidget" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+    <item row="1" column="0" colspan="2">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="tabPosition">
+       <enum>QTabWidget::South</enum>
       </property>
-      <layout class="QVBoxLayout" name="plotLayout">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QTabWidget" name="tabWidget">
-         <property name="tabPosition">
-          <enum>QTabWidget::South</enum>
-         </property>
-         <widget class="QWidget" name="openTab">
-          <attribute name="title">
-           <string>Open data</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="openLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="shortTab">
-          <attribute name="title">
-           <string>Short data</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="shortLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="loadTab">
-          <attribute name="title">
-           <string>Load data</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="loadLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="dutTab">
-          <attribute name="title">
-           <string>DUT data</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="dutLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="smithTab">
-          <attribute name="title">
-           <string>Smith chart</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="smithLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="impTab">
-          <attribute name="title">
-           <string>Impedance</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="impLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="swrTab">
-          <attribute name="title">
-           <string>SWR</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="swrLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="gammaTab">
-          <attribute name="title">
-           <string>Refl. coeff.</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="gammaLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="rlTab">
-          <attribute name="title">
-           <string>Return loss</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="rlLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="gain_shortTab">
-          <attribute name="title">
-           <string>Gain short</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="gain_shortLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="gain_openTab">
-          <attribute name="title">
-           <string>Gain open</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="gain_openLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QWidget" name="openTab">
+       <attribute name="title">
+        <string>Open data</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="openLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="shortTab">
+       <attribute name="title">
+        <string>Short data</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="shortLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="loadTab">
+       <attribute name="title">
+        <string>Load data</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="loadLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="dutTab">
+       <attribute name="title">
+        <string>DUT data</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="dutLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="smithTab">
+       <attribute name="title">
+        <string>Smith chart</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="smithLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="impTab">
+       <attribute name="title">
+        <string>Impedance</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="impLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="swrTab">
+       <attribute name="title">
+        <string>SWR</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="swrLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="gammaTab">
+       <attribute name="title">
+        <string>Refl. coeff.</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="gammaLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="rlTab">
+       <attribute name="title">
+        <string>Return loss</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="rlLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="gain_shortTab">
+       <attribute name="title">
+        <string>Gain short</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="gain_shortLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="gain_openTab">
+       <attribute name="title">
+        <string>Gain open</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="gain_openLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
