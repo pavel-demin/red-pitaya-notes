@@ -45,26 +45,24 @@ def unicode_minus(s):
 def metric_prefix(x, pos = None):
   if x == 0.0:
     s = '0'
-  elif abs(x) >= 1.0e9:
-    s = '%.4gG' % (x * 1.0e-9)
-  elif abs(x) >= 1.0e6:
-    s = '%.4gM' % (x * 1.0e-6)
+  elif abs(x) >= 1.0e5:
+    if x > 0.0:
+      s = '99.9k'
+    else:
+      s = '-99.9k'
+  elif abs(x) < 1.0e-2:
+    if x > 0.0:
+      s = '9.99m'
+    else:
+      s = '-9.99m'
   elif abs(x) >= 1.0e3:
-    s = '%.4gk' % (x * 1.0e-3)
+    s = '%.3gk' % (x * 1.0e-3)
   elif abs(x) >= 1.0e0:
-    s = '%.4g' % x
+    s = '%.3g' % x
   elif abs(x) >= 1.0e-3:
-    s = '%.4gm' % (x * 1e+3)
-  elif abs(x) >= 1.0e-6:
-    s = '%.4gu' % (x * 1e+6)
-  elif abs(x) >= 1.0e-9:
-    s = '%.4gn' % (x * 1e+9)
-  elif abs(x) >= 1.0e-12:
-    s = '%.4gp' % (x * 1e+12)
-  elif abs(x) < 1.0e-12:
-    s = '0'
+    s = '%.3gm' % (x * 1e+3)
   else:
-    s = '%.4g' % x
+    s = '%.3g' % x
   return unicode_minus(s)
 
 class Measurement:
@@ -139,7 +137,10 @@ class FigureTab:
     short = np.interp(freq, self.short.freq, self.short.data, period = self.short.period)
     load = np.interp(freq, self.load.freq, self.load.data, period = self.load.period)
     dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
-    return np.divide(50.0 * (open - load) * (dut - short), (load - short) * (open - dut))
+    z = np.divide(50.0 * (open - load) * (dut - short), (load - short) * (open - dut))
+    z = np.asarray(z)
+    z.real[z.real < 1.0e-2] = 9.99e-3
+    return z
 
   def gamma(self, freq):
     z = self.impedance(freq)
@@ -147,7 +148,8 @@ class FigureTab:
 
   def swr(self, freq):
     magnitude = np.absolute(self.gamma(freq))
-    return np.divide(1.0 + magnitude, 1.0 - magnitude)
+    swr = np.divide(1.0 + magnitude, 1.0 - magnitude)
+    return np.clip(swr, 1.0, 99.99)
 
   def add_cursors(self, axes):
     if self.mode == 'gain_short' or self.mode == 'gain_open':
@@ -182,26 +184,35 @@ class FigureTab:
       marker.set_ydata(gamma.imag)
     else:
       marker.set_xdata(freq)
-    row[0].set_text('%d' % value)
+    row[0].set_text('%d' % freq)
     if self.mode == 'gain_short':
       gain = self.gain_short(freq)
-      row[1].set_text(unicode_minus('%.2f' % (20.0 * np.log10(np.absolute(gain)))))
-      row[2].set_text(metric_prefix(np.angle(gain, deg = True)))
+      magnitude = 20.0 * np.log10(np.absolute(gain))
+      angle = np.angle(gain, deg = True)
+      row[1].set_text(unicode_minus('%.1f' % magnitude))
+      row[2].set_text(unicode_minus('%.1f' % angle))
     elif self.mode == 'gain_open':
       gain = self.gain_open(freq)
-      row[1].set_text(unicode_minus('%.2f' % (20.0 * np.log10(np.absolute(gain)))))
-      row[2].set_text(metric_prefix(np.angle(gain, deg = True)))
+      magnitude = 20.0 * np.log10(np.absolute(gain))
+      angle = np.angle(gain, deg = True)
+      row[1].set_text(unicode_minus('%.1f' % magnitude))
+      row[2].set_text(unicode_minus('%.1f' % angle))
     else:
       swr = self.swr(freq)
       z = self.impedance(freq)
       rl = 20.0 * np.log10(np.absolute(gamma))
+      if rl > -0.01: rl = 0.0
       row[1].set_text(metric_prefix(z.real))
       row[2].set_text(metric_prefix(z.imag))
       row[3].set_text(metric_prefix(np.absolute(z)))
-      row[4].set_text(metric_prefix(np.angle(z, deg = True)))
-      row[5].set_text(metric_prefix(swr))
-      row[6].set_text(metric_prefix(np.absolute(gamma)))
-      row[7].set_text(metric_prefix(np.angle(gamma, deg = True)))
+      angle = np.angle(z, deg = True)
+      if np.abs(angle) < 0.1: angle = 0.0
+      row[4].set_text(unicode_minus('%.1f' % angle))
+      row[5].set_text(unicode_minus('%.2f' % swr))
+      row[6].set_text(unicode_minus('%.2f' % np.absolute(gamma)))
+      angle = np.angle(gamma, deg = True)
+      if np.abs(angle) < 0.1: angle = 0.0
+      row[7].set_text(unicode_minus('%.1f' % angle))
       row[8].set_text(unicode_minus('%.2f' % rl))
     self.canvas.draw()
 
@@ -309,18 +320,16 @@ class FigureTab:
   def update_gain_open(self):
     self.update_gain(self.gain_open(self.dut.freq), 'gain_open')
 
-  def plot_magphase(self, freq, data, label, units, mode):
+  def plot_magphase(self, freq, data, label, mode):
     self.mode = mode
     data1 = np.absolute(data)
     data2 = np.angle(data, deg = True)
-    max = np.maximum(0.001, data1.max())
-    if units is None:
-      label1 = r'|%s|' % label
-    else:
-      label1 = r'|%s|, %s' % (label, units)
-    self.plot_curves(freq, data1, label1, (-0.05 * max, 1.05 * max), data2, r'$\angle$ %s, deg' % label, (-198, 198))
+    max = np.maximum(0.01, data1.max())
+    label1 = r'|%s|' % label
+    label2 = r'$\angle$ %s, deg' % label
+    self.plot_curves(freq, data1, label1, (-0.05 * max, 1.05 * max), data2, label2, (-198, 198))
 
-  def update_magphase(self, freq, data, label, units, mode):
+  def update_magphase(self, freq, data, label, mode):
     if self.mode == mode:
       self.curve1.set_xdata(freq)
       self.curve1.set_ydata(np.absolute(data))
@@ -328,31 +337,31 @@ class FigureTab:
       self.curve2.set_ydata(np.angle(data, deg = True))
       self.canvas.draw()
     else:
-      self.plot_magphase(freq, data, label, units, mode)
+      self.plot_magphase(freq, data, label, mode)
 
   def plot_open(self):
-    self.plot_magphase(self.open.freq, self.open.data, 'open', None, 'open')
+    self.plot_magphase(self.open.freq, self.open.data, 'open', 'open')
 
   def update_open(self):
-    self.update_magphase(self.open.freq, self.open.data, 'open', None, 'open')
+    self.update_magphase(self.open.freq, self.open.data, 'open', 'open')
 
   def plot_short(self):
-    self.plot_magphase(self.short.freq, self.short.data, 'short', None, 'short')
+    self.plot_magphase(self.short.freq, self.short.data, 'short', 'short')
 
   def update_short(self):
-    self.update_magphase(self.short.freq, self.short.data, 'short', None, 'short')
+    self.update_magphase(self.short.freq, self.short.data, 'short', 'short')
 
   def plot_load(self):
-    self.plot_magphase(self.load.freq, self.load.data, 'load', None, 'load')
+    self.plot_magphase(self.load.freq, self.load.data, 'load', 'load')
 
   def update_load(self):
-    self.update_magphase(self.load.freq, self.load.data, 'load', None, 'load')
+    self.update_magphase(self.load.freq, self.load.data, 'load', 'load')
 
   def plot_dut(self):
-    self.plot_magphase(self.dut.freq, self.dut.data, 'dut', None, 'dut')
+    self.plot_magphase(self.dut.freq, self.dut.data, 'dut', 'dut')
 
   def update_dut(self):
-    self.update_magphase(self.dut.freq, self.dut.data, 'dut', None, 'dut')
+    self.update_magphase(self.dut.freq, self.dut.data, 'dut', 'dut')
 
   def plot_smith_grid(self, axes, color):
     load = 50.0
@@ -414,10 +423,27 @@ class FigureTab:
       self.plot_smith()
 
   def plot_imp(self):
-    self.plot_magphase(self.dut.freq, self.impedance(self.dut.freq), 'Z', '\u03A9', 'imp')
+    self.mode = 'imp'
+    freq = self.dut.freq
+    z = self.impedance(freq)
+    data1 = np.minimum(9.99e4, np.absolute(z))
+    data2 = np.angle(z, deg = True)
+    max = np.maximum(0.01, data1.max())
+    self.plot_curves(freq, data1, '|Z|, \u03A9', (-0.05 * max, 1.05 * max), data2, r'$\angle$ Z, deg', (-198, 198))
 
   def update_imp(self):
-    self.update_magphase(self.dut.freq, self.impedance(self.dut.freq), 'Z', '\u03A9', 'imp')
+    if self.mode == 'imp':
+      freq = self.dut.freq
+      z = self.impedance(freq)
+      data1 = np.minimum(9.99e4, np.absolute(z))
+      data2 = np.angle(z, deg = True)
+      self.curve1.set_xdata(freq)
+      self.curve1.set_ydata(data1)
+      self.curve2.set_xdata(freq)
+      self.curve2.set_ydata(data2)
+      self.canvas.draw()
+    else:
+      self.plot_imp()
 
   def plot_swr(self):
     self.mode = 'swr'
@@ -434,10 +460,10 @@ class FigureTab:
       self.plot_swr()
 
   def plot_gamma(self):
-    self.plot_magphase(self.dut.freq, self.gamma(self.dut.freq), r'$\Gamma$', None, 'gamma')
+    self.plot_magphase(self.dut.freq, self.gamma(self.dut.freq), r'$\Gamma$', 'gamma')
 
   def update_gamma(self):
-    self.update_magphase(self.dut.freq, self.gamma(self.dut.freq), r'$\Gamma$', None, 'gamma')
+    self.update_magphase(self.dut.freq, self.gamma(self.dut.freq), r'$\Gamma$', 'gamma')
 
   def plot_rl(self):
     self.mode = 'rl'
