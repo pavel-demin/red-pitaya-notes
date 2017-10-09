@@ -49,14 +49,14 @@ for {set i 0} {$i <= 3} {incr i} {
 
   # Create xlslice
   cell xilinx.com:ip:xlslice:1.0 adc_slice_$i {
-    DIN_WIDTH 96 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)] DOUT_WIDTH 14
+    DIN_WIDTH 32 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)] DOUT_WIDTH 14
   } {
     Din /adc_0/m_axis_tdata
   }
 
   # Create xlslice
   cell xilinx.com:ip:xlslice:1.0 dds_slice_$i {
-    DIN_WIDTH 48 DIN_FROM [expr 24 * ($i % 2) + 20] DIN_TO [expr 24 * ($i % 2)] DOUT_WIDTH 21
+    DIN_WIDTH 48 DIN_FROM [expr 24 * ($i % 2) + 23] DIN_TO [expr 24 * ($i % 2)] DOUT_WIDTH 24
   } {
     Din dds_[expr $i / 2]/m_axis_data_tdata
   }
@@ -67,7 +67,7 @@ for {set i 0} {$i <= 3} {incr i} {
     A_WIDTH.VALUE_SRC USER
     B_WIDTH.VALUE_SRC USER
     OUTPUT_PROPERTIES User_Defined
-    A_WIDTH 21
+    A_WIDTH 24
     B_WIDTH 14
     P_WIDTH 25
   } {
@@ -142,6 +142,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA conv_0/M_AXIS
@@ -178,6 +179,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_1 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 25
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA subset_0/M_AXIS

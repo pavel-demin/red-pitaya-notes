@@ -1,118 +1,95 @@
 #!/usr/bin/env python
 
+# GNU Radio blocks for the Red Pitaya transceiver
+# Copyright (C) 2015  Renzo Davoli
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 import os
-import mmap
-import time
 import numpy
 import struct
+import socket
 from gnuradio import gr, blocks
 
-class source(gr.sync_block):
+class source(gr.hier_block2):
   '''Red Pitaya Embedded Source'''
 
-  rates = {24000:2500, 48000:1250, 96000:625}
-
-  def __init__(self, freq, rate, corr):
-    gr.sync_block.__init__(
+  def __init__(self, addr, port, freq, corr):
+    gr.hier_block2.__init__(
       self,
-      name = 'red_pitaya_source',
-      in_sig = [],
-      out_sig = [numpy.complex64]
+      name = "red_pitaya_source",
+      input_signature = gr.io_signature(0, 0, 0),
+      output_signature = gr.io_signature(1, 1, gr.sizeof_gr_complex)
     )
-    file = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
-    self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40000000)
-    self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40001000)
-    self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40002000)
-    self.cfg[0:1] = struct.pack('<B', 1)
-    self.cfg[0:1] = struct.pack('<B', 0)
+    self.ctrl_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    self.ctrl_sock.connect((addr, port))
+    self.ctrl_sock.send(struct.pack('<I', 0))
+    self.data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    self.data_sock.connect((addr, port))
+    self.data_sock.send(struct.pack('<I', 1))
+    fd = os.dup(self.data_sock.fileno())
+    self.connect(blocks.file_descriptor_source(gr.sizeof_gr_complex, fd), self)
     self.set_freq(freq, corr)
-    self.set_rate(rate)
 
   def set_freq(self, freq, corr):
-    self.cfg[8:12] = struct.pack('<I', int((1.0 + 1e-6 * corr) * freq / 125.0e6 * (1<<30) + 0.5))
+    self.ctrl_sock.send(struct.pack('<I', 0<<28 | int((1.0 + 1e-6 * corr) * freq)))
 
-  def set_rate(self, rate):
-    if rate in source.rates:
-      self.cfg[4:6] = struct.pack('<H', source.rates[rate])
-    else:
-      raise ValueError('acceptable sample rates are 24k, 48k, 96k')
-
-  def work(self, input_items, output_items):
-    size = len(output_items[0])
-    offset = 0
-    while size > 0:
-      if struct.unpack('<H', self.sts[12:14])[0] >= 2048:
-        self.cfg[0:1] = struct.pack('<B', 1)
-        self.cfg[0:1] = struct.pack('<B', 0)
-      while struct.unpack('<H', self.sts[12:14])[0] < 1024: time.sleep(0.001)
-      if size < 512:
-        output_items[0][offset:offset+size] = numpy.fromstring(self.buf[0:8*size], numpy.complex64)
-        size = 0
-        offset = offset + size
-      else:
-        output_items[0][offset:offset+512] = numpy.fromstring(self.buf[0:4096], numpy.complex64)
-        size = size - 512
-        offset = offset + 512
-    return len(output_items[0])
-
-class sink(gr.sync_block):
+class sink(gr.hier_block2):
   '''Red Pitaya Embedded Sink'''
 
-  rates = {24000:2500, 48000:1250, 96000:625}
-
-  def __init__(self, freq, rate, corr, ptt):
-    gr.sync_block.__init__(
+  def __init__(self, addr, port, freq, corr, ptt):
+    gr.hier_block2.__init__(
       self,
-      name = 'red_pitaya_sink',
-      in_sig = [numpy.complex64],
-      out_sig = []
+      name = "red_pitaya_sink",
+      input_signature = gr.io_signature(1, 1, gr.sizeof_gr_complex),
+      output_signature = gr.io_signature(0, 0, 0)
     )
-    file = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
-    self.sts = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40000000)
-    self.cfg = mmap.mmap(file, 4096, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40001000)
-    self.buf = mmap.mmap(file, 8192, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset = 0x40008000)
-    self.cfg[1:2] = struct.pack('<B', 1)
-    self.cfg[1:2] = struct.pack('<B', 0)
+    self.ctrl_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    self.ctrl_sock.connect((addr, port))
+    self.ctrl_sock.send(struct.pack('<I', 2))
+    self.data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    self.data_sock.connect((addr, port))
+    self.data_sock.send(struct.pack('<I', 3))
+    fd = os.dup(self.data_sock.fileno())
+    self.null_sink = blocks.null_sink(gr.sizeof_gr_complex)
+    self.file_sink = blocks.file_descriptor_sink(gr.sizeof_gr_complex, fd)
     self.set_freq(freq, corr)
-    self.set_rate(rate)
     if ptt:
       self.ptt = True
-      self.cfg[2:4] = struct.pack('<H', 1)
+      self.ctrl_sock.send(struct.pack('<I', 1<<28 | 1))
+      self.connect(self, self.file_sink)
     else:
       self.ptt = False
-      self.cfg[2:4] = struct.pack('<H', 0)
+      self.ctrl_sock.send(struct.pack('<I', 1<<28 | 0))
+      self.connect(self, self.null_sink)
 
   def set_freq(self, freq, corr):
-    self.cfg[24:28] = struct.pack('<I', int((1.0 + 1e-6 * corr) * freq / 125.0e6 * (1<<30) + 0.5))
-
-  def set_rate(self, rate):
-    if rate in sink.rates:
-      self.cfg[20:22] = struct.pack('<H', sink.rates[rate])
-    else:
-      raise ValueError('acceptable sample rates are 24k, 48k, 96k')
+    self.ctrl_sock.send(struct.pack('<I', 0<<28 | int((1.0 + 1e-6 * corr) * freq)))
 
   def set_ptt(self, ptt):
     if ptt and not self.ptt:
       self.ptt = True
-      self.cfg[2:3] = struct.pack('<B', 1)
+      self.ctrl_sock.send(struct.pack('<I', 3<<28 | 1))
+      self.lock()
+      self.disconnect(self, self.null_sink)
+      self.connect(self, self.file_sink)
+      self.unlock()
     elif not ptt and self.ptt:
       self.ptt = False
-      self.cfg[2:3] = struct.pack('<B', 0)
-
-  def work(self, input_items, output_items):
-    size = len(input_items[0])
-    if not self.ptt: return size
-    offset = 0
-    while size > 0:
-      while struct.unpack('<H', self.sts[18:20])[0] > 1024: time.sleep(0.001)
-      if(struct.unpack('<H', self.sts[18:20])[0] == 0):
-        self.buf[0:4096] = numpy.zeros(512, numpy.complex64).tostring()
-      if size < 512:
-        self.buf[0:8*size] = input_items[0][offset:offset+size].tostring()
-        size = 0
-        offset = offset + size
-      else:
-        self.buf[0:4096] = input_items[0][offset:offset+512].tostring()
-        size = size - 512
-        offset = offset + 512
-    return len(input_items[0])
+      self.ctrl_sock.send(struct.pack('<I', 3<<28 | 0))
+      self.lock()
+      self.disconnect(self, self.file_sink)
+      self.connect(self, self.null_sink)
+      self.unlock()
