@@ -15,8 +15,6 @@ Some interesting links on network analyzers:
 
  - [Ham VNA](http://dxatlas.com/HamVNA)
 
- - [Fundamentals of Vector Network Analysis Primer](http://rohde-schwarz-scopes.com/designcon/VNA%20fundamentals%20primer.pdf)
-
  - [Introduction to Network Analyzer Measurements](http://download.ni.com/evaluation/rf/Introduction_to_Network_Analyzer_Measurements.pdf)
 
 Hardware
