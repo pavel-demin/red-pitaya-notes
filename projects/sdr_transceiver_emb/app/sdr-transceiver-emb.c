@@ -284,7 +284,7 @@ int main()
     *dac_size = size;
 
     /* set default dac level */
-    *dac_level = 32767;
+    *dac_level = 32766;
 
     /* set default dac mux channel */
     *(dac_mux + 16) = 0;
@@ -412,7 +412,7 @@ int main()
           if(data > 1) continue;
           ptt = data;
           *gpio_out = data;
-          *tx_level = data ? 32767 : 0;
+          *tx_level = data ? 32110 : 0;
           break;
         case 9:
           running = 0;

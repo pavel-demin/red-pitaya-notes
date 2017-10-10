@@ -539,7 +539,7 @@ int main(int argc, char *argv[])
   *tx_size = size;
 
   /* set default tx level */
-  *tx_level = 32766;
+  *tx_level = 32110;
 
   /* set ps level */
   *ps_level = 23080;
