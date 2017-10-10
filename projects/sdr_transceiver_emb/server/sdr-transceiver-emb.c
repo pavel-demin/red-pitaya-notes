@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
   *gpio = 0;
 
   /* set default tx level */
-  *tx_level = 32766;
+  *tx_level = 32110;
 
   /* set default tx mux channel */
   *(tx_mux + 16) = 0;
