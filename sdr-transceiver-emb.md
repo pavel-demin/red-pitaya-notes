@@ -21,7 +21,7 @@ The basic blocks of the digital down-converters (DDC) and of the digital up-conv
 
 ![Embedded SDR transceiver]({{ "/img/sdr-transceiver-emb.png" | prepend: site.baseurl }})
 
-The [projects/sdr_transceiver_emb](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb) directory contains four Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/tx.tcl), [sp.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/sp.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/sdr_transceiver_emb](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb) directory contains four Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/rx.tcl), [sp.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/sp.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_emb/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
 Software
 -----
