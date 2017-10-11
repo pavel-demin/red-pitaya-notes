@@ -14,7 +14,7 @@ Hardware
 
 The structure of this version is very similar to the SDR transceiver described at [this link]({{ "/sdr-transceiver-hpsdr/" | prepend: site.baseurl }}). The two main differences are:
 
- - lower sample rates (24, 48, 96 kSPS),
+ - fixed sample rate (48kSPS),
  - fewer FIR filters.
 
 The basic blocks of the digital down-converters (DDC) and of the digital up-converters (DUC) are shown on the following diagram:
@@ -26,40 +26,20 @@ The [projects/sdr_transceiver_emb](https://github.com/pavel-demin/red-pitaya-not
 Software
 -----
 
-The [projects/sdr_transceiver_emb/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks, a few examples written in Python and a few flow graph configurations for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
+Some examples of software can be found at the following links:
+
+ - [DiscoRedTRX](https://github.com/ted051/DiscoRedTRX).
+ - [DiscoRedTRX](https://github.com/pavel-demin/DiscoRedTRX) (old version).
+ - [projects/sdr_transceiver_emb/app](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb/app),
+ - [projects/sdr_transceiver_emb/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb/server).
 
 Getting started
 -----
 
-A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABvkWa3_2EIsmwTfnNaZfG2a/sdr/red-pitaya-gnuradio-debian-8.5-armhf-20160621.zip?dl=1).
-
-The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
-
-To write the image to a SD card, the `dd` command-line utility can be used on GNU/Linux and Mac OS X or [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/) can be used on MS Windows.
-
-The default password for the `root` account is `changeme`.
-
-To use the full size of a SD card, the SD card partitions should be resized with the following commands:
-
-{% highlight bash %}
-# delete second partition
-echo -e "d\n2\nw" | fdisk /dev/mmcblk0
-# recreate partition
-parted -s /dev/mmcblk0 mkpart primary ext4 16MB 100%
-# resize partition
-resize2fs /dev/mmcblk0p2
-{% endhighlight %}
-
-Running GNU Radio on Red Pitaya
------
-
- - Connect a USB sound card to the USB port on the Red Pitaya board.
- - Run SSB transceiver example:
-{% highlight bash %}
-cd gnuradio
-export GRC_BLOCKS_PATH=.
-grcc -d . -e trx_ssb.grc
-{% endhighlight %}
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_emb` to the topmost directory on the SD card.
+ - Insert the SD card in Red Pitaya and connect the power.
 
 Building from source
 -----
@@ -79,12 +59,12 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 {% endhighlight %}
 
-Building `boot.bin`, `devicetree.dtb` and `uImage`:
+Building `sdr_transceiver_emb.bit`:
 {% highlight bash %}
-make NAME=sdr_transceiver_emb all
+make NAME=sdr_transceiver_emb bit
 {% endhighlight %}
 
-Building a bootable SD card image:
+Building SD card image zip file:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian-gnuradio.sh red-pitaya-gnuradio-debian-8.5-armhf.img 1024
+source helpers/build-all.sh
 {% endhighlight %}
