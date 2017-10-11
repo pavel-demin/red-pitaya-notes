@@ -28,8 +28,8 @@ Software
 
 Some examples of software can be found at the following links:
 
- - [DiscoRedTRX](https://github.com/ted051/DiscoRedTRX).
- - [DiscoRedTRX](https://github.com/pavel-demin/DiscoRedTRX) (old version).
+ - [DiscoRedTRX](https://github.com/ted051/DiscoRedTRX),
+ - [DiscoRedTRX](https://github.com/pavel-demin/DiscoRedTRX) (old version),
  - [projects/sdr_transceiver_emb/app](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb/app),
  - [projects/sdr_transceiver_emb/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_emb/server).
 
