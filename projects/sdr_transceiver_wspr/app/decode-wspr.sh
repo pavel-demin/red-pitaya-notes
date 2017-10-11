@@ -4,7 +4,7 @@
 CALL=
 GRID=
 
-JOBS=2
+JOBS=4
 NICE=10
 
 DIR=`readlink -f $0`

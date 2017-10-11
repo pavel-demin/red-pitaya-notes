@@ -234,9 +234,9 @@ class FigureTab:
   def release_marker(self, index, event):
     self.cursorPressed[index] = False
 
-  def xlim(self):
-    start = self.dut.freq[0]
-    stop = self.dut.freq[-1]
+  def xlim(self, freq):
+    start = freq[0]
+    stop = freq[-1]
     min = np.minimum(start, stop)
     max = np.maximum(start, stop)
     margin = (max - min) / 50
@@ -268,7 +268,7 @@ class FigureTab:
     axes1.xaxis.grid()
     axes1.set_xlabel('kHz')
     axes1.set_ylabel(label1)
-    xlim = self.xlim()
+    xlim = self.xlim(freq)
     axes1.set_xlim(xlim)
     if limit1 is not None: axes1.set_ylim(limit1)
     self.curve1, = axes1.plot(freq, data1, color = 'blue', label = label1)
