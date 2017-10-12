@@ -20,7 +20,14 @@ Getting started
 
 The default password for the `root` account is `changeme`.
 
+Network configuration
+-----
+
 Wi-Fi is by default configured in hotspot mode with the network name (SSID) and password both set to `RedPitaya`. When in hotspot mode, the IP address of Red Pitaya is [192.168.42.1](http://192.168.42.1).
+
+The wired interface is by default configured to request an IP address via DHCP. If no IP address is provided by a DHCP server, then the wired interface falls back to a static IP address [192.168.1.100](http://192.168.1.100).
+
+The configuration of the IP addresses is in [/etc/dhcpcd.conf](https://github.com/pavel-demin/red-pitaya-notes/blob/master/alpine/etc/dhcpcd.conf). More information about [/etc/dhcpcd.conf](https://github.com/pavel-demin/red-pitaya-notes/blob/master/alpine/etc/dhcpcd.conf) can be found at [this link](https://www.mankier.com/5/dhcpcd.conf).
 
 From systems with enabled DNS Service Discovery (DNS-SD), Red Pitaya can be accessed as `rp-f0xxxx.local`, where `f0xxxx` are the last 6 characters from the MAC address written on the Ethernet connector.
 
