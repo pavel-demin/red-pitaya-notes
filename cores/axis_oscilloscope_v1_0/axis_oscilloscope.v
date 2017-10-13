@@ -91,12 +91,12 @@ module axis_oscilloscope #
         if(s_axis_tvalid)
         begin
           int_cntr_next = int_cntr_reg + 1'b1;
-          if(trg_flag)
-          begin
-            int_addr_next = int_cntr_reg;
-            int_cntr_next = pre_data + int_cntr_reg[5:0];
-            int_case_next = 2'd3;
-          end
+        end
+        if(trg_flag)
+        begin
+          int_addr_next = int_cntr_reg;
+          int_cntr_next = pre_data + int_cntr_reg[5:0];
+          int_case_next = 2'd3;
         end
       end
 
