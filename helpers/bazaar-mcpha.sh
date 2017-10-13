@@ -12,9 +12,11 @@ arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex
 
 cp tmp/$project.bit $project
 
-version=2.`date +%y-%m%d`
+version=1.0-`date +%Y%m%d`
 revision=`git log -n1 --pretty=%h`
 
 sed -i "s/REVISION/$revision/; s/VERSION/$version/" $project/info/info.json
 
 zip -r $project-$version.zip $project
+
+rm -rf $project

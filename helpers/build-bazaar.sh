@@ -1,5 +1,6 @@
-source helpers/sdr-receiver-hpsdr-bazaar.sh
-source helpers/sdr-transceiver-bazaar.sh
-source helpers/sdr-transceiver-hpsdr-bazaar.sh
-source helpers/mcpha-bazaar.sh
-source helpers/vna-bazaar.sh
+source helpers/bazaar.sh sdr_receiver_hpsdr sdr-receiver-hpsdr
+source helpers/bazaar.sh sdr_transceiver sdr-transceiver
+source helpers/bazaar.sh sdr_transceiver_hpsdr sdr-transceiver-hpsdr
+source helpers/bazaar.sh vna vna
+
+source helpers/bazaar-mcpha.sh
