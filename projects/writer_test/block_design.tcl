@@ -24,7 +24,7 @@ cell xilinx.com:ip:xlslice:1.0 slice_4 {
 # Create axis_counter
 cell pavel-demin:user:axis_counter:1.0 cntr_1 {} {
   cfg_data slice_4/Dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_2/Dout
 }
 
@@ -35,7 +35,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   M_TDATA_NUM_BYTES 8
 } {
   S_AXIS cntr_1/M_AXIS
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_3/Dout
 }
 
@@ -50,7 +50,7 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {} {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
   cfg_data const_0/dout
-  aclk ps_0/FCLK_CLK0
+  aclk pll_0/clk_out1
   aresetn slice_3/Dout
 }
 

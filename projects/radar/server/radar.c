@@ -38,7 +38,6 @@ int main(int argc, char *argv[])
     tx_ctrl_handler,
     tx_data_handler
   };
-  volatile uint32_t *slcr;
   volatile void *cfg, *sts;
   char *end;
   struct sockaddr_in addr;
@@ -51,8 +50,6 @@ int main(int argc, char *argv[])
     perror("open");
     return EXIT_FAILURE;
   }
-
-  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);

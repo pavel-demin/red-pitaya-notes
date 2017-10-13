@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   ssize_t size;
   pthread_t thread;
   volatile void *cfg, *sts;
-  volatile uint32_t *slcr, *mux;
+  volatile uint32_t *mux;
   char *end;
   uint8_t buffer[1032];
   uint8_t reply[20] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1, 'R', '_', 'P', 'I', 'T', 'A', 'Y', 'A', 6};
@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
