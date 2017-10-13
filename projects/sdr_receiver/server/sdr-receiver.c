@@ -26,7 +26,6 @@ int main(int argc, char *argv[])
   int fd, sockServer, sockClient;
   int position, limit, offset;
   pid_t pid;
-  volatile uint32_t *slcr;
   volatile void *cfg, *sts, *ram;
   int size = 0;
   struct sockaddr_in addr;
@@ -41,7 +40,6 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   ram = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
