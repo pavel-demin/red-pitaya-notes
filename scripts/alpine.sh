@@ -82,7 +82,7 @@ echo $alpine_url/community >> $root_dir/etc/apk/repositories
 chroot $root_dir /bin/sh <<- EOF_CHROOT
 
 apk update
-apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd-rtl871xdrv iptables avahi dcron chrony gpsd-timepps subversion make gcc musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget less nano bc
+apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd-rtl871xdrv iptables avahi dcron chrony gpsd-timepps musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget less nano bc
 
 ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
 ln -s /etc/init.d/hostname etc/runlevels/boot/hostname
@@ -133,6 +133,15 @@ EOF_CAT
 ln -s /media/mmcblk0p1/apps root/apps
 ln -s /media/mmcblk0p1/wifi root/wifi
 
+lbu add root
+lbu delete etc/resolv.conf
+lbu delete etc/periodic/wspr
+lbu delete root/.ash_history
+
+lbu commit -d
+
+apk add subversion make gcc
+
 for project in server sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_emb sdr_transceiver_hpsdr sdr_transceiver_wide mcpha vna
 do
   make -C /media/mmcblk0p1/apps/\$project clean
@@ -142,13 +151,6 @@ done
 svn co svn://svn.code.sf.net/p/wsjt/wsjt/branches/wsjtx/lib/wsprd /media/mmcblk0p1/apps/sdr_transceiver_wspr/wsprd
 make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr/wsprd CFLAGS='-O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd
 make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr
-
-lbu add root
-lbu delete etc/resolv.conf
-lbu delete etc/periodic/wspr
-lbu delete root/.ash_history
-
-lbu commit -d
 
 EOF_CHROOT
 
