@@ -135,7 +135,7 @@ for {set i 0} {$i <= 15} {incr i} {
   cell xilinx.com:ip:cic_compiler:4.0 cic_$i {
     INPUT_DATA_WIDTH.VALUE_SRC USER
     FILTER_TYPE Decimation
-    NUMBER_OF_STAGES 3
+    NUMBER_OF_STAGES 6
     SAMPLE_RATE_CHANGES Fixed
     FIXED_OR_INITIAL_RATE 250
     INPUT_SAMPLE_FREQUENCY 125
