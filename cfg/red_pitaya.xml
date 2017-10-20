@@ -12,7 +12,6 @@
   <set param="PCW::GPIO::EMIO_GPIO::ENABLE" value="1" />
   <set param="PCW::I2C0::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::I2C0::I2C0::IO" value="MIO 50 .. 51" />
-  <set param="PCW::I2C1::PERIPHERAL::ENABLE" value="0" />
   <set param="PCW::UART0::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::UART0::UART0::IO" value="MIO 14 .. 15" />
   <set param="PCW::UART1::PERIPHERAL::ENABLE" value="1" />
@@ -20,10 +19,6 @@
   <set param="PCW::USB0::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::USB0::RESET::ENABLE" value="1" />
   <set param="PCW::USB0::RESET::IO" value="MIO 48" />
-  <set param="PCW::USB1::PERIPHERAL::ENABLE" value="0" />
-  <set param="PCW::QSPI::PERIPHERAL::ENABLE" value="1" />
-  <set param="PCW::QSPI::GRP_SS1::ENABLE" value="0" />
-  <set param="PCW::QSPI::GRP_FBCLK::ENABLE" value="0" />
   <set param="PCW::SD0::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::SD0::GRP_CD::ENABLE" value="1" />
   <set param="PCW::SD0::GRP_WP::ENABLE" value="1" />
@@ -47,10 +42,6 @@
   <set param="PCW::UIPARAM::DDR::DEVICE_CAPACITY" value="4096 MBits" />
   <set param="PCW::UIPARAM::DDR::SPEED_BIN" value="DDR3_1066F" />
   <set param="PCW::UIPARAM::DDR::ROW_ADDR_COUNT" value="15" />
-  <set param="PCW::UIPARAM::DDR::CWL" value="6" />
-  <set param="PCW::UIPARAM::DDR::T_RC" value="48.91" />
-  <set param="PCW::UIPARAM::DDR::T_RAS_MIN" value="35.0" />
-  <set param="PCW::UIPARAM::DDR::T_FAW" value="40.0" />
   <set param="PCW::MIO::MIO[0]::IOTYPE" value="LVCMOS 3.3V" />
   <set param="PCW::MIO::MIO[0]::PULLUP" value="disabled" />
   <set param="PCW::MIO::MIO[1]::IOTYPE" value="LVCMOS 3.3V" />
