@@ -27,7 +27,6 @@
   <set param="PCW::SPI0::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::SPI1::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::SPI1::SPI1::IO" value="MIO 10 .. 15" />
-  <set param="PCW::ENET0::PERIPHERAL::FREQMHZ" value="1000 Mbps" />
   <set param="PCW::PRESET::FPGA::PARTNUMBER" value="xc7z010clg400-1" />
   <set param="PCW::PRESET::FPGA::SPEED" value="-1" />
   <set param="PCW::PRESET::BANK0::VOLTAGE" value="LVCMOS 3.3V" />
