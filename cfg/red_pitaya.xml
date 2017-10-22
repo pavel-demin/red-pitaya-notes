@@ -20,6 +20,7 @@
   <set param="PCW::USB0::RESET::ENABLE" value="1" />
   <set param="PCW::USB0::RESET::IO" value="MIO 48" />
   <set param="PCW::SD0::PERIPHERAL::ENABLE" value="1" />
+  <set param="PCW::SD0::SD0::IO" value="MIO 40 .. 45" />
   <set param="PCW::SD0::GRP_CD::ENABLE" value="1" />
   <set param="PCW::SD0::GRP_WP::ENABLE" value="1" />
   <set param="PCW::SD0::GRP_CD::IO" value="MIO 46" />
