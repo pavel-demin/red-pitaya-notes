@@ -48,7 +48,7 @@ cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 256
+  CFG_DATA_WIDTH 320
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -57,14 +57,14 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 256 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 256 DIN_FROM 255 DIN_TO 32 DOUT_WIDTH 224
+  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 32 DOUT_WIDTH 288
 } {
   Din cfg_0/cfg_data
 }
@@ -80,6 +80,8 @@ module rx_0 {
   slice_5/Din cfg_slice_0/Dout
   slice_6/Din cfg_slice_0/Dout
   slice_7/Din cfg_slice_0/Dout
+  slice_8/Din cfg_slice_0/Dout
+  slice_9/Din cfg_slice_0/Dout
 }
 
 # STS
@@ -92,7 +94,7 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_0 {
-  NUM_PORTS 8
+  NUM_PORTS 10
   IN0_WIDTH 32
   IN1_WIDTH 64
   IN2_WIDTH 16
@@ -101,6 +103,8 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN5_WIDTH 16
   IN6_WIDTH 16
   IN7_WIDTH 16
+  IN8_WIDTH 16
+  IN9_WIDTH 16
 } {
   In0 const_0/dout
   In1 dna_0/dna_data
@@ -110,11 +114,13 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   In5 rx_0/fifo_generator_3/rd_data_count
   In6 rx_0/fifo_generator_4/rd_data_count
   In7 rx_0/fifo_generator_5/rd_data_count
+  In8 rx_0/fifo_generator_6/rd_data_count
+  In9 rx_0/fifo_generator_7/rd_data_count
 }
 
 # Create axi_sts_register
 cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
-  STS_DATA_WIDTH 192
+  STS_DATA_WIDTH 224
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
@@ -148,7 +154,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg]
 set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg]
 
-for {set i 0} {$i <= 5} {incr i} {
+for {set i 0} {$i <= 7} {incr i} {
 
   # Create all required interconnections
   apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -156,7 +162,7 @@ for {set i 0} {$i <= 5} {incr i} {
     Clk Auto
   } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
 
-  set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
-  set_property OFFSET 0x4000[format %X [expr 2 * $i + 4]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property OFFSET 0x4000[format %X [expr $i + 3]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
 
 }
