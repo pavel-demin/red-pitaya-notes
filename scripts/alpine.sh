@@ -3,7 +3,7 @@ alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.6
 uboot_tar=alpine-uboot-3.6.2-armhf.tar.gz
 uboot_url=$alpine_url/releases/armhf/$uboot_tar
 
-tools_tar=apk-tools-static-2.7.2-r0.apk
+tools_tar=apk-tools-static-2.7.3-r0.apk
 tools_url=$alpine_url/main/armhf/$tools_tar
 
 firmware_tar=linux-firmware-20170330-r1.apk
@@ -28,7 +28,7 @@ mkdir alpine-uboot
 tar -zxf $uboot_tar -C alpine-uboot
 
 mkdir alpine-apk
-tar -zxf apk-tools-static-2.7.2-r0.apk -C alpine-apk
+tar -zxf $tools_tar -C alpine-apk
 
 mkdir alpine-initramfs
 cd alpine-initramfs
