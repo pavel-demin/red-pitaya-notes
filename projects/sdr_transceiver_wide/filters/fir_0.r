@@ -1,11 +1,11 @@
 library(signal)
 
 # CIC filter parameters
-R <- 125                       # Decimation factor
+R <- 25                        # Decimation factor
 M <- 1                         # Differential delay
 N <- 6                         # Number of stages
 
-Fo <- 0.22                     # Pass band edge; 220 kHz
+Fo <- 0.22                     # Pass band edge
 
 # fir2 parameters
 k <- kaiserord(c(Fo, Fo+0.02), c(1, 0), 1/(2^16), 1)
