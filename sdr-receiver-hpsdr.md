@@ -7,7 +7,7 @@ permalink: /sdr-receiver-hpsdr/
 Introduction
 -----
 
-This version of the Red Pitaya SDR receiver emulates a [Hermes](http://openhpsdr.org/hermes.php) module with six receivers. It may be useful for projects that require six receivers compatible with the programs that support the HPSDR/Metis communication protocol.
+This version of the Red Pitaya SDR receiver emulates a [Hermes](http://openhpsdr.org/hermes.php) module with eight receivers. It may be useful for projects that require eight receivers compatible with the programs that support the HPSDR/Metis communication protocol.
 
 The HPSDR/Metis communication protocol is described in the following documents:
 
@@ -18,7 +18,7 @@ The HPSDR/Metis communication protocol is described in the following documents:
 Hardware
 -----
 
-The FPGA configuration consists of six identical digital down-converters (DDC). Their structure is shown on the following diagram:
+The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown on the following diagram:
 
 ![HPSDR receiver]({{ "/img/sdr-receiver-hpsdr.png" | prepend: site.baseurl }})
 
@@ -26,7 +26,7 @@ The main problem in emulating the HPSDR hardware with Red Pitaya is that the Red
 
 To address this problem, this version contains a set of FIR filters for fractional sample rate conversion.
 
-The resulting I/Q data rate is configurable and four settings are available: 48, 96, 192, 384 kSPS.
+The resulting I/Q data rate is configurable and three settings are available: 48, 96, 192 kSPS.
 
 The tunable frequency range covers from 0 Hz to 61.44 MHz.
 
