@@ -50,8 +50,8 @@ LINUX_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -
 UBOOT_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 ARMHF_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
 
-RTL8188_TAR = tmp/rtl8188eu-master.tar.gz
-RTL8188_URL = https://github.com/lwfinger/rtl8188eu/archive/master.tar.gz
+RTL8188_TAR = tmp/rtl8188eu-v4.1.8_9499.tar.gz
+RTL8188_URL = https://github.com/lwfinger/rtl8188eu/archive/v4.1.8_9499.tar.gz
 
 RTL8192_TAR = tmp/rtl8192cu-fixes-master.tar.gz
 RTL8192_URL = https://github.com/pvaret/rtl8192cu-fixes/archive/master.tar.gz
