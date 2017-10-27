@@ -9,6 +9,11 @@ tools_url=$alpine_url/main/armhf/$tools_tar
 firmware_tar=linux-firmware-20170330-r1.apk
 firmware_url=$alpine_url/main/armhf/$firmware_tar
 
+linux_dir=tmp/linux-xlnx-xilinx-v2016.4
+linux_ver=4.6.0-xilinx
+
+modules_dir=alpine-modloop/lib/modules/$linux_ver
+
 apks_tar=apks.tgz
 apks_url=https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADaQEPEtSBiYXU814k4jDR4a/apks.tgz?dl=1
 
@@ -19,32 +24,41 @@ test -f $tools_tar || curl -L $tools_url -o $tools_tar
 test -f $firmware_tar || curl -L $firmware_url -o $firmware_tar
 test -f $apks_tar || curl -L $apks_url -o $apks_tar
 
-tar -zxf $firmware_tar --strip-components=1 --wildcards lib/firmware/ar* lib/firmware/ath* lib/firmware/brcm* lib/firmware/ht* lib/firmware/rt* lib/firmware/RT*
-
 tar -zxf $apks_tar
 touch apks/.boot_repository
 
 mkdir alpine-uboot
-tar -zxf $uboot_tar -C alpine-uboot
+tar -zxf $uboot_tar --directory=alpine-uboot
 
 mkdir alpine-apk
-tar -zxf $tools_tar -C alpine-apk
+tar -zxf $tools_tar --directory=alpine-apk --warning=no-unknown-keyword
 
 mkdir alpine-initramfs
 cd alpine-initramfs
 
-gzip -dc ../alpine-uboot/boot/initramfs-hardened | cpio -vid
+gzip -dc ../alpine-uboot/boot/initramfs-hardened | cpio -id
 rm -rf etc/modprobe.d
 rm -rf lib/firmware
 rm -rf lib/modules
-patch -p 0 < ../patches/alpine-init.patch
 find . | sort | cpio --quiet -o -H newc | gzip -9 > ../initrd.gz
 
 cd ..
 
 mkimage -A arm -T ramdisk -C gzip -d initrd.gz uInitrd
 
-rm -rf alpine-uboot alpine-initramfs initrd.gz
+mkdir -p $modules_dir/kernel
+
+find $linux_dir -name \*.ko -printf '%P\0' | tar --directory=$linux_dir --owner=0 --group=0 --null --files-from=- -zcf - | tar -zxf - --directory=$modules_dir/kernel
+
+cp $linux_dir/modules.order $linux_dir/modules.builtin $modules_dir/
+
+depmod -a -b alpine-modloop $linux_ver
+
+tar -zxf $firmware_tar --directory=alpine-modloop/lib/modules --warning=no-unknown-keyword --strip-components=1 --wildcards lib/firmware/ar* lib/firmware/ath* lib/firmware/brcm* lib/firmware/ht* lib/firmware/rt* lib/firmware/RT*
+
+mksquashfs alpine-modloop/lib modloop -b 1048576 -comp xz -Xdict-size 100%
+
+rm -rf alpine-uboot alpine-initramfs initrd.gz alpine-modloop
 
 root_dir=alpine-root
 
@@ -86,6 +100,8 @@ apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd-rtl871xdrv iptables ava
 
 ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
 ln -s /etc/init.d/hostname etc/runlevels/boot/hostname
+ln -s /etc/init.d/hwdrivers etc/runlevels/boot/hwdrivers
+ln -s /etc/init.d/modloop etc/runlevels/boot/modloop
 ln -s /etc/init.d/swclock etc/runlevels/boot/swclock
 ln -s /etc/init.d/sysctl etc/runlevels/boot/sysctl
 ln -s /etc/init.d/syslog etc/runlevels/boot/syslog
