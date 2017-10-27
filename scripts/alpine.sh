@@ -180,6 +180,6 @@ hostname -F /etc/hostname
 
 rm -rf $root_dir alpine-apk 
 
-zip -r red-pitaya-alpine-3.6-armhf-`date +%Y%m%d`.zip apks apps boot.bin cache devicetree.dtb firmware red-pitaya.apkovl.tar.gz uEnv.txt uImage uInitrd wifi
+zip -r red-pitaya-alpine-3.6-armhf-`date +%Y%m%d`.zip apks apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz uEnv.txt uImage uInitrd wifi
 
-rm -rf apks apps cache firmware red-pitaya.apkovl.tar.gz uInitrd wifi
+rm -rf apks apps cache modloop red-pitaya.apkovl.tar.gz uInitrd wifi
