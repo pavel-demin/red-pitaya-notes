@@ -4,7 +4,7 @@ CFLAGS = -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-
 
 vpath %.o wsprd
 
-all: gpio-output measure-corr sleep-to-59 write-c2-files transmit-wspr-message
+all: i2c-write gpio-output measure-corr sleep-to-59 write-c2-files transmit-wspr-message
 
 gpio-output: gpio-output.c
 	gcc $(CFLAGS) -o $@ $^
@@ -13,6 +13,9 @@ measure-corr: measure-corr.c
 	gcc $(CFLAGS) -o $@ $^
 
 sleep-to-59: sleep-to-59.c
+	gcc $(CFLAGS) -o $@ $^
+
+i2c-write: i2c-write.c
 	gcc $(CFLAGS) -o $@ $^
 
 write-c2-files: write-c2-files.c
