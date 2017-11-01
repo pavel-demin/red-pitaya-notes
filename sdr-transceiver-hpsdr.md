@@ -84,7 +84,7 @@ I2C connections
 
 This interface is designed by Peter DC2PD. The [sdr-transceiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c) server communicates with one or two [PCA9555](http://www.ti.com/product/PCA9555) chips connected to the I2C pins of the [extension connector E2](http://redpitaya.readthedocs.io/en/latest/developerGuide/125-14/extent.html#extension-connector-e2).
 
-HPSDR signals sent to the [PCA9555](http://www.ti.com/product/PCA9555) chip at address `0x20`:
+HPSDR signals sent to the [PCA9555](http://www.ti.com/product/PCA9555) chip at address 0 (0x20):
 
 PCA9555 pins | HPSDR signals
 ------------ | -------------
@@ -93,7 +93,7 @@ P07 - P10    | Attenuator (00 = 0dB, 01 = 10dB, 10 = 20dB, 11 = 30dB)
 P11 - P12    | Rx Antenna (00 = none, 01 = Rx1, 10 = Rx2, 11 = XV)
 P13 - P14    | Tx Relay (00 = Tx1, 01= Tx2, 10 = Tx3)
 
-HPSDR signals sent to the [PCA9555](http://www.ti.com/product/PCA9555) chip at address `0x21`:
+HPSDR signals sent to the [PCA9555](http://www.ti.com/product/PCA9555) chip at address 1 (0x21):
 
 PCA9555 pins | HPSDR signals
 ------------ | -------------
