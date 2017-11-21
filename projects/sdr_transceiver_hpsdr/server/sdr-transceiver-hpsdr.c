@@ -1262,6 +1262,7 @@ void *handler_ep6(void *arg)
         {
           memcpy(pointer + 6, data1 + data_offset, 6);
         }
+#ifndef ANANXD
         if(size > 14)
         {
           memcpy(pointer + 12, data2 + data_offset, 6);
@@ -1270,6 +1271,16 @@ void *handler_ep6(void *arg)
         {
           memcpy(pointer + 18, data3 + data_offset, 6);
         }
+#else
+        if(size > 20)
+        {
+          memcpy(pointer + 18, data2 + data_offset, 6);
+        }
+        if(size > 26)
+        {
+          memcpy(pointer + 24, data3 + data_offset, 6);
+        }
+#endif
         data_offset += 8;
         pointer += size;
         if(i2c_codec) memcpy(pointer - 2, &audio[(k++) >> rate], 2);
