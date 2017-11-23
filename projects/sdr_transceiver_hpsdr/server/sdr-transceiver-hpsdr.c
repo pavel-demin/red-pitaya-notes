@@ -1235,9 +1235,6 @@ void *handler_ep6(void *arg)
       pointer[3] |= (*gpio_in & 7) | cw_ptt;
       if(header_offset == 8)
       {
-        value = xadc[153] >> 3;
-        pointer[4] = (value >> 8) & 0xff;
-        pointer[5] = value & 0xff;
         value = xadc[152] >> 3;
         pointer[6] = (value >> 8) & 0xff;
         pointer[7] = value & 0xff;
@@ -1250,6 +1247,12 @@ void *handler_ep6(void *arg)
         value = xadc[145] >> 3;
         pointer[6] = (value >> 8) & 0xff;
         pointer[7] = value & 0xff;
+      }
+      else if(header_offset == 24)
+      {
+        value = xadc[153] >> 3;
+        pointer[4] = (value >> 8) & 0xff;
+        pointer[5] = value & 0xff;
       }
       header_offset = header_offset >= 32 ? 0 : header_offset + 8;
 
