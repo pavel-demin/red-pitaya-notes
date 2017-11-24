@@ -259,6 +259,7 @@ void alex_write()
 
 uint16_t misc_data_0 = 0;
 uint16_t misc_data_1 = 0;
+uint16_t misc_data_2 = 0;
 
 inline int lower_bound(int *array, int size, int value)
 {
@@ -284,7 +285,8 @@ void misc_write()
   }
 
   data |= (code[0] != code[1]) << 8 | code[2] << 4 | code[1];
-  data |= (misc_data_0 & 0x03) << 11 | (misc_data_1 & 0x18) << 6;
+  data |= (misc_data_1 & 0x18) << 8 | (misc_data_0 & 0x18) << 6;
+  data |= (misc_data_2 & 0x03) << 13;
 
   if(i2c_misc_data != data)
   {
@@ -953,9 +955,9 @@ void process_ep2(uint8_t *frame)
       if(i2c_misc)
       {
         data = (frame[3] & 0x80) >> 6 | (frame[3] & 0x20) >> 5;
-        if(misc_data_0 != data)
+        if(misc_data_2 != data)
         {
-          misc_data_0 = data;
+          misc_data_2 = data;
           misc_write();
         }
       }
@@ -1029,6 +1031,15 @@ void process_ep2(uint8_t *frame)
     case 20:
     case 21:
       rx_att_data = frame[4] & 0x1f;
+      if(i2c_misc)
+      {
+        data = frame[4] & 0x1f;
+        if(misc_data_0 != data)
+        {
+          misc_data_0 = data;
+          misc_write();
+        }
+      }
       if(i2c_arduino)
       {
         /*
