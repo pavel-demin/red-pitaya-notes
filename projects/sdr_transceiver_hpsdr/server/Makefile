@@ -9,4 +9,4 @@ sdr-transceiver-hpsdr-ananxd: sdr-transceiver-hpsdr.c
 	gcc $(CFLAGS) -DANANXD -o $@ $^ -lm -lpthread
 
 clean:
-	rm -f sdr-transceiver-hpsdr
+	rm -f sdr-transceiver-hpsdr sdr-transceiver-hpsdr-ananxd
