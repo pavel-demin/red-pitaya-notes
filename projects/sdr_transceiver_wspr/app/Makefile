@@ -25,4 +25,4 @@ transmit-wspr-message: transmit-wspr-message.c $(OBJECTS)
 	gcc $(CFLAGS) -Iwsprd -o $@ $^ -lm -lconfig
 
 clean:
-	rm -f gpio-output measure-corr write-c2-files transmit-wspr-message
+	rm -f i2c-write gpio-output measure-corr sleep-to-59 write-c2-files transmit-wspr-message
