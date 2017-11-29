@@ -105,8 +105,6 @@ int main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-    *gpio = 1;
-
     while(1)
     {
       if(recv(sock_client, (char *)&command, 4, MSG_WAITALL) <= 0) break;
@@ -150,6 +148,11 @@ int main(int argc, char *argv[])
           *tx_level[1] = value;
           break;
         case 7:
+          /* set gpio */
+          if(value < 0 || value > 255) continue;
+          *gpio = value;
+          break;
+        case 8:
           /* sweep */
           *rst &= ~3;
           *rst |= 4;
