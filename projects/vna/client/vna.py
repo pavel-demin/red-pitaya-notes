@@ -584,12 +584,10 @@ class VNA(QMainWindow, Ui_VNA):
   def connected(self):
     self.startTimer.stop()
     self.idle = False
-    self.set_start(self.startValue.value())
-    self.set_stop(self.stopValue.value())
-    self.set_size(self.sizeValue.value())
     self.set_rate(self.rateValue.currentIndex())
     self.set_corr(self.corrValue.value())
     self.set_level(self.levelValue.value())
+    self.set_gpio(1)
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
     self.set_enabled(True)
@@ -652,6 +650,10 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.write(struct.pack('<I', 5<<28 | int(32766 * np.power(10.0, value / 20.0))))
     self.socket.write(struct.pack('<I', 6<<28 | int(0)))
 
+  def set_gpio(self, value):
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 7<<28 | int(value)))
+
   def sweep(self, mode):
     if self.idle: return
     self.set_enabled(False)
@@ -661,7 +663,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.write(struct.pack('<I', 0<<28 | int(self.sweep_start * 1000)))
     self.socket.write(struct.pack('<I', 1<<28 | int(self.sweep_stop * 1000)))
     self.socket.write(struct.pack('<I', 2<<28 | int(self.sweep_size)))
-    self.socket.write(struct.pack('<I', 7<<28))
+    self.socket.write(struct.pack('<I', 8<<28))
     self.progressBar.setMinimum(0)
     self.progressBar.setMaximum(self.sweep_size)
     self.progressBar.setValue(0)
