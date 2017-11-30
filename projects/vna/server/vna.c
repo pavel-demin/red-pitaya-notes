@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
           }
           *rst |= 1;
           break;
-        case 8:
+        case 9:
           /* cancel */
           *rst &= ~3;
           *rst |= 4;
