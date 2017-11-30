@@ -672,7 +672,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.sweepTimer.stop()
     self.auto = False
     self.reading = False
-    self.socket.write(struct.pack('<I', 8<<28))
+    self.socket.write(struct.pack('<I', 9<<28))
     self.progressBar.setValue(0)
     self.set_enabled(True)
 
