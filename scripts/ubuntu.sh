@@ -3,6 +3,9 @@ device=$1
 boot_dir=`mktemp -d /tmp/BOOT.XXXXXXXXXX`
 root_dir=`mktemp -d /tmp/ROOT.XXXXXXXXXX`
 
+linux_dir=tmp/linux-xlnx-xilinx-v2016.4
+linux_ver=4.6.0-xilinx
+
 root_tar=ubuntu-base-14.04.5-core-armhf.tar.gz
 root_url=http://cdimage.ubuntu.com/ubuntu-base/releases/14.04/release/$root_tar
 
@@ -40,6 +43,18 @@ cp uEnv-ext4.txt $boot_dir/uEnv.txt
 test -f $root_tar || curl -L $root_url -o $root_tar
 
 tar -zxf $root_tar --directory=$root_dir
+
+# Install Linux modules
+
+modules_dir=$root_dir/lib/modules/$linux_ver
+
+mkdir -p $modules_dir/kernel
+
+find $linux_dir -name \*.ko -printf '%P\0' | tar --directory=$linux_dir --owner=0 --group=0 --null --files-from=- -zcf - | tar -zxf - --directory=$modules_dir/kernel
+
+cp $linux_dir/modules.order $linux_dir/modules.builtin $modules_dir/
+
+depmod -a -b $root_dir $linux_ver
 
 # Add missing configuration files and packages
 
