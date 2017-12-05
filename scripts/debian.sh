@@ -3,6 +3,9 @@ device=$1
 boot_dir=`mktemp -d /tmp/BOOT.XXXXXXXXXX`
 root_dir=`mktemp -d /tmp/ROOT.XXXXXXXXXX`
 
+linux_dir=tmp/linux-xlnx-xilinx-v2016.4
+linux_ver=4.6.0-xilinx
+
 # Choose mirror automatically, depending the geographic and network location
 mirror=http://httpredir.debian.org/debian
 
@@ -41,6 +44,18 @@ cp uEnv-ext4.txt $boot_dir/uEnv.txt
 # Install Debian base system to the root file system
 
 debootstrap --foreign --arch $arch $distro $root_dir $mirror
+
+# Install Linux modules
+
+modules_dir=$root_dir/lib/modules/$linux_ver
+
+mkdir -p $modules_dir/kernel
+
+find $linux_dir -name \*.ko -printf '%P\0' | tar --directory=$linux_dir --owner=0 --group=0 --null --files-from=- -zcf - | tar -zxf - --directory=$modules_dir/kernel
+
+cp $linux_dir/modules.order $linux_dir/modules.builtin $modules_dir/
+
+depmod -a -b $root_dir $linux_ver
 
 # Add missing configuration files and packages
 
