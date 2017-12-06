@@ -84,4 +84,4 @@ d-i preseed/late_command string \
   libxrender1 libxtst6 libxi6 lib32ncurses5 \
   bc u-boot-tools device-tree-compiler libncurses5-dev \
   libssl-dev qemu-user-static binfmt-support \
-  dosfstools parted debootstrap zerofree
+  squashfs-tools dosfstools parted debootstrap zerofree
