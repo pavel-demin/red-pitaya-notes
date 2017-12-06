@@ -7,13 +7,13 @@ permalink: /led-blinker/
 Introduction
 -----
 
-For my experiments with the [Red Pitaya](http://wiki.redpitaya.com), I'd like to have the following development environment:
+For my experiments with the [Red Pitaya](http://redpitaya.readthedocs.io), I'd like to have the following development environment:
 
  - recent version of the [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado)
  - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2016.4)
  - recent version of the [Debian distribution](http://www.debian.org/releases/jessie) on the development machine
  - recent version of the [Debian distribution](http://www.debian.org/releases/jessie) on the Red Pitaya
- - basic project with all the [Red Pitaya](http://wiki.redpitaya.com) peripherals connected
+ - basic project with all the [Red Pitaya](http://redpitaya.readthedocs.io) peripherals connected
  - mostly command-line tools
  - shallow directory structure
 
