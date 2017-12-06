@@ -9,11 +9,11 @@ Interesting links
 
 Some interesting links on digital signal processing and software defined radio:
 
- - [dspGuru - Digital Signal Processing Articles](http://www.dspguru.com/dsp/articles)
+ - [dspGuru - Tutorials](https://dspguru.com/dsp/tutorials)
 
  - [ARRL - Software Defined Radio](http://www.arrl.org/software-defined-radio)
 
- - [GNU Radio - Suggested Reading](http://gnuradio.org/redmine/projects/gnuradio/wiki/SuggestedReading)
+ - [GNU Radio - Suggested Reading](https://wiki.gnuradio.org/index.php/SuggestedReading)
 
 Short description
 -----
