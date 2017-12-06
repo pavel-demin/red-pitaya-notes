@@ -88,7 +88,7 @@ The SDR programs are communicating with the SDR radio hardware through an Extern
  - [Winrad - specifications for the external I/O DLL](http://www.winrad.org/bin/Winrad_Extio.pdf)
  - [HDSDR FAQ](http://www.hdsdr.de/faq.html)
 
-Based on the [example ExtIO DLL](http://hdsdr.de/download/ExtIO/ExtIO_Demo_101.zip), I've developed a simple ExtIO plug-in for the Red Pitaya SDR receiver. The [projects/sdr_receiver/ExtIO_RedPitaya](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver/ExtIO_RedPitaya) directory contains the source code of this plug-in.
+Based on the [example ExtIO DLL](http://hdsdr.de/download/ExtIO/ExtIO_Demo_102.zip), I've developed a simple ExtIO plug-in for the Red Pitaya SDR receiver. The [projects/sdr_receiver/ExtIO_RedPitaya](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver/ExtIO_RedPitaya) directory contains the source code of this plug-in.
 
 The ExtIO plug-in can be built from the source code with [Microsoft Visual C++ 2008 Express Edition](http://go.microsoft.com/?linkid=7729279).
 
