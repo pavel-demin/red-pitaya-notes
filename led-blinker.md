@@ -61,6 +61,8 @@ This repository contains the following components:
    - Tcl scripts for Vivado and SDK
    - shell scripts that build a bootable SD card and SD card image
 
+More details about the directory structure and about the toolchain can be found in the [slides](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACl--BhQvcNgjeQLRaiX9dha/ClubVivado2016_Pavel_Demin.pdf?dl=1) of my presentation at [Club Vivado 2016](https://www.xilinx.com/products/design-tools/vivado/club_vivado_2016_archives.html).
+
 Syntactic sugar for IP cores
 -----
 
