@@ -820,7 +820,7 @@ class VNA(QMainWindow, Ui_VNA):
       name = dialog.selectedFiles()
       fh = open(name[0], 'w')
       freq = self.dut.freq
-      gamma = self.gamma(freq)
+      gamma = self.tabs[0].gamma(freq)
       fh.write('# GHz S MA R 50\n')
       for i in range(freq.size):
         fh.write('0.0%.8d   %8.6f %7.2f\n' % (freq[i] * 1000, np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
@@ -835,17 +835,17 @@ class VNA(QMainWindow, Ui_VNA):
       name = dialog.selectedFiles()
       fh = open(name[0], 'w')
       freq = self.dut.freq
-      gamma = self.gamma(freq)
+      gamma = self.tabs[0].gamma(freq)
       fh.write('# GHz S MA R 50\n')
       for i in range(freq.size):
         fh.write('0.0%.8d   %8.6f %7.2f   %8.6f %7.2f   0.000000    0.00   0.000000    0.00\n' % (freq[i] * 1000, np.absolute(gamma[i]), np.angle(gamma[i], deg = True), np.absolute(gain[i]), np.angle(gain[i], deg = True)))
       fh.close()
 
   def write_s2p_short(self):
-    self.write_s2p(self.gain_short(self.dut.freq))
+    self.write_s2p(self.tabs[0].gain_short(self.dut.freq))
 
   def write_s2p_open(self):
-    self.write_s2p(self.gain_open(self.dut.freq))
+    self.write_s2p(self.tabs[0].gain_open(self.dut.freq))
 
 warnings.filterwarnings('ignore')
 app = QApplication(sys.argv)
