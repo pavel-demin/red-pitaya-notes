@@ -75,7 +75,7 @@ class FigureTab:
   cursors = [15000, 45000]
   colors = ['orange', 'violet']
 
-  def __init__(self, layout, open, short, load, dut):
+  def __init__(self, layout, vna):
     # create figure
     self.figure = Figure()
     if sys.platform != 'win32':
@@ -117,39 +117,7 @@ class FigureTab:
     layout.addWidget(self.toolbar)
     self.plotButton.clicked.connect(self.plot)
     self.mode = None
-    self.open = open
-    self.short = short
-    self.load = load
-    self.dut = dut
-
-  def gain_short(self, freq):
-    short = np.interp(freq, self.short.freq, self.short.data, period = self.short.period)
-    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
-    return np.divide(dut, short)
-
-  def gain_open(self, freq):
-    open = np.interp(freq, self.open.freq, self.open.data, period = self.open.period)
-    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
-    return np.divide(dut, open)
-
-  def impedance(self, freq):
-    open = np.interp(freq, self.open.freq, self.open.data, period = self.open.period)
-    short = np.interp(freq, self.short.freq, self.short.data, period = self.short.period)
-    load = np.interp(freq, self.load.freq, self.load.data, period = self.load.period)
-    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
-    z = np.divide(50.0 * (open - load) * (dut - short), (load - short) * (open - dut))
-    z = np.asarray(z)
-    z.real[z.real < 1.0e-2] = 9.99e-3
-    return z
-
-  def gamma(self, freq):
-    z = self.impedance(freq)
-    return np.divide(z - 50.0, z + 50.0)
-
-  def swr(self, freq):
-    magnitude = np.absolute(self.gamma(freq))
-    swr = np.divide(1.0 + magnitude, 1.0 - magnitude)
-    return np.clip(swr, 1.0, 99.99)
+    self.vna = vna
 
   def add_cursors(self, axes):
     if self.mode == 'gain_short' or self.mode == 'gain_open':
@@ -178,7 +146,7 @@ class FigureTab:
     if marker is None: return
     row = self.cursorRows[index]
     freq = value
-    gamma = self.gamma(freq)
+    gamma = self.vna.gamma(freq)
     if self.mode == 'smith':
       marker.set_xdata(gamma.real)
       marker.set_ydata(gamma.imag)
@@ -186,20 +154,20 @@ class FigureTab:
       marker.set_xdata(freq)
     row[0].set_text('%d' % freq)
     if self.mode == 'gain_short':
-      gain = self.gain_short(freq)
+      gain = self.vna.gain_short(freq)
       magnitude = 20.0 * np.log10(np.absolute(gain))
       angle = np.angle(gain, deg = True)
       row[1].set_text(unicode_minus('%.1f' % magnitude))
       row[2].set_text(unicode_minus('%.1f' % angle))
     elif self.mode == 'gain_open':
-      gain = self.gain_open(freq)
+      gain = self.vna.gain_open(freq)
       magnitude = 20.0 * np.log10(np.absolute(gain))
       angle = np.angle(gain, deg = True)
       row[1].set_text(unicode_minus('%.1f' % magnitude))
       row[2].set_text(unicode_minus('%.1f' % angle))
     else:
-      swr = self.swr(freq)
-      z = self.impedance(freq)
+      swr = self.vna.swr(freq)
+      z = self.vna.impedance(freq)
       rl = 20.0 * np.log10(np.absolute(gamma))
       if rl > -0.01: rl = 0.0
       row[1].set_text(metric_prefix(z.real))
@@ -246,8 +214,8 @@ class FigureTab:
     getattr(self, 'plot_%s' % self.mode)()
 
   def update(self, mode):
-    start = self.dut.freq[0]
-    stop = self.dut.freq[-1]
+    start = self.vna.dut.freq[0]
+    stop = self.vna.dut.freq[-1]
     min = np.minimum(start, stop)
     max = np.maximum(start, stop)
     for i in range(len(self.cursors)):
@@ -290,24 +258,24 @@ class FigureTab:
     self.canvas.draw()
 
   def plot_gain(self, gain):
-    freq = self.dut.freq
+    freq = self.vna.dut.freq
     data1 = 20.0 * np.log10(np.absolute(gain))
     data2 = np.angle(gain, deg = True)
     self.plot_curves(freq, data1, 'G, dB', (-110, 110.0), data2, r'$\angle$ G, deg', (-198, 198))
 
   def plot_gain_short(self):
     self.mode = 'gain_short'
-    self.plot_gain(self.gain_short(self.dut.freq))
+    self.plot_gain(self.vna.gain_short(self.vna.dut.freq))
 
   def plot_gain_open(self):
     self.mode = 'gain_open'
-    self.plot_gain(self.gain_open(self.dut.freq))
+    self.plot_gain(self.vna.gain_open(self.vna.dut.freq))
 
   def update_gain(self, gain, mode):
     if self.mode == mode:
-      self.curve1.set_xdata(self.dut.freq)
+      self.curve1.set_xdata(self.vna.dut.freq)
       self.curve1.set_ydata(20.0 * np.log10(np.absolute(gain)))
-      self.curve2.set_xdata(self.dut.freq)
+      self.curve2.set_xdata(self.vna.dut.freq)
       self.curve2.set_ydata(np.angle(gain, deg = True))
       self.canvas.draw()
     else:
@@ -315,10 +283,10 @@ class FigureTab:
       self.plot_gain(gain)
 
   def update_gain_short(self):
-    self.update_gain(self.gain_short(self.dut.freq), 'gain_short')
+    self.update_gain(self.vna.gain_short(self.vna.dut.freq), 'gain_short')
 
   def update_gain_open(self):
-    self.update_gain(self.gain_open(self.dut.freq), 'gain_open')
+    self.update_gain(self.vna.gain_open(self.vna.dut.freq), 'gain_open')
 
   def plot_magphase(self, freq, data, label, mode):
     self.mode = mode
@@ -340,28 +308,28 @@ class FigureTab:
       self.plot_magphase(freq, data, label, mode)
 
   def plot_open(self):
-    self.plot_magphase(self.open.freq, self.open.data, 'open', 'open')
+    self.plot_magphase(self.vna.open.freq, self.vna.open.data, 'open', 'open')
 
   def update_open(self):
-    self.update_magphase(self.open.freq, self.open.data, 'open', 'open')
+    self.update_magphase(self.vna.open.freq, self.vna.open.data, 'open', 'open')
 
   def plot_short(self):
-    self.plot_magphase(self.short.freq, self.short.data, 'short', 'short')
+    self.plot_magphase(self.vna.short.freq, self.vna.short.data, 'short', 'short')
 
   def update_short(self):
-    self.update_magphase(self.short.freq, self.short.data, 'short', 'short')
+    self.update_magphase(self.vna.short.freq, self.vna.short.data, 'short', 'short')
 
   def plot_load(self):
-    self.plot_magphase(self.load.freq, self.load.data, 'load', 'load')
+    self.plot_magphase(self.vna.load.freq, self.vna.load.data, 'load', 'load')
 
   def update_load(self):
-    self.update_magphase(self.load.freq, self.load.data, 'load', 'load')
+    self.update_magphase(self.vna.load.freq, self.vna.load.data, 'load', 'load')
 
   def plot_dut(self):
-    self.plot_magphase(self.dut.freq, self.dut.data, 'dut', 'dut')
+    self.plot_magphase(self.vna.dut.freq, self.vna.dut.data, 'dut', 'dut')
 
   def update_dut(self):
-    self.update_magphase(self.dut.freq, self.dut.data, 'dut', 'dut')
+    self.update_magphase(self.vna.dut.freq, self.vna.dut.data, 'dut', 'dut')
 
   def plot_smith_grid(self, axes, color):
     load = 50.0
@@ -401,7 +369,7 @@ class FigureTab:
     self.figure.subplots_adjust(left = 0.0, bottom = bottom, right = 1.0, top = 1.0)
     axes1 = self.figure.add_subplot(111)
     self.plot_smith_grid(axes1, 'blue')
-    gamma = self.gamma(self.dut.freq)
+    gamma = self.vna.gamma(self.vna.dut.freq)
     self.curve1, = axes1.plot(gamma.real, gamma.imag, color = 'red')
     axes1.axis('equal')
     axes1.set_xlim(-1.12, 1.12)
@@ -415,7 +383,7 @@ class FigureTab:
 
   def update_smith(self):
     if self.mode == 'smith':
-      gamma = self.gamma(self.dut.freq)
+      gamma = self.vna.gamma(self.vna.dut.freq)
       self.curve1.set_xdata(gamma.real)
       self.curve1.set_ydata(gamma.imag)
       self.canvas.draw()
@@ -424,8 +392,8 @@ class FigureTab:
 
   def plot_imp(self):
     self.mode = 'imp'
-    freq = self.dut.freq
-    z = self.impedance(freq)
+    freq = self.vna.dut.freq
+    z = self.vna.impedance(freq)
     data1 = np.minimum(9.99e4, np.absolute(z))
     data2 = np.angle(z, deg = True)
     max = np.maximum(0.01, data1.max())
@@ -433,8 +401,8 @@ class FigureTab:
 
   def update_imp(self):
     if self.mode == 'imp':
-      freq = self.dut.freq
-      z = self.impedance(freq)
+      freq = self.vna.dut.freq
+      z = self.vna.impedance(freq)
       data1 = np.minimum(9.99e4, np.absolute(z))
       data2 = np.angle(z, deg = True)
       self.curve1.set_xdata(freq)
@@ -447,35 +415,35 @@ class FigureTab:
 
   def plot_swr(self):
     self.mode = 'swr'
-    freq = self.dut.freq
-    data1 = self.swr(freq)
+    freq = self.vna.dut.freq
+    data1 = self.vna.swr(freq)
     self.plot_curves(freq, data1, 'SWR', (0.9, 3.1), None, None, None)
 
   def update_swr(self):
     if self.mode == 'swr':
-      self.curve1.set_xdata(self.dut.freq)
-      self.curve1.set_ydata(self.swr(self.dut.freq))
+      self.curve1.set_xdata(self.vna.dut.freq)
+      self.curve1.set_ydata(self.vna.swr(self.vna.dut.freq))
       self.canvas.draw()
     else:
       self.plot_swr()
 
   def plot_gamma(self):
-    self.plot_magphase(self.dut.freq, self.gamma(self.dut.freq), r'$\Gamma$', 'gamma')
+    self.plot_magphase(self.vna.dut.freq, self.vna.gamma(self.vna.dut.freq), r'$\Gamma$', 'gamma')
 
   def update_gamma(self):
-    self.update_magphase(self.dut.freq, self.gamma(self.dut.freq), r'$\Gamma$', 'gamma')
+    self.update_magphase(self.vna.dut.freq, self.vna.gamma(self.vna.dut.freq), r'$\Gamma$', 'gamma')
 
   def plot_rl(self):
     self.mode = 'rl'
-    freq = self.dut.freq
-    gamma = self.gamma(freq)
+    freq = self.vna.dut.freq
+    gamma = self.vna.gamma(freq)
     data1 = 20.0 * np.log10(np.absolute(gamma))
     self.plot_curves(freq, data1, 'RL, dB', (-105, 5.0), None, None, None)
 
   def update_rl(self):
     if self.mode == 'rl':
-      freq = self.dut.freq
-      gamma = self.gamma(freq)
+      freq = self.vna.dut.freq
+      gamma = self.vna.gamma(freq)
       data1 = 20.0 * np.log10(np.absolute(gamma))
       self.curve1.set_xdata(freq)
       self.curve1.set_ydata(data1)
@@ -514,7 +482,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.tabs = {}
     for i in range(len(self.graphs)):
       layout = getattr(self, '%sLayout' % self.graphs[i])
-      self.tabs[i] = FigureTab(layout, self.open, self.short, self.load, self.dut)
+      self.tabs[i] = FigureTab(layout, self)
     # configure widgets
     self.rateValue.addItems(['10000', '5000', '1000', '500', '100', '50', '10', '5', '1'])
     self.rateValue.lineEdit().setReadOnly(True)
@@ -688,6 +656,35 @@ class VNA(QMainWindow, Ui_VNA):
     index = self.tabWidget.currentIndex()
     self.tabs[index].update(self.graphs[index])
 
+  def gain_short(self, freq):
+    short = np.interp(freq, self.short.freq, self.short.data, period = self.short.period)
+    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
+    return np.divide(dut, short)
+
+  def gain_open(self, freq):
+    open = np.interp(freq, self.open.freq, self.open.data, period = self.open.period)
+    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
+    return np.divide(dut, open)
+
+  def impedance(self, freq):
+    open = np.interp(freq, self.open.freq, self.open.data, period = self.open.period)
+    short = np.interp(freq, self.short.freq, self.short.data, period = self.short.period)
+    load = np.interp(freq, self.load.freq, self.load.data, period = self.load.period)
+    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
+    z = np.divide(50.0 * (open - load) * (dut - short), (load - short) * (open - dut))
+    z = np.asarray(z)
+    z.real[z.real < 1.0e-2] = 9.99e-3
+    return z
+
+  def gamma(self, freq):
+    z = self.impedance(freq)
+    return np.divide(z - 50.0, z + 50.0)
+
+  def swr(self, freq):
+    magnitude = np.absolute(self.gamma(freq))
+    swr = np.divide(1.0 + magnitude, 1.0 - magnitude)
+    return np.clip(swr, 1.0, 99.99)
+
   def write_cfg(self):
     dialog = QFileDialog(self, 'Write configuration settings', '.', '*.ini')
     dialog.setDefaultSuffix('ini')
@@ -820,7 +817,7 @@ class VNA(QMainWindow, Ui_VNA):
       name = dialog.selectedFiles()
       fh = open(name[0], 'w')
       freq = self.dut.freq
-      gamma = self.tabs[0].gamma(freq)
+      gamma = self.gamma(freq)
       fh.write('# GHz S MA R 50\n')
       for i in range(freq.size):
         fh.write('0.0%.8d   %8.6f %7.2f\n' % (freq[i] * 1000, np.absolute(gamma[i]), np.angle(gamma[i], deg = True)))
@@ -835,17 +832,17 @@ class VNA(QMainWindow, Ui_VNA):
       name = dialog.selectedFiles()
       fh = open(name[0], 'w')
       freq = self.dut.freq
-      gamma = self.tabs[0].gamma(freq)
+      gamma = self.gamma(freq)
       fh.write('# GHz S MA R 50\n')
       for i in range(freq.size):
         fh.write('0.0%.8d   %8.6f %7.2f   %8.6f %7.2f   0.000000    0.00   0.000000    0.00\n' % (freq[i] * 1000, np.absolute(gamma[i]), np.angle(gamma[i], deg = True), np.absolute(gain[i]), np.angle(gain[i], deg = True)))
       fh.close()
 
   def write_s2p_short(self):
-    self.write_s2p(self.tabs[0].gain_short(self.dut.freq))
+    self.write_s2p(self.gain_short(self.dut.freq))
 
   def write_s2p_open(self):
-    self.write_s2p(self.tabs[0].gain_open(self.dut.freq))
+    self.write_s2p(self.gain_open(self.dut.freq))
 
 warnings.filterwarnings('ignore')
 app = QApplication(sys.argv)
