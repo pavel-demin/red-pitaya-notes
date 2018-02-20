@@ -41,8 +41,8 @@ cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
 
 # Create xadc_wiz
 cell xilinx.com:ip:xadc_wiz:3.3 xadc_0 {
-  DCLK_FREQUENCY 143
-  ADC_CONVERSION_RATE 100
+  DCLK_FREQUENCY 125
+  ADC_CONVERSION_RATE 200
   XADC_STARUP_SELECTION independent_adc
   CHANNEL_ENABLE_VAUXP0_VAUXN0 true
   CHANNEL_ENABLE_VAUXP1_VAUXN1 true
