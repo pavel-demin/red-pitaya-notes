@@ -656,21 +656,26 @@ class VNA(QMainWindow, Ui_VNA):
     index = self.tabWidget.currentIndex()
     self.tabs[index].update(self.graphs[index])
 
+  def interp(self, freq, meas):
+    real = np.interp(freq, meas.freq, meas.data.real, period = meas.period)
+    imag = np.interp(freq, meas.freq, meas.data.imag, period = meas.period)
+    return real + 1j * imag
+
   def gain_short(self, freq):
-    short = np.interp(freq, self.short.freq, self.short.data, period = self.short.period)
-    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
+    short = self.interp(freq, self.short)
+    dut = self.interp(freq, self.dut)
     return np.divide(dut, short)
 
   def gain_open(self, freq):
-    open = np.interp(freq, self.open.freq, self.open.data, period = self.open.period)
-    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
+    open = self.interp(freq, self.open)
+    dut = self.interp(freq, self.dut)
     return np.divide(dut, open)
 
   def impedance(self, freq):
-    open = np.interp(freq, self.open.freq, self.open.data, period = self.open.period)
-    short = np.interp(freq, self.short.freq, self.short.data, period = self.short.period)
-    load = np.interp(freq, self.load.freq, self.load.data, period = self.load.period)
-    dut = np.interp(freq, self.dut.freq, self.dut.data, period = self.dut.period)
+    open = self.interp(freq, self.open)
+    short = self.interp(freq, self.short)
+    load = self.interp(freq, self.load)
+    dut = self.interp(freq, self.dut)
     z = np.divide(50.0 * (open - load) * (dut - short), (load - short) * (open - dut))
     z = np.asarray(z)
     z.real[z.real < 1.0e-2] = 9.99e-3
@@ -799,9 +804,9 @@ class VNA(QMainWindow, Ui_VNA):
       name = dialog.selectedFiles()
       fh = open(name[0], 'w')
       f = self.dut.freq
-      o = np.interp(f, self.open.freq, self.open.data, period = self.open.period)
-      s = np.interp(f, self.short.freq, self.short.data, period = self.short.period)
-      l = np.interp(f, self.load.freq, self.load.data, period = self.load.period)
+      o = self.interp(f, self.open)
+      s = self.interp(f, self.short)
+      l = self.interp(f, self.load)
       d = self.dut.data
       fh.write('frequency;open.real;open.imag;short.real;short.imag;load.real;load.imag;dut.real;dut.imag\n')
       for i in range(f.size):
