@@ -28,6 +28,14 @@ cell xilinx.com:ip:xlslice:1.0 slice_5 {
   Din cfg_0/cfg_data
 }
 
+# Create axis_red_pitaya_adc
+cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
+  aclk pll_0/clk_out1
+  adc_dat_a adc_dat_a_i
+  adc_dat_b adc_dat_b_i
+  adc_csn adc_csn_o
+}
+
 # Create axis_packetizer
 cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
   AXIS_TDATA_WIDTH 32
