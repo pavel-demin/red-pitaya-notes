@@ -412,7 +412,7 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_1 {
-  NUM_PORTS 5
+  NUM_PORTS 3
   IN0_WIDTH 32
   IN1_WIDTH 64
   IN2_WIDTH 16
