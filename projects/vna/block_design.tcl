@@ -73,35 +73,35 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 96
+  CFG_DATA_WIDTH 160
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 96 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+  DIN_WIDTH 160 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+  DIN_WIDTH 160 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 96 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
+  DIN_WIDTH 160 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 96 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
   Dout exp_p_tri_io
@@ -109,21 +109,35 @@ cell xilinx.com:ip:xlslice:1.0 slice_3 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+  DIN_WIDTH 160 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
+  DIN_WIDTH 160 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_6 {
-  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 80 DOUT_WIDTH 16
+  DIN_WIDTH 160 DIN_FROM 127 DIN_TO 96 DOUT_WIDTH 32
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_7 {
+  DIN_WIDTH 160 DIN_FROM 143 DIN_TO 128 DOUT_WIDTH 16
+} {
+  Din cfg_0/cfg_data
+}
+
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 slice_8 {
+  DIN_WIDTH 160 DIN_FROM 159 DIN_TO 144 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
@@ -160,25 +174,43 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   aresetn slice_1/Dout
 }
 
-# Create dds_compiler
-cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
-  DDS_CLOCK_RATE 125
-  SPURIOUS_FREE_DYNAMIC_RANGE 138
-  FREQUENCY_RESOLUTION 0.2
-  PHASE_INCREMENT Streaming
-  HAS_TREADY true
-  HAS_ARESETN true
-  HAS_PHASE_OUT false
-  PHASE_WIDTH 30
-  OUTPUT_WIDTH 24
-  DSP48_USE Minimal
-  NEGATIVE_SINE true
-} {
-  S_AXIS_PHASE inter_0/M_AXIS
-  m_axis_data_tready const_0/dout
-  aclk pll_0/clk_out1
-  aresetn slice_0/Dout
+for {set i 0} {$i <= 1} {incr i} {
+
+  # Create xlconcat
+  cell xilinx.com:ip:xlconcat:2.1 concat_$i {
+    NUM_PORTS 2
+    IN0_WIDTH 32
+    IN1_WIDTH 32
+  } {
+    In0 inter_0/m_axis_tdata
+    In1 slice_[expr $i + 5]/Dout
+  }
+
+  # Create dds_compiler
+  cell xilinx.com:ip:dds_compiler:6.0 dds_$i {
+    DDS_CLOCK_RATE 125
+    SPURIOUS_FREE_DYNAMIC_RANGE 138
+    FREQUENCY_RESOLUTION 0.2
+    PHASE_INCREMENT Streaming
+    PHASE_OFFSET Streaming
+    HAS_TREADY true
+    HAS_ARESETN true
+    HAS_PHASE_OUT false
+    PHASE_WIDTH 30
+    OUTPUT_WIDTH 24
+    DSP48_USE Minimal
+    NEGATIVE_SINE true
+  } {
+    s_axis_phase_tdata concat_$i/dout
+    s_axis_phase_tvalid inter_0/m_axis_tvalid
+    m_axis_data_tready const_0/dout
+    aclk pll_0/clk_out1
+    aresetn slice_0/Dout
+  }
+
 }
+
+connect_bd_net [get_bd_pins inter_0/m_axis_tready] [get_bd_pins dds_0/s_axis_phase_tready]
 
 # RX
 
@@ -204,6 +236,13 @@ for {set i 0} {$i <= 1} {incr i} {
 
 }
 
+# Create xlslice
+cell xilinx.com:ip:xlslice:1.0 dds_slice_2 {
+  DIN_WIDTH 48 DIN_FROM 47 DIN_TO 24 DOUT_WIDTH 24
+} {
+  Din dds_1/m_axis_data_tdata
+}
+
 # TX
 
 # Create axis_lfsr
@@ -223,7 +262,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_4 {
   P_WIDTH 15
 } {
   A dds_slice_1/Dout
-  B slice_5/Dout
+  B slice_7/Dout
   CARRYIN lfsr_0/m_axis_tdata
   CLK pll_0/clk_out1
 }
@@ -238,14 +277,14 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_5 {
   B_WIDTH 16
   P_WIDTH 15
 } {
-  A dds_slice_1/Dout
-  B slice_6/Dout
+  A dds_slice_2/Dout
+  B slice_8/Dout
   CARRYIN lfsr_0/m_axis_tdata
   CLK pll_0/clk_out1
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+cell xilinx.com:ip:xlconcat:2.1 concat_2 {
   NUM_PORTS 2
   IN0_WIDTH 16
   IN1_WIDTH 16
@@ -268,7 +307,7 @@ cell xilinx.com:ip:c_shift_ram:12.0 delay_0 {
 cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  s_axis_tdata concat_0/dout
+  s_axis_tdata concat_2/dout
   s_axis_tvalid delay_0/Q
   M_AXIS dac_0/S_AXIS
   aclk pll_0/clk_out1
@@ -411,7 +450,7 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_1 {
+cell xilinx.com:ip:xlconcat:2.1 concat_3 {
   NUM_PORTS 3
   IN0_WIDTH 32
   IN1_WIDTH 64
@@ -428,7 +467,7 @@ cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
-  sts_data concat_1/dout
+  sts_data concat_3/dout
 }
 
 # Create all required interconnections
