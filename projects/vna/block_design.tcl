@@ -174,6 +174,28 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   aresetn slice_1/Dout
 }
 
+# Create dds_compiler
+cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
+  DDS_CLOCK_RATE 125
+  SPURIOUS_FREE_DYNAMIC_RANGE 138
+  FREQUENCY_RESOLUTION 0.2
+  PHASE_INCREMENT Streaming
+  HAS_TREADY true
+  HAS_ARESETN true
+  HAS_PHASE_OUT false
+  PHASE_WIDTH 30
+  OUTPUT_WIDTH 24
+  DSP48_USE Minimal
+  NEGATIVE_SINE true
+} {
+  s_axis_phase_tdata inter_0/m_axis_tdata
+  s_axis_phase_tvalid inter_0/m_axis_tvalid
+  s_axis_phase_tready inter_0/m_axis_tready
+  m_axis_data_tready const_0/dout
+  aclk pll_0/clk_out1
+  aresetn slice_0/Dout
+}
+
 for {set i 0} {$i <= 1} {incr i} {
 
   # Create xlconcat
@@ -187,7 +209,7 @@ for {set i 0} {$i <= 1} {incr i} {
   }
 
   # Create dds_compiler
-  cell xilinx.com:ip:dds_compiler:6.0 dds_$i {
+  cell xilinx.com:ip:dds_compiler:6.0 dds_[expr $i + 1] {
     DDS_CLOCK_RATE 125
     SPURIOUS_FREE_DYNAMIC_RANGE 138
     FREQUENCY_RESOLUTION 0.2
@@ -199,7 +221,7 @@ for {set i 0} {$i <= 1} {incr i} {
     PHASE_WIDTH 30
     OUTPUT_WIDTH 24
     DSP48_USE Minimal
-    NEGATIVE_SINE true
+    OUTPUT_SELECTION Sine
   } {
     s_axis_phase_tdata concat_$i/dout
     s_axis_phase_tvalid inter_0/m_axis_tvalid
@@ -208,39 +230,6 @@ for {set i 0} {$i <= 1} {incr i} {
     aresetn slice_0/Dout
   }
 
-}
-
-connect_bd_net [get_bd_pins inter_0/m_axis_tready] [get_bd_pins dds_0/s_axis_phase_tready]
-
-# RX
-
-for {set i 0} {$i <= 3} {incr i} {
-
-  # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 adc_slice_$i {
-    DIN_WIDTH 32 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)] DOUT_WIDTH 14
-  } {
-    Din adc_0/m_axis_tdata
-  }
-
-}
-
-for {set i 0} {$i <= 1} {incr i} {
-
-  # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 dds_slice_$i {
-    DIN_WIDTH 48 DIN_FROM [expr 24 * $i + 23] DIN_TO [expr 24 * $i] DOUT_WIDTH 24
-  } {
-    Din dds_0/m_axis_data_tdata
-  }
-
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 dds_slice_2 {
-  DIN_WIDTH 48 DIN_FROM 47 DIN_TO 24 DOUT_WIDTH 24
-} {
-  Din dds_1/m_axis_data_tdata
 }
 
 # TX
@@ -261,7 +250,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_4 {
   B_WIDTH 16
   P_WIDTH 15
 } {
-  A dds_slice_1/Dout
+  A dds_1/m_axis_data_tdata
   B slice_7/Dout
   CARRYIN lfsr_0/m_axis_tdata
   CLK pll_0/clk_out1
@@ -277,7 +266,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_5 {
   B_WIDTH 16
   P_WIDTH 15
 } {
-  A dds_slice_2/Dout
+  A dds_2/m_axis_data_tdata
   B slice_8/Dout
   CARRYIN lfsr_0/m_axis_tdata
   CLK pll_0/clk_out1
@@ -311,6 +300,30 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   s_axis_tvalid delay_0/Q
   M_AXIS dac_0/S_AXIS
   aclk pll_0/clk_out1
+}
+
+# RX
+
+for {set i 0} {$i <= 3} {incr i} {
+
+  # Create xlslice
+  cell xilinx.com:ip:xlslice:1.0 adc_slice_$i {
+    DIN_WIDTH 32 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)] DOUT_WIDTH 14
+  } {
+    Din adc_0/m_axis_tdata
+  }
+
+}
+
+for {set i 0} {$i <= 1} {incr i} {
+
+  # Create xlslice
+  cell xilinx.com:ip:xlslice:1.0 dds_slice_$i {
+    DIN_WIDTH 48 DIN_FROM [expr 24 * $i + 23] DIN_TO [expr 24 * $i] DOUT_WIDTH 24
+  } {
+    Din dds_0/m_axis_data_tdata
+  }
+
 }
 
 for {set i 0} {$i <= 3} {incr i} {
