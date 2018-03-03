@@ -304,17 +304,6 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
 
 # RX
 
-for {set i 0} {$i <= 3} {incr i} {
-
-  # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 adc_slice_$i {
-    DIN_WIDTH 32 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)] DOUT_WIDTH 14
-  } {
-    Din adc_0/m_axis_tdata
-  }
-
-}
-
 for {set i 0} {$i <= 1} {incr i} {
 
   # Create xlslice
@@ -327,6 +316,13 @@ for {set i 0} {$i <= 1} {incr i} {
 }
 
 for {set i 0} {$i <= 3} {incr i} {
+
+  # Create xlslice
+  cell xilinx.com:ip:xlslice:1.0 adc_slice_$i {
+    DIN_WIDTH 32 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)] DOUT_WIDTH 14
+  } {
+    Din adc_0/m_axis_tdata
+  }
 
   # Create xbip_dsp48_macro
   cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_$i {
