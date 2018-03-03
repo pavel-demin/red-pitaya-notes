@@ -490,6 +490,7 @@ class VNA(QMainWindow, Ui_VNA):
     for i in range(self.rateValue.count()):
       self.rateValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
     self.set_enabled(False)
+    self.stopSweep.setEnabled(False)
     # read settings
     settings = QSettings('vna.ini', QSettings.IniFormat)
     self.read_cfg_settings(settings)
@@ -548,6 +549,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.connectButton.setText('Connect')
     self.connectButton.setEnabled(True)
     self.set_enabled(False)
+    self.stopSweep.setEnabled(False)
 
   def timeout(self):
     self.display_error('timeout')
@@ -565,6 +567,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
     self.set_enabled(True)
+    self.stopSweep.setEnabled(True)
 
   def read_data(self):
     while(self.socket.bytesAvailable() > 0):
