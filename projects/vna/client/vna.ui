@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>920</width>
+    <width>1150</width>
     <height>690</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>920</width>
+    <width>1150</width>
     <height>690</height>
    </size>
   </property>
@@ -115,16 +115,6 @@
         </spacer>
        </item>
        <item row="0" column="4">
-        <widget class="QLabel" name="corrLabel">
-         <property name="text">
-          <string>Freq. corr., ppb</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
         <widget class="QLabel" name="rateLabel">
          <property name="text">
           <string>Bandwidth, Hz</string>
@@ -134,10 +124,20 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="4">
-        <widget class="QLabel" name="levelLabel">
+       <item row="1" column="4">
+        <widget class="QLabel" name="level1Label">
          <property name="text">
-          <string>Level, dB</string>
+          <string>Level 1, dB</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="4">
+        <widget class="QLabel" name="level2Label">
+         <property name="text">
+          <string>Level 2, dB</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -145,6 +145,99 @@
         </widget>
        </item>
        <item row="0" column="5">
+        <widget class="QComboBox" name="rateValue">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QSpinBox" name="level1Value">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="minimum">
+          <number>-90</number>
+         </property>
+         <property name="maximum">
+          <number>0</number>
+         </property>
+         <property name="singleStep">
+          <number>6</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="5">
+        <widget class="QSpinBox" name="level2Value">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="minimum">
+          <number>-90</number>
+         </property>
+         <property name="maximum">
+          <number>0</number>
+         </property>
+         <property name="singleStep">
+          <number>6</number>
+         </property>
+         <property name="value">
+          <number>-90</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QLabel" name="corrLabel">
+         <property name="text">
+          <string>Freq. corr., ppb</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QLabel" name="phase1Label">
+         <property name="text">
+          <string>Phase 1, deg</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="6">
+        <widget class="QLabel" name="phase2Label">
+         <property name="text">
+          <string>Phase 2, deg</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
         <widget class="QSpinBox" name="corrValue">
          <property name="minimumSize">
           <size>
@@ -166,21 +259,8 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="5">
-        <widget class="QComboBox" name="rateValue">
-         <property name="minimumSize">
-          <size>
-           <width>90</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="5">
-        <widget class="QSpinBox" name="levelValue">
+       <item row="1" column="7">
+        <widget class="QSpinBox" name="phase1Value">
          <property name="minimumSize">
           <size>
            <width>90</width>
@@ -191,20 +271,45 @@
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
          <property name="minimum">
-          <number>-60</number>
-         </property>
-         <property name="maximum">
           <number>0</number>
          </property>
+         <property name="maximum">
+          <number>360</number>
+         </property>
          <property name="singleStep">
-          <number>6</number>
+          <number>5</number>
          </property>
          <property name="value">
           <number>0</number>
          </property>
         </widget>
        </item>
-       <item row="2" column="6">
+       <item row="2" column="7">
+        <widget class="QSpinBox" name="phase2Value">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>360</number>
+         </property>
+         <property name="singleStep">
+          <number>5</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="8">
         <widget class="QLabel" name="sizeLabel">
          <property name="text">
           <string>Points</string>
@@ -214,7 +319,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="6">
+       <item row="1" column="8">
         <widget class="QLabel" name="stopLabel">
          <property name="text">
           <string>Stop, kHz</string>
@@ -224,7 +329,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="6">
+       <item row="0" column="8">
         <widget class="QLabel" name="startLabel">
          <property name="text">
           <string>Start, kHz</string>
@@ -234,7 +339,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="7">
+       <item row="2" column="9">
         <widget class="QSpinBox" name="sizeValue">
          <property name="minimumSize">
           <size>
@@ -259,7 +364,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="7">
+       <item row="1" column="9">
         <widget class="QSpinBox" name="stopValue">
          <property name="minimumSize">
           <size>
@@ -284,7 +389,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="7">
+       <item row="0" column="9">
         <widget class="QSpinBox" name="startValue">
          <property name="minimumSize">
           <size>
@@ -309,42 +414,42 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="8">
+       <item row="0" column="10">
         <widget class="QPushButton" name="openSweep">
          <property name="text">
           <string>Open</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="8">
+       <item row="1" column="10">
         <widget class="QPushButton" name="shortSweep">
          <property name="text">
           <string>Short</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="8">
+       <item row="2" column="10">
         <widget class="QPushButton" name="loadSweep">
          <property name="text">
           <string>Load</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="9">
+       <item row="0" column="11">
         <widget class="QPushButton" name="singleSweep">
          <property name="text">
           <string>Single</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="9">
+       <item row="1" column="11">
         <widget class="QPushButton" name="autoSweep">
          <property name="text">
           <string>Auto</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="9">
+       <item row="2" column="11">
         <widget class="QPushButton" name="stopSweep">
          <property name="text">
           <string>Stop</string>
@@ -634,9 +739,12 @@
  <tabstops>
   <tabstop>addrValue</tabstop>
   <tabstop>connectButton</tabstop>
-  <tabstop>corrValue</tabstop>
   <tabstop>rateValue</tabstop>
-  <tabstop>levelValue</tabstop>
+  <tabstop>level1Value</tabstop>
+  <tabstop>level2Value</tabstop>
+  <tabstop>corrValue</tabstop>
+  <tabstop>phase1Value</tabstop>
+  <tabstop>phase2Value</tabstop>
   <tabstop>startValue</tabstop>
   <tabstop>stopValue</tabstop>
   <tabstop>sizeValue</tabstop>

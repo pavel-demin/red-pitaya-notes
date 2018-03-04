@@ -490,6 +490,7 @@ class VNA(QMainWindow, Ui_VNA):
     for i in range(self.rateValue.count()):
       self.rateValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
     self.set_enabled(False)
+    self.stopSweep.setEnabled(False)
     # read settings
     settings = QSettings('vna.ini', QSettings.IniFormat)
     self.read_cfg_settings(settings)
@@ -517,7 +518,10 @@ class VNA(QMainWindow, Ui_VNA):
     self.sizeValue.valueChanged.connect(self.set_size)
     self.rateValue.currentIndexChanged.connect(self.set_rate)
     self.corrValue.valueChanged.connect(self.set_corr)
-    self.levelValue.valueChanged.connect(self.set_level)
+    self.phase1Value.valueChanged.connect(self.set_phase1)
+    self.phase2Value.valueChanged.connect(self.set_phase2)
+    self.level1Value.valueChanged.connect(self.set_level1)
+    self.level2Value.valueChanged.connect(self.set_level2)
     self.tabWidget.currentChanged.connect(self.update_tab)
     # create timers
     self.startTimer = QTimer(self)
@@ -526,7 +530,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.sweepTimer.timeout.connect(self.sweep_timeout)
 
   def set_enabled(self, enabled):
-    widgets = [self.corrValue, self.rateValue, self.levelValue, self.sizeValue, self.stopValue, self.startValue, self.openSweep, self.shortSweep, self.loadSweep, self.singleSweep, self.autoSweep]
+    widgets = [self.rateValue, self.level1Value, self.level2Value, self.corrValue, self.phase1Value, self.phase2Value, self.startValue, self.stopValue, self.sizeValue, self.openSweep, self.shortSweep, self.loadSweep, self.singleSweep, self.autoSweep]
     for entry in widgets:
       entry.setEnabled(enabled)
 
@@ -545,6 +549,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.connectButton.setText('Connect')
     self.connectButton.setEnabled(True)
     self.set_enabled(False)
+    self.stopSweep.setEnabled(False)
 
   def timeout(self):
     self.display_error('timeout')
@@ -554,11 +559,15 @@ class VNA(QMainWindow, Ui_VNA):
     self.idle = False
     self.set_rate(self.rateValue.currentIndex())
     self.set_corr(self.corrValue.value())
-    self.set_level(self.levelValue.value())
+    self.set_phase1(self.phase1Value.value())
+    self.set_phase2(self.phase2Value.value())
+    self.set_level1(self.level1Value.value())
+    self.set_level2(self.level2Value.value())
     self.set_gpio(1)
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
     self.set_enabled(True)
+    self.stopSweep.setEnabled(True)
 
   def read_data(self):
     while(self.socket.bytesAvailable() > 0):
@@ -613,14 +622,27 @@ class VNA(QMainWindow, Ui_VNA):
     if self.idle: return
     self.socket.write(struct.pack('<I', 4<<28 | int(value)))
 
-  def set_level(self, value):
+  def set_phase1(self, value):
     if self.idle: return
-    self.socket.write(struct.pack('<I', 5<<28 | int(32766 * np.power(10.0, value / 20.0))))
-    self.socket.write(struct.pack('<I', 6<<28 | int(0)))
+    self.socket.write(struct.pack('<I', 5<<28 | int(value)))
+
+  def set_phase2(self, value):
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 6<<28 | int(value)))
+
+  def set_level1(self, value):
+    if self.idle: return
+    data = 0 if value == -90 else int(32766 * np.power(10.0, value / 20.0))
+    self.socket.write(struct.pack('<I', 7<<28 | int(data)))
+
+  def set_level2(self, value):
+    if self.idle: return
+    data = 0 if value == -90 else int(32766 * np.power(10.0, value / 20.0))
+    self.socket.write(struct.pack('<I', 8<<28 | int(data)))
 
   def set_gpio(self, value):
     if self.idle: return
-    self.socket.write(struct.pack('<I', 7<<28 | int(value)))
+    self.socket.write(struct.pack('<I', 9<<28 | int(value)))
 
   def sweep(self, mode):
     if self.idle: return
@@ -631,7 +653,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.socket.write(struct.pack('<I', 0<<28 | int(self.sweep_start * 1000)))
     self.socket.write(struct.pack('<I', 1<<28 | int(self.sweep_stop * 1000)))
     self.socket.write(struct.pack('<I', 2<<28 | int(self.sweep_size)))
-    self.socket.write(struct.pack('<I', 8<<28))
+    self.socket.write(struct.pack('<I', 10<<28))
     self.progressBar.setMinimum(0)
     self.progressBar.setMaximum(self.sweep_size)
     self.progressBar.setValue(0)
@@ -640,7 +662,7 @@ class VNA(QMainWindow, Ui_VNA):
     self.sweepTimer.stop()
     self.auto = False
     self.reading = False
-    self.socket.write(struct.pack('<I', 9<<28))
+    self.socket.write(struct.pack('<I', 11<<28))
     self.progressBar.setValue(0)
     self.set_enabled(True)
 
@@ -716,7 +738,10 @@ class VNA(QMainWindow, Ui_VNA):
     settings.setValue('addr', self.addrValue.text())
     settings.setValue('rate', self.rateValue.currentIndex())
     settings.setValue('corr', self.corrValue.value())
-    settings.setValue('level', self.levelValue.value())
+    settings.setValue('phase_1', self.phase1Value.value())
+    settings.setValue('phase_2', self.phase2Value.value())
+    settings.setValue('level_1', self.level1Value.value())
+    settings.setValue('level_2', self.level2Value.value())
     settings.setValue('open_start', int(self.open.freq[0]))
     settings.setValue('open_stop', int(self.open.freq[-1]))
     settings.setValue('open_size', self.open.freq.size)
@@ -752,7 +777,10 @@ class VNA(QMainWindow, Ui_VNA):
     self.addrValue.setText(settings.value('addr', '192.168.1.100'))
     self.rateValue.setCurrentIndex(settings.value('rate', 0, type = int))
     self.corrValue.setValue(settings.value('corr', 0, type = int))
-    self.levelValue.setValue(settings.value('level', 0, type = int))
+    self.phase1Value.setValue(settings.value('phase_1', 0, type = int))
+    self.phase2Value.setValue(settings.value('phase_2', 0, type = int))
+    self.level1Value.setValue(settings.value('level_1', 0, type = int))
+    self.level2Value.setValue(settings.value('level_2', -90, type = int))
     open_start = settings.value('open_start', 10, type = int)
     open_stop = settings.value('open_stop', 60000, type = int)
     open_size = settings.value('open_size', 6000, type = int)

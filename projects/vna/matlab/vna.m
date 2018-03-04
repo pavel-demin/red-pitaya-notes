@@ -21,18 +21,24 @@ write(t, uint32(3 * 2^28 + rate));
 corr = 0;
 write(t, uint32(4 * 2^28 + corr));
 
+% set output phase offsets
+phase = 0;
+write(t, uint32(5 * 2^28 + phase));
+phase = 0;
+write(t, uint32(6 * 2^28 + phase));
+
 % set output levels
 level = 32766;
-write(t, uint32(5 * 2^28 + level));
+write(t, uint32(7 * 2^28 + level));
 level = 0;
-write(t, uint32(6 * 2^28 + level));
+write(t, uint32(8 * 2^28 + level));
 
 % set gpio pins
 gpio = 1;
-write(t, uint32(7 * 2^28 + gpio));
+write(t, uint32(9 * 2^28 + gpio));
 
 % sweep
-write(t, uint32(8 * 2^28));
+write(t, uint32(10 * 2^28));
 
 % read data
 data = read(t, 4 * size, 'single');
