@@ -14,15 +14,13 @@ int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
   void *cfg, *sts;
-  volatile uint32_t *slcr, *rx_freq, *rx_rate;
-  volatile uint16_t *rx_cntr, *tx_size;
+  volatile uint32_t *tx_data, *rx_freq, *tx_freq;
+  volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr;
+  volatile int16_t *tx_level;
   volatile uint8_t *rx_rst, *tx_rst;
   volatile uint64_t *rx_data;
-  void *tx_data;
-  float tx_freq;
   struct sockaddr_in addr;
   uint32_t command, value;
-  int16_t pulse[32768];
   uint64_t buffer[8192];
   int i, j, size, yes = 1;
 
@@ -32,34 +30,34 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   rx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
-  tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+  tx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
 
   rx_rst = ((uint8_t *)(cfg + 0));
   rx_freq = ((uint32_t *)(cfg + 4));
-  rx_rate = ((uint32_t *)(cfg + 8));
-  rx_cntr = ((uint16_t *)(sts + 0));
+  rx_rate = ((uint16_t *)(cfg + 8));
+  rx_cntr = ((uint16_t *)(sts + 12));
 
   tx_rst = ((uint8_t *)(cfg + 1));
-  tx_size = ((uint16_t *)(cfg + 12));
+  tx_freq = ((uint32_t *)(cfg + 12));
+  tx_level = ((int16_t *)(cfg + 16));
+  tx_cntr = ((uint16_t *)(sts + 14));
+
+  *rx_rst |= 1;
+  *rx_rst &= ~2;
+  *tx_rst |= 1;
 
   /* set default rx phase increment */
   *rx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
   /* set default rx sample rate */
   *rx_rate = 250;
 
-  /* fill tx buffer with zeros */
-  memset(tx_data, 0, 65536);
-
-  /* local oscillator for the excitation pulse */
-  tx_freq = 19.0e6;
-  for(i = 0; i < 32768; ++i)
-  {
-    pulse[i] = (int16_t)floor(8000.0 * sin(i * 2.0 * M_PI * tx_freq / 125.0e6) + 0.5);
-  }
+  /* set default tx phase increment */
+  *tx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
+  /* set default tx level */
+  *tx_level = 16382;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -98,9 +96,10 @@ int main(int argc, char *argv[])
       switch(command >> 28)
       {
         case 0:
-          /* set rx phase increment */
+          /* set rx and tx phase increment */
           if(value < 0 || value > 60000000) continue;
           *rx_freq = (uint32_t)floor(value / 125.0e6 * (1<<30) + 0.5);
+          *tx_freq = (uint32_t)floor(value / 125.0e6 * (1<<30) + 0.5);
           break;
         case 1:
           /* set rx sample rate */
@@ -125,16 +124,28 @@ int main(int argc, char *argv[])
           break;
         case 2:
           /* set A width */
-          size = (uint32_t)floor(125.0e6 * value / (10.0 * tx_freq) + 0.5);
-          if(size > 32768) continue;
-          *tx_size = size - 1;
-          memset(tx_data, 0, 65536);
-          memcpy(tx_data, pulse, 2 * size);
+          *tx_rst |= 1; *tx_rst &= ~1;
+
+          *tx_data = 0;
+          *tx_data = 100-2;
+          *tx_data = 50-1;
+          *tx_data = 0;
+
+          *tx_data = (uint32_t)floor(0.25 * (1<<30) + 0.5);;
+          *tx_data = 150-2;
+          *tx_data = 75-1;
+          *tx_data = 0;
+
+          *tx_data = (uint32_t)floor(0.5 * (1<<30) + 0.5);;
+          *tx_data = 100-2;
+          *tx_data = 50-1;
+          *tx_data = 0;
+
           break;
         case 3:
           /* fire */
           *rx_rst |= 1; *rx_rst &= ~1;
-          *tx_rst &= ~1; *tx_rst |= 1;
+          *rx_rst &= ~2; *rx_rst |= 2;
           /* transfer 10 * 5k = 50k samples */
           for(i = 0; i < 10; ++i)
           {
@@ -142,14 +153,12 @@ int main(int argc, char *argv[])
             for(j = 0; j < 5000; ++j) buffer[j] = *rx_data;
             send(sock_client, buffer, 40000, MSG_NOSIGNAL);
           }
+          *rx_rst |= 1;
+          *rx_rst &= ~2;
+          *tx_rst |= 1;
           break;
       }
     }
-
-    /* set default rx phase increment */
-    *rx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
-    /* set default rx sample rate */
-    *rx_rate = 250;
 
     close(sock_client);
   }
