@@ -15,8 +15,6 @@ Some interesting links on pulsed nuclear magnetic resonance:
 
  - [Pulsed NMR at MSU](https://www.pa.msu.edu/courses/2016spring/PHY451/Experiments/pulsed_nmr.html)
 
- - [NMR at UC Berkeley](http://labs.physics.berkeley.edu/mediawiki/index.php/Nuclear_Magnetic_Resonance)
- 
  - [The Basics of NMR](https://www.cis.rit.edu/htbooks/nmr) by Joseph P. Hornak
 
 Short description
