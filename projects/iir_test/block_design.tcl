@@ -129,8 +129,8 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_0 {
   B_WIDTH.VALUE_SRC USER
   OUTPUT_PROPERTIES User_Defined
   A_WIDTH 16
-  B_WIDTH 16
-  P_WIDTH 32
+  B_WIDTH 17
+  P_WIDTH 33
 } {
   B slice_2/Dout
   CLK pll_0/clk_out1
@@ -151,9 +151,9 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_1 {
   C_WIDTH.VALUE_SRC USER
   OUTPUT_PROPERTIES User_Defined
   A_WIDTH 25
-  B_WIDTH 16
-  C_WIDTH 41
-  P_WIDTH 41
+  B_WIDTH 17
+  C_WIDTH 42
+  P_WIDTH 42
 } {
   B slice_3/Dout
   CLK pll_0/clk_out1
@@ -173,9 +173,9 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_2 {
   C_WIDTH.VALUE_SRC USER
   OUTPUT_PROPERTIES User_Defined
   A_WIDTH 25
-  B_WIDTH 16
-  C_WIDTH 41
-  P_WIDTH 41
+  B_WIDTH 17
+  C_WIDTH 42
+  P_WIDTH 42
 } {
   B slice_4/Dout
   CLK pll_0/clk_out1
