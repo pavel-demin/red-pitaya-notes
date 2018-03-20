@@ -1,4 +1,4 @@
-set display_name {AXI4-Stream Pulse Generator}
+set display_name {AXI4-Stream Gate Controller}
 
 set core [ipx::current_core]
 

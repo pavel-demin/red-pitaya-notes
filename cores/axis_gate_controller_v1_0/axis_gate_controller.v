@@ -1,7 +1,7 @@
 
 `timescale 1 ns / 1 ps
 
-module axis_pulse_generator
+module axis_gate_controller
 (
   input  wire         aclk,
   input  wire         aresetn,
