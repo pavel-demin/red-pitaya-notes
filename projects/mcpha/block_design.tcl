@@ -63,77 +63,77 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 704
+  CFG_DATA_WIDTH 768
   AXI_ADDR_WIDTH 7
   AXI_DATA_WIDTH 32
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 704 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+  DIN_WIDTH 768 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 neg_slice_0 {
-  DIN_WIDTH 704 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
+  DIN_WIDTH 768 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 704 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+  DIN_WIDTH 768 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 neg_slice_1 {
-  DIN_WIDTH 704 DIN_FROM 12 DIN_TO 12 DOUT_WIDTH 1
+  DIN_WIDTH 768 DIN_FROM 12 DIN_TO 12 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
-  DIN_WIDTH 704 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+  DIN_WIDTH 768 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_3 {
-  DIN_WIDTH 704 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
+  DIN_WIDTH 768 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 neg_slice_2 {
-  DIN_WIDTH 704 DIN_FROM 28 DIN_TO 28 DOUT_WIDTH 1
+  DIN_WIDTH 768 DIN_FROM 28 DIN_TO 28 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 neg_slice_3 {
-  DIN_WIDTH 704 DIN_FROM 29 DIN_TO 29 DOUT_WIDTH 1
+  DIN_WIDTH 768 DIN_FROM 29 DIN_TO 29 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_4 {
-  DIN_WIDTH 704 DIN_FROM 30 DIN_TO 30 DOUT_WIDTH 1
+  DIN_WIDTH 768 DIN_FROM 30 DIN_TO 30 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 rst_slice_5 {
-  DIN_WIDTH 704 DIN_FROM 31 DIN_TO 31 DOUT_WIDTH 1
+  DIN_WIDTH 768 DIN_FROM 31 DIN_TO 31 DOUT_WIDTH 1
 } {
   Din cfg_0/cfg_data
 }
@@ -142,7 +142,7 @@ cell xilinx.com:ip:xlslice:1.0 rst_slice_5 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 704 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+  DIN_WIDTH 768 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
@@ -151,49 +151,49 @@ cell xilinx.com:ip:xlslice:1.0 slice_0 {
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 704 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
+  DIN_WIDTH 768 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 704 DIN_FROM 191 DIN_TO 64 DOUT_WIDTH 128
+  DIN_WIDTH 768 DIN_FROM 191 DIN_TO 64 DOUT_WIDTH 128
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 704 DIN_FROM 319 DIN_TO 192 DOUT_WIDTH 128
+  DIN_WIDTH 768 DIN_FROM 319 DIN_TO 192 DOUT_WIDTH 128
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
-  DIN_WIDTH 704 DIN_FROM 447 DIN_TO 320 DOUT_WIDTH 128
+  DIN_WIDTH 768 DIN_FROM 447 DIN_TO 320 DOUT_WIDTH 128
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_3 {
-  DIN_WIDTH 704 DIN_FROM 575 DIN_TO 448 DOUT_WIDTH 128
+  DIN_WIDTH 768 DIN_FROM 575 DIN_TO 448 DOUT_WIDTH 128
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_4 {
-  DIN_WIDTH 704 DIN_FROM 671 DIN_TO 576 DOUT_WIDTH 96
+  DIN_WIDTH 768 DIN_FROM 671 DIN_TO 576 DOUT_WIDTH 96
 } {
   Din cfg_0/cfg_data
 }
 
 # Create xlslice
 cell xilinx.com:ip:xlslice:1.0 cfg_slice_5 {
-  DIN_WIDTH 704 DIN_FROM 703 DIN_TO 672 DOUT_WIDTH 32
+  DIN_WIDTH 768 DIN_FROM 767 DIN_TO 672 DOUT_WIDTH 96
 } {
   Din cfg_0/cfg_data
 }
@@ -507,7 +507,10 @@ module gen_0 {
 } {
   slice_0/Din rst_slice_5/Dout
   slice_1/Din cfg_slice_5/Dout
-  zeroer_0/M_AXIS dac_0/S_AXIS
+  slice_2/Din cfg_slice_5/Dout
+  slice_3/Din cfg_slice_5/Dout
+  slice_4/Din cfg_slice_5/Dout
+  iir_0/M_AXIS dac_0/S_AXIS
 }
 
 # Create dna_reader
@@ -518,7 +521,7 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_1 {
-  NUM_PORTS 9
+  NUM_PORTS 10
   IN0_WIDTH 32
   IN1_WIDTH 64
   IN2_WIDTH 64
@@ -528,6 +531,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_1 {
   IN6_WIDTH 32
   IN7_WIDTH 32
   IN8_WIDTH 16
+  IN9_WIDTH 16
 } {
   In0 const_0/dout
   In1 dna_0/dna_data
@@ -538,6 +542,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_1 {
   In6 osc_0/scope_0/sts_data
   In7 osc_0/writer_0/sts_data
   In8 fifo_generator_0/rd_data_count
+  In9 gen_0/fifo_generator_0/wr_data_count
 }
 
 # Create axi_sts_register
