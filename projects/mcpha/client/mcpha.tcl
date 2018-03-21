@@ -1117,7 +1117,7 @@ namespace eval ::mcpha {
 
     set x [catch {
       set fid [open $fname r+]
-      set content [read $fid 131072]
+      set content [read $fid 262144]
       set yvec_new [split [dict get $content data] \n]
       close $fid
     }]
