@@ -3,17 +3,6 @@ package require BLT
 
 wm minsize . 880 680
 
-image create bitmap leftarrow -data "
-#define leftarrow_width 5\n
-#define leftarrow_height 5\n
-static unsigned char leftarrow_bits\[\] = {\n
-0x10, 0x1C, 0x1F, 0x1C, 0x10};"
-image create bitmap rightarrow -data "
-#define rightarrow_width 5\n
-#define rightarrow_height 5\n
-static unsigned char rightarrow_bits\[\] = {\n
-0x01, 0x07, 0x1F, 0x07, 0x01};"
-
 # -------------------------------------------------------------------------
 
 proc ::oo::Helpers::mymethod {method args} {
@@ -131,7 +120,7 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
-  oo::define CfgDisplay method start {} {
+  oo::define CfgDisplay method run {} {
     my variable master
 
     trace add variable [my varname rate] write [mymethod rate_update]
@@ -385,7 +374,7 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
-  oo::define HstDisplay method start {} {
+  oo::define HstDisplay method run {} {
     my variable config after
     my variable xmin_val xmax_val
     my variable yvec_bak yvec_old
@@ -1186,7 +1175,7 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
-  oo::define OscDisplay method start {} {
+  oo::define OscDisplay method run {} {
     my variable config directory
 
     set directory $::env(HOME)
@@ -1685,8 +1674,371 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
+  oo::class create GenDisplay
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay constructor args {
+    my variable number master controller
+
+    foreach {param value} $args {
+      if {$param eq "-number"} {
+        set number $value
+      } elseif {$param eq "-master"} {
+        set master $value
+      } elseif {$param eq "-controller"} {
+        set controller $value
+      } else {
+        error "unsupported parameter $param"
+      }
+    }
+
+    blt::vector create [my varname xvec](4097)
+    blt::vector create [my varname yvec](4096)
+
+    # fill one vector for the x axis with 4097 points
+    [my varname xvec] seq -0.5 4095.5
+
+    my setup
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method run {} {
+    my variable config after
+    my variable xmin_val xmax_val
+    my variable yvec_bak yvec_old
+
+    trace add variable [my varname axis] write [mymethod axis_update]
+    trace add variable [my varname rate] write [mymethod rate_update]
+    trace add variable [my varname dist] write [mymethod dist_update]
+    trace add variable [my varname rise] write [mymethod rise_update]
+    trace add variable [my varname fall] write [mymethod fall_update]
+
+    ${config}.axis_check select
+
+    set yvec_bak 0.0
+    set yvec_old 0.0
+
+    ${config}.chan_frame.entr_value configure -text 0.0
+
+    ${config}.chan_frame.axisy_value configure -text 0.0
+    ${config}.chan_frame.axisx_value configure -text 0.0
+
+    ${config}.rate_field set 1
+    ${config}.dist_frame.mode_0 select
+    ${config}.rise_field set 50
+    ${config}.fall_field set 50
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method setup {} {
+    my variable number master
+    my variable xvec yvec graph
+    my variable config
+
+    # create a graph widget and show a grid
+    set graph [blt::graph ${master}.graph -height 250 -leftmargin 80]
+    $graph crosshairs configure -hide no -linewidth 1 -color darkblue -dashes {2 2}
+    $graph grid configure -hide no
+    $graph legend configure -hide yes
+
+    set config [frame ${master}.config -width 170]
+
+    checkbutton ${config}.axis_check -text {log scale} -variable [my varname axis]
+
+    frame ${config}.spc1 -width 170 -height 10
+
+    frame ${config}.chan_frame -borderwidth 0 -width 170
+    mcpha::legendLabel ${config}.chan_frame 0 entr  {Total entries}
+    frame ${config}.chan_frame.spc1 -height 10
+    grid ${config}.chan_frame.spc1 -row 1
+    mcpha::legendLabel ${config}.chan_frame 2 axisy {Bin entries}
+    mcpha::legendLabel ${config}.chan_frame 3 axisx {Bin number}
+
+    frame ${config}.spc2 -width 170 -height 10
+
+    label ${config}.rate_label -text {rate, kcps}
+    spinbox ${config}.rate_field -from 1 -to 100 \
+      -increment 1 -width 10 -textvariable [my varname rate] \
+      -validate all -vcmd {::mcpha::validate 1 100 3 %P}
+
+    frame ${config}.spc3 -width 170 -height 10
+
+    frame ${config}.dist_frame -borderwidth 0 -width 170
+
+    label ${config}.dist_frame.mode_label -text {distribution}
+    radiobutton ${config}.dist_frame.mode_0 -variable [my varname dist] -text {uniform} -value 0
+    radiobutton ${config}.dist_frame.mode_1 -variable [my varname dist] -text {poisson} -value 1
+    grid ${config}.dist_frame.mode_label -columnspan 2 -sticky w
+    grid ${config}.dist_frame.mode_0 -row 1 -column 0 -sticky w
+    grid ${config}.dist_frame.mode_1 -row 1 -column 1 -sticky w
+
+    frame ${config}.spc4 -width 170 -height 10
+
+    label ${config}.rise_label -text {rise time, ns}
+    spinbox ${config}.rise_field -from 0 -to 100 \
+      -increment 10 -width 10 -textvariable [my varname rise] \
+      -validate all -vcmd {::mcpha::validate 0 100 3 %P}
+
+    frame ${config}.spc5 -width 170 -height 10
+
+    label ${config}.fall_label -text {fall time, us}
+    spinbox ${config}.fall_field -from 0 -to 100 \
+      -increment 10 -width 10 -textvariable [my varname fall] \
+      -validate all -vcmd {::mcpha::validate 0 100 3 %P}
+
+    frame ${config}.spc6 -width 170 -height 10
+
+    button ${config}.recover -text {Read file} \
+      -bg lightblue -activebackground lightblue -command [mymethod recover]
+
+    frame ${config}.spc7 -width 170 -height 10
+
+    button ${config}.start -text Start \
+      -bg yellow -activebackground yellow -command [mymethod start]
+
+    grid ${config}.axis_check -sticky w
+    grid ${config}.spc1
+    grid ${config}.chan_frame -sticky ew -padx 3
+    grid ${config}.spc2
+    grid ${config}.rate_label -sticky w -padx 3
+    grid ${config}.rate_field -sticky ew -padx 5
+    grid ${config}.spc3
+    grid ${config}.dist_frame -sticky ew -padx 3
+    grid ${config}.spc4
+    grid ${config}.rise_label -sticky w -padx 3
+    grid ${config}.rise_field -sticky ew -padx 5
+    grid ${config}.spc5
+    grid ${config}.fall_label -sticky w -padx 3
+    grid ${config}.fall_field -sticky ew -padx 5
+    grid ${config}.spc6
+    grid ${config}.recover -sticky ew -pady 3 -padx 5
+    grid ${config}.spc7
+    grid ${config}.start -sticky ew -pady 3 -padx 5
+
+    grid ${graph} -row 0 -column 0 -sticky news
+    grid ${config} -row 0 -column 1
+
+    grid rowconfigure ${master} 0 -weight 1
+    grid columnconfigure ${master} 0 -weight 1
+    grid columnconfigure ${master} 1 -weight 0 -minsize 80
+
+    grid columnconfigure ${config}.chan_frame 1 -weight 1
+
+    my crosshairs $graph
+
+#    bind .graph <Motion> {%W crosshairs configure -position @%x,%y}
+
+    # create one element with data for the x and y axis, no dots
+    $graph element create element1 -color blue -linewidth 2 -symbol none -smooth step -xdata [my varname xvec] -ydata [my varname yvec]
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method coor_update {W x y} {
+    my variable config graph
+
+    $W crosshairs configure -position @${x},${y}
+
+    set index [$W axis invtransform x $x]
+    set index [::tcl::mathfunc::round $index]
+    catch {
+      ${config}.chan_frame.axisy_value configure -text [[my varname yvec] index $index]
+      ${config}.chan_frame.axisx_value configure -text ${index}.0
+    }
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method crosshairs {graph} {
+    set method [mymethod coor_update]
+    bind $graph <Motion> [list [self] coor_update %W %x %y]
+    bind $graph <Leave> {
+      %W crosshairs off
+    }
+    bind $graph <Enter> {
+      %W crosshairs on
+    }
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method axis_update args {
+    my variable axis graph
+    $graph axis configure x -min 0 -max 4096
+    Blt_ZoomStack $graph
+    if {$axis} {
+      $graph axis configure y -min 1 -max 1E10 -logscale yes
+    } else {
+      $graph axis configure y -min {} -max {} -logscale no
+    }
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method scale_update args {
+    my variable controller rise fall
+
+    if {$rise < 10 || $fall == 0} {
+      set data 65535
+    } else {
+      set r [expr int(exp(-log(2.0) / 125.0 / $rise * 1.0e3) * 65535.0 + 0.5)]
+      set f [expr int(exp(-log(2.0) / 125.0 / $fall) * 65535.0 + 0.5)]
+      set a [expr -log($r / 65536.0)]
+      set b [expr -log($f / 65536.0)]
+      set t [expr log($b / $a) / ($b - $a)]
+      set data [expr int(($b - $a) / (exp(-$a * $t) - exp(-$b * $t)) * 65535.0 + 0.5)]
+    }
+
+    $controller command 24 0 $data
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method fall_update args {
+    my variable controller fall
+
+    if {[string equal $fall {}]} {
+      set fall 0
+    }
+
+    if {$fall == 0} {
+      set data 0
+    } else {
+      set data [expr int(exp(-log(2.0) / 125.0 / $fall) * 65536.0 + 0.5)]
+    }
+
+    $controller command 25 0 $data
+
+    my scale_update
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method rise_update args {
+    my variable controller rise
+
+    if {[string equal $rise {}]} {
+      set rise 0
+    }
+
+    if {$rise < 10} {
+      set data 0
+    } else {
+      set data [expr int(exp(-log(2.0) / 125.0 / $rise * 1.0e3) * 65536.0 + 0.5)]
+    }
+
+    $controller command 26 0 $data
+
+    my scale_update
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method rate_update args {
+    my variable controller rate
+
+    if {[string equal $rate {}]} {
+      set rate 1
+    } elseif {$rate < 1} {
+      set rate 1
+    }
+
+    $controller command 29 0 [expr $rate * 1000]
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method dist_update args {
+    my variable controller dist
+
+    $controller command 30 0 $dist
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method hist_update args {
+    my variable controller
+
+    for {set i 0} {$i < 4096} {incr i} {
+      set data [blt::vector expr "[my varname yvec]($i)"]
+      $controller command 32 0 [expr $i * 2**32 + int($data)]
+    }
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method start {} {
+    my variable controller config
+
+    my fall_update
+    my rise_update
+    my rate_update
+    my dist_update
+    my hist_update
+
+    ${config}.start configure -text Stop \
+      -bg red -activebackground red -command [mymethod stop]
+
+    $controller command 33 0
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method stop {} {
+    my variable controller config
+
+    ${config}.start configure -text Start \
+      -bg yellow -activebackground yellow -command [mymethod start]
+
+    $controller command 34 0
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method open_data {} {
+    set types {
+      {{Data Files}       {.dat}}
+      {{All Files}        *     }
+    }
+
+    set fname [tk_getOpenFile -filetypes $types]
+    if {[string equal $fname {}]} {
+      return
+    }
+
+    set x [catch {
+      set fid [open $fname r+]
+      set content [read $fid 262144]
+      set yvec_new [split $content \n]
+      close $fid
+    }]
+
+    if { $x || ![file exists $fname] || ![file isfile $fname] || ![file readable $fname] } {
+      tk_messageBox -icon error \
+        -message "An error occurred while reading \"$fname\""
+    } else {
+      tk_messageBox -icon info \
+        -message "File \"$fname\" read successfully"
+      [my varname yvec] set $yvec_new
+    }
+  }
+
+# -------------------------------------------------------------------------
+
+  oo::define GenDisplay method recover {} {
+    my variable config
+    my open_data
+    ${config}.chan_frame.entr_value configure -text [blt::vector expr "sum([my varname yvec](0:4095))"]
+  }
+
+# -------------------------------------------------------------------------
+
   namespace export HstDisplay
   namespace export OscDisplay
+  namespace export GenDisplay
 }
 
 # -------------------------------------------------------------------------
@@ -1700,21 +2052,26 @@ if { [catch {blt::tabnotebook .notebook -borderwidth 1 -selectforeground black -
   set frame_1 [frame ${notebook}.hst_1]
   set frame_2 [frame ${notebook}.hst_2]
   set frame_3 [frame ${notebook}.osc]
+  set frame_4 [frame ${notebook}.gen]
   $notebook add $frame_1 -text "Spectrum histogram 1"
   $notebook add $frame_2 -text "Spectrum histogram 2"
   $notebook add $frame_3 -text "Oscilloscope"
+  $notebook add $frame_4 -text "Pulse generator"
 } else {
   set frame_1 [frame ${notebook}.hst_1]
   set frame_2 [frame ${notebook}.hst_2]
   set frame_3 [frame ${notebook}.osc]
+  set frame_4 [frame ${notebook}.gen]
   $notebook insert end -text "Spectrum histogram 1" -window $frame_1 -fill both
   $notebook insert end -text "Spectrum histogram 2" -window $frame_2 -fill both
   $notebook insert end -text "Oscilloscope" -window $frame_3 -fill both
+  $notebook insert end -text "Pulse generator" -window $frame_4 -fill both
 }
 
 mcpha::HstDisplay create hst_0 -number 0 -master $frame_1 -controller cfg
 mcpha::HstDisplay create hst_1 -number 1 -master $frame_2 -controller cfg
 mcpha::OscDisplay create osc -master $frame_3 -controller cfg
+mcpha::GenDisplay create gen -master $frame_4 -controller cfg
 
 grid ${config} -row 0 -column 0 -sticky news -pady 5
 grid ${notebook} -row 1 -column 0 -sticky news
@@ -1724,10 +2081,12 @@ grid columnconfigure . 0 -weight 1
 
 update
 
-cfg start
+cfg run
 
-hst_0 start
+hst_0 run
 
-hst_1 start
+hst_1 run
 
-osc start
+osc run
+
+gen run
