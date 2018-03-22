@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <math.h>
+#include <pthread.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -14,11 +15,40 @@
 
 #define TCP_PORT 1001
 
+volatile int32_t *gen;
+volatile uint16_t *size;
+
+uint32_t rate = 1000;
+uint32_t dist = 0;
+int64_t hist[4096];
+
+int enable_thread = 0;
+int active_thread = 0;
+
+void *pulser_handler(void *arg);
+
+int lower_bound(int64_t *hist, int size, int value)
+{
+  int mid, lo = 0, hi = size;
+  while(lo < hi)
+  {
+    mid = lo + (hi - lo) / 2;
+    if(hist[mid] < value)
+      lo = mid + 1;
+    else
+      hi = mid;
+  }
+  return lo;
+}
+
 int main(int argc, char *argv[])
 {
-  int fd, sock_server, sock_client;
+  int i, fd, sock_server, sock_client;
+  struct sched_param param;
+  pthread_attr_t attr;
+  pthread_t thread;
   volatile uint32_t *slcr, *axi_hp0;
-  volatile void *sts, *cfg, *gen;
+  volatile void *sts, *cfg;
   void *hst[2], *ram, *buf;
   volatile uint8_t *rst[4];
   volatile uint32_t *trg;
@@ -27,6 +57,8 @@ int main(int argc, char *argv[])
   uint32_t start, pre, tot;
   uint64_t command, data;
   uint8_t code, chan;
+  uint32_t spectrum[4096];
+  int64_t value, total;
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
@@ -49,6 +81,8 @@ int main(int argc, char *argv[])
   rst[1] = cfg + 1;
   rst[2] = cfg + 2;
   rst[3] = cfg + 3;
+
+  size = (uint16_t *)(sts + 54);
 
   /* set HP0 bus width to 64 bits */
   slcr[2] = 0xDF0D;
@@ -77,6 +111,16 @@ int main(int argc, char *argv[])
   *rst[3] &= ~128;
   *rst[3] |= 128;
 
+  *(int16_t *)(cfg + 84) = 369;
+  *(int16_t *)(cfg + 86) = 65400;
+  *(int16_t *)(cfg + 88) = 65400;
+
+  *(int16_t *)(cfg + 90) = -8192;
+  *(int16_t *)(cfg + 92) = 8191;
+
+  /* reset spectrum */
+  memset(spectrum, 0, 16384);
+
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     perror("socket");
@@ -99,6 +143,12 @@ int main(int argc, char *argv[])
 
   listen(sock_server, 1024);
 
+  pthread_attr_init(&attr);
+  pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+  pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+  param.sched_priority = 99;
+  pthread_attr_setschedparam(&attr, &param);
+
   while(1)
   {
     if((sock_client = accept(sock_server, NULL, NULL)) < 0)
@@ -113,7 +163,6 @@ int main(int argc, char *argv[])
       code = (uint8_t)(command >> 56) & 0xff;
       chan = (uint8_t)(command >> 52) & 0xf;
       data = (uint64_t)(command & 0xfffffffffffffULL);
-
       if(code == 0)
       {
         /* reset timer */
@@ -410,12 +459,129 @@ int main(int argc, char *argv[])
           if(send(sock_client, buf, (start + tot - 0x007FFFFF) * 4, MSG_NOSIGNAL) < 0) break;
         }
       }
+      else if(code == 24)
+      {
+        /* set scale factor */
+        *(uint16_t *)(cfg + 84) = data;
+      }
+      else if(code == 25)
+      {
+        /* set fall time */
+        *(uint16_t *)(cfg + 86) = data;
+      }
+      else if(code == 26)
+      {
+        /* set rise time */
+        *(uint16_t *)(cfg + 88) = data;
+      }
+      else if(code == 27)
+      {
+        /* set lower limit */
+        *(int16_t *)(cfg + 90) = data;
+      }
+      else if(code == 28)
+      {
+        /* set upper limit */
+        *(int16_t *)(cfg + 92) = data;
+      }
+      else if(code == 29)
+      {
+        /* set rate */
+        rate = data;
+      }
+      else if(code == 30)
+      {
+        /* set probability distribution */
+        dist = data;
+      }
+      else if(code == 31)
+      {
+        /* reset spectrum */
+        memset(spectrum, 0, 16384);
+      }
+      else if(code == 32)
+      {
+        /* set spectrum bin */
+        spectrum[(data >> 32) & 0xfff] = data & 0xffffffff;
+      }
+      else if(code == 33)
+      {
+        /* start pulser */
+        total = 0;
+        for(i = 0; i < 4095; ++i)
+        {
+          total += spectrum[i];
+        }
+
+        if(total < 2) continue;
+
+        value = 0;
+        for(i = 0; i < 4095; ++i)
+        {
+          value += spectrum[i];
+          hist[i] = value * RAND_MAX / (total - 1) - 1;
+        }
+
+        enable_thread = 1;
+        active_thread = 1;
+        if(pthread_create(&thread, &attr, pulser_handler, NULL) < 0)
+        {
+          perror("pthread_create");
+          return EXIT_FAILURE;
+        }
+        pthread_detach(thread);
+      }
+      else if(code == 34)
+      {
+        /* stop pulser */
+        enable_thread = 0;
+        while(active_thread) usleep(1000);
+        /* reset generator */
+        *rst[3] &= ~128;
+        *rst[3] |= 128;
+      }
     }
 
     close(sock_client);
+
+    /* stop pulser */
+    enable_thread = 0;
+    while(active_thread) usleep(1000);
+    /* reset generator */
+    *rst[3] &= ~128;
+    *rst[3] |= 128;
   }
 
   close(sock_server);
 
   return EXIT_SUCCESS;
+}
+
+void *pulser_handler(void *arg)
+{
+  int32_t amplitude, interval;
+
+  *gen = 0;
+  *gen = 100000;
+
+  while(enable_thread)
+  {
+    while(*size > 6000) usleep(1000);
+
+    amplitude = lower_bound(hist, 4096, rand());
+
+    if(dist == 0)
+    {
+      interval = (int32_t)floor(125.0e6 / rate + 0.5);
+    }
+    else
+    {
+      interval = (int32_t)floor(-logf(1.0 - rand() / (RAND_MAX + 1.0)) * 125.0e6 / rate + 0.5);
+    }
+
+    *gen = amplitude;
+    *gen = interval;
+  }
+
+  active_thread = 0;
 }
