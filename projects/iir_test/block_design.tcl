@@ -92,7 +92,7 @@ cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 32
   WRITE_DEPTH_A 16384
-  WRITE_WIDTH_B 16
+  WRITE_WIDTH_B 64
   ENABLE_A Always_Enabled
   ENABLE_B Always_Enabled
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
@@ -110,9 +110,9 @@ cell pavel-demin:user:axi_bram_writer:1.0 writer_0 {
 
 # Create axis_bram_reader
 cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
-  AXIS_TDATA_WIDTH 16
-  BRAM_DATA_WIDTH 16
-  BRAM_ADDR_WIDTH 15
+  AXIS_TDATA_WIDTH 64
+  BRAM_DATA_WIDTH 64
+  BRAM_ADDR_WIDTH 13
   CONTINUOUS FALSE
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
@@ -121,11 +121,18 @@ cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
   aresetn slice_0/Dout
 }
 
+# Create axis_pulse_generator
+cell pavel-demin:user:axis_pulse_generator:1.0 gen_0 {} {
+  S_AXIS reader_0/M_AXIS
+  aclk pll_0/clk_out1
+  aresetn slice_0/Dout
+}
+
 # Create axis_zeroer
 cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  S_AXIS reader_0/M_AXIS
+  S_AXIS gen_0/M_AXIS
   aclk pll_0/clk_out1
 }
 
