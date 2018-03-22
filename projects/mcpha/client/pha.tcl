@@ -97,7 +97,7 @@ namespace eval ::pha {
 
 # -------------------------------------------------------------------------
 
-  oo::define RecDisplay method start {} {
+  oo::define RecDisplay method run {} {
     my variable master config after
 
     trace add variable [my varname rate] write [mymethod rate_update]
@@ -492,4 +492,4 @@ pack $main
 
 update
 
-rec start
+rec run
