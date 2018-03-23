@@ -16,7 +16,7 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   proc validate {min max size value mode widget variable} {
-    if {[string equal $value {}] || [string equal $value {-}]} {
+    if {[string equal $value {}] || ([string equal $value {-}] && $min < 0) || ($value < $min && $value > 0) || ($value > $max && $value < 0)} {
       if {[string equal $mode focusout]} {
         $widget set [set $variable]
         after idle [$widget configure -validate all]
