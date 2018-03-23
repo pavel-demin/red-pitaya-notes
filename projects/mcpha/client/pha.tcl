@@ -14,10 +14,12 @@ namespace eval ::pha {
 
 # -------------------------------------------------------------------------
 
-  proc validate {min max size value} {
-    if {[string equal $value {}]} {
-      return 1
-    } elseif {[string equal $value {-}]} {
+  proc validate {min max size value mode widget variable} {
+    if {[string equal $value {}] || [string equal $value {-}]} {
+      if {[string equal $mode focusout]} {
+        $widget set [set $variable]
+        after idle [$widget configure -validate all]
+      }
       return 1
     } elseif {![regexp -- {^-?[0-9]*$} $value]} {
       return 0
@@ -30,14 +32,19 @@ namespace eval ::pha {
     } elseif {[string length $value] > $size} {
       return 0
     } else {
+      set $variable $value
       return 1
     }
   }
 
 # -------------------------------------------------------------------------
 
-  proc doublevalidate {max value} {
+  proc doublevalidate {max value mode widget variable format} {
     if {[string equal $value {}]} {
+      if {[string equal $mode focusout]} {
+        $widget set [set $variable]
+        after idle [$widget configure -validate all]
+      }
       return 1
     } elseif {![regexp -- {^[0-9]{0,2}\.?[0-9]{0,3}$} $value]} {
       return 0
@@ -46,6 +53,7 @@ namespace eval ::pha {
     } elseif {$value > $max} {
       return 0
     } else {
+      set $variable [format $format $value]
       return 1
     }
   }
@@ -100,16 +108,10 @@ namespace eval ::pha {
   oo::define RecDisplay method run {} {
     my variable master config after
 
-    trace add variable [my varname rate] write [mymethod rate_update]
-
     trace add variable [my varname base] write [mymethod base_update]
     trace add variable [my varname thrs] write [mymethod thrs_update]
 
     for {set i 1} {$i <= 2} {incr i} {
-      trace add variable [my varname base_val_${i}] write "[mymethod base_val_update] [my varname base_val_${i}]"
-      trace add variable [my varname thrs_min_${i}] write "[mymethod thrs_val_update] [my varname thrs_min_${i}]"
-      trace add variable [my varname thrs_max_${i}] write "[mymethod thrs_val_update] [my varname thrs_max_${i}]"
-
       ${config}.thrs_frame_${i}.min_field set 300
       ${config}.thrs_frame_${i}.max_field set 16300
 
@@ -139,9 +141,8 @@ namespace eval ::pha {
     frame ${config}.spc1 -height 10
 
     label ${config}.rate_label -text {decimation factor}
-    spinbox ${config}.rate_field -from 4 -to 8192 \
-      -increment 4 -width 10 -textvariable [my varname rate] \
-      -validate all -vcmd {::pha::validate 0 8192 4 %P}
+    spinbox ${config}.rate_field -from 4 -to 8192 -increment 4 -width 10 \
+      -validate all -vcmd [list ::pha::validate 4 8192 4 %P %V %W [my varname rate]]
     frame ${config}.neg_frame -borderwidth 0
     checkbutton ${config}.neg_frame.neg_check_0 -text {negative IN1} -variable [my varname neg_0]
     checkbutton ${config}.neg_frame.neg_check_1 -text {negative IN2} -variable [my varname neg_1]
@@ -163,9 +164,8 @@ namespace eval ::pha {
     for {set i 1} {$i <= 2} {incr i} {
 
        label ${config}.base_label_${i} -text "baseline level ${i}"
-      spinbox ${config}.base_field_${i} -from -16380 -to 16380 \
-        -increment 5 -width 10 -textvariable [my varname base_val_${i}] \
-        -validate all -vcmd {::pha::validate -16380 16380 6 %P}
+      spinbox ${config}.base_field_${i} -from -16380 -to 16380 -increment 5 -width 10 \
+        -validate all -vcmd [list ::pha::validate -16380 16380 6 %P %V %W [my varname base_val_${i}]]
     }
 
     frame ${config}.spc4 -height 10
@@ -177,14 +177,12 @@ namespace eval ::pha {
       frame ${config}.thrs_frame_${i} -borderwidth 0
 
       label ${config}.thrs_frame_${i}.min_title -anchor w -text "min ${i}:"
-      spinbox ${config}.thrs_frame_${i}.min_field -from 0 -to 16380 \
-        -increment 5 -width 5 -textvariable [my varname thrs_min_${i}] \
-        -validate all -vcmd {::pha::validate 0 16380 5 %P}
+      spinbox ${config}.thrs_frame_${i}.min_field -from 0 -to 16380 -increment 5 -width 5 \
+        -validate all -vcmd [list ::pha::validate 0 16380 5 %P %V %W [my varname thrs_min_${i}]]
       frame ${config}.thrs_frame_${i}.spc1 -width 10
       label ${config}.thrs_frame_${i}.max_title -anchor w -text "max ${i}:"
-      spinbox ${config}.thrs_frame_${i}.max_field -from 0 -to 16380 \
-        -increment 5 -width 5 -textvariable [my varname thrs_max_${i}] \
-        -validate all -vcmd {::pha::validate 0 16380 5 %P}
+      spinbox ${config}.thrs_frame_${i}.max_field -from 0 -to 16380  -increment 5 -width 5 \
+        -validate all -vcmd [list ::pha::validate 0 16380 5 %P %V %W [my varname thrs_max_${i}]]
       grid ${config}.thrs_frame_${i}.min_title ${config}.thrs_frame_${i}.min_field \
         ${config}.thrs_frame_${i}.spc1 ${config}.thrs_frame_${i}.max_title \
         ${config}.thrs_frame_${i}.max_field
@@ -416,18 +414,6 @@ namespace eval ::pha {
 
 # -------------------------------------------------------------------------
 
-  oo::define RecDisplay method rate_update args {
-    my variable rate
-
-    if {[string equal $rate {}]} {
-      set rate 4
-    } elseif {$rate < 4} {
-      set rate 4
-    }
-  }
-
-# -------------------------------------------------------------------------
-
   oo::define RecDisplay method base_update args {
     my variable config base
 
@@ -440,14 +426,6 @@ namespace eval ::pha {
         ${config}.base_field_1 configure -state normal
         ${config}.base_field_2 configure -state normal
       }
-    }
-  }
-
-# -------------------------------------------------------------------------
-
-  oo::define RecDisplay method base_val_update {name args} {
-    if {[string equal [set $name] {}]} {
-      set $name 0
     }
   }
 
@@ -469,14 +447,6 @@ namespace eval ::pha {
         ${config}.thrs_frame_2.min_field configure -state disabled
         ${config}.thrs_frame_2.max_field configure -state disabled
       }
-    }
-  }
-
-# -------------------------------------------------------------------------
-
-  oo::define RecDisplay method thrs_val_update {name args} {
-    if {[string equal [set $name] {}]} {
-      set $name 0
     }
   }
 

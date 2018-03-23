@@ -15,10 +15,12 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
-  proc validate {min max size value} {
-    if {[string equal $value {}]} {
-      return 1
-    } elseif {[string equal $value {-}]} {
+  proc validate {min max size value mode widget variable} {
+    if {[string equal $value {}] || [string equal $value {-}]} {
+      if {[string equal $mode focusout]} {
+        $widget set [set $variable]
+        after idle [$widget configure -validate all]
+      }
       return 1
     } elseif {![regexp -- {^-?[0-9]*$} $value]} {
       return 0
@@ -31,14 +33,19 @@ namespace eval ::mcpha {
     } elseif {[string length $value] > $size} {
       return 0
     } else {
+      set $variable $value
       return 1
     }
   }
 
 # -------------------------------------------------------------------------
 
-  proc doublevalidate {max value} {
+  proc doublevalidate {max value mode widget variable format} {
     if {[string equal $value {}]} {
+      if {[string equal $mode focusout]} {
+        $widget set [set $variable]
+        after idle [$widget configure -validate all]
+      }
       return 1
     } elseif {![regexp -- {^[0-9]{0,2}\.?[0-9]{0,3}$} $value]} {
       return 0
@@ -47,6 +54,7 @@ namespace eval ::mcpha {
     } elseif {$value > $max} {
       return 0
     } else {
+      set $variable [format $format $value]
       return 1
     }
   }
@@ -149,9 +157,8 @@ namespace eval ::mcpha {
     frame ${master}.spc2 -width 10
 
     label ${master}.rate_label -text {decimation factor:}
-    spinbox ${master}.rate_field -from 4 -to 8192 \
-      -increment 4 -width 10 -textvariable [my varname rate] \
-      -validate all -vcmd {::mcpha::validate 0 8192 4 %P}
+    spinbox ${master}.rate_field -from 4 -to 8192 -increment 4 -width 10 \
+      -validate all -vcmd [list ::mcpha::validate 4 8192 4 %P %V %W [my varname rate]]
 
     grid ${master}.addr_label ${master}.address_field ${master}.connect \
       ${master}.spc1 ${master}.neg_check_0 ${master}.neg_check_1 ${master}.spc2 \
@@ -317,12 +324,6 @@ namespace eval ::mcpha {
   oo::define CfgDisplay method rate_update args {
     my variable rate
 
-    if {[string equal $rate {}]} {
-      set rate 4
-    } elseif {$rate < 4} {
-      set rate 4
-    }
-
     my command 4 0 $rate
   }
 
@@ -390,9 +391,6 @@ namespace eval ::mcpha {
     trace add variable [my varname thrs] write [mymethod thrs_update]
     trace add variable [my varname thrs_min] write [mymethod thrs_update]
     trace add variable [my varname thrs_max] write [mymethod thrs_update]
-    trace add variable [my varname cntr_h] write [mymethod cntr_update]
-    trace add variable [my varname cntr_m] write [mymethod cntr_update]
-    trace add variable [my varname cntr_s] write [mymethod cntr_update]
 
     ${config}.axis_check select
 
@@ -488,7 +486,7 @@ namespace eval ::mcpha {
     grid ${config}.roi_frame.min_title ${config}.roi_frame.min_value \
       ${config}.roi_frame.spc1 ${config}.roi_frame.max_title \
       ${config}.roi_frame.max_value
-    grid columnconfigure ${config}.roi_frame 3 -weight 1
+    grid columnconfigure ${config}.roi_frame 2 -weight 1
 
     frame ${config}.stat_frame -borderwidth 0 -width 17
 
@@ -507,9 +505,8 @@ namespace eval ::mcpha {
     grid ${config}.base_frame.mode_1 -row 1 -column 1 -sticky w
 
     label ${config}.base_label -text {baseline level}
-    spinbox ${config}.base_field -from -16380 -to 16380 \
-      -increment 5 -width 10 -textvariable [my varname base_val] \
-      -validate all -vcmd {::mcpha::validate -16380 16380 6 %P}
+    spinbox ${config}.base_field -from -16380 -to 16380 -increment 5 -width 10 \
+      -validate all -vcmd [list ::mcpha::validate -16380 16380 6 %P %V %W [my varname base_val]]
 
     frame ${config}.spc5 -width 170 -height 10
 
@@ -518,34 +515,37 @@ namespace eval ::mcpha {
     frame ${config}.thrs_frame -borderwidth 0 -width 170
 
     label ${config}.thrs_frame.min_title -anchor w -text {min:}
-    spinbox ${config}.thrs_frame.min_field -from 0 -to 16380 \
-      -increment 5 -width 5 -textvariable [my varname thrs_min] \
-      -validate all -vcmd {::mcpha::validate 0 16380 5 %P}
+    spinbox ${config}.thrs_frame.min_field -from 0 -to 16380 -increment 5 -width 5 \
+      -validate all -vcmd [list ::mcpha::validate 0 16380 5 %P %V %W [my varname thrs_min]]
     frame ${config}.thrs_frame.spc1 -width 10
     label ${config}.thrs_frame.max_title -anchor w -text {max:}
-    spinbox ${config}.thrs_frame.max_field -from 0 -to 16380 \
-      -increment 5 -width 5 -textvariable [my varname thrs_max] \
-      -validate all -vcmd {::mcpha::validate 0 16380 5 %P}
+    spinbox ${config}.thrs_frame.max_field -from 0 -to 16380 -increment 5 -width 5 \
+      -validate all -vcmd [list ::mcpha::validate 0 16380 5 %P %V %W [my varname thrs_max]]
     grid ${config}.thrs_frame.min_title ${config}.thrs_frame.min_field \
       ${config}.thrs_frame.spc1 ${config}.thrs_frame.max_title \
       ${config}.thrs_frame.max_field
-    grid columnconfigure ${config}.thrs_frame 3 -weight 1
+    grid columnconfigure ${config}.thrs_frame 2 -weight 1
 
     label ${config}.cntr_label -text {time of exposure}
     frame ${config}.cntr_frame -borderwidth 0 -width 170
 
-    label ${config}.cntr_frame.h -width 3 -anchor w -text {h}
-    entry ${config}.cntr_frame.h_field -width 3 -textvariable [my varname cntr_h] \
-      -validate all -vcmd {::mcpha::validate 0 999 3 %P}
-    label ${config}.cntr_frame.m -width 3 -anchor w -text {m}
-    entry ${config}.cntr_frame.m_field -width 3 -textvariable [my varname cntr_m] \
-      -validate all -vcmd {::mcpha::validate 0 59 2 %P}
-    label ${config}.cntr_frame.s -width 3 -anchor w -text {s}
-    entry ${config}.cntr_frame.s_field -width 6 -textvariable [my varname cntr_s] \
-      -validate all -vcmd {::mcpha::doublevalidate 59.999 %P}
+    label ${config}.cntr_frame.h -anchor w -text {h}
+    spinbox ${config}.cntr_frame.h_field -from 0 -to 999 -increment 1 -width 3  \
+      -validate all -vcmd [list ::mcpha::validate 0 999 3 %P %V %W [my varname cntr_h]]
+    frame ${config}.cntr_frame.spc1 -width 10
+    label ${config}.cntr_frame.m -anchor w -text {m}
+    spinbox ${config}.cntr_frame.m_field -from 0 -to 59 -increment 1 -width 3 \
+      -validate all -vcmd [list ::mcpha::validate 0 59 2 %P %V %W [my varname cntr_m]]
+    frame ${config}.cntr_frame.spc2 -width 10
+    label ${config}.cntr_frame.s -anchor w -text {s}
+    spinbox ${config}.cntr_frame.s_field -from 0 -to 59.999 -increment 1 -format %.3f -width 6 \
+      -validate all -vcmd [list ::mcpha::doublevalidate 59.999 %P %V %W [my varname cntr_s] %%.3f]
 
-    grid ${config}.cntr_frame.h_field ${config}.cntr_frame.h \
-      ${config}.cntr_frame.m_field ${config}.cntr_frame.m ${config}.cntr_frame.s_field ${config}.cntr_frame.s
+    grid ${config}.cntr_frame.h_field ${config}.cntr_frame.h ${config}.cntr_frame.spc1 \
+      ${config}.cntr_frame.m_field ${config}.cntr_frame.m ${config}.cntr_frame.spc2 \
+      ${config}.cntr_frame.s_field ${config}.cntr_frame.s
+    grid columnconfigure ${config}.cntr_frame 2 -weight 1
+    grid columnconfigure ${config}.cntr_frame 5 -weight 1
 
     frame ${config}.spc6 -width 170 -height 10
 
@@ -726,10 +726,6 @@ namespace eval ::mcpha {
   oo::define HstDisplay method base_val_update args {
     my variable controller number base_val
 
-    if {[string equal $base_val {}]} {
-      set base_val 0
-    }
-
     $controller command 7 $number $base_val
   }
 
@@ -746,14 +742,6 @@ namespace eval ::mcpha {
   oo::define HstDisplay method thrs_update args {
     my variable controller config number thrs thrs_min thrs_max
 
-    if {[string equal $thrs_min {}]} {
-      set thrs_min 0
-    }
-
-    if {[string equal $thrs_max {}]} {
-      set thrs_max 0
-    }
-
     if {$thrs} {
       ${config}.thrs_frame.min_field configure -state normal
       set min $thrs_min
@@ -768,24 +756,6 @@ namespace eval ::mcpha {
 
     $controller command 9 $number $min
     $controller command 10 $number $max
-  }
-
-# -------------------------------------------------------------------------
-
-  oo::define HstDisplay method cntr_update args {
-    my variable cntr_h cntr_m cntr_s
-
-    if {[string equal $cntr_h {}]} {
-      set cntr_h 0
-    }
-
-    if {[string equal $cntr_m {}]} {
-      set cntr_m 0
-    }
-
-    if {[string equal $cntr_s {}]} {
-      set cntr_s 0
-    }
   }
 
 # -------------------------------------------------------------------------
@@ -843,12 +813,12 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   oo::define HstDisplay method cntr_val_update args {
-    my variable cntr_val cntr_h cntr_m cntr_s
+    my variable config cntr_val
 
     set cntr_tmp [expr {${cntr_val}/125000}]
-    set cntr_h [expr {${cntr_tmp}/3600000}]
-    set cntr_m [expr {${cntr_tmp}%3600000/60000}]
-    set cntr_s [expr {${cntr_tmp}%3600000%60000/1000.0}]
+    ${config}.cntr_frame.h_field set [expr {${cntr_tmp}/3600000}]
+    ${config}.cntr_frame.m_field set [expr {${cntr_tmp}%3600000/60000}]
+    ${config}.cntr_frame.s_field set [format {%.3f} [expr {${cntr_tmp}%3600000%60000/1000.0}]]
   }
 
 # -------------------------------------------------------------------------
@@ -915,15 +885,6 @@ namespace eval ::mcpha {
     set m $cntr_m
     set s $cntr_s
 
-    if {[string equal $h {}]} {
-      set h 0
-    }
-    if {[string equal $m {}]} {
-      set m 0
-    }
-    if {[string equal $s {}]} {
-      set s 0
-    }
     if {[string equal $date_val(start) {}]} {
       set date_val(start) [clock format [clock seconds] -format {%d/%m/%Y %H:%M:%S}]
     }
@@ -1261,9 +1222,8 @@ namespace eval ::mcpha {
     grid ${config}.trig_frame.slope_1 -row 5 -column 1 -sticky w
 
     label ${config}.level_label -text {trigger level}
-    spinbox ${config}.level_field -from -16380 -to 16380 \
-      -increment 5 -width 10 -textvariable [my varname level] \
-      -validate all -vcmd {::mcpha::validate -16380 16380 6 %P}
+    spinbox ${config}.level_field -from -16380 -to 16380 -increment 5 -width 10 \
+      -validate all -vcmd [list ::mcpha::validate -16380 16380 6 %P %V %W [my varname level]]
 
     frame ${config}.spc3 -width 170 -height 20
 
@@ -1275,9 +1235,8 @@ namespace eval ::mcpha {
     frame ${config}.spc4 -width 170 -height 20
 
     label ${config}.recs -text {number of records}
-    spinbox ${config}.recs_field -from 0 -to 10000 \
-      -increment 10 -width 10 -textvariable [my varname recs_val] \
-      -validate all -vcmd {::mcpha::validate 0 10000 5 %P}
+    spinbox ${config}.recs_field -from 0 -to 10000 -increment 10 -width 10 \
+      -validate all -vcmd [list ::mcpha::validate 0 10000 5 %P %V %W [my varname recs_val]]
 
     frame ${config}.spc5 -width 170 -height 10
 
@@ -1376,10 +1335,6 @@ namespace eval ::mcpha {
   oo::define OscDisplay method recs_val_update args {
     my variable recs_val recs_bak
 
-    if {[string equal $recs_val {}]} {
-      set recs_val 0
-    }
-
     set recs_bak $recs_val
   }
 
@@ -1427,10 +1382,6 @@ namespace eval ::mcpha {
 
   oo::define OscDisplay method level_update args {
     my variable controller level
-
-    if {[string equal $level {}]} {
-      set level 0
-    }
 
     $controller command 18 0 $level
   }
@@ -1760,9 +1711,8 @@ namespace eval ::mcpha {
     frame ${config}.spc2 -width 170 -height 10
 
     label ${config}.rate_label -text {rate, kcps}
-    spinbox ${config}.rate_field -from 1 -to 100 \
-      -increment 1 -width 10 -textvariable [my varname rate] \
-      -validate all -vcmd {::mcpha::validate 1 100 3 %P}
+    spinbox ${config}.rate_field -from 1 -to 100 -increment 1 -width 10 \
+      -validate all -vcmd [list ::mcpha::validate 1 100 3 %P %V %W [my varname rate]]
 
     frame ${config}.spc3 -width 170 -height 10
 
@@ -1778,16 +1728,14 @@ namespace eval ::mcpha {
     frame ${config}.spc4 -width 170 -height 10
 
     label ${config}.rise_label -text {rise time, ns}
-    spinbox ${config}.rise_field -from 0 -to 100 \
-      -increment 10 -width 10 -textvariable [my varname rise] \
-      -validate all -vcmd {::mcpha::validate 0 100 3 %P}
+    spinbox ${config}.rise_field -from 0 -to 100 -increment 10 -width 10 \
+      -validate all -vcmd [list ::mcpha::validate 0 100 3 %P %V %W [my varname rise]]
 
     frame ${config}.spc5 -width 170 -height 10
 
     label ${config}.fall_label -text {fall time, us}
-    spinbox ${config}.fall_field -from 0 -to 100 \
-      -increment 10 -width 10 -textvariable [my varname fall] \
-      -validate all -vcmd {::mcpha::validate 0 100 3 %P}
+    spinbox ${config}.fall_field -from 0 -to 100 -increment 10 -width 10 \
+      -validate all -vcmd [list ::mcpha::validate 0 100 3 %P %V %W [my varname fall]]
 
     frame ${config}.spc6 -width 170 -height 10
 
@@ -1900,10 +1848,6 @@ namespace eval ::mcpha {
   oo::define GenDisplay method fall_update args {
     my variable controller fall
 
-    if {[string equal $fall {}]} {
-      set fall 0
-    }
-
     if {$fall == 0} {
       set data 0
     } else {
@@ -1920,10 +1864,6 @@ namespace eval ::mcpha {
   oo::define GenDisplay method rise_update args {
     my variable controller rise
 
-    if {[string equal $rise {}]} {
-      set rise 0
-    }
-
     if {$rise < 10} {
       set data 0
     } else {
@@ -1939,12 +1879,6 @@ namespace eval ::mcpha {
 
   oo::define GenDisplay method rate_update args {
     my variable controller rate
-
-    if {[string equal $rate {}]} {
-      set rate 1
-    } elseif {$rate < 1} {
-      set rate 1
-    }
 
     $controller command 29 0 [expr $rate * 1000]
   }
