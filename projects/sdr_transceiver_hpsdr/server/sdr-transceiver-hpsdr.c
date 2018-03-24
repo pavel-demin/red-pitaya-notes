@@ -582,7 +582,7 @@ int main(int argc, char *argv[])
     *dac_size = size;
 
     /* set default dac level */
-    *dac_level = 32766;
+    *dac_level = 1600;
   }
   else
   {
@@ -1110,7 +1110,7 @@ void process_ep2(uint8_t *frame)
       if(i2c_codec)
       {
         data = dac_level_data;
-        *dac_level = (int16_t)floor(data * 128.494 + 0.5);
+        *dac_level = data * 16;
       }
       break;
     case 32:
