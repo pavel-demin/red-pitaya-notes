@@ -1832,8 +1832,8 @@ namespace eval ::mcpha {
     if {$rise < 10 || $fall == 0} {
       set data 65535
     } else {
-      set r [expr int(exp(-log(2.0) / 125.0 / $rise * 1.0e3) * 65535.0 + 0.5)]
-      set f [expr int(exp(-log(2.0) / 125.0 / $fall) * 65535.0 + 0.5)]
+      set r [expr int(exp(-log(2.0) / 125.0 / $rise * 1.0e3) * 65536.0 + 0.5)]
+      set f [expr int(exp(-log(2.0) / 125.0 / $fall) * 65536.0 + 0.5)]
       set a [expr -log($r / 65536.0)]
       set b [expr -log($f / 65536.0)]
       set t [expr log($b / $a) / ($b - $a)]

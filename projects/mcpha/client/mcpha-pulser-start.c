@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   char *end;
   long value;
   char string[128];
-  int32_t scale, fall, rise, rate, dist;
+  int32_t scale, fall, rise, rate, dist, data;
   uint32_t hist[4096];
   float r, f, a, b, t;
   uint64_t command[4102];
@@ -170,16 +170,18 @@ int main(int argc, char *argv[])
   }
   else
   {
-    r = floor(expf(-logf(2.0) / 125.0 / rise * 1.0e3) * 65535.0 + 0.5);
-    f = floor(expf(-logf(2.0) / 125.0 / fall) * 65535.0 + 0.5);
+    r = floor(expf(-logf(2.0) / 125.0 / rise * 1.0e3) * 65536.0 + 0.5);
+    f = floor(expf(-logf(2.0) / 125.0 / fall) * 65536.0 + 0.5);
     a = -logf(r / 65536.0);
     b = -logf(f / 65536.0);
     t = logf(b / a) / (b - a);
     scale = (int32_t)floor((b - a) / (expf(-a * t) - expf(-b * t)) * 65535.0 + 0.5);
   }
   command[0] = (24ULL << 56) + scale;
-  command[1] = (25ULL << 56) + (int32_t)floor(expf(-logf(2.0) / 125.0 / fall) * 65536.0 + 0.5);
-  command[2] = (26ULL << 56) + (int32_t)floor(expf(-logf(2.0) / 125.0 / rise * 1.0e3) * 65536.0 + 0.5);
+  data = fall == 0 ? 0 : (int32_t)floor(expf(-logf(2.0) / 125.0 / fall) * 65536.0 + 0.5);
+  command[1] = (25ULL << 56) + data;
+  data = rise < 10 ? 0 : (int32_t)floor(expf(-logf(2.0) / 125.0 / rise * 1.0e3) * 65536.0 + 0.5);
+  command[2] = (26ULL << 56) + data;
   command[3] = (29ULL << 56) + rate;
   command[4] = (30ULL << 56) + dist;
 
