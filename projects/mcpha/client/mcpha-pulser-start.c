@@ -43,7 +43,7 @@ void usage()
   fprintf(stderr, " rate - pulse rate expressed in counts per second (from 1 to 100000),\n");
   fprintf(stderr, " dist - pulse distribution (0 for uniform, 1 for poisson),\n");
   fprintf(stderr, " rise - pulse rise time expressed in nanoseconds (from 0 to 100),\n");
-  fprintf(stderr, " fall - pulse fall time expressed in microseconds,\n");
+  fprintf(stderr, " fall - pulse fall time expressed in microseconds (from 0 to 100),\n");
   fprintf(stderr, " file - text file containing the spectrum.\n");
 }
 
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
   dist = value;
 
   value = strtol(argv[4], &end, 10);
-  if(errno != 0 || end == argv[4] || value < 0 || value > 50)
+  if(errno != 0 || end == argv[4] || value < 0 || value > 100)
   {
     usage();
     return EXIT_FAILURE;
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   rise = value;
 
   value = strtol(argv[5], &end, 10);
-  if(errno != 0 || end == argv[5] || value < 0 || value > 50)
+  if(errno != 0 || end == argv[5] || value < 0 || value > 100)
   {
     usage();
     return EXIT_FAILURE;
