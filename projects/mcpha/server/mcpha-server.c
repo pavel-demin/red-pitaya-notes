@@ -27,18 +27,16 @@ int active_thread = 0;
 
 void *pulser_handler(void *arg);
 
-int lower_bound(int64_t *hist, int size, int value)
+inline int lower_bound(int64_t *array, int size, int value)
 {
-  int mid, lo = 0, hi = size;
-  while(lo < hi)
+  int i = 0, j = size, k;
+  while(i < j)
   {
-    mid = lo + (hi - lo) / 2;
-    if(hist[mid] < value)
-      lo = mid + 1;
-    else
-      hi = mid;
+    k = i + (j - i) / 2;
+    if(value > array[k]) i = k + 1;
+    else j = k;
   }
-  return lo;
+  return i;
 }
 
 int main(int argc, char *argv[])
@@ -59,6 +57,7 @@ int main(int argc, char *argv[])
   uint8_t code, chan;
   uint32_t spectrum[4096];
   int64_t value, total;
+  int keep_pulsing = 0;
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
@@ -506,6 +505,7 @@ int main(int argc, char *argv[])
       }
       else if(code == 33)
       {
+        keep_pulsing = data;
         /* start pulser */
         total = 0;
         for(i = 0; i < 4095; ++i)
@@ -543,6 +543,8 @@ int main(int argc, char *argv[])
     }
 
     close(sock_client);
+
+    if(keep_pulsing) continue;
 
     /* stop pulser */
     enable_thread = 0;
