@@ -50,7 +50,7 @@ void usage()
 int main(int argc, char *argv[])
 {
   FILE *fp;
-  SOCKET sock_server;
+  SOCKET sock;
   struct sockaddr_in addr;
   fd_set writefds;
   struct timeval timeout;
@@ -124,8 +124,8 @@ int main(int argc, char *argv[])
   WSAStartup(MAKEWORD(2, 2), &wsaData);
   #endif
 
-  sock_server = socket(AF_INET, SOCK_STREAM, 0);
-  if(sock_server == INVSOC)
+  sock = socket(AF_INET, SOCK_STREAM, 0);
+  if(sock == INVSOC)
   {
     fprintf(stderr, "** ERROR: could not create TCP socket\n");
     return EXIT_FAILURE;
@@ -133,10 +133,10 @@ int main(int argc, char *argv[])
 
   #if defined(_WIN32)
   u_long mode = 1;
-  ioctlsocket(sock_server, FIONBIO, &mode);
+  ioctlsocket(sock, FIONBIO, &mode);
   #else
-  int flags = fcntl(sock_server, F_GETFL, 0);
-  fcntl(sock_server, F_SETFL, flags | O_NONBLOCK);
+  int flags = fcntl(sock, F_GETFL, 0);
+  fcntl(sock, F_SETFL, flags | O_NONBLOCK);
   #endif
 
   memset(&addr, 0, sizeof(addr));
@@ -144,18 +144,18 @@ int main(int argc, char *argv[])
   addr.sin_addr.s_addr = inet_addr(argv[1]);
   addr.sin_port = htons(1001);
 
-  connect(sock_server, (struct sockaddr *)&addr, sizeof(addr));
+  connect(sock, (struct sockaddr *)&addr, sizeof(addr));
 
   timeout.tv_sec = 5;
   timeout.tv_usec = 0;
 
   FD_ZERO(&writefds);
-  FD_SET(sock_server, &writefds);
+  FD_SET(sock, &writefds);
 
   #if defined(_WIN32)
   result = select(0, 0, &writefds, 0, &timeout);
   #else
-  result = select(sock_server + 1, 0, &writefds, 0, &timeout);
+  result = select(sock + 1, 0, &writefds, 0, &timeout);
   #endif
 
   if(result <= 0)
@@ -170,8 +170,8 @@ int main(int argc, char *argv[])
   }
   else
   {
-    r = floor(exp(-log(2.0) / 125.0 / rise * 1.0e3) * 65535.0 + 0.5);
-    f = floor(exp(-log(2.0) / 125.0 / fall) * 65535.0 + 0.5);
+    r = floor(expf(-logf(2.0) / 125.0 / rise * 1.0e3) * 65535.0 + 0.5);
+    f = floor(expf(-logf(2.0) / 125.0 / fall) * 65535.0 + 0.5);
     a = -logf(r / 65536.0);
     b = -logf(f / 65536.0);
     t = logf(b / a) / (b - a);
@@ -193,17 +193,17 @@ int main(int argc, char *argv[])
   #if defined(_WIN32)
   int total = sizeof(command);
   int size;
-  size = send(sock_server, (char *)command, total, 0);
+  size = send(sock, (char *)command, total, 0);
   #else
   ssize_t total = sizeof(command);
   ssize_t size;
-  size = send(sock_server, command, total, MSG_NOSIGNAL);
+  size = send(sock, command, total, MSG_NOSIGNAL);
   #endif
 
   #if defined(_WIN32)
-  closesocket(sock_server);
+  closesocket(sock);
   #else
-  close(sock_server);
+  close(sock);
   #endif
 
   if(size < total)
