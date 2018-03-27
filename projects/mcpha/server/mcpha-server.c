@@ -506,6 +506,12 @@ int main(int argc, char *argv[])
       else if(code == 33)
       {
         keep_pulsing = data;
+        /* stop pulser */
+        enable_thread = 0;
+        while(active_thread) usleep(1000);
+        /* reset generator */
+        *rst[3] &= ~128;
+        *rst[3] |= 128;
         /* start pulser */
         total = 0;
         for(i = 0; i < 4095; ++i)
