@@ -51,8 +51,8 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
   aclk /pll_0/clk_out1
 }
 
-# Create axis_pulse_generator
-cell pavel-demin:user:axis_pulse_generator:1.0 gen_0 {} {
+# Create axis_gate_controller
+cell pavel-demin:user:axis_gate_controller:1.0 gate_0 {} {
   S_AXIS fifo_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn slice_1/Dout
@@ -66,8 +66,8 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN2_WIDTH 1
 } {
   In0 slice_2/Dout
-  In1 gen_0/poff
-  In2 gen_0/sync
+  In1 gate_0/poff
+  In2 gate_0/sync
 }
 
 cell xilinx.com:ip:c_shift_ram:12.0 delay_0 {
@@ -75,7 +75,7 @@ cell xilinx.com:ip:c_shift_ram:12.0 delay_0 {
   WIDTH 1
   DEPTH 11
 } {
-  D gen_0/dout
+  D gate_0/dout
   CLK /pll_0/clk_out1
 }
 
@@ -84,7 +84,7 @@ cell xilinx.com:ip:util_vector_logic:2.0 or_0 {
   C_SIZE 1
   C_OPERATION or
 } {
-  Op1 gen_0/dout
+  Op1 gate_0/dout
   Op2 delay_0/Q
 }
 
@@ -137,7 +137,7 @@ cell xilinx.com:ip:c_shift_ram:12.0 delay_1 {
   WIDTH 1
   DEPTH 15
 } {
-  D gen_0/dout
+  D gate_0/dout
   CLK /pll_0/clk_out1
 }
 

@@ -3,7 +3,7 @@ CFLAGS = -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-
 all: mcpha-server pha-server
 
 mcpha-server: mcpha-server.c
-	gcc $(CFLAGS) -o $@ $^
+	gcc $(CFLAGS) -o $@ $^ -lm -lpthread
 
 pha-server: pha-server.c
 	gcc $(CFLAGS) -o $@ $^ -lpthread

@@ -3,100 +3,57 @@
 
 module axis_pulse_generator
 (
-  input  wire         aclk,
-  input  wire         aresetn,
+  input  wire        aclk,
+  input  wire        aresetn,
 
   // Slave side
-  output wire         s_axis_tready,
-  input  wire [127:0] s_axis_tdata,
-  input  wire         s_axis_tvalid,
+  output wire        s_axis_tready,
+  input  wire [63:0] s_axis_tdata,
+  input  wire        s_axis_tvalid,
 
-  output wire [31:0]  poff,
-  output wire         sync,
-  output wire         dout
+  // Master side
+  input  wire        m_axis_tready,
+  output wire [15:0] m_axis_tdata,
+  output wire        m_axis_tvalid
 );
 
-  reg int_tready_reg, int_tready_next;
-  reg int_sync_reg, int_sync_next;
-  reg int_dout_reg, int_dout_next;
-  reg int_enbl_reg, int_enbl_next;
   reg [31:0] int_cntr_reg, int_cntr_next;
-  reg [127:0] int_data_reg, int_data_next;
+
+  wire int_enbl_wire, int_tready_wire, int_tvalid_wire;
+
+  assign int_enbl_wire = |int_cntr_reg;
+  assign int_tready_wire = ~int_enbl_wire;
+  assign int_tvalid_wire = int_tready_wire & s_axis_tvalid;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
-      int_tready_reg <= 1'b0;
-      int_sync_reg <= 1'b0;
-      int_dout_reg <= 1'b0;
-      int_enbl_reg <= 1'b0;
       int_cntr_reg <= 32'd0;
-      int_data_reg <= 128'd0;
     end
     else
     begin
-      int_tready_reg <= int_tready_next;
-      int_sync_reg <= int_sync_next;
-      int_dout_reg <= int_dout_next;
-      int_enbl_reg <= int_enbl_next;
       int_cntr_reg <= int_cntr_next;
-      int_data_reg <= int_data_next;
     end
   end
 
   always @*
   begin
-    int_tready_next = int_tready_reg;
-    int_sync_next = int_sync_reg;
-    int_dout_next = int_dout_reg;
-    int_enbl_next = int_enbl_reg;
     int_cntr_next = int_cntr_reg;
-    int_data_next = int_data_reg;
 
-    if(~int_enbl_reg & s_axis_tvalid)
+    if(int_tvalid_wire)
     begin
-      int_tready_next = 1'b1;
-      int_enbl_next = 1'b1;
-      int_cntr_next = 32'd0;
-      int_data_next = s_axis_tdata;
+      int_cntr_next = s_axis_tdata[63:32];
     end
 
-    if(int_enbl_reg)
+    if(int_enbl_wire)
     begin
-      int_cntr_next = int_cntr_reg + 1'b1;
-
-      if(int_cntr_reg == int_data_reg[31:0])
-      begin
-        int_sync_next = 1'b1;
-        int_dout_next = 1'b1;
-      end
-
-      if(int_cntr_reg == int_data_reg[63:32])
-      begin
-        int_dout_next = 1'b0;
-      end
-
-      if(int_cntr_reg == int_data_reg[95:64])
-      begin
-        int_enbl_next = 1'b0;
-      end
-
-      if(int_tready_reg)
-      begin
-        int_tready_next = 1'b0;
-      end
-
-      if(int_sync_reg)
-      begin
-        int_sync_next = 1'b0;
-      end
+      int_cntr_next = int_cntr_reg - 1'b1;
     end
   end
 
-  assign s_axis_tready = int_tready_reg;
-  assign poff = int_data_reg[127:96];
-  assign sync = int_sync_reg;
-  assign dout = int_dout_reg;
+  assign s_axis_tready = int_tready_wire;
+  assign m_axis_tdata = s_axis_tdata[15:0];
+  assign m_axis_tvalid = int_tvalid_wire;
 
 endmodule

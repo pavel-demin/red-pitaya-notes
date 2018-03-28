@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
   volatile uint16_t *cntr;
   long number;
   uint32_t buffer;
+  float corr;
 
   errno = 0;
   number = (argc == 2) ? strtol(argv[1], &end, 10) : -1;
@@ -57,7 +58,15 @@ int main(int argc, char *argv[])
     buffer += *fifo + 1;
   }
 
-  printf("%.2f\n", (125.0e6 * number / buffer - 1.0) * 1.0e6);
+  corr = (125.0e6 * number / buffer - 1.0) * 1.0e6;
+
+  if(corr < -100.0 || corr > 100.0)
+  {
+    fprintf(stderr, "Correction value is out of range.\n");
+    return EXIT_FAILURE;
+  }
+
+  printf("%.2f\n", corr);
 
   return EXIT_SUCCESS;
 }

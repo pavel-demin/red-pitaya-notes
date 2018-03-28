@@ -34,9 +34,7 @@ module axi_axis_writer #
   output wire                      m_axis_tvalid
 );
 
-  reg int_ready_reg, int_ready_next;
   reg int_valid_reg, int_valid_next;
-  reg [AXI_DATA_WIDTH-1:0] int_tdata_reg, int_tdata_next;
 
   always @(posedge aclk)
   begin

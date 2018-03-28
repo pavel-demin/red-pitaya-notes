@@ -42,7 +42,7 @@
 #define ADDR_DAC1 0x61 /* MCP4725 address 1 */
 #define ADDR_ARDUINO 0x40 /* G8NJJ Arduino sketch */
 
-volatile uint32_t *rx_freq[2], *tx_freq, *alex, *tx_mux, *dac_freq, *dac_mux;
+volatile uint32_t *rx_freq[2], *tx_freq, *alex, *tx_mux, *dac_freq;
 volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr, *dac_cntr, *adc_cntr;
 volatile int16_t *tx_level, *dac_level;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *lo_rst;
@@ -99,7 +99,6 @@ uint8_t log_table_lookup[256]; /* lookup table from linear scale to
 
 uint8_t i2c_boost_data = 0;
 
-uint8_t dac_mux_data = 0;
 uint8_t dac_level_data = 0;
 
 uint8_t cw_int_data = 0;
@@ -266,7 +265,7 @@ inline int lower_bound(int *array, int size, int value)
   int i = 0, j = size, k;
   while(i < j)
   {
-    k = (i + j) / 2;
+    k = i + (j - i) / 2;
     if(value > array[k]) i = k + 1;
     else j = k;
   }
@@ -480,10 +479,9 @@ int main(int argc, char *argv[])
   alex = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   tx_mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
   tx_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
-  dac_mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40005000);
-  dac_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
-  dac_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
-  adc_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  dac_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40005000);
+  dac_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
+  adc_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
   tx_data = mmap(NULL, 4*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000c000);
   rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   xadc = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
@@ -584,11 +582,7 @@ int main(int argc, char *argv[])
     *dac_size = size;
 
     /* set default dac level */
-    *dac_level = 32766;
-
-    /* set default dac mux channel */
-    dac_mux[16] = 0;
-    dac_mux[0] = 2;
+    *dac_level = 3200;
   }
   else
   {
@@ -693,13 +687,10 @@ int main(int argc, char *argv[])
           }
           if(i2c_codec)
           {
-            if(!dac_mux_data)
-            {
-              while(*dac_cntr > 898) usleep(1000);
-              if(*dac_cntr == 0) for(j = 0; j < 504; ++j) *dac_data = 0;
-              for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 16 + j);
-              for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 528 + j);
-            }
+            while(*dac_cntr > 898) usleep(1000);
+            if(*dac_cntr == 0) for(j = 0; j < 504; ++j) *dac_data = 0;
+            for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 16 + j);
+            for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 528 + j);
           }
           process_ep2(buffer[i] + 11);
           process_ep2(buffer[i] + 523);
@@ -1119,7 +1110,7 @@ void process_ep2(uint8_t *frame)
       if(i2c_codec)
       {
         data = dac_level_data;
-        *dac_level = (int16_t)floor(data * 128.494 + 0.5);
+        *dac_level = data * 64;
       }
       break;
     case 32:
@@ -1330,9 +1321,6 @@ inline void cw_on()
   tx_mux_data = 1;
   if(i2c_codec && dac_level_data > 0)
   {
-    dac_mux[16] = 1;
-    dac_mux[0] = 2;
-    dac_mux_data = 1;
     *tx_rst |= 8; /* sidetone on */
   }
   while(delay--)
@@ -1349,7 +1337,7 @@ inline void cw_off()
 {
   int delay = 1200 / cw_speed;
   if(cw_delay < delay) delay = cw_delay;
-  if(i2c_codec && dac_mux_data)
+  if(i2c_codec)
   {
     *tx_rst &= ~8; /* sidetone off */
   }
@@ -1375,15 +1363,6 @@ inline void cw_ptt_off()
   tx_mux[16] = 0;
   tx_mux[0] = 2;
   tx_mux_data = 0;
-  if(i2c_codec && dac_mux_data)
-  {
-    /* reset codec DAC fifo */
-    *tx_rst |= 2;
-    *tx_rst &= ~2;
-    dac_mux[16] = 0;
-    dac_mux[0] = 2;
-    dac_mux_data = 0;
-  }
 }
 
 inline void cw_signal_delay(int code)
@@ -1407,7 +1386,7 @@ inline void cw_space_delay(int code)
   while(delay--)
   {
     usleep(1000);
-    if(tx_mux_data) cw_ptt_off();
+    if(cw_ptt) cw_ptt_off();
     cw_memory[0] = cw_input();
     cw_memory[1] |= cw_memory[0];
   }
@@ -1420,7 +1399,7 @@ void *handler_keyer(void *arg)
   while(1)
   {
     usleep(1000);
-    if(tx_mux_data) cw_ptt_off();
+    if(cw_ptt) cw_ptt_off();
     if(!(cw_memory[0] = cw_input())) continue;
 
     if(cw_mode == 0)

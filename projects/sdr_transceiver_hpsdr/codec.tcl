@@ -55,13 +55,14 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
   aclk /pll_0/clk_out1
 }
 
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
+# Create axis_broadcaster
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 4
-  TDATA_REMAP {tdata[7:0],tdata[15:8],tdata[23:16],tdata[31:24]}
+  M_TDATA_NUM_BYTES 2
+  M00_TDATA_REMAP {tdata[23:16],tdata[31:24]}
+  M01_TDATA_REMAP {tdata[7:0],tdata[15:8]}
 } {
   S_AXIS fifo_0/M_AXIS
   aclk /pll_0/clk_out1
@@ -103,7 +104,7 @@ cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
+cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
@@ -157,14 +158,14 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
   ROUNDMODE Random_Rounding
   OUTPUTWIDTH 18
 } {
-  S_AXIS_A subset_1/M_AXIS
+  S_AXIS_A subset_0/M_AXIS
   S_AXIS_B dds_0/M_AXIS_DATA
   S_AXIS_CTRL lfsr_0/M_AXIS
   aclk /pll_0/clk_out1
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
+cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 3
@@ -202,35 +203,54 @@ cell xilinx.com:ip:cmpy:6.0 mult_1 {
   ROUNDMODE Random_Rounding
   OUTPUTWIDTH 18
 } {
-  S_AXIS_A subset_2/M_AXIS
+  S_AXIS_A subset_1/M_AXIS
   S_AXIS_B const_0/M_AXIS
   S_AXIS_CTRL lfsr_1/M_AXIS
   aclk /pll_0/clk_out1
 }
 
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_3 {
+# Create axis_broadcaster
+cell xilinx.com:ip:axis_broadcaster:1.1 bcast_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 3
-  M_TDATA_NUM_BYTES 4
-  TDATA_REMAP {tdata[15:0],tdata[15:0]}
+  M_TDATA_NUM_BYTES 2
+  M00_TDATA_REMAP {tdata[15:0]}
+  M01_TDATA_REMAP {tdata[15:0]}
 } {
   S_AXIS mult_1/M_AXIS_DOUT
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_switch
-cell xilinx.com:ip:axis_switch:1.1 switch_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
-  ROUTING_MODE 1
-  NUM_SI 2
-  NUM_MI 1
+# Create axis_lfsr
+cell pavel-demin:user:axis_adder:1.0 adder_0 {
+  AXIS_TDATA_WIDTH 16
+  AXIS_TDATA_SIGNED TRUE
 } {
-  S00_AXIS subset_0/M_AXIS
-  S01_AXIS subset_3/M_AXIS
+  S_AXIS_A bcast_0/M00_AXIS
+  S_AXIS_B bcast_1/M00_AXIS
+  aclk /pll_0/clk_out1
+}
+
+# Create axis_lfsr
+cell pavel-demin:user:axis_adder:1.0 adder_1 {
+  AXIS_TDATA_WIDTH 16
+  AXIS_TDATA_SIGNED TRUE
+} {
+  S_AXIS_A bcast_0/M01_AXIS
+  S_AXIS_B bcast_1/M01_AXIS
+  aclk /pll_0/clk_out1
+}
+
+# Create axis_combiner
+cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 2
+  NUM_SI 2
+} {
+  S00_AXIS adder_0/M_AXIS
+  S01_AXIS adder_1/M_AXIS
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
@@ -240,7 +260,7 @@ cell pavel-demin:user:axis_i2s:1.0 i2s_0 {
   AXIS_TDATA_WIDTH 32
 } {
   alex_flag slice_1/Dout
-  S_AXIS switch_0/M00_AXIS
+  S_AXIS comb_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
@@ -260,7 +280,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_1 {
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_4 {
+cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
@@ -277,7 +297,7 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
   S_AXIS_TDATA_WIDTH 32
   M_AXIS_TDATA_WIDTH 32
 } {
-  S_AXIS subset_4/M_AXIS
+  S_AXIS subset_2/M_AXIS
   FIFO_READ fifo_generator_1/FIFO_READ
   FIFO_WRITE fifo_generator_1/FIFO_WRITE
   aclk /pll_0/clk_out1
