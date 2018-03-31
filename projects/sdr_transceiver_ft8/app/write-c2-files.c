@@ -16,11 +16,11 @@ int main(int argc, char *argv[])
   time_t t;
   struct tm *gmt;
   volatile void *cfg, *sts;
-  volatile uint32_t *fifo[8];
+  volatile uint64_t *fifo[8];
   volatile uint8_t *rst;
   volatile uint16_t *cntr;
   volatile uint32_t *mux;
-  uint32_t garbage, *buffer;
+  uint64_t *buffer;
   config_t config;
   config_setting_t *setting, *element;
   char date[14];
@@ -144,8 +144,8 @@ int main(int argc, char *argv[])
   *rst &= ~1;
 
   offset = 0;
-  buffer = malloc(180000 * 8 * 4);
-  memset(buffer, 0, 180000 * 8 * 4);
+  buffer = malloc(180000 * 8 * 8);
+  memset(buffer, 0, 180000 * 8 * 8);
 
   while(offset < 180000)
   {
@@ -156,7 +156,6 @@ int main(int argc, char *argv[])
       for(j = 0; j < 8; ++j)
       {
         buffer[j * 180000 + offset + i] = *fifo[j];
-        garbage = *fifo[j];
       }
     }
 
@@ -165,7 +164,7 @@ int main(int argc, char *argv[])
 
   for(i = 0; i < 8; ++i)
   {
-    dialfreq = freq[i] - 0.0015;
+    dialfreq = freq[i];
     strftime(date, 14, "%y%m%d_%H%M%S", gmt);
     sprintf(name, "ft8_%d_%d_%s.c2", i, (uint32_t)(dialfreq * 1.0e6), date);
     if((fp = fopen(name, "wb")) == NULL)
@@ -173,7 +172,7 @@ int main(int argc, char *argv[])
       perror("fopen");
       return EXIT_FAILURE;
     }
-    fwrite(&buffer[i * 180000], 1, 180000 * 4, fp);
+    fwrite(&buffer[i * 180000], 1, 180000 * 8, fp);
     fclose(fp);
   }
 
