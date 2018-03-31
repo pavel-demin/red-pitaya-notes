@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
   volatile uint8_t *rst;
   volatile uint16_t *cntr;
   volatile uint32_t *mux;
-  uint32_t garbage, buffer[8][180000];
+  uint32_t garbage, *buffer;
   config_t config;
   config_setting_t *setting, *element;
   char date[14];
@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
   *rst &= ~1;
 
   offset = 0;
+  buffer = malloc(180000 * 8 * 4);
   memset(buffer, 0, 180000 * 8 * 4);
 
   while(offset < 180000)
@@ -154,7 +155,7 @@ int main(int argc, char *argv[])
     {
       for(j = 0; j < 8; ++j)
       {
-        buffer[j][offset + i] = *fifo[j];
+        buffer[j * 180000 + offset + i] = *fifo[j];
         garbage = *fifo[j];
       }
     }
@@ -172,7 +173,7 @@ int main(int argc, char *argv[])
       perror("fopen");
       return EXIT_FAILURE;
     }
-    fwrite(buffer[i], 1, 720000, fp);
+    fwrite(&buffer[i * 180000], 1, 180000 * 4, fp);
     fclose(fp);
   }
 
