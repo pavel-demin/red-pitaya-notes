@@ -15,6 +15,7 @@ layout: default
 1. [Embedded SDR transceiver]({{ "/sdr-transceiver-emb/" | prepend: site.baseurl }})
 1. [Wideband SDR transceiver]({{ "/sdr-transceiver-wide/" | prepend: site.baseurl }})
 1. [Multiband WSPR transceiver]({{ "/sdr-transceiver-wspr/" | prepend: site.baseurl }})
+1. [Multiband FT8 transceiver]({{ "/sdr-transceiver-ft8/" | prepend: site.baseurl }})
 1. [Pulsed Nuclear Magnetic Resonance]({{ "/pulsed-nmr/" | prepend: site.baseurl }})
 1. [Multichannel Pulse Height Analyzer]({{ "/mcpha/" | prepend: site.baseurl }})
 1. [Scanning system]({{ "/scanner/" | prepend: site.baseurl }})
