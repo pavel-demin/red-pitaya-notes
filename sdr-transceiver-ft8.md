@@ -13,12 +13,9 @@ This project implements a standalone multiband FT8 transceiver with all the FT8 
 
  - simultaneously record FT8 signals from eight bands
  - use FPGA for all the conversions needed to produce .c2 files (complex 32-bit floating-point data at 4000 samples per second)
- - use on-board CPU to process the .c2 files with the [FT8 decoder](https://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wsjtx/lib/ft8d/)
- - upload decoded data to [ft8net.org](http://ft8net.org)
+ - use on-board CPU to process the .c2 files with the [FT8 decoder](https://github.com/pavel-demin/ft8d)
 
 With this configuration, it is enough to connect Red Pitaya to an antenna and to a network. After switching Red Pitaya on, it will automatically start operating as a FT8 receiver.
-
-The transmitter part is disabled by default and should be enabled manually.
 
 Hardware
 -----
@@ -89,7 +86,3 @@ Building `sdr_transceiver_ft8.bit`:
 make NAME=sdr_transceiver_ft8 bit
 {% endhighlight %}
 
-Building SD card image zip file:
-{% highlight bash %}
-source helpers/build-all.sh
-{% endhighlight %}
