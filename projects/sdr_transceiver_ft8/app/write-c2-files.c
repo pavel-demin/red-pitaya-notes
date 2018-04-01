@@ -144,10 +144,10 @@ int main(int argc, char *argv[])
   *rst &= ~1;
 
   offset = 0;
-  buffer = malloc(90000 * 8 * 8);
-  memset(buffer, 0, 90000 * 8 * 8);
+  buffer = malloc(60000 * 8 * 8);
+  memset(buffer, 0, 60000 * 8 * 8);
 
-  while(offset < 90000)
+  while(offset < 60000)
   {
     while(*cntr < 500) usleep(10000);
 
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
     {
       for(j = 0; j < 8; ++j)
       {
-        buffer[j * 90000 + offset + i] = *fifo[j];
+        buffer[j * 60000 + offset + i] = *fifo[j];
       }
     }
 
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
     fwrite(&dialfreq, 1, 8, fp);
-    fwrite(&buffer[i * 90000], 1, 90000 * 8, fp);
+    fwrite(&buffer[i * 60000], 1, 60000 * 8, fp);
     fclose(fp);
   }
 
