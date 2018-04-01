@@ -144,10 +144,10 @@ int main(int argc, char *argv[])
   *rst &= ~1;
 
   offset = 0;
-  buffer = malloc(180000 * 8 * 8);
-  memset(buffer, 0, 180000 * 8 * 8);
+  buffer = malloc(90000 * 8 * 8);
+  memset(buffer, 0, 90000 * 8 * 8);
 
-  while(offset < 180000)
+  while(offset < 90000)
   {
     while(*cntr < 500) usleep(10000);
 
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
     {
       for(j = 0; j < 8; ++j)
       {
-        buffer[j * 180000 + offset + i] = *fifo[j];
+        buffer[j * 90000 + offset + i] = *fifo[j];
       }
     }
 
@@ -164,15 +164,16 @@ int main(int argc, char *argv[])
 
   for(i = 0; i < 8; ++i)
   {
-    dialfreq = freq[i];
+    dialfreq = freq[i] * 1.0e6;
     strftime(date, 14, "%y%m%d_%H%M%S", gmt);
-    sprintf(name, "ft8_%d_%d_%s.c2", i, (uint32_t)(dialfreq * 1.0e6), date);
+    sprintf(name, "ft8_%d_%d_%s.c2", i, (uint32_t)dialfreq, date);
     if((fp = fopen(name, "wb")) == NULL)
     {
       perror("fopen");
       return EXIT_FAILURE;
     }
-    fwrite(&buffer[i * 180000], 1, 180000 * 8, fp);
+    fwrite(&dialfreq, 1, 8, fp);
+    fwrite(&buffer[i * 90000], 1, 90000 * 8, fp);
     fclose(fp);
   }
 
