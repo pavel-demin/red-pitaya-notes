@@ -86,3 +86,7 @@ Building `sdr_transceiver_ft8.bit`:
 make NAME=sdr_transceiver_ft8 bit
 {% endhighlight %}
 
+Building SD card image zip file:
+{% highlight bash %}
+sudo sh scripts/alpine-ft8.sh
+{% endhighlight %}
