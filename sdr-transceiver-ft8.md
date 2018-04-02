@@ -31,7 +31,7 @@ The [projects/sdr_transceiver_ft8](https://github.com/pavel-demin/red-pitaya-not
 Software
 -----
 
-The [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_ft8/app/write-c2-files.c) program accumulates 60000 samples at 4000 samples per second for each of the eight bands and saves the samples to eight .c2 files.
+The [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_ft8/app/write-c2-files.c) program accumulates 236000 samples at 4000 samples per second for each of the eight bands and saves the samples to eight .c2 files.
 
 The recorded .c2 files are processed with the [FT8 decoder](https://github.com/pavel-demin/ft8d).
 
