@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
           pthread_detach(thread);
           for(i = 0; i < size; ++i)
           {
-            freq = start + (stop - start) * i / (size - 1);
+            freq = i > 0 ? start + (stop - start) * i / (size - 1) : start;
             freq *= (1.0 + 1.0e-9 * corr);
             *rx_freq = (uint32_t)floor(freq / 125.0e6 * (1<<30) + 0.5);
           }
