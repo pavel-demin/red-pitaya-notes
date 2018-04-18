@@ -32,19 +32,19 @@ HSI = hsi -nolog -nojournal -mode batch
 RM = rm -rf
 
 UBOOT_TAG = xilinx-v2016.4
-LINUX_TAG = xilinx-v2016.4
+LINUX_TAG = 4.14
 DTREE_TAG = xilinx-v2016.4
 
 UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
-LINUX_DIR = tmp/linux-xlnx-$(LINUX_TAG)
+LINUX_DIR = tmp/linux-$(LINUX_TAG)
 DTREE_DIR = tmp/device-tree-xlnx-$(DTREE_TAG)
 
 UBOOT_TAR = tmp/u-boot-xlnx-$(UBOOT_TAG).tar.gz
-LINUX_TAR = tmp/linux-xlnx-$(LINUX_TAG).tar.gz
+LINUX_TAR = tmp/linux-$(LINUX_TAG).tar.xz
 DTREE_TAR = tmp/device-tree-xlnx-$(DTREE_TAG).tar.gz
 
 UBOOT_URL = https://github.com/Xilinx/u-boot-xlnx/archive/$(UBOOT_TAG).tar.gz
-LINUX_URL = https://github.com/Xilinx/linux-xlnx/archive/$(LINUX_TAG).tar.gz
+LINUX_URL = https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-$(LINUX_TAG).34.tar.xz
 DTREE_URL = https://github.com/Xilinx/device-tree-xlnx/archive/$(DTREE_TAG).tar.gz
 
 LINUX_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
@@ -96,13 +96,13 @@ $(UBOOT_DIR): $(UBOOT_TAR)
 
 $(LINUX_DIR): $(LINUX_TAR) $(RTL8188_TAR) $(RTL8192_TAR)
 	mkdir -p $@
-	tar -zxf $< --strip-components=1 --directory=$@
+	tar -Jxf $< --strip-components=1 --directory=$@
 	mkdir -p $@/drivers/net/wireless/realtek/rtl8188eu
 	mkdir -p $@/drivers/net/wireless/realtek/rtl8192cu
 	tar -zxf $(RTL8188_TAR) --strip-components=1 --directory=$@/drivers/net/wireless/realtek/rtl8188eu
 	tar -zxf $(RTL8192_TAR) --strip-components=1 --directory=$@/drivers/net/wireless/realtek/rtl8192cu
-	patch -d tmp -p 0 < patches/linux-xlnx-$(LINUX_TAG).patch
-	cp patches/linux-lantiq.c $@/drivers/net/phy/lantiq.c
+	patch -d tmp -p 0 < patches/linux-$(LINUX_TAG).patch
+	cp patches/xilinx_zynq_defconfig $@/arch/arm/configs
 
 $(DTREE_DIR): $(DTREE_TAR)
 	mkdir -p $@
