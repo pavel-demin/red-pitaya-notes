@@ -10,7 +10,7 @@ firmware_tar=linux-firmware-20170330-r1.apk
 firmware_url=$alpine_url/main/armhf/$firmware_tar
 
 linux_dir=tmp/linux-4.14
-linux_ver=4.14.34-xilinx
+linux_ver=4.14.35-xilinx
 
 modules_dir=alpine-modloop/lib/modules/$linux_ver
 
