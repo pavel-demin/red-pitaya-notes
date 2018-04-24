@@ -7,6 +7,7 @@
   <set param="PCW::ENET0::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::ENET0::GRP_MDIO::ENABLE" value="1" />
   <set param="PCW::ENET0::ENET0::IO" value="MIO 16 .. 27" />
+  <set param="PCW::ENET0::GRP_MDIO::IO" value="MIO 52 .. 53" />
   <set param="PCW::GPIO::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::GPIO::MIO_GPIO::ENABLE" value="1" />
   <set param="PCW::GPIO::EMIO_GPIO::ENABLE" value="1" />
