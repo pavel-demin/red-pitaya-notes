@@ -11,8 +11,8 @@ d-i netcfg/wireless_wep string
 
 d-i mirror/suite string jessie
 d-i mirror/country string manual
-d-i mirror/http/hostname string ftp.heanet.ie
-d-i mirror/http/directory string /pub/debian
+d-i mirror/http/hostname string deb.debian.org
+d-i mirror/http/directory string /debian
 
 d-i clock-setup/utc boolean true
 
