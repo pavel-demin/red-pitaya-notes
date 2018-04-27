@@ -9,10 +9,10 @@ Introduction
 
 For my experiments with the [Red Pitaya](http://redpitaya.readthedocs.io), I'd like to have the following development environment:
 
- - recent version of the [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado)
- - recent version of the [Linux kernel from Xilinx](http://github.com/Xilinx/linux-xlnx/tree/xilinx-v2016.4)
- - recent version of the [Debian distribution](http://www.debian.org/releases/jessie) on the development machine
- - recent version of the [Debian distribution](http://www.debian.org/releases/jessie) on the Red Pitaya
+ - recent version of the [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado)
+ - recent version of the [mainline Linux kernel](https://www.kernel.org)
+ - recent version of the [Debian distribution](https://www.debian.org/releases/jessie) on the development machine
+ - recent version of the [Debian distribution](https://www.debian.org/releases/jessie) on the Red Pitaya
  - basic project with all the [Red Pitaya](http://redpitaya.readthedocs.io) peripherals connected
  - mostly command-line tools
  - shallow directory structure
@@ -24,9 +24,9 @@ Pre-requirements
 
 My development machine has the following installed:
 
- - [Debian](http://www.debian.org/releases/jessie) 8.9 (amd64)
+ - [Debian](http://www.debian.org/releases/jessie) 8.10 (amd64)
 
- - [Vivado Design Suite](http://www.xilinx.com/products/design-tools/vivado) 2016.4 with full SDK
+ - [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.1 with full SDK
 
 The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
 
@@ -121,7 +121,7 @@ Getting started
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2016.4/settings64.sh
+source /opt/Xilinx/Vivado/2018.1/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
@@ -145,7 +145,7 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.9-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.10-armhf.img 1024
 {% endhighlight %}
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
