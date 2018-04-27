@@ -10,7 +10,7 @@ Introduction
 For my experiments with the [Red Pitaya](http://redpitaya.readthedocs.io), I'd like to have the following development environment:
 
  - recent version of the [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado)
- - recent version of the [mainline Linux kernel](https://www.kernel.org)
+ - recent version of the [Linux kernel](https://www.kernel.org)
  - recent version of the [Debian distribution](https://www.debian.org/releases/jessie) on the development machine
  - recent version of the [Debian distribution](https://www.debian.org/releases/jessie) on the Red Pitaya
  - basic project with all the [Red Pitaya](http://redpitaya.readthedocs.io) peripherals connected
