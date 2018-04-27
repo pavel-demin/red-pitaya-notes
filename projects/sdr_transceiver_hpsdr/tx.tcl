@@ -1,25 +1,25 @@
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_0 {
+  DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2
 }
 
-cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 96 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
-}
-
-# Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 96 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_1 {
+  DIN_WIDTH 96 DIN_FROM 31 DIN_TO 0
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_2 {
+  DIN_WIDTH 96 DIN_FROM 47 DIN_TO 32
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_3 {
+  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 48
+}
+
+# Create xlslice
+cell pavel-demin:user:port_slicer:1.0 slice_4 {
+  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64
 }
 
 # Create axi_axis_writer
@@ -31,7 +31,7 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
   INPUT_DEPTH 4096
@@ -180,7 +180,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
+cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 32
@@ -208,7 +208,7 @@ cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
   BRAM_ADDR_WIDTH 10
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
-  cfg_data slice_2/Dout
+  cfg_data slice_2/dout
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
@@ -306,7 +306,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 cell pavel-demin:user:axis_constant:1.0 phase_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  cfg_data slice_1/Dout
+  cfg_data slice_1/dout
   aclk /pll_0/clk_out1
 }
 
@@ -324,7 +324,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 } {
   S_AXIS_PHASE phase_0/M_AXIS
   aclk /pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }
 
 # Create axis_lfsr
@@ -366,7 +366,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_1 {
   P_WIDTH 16
 } {
   A mult_0/m_axis_dout_tdata
-  B slice_3/Dout
+  B slice_3/dout
   CARRYIN lfsr_1/m_axis_tdata
   CLK /pll_0/clk_out1
 }
@@ -382,7 +382,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_2 {
   P_WIDTH 16
 } {
   A mult_0/m_axis_dout_tdata
-  B slice_4/Dout
+  B slice_4/dout
   CARRYIN lfsr_1/m_axis_tdata
   CLK /pll_0/clk_out1
 }

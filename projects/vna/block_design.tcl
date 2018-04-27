@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -79,67 +79,67 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 160 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_0 {
+  DIN_WIDTH 160 DIN_FROM 0 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 160 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_1 {
+  DIN_WIDTH 160 DIN_FROM 1 DIN_TO 1
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 160 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_2 {
+  DIN_WIDTH 160 DIN_FROM 2 DIN_TO 2
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 slice_3 {
+  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8
 } {
-  Din cfg_0/cfg_data
-  Dout exp_p_tri_io
+  din cfg_0/cfg_data
+  dout exp_p_tri_io
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 160 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_4 {
+  DIN_WIDTH 160 DIN_FROM 63 DIN_TO 32
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 160 DIN_FROM 95 DIN_TO 64 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_5 {
+  DIN_WIDTH 160 DIN_FROM 95 DIN_TO 64
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_6 {
-  DIN_WIDTH 160 DIN_FROM 127 DIN_TO 96 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_6 {
+  DIN_WIDTH 160 DIN_FROM 127 DIN_TO 96
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_7 {
-  DIN_WIDTH 160 DIN_FROM 143 DIN_TO 128 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_7 {
+  DIN_WIDTH 160 DIN_FROM 143 DIN_TO 128
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_8 {
-  DIN_WIDTH 160 DIN_FROM 159 DIN_TO 144 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_8 {
+  DIN_WIDTH 160 DIN_FROM 159 DIN_TO 144
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # DDS
@@ -160,7 +160,7 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
 } {
   S_AXIS writer_0/M_AXIS
   s_axis_aclk pll_0/clk_out1
-  s_axis_aresetn slice_1/Dout
+  s_axis_aresetn slice_1/dout
 }
 
 # Create axis_interpolator
@@ -169,9 +169,9 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
   CNTR_WIDTH 32
 } {
   S_AXIS fifo_0/M_AXIS
-  cfg_data slice_4/Dout
+  cfg_data slice_4/dout
   aclk pll_0/clk_out1
-  aresetn slice_1/Dout
+  aresetn slice_1/dout
 }
 
 # Create dds_compiler
@@ -193,7 +193,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   s_axis_phase_tready inter_0/m_axis_tready
   m_axis_data_tready const_0/dout
   aclk pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }
 
 for {set i 0} {$i <= 1} {incr i} {
@@ -205,7 +205,7 @@ for {set i 0} {$i <= 1} {incr i} {
     IN1_WIDTH 32
   } {
     In0 inter_0/m_axis_tdata
-    In1 slice_[expr $i + 5]/Dout
+    In1 slice_[expr $i + 5]/dout
   }
 
   # Create dds_compiler
@@ -227,7 +227,7 @@ for {set i 0} {$i <= 1} {incr i} {
     s_axis_phase_tvalid inter_0/m_axis_tvalid
     m_axis_data_tready const_0/dout
     aclk pll_0/clk_out1
-    aresetn slice_0/Dout
+    aresetn slice_0/dout
   }
 
 }
@@ -237,7 +237,7 @@ for {set i 0} {$i <= 1} {incr i} {
 # Create axis_lfsr
 cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
   aclk pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }
 
 # Create xbip_dsp48_macro
@@ -251,7 +251,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_4 {
   P_WIDTH 15
 } {
   A dds_1/m_axis_data_tdata
-  B slice_7/Dout
+  B slice_7/dout
   CARRYIN lfsr_0/m_axis_tdata
   CLK pll_0/clk_out1
 }
@@ -267,7 +267,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_5 {
   P_WIDTH 15
 } {
   A dds_2/m_axis_data_tdata
-  B slice_8/Dout
+  B slice_8/dout
   CARRYIN lfsr_0/m_axis_tdata
   CLK pll_0/clk_out1
 }
@@ -307,10 +307,10 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
 for {set i 0} {$i <= 1} {incr i} {
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 dds_slice_$i {
-    DIN_WIDTH 48 DIN_FROM [expr 24 * $i + 23] DIN_TO [expr 24 * $i] DOUT_WIDTH 24
+  cell pavel-demin:user:port_slicer:1.0 dds_slice_$i {
+    DIN_WIDTH 48 DIN_FROM [expr 24 * $i + 23] DIN_TO [expr 24 * $i]
   } {
-    Din dds_0/m_axis_data_tdata
+    din dds_0/m_axis_data_tdata
   }
 
 }
@@ -318,10 +318,10 @@ for {set i 0} {$i <= 1} {incr i} {
 for {set i 0} {$i <= 3} {incr i} {
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 adc_slice_$i {
-    DIN_WIDTH 32 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)] DOUT_WIDTH 14
+  cell pavel-demin:user:port_slicer:1.0 adc_slice_$i {
+    DIN_WIDTH 32 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)]
   } {
-    Din adc_0/m_axis_tdata
+    din adc_0/m_axis_tdata
   }
 
   # Create xbip_dsp48_macro
@@ -334,8 +334,8 @@ for {set i 0} {$i <= 3} {incr i} {
     B_WIDTH 14
     P_WIDTH 25
   } {
-    A dds_slice_[expr $i % 2]/Dout
-    B adc_slice_$i/Dout
+    A dds_slice_[expr $i % 2]/dout
+    B adc_slice_$i/dout
     CARRYIN lfsr_0/m_axis_tdata
     CLK pll_0/clk_out1
   }
@@ -358,7 +358,7 @@ for {set i 0} {$i <= 3} {incr i} {
     s_axis_data_tdata mult_$i/P
     s_axis_data_tvalid const_0/dout
     aclk pll_0/clk_out1
-    aresetn slice_0/Dout
+    aresetn slice_0/dout
   }
 
 }
@@ -374,7 +374,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   S02_AXIS cic_1/M_AXIS_DATA
   S03_AXIS cic_0/M_AXIS_DATA
   aclk pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }
 
 # Create axis_dwidth_converter
@@ -385,7 +385,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
 } {
   S_AXIS comb_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }
 
 # Create floating_point
@@ -402,7 +402,7 @@ cell xilinx.com:ip:floating_point:7.1 fp_0 {
 } {
   S_AXIS_A conv_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }
 
 # Create axis_dwidth_converter
@@ -413,11 +413,11 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_1 {
 } {
   S_AXIS fp_0/M_AXIS_RESULT
   aclk pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 128
   INPUT_DEPTH 512
@@ -427,7 +427,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   READ_DATA_COUNT_WIDTH 12
 } {
   clk pll_0/clk_out1
-  srst slice_2/Dout
+  srst slice_2/dout
 }
 
 # Create axis_fifo

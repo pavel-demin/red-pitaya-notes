@@ -4,7 +4,7 @@ boot_dir=`mktemp -d /tmp/BOOT.XXXXXXXXXX`
 root_dir=`mktemp -d /tmp/ROOT.XXXXXXXXXX`
 
 linux_dir=tmp/linux-4.14
-linux_ver=4.14.35-xilinx
+linux_ver=4.14.36-xilinx
 
 # Choose mirror automatically, depending the geographic and network location
 mirror=http://httpredir.debian.org/debian
@@ -61,12 +61,6 @@ depmod -a -b $root_dir $linux_ver
 
 cp /etc/resolv.conf $root_dir/etc/
 cp /usr/bin/qemu-arm-static $root_dir/usr/bin/
-
-cp patches/fw_env.config $root_dir/etc/
-
-mkdir -p $root_dir/usr/local/bin
-cp fw_printenv $root_dir/usr/local/bin/fw_printenv
-cp fw_printenv $root_dir/usr/local/bin/fw_setenv
 
 mkdir -p $root_dir/usr/local/sbin
 curl -L $hostapd_url -o $root_dir/usr/local/sbin/hostapd

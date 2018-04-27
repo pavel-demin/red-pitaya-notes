@@ -1,31 +1,31 @@
 source projects/cfg_test/block_design.tcl
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 1024 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_2 {
+  DIN_WIDTH 1024 DIN_FROM 0 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 1024 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_3 {
+  DIN_WIDTH 1024 DIN_FROM 1 DIN_TO 1
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_4 {
+  DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create axis_counter
 cell pavel-demin:user:axis_counter:1.0 cntr_1 {} {
-  cfg_data slice_4/Dout
+  cfg_data slice_4/dout
   aclk pll_0/clk_out1
-  aresetn slice_2/Dout
+  aresetn slice_2/dout
 }
 
 # Create axis_dwidth_converter
@@ -36,11 +36,11 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
 } {
   S_AXIS cntr_1/M_AXIS
   aclk pll_0/clk_out1
-  aresetn slice_3/Dout
+  aresetn slice_3/dout
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
+cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 64
@@ -61,7 +61,7 @@ cell pavel-demin:user:axis_bram_writer:1.0 writer_0 {
   S_AXIS conv_0/M_AXIS
   BRAM_PORTA bram_0/BRAM_PORTA
   aclk pll_0/clk_out1
-  aresetn slice_3/Dout
+  aresetn slice_3/dout
 }
 
 # Create axi_bram_reader

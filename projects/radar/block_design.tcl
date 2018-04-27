@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -102,54 +102,54 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 # RX 0
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 224 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
+  DIN_WIDTH 224 DIN_FROM 7 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 224 DIN_FROM 127 DIN_TO 32 DOUT_WIDTH 96
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
+  DIN_WIDTH 224 DIN_FROM 127 DIN_TO 32
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module rx_0 {
   source projects/radar/rx.tcl
 } {
-  slice_0/Din rst_slice_0/Dout
-  slice_1/Din rst_slice_0/Dout
-  slice_2/Din cfg_slice_0/Dout
-  slice_3/Din cfg_slice_0/Dout
-  slice_4/Din cfg_slice_0/Dout
+  slice_0/din rst_slice_0/dout
+  slice_1/din rst_slice_0/dout
+  slice_2/din cfg_slice_0/dout
+  slice_3/din cfg_slice_0/dout
+  slice_4/din cfg_slice_0/dout
   bcast_0/S_AXIS comb_0/M_AXIS
 }
 
 # TX 0
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 224 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
+  DIN_WIDTH 224 DIN_FROM 15 DIN_TO 8
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 224 DIN_FROM 223 DIN_TO 128 DOUT_WIDTH 96
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
+  DIN_WIDTH 224 DIN_FROM 223 DIN_TO 128
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module tx_0 {
   source projects/radar/tx.tcl
 } {
-  slice_0/Din rst_slice_1/Dout
-  slice_1/Din rst_slice_1/Dout
-  slice_2/Din cfg_slice_1/Dout
-  slice_3/Din cfg_slice_1/Dout
-  slice_4/Din cfg_slice_1/Dout
+  slice_0/din rst_slice_1/dout
+  slice_1/din rst_slice_1/dout
+  slice_2/din cfg_slice_1/dout
+  slice_3/din cfg_slice_1/dout
+  slice_4/din cfg_slice_1/dout
   scope_0/run_flag rx_0/trig_0/trg_flag
   comb_2/M_AXIS zeroer_0/S_AXIS
 }

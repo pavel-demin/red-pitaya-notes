@@ -1,21 +1,21 @@
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_0 {
+  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_1 {
+  DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_2 {
+  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_3 {
+  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32
 }
 
 # Create axi_axis_writer
@@ -27,7 +27,7 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
   INPUT_DEPTH 2048
@@ -37,7 +37,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   WRITE_DATA_COUNT_WIDTH 12
 } {
   clk /pll_0/clk_out1
-  srst slice_0/Dout
+  srst slice_0/dout
 }
 
 # Create axis_fifo
@@ -55,7 +55,7 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
 cell pavel-demin:user:axis_gate_controller:1.0 gate_0 {} {
   S_AXIS fifo_0/M_AXIS
   aclk /pll_0/clk_out1
-  aresetn slice_1/Dout
+  aresetn slice_1/dout
 }
 
 # Create xlconcat
@@ -65,7 +65,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN1_WIDTH 32
   IN2_WIDTH 1
 } {
-  In0 slice_2/Dout
+  In0 slice_2/dout
   In1 gate_0/poff
   In2 gate_0/sync
 }
@@ -106,7 +106,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
   s_axis_phase_tdata concat_0/dout
   s_axis_phase_tvalid or_0/Res
   aclk /pll_0/clk_out1
-  aresetn slice_1/Dout
+  aresetn slice_1/dout
 }
 
 # Create axis_lfsr
@@ -126,7 +126,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_0 {
   P_WIDTH 15
 } {
   A dds_0/m_axis_data_tdata
-  B slice_3/Dout
+  B slice_3/dout
   CARRYIN lfsr_0/m_axis_tdata
   CLK /pll_0/clk_out1
 }

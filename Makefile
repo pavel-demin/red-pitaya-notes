@@ -25,15 +25,16 @@ CORES = axi_axis_reader_v1_0 axi_axis_writer_v1_0 axi_bram_reader_v1_0 \
   axis_red_pitaya_adc_v2_0 axis_red_pitaya_dac_v1_0 axis_stepper_v1_0 \
   axis_tagger_v1_0 axis_timer_v1_0 axis_trigger_v1_0 axi_sts_register_v1_0 \
   axis_validator_v1_0 axis_variable_v1_0 axis_variant_v1_0 axis_zeroer_v1_0 \
-  dna_reader_v1_0 gpio_debouncer_v1_0 pulse_generator_v1_0 shift_register_v1_0
+  dna_reader_v1_0 gpio_debouncer_v1_0 port_slicer_v1_0 pulse_generator_v1_0 \
+  shift_register_v1_0
 
 VIVADO = vivado -nolog -nojournal -mode batch
 HSI = hsi -nolog -nojournal -mode batch
 RM = rm -rf
 
-UBOOT_TAG = xilinx-v2016.4
+UBOOT_TAG = xilinx-v2018.1
 LINUX_TAG = 4.14
-DTREE_TAG = xilinx-v2016.4
+DTREE_TAG = xilinx-v2018.1
 
 UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
 LINUX_DIR = tmp/linux-$(LINUX_TAG)
@@ -44,7 +45,7 @@ LINUX_TAR = tmp/linux-$(LINUX_TAG).tar.xz
 DTREE_TAR = tmp/device-tree-xlnx-$(DTREE_TAG).tar.gz
 
 UBOOT_URL = https://github.com/Xilinx/u-boot-xlnx/archive/$(UBOOT_TAG).tar.gz
-LINUX_URL = https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-$(LINUX_TAG).35.tar.xz
+LINUX_URL = https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-$(LINUX_TAG).36.tar.xz
 DTREE_URL = https://github.com/Xilinx/device-tree-xlnx/archive/$(DTREE_TAG).tar.gz
 
 LINUX_CFLAGS = "-O2 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
@@ -59,7 +60,7 @@ RTL8192_URL = https://github.com/pvaret/rtl8192cu-fixes/archive/master.tar.gz
 
 .PRECIOUS: tmp/cores/% tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system.dts
 
-all: boot.bin uImage devicetree.dtb fw_printenv
+all: boot.bin uImage devicetree.dtb
 
 xpr: tmp/$(NAME).xpr
 
@@ -102,6 +103,7 @@ $(LINUX_DIR): $(LINUX_TAR) $(RTL8188_TAR) $(RTL8192_TAR)
 	tar -zxf $(RTL8188_TAR) --strip-components=1 --directory=$@/drivers/net/wireless/realtek/rtl8188eu
 	tar -zxf $(RTL8192_TAR) --strip-components=1 --directory=$@/drivers/net/wireless/realtek/rtl8192cu
 	patch -d tmp -p 0 < patches/linux-$(LINUX_TAG).patch
+	cp patches/xilinx_devcfg.c $@/drivers/char
 	cp patches/xilinx_zynq_defconfig $@/arch/arm/configs
 
 $(DTREE_DIR): $(DTREE_TAR)
@@ -124,18 +126,13 @@ tmp/u-boot.elf: $(UBOOT_DIR)
 	  CROSS_COMPILE=arm-linux-gnueabihf- all
 	cp $</u-boot $@
 
-fw_printenv: $(UBOOT_DIR) tmp/u-boot.elf
-	make -C $< ARCH=arm CFLAGS=$(ARMHF_CFLAGS) \
-	  CROSS_COMPILE=arm-linux-gnueabihf- env
-	cp $</tools/env/fw_printenv $@
-
 boot.bin: tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit tmp/u-boot.elf
 	echo "img:{[bootloader] $^}" > tmp/boot.bif
 	bootgen -image tmp/boot.bif -w -o i $@
 
 devicetree.dtb: uImage tmp/$(NAME).tree/system.dts
 	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb -o devicetree.dtb \
-	  -i tmp/$(NAME).tree tmp/$(NAME).tree/system.dts
+	  -i tmp/$(NAME).tree tmp/$(NAME).tree/system-top.dts
 
 tmp/cores/%: cores/%/core_config.tcl cores/%/*.v
 	mkdir -p $(@D)
@@ -160,10 +157,10 @@ tmp/%.fsbl/executable.elf: tmp/%.hwdef
 tmp/%.tree/system.dts: tmp/%.hwdef $(DTREE_DIR)
 	mkdir -p $(@D)
 	$(HSI) -source scripts/devicetree.tcl -tclargs $* $(PROC) $(DTREE_DIR)
-	patch $@ patches/devicetree.patch
+	patch -d $(@D) < patches/devicetree.patch
 
 clean:
-	$(RM) uImage fw_printenv boot.bin devicetree.dtb tmp
+	$(RM) uImage boot.bin devicetree.dtb tmp
 	$(RM) .Xil usage_statistics_webtalk.html usage_statistics_webtalk.xml
 	$(RM) vivado*.jou vivado*.log
 	$(RM) webtalk*.jou webtalk*.log

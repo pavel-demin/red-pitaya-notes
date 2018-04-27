@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -63,59 +63,59 @@ set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 192 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_1 {
+  DIN_WIDTH 192 DIN_FROM 0 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 192 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_2 {
+  DIN_WIDTH 192 DIN_FROM 1 DIN_TO 1
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 192 DIN_FROM 16 DIN_TO 16 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_3 {
+  DIN_WIDTH 192 DIN_FROM 16 DIN_TO 16
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 192 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_4 {
+  DIN_WIDTH 192 DIN_FROM 63 DIN_TO 32
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_5 {
-  DIN_WIDTH 192 DIN_FROM 79 DIN_TO 64 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_5 {
+  DIN_WIDTH 192 DIN_FROM 79 DIN_TO 64
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_6 {
-  DIN_WIDTH 192 DIN_FROM 127 DIN_TO 96 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_6 {
+  DIN_WIDTH 192 DIN_FROM 127 DIN_TO 96
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_7 {
-  DIN_WIDTH 192 DIN_FROM 159 DIN_TO 128 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_7 {
+  DIN_WIDTH 192 DIN_FROM 159 DIN_TO 128
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_8 {
-  DIN_WIDTH 192 DIN_FROM 191 DIN_TO 160 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_8 {
+  DIN_WIDTH 192 DIN_FROM 191 DIN_TO 160
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create axis_subset_converter
@@ -135,7 +135,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
 cell pavel-demin:user:axis_constant:1.0 phase_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  cfg_data slice_4/Dout
+  cfg_data slice_4/dout
   aclk pll_0/clk_out1
 }
 
@@ -194,7 +194,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 cell pavel-demin:user:axis_variable:1.0 rate_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_5/Dout
+  cfg_data slice_5/dout
   aclk /pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
@@ -203,7 +203,7 @@ cell pavel-demin:user:axis_variable:1.0 rate_0 {
 cell pavel-demin:user:axis_variable:1.0 rate_1 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_5/Dout
+  cfg_data slice_5/dout
   aclk /pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
@@ -342,9 +342,9 @@ cell pavel-demin:user:axis_trigger:1.0 trig_0 {
   AXIS_TDATA_SIGNED TRUE
 } {
   S_AXIS bcast_2/M00_AXIS
-  pol_data slice_3/Dout
-  msk_data const_1/Dout
-  lvl_data slice_6/Dout
+  pol_data slice_3/dout
+  msk_data const_1/dout
+  lvl_data slice_6/dout
   aclk pll_0/clk_out1
 }
 
@@ -354,12 +354,12 @@ cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
   CNTR_WIDTH 23
 } {
   S_AXIS bcast_2/M01_AXIS
-  run_flag slice_2/Dout
+  run_flag slice_2/dout
   trg_flag trig_0/trg_flag
-  pre_data slice_7/Dout
-  tot_data slice_8/Dout
+  pre_data slice_7/dout
+  tot_data slice_8/dout
   aclk pll_0/clk_out1
-  aresetn slice_1/Dout
+  aresetn slice_1/dout
 }
 
 # Create axis_dwidth_converter
@@ -370,7 +370,7 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
 } {
   S_AXIS scope_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn slice_1/Dout
+  aresetn slice_1/dout
 }
 
 # Create xlconstant
@@ -387,7 +387,7 @@ cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
   M_AXI ps_0/S_AXI_HP0
   cfg_data const_2/dout
   aclk pll_0/clk_out1
-  aresetn slice_1/Dout
+  aresetn slice_1/dout
 }
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]

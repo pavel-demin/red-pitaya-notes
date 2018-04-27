@@ -18,11 +18,11 @@ cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 32 DIN_FROM 26 DIN_TO 26 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_0 {
+  DIN_WIDTH 32 DIN_FROM 26 DIN_TO 26
 } {
-  Din cntr_0/Q
-  Dout led_o
+  din cntr_0/Q
+  dout led_o
 }
 
 # STS

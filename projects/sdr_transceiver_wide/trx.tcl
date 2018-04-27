@@ -7,58 +7,58 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
+  DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
+  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 160 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 out_slice_0 {
+  DIN_WIDTH 160 DIN_FROM 23 DIN_TO 16
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 160 DIN_FROM 95 DIN_TO 32 DOUT_WIDTH 64
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
+  DIN_WIDTH 160 DIN_FROM 95 DIN_TO 32
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 160 DIN_FROM 159 DIN_TO 96 DOUT_WIDTH 64
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
+  DIN_WIDTH 160 DIN_FROM 159 DIN_TO 96
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module rx_0 {
   source projects/sdr_transceiver_wide/rx.tcl
 } {
-  slice_0/Din rst_slice_0/Dout
-  slice_1/Din cfg_slice_0/Dout
-  slice_2/Din cfg_slice_0/Dout
-  slice_3/Din cfg_slice_0/Dout
-  slice_4/Din cfg_slice_0/Dout
+  slice_0/din rst_slice_0/dout
+  slice_1/din cfg_slice_0/dout
+  slice_2/din cfg_slice_0/dout
+  slice_3/din cfg_slice_0/dout
+  slice_4/din cfg_slice_0/dout
 }
 
 module tx_0 {
   source projects/sdr_transceiver_wide/tx.tcl
 } {
-  slice_0/Din rst_slice_1/Dout
-  slice_1/Din cfg_slice_1/Dout
-  slice_2/Din cfg_slice_1/Dout
-  slice_3/Din cfg_slice_1/Dout
-  slice_4/Din cfg_slice_1/Dout
+  slice_0/din rst_slice_1/dout
+  slice_1/din cfg_slice_1/dout
+  slice_2/din cfg_slice_1/dout
+  slice_3/din cfg_slice_1/dout
+  slice_4/din cfg_slice_1/dout
 }
 
 # Create xlconcat

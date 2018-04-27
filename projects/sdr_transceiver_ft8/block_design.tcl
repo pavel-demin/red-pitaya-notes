@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -79,11 +79,11 @@ delete_bd_objs [get_bd_ports exp_p_tri_io]
 create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 out_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 23 DIN_TO 16
 } {
-  Din cfg_0/cfg_data
-  Dout exp_p_tri_io
+  din cfg_0/cfg_data
+  dout exp_p_tri_io
 }
 
 # Delete input/output port
@@ -93,80 +93,80 @@ delete_bd_objs [get_bd_ports exp_n_tri_io]
 create_bd_port -dir I -from 3 -to 0 exp_n_tri_io
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 pps_slice_0 {
-  DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 pps_slice_0 {
+  DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3
 } {
-  Din exp_n_tri_io
-  Dout ps_0/GPIO_I
+  din exp_n_tri_io
+  dout ps_0/GPIO_I
 }
 
 # RX 0
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 287 DIN_TO 32 DOUT_WIDTH 256
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 287 DIN_TO 32
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module rx_0 {
   source projects/sdr_transceiver_ft8/rx.tcl
 } {
-  slice_0/Din rst_slice_0/Dout
-  slice_1/Din cfg_slice_0/Dout
-  slice_2/Din cfg_slice_0/Dout
-  slice_3/Din cfg_slice_0/Dout
-  slice_4/Din cfg_slice_0/Dout
-  slice_5/Din cfg_slice_0/Dout
-  slice_6/Din cfg_slice_0/Dout
-  slice_7/Din cfg_slice_0/Dout
-  slice_8/Din cfg_slice_0/Dout
+  slice_0/din rst_slice_0/dout
+  slice_1/din cfg_slice_0/dout
+  slice_2/din cfg_slice_0/dout
+  slice_3/din cfg_slice_0/dout
+  slice_4/din cfg_slice_0/dout
+  slice_5/din cfg_slice_0/dout
+  slice_6/din cfg_slice_0/dout
+  slice_7/din cfg_slice_0/dout
+  slice_8/din cfg_slice_0/dout
 }
 
 # TX 0
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
+  DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 288 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
+  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 288
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module tx_0 {
   source projects/sdr_transceiver_ft8/tx.tcl
 } {
-  slice_0/Din rst_slice_1/Dout
-  slice_1/Din cfg_slice_1/Dout
-  slice_2/Din cfg_slice_1/Dout
+  slice_0/din rst_slice_1/dout
+  slice_1/din cfg_slice_1/dout
+  slice_2/din cfg_slice_1/dout
   zeroer_0/M_AXIS dac_0/S_AXIS
 }
 
 # PPS
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
-  DIN_WIDTH 320 DIN_FROM 24 DIN_TO 24 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 rst_slice_2 {
+  DIN_WIDTH 320 DIN_FROM 24 DIN_TO 24
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create axis_pps_counter
 cell pavel-demin:user:axis_pps_counter:1.0 cntr_0 {} {
-  pps_data pps_slice_0/Dout
+  pps_data pps_slice_0/dout
   aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
@@ -179,7 +179,7 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
 } {
   S_AXIS cntr_0/M_AXIS
   s_axis_aclk pll_0/clk_out1
-  s_axis_aresetn rst_slice_2/Dout
+  s_axis_aresetn rst_slice_2/dout
 }
 
 # Create axi_axis_reader

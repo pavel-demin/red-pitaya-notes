@@ -1,12 +1,12 @@
 # hst_0/aresetn
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_0 {
+  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
+cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   USE_BYTE_WRITE_ENABLE true
@@ -28,7 +28,7 @@ cell pavel-demin:user:axis_histogram:1.0 hst_0 {
 } {
   BRAM_PORTA bram_0/BRAM_PORTA
   aclk /pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }
 
 # Create axi_bram_reader

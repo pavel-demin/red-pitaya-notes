@@ -1,26 +1,26 @@
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_0 {
+  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 96 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_1 {
+  DIN_WIDTH 96 DIN_FROM 15 DIN_TO 0
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 96 DIN_FROM 31 DIN_TO 16 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_2 {
+  DIN_WIDTH 96 DIN_FROM 31 DIN_TO 16
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 96 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_3 {
+  DIN_WIDTH 96 DIN_FROM 47 DIN_TO 32
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_4 {
-  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 48 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_4 {
+  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 48
 }
 
 # Create axi_axis_writer
@@ -36,11 +36,11 @@ cell xilinx.com:ip:util_vector_logic:2.0 not_0 {
   C_SIZE 1
   C_OPERATION not
 } {
-  Op1 slice_0/Dout
+  Op1 slice_0/dout
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
   INPUT_DEPTH 16384
@@ -74,14 +74,14 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
 } {
   S_AXIS fifo_0/M_AXIS
   aclk /pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }
 
 # Create axis_pulse_generator
 cell pavel-demin:user:axis_pulse_generator:1.0 gen_0 {} {
   S_AXIS subset_0/M_AXIS
   aclk /pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }
 
 # Create axis_zeroer
@@ -102,7 +102,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_0 {
   B_WIDTH 17
   P_WIDTH 33
 } {
-  B slice_1/Dout
+  B slice_1/dout
   CLK /pll_0/clk_out1
 }
 
@@ -125,7 +125,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_1 {
   C_WIDTH 42
   P_WIDTH 42
 } {
-  B slice_2/Dout
+  B slice_2/dout
   CLK /pll_0/clk_out1
 }
 
@@ -147,7 +147,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_2 {
   C_WIDTH 42
   P_WIDTH 42
 } {
-  B slice_3/Dout
+  B slice_3/dout
   CLK /pll_0/clk_out1
 }
 
@@ -156,7 +156,7 @@ cell pavel-demin:user:axis_iir_filter:1.0 iir_0 {
   AXIS_TDATA_WIDTH 16
 } {
   S_AXIS zeroer_0/M_AXIS
-  cfg_data slice_4/Dout
+  cfg_data slice_4/dout
   dsp_a_a dsp_0/A
   dsp_a_p dsp_0/P
   dsp_b_a dsp_1/A
@@ -166,5 +166,5 @@ cell pavel-demin:user:axis_iir_filter:1.0 iir_0 {
   dsp_c_c dsp_2/C
   dsp_c_p dsp_2/P
   aclk /pll_0/clk_out1
-  aresetn slice_0/Dout
+  aresetn slice_0/dout
 }

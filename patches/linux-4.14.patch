@@ -1,3 +1,27 @@
+diff -rupN old/linux-4.14/drivers/char/Kconfig linux-4.14/drivers/char/Kconfig
+--- old/linux-4.14/drivers/char/Kconfig
++++ linux-4.14/drivers/char/Kconfig
+@@ -588,5 +588,12 @@ config TILE_SROM
+ 
+ source "drivers/char/xillybus/Kconfig"
+ 
++config XILINX_DEVCFG
++	tristate "Xilinx Device Configuration"
++	depends on ARCH_ZYNQ
++	help
++	  This option enables support for the Xilinx device configuration driver.
++	  If unsure, say N
++
+ endmenu
+ 
+diff -rupN old/linux-4.14/drivers/char/Makefile linux-4.14/drivers/char/Makefile
+--- old/linux-4.14/drivers/char/Makefile
++++ linux-4.14/drivers/char/Makefile
+@@ -60,3 +60,4 @@ js-rtc-y = rtc.o
+ obj-$(CONFIG_TILE_SROM)		+= tile-srom.o
+ obj-$(CONFIG_XILLYBUS)		+= xillybus/
+ obj-$(CONFIG_POWERNV_OP_PANEL)	+= powernv-op-panel.o
++obj-$(CONFIG_XILINX_DEVCFG)	+= xilinx_devcfg.o
 diff -rupN old/linux-4.14/drivers/misc/eeprom/at24.c linux-4.14/drivers/misc/eeprom/at24.c
 --- old/linux-4.14/drivers/misc/eeprom/at24.c
 +++ linux-4.14/drivers/misc/eeprom/at24.c

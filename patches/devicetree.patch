@@ -1,34 +1,7 @@
---- system.dts.old
-+++ system.dts
-@@ -16,6 +16,18 @@
- 	chosen {
- 		bootargs = "console=ttyPS0,115200 earlyprintk";
- 	};
-+	usb_phy0: phy0 {
-+		#phy-cells = <0>;
-+		compatible = "ulpi-phy";
-+		reg = <0xe0002000 0x1000>;
-+		view-port = <0x0170>;
-+		drv-vbus;
-+	};
-+	pps {
-+		compatible = "pps-gpio";
-+		gpios = <&gpio0 54 0>;
-+		capture-clear;
-+	};
- 	aliases {
- 		ethernet0 = &gem0;
- 		serial0 = &uart0;
-@@ -26,7 +33,7 @@
- 	};
- 	memory {
- 		device_type = "memory";
--		reg = <0x0 0x20000000>;
-+		reg = <0x0 0x1E000000>;
- 	};
- };
- &gem0 {
-@@ -44,6 +59,12 @@
+diff -rupN pcw.dtsi.old pcw.dtsi
+--- pcw.dtsi.old
++++ pcw.dtsi
+@@ -26,6 +26,12 @@
  	clock-frequency = <400000>;
  	status = "okay";
  };
@@ -41,7 +14,7 @@
  &intc {
  	num_cpus = <2>;
  	num_interrupts = <96>;
-@@ -68,6 +89,11 @@
+@@ -45,6 +51,11 @@
  	is-decoded-cs = <0>;
  	num-cs = <1>;
  	status = "okay";
@@ -52,11 +25,12 @@
 +	};
  };
  &uart0 {
- 	current-speed = <115200>;
-@@ -83,11 +109,32 @@
+ 	device_type = "serial";
+@@ -57,11 +68,33 @@
+ 	status = "okay";
  };
  &usb0 {
- 	dr_mode = "host";
++	dr_mode = "host";
 -	phy_type = "ulpi";
 +	usb-phy = <&usb_phy0>;
  	status = "okay";
@@ -88,3 +62,33 @@
 +		};
 +	};
 +};
+diff -rupN system-top.dts.old system-top.dts
+--- system-top.dts.old
++++ system-top.dts
+@@ -14,6 +14,18 @@
+ 		bootargs = "console=ttyPS0,115200 earlyprintk earlycon";
+ 		stdout-path = "serial0:115200n8";
+ 	};
++	usb_phy0: phy0 {
++		#phy-cells = <0>;
++		compatible = "ulpi-phy";
++		reg = <0xe0002000 0x1000>;
++		view-port = <0x0170>;
++		drv-vbus;
++	};
++	pps {
++		compatible = "pps-gpio";
++		gpios = <&gpio0 54 0>;
++		capture-clear;
++	};
+ 	aliases {
+ 		ethernet0 = &gem0;
+ 		i2c0 = &i2c0;
+@@ -24,6 +36,6 @@
+ 	};
+ 	memory {
+ 		device_type = "memory";
+-		reg = <0x0 0x20000000>;
++		reg = <0x0 0x1E000000>;
+ 	};
+ };

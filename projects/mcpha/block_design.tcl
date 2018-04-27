@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -69,133 +69,133 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 768 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
+  DIN_WIDTH 768 DIN_FROM 7 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 neg_slice_0 {
-  DIN_WIDTH 768 DIN_FROM 4 DIN_TO 4 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 neg_slice_0 {
+  DIN_WIDTH 768 DIN_FROM 4 DIN_TO 4
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 768 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
+  DIN_WIDTH 768 DIN_FROM 15 DIN_TO 8
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 neg_slice_1 {
-  DIN_WIDTH 768 DIN_FROM 12 DIN_TO 12 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 neg_slice_1 {
+  DIN_WIDTH 768 DIN_FROM 12 DIN_TO 12
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
-  DIN_WIDTH 768 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_2 {
+  DIN_WIDTH 768 DIN_FROM 23 DIN_TO 16
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_3 {
-  DIN_WIDTH 768 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_3 {
+  DIN_WIDTH 768 DIN_FROM 31 DIN_TO 24
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 neg_slice_2 {
-  DIN_WIDTH 768 DIN_FROM 28 DIN_TO 28 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 neg_slice_2 {
+  DIN_WIDTH 768 DIN_FROM 28 DIN_TO 28
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 neg_slice_3 {
-  DIN_WIDTH 768 DIN_FROM 29 DIN_TO 29 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 neg_slice_3 {
+  DIN_WIDTH 768 DIN_FROM 29 DIN_TO 29
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_4 {
-  DIN_WIDTH 768 DIN_FROM 30 DIN_TO 30 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 rst_slice_4 {
+  DIN_WIDTH 768 DIN_FROM 30 DIN_TO 30
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_5 {
-  DIN_WIDTH 768 DIN_FROM 31 DIN_TO 31 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 rst_slice_5 {
+  DIN_WIDTH 768 DIN_FROM 31 DIN_TO 31
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # rate_0/cfg_data and rate_1/cfg_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 768 DIN_FROM 47 DIN_TO 32 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_0 {
+  DIN_WIDTH 768 DIN_FROM 47 DIN_TO 32
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # rate_2/cfg_data and rate_3/cfg_data
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 768 DIN_FROM 63 DIN_TO 48 DOUT_WIDTH 16
+cell pavel-demin:user:port_slicer:1.0 slice_1 {
+  DIN_WIDTH 768 DIN_FROM 63 DIN_TO 48
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 768 DIN_FROM 191 DIN_TO 64 DOUT_WIDTH 128
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
+  DIN_WIDTH 768 DIN_FROM 191 DIN_TO 64
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 768 DIN_FROM 319 DIN_TO 192 DOUT_WIDTH 128
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
+  DIN_WIDTH 768 DIN_FROM 319 DIN_TO 192
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
-  DIN_WIDTH 768 DIN_FROM 447 DIN_TO 320 DOUT_WIDTH 128
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_2 {
+  DIN_WIDTH 768 DIN_FROM 447 DIN_TO 320
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_3 {
-  DIN_WIDTH 768 DIN_FROM 575 DIN_TO 448 DOUT_WIDTH 128
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_3 {
+  DIN_WIDTH 768 DIN_FROM 575 DIN_TO 448
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_4 {
-  DIN_WIDTH 768 DIN_FROM 671 DIN_TO 576 DOUT_WIDTH 96
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_4 {
+  DIN_WIDTH 768 DIN_FROM 671 DIN_TO 576
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_5 {
-  DIN_WIDTH 768 DIN_FROM 767 DIN_TO 672 DOUT_WIDTH 96
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_5 {
+  DIN_WIDTH 768 DIN_FROM 767 DIN_TO 672
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create axis_broadcaster
@@ -226,7 +226,7 @@ for {set i 0} {$i <= 3} {incr i} {
     AXIS_TDATA_WIDTH 16
   } {
     S_AXIS bcast_0/M0${i}_AXIS
-    cfg_flag neg_slice_${i}/Dout
+    cfg_flag neg_slice_${i}/dout
     aclk pll_0/clk_out1
   }
 
@@ -234,7 +234,7 @@ for {set i 0} {$i <= 3} {incr i} {
   cell pavel-demin:user:axis_variable:1.0 rate_${i} {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_[expr $i / 2]/Dout
+    cfg_data slice_[expr $i / 2]/dout
     aclk pll_0/clk_out1
     aresetn rst_0/peripheral_aresetn
   }
@@ -335,15 +335,15 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_2 {
 module pha_0 {
   source projects/mcpha/pha.tcl
 } {
-  slice_0/Din rst_slice_0/Dout
-  slice_1/Din rst_slice_0/Dout
-  slice_2/Din rst_slice_0/Dout
-  slice_3/Din rst_slice_0/Dout
-  slice_4/Din cfg_slice_0/Dout
-  slice_5/Din cfg_slice_0/Dout
-  slice_6/Din cfg_slice_0/Dout
-  slice_7/Din cfg_slice_0/Dout
-  slice_8/Din cfg_slice_0/Dout
+  slice_0/din rst_slice_0/dout
+  slice_1/din rst_slice_0/dout
+  slice_2/din rst_slice_0/dout
+  slice_3/din rst_slice_0/dout
+  slice_4/din cfg_slice_0/dout
+  slice_5/din cfg_slice_0/dout
+  slice_6/din cfg_slice_0/dout
+  slice_7/din cfg_slice_0/dout
+  slice_8/din cfg_slice_0/dout
   timer_0/S_AXIS bcast_0/M04_AXIS
   pha_0/S_AXIS bcast_1/M00_AXIS
 }
@@ -351,22 +351,22 @@ module pha_0 {
 module hst_0 {
   source projects/mcpha/hst.tcl
 } {
-  slice_0/Din rst_slice_0/Dout
+  slice_0/din rst_slice_0/dout
   hst_0/S_AXIS pha_0/vldtr_0/M_AXIS
 }
 
 module pha_1 {
   source projects/mcpha/pha.tcl
 } {
-  slice_0/Din rst_slice_1/Dout
-  slice_1/Din rst_slice_1/Dout
-  slice_2/Din rst_slice_1/Dout
-  slice_3/Din rst_slice_1/Dout
-  slice_4/Din cfg_slice_1/Dout
-  slice_5/Din cfg_slice_1/Dout
-  slice_6/Din cfg_slice_1/Dout
-  slice_7/Din cfg_slice_1/Dout
-  slice_8/Din cfg_slice_1/Dout
+  slice_0/din rst_slice_1/dout
+  slice_1/din rst_slice_1/dout
+  slice_2/din rst_slice_1/dout
+  slice_3/din rst_slice_1/dout
+  slice_4/din cfg_slice_1/dout
+  slice_5/din cfg_slice_1/dout
+  slice_6/din cfg_slice_1/dout
+  slice_7/din cfg_slice_1/dout
+  slice_8/din cfg_slice_1/dout
   timer_0/S_AXIS bcast_0/M05_AXIS
   pha_0/S_AXIS bcast_1/M01_AXIS
 }
@@ -374,21 +374,21 @@ module pha_1 {
 module hst_1 {
   source projects/mcpha/hst.tcl
 } {
-  slice_0/Din rst_slice_1/Dout
+  slice_0/din rst_slice_1/dout
   hst_0/S_AXIS pha_1/vldtr_0/M_AXIS
 }
 
 module osc_0 {
   source projects/mcpha/osc.tcl
 } {
-  slice_0/Din rst_slice_2/Dout
-  slice_1/Din rst_slice_2/Dout
-  slice_2/Din rst_slice_2/Dout
-  slice_3/Din rst_slice_2/Dout
-  slice_4/Din rst_slice_2/Dout
-  slice_5/Din cfg_slice_4/Dout
-  slice_6/Din cfg_slice_4/Dout
-  slice_7/Din cfg_slice_4/Dout
+  slice_0/din rst_slice_2/dout
+  slice_1/din rst_slice_2/dout
+  slice_2/din rst_slice_2/dout
+  slice_3/din rst_slice_2/dout
+  slice_4/din rst_slice_2/dout
+  slice_5/din cfg_slice_4/dout
+  slice_6/din cfg_slice_4/dout
+  slice_7/din cfg_slice_4/dout
   switch_0/S00_AXIS bcast_1/M02_AXIS
   switch_0/S01_AXIS bcast_1/M03_AXIS
   comb_0/S00_AXIS bcast_1/M04_AXIS
@@ -399,15 +399,15 @@ module osc_0 {
 module pha_2 {
   source projects/mcpha/pha.tcl
 } {
-  slice_0/Din rst_slice_3/Dout
-  slice_1/Din rst_slice_3/Dout
-  slice_2/Din rst_slice_3/Dout
-  slice_3/Din rst_slice_3/Dout
-  slice_4/Din cfg_slice_2/Dout
-  slice_5/Din cfg_slice_2/Dout
-  slice_6/Din cfg_slice_2/Dout
-  slice_7/Din cfg_slice_2/Dout
-  slice_8/Din cfg_slice_2/Dout
+  slice_0/din rst_slice_3/dout
+  slice_1/din rst_slice_3/dout
+  slice_2/din rst_slice_3/dout
+  slice_3/din rst_slice_3/dout
+  slice_4/din cfg_slice_2/dout
+  slice_5/din cfg_slice_2/dout
+  slice_6/din cfg_slice_2/dout
+  slice_7/din cfg_slice_2/dout
+  slice_8/din cfg_slice_2/dout
   timer_0/S_AXIS bcast_0/M06_AXIS
   pha_0/S_AXIS bcast_2/M00_AXIS
   vldtr_0/m_axis_tready const_0/dout
@@ -416,32 +416,32 @@ module pha_2 {
 module pha_3 {
   source projects/mcpha/pha.tcl
 } {
-  slice_0/Din rst_slice_3/Dout
-  slice_1/Din rst_slice_3/Dout
-  slice_2/Din rst_slice_3/Dout
-  slice_3/Din rst_slice_3/Dout
-  slice_4/Din cfg_slice_3/Dout
-  slice_5/Din cfg_slice_3/Dout
-  slice_6/Din cfg_slice_3/Dout
-  slice_7/Din cfg_slice_3/Dout
-  slice_8/Din cfg_slice_3/Dout
+  slice_0/din rst_slice_3/dout
+  slice_1/din rst_slice_3/dout
+  slice_2/din rst_slice_3/dout
+  slice_3/din rst_slice_3/dout
+  slice_4/din cfg_slice_3/dout
+  slice_5/din cfg_slice_3/dout
+  slice_6/din cfg_slice_3/dout
+  slice_7/din cfg_slice_3/dout
+  slice_8/din cfg_slice_3/dout
   timer_0/S_AXIS bcast_0/M07_AXIS
   pha_0/S_AXIS bcast_2/M01_AXIS
   vldtr_0/m_axis_tready const_0/dout
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_2 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_2 {
+  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0
 } {
-  Din pha_2/timer_0/sts_data
+  din pha_2/timer_0/sts_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_3 {
-  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+cell pavel-demin:user:port_slicer:1.0 slice_3 {
+  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32
 } {
-  Din pha_2/timer_0/sts_data
+  din pha_2/timer_0/sts_data
 }
 
 # Create xlconcat
@@ -454,8 +454,8 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
 } {
   In0 pha_3/vldtr_0/m_axis_tdata
   In1 pha_2/vldtr_0/m_axis_tdata
-  In2 slice_3/Dout
-  In3 slice_2/Dout
+  In2 slice_3/dout
+  In3 slice_2/dout
 }
 
 # Create util_vector_logic
@@ -468,7 +468,7 @@ cell xilinx.com:ip:util_vector_logic:2.0 or_0 {
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 128
   INPUT_DEPTH 2048
@@ -478,7 +478,7 @@ cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_0 {
   READ_DATA_COUNT_WIDTH 14
 } {
   clk pll_0/clk_out1
-  srst rst_slice_4/Dout
+  srst rst_slice_4/dout
 }
 
 # Create axis_fifo
@@ -505,11 +505,11 @@ cell pavel-demin:user:axi_axis_reader:1.0 reader_0 {
 module gen_0 {
   source projects/mcpha/gen.tcl
 } {
-  slice_0/Din rst_slice_5/Dout
-  slice_1/Din cfg_slice_5/Dout
-  slice_2/Din cfg_slice_5/Dout
-  slice_3/Din cfg_slice_5/Dout
-  slice_4/Din cfg_slice_5/Dout
+  slice_0/din rst_slice_5/dout
+  slice_1/din cfg_slice_5/dout
+  slice_2/din cfg_slice_5/dout
+  slice_3/din cfg_slice_5/dout
+  slice_4/din cfg_slice_5/dout
   iir_0/M_AXIS dac_0/S_AXIS
 }
 
