@@ -7,7 +7,7 @@ linux_dir=tmp/linux-4.14
 linux_ver=4.14.36-xilinx
 
 # Choose mirror automatically, depending the geographic and network location
-mirror=http://httpredir.debian.org/debian
+mirror=http://deb.debian.org/debian
 
 distro=stretch
 arch=armhf

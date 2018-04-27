@@ -10,7 +10,7 @@ ecosystem_tar=red-pitaya-ecosystem-0.95-20160526.tgz
 ecosystem_url=https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADrueq0P1OJFy9z6AaJ72nWa/red-pitaya-ecosystem/red-pitaya-ecosystem-0.95-20160526.tgz?dl=1
 
 # Choose mirror automatically, depending the geographic and network location
-mirror=http://httpredir.debian.org/debian
+mirror=http://deb.debian.org/debian
 
 distro=jessie
 arch=armhf
