@@ -9,7 +9,7 @@ linux_ver=4.14.36-xilinx
 # Choose mirror automatically, depending the geographic and network location
 mirror=http://deb.debian.org/debian
 
-distro=jessie
+distro=stretch
 arch=armhf
 
 passwd=changeme
@@ -60,9 +60,6 @@ depmod -a -b $root_dir $linux_ver
 cp /etc/resolv.conf $root_dir/etc/
 cp /usr/bin/qemu-arm-static $root_dir/usr/bin/
 
-mkdir -p $root_dir/root/gnuradio
-cp projects/sdr_transceiver_emb/gnuradio/* $root_dir/root/gnuradio/
-
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
 export LC_ALL=C
@@ -109,7 +106,7 @@ sed -i "/^# en_US.UTF-8 UTF-8$/s/^# //" etc/locale.gen
 locale-gen
 update-locale LANG=en_US.UTF-8
 
-echo $timezone > etc/timezone
+ln -sf /usr/share/zoneinfo/$timezone etc/localtime
 dpkg-reconfigure --frontend=noninteractive tzdata
 
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
@@ -117,11 +114,11 @@ apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   iw firmware-realtek firmware-ralink firmware-atheros firmware-brcm80211 \
   build-essential libasound2-dev libconfig-dev libfftw3-dev subversion git \
   alsa-utils gnuradio python-numpy python-gtk2 python-urwid python-serial \
-  python-alsaaudio xauth xterm parallel ifplugd ntfs-3g
+  python-alsaaudio xauth xterm parallel ifplugd ntfs-3g net-tools less
 
-sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
+sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
-touch etc/udev/rules.d/75-persistent-net-generator.rules
+touch etc/udev/rules.d/80-net-setup-link.rules
 
 cat <<- EOF_CAT > etc/network/interfaces.d/eth0
 iface eth0 inet dhcp
