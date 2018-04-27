@@ -6,10 +6,8 @@ root_dir=`mktemp -d /tmp/ROOT.XXXXXXXXXX`
 linux_dir=tmp/linux-4.14
 linux_ver=4.14.36-xilinx
 
-root_tar=ubuntu-base-14.04.5-core-armhf.tar.gz
+root_tar=ubuntu-base-14.04.5-base-armhf.tar.gz
 root_url=http://cdimage.ubuntu.com/ubuntu-base/releases/14.04/release/$root_tar
-
-hostapd_url=https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAQHa5NkpLYFocaOrrnft-Pa/rtl8192cu/hostapd-armhf?dl=1
 
 passwd=changeme
 timezone=Europe/Brussels
@@ -60,9 +58,6 @@ depmod -a -b $root_dir $linux_ver
 
 cp /etc/resolv.conf $root_dir/etc/
 cp /usr/bin/qemu-arm-static $root_dir/usr/bin/
-
-curl -L $hostapd_url -o $root_dir/usr/local/sbin/hostapd
-chmod +x $root_dir/usr/local/sbin/hostapd
 
 chroot $root_dir <<- EOF_CHROOT
 export LANG=C
@@ -148,27 +143,6 @@ wpa_passphrase=RedPitaya
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=CCMP
 rsn_pairwise=CCMP
-EOF_CAT
-
-cat <<- EOF_CAT > etc/default/hostapd
-DAEMON_CONF=/etc/hostapd/hostapd.conf
-
-if [ "\\\$1" = "start" ]
-then
-  iw wlan0 info > /dev/null 2>&1
-  if [ \\\$? -eq 0 ]
-  then
-    sed -i '/^driver/s/=.*/=nl80211/' /etc/hostapd/hostapd.conf
-    DAEMON_SBIN=/usr/sbin/hostapd
-  else
-    sed -i '/^driver/s/=.*/=rtl871xdrv/' /etc/hostapd/hostapd.conf
-    DAEMON_SBIN=/usr/local/sbin/hostapd
-  fi
-  echo \\\$DAEMON_SBIN > /run/hostapd.which
-elif [ "\\\$1" = "stop" ]
-then
-  DAEMON_SBIN=\\\$(cat /run/hostapd.which)
-fi
 EOF_CAT
 
 cat <<- EOF_CAT > etc/dhcp/dhcpd.conf
