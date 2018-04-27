@@ -9,52 +9,52 @@ module sp_0 {
   }
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_0 {
-    DIN_WIDTH 4 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+  cell pavel-demin:user:port_slicer:1.0 slice_0 {
+    DIN_WIDTH 4 DIN_FROM 0 DIN_TO 0
   } {
-    Din /rst_slice_2/Dout
+    din /rst_slice_2/dout
   }
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_1 {
-    DIN_WIDTH 4 DIN_FROM 1 DIN_TO 1 DOUT_WIDTH 1
+  cell pavel-demin:user:port_slicer:1.0 slice_1 {
+    DIN_WIDTH 4 DIN_FROM 1 DIN_TO 1
   } {
-    Din /rst_slice_2/Dout
+    din /rst_slice_2/dout
   }
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_2 {
-    DIN_WIDTH 4 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
+  cell pavel-demin:user:port_slicer:1.0 slice_2 {
+    DIN_WIDTH 4 DIN_FROM 2 DIN_TO 2
   } {
-    Din /rst_slice_2/Dout
+    din /rst_slice_2/dout
   }
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_3 {
-    DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3 DOUT_WIDTH 1
+  cell pavel-demin:user:port_slicer:1.0 slice_3 {
+    DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3
   } {
-    Din /rst_slice_2/Dout
+    din /rst_slice_2/dout
   }
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_4 {
-    DIN_WIDTH 64 DIN_FROM 15 DIN_TO 0 DOUT_WIDTH 16
+  cell pavel-demin:user:port_slicer:1.0 slice_4 {
+    DIN_WIDTH 64 DIN_FROM 15 DIN_TO 0
   } {
-    Din /cfg_slice_1/Dout
+    din /cfg_slice_1/dout
   }
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_5 {
-    DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32 DOUT_WIDTH 32
+  cell pavel-demin:user:port_slicer:1.0 slice_5 {
+    DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32
   } {
-    Din /cfg_slice_1/Dout
+    din /cfg_slice_1/dout
   }
 
   # Create axis_constant
   cell pavel-demin:user:axis_constant:1.0 phase_0 {
     AXIS_TDATA_WIDTH 32
   } {
-    cfg_data slice_5/Dout
+    cfg_data slice_5/dout
     aclk /pll_0/clk_out1
   }
 
@@ -77,7 +77,7 @@ module sp_0 {
   # Create axis_lfsr
   cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
     aclk /pll_0/clk_out1
-    aresetn slice_0/Dout
+    aresetn slice_0/dout
   }
 
   # Create cmpy
@@ -113,7 +113,7 @@ module sp_0 {
   cell pavel-demin:user:axis_constant:1.0 rate_0 {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_4/Dout
+    cfg_data slice_4/dout
     aclk /pll_0/clk_out1
   }
 
@@ -126,14 +126,14 @@ module sp_0 {
     S_AXIS rate_0/M_AXIS
     cfg_data const_0/dout
     aclk /pll_0/clk_out1
-    aresetn slice_1/Dout
+    aresetn slice_1/dout
   }
 
   # Create axis_constant
   cell pavel-demin:user:axis_constant:1.0 rate_1 {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_4/Dout
+    cfg_data slice_4/dout
     aclk /pll_0/clk_out1
   }
 
@@ -146,7 +146,7 @@ module sp_0 {
     S_AXIS rate_1/M_AXIS
     cfg_data const_0/dout
     aclk /pll_0/clk_out1
-    aresetn slice_1/Dout
+    aresetn slice_1/dout
   }
 
   # Create cic_compiler
@@ -169,7 +169,7 @@ module sp_0 {
     S_AXIS_DATA bcast_0/M00_AXIS
     S_AXIS_CONFIG pktzr_0/M_AXIS
     aclk /pll_0/clk_out1
-    aresetn slice_1/Dout
+    aresetn slice_1/dout
   }
 
   # Create cic_compiler
@@ -192,7 +192,7 @@ module sp_0 {
     S_AXIS_DATA bcast_0/M01_AXIS
     S_AXIS_CONFIG pktzr_1/M_AXIS
     aclk /pll_0/clk_out1
-    aresetn slice_1/Dout
+    aresetn slice_1/dout
   }
 
   # Create axis_combiner
@@ -243,7 +243,7 @@ module sp_0 {
     S_AXIS cfg_0/M_AXIS
     cfg_data const_0/dout
     aclk /pll_0/clk_out1
-    aresetn slice_2/Dout
+    aresetn slice_2/dout
   }
 
   # Create axis_packetizer
@@ -255,11 +255,11 @@ module sp_0 {
     S_AXIS fir_0/M_AXIS_DATA
     cfg_data const_1/dout
     aclk /pll_0/clk_out1
-    aresetn slice_3/Dout
+    aresetn slice_3/dout
   }
 
   # Create blk_mem_gen
-  cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
+  cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
     MEMORY_TYPE True_Dual_Port_RAM
     USE_BRAM_BLOCK Stand_Alone
     USE_BYTE_WRITE_ENABLE true
@@ -283,13 +283,13 @@ module sp_0 {
     BRAM_PORTA bram_0/BRAM_PORTA
     cfg_data const_1/dout
     aclk /pll_0/clk_out1
-    aresetn slice_3/Dout
+    aresetn slice_3/dout
   }
 
   # Create axis_lfsr
   cell pavel-demin:user:axis_lfsr:1.0 lfsr_1 {} {
     aclk /pll_0/clk_out1
-    aresetn slice_0/Dout
+    aresetn slice_0/dout
   }
 
   # Create cmpy
@@ -309,7 +309,7 @@ module sp_0 {
   }
 
   # Create xfft
-  cell xilinx.com:ip:xfft:9.0 fft_0 {
+  cell xilinx.com:ip:xfft:9.1 fft_0 {
     INPUT_WIDTH.VALUE_SRC USER
     TRANSFORM_LENGTH 4096
     TARGET_CLOCK_FREQUENCY 125
@@ -326,7 +326,7 @@ module sp_0 {
     S_AXIS_DATA mult_1/M_AXIS_DOUT
     S_AXIS_CONFIG pktzr_2/M_AXIS
     aclk /pll_0/clk_out1
-    aresetn slice_2/Dout
+    aresetn slice_2/dout
   }
 
   # Create axis_broadcaster
@@ -385,7 +385,7 @@ module sp_0 {
   }
 
   # Create blk_mem_gen
-  cell xilinx.com:ip:blk_mem_gen:8.3 bram_1 {
+  cell xilinx.com:ip:blk_mem_gen:8.4 bram_1 {
     MEMORY_TYPE True_Dual_Port_RAM
     USE_BRAM_BLOCK Stand_Alone
     USE_BYTE_WRITE_ENABLE true
@@ -408,6 +408,6 @@ module sp_0 {
     S_AXIS comb_1/M_AXIS
     BRAM_PORTA bram_1/BRAM_PORTA
     aclk /pll_0/clk_out1
-    aresetn slice_0/Dout
+    aresetn slice_0/dout
   }
 }

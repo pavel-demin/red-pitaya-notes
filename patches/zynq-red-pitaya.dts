@@ -17,7 +17,7 @@
 		serial0 = &uart0;
 	};
 
-	memory {
+	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x1E000000>;
 	};
@@ -28,8 +28,8 @@
 	};
 
 	usb_phy0: phy0 {
-		compatible = "usb-nop-xceiv";
 		#phy-cells = <0>;
+		compatible = "usb-nop-xceiv";
 	};
 };
 
@@ -44,6 +44,7 @@
 
 	ethernet_phy: ethernet-phy@1 {
 		reg = <1>;
+		device_type = "ethernet-phy";
 	};
 };
 

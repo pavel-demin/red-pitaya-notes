@@ -1,0 +1,367 @@
+diff -rupN old/linux-4.14/drivers/char/Kconfig linux-4.14/drivers/char/Kconfig
+--- old/linux-4.14/drivers/char/Kconfig
++++ linux-4.14/drivers/char/Kconfig
+@@ -588,5 +588,12 @@ config TILE_SROM
+ 
+ source "drivers/char/xillybus/Kconfig"
+ 
++config XILINX_DEVCFG
++	tristate "Xilinx Device Configuration"
++	depends on ARCH_ZYNQ
++	help
++	  This option enables support for the Xilinx device configuration driver.
++	  If unsure, say N
++
+ endmenu
+ 
+diff -rupN old/linux-4.14/drivers/char/Makefile linux-4.14/drivers/char/Makefile
+--- old/linux-4.14/drivers/char/Makefile
++++ linux-4.14/drivers/char/Makefile
+@@ -60,3 +60,4 @@ js-rtc-y = rtc.o
+ obj-$(CONFIG_TILE_SROM)		+= tile-srom.o
+ obj-$(CONFIG_XILLYBUS)		+= xillybus/
+ obj-$(CONFIG_POWERNV_OP_PANEL)	+= powernv-op-panel.o
++obj-$(CONFIG_XILINX_DEVCFG)	+= xilinx_devcfg.o
+diff -rupN old/linux-4.14/drivers/misc/eeprom/at24.c linux-4.14/drivers/misc/eeprom/at24.c
+--- old/linux-4.14/drivers/misc/eeprom/at24.c
++++ linux-4.14/drivers/misc/eeprom/at24.c
+@@ -622,6 +622,8 @@ static int at24_probe(struct i2c_client
+ 		chip.flags = magic & AT24_BITMASK(AT24_SIZE_FLAGS);
+ 
+ 		at24_get_pdata(&client->dev, &chip);
++		if(!strncmp(id->name,"24c64",5))
++			chip.page_size = 32;
+ 
+ 		chip.setup = NULL;
+ 		chip.context = NULL;
+diff -rupN old/linux-4.14/drivers/net/phy/intel-xway.c linux-4.14/drivers/net/phy/intel-xway.c
+--- old/linux-4.14/drivers/net/phy/intel-xway.c
++++ linux-4.14/drivers/net/phy/intel-xway.c
+@@ -166,6 +166,12 @@ static int xway_gphy_config_init(struct
+ 	/* Clear all pending interrupts */
+ 	phy_read(phydev, XWAY_MDIO_ISTAT);
+ 
++	/* Set SGMII RX & TX timing skew to 2 ns & 2.5 ns respectively. */
++	/* Set MII power supply to 2V5. */
++	err = phy_write(phydev, 0x17, 0x4D00);
++	if (err)
++		return err;
++
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LEDCH,
+ 		      XWAY_MMD_LEDCH_NACS_NONE |
+ 		      XWAY_MMD_LEDCH_SBF_F02HZ |
+@@ -175,20 +181,16 @@ static int xway_gphy_config_init(struct
+ 		      XWAY_MMD_LEDCH_SCAN_NONE);
+ 
+ 	/**
+-	 * In most cases only one LED is connected to this phy, so
+-	 * configure them all to constant on and pulse mode. LED3 is
+-	 * only available in some packages, leave it in its reset
+-	 * configuration.
++	 * Set LED0 blinking on RX/TX.
++	 * Set LED1 blinking on link speed: slow=10M, fast=100M, on=1G.
+ 	 */
+-	ledxh = XWAY_MMD_LEDxH_BLINKF_NONE | XWAY_MMD_LEDxH_CON_LINK10XX;
+-	ledxl = XWAY_MMD_LEDxL_PULSE_TXACT | XWAY_MMD_LEDxL_PULSE_RXACT |
+-		XWAY_MMD_LEDxL_BLINKS_NONE;
+-	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0H, ledxh);
++	ledxl = XWAY_MMD_LEDxL_PULSE_TXACT | XWAY_MMD_LEDxL_PULSE_RXACT;
++	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0H, 0);
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0L, ledxl);
++	ledxh = XWAY_MMD_LEDxH_CON_LINK1000 | XWAY_MMD_LEDxH_BLINKF_LINK100;
++	ledxl = XWAY_MMD_LEDxH_CON_LINK10;
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED1H, ledxh);
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED1L, ledxl);
+-	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED2H, ledxh);
+-	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED2L, ledxl);
+ 
+ 	return 0;
+ }
+diff -rupN old/linux-4.14/drivers/net/wireless/realtek/Kconfig linux-4.14/drivers/net/wireless/realtek/Kconfig
+--- old/linux-4.14/drivers/net/wireless/realtek/Kconfig
++++ linux-4.14/drivers/net/wireless/realtek/Kconfig
+@@ -12,7 +12,7 @@ config WLAN_VENDOR_REALTEK
+ if WLAN_VENDOR_REALTEK
+ 
+ source "drivers/net/wireless/realtek/rtl818x/Kconfig"
+-source "drivers/net/wireless/realtek/rtlwifi/Kconfig"
+-source "drivers/net/wireless/realtek/rtl8xxxu/Kconfig"
++source "drivers/net/wireless/realtek/rtl8188eu/Kconfig"
++source "drivers/net/wireless/realtek/rtl8192cu/Kconfig"
+ 
+ endif # WLAN_VENDOR_REALTEK
+diff -rupN old/linux-4.14/drivers/net/wireless/realtek/Makefile linux-4.14/drivers/net/wireless/realtek/Makefile
+--- old/linux-4.14/drivers/net/wireless/realtek/Makefile
++++ linux-4.14/drivers/net/wireless/realtek/Makefile
+@@ -4,6 +4,6 @@
+ 
+ obj-$(CONFIG_RTL8180)		+= rtl818x/
+ obj-$(CONFIG_RTL8187)		+= rtl818x/
+-obj-$(CONFIG_RTLWIFI)		+= rtlwifi/
+-obj-$(CONFIG_RTL8XXXU)		+= rtl8xxxu/
++obj-$(CONFIG_RTL8188EU)		+= rtl8188eu/
++obj-$(CONFIG_RTL8192CU)		+= rtl8192cu/
+ 
+diff -rupN old/linux-4.14/drivers/net/wireless/realtek/rtl8188eu/Kconfig linux-4.14/drivers/net/wireless/realtek/rtl8188eu/Kconfig
+--- old/linux-4.14/drivers/net/wireless/realtek/rtl8188eu/Kconfig
++++ linux-4.14/drivers/net/wireless/realtek/rtl8188eu/Kconfig
+@@ -0,0 +1,9 @@
++config RTL8188EU
++	tristate "Realtek 8188EU USB WiFi"
++	depends on MAC80211 && USB
++	select CFG80211_WEXT
++	select WIRELESS_EXT
++	select WEXT_PRIV
++	---help---
++	  This option adds the Realtek RTL8188EU USB device.
++
+diff -rupN old/linux-4.14/drivers/net/wireless/realtek/rtl8192cu/Kconfig linux-4.14/drivers/net/wireless/realtek/rtl8192cu/Kconfig
+--- old/linux-4.14/drivers/net/wireless/realtek/rtl8192cu/Kconfig
++++ linux-4.14/drivers/net/wireless/realtek/rtl8192cu/Kconfig
+@@ -0,0 +1,9 @@
++config RTL8192CU
++	tristate "Realtek 8192CU USB WiFi"
++	depends on MAC80211 && USB
++	select CFG80211_WEXT
++	select WIRELESS_EXT
++	select WEXT_PRIV
++	---help---
++	  This option adds the Realtek RTL8192CU USB device.
++
+diff -rupN old/linux-4.14/drivers/pps/clients/pps-gpio.c linux-4.14/drivers/pps/clients/pps-gpio.c
+--- old/linux-4.14/drivers/pps/clients/pps-gpio.c
++++ linux-4.14/drivers/pps/clients/pps-gpio.c
+@@ -119,6 +119,8 @@ static int pps_gpio_probe(struct platfor
+ 
+ 		if (of_get_property(np, "assert-falling-edge", NULL))
+ 			data->assert_falling_edge = true;
++		if (of_get_property(np, "capture-clear", NULL))
++			data->capture_clear = true;
+ 	}
+ 
+ 	/* GPIO setup */
+diff -rupN old/linux-4.14/drivers/usb/chipidea/ci_hdrc_msm.c linux-4.14/drivers/usb/chipidea/ci_hdrc_msm.c
+--- old/linux-4.14/drivers/usb/chipidea/ci_hdrc_msm.c
++++ linux-4.14/drivers/usb/chipidea/ci_hdrc_msm.c
+@@ -251,7 +251,7 @@ static int ci_hdrc_msm_probe(struct plat
+ 	if (ret)
+ 		goto err_mux;
+ 
+-	ulpi_node = of_get_child_by_name(pdev->dev.of_node, "ulpi");
++	ulpi_node = of_find_node_by_name(of_node_get(pdev->dev.of_node), "ulpi");
+ 	if (ulpi_node) {
+ 		phy_node = of_get_next_available_child(ulpi_node, NULL);
+ 		ci->hsic = of_device_is_compatible(phy_node, "qcom,usb-hsic-phy");
+diff -rupN old/linux-4.14/drivers/usb/chipidea/ci_hdrc_usb2.c linux-4.14/drivers/usb/chipidea/ci_hdrc_usb2.c
+--- old/linux-4.14/drivers/usb/chipidea/ci_hdrc_usb2.c
++++ linux-4.14/drivers/usb/chipidea/ci_hdrc_usb2.c
+@@ -33,6 +33,7 @@ static const struct ci_hdrc_platform_dat
+ 
+ static struct ci_hdrc_platform_data ci_zynq_pdata = {
+ 	.capoffset	= DEF_CAPOFFSET,
++	.flags		= CI_HDRC_PHY_VBUS_CONTROL,
+ };
+ 
+ static const struct of_device_id ci_hdrc_usb2_of_match[] = {
+@@ -61,6 +62,9 @@ static int ci_hdrc_usb2_probe(struct pla
+ 	if (match && match->data) {
+ 		/* struct copy */
+ 		*ci_pdata = *(struct ci_hdrc_platform_data *)match->data;
++		ci_pdata->usb_phy = devm_usb_get_phy_by_phandle(dev, "usb-phy", 0);
++		if (IS_ERR(ci_pdata->usb_phy))
++			return PTR_ERR(ci_pdata->usb_phy);
+ 	}
+ 
+ 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+diff -rupN old/linux-4.14/drivers/usb/chipidea/host.c linux-4.14/drivers/usb/chipidea/host.c
+--- old/linux-4.14/drivers/usb/chipidea/host.c
++++ linux-4.14/drivers/usb/chipidea/host.c
+@@ -66,6 +66,14 @@ static int ehci_ci_portpower(struct usb_
+ 		}
+ 	}
+ 
++	if (ci->platdata->flags & CI_HDRC_PHY_VBUS_CONTROL &&
++			ci->usb_phy && ci->usb_phy->set_vbus) {
++		if (enable)
++			ci->usb_phy->set_vbus(ci->usb_phy, 1);
++		else
++			ci->usb_phy->set_vbus(ci->usb_phy, 0);
++	}
++
+ 	if (enable && (ci->platdata->phy_mode == USBPHY_INTERFACE_MODE_HSIC)) {
+ 		/*
+ 		 * Marvell 28nm HSIC PHY requires forcing the port to HS mode.
+diff -rupN old/linux-4.14/drivers/usb/chipidea/otg_fsm.c linux-4.14/drivers/usb/chipidea/otg_fsm.c
+--- old/linux-4.14/drivers/usb/chipidea/otg_fsm.c
++++ linux-4.14/drivers/usb/chipidea/otg_fsm.c
+@@ -475,6 +475,11 @@ static void ci_otg_drv_vbus(struct otg_f
+ 				return;
+ 			}
+ 		}
++
++		if (ci->platdata->flags & CI_HDRC_PHY_VBUS_CONTROL &&
++				ci->usb_phy && ci->usb_phy->set_vbus)
++			ci->usb_phy->set_vbus(ci->usb_phy, 1);
++
+ 		/* Disable data pulse irq */
+ 		hw_write_otgsc(ci, OTGSC_DPIE, 0);
+ 
+@@ -484,6 +489,10 @@ static void ci_otg_drv_vbus(struct otg_f
+ 		if (ci->platdata->reg_vbus)
+ 			regulator_disable(ci->platdata->reg_vbus);
+ 
++		if (ci->platdata->flags & CI_HDRC_PHY_VBUS_CONTROL &&
++				ci->usb_phy && ci->usb_phy->set_vbus)
++			ci->usb_phy->set_vbus(ci->usb_phy, 0);
++
+ 		fsm->a_bus_drop = 1;
+ 		fsm->a_bus_req = 0;
+ 	}
+diff -rupN old/linux-4.14/drivers/usb/phy/phy-ulpi.c linux-4.14/drivers/usb/phy/phy-ulpi.c
+--- old/linux-4.14/drivers/usb/phy/phy-ulpi.c
++++ linux-4.14/drivers/usb/phy/phy-ulpi.c
+@@ -26,9 +26,16 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/export.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/io.h>
++#include <linux/of_address.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
+ #include <linux/usb.h>
+ #include <linux/usb/otg.h>
+ #include <linux/usb/ulpi.h>
++#include <linux/usb/phy.h>
+ 
+ 
+ struct ulpi_info {
+@@ -52,6 +59,13 @@ static struct ulpi_info ulpi_ids[] = {
+ 	ULPI_INFO(ULPI_ID(0x0451, 0x1507), "TI TUSB1210"),
+ };
+ 
++struct ulpi_phy {
++	struct usb_phy	*usb_phy;
++	void __iomem *regs;
++	unsigned int vp_offset;
++	unsigned int flags;
++};
++
+ static int ulpi_set_otg_flags(struct usb_phy *phy)
+ {
+ 	unsigned int flags = ULPI_OTG_CTRL_DP_PULLDOWN |
+@@ -253,6 +267,23 @@ static int ulpi_set_vbus(struct usb_otg
+ 	return usb_phy_io_write(phy, flags, ULPI_OTG_CTRL);
+ }
+ 
++static int usbphy_set_vbus(struct usb_phy *phy, int on)
++{
++	unsigned int flags = usb_phy_io_read(phy, ULPI_OTG_CTRL);
++
++	flags &= ~(ULPI_OTG_CTRL_DRVVBUS | ULPI_OTG_CTRL_DRVVBUS_EXT);
++
++	if (on) {
++		if (phy->flags & ULPI_OTG_DRVVBUS)
++			flags |= ULPI_OTG_CTRL_DRVVBUS;
++
++		if (phy->flags & ULPI_OTG_DRVVBUS_EXT)
++			flags |= ULPI_OTG_CTRL_DRVVBUS_EXT;
++	}
++
++	return usb_phy_io_write(phy, flags, ULPI_OTG_CTRL);
++}
++
+ struct usb_phy *
+ otg_ulpi_create(struct usb_phy_io_ops *ops,
+ 		unsigned int flags)
+@@ -275,6 +306,7 @@ otg_ulpi_create(struct usb_phy_io_ops *o
+ 	phy->io_ops	= ops;
+ 	phy->otg	= otg;
+ 	phy->init	= ulpi_init;
++	phy->set_vbus	= usbphy_set_vbus;
+ 
+ 	otg->usb_phy	= phy;
+ 	otg->set_host	= ulpi_set_host;
+@@ -284,3 +316,70 @@ otg_ulpi_create(struct usb_phy_io_ops *o
+ }
+ EXPORT_SYMBOL_GPL(otg_ulpi_create);
+ 
++static int ulpi_phy_probe(struct platform_device *pdev)
++{
++	struct device_node *np = pdev->dev.of_node;
++	struct resource *res;
++	struct ulpi_phy *uphy;
++	bool flag;
++	int ret;
++
++	uphy = devm_kzalloc(&pdev->dev, sizeof(*uphy), GFP_KERNEL);
++	if (!uphy)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	uphy->regs = devm_ioremap(&pdev->dev, res->start, resource_size(res));
++	if (IS_ERR(uphy->regs))
++		return PTR_ERR(uphy->regs);
++
++	ret = of_property_read_u32(np, "view-port", &uphy->vp_offset);
++	if (IS_ERR(uphy->regs)) {
++		dev_err(&pdev->dev, "view-port register not specified\n");
++		return PTR_ERR(uphy->regs);
++	}
++
++	flag = of_property_read_bool(np, "drv-vbus");
++	if (flag)
++		uphy->flags |= ULPI_OTG_DRVVBUS | ULPI_OTG_DRVVBUS_EXT;
++
++	uphy->usb_phy = otg_ulpi_create(&ulpi_viewport_access_ops, uphy->flags);
++
++	uphy->usb_phy->dev = &pdev->dev;
++
++	uphy->usb_phy->io_priv = uphy->regs + uphy->vp_offset;
++
++	ret = usb_add_phy_dev(uphy->usb_phy);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
++static int ulpi_phy_remove(struct platform_device *pdev)
++{
++	struct ulpi_phy *uphy = platform_get_drvdata(pdev);
++
++	usb_remove_phy(uphy->usb_phy);
++
++	return 0;
++}
++
++static const struct of_device_id ulpi_phy_table[] = {
++	{ .compatible = "ulpi-phy" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ulpi_phy_table);
++
++static struct platform_driver ulpi_phy_driver = {
++	.probe		= ulpi_phy_probe,
++	.remove		= ulpi_phy_remove,
++	.driver		= {
++		.name	= "ulpi-phy",
++		.of_match_table = ulpi_phy_table,
++	},
++};
++module_platform_driver(ulpi_phy_driver);
++
++MODULE_DESCRIPTION("ULPI PHY driver");
++MODULE_LICENSE("GPL v2");
+diff -rupN old/linux-4.14/include/linux/usb/chipidea.h linux-4.14/include/linux/usb/chipidea.h
+--- old/linux-4.14/include/linux/usb/chipidea.h
++++ linux-4.14/include/linux/usb/chipidea.h
+@@ -60,6 +60,7 @@ struct ci_hdrc_platform_data {
+ #define CI_HDRC_OVERRIDE_RX_BURST	BIT(11)
+ #define CI_HDRC_OVERRIDE_PHY_CONTROL	BIT(12) /* Glue layer manages phy */
+ #define CI_HDRC_REQUIRES_ALIGNED_DMA	BIT(13)
++#define CI_HDRC_PHY_VBUS_CONTROL	BIT(14)
+ 	enum usb_dr_mode	dr_mode;
+ #define CI_HDRC_CONTROLLER_RESET_EVENT		0
+ #define CI_HDRC_CONTROLLER_STOPPED_EVENT	1

@@ -9,8 +9,8 @@ tools_url=$alpine_url/main/armhf/$tools_tar
 firmware_tar=linux-firmware-20170330-r1.apk
 firmware_url=$alpine_url/main/armhf/$firmware_tar
 
-linux_dir=tmp/linux-xlnx-xilinx-v2016.4
-linux_ver=4.6.0-xilinx
+linux_dir=tmp/linux-4.14
+linux_ver=4.14.36-xilinx
 
 modules_dir=alpine-modloop/lib/modules/$linux_ver
 
@@ -97,7 +97,7 @@ echo $alpine_url/community >> $root_dir/etc/apk/repositories
 chroot $root_dir /bin/sh <<- EOF_CHROOT
 
 apk update
-apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd-rtl871xdrv iptables avahi dcron chrony gpsd-timepps musl-dev curl wget less nano bc
+apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dcron chrony gpsd-timepps musl-dev curl wget less nano bc
 
 ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
 ln -s /etc/init.d/hostname etc/runlevels/boot/hostname

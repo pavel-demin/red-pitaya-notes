@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -81,52 +81,52 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 # RX
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
+  DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 160 DIN_FROM 95 DIN_TO 32 DOUT_WIDTH 64
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
+  DIN_WIDTH 160 DIN_FROM 95 DIN_TO 32
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module rx_0 {
   source projects/pulsed_nmr/rx.tcl
 } {
-  slice_0/Din rst_slice_0/Dout
-  slice_1/Din rst_slice_0/Dout
-  slice_2/Din cfg_slice_0/Dout
-  slice_3/Din cfg_slice_0/Dout
+  slice_0/din rst_slice_0/dout
+  slice_1/din rst_slice_0/dout
+  slice_2/din cfg_slice_0/dout
+  slice_3/din cfg_slice_0/dout
 }
 
 # TX
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
+  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8
 } {
-  Din cfg_0/cfg_data
-  Dout exp_p_tri_io
+  din cfg_0/cfg_data
+  dout exp_p_tri_io
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 160 DIN_FROM 159 DIN_TO 96 DOUT_WIDTH 64
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
+  DIN_WIDTH 160 DIN_FROM 159 DIN_TO 96
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module tx_0 {
   source projects/pulsed_nmr/tx.tcl
 } {
-  slice_0/Din rst_slice_1/Dout
-  slice_1/Din rst_slice_0/Dout
-  slice_2/Din cfg_slice_1/Dout
-  slice_3/Din cfg_slice_1/Dout
+  slice_0/din rst_slice_1/dout
+  slice_1/din rst_slice_0/dout
+  slice_2/din cfg_slice_1/dout
+  slice_3/din cfg_slice_1/dout
   zeroer_0/M_AXIS dac_0/S_AXIS
 }
 

@@ -1,6 +1,6 @@
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
-  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 slice_0 {
+  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
 # Create axis_broadcaster
@@ -24,15 +24,15 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 for {set i 0} {$i <= 5} {incr i} {
 
   # Create xlslice
-  cell xilinx.com:ip:xlslice:1.0 slice_[expr $i + 1] {
-    DIN_WIDTH 192 DIN_FROM [expr 32 * $i + 31] DIN_TO [expr 32 * $i] DOUT_WIDTH 32
+  cell pavel-demin:user:port_slicer:1.0 slice_[expr $i + 1] {
+    DIN_WIDTH 192 DIN_FROM [expr 32 * $i + 31] DIN_TO [expr 32 * $i]
   }
 
   # Create axis_constant
   cell pavel-demin:user:axis_constant:1.0 phase_$i {
     AXIS_TDATA_WIDTH 32
   } {
-    cfg_data slice_[expr $i + 1]/Dout
+    cfg_data slice_[expr $i + 1]/dout
     aclk /pll_0/clk_out1
   }
 
@@ -232,7 +232,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_7 {
 for {set i 0} {$i <= 5} {incr i} {
 
   # Create fifo_generator
-  cell xilinx.com:ip:fifo_generator:13.1 fifo_generator_$i {
+  cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_$i {
     PERFORMANCE_OPTIONS First_Word_Fall_Through
     INPUT_DATA_WIDTH 64
     INPUT_DEPTH 1024
@@ -242,7 +242,7 @@ for {set i 0} {$i <= 5} {incr i} {
     READ_DATA_COUNT_WIDTH 12
   } {
     clk /pll_0/clk_out1
-    srst slice_0/Dout
+    srst slice_0/dout
   }
 
   # Create axis_fifo

@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -110,9 +110,9 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 module trx_0 {
   source projects/sdr_transceiver_wide/trx.tcl
 } {
-  out_slice_0/Dout exp_p_tri_io
-  rx_0/adc_slice_0/Din adc_0/m_axis_tdata
-  rx_0/adc_slice_1/Din adc_0/m_axis_tdata
+  out_slice_0/dout exp_p_tri_io
+  rx_0/adc_slice_0/din adc_0/m_axis_tdata
+  rx_0/adc_slice_1/din adc_0/m_axis_tdata
   tx_0/comb_1/M_AXIS dac_0/S_AXIS
 }
 

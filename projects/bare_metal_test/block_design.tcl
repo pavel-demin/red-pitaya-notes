@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -52,11 +52,11 @@ cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_0 {
+cell pavel-demin:user:port_slicer:1.0 slice_0 {
   DIN_FROM 26
   DIN_TO 26
 } {
-  Din cntr_0/Q
+  din cntr_0/Q
 }
 
 # Create axi_cfg_register
@@ -76,18 +76,18 @@ set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 slice_1 {
-  DIN_WIDTH 32 DIN_FROM 6 DIN_TO 0 DOUT_WIDTH 7
+cell pavel-demin:user:port_slicer:1.0 slice_1 {
+  DIN_WIDTH 32 DIN_FROM 6 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   IN1_WIDTH 7
 } {
-  In0 slice_0/Dout
-  In1 slice_1/Dout
+  In0 slice_0/dout
+  In1 slice_1/dout
   dout led_o
 }
 

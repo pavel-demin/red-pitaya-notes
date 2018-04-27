@@ -6,7 +6,7 @@ module tx_0 {
   }
 
   # Create blk_mem_gen
-  cell xilinx.com:ip:blk_mem_gen:8.3 bram_0 {
+  cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
     MEMORY_TYPE True_Dual_Port_RAM
     USE_BRAM_BLOCK Stand_Alone
     WRITE_WIDTH_A 64
@@ -28,7 +28,7 @@ module tx_0 {
     BRAM_PORTA bram_0/BRAM_PORTA
     cfg_data const_0/dout
     aclk /pll_0/clk_out1
-    aresetn /rst_slice_3/Dout
+    aresetn /rst_slice_3/dout
   }
 
   # Create axis_broadcaster
@@ -161,7 +161,7 @@ module tx_0 {
   cell pavel-demin:user:axis_constant:1.0 phase_0 {
     AXIS_TDATA_WIDTH 32
   } {
-    cfg_data /cfg_slice_2/Dout
+    cfg_data /cfg_slice_2/dout
     aclk /pll_0/clk_out1
   }
 
@@ -184,7 +184,7 @@ module tx_0 {
   # Create axis_lfsr
   cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
     aclk /pll_0/clk_out1
-    aresetn /rst_slice_3/Dout
+    aresetn /rst_slice_3/dout
   }
 
   # Create cmpy

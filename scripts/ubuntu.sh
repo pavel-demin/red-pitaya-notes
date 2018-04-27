@@ -3,8 +3,8 @@ device=$1
 boot_dir=`mktemp -d /tmp/BOOT.XXXXXXXXXX`
 root_dir=`mktemp -d /tmp/ROOT.XXXXXXXXXX`
 
-linux_dir=tmp/linux-xlnx-xilinx-v2016.4
-linux_ver=4.6.0-xilinx
+linux_dir=tmp/linux-4.14
+linux_ver=4.14.36-xilinx
 
 root_tar=ubuntu-base-14.04.5-core-armhf.tar.gz
 root_url=http://cdimage.ubuntu.com/ubuntu-base/releases/14.04/release/$root_tar
@@ -60,11 +60,6 @@ depmod -a -b $root_dir $linux_ver
 
 cp /etc/resolv.conf $root_dir/etc/
 cp /usr/bin/qemu-arm-static $root_dir/usr/bin/
-
-cp patches/fw_env.config $root_dir/etc/
-
-cp fw_printenv $root_dir/usr/local/bin/fw_printenv
-cp fw_printenv $root_dir/usr/local/bin/fw_setenv
 
 curl -L $hostapd_url -o $root_dir/usr/local/sbin/hostapd
 chmod +x $root_dir/usr/local/sbin/hostapd

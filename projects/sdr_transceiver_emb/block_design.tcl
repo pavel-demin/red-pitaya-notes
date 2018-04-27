@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -100,11 +100,11 @@ delete_bd_objs [get_bd_ports exp_p_tri_io]
 create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 out_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 31 DIN_TO 24 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 out_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 31 DIN_TO 24
 } {
-  Din cfg_0/cfg_data
-  Dout exp_p_tri_io
+  din cfg_0/cfg_data
+  dout exp_p_tri_io
 }
 
 # Delete input/output port
@@ -142,115 +142,115 @@ module alex {
 # RX 0
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 95 DIN_TO 32 DOUT_WIDTH 64
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 95 DIN_TO 32
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module rx_0 {
   source projects/sdr_transceiver_emb/rx.tcl
 } {
-  slice_0/Din rst_slice_0/Dout
-  slice_1/Din cfg_slice_0/Dout
-  slice_2/Din cfg_slice_0/Dout
+  slice_0/din rst_slice_0/dout
+  slice_1/din cfg_slice_0/dout
+  slice_2/din cfg_slice_0/dout
 }
 
 # SP 0
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
+  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 191 DIN_TO 96 DOUT_WIDTH 96
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
+  DIN_WIDTH 320 DIN_FROM 191 DIN_TO 96
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module sp_0 {
   source projects/sdr_transceiver_emb/sp.tcl
 } {
-  slice_0/Din rst_slice_1/Dout
-  slice_1/Din rst_slice_1/Dout
-  slice_2/Din cfg_slice_1/Dout
-  slice_3/Din cfg_slice_1/Dout
-  slice_4/Din cfg_slice_1/Dout
-  slice_5/Din cfg_slice_1/Dout
+  slice_0/din rst_slice_1/dout
+  slice_1/din rst_slice_1/dout
+  slice_2/din cfg_slice_1/dout
+  slice_3/din cfg_slice_1/dout
+  slice_4/din cfg_slice_1/dout
+  slice_5/din cfg_slice_1/dout
 }
 
 # TX 0
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_2 {
-  DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_2 {
+  DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_2 {
-  DIN_WIDTH 320 DIN_FROM 255 DIN_TO 192 DOUT_WIDTH 64
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_2 {
+  DIN_WIDTH 320 DIN_FROM 255 DIN_TO 192
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 key_slice_0 {
-  DIN_WIDTH 4 DIN_FROM 2 DIN_TO 2 DOUT_WIDTH 1
+cell pavel-demin:user:port_slicer:1.0 key_slice_0 {
+  DIN_WIDTH 4 DIN_FROM 2 DIN_TO 2
 } {
-  Din not_0/Res
+  din not_0/Res
 }
 
 module tx_0 {
   source projects/sdr_transceiver_emb/tx.tcl
 } {
-  slice_0/Din rst_slice_2/Dout
-  slice_1/Din cfg_slice_2/Dout
-  slice_2/Din cfg_slice_2/Dout
-  slice_3/Din cfg_slice_2/Dout
-  keyer_0/key_flag key_slice_0/Dout
+  slice_0/din rst_slice_2/dout
+  slice_1/din cfg_slice_2/dout
+  slice_2/din cfg_slice_2/dout
+  slice_3/din cfg_slice_2/dout
+  keyer_0/key_flag key_slice_0/dout
   mult_1/P dac_0/s_axis_tdata
 }
 
 # CODEC
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_3 {
-  DIN_WIDTH 320 DIN_FROM 23 DIN_TO 16 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_3 {
+  DIN_WIDTH 320 DIN_FROM 23 DIN_TO 16
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_3 {
-  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 256 DOUT_WIDTH 64
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_3 {
+  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 256
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module codec {
   source projects/sdr_transceiver_emb/codec.tcl
 } {
-  slice_0/Din rst_slice_3/Dout
-  slice_1/Din rst_slice_3/Dout
-  slice_2/Din rst_slice_3/Dout
-  slice_3/Din cfg_slice_3/Dout
-  slice_4/Din cfg_slice_3/Dout
-  slice_5/Din cfg_slice_3/Dout
-  keyer_0/key_flag key_slice_0/Dout
+  slice_0/din rst_slice_3/dout
+  slice_1/din rst_slice_3/dout
+  slice_2/din rst_slice_3/dout
+  slice_3/din cfg_slice_3/dout
+  slice_4/din cfg_slice_3/dout
+  slice_5/din cfg_slice_3/dout
+  keyer_0/key_flag key_slice_0/dout
   i2s_0/gpio_data exp_n_alex
   i2s_0/alex_data alex/alex_0/alex_data
 }

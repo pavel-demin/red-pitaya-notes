@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -143,7 +143,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_1 {
 module trx_0 {
   source projects/sdr_transceiver/trx.tcl
 } {
-  out_slice_0/Dout concat_1/In0
+  out_slice_0/dout concat_1/In0
   rx_0/mult_0/S_AXIS_A bcast_0/M00_AXIS
   tx_0/mult_0/M_AXIS_DOUT comb_0/S00_AXIS
 }
@@ -187,7 +187,7 @@ set_property OFFSET 0x40018000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 module trx_1 {
   source projects/sdr_transceiver/trx.tcl
 } {
-  out_slice_0/Dout concat_1/In1
+  out_slice_0/dout concat_1/In1
   rx_0/mult_0/S_AXIS_A bcast_0/M01_AXIS
   tx_0/mult_0/M_AXIS_DOUT comb_0/S01_AXIS
 }

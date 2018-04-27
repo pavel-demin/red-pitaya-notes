@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:5.3 pll_0 {
+cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -56,32 +56,32 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 # RX 0
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 rst_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0 DOUT_WIDTH 8
+cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 # Create xlslice
-cell xilinx.com:ip:xlslice:1.0 cfg_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 32 DOUT_WIDTH 288
+cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 32
 } {
-  Din cfg_0/cfg_data
+  din cfg_0/cfg_data
 }
 
 module rx_0 {
   source projects/sdr_receiver_hpsdr/rx.tcl
 } {
-  slice_0/Din rst_slice_0/Dout
-  slice_1/Din cfg_slice_0/Dout
-  slice_2/Din cfg_slice_0/Dout
-  slice_3/Din cfg_slice_0/Dout
-  slice_4/Din cfg_slice_0/Dout
-  slice_5/Din cfg_slice_0/Dout
-  slice_6/Din cfg_slice_0/Dout
-  slice_7/Din cfg_slice_0/Dout
-  slice_8/Din cfg_slice_0/Dout
-  slice_9/Din cfg_slice_0/Dout
+  slice_0/din rst_slice_0/dout
+  slice_1/din cfg_slice_0/dout
+  slice_2/din cfg_slice_0/dout
+  slice_3/din cfg_slice_0/dout
+  slice_4/din cfg_slice_0/dout
+  slice_5/din cfg_slice_0/dout
+  slice_6/din cfg_slice_0/dout
+  slice_7/din cfg_slice_0/dout
+  slice_8/din cfg_slice_0/dout
+  slice_9/din cfg_slice_0/dout
 }
 
 # STS
