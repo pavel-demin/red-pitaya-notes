@@ -11,7 +11,7 @@ Creating virtual machine with Debian 8.10 (amd64)
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](http://ftp.heanet.ie/pub/ftp.debian.org/debian/dists/jessie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 8.10
+- Download [mini.iso](http://deb.debian.org/debian/dists/jessie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 8.10
 
 - Start VirtualBox
 
