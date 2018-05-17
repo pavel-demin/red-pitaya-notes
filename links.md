@@ -25,7 +25,7 @@ permalink: /links/
 
  - [Technik-Blog der Fakultät Technik der DHBW Mannheim](http://blog.fakultaet-technik.de/category/fpga)
 
- - [Zynq Design From Scratch](http://www.zynqfromscratch.com)
+ - [Zynq Design From Scratch](http://svenand.blogdrives.com/archive/160.html)
 
  - [FPGA CPU News](http://fpgacpu.wordpress.com/category/arm-soc-fpgas)
 
