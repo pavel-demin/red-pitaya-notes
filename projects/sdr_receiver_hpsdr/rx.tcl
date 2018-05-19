@@ -40,6 +40,8 @@ for {set i 0} {$i <= 15} {incr i} {
 
 # Create axis_switch
 cell xilinx.com:ip:axis_switch:1.1 switch_0 {
+  HAS_TREADY.VALUE_SRC USER
+  HAS_TREADY 0
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
   ROUTING_MODE 1
