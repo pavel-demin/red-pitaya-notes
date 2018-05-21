@@ -1,77 +1,33 @@
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
-# Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
-  NUM_PORTS 8
-}
-
-set prop_list {}
-for {set i 0} {$i <= 7} {incr i} {
-  lappend prop_list IN${i}_WIDTH 32
-}
-set_property -dict $prop_list [get_bd_cells concat_0]
-
-for {set i 0} {$i <= 7} {incr i} {
-  connect_bd_net [get_bd_pins concat_0/In$i] [get_bd_pins /adc_0/m_axis_tdata]
-}
-
-# Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_1 {
-  NUM_PORTS 16
-}
-
-set prop_list {}
-for {set i 0} {$i <= 15} {incr i} {
-  lappend prop_list IN${i}_WIDTH 1
-}
-set_property -dict $prop_list [get_bd_cells concat_1]
-
-for {set i 0} {$i <= 15} {incr i} {
-  connect_bd_net [get_bd_pins concat_1/In$i] [get_bd_pins /adc_0/m_axis_tvalid]
-}
-
-# Create axis_switch
-cell xilinx.com:ip:axis_switch:1.1 switch_0 {
-  HAS_TREADY.VALUE_SRC USER
-  HAS_TREADY 0
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 2
-  ROUTING_MODE 1
-  NUM_SI 16
-  NUM_MI 8
-} {
-  s_axis_tdata concat_0/dout
-  s_axis_tvalid concat_1/dout
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-set prop_list {}
-for {set i 0} {$i <= 7} {incr i} {
-  for {set j 0} {$j <= 15} {incr j} {
-    if {$i == $j / 2} continue
-    lappend prop_list CONFIG.M[format %02d $i]_S[format %02d $j]_CONNECTIVITY 0
-  }
-}
-set_property -dict $prop_list [get_bd_cells switch_0]
-
-unset prop_list
-
 for {set i 0} {$i <= 7} {incr i} {
 
-  # Create xlslice
+  # Create port_slicer
   cell pavel-demin:user:port_slicer:1.0 slice_[expr $i + 1] {
-    DIN_WIDTH 256 DIN_FROM [expr 32 * $i + 31] DIN_TO [expr 32 * $i]
+    DIN_WIDTH 288 DIN_FROM [expr $i] DIN_TO [expr $i]
+  }
+
+  # Create port_selector
+  cell pavel-demin:user:port_selector:1.0 selector_$i {
+    DOUT_WIDTH 16
+  } {
+    cfg slice_[expr $i + 1]/dout
+    din /adc_0/m_axis_tdata
+  }
+
+  # Create port_slicer
+  cell pavel-demin:user:port_slicer:1.0 slice_[expr $i + 9] {
+    DIN_WIDTH 288 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32]
   }
 
   # Create axis_constant
   cell pavel-demin:user:axis_constant:1.0 phase_$i {
     AXIS_TDATA_WIDTH 32
   } {
-    cfg_data slice_[expr $i + 1]/dout
+    cfg_data slice_[expr $i + 9]/dout
     aclk /pll_0/clk_out1
   }
 
@@ -104,14 +60,7 @@ cell xilinx.com:ip:xlconstant:1.1 const_0
 
 for {set i 0} {$i <= 15} {incr i} {
 
-  # Create xlslice
-  cell pavel-demin:user:port_slicer:1.0 adc_slice_$i {
-    DIN_WIDTH 128 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)]
-  } {
-    din switch_0/m_axis_tdata
-  }
-
-  # Create xlslice
+  # Create port_slicer
   cell pavel-demin:user:port_slicer:1.0 dds_slice_$i {
     DIN_WIDTH 48 DIN_FROM [expr 24 * ($i % 2) + 23] DIN_TO [expr 24 * ($i % 2)]
   } {
@@ -128,7 +77,7 @@ for {set i 0} {$i <= 15} {incr i} {
     P_WIDTH 25
   } {
     A dds_slice_$i/dout
-    B adc_slice_$i/dout
+    B selector_[expr $i / 2]/dout
     CARRYIN lfsr_0/m_axis_tdata
     CLK /pll_0/clk_out1
   }

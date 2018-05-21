@@ -65,7 +65,7 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
-  CFG_DATA_WIDTH 320
+  CFG_DATA_WIDTH 352
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -78,9 +78,9 @@ delete_bd_objs [get_bd_ports exp_p_tri_io]
 # Create output port
 create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 out_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 23 DIN_TO 16
+  DIN_WIDTH 352 DIN_FROM 23 DIN_TO 16
 } {
   din cfg_0/cfg_data
   dout exp_p_tri_io
@@ -92,7 +92,7 @@ delete_bd_objs [get_bd_ports exp_n_tri_io]
 # Create input port
 create_bd_port -dir I -from 3 -to 0 exp_n_tri_io
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 pps_slice_0 {
   DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3
 } {
@@ -102,16 +102,16 @@ cell pavel-demin:user:port_slicer:1.0 pps_slice_0 {
 
 # RX 0
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0
+  DIN_WIDTH 352 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 287 DIN_TO 32
+  DIN_WIDTH 352 DIN_FROM 319 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
@@ -128,20 +128,28 @@ module rx_0 {
   slice_6/din cfg_slice_0/dout
   slice_7/din cfg_slice_0/dout
   slice_8/din cfg_slice_0/dout
+  slice_9/din cfg_slice_0/dout
+  slice_10/din cfg_slice_0/dout
+  slice_11/din cfg_slice_0/dout
+  slice_12/din cfg_slice_0/dout
+  slice_13/din cfg_slice_0/dout
+  slice_14/din cfg_slice_0/dout
+  slice_15/din cfg_slice_0/dout
+  slice_16/din cfg_slice_0/dout
 }
 
 # TX 0
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8
+  DIN_WIDTH 352 DIN_FROM 15 DIN_TO 8
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 288
+  DIN_WIDTH 352 DIN_FROM 351 DIN_TO 320
 } {
   din cfg_0/cfg_data
 }
@@ -157,9 +165,9 @@ module tx_0 {
 
 # PPS
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_2 {
-  DIN_WIDTH 320 DIN_FROM 24 DIN_TO 24
+  DIN_WIDTH 352 DIN_FROM 24 DIN_TO 24
 } {
   din cfg_0/cfg_data
 }
@@ -254,15 +262,6 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins rx_0/switch_0/S_AXI_CTRL]
-
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg]
-set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg]
-
 for {set i 0} {$i <= 7} {incr i} {
 
   # Create all required interconnections
@@ -272,7 +271,7 @@ for {set i 0} {$i <= 7} {incr i} {
   } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
 
   set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
-  set_property OFFSET 0x4000[format %X [expr $i + 3]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property OFFSET 0x4000[format %X [expr $i + 2]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
 
 }
 
@@ -283,7 +282,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 } [get_bd_intf_pins tx_0/writer_0/S_AXI]
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
-set_property OFFSET 0x4000B000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+set_property OFFSET 0x4000A000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -292,4 +291,4 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 } [get_bd_intf_pins reader_0/S_AXI]
 
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg01]
-set_property OFFSET 0x4000C000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg01]
+set_property OFFSET 0x4000B000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg01]
