@@ -8,42 +8,42 @@ module sp_0 {
     CONST_VAL 4095
   }
 
-  # Create xlslice
+  # Create port_slicer
   cell pavel-demin:user:port_slicer:1.0 slice_0 {
     DIN_WIDTH 4 DIN_FROM 0 DIN_TO 0
   } {
     din /rst_slice_2/dout
   }
 
-  # Create xlslice
+  # Create port_slicer
   cell pavel-demin:user:port_slicer:1.0 slice_1 {
     DIN_WIDTH 4 DIN_FROM 1 DIN_TO 1
   } {
     din /rst_slice_2/dout
   }
 
-  # Create xlslice
+  # Create port_slicer
   cell pavel-demin:user:port_slicer:1.0 slice_2 {
     DIN_WIDTH 4 DIN_FROM 2 DIN_TO 2
   } {
     din /rst_slice_2/dout
   }
 
-  # Create xlslice
+  # Create port_slicer
   cell pavel-demin:user:port_slicer:1.0 slice_3 {
     DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3
   } {
     din /rst_slice_2/dout
   }
 
-  # Create xlslice
+  # Create port_slicer
   cell pavel-demin:user:port_slicer:1.0 slice_4 {
     DIN_WIDTH 64 DIN_FROM 15 DIN_TO 0
   } {
     din /cfg_slice_1/dout
   }
 
-  # Create xlslice
+  # Create port_slicer
   cell pavel-demin:user:port_slicer:1.0 slice_5 {
     DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32
   } {

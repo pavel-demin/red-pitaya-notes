@@ -55,14 +55,14 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 
 # RX 0
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
   DIN_WIDTH 224 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
   DIN_WIDTH 224 DIN_FROM 223 DIN_TO 32
 } {

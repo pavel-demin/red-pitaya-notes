@@ -1,14 +1,14 @@
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_1 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_2 {
   DIN_WIDTH 96 DIN_FROM 15 DIN_TO 0
 }
@@ -30,7 +30,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 
 for {set i 0} {$i <= 1} {incr i} {
 
-  # Create xlslice
+  # Create port_slicer
   cell pavel-demin:user:port_slicer:1.0 slice_[expr $i + 3] {
     DIN_WIDTH 96 DIN_FROM [expr 32 * $i + 63] DIN_TO [expr 32 * $i + 32]
   }

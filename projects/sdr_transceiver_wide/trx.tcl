@@ -6,35 +6,35 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 }
 
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
   DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
   DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 out_slice_0 {
   DIN_WIDTH 160 DIN_FROM 23 DIN_TO 16
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
   DIN_WIDTH 160 DIN_FROM 95 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
   DIN_WIDTH 160 DIN_FROM 159 DIN_TO 96
 } {

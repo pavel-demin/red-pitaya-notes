@@ -101,14 +101,14 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 
 # RX 0
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
   DIN_WIDTH 224 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
   DIN_WIDTH 224 DIN_FROM 127 DIN_TO 32
 } {
@@ -128,14 +128,14 @@ module rx_0 {
 
 # TX 0
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
   DIN_WIDTH 224 DIN_FROM 15 DIN_TO 8
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
   DIN_WIDTH 224 DIN_FROM 223 DIN_TO 128
 } {

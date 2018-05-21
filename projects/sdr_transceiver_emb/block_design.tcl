@@ -99,7 +99,7 @@ delete_bd_objs [get_bd_ports exp_p_tri_io]
 # Create output port
 create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 out_slice_0 {
   DIN_WIDTH 320 DIN_FROM 31 DIN_TO 24
 } {
@@ -141,14 +141,14 @@ module alex {
 
 # RX 0
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
   DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
   DIN_WIDTH 320 DIN_FROM 95 DIN_TO 32
 } {
@@ -165,14 +165,14 @@ module rx_0 {
 
 # SP 0
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
   DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
   DIN_WIDTH 320 DIN_FROM 191 DIN_TO 96
 } {
@@ -192,21 +192,21 @@ module sp_0 {
 
 # TX 0
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_2 {
   DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_2 {
   DIN_WIDTH 320 DIN_FROM 255 DIN_TO 192
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 key_slice_0 {
   DIN_WIDTH 4 DIN_FROM 2 DIN_TO 2
 } {
@@ -226,7 +226,7 @@ module tx_0 {
 
 # CODEC
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_3 {
   DIN_WIDTH 320 DIN_FROM 23 DIN_TO 16
 } {
@@ -234,7 +234,7 @@ cell pavel-demin:user:port_slicer:1.0 rst_slice_3 {
 }
 
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_3 {
   DIN_WIDTH 320 DIN_FROM 319 DIN_TO 256
 } {
