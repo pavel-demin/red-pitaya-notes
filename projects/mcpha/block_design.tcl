@@ -68,70 +68,70 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
   AXI_DATA_WIDTH 32
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
   DIN_WIDTH 768 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 neg_slice_0 {
   DIN_WIDTH 768 DIN_FROM 4 DIN_TO 4
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
   DIN_WIDTH 768 DIN_FROM 15 DIN_TO 8
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 neg_slice_1 {
   DIN_WIDTH 768 DIN_FROM 12 DIN_TO 12
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_2 {
   DIN_WIDTH 768 DIN_FROM 23 DIN_TO 16
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_3 {
   DIN_WIDTH 768 DIN_FROM 31 DIN_TO 24
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 neg_slice_2 {
   DIN_WIDTH 768 DIN_FROM 28 DIN_TO 28
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 neg_slice_3 {
   DIN_WIDTH 768 DIN_FROM 29 DIN_TO 29
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_4 {
   DIN_WIDTH 768 DIN_FROM 30 DIN_TO 30
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_5 {
   DIN_WIDTH 768 DIN_FROM 31 DIN_TO 31
 } {
@@ -140,7 +140,7 @@ cell pavel-demin:user:port_slicer:1.0 rst_slice_5 {
 
 # rate_0/cfg_data and rate_1/cfg_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_0 {
   DIN_WIDTH 768 DIN_FROM 47 DIN_TO 32
 } {
@@ -149,49 +149,49 @@ cell pavel-demin:user:port_slicer:1.0 slice_0 {
 
 # rate_2/cfg_data and rate_3/cfg_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_1 {
   DIN_WIDTH 768 DIN_FROM 63 DIN_TO 48
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
   DIN_WIDTH 768 DIN_FROM 191 DIN_TO 64
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
   DIN_WIDTH 768 DIN_FROM 319 DIN_TO 192
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_2 {
   DIN_WIDTH 768 DIN_FROM 447 DIN_TO 320
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_3 {
   DIN_WIDTH 768 DIN_FROM 575 DIN_TO 448
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_4 {
   DIN_WIDTH 768 DIN_FROM 671 DIN_TO 576
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_5 {
   DIN_WIDTH 768 DIN_FROM 767 DIN_TO 672
 } {
@@ -430,14 +430,14 @@ module pha_3 {
   vldtr_0/m_axis_tready const_0/dout
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_2 {
   DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0
 } {
   din pha_2/timer_0/sts_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_3 {
   DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32
 } {

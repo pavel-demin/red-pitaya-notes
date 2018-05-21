@@ -1,76 +1,76 @@
 source projects/cfg_test/block_design.tcl
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_2 {
   DIN_WIDTH 1024 DIN_FROM 0 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_3 {
   DIN_WIDTH 1024 DIN_FROM 1 DIN_TO 1
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_4 {
   DIN_WIDTH 1024 DIN_FROM 2 DIN_TO 2
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_5 {
   DIN_WIDTH 1024 DIN_FROM 3 DIN_TO 3
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_6 {
   DIN_WIDTH 1024 DIN_FROM 4 DIN_TO 4
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_7 {
   DIN_WIDTH 1024 DIN_FROM 5 DIN_TO 5
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_8 {
   DIN_WIDTH 1024 DIN_FROM 6 DIN_TO 6
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_9 {
   DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_10 {
   DIN_WIDTH 1024 DIN_FROM 95 DIN_TO 64
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_11 {
   DIN_WIDTH 1024 DIN_FROM 127 DIN_TO 96
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_12 {
   DIN_WIDTH 1024 DIN_FROM 159 DIN_TO 128
 } {

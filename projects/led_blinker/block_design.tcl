@@ -17,7 +17,7 @@ cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
   CLK pll_0/clk_out1
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_0 {
   DIN_WIDTH 32 DIN_FROM 26 DIN_TO 26
 } {

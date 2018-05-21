@@ -51,7 +51,7 @@ cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
   CLK pll_0/clk_out1
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_0 {
   DIN_WIDTH 32 DIN_FROM 26 DIN_TO 26
 } {
@@ -75,7 +75,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_1 {
   DIN_WIDTH 32 DIN_FROM 0 DIN_TO 0
 } {

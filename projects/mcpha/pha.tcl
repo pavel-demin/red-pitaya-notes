@@ -1,62 +1,62 @@
 # pha_0/aresetn
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
 # timer_0/aresetn
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_1 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1
 }
 
 # pha_0/bln_flag
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_2 {
   DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2
 }
 
 # timer_0/run_flag
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_3 {
   DIN_WIDTH 8 DIN_FROM 3 DIN_TO 3
 }
 
 # timer_0/cfg_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_4 {
   DIN_WIDTH 128 DIN_FROM 63 DIN_TO 0
 }
 
 # pha_0/bln_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_5 {
   DIN_WIDTH 128 DIN_FROM 79 DIN_TO 64
 }
 
 # pha_0/cfg_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_6 {
   DIN_WIDTH 128 DIN_FROM 95 DIN_TO 80
 }
 
 # pha_0/min_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_7 {
   DIN_WIDTH 128 DIN_FROM 111 DIN_TO 96
 }
 
 # pha_0/max_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_8 {
   DIN_WIDTH 128 DIN_FROM 127 DIN_TO 112
 }

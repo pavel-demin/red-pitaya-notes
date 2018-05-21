@@ -1,24 +1,24 @@
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_0 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_1 {
   DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_2 {
   DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_3 {
   DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_4 {
   DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48
 }

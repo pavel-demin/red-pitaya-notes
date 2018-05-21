@@ -1,6 +1,6 @@
 # hst_0/aresetn
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }

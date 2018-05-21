@@ -63,56 +63,56 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
   DIN_WIDTH 160 DIN_FROM 0 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
   DIN_WIDTH 160 DIN_FROM 1 DIN_TO 1
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_2 {
   DIN_WIDTH 160 DIN_FROM 5 DIN_TO 2
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_3 {
   DIN_WIDTH 160 DIN_FROM 6 DIN_TO 6
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_4 {
   DIN_WIDTH 160 DIN_FROM 7 DIN_TO 7
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
   DIN_WIDTH 160 DIN_FROM 63 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
   DIN_WIDTH 160 DIN_FROM 127 DIN_TO 64
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_2 {
   DIN_WIDTH 160 DIN_FROM 159 DIN_TO 128
 } {

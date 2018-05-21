@@ -80,14 +80,14 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 
 # RX
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
   DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
   DIN_WIDTH 160 DIN_FROM 95 DIN_TO 32
 } {
@@ -105,7 +105,7 @@ module rx_0 {
 
 # TX
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
   DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8
 } {
@@ -113,7 +113,7 @@ cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
   dout exp_p_tri_io
 }
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
   DIN_WIDTH 160 DIN_FROM 159 DIN_TO 96
 } {

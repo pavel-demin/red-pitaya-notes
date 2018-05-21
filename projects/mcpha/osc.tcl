@@ -1,55 +1,55 @@
 # scope_0/aresetn
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
 # conv_0/aresetn and writer_0/aresetn
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_1 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1
 }
 
 # trig_0/pol_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_2 {
   DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2
 }
 
 # or_0/Op1
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_3 {
   DIN_WIDTH 8 DIN_FROM 3 DIN_TO 3
 }
 
 # scope_0/run_flag
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_4 {
   DIN_WIDTH 8 DIN_FROM 4 DIN_TO 4
 }
 
 # scope_0/pre_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_5 {
   DIN_WIDTH 96 DIN_FROM 31 DIN_TO 0
 }
 
 # scope_0/tot_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_6 {
   DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32
 }
 
 # trig_0/lvl_data
 
-# Create xlslice
+# Create port_slicer
 cell pavel-demin:user:port_slicer:1.0 slice_7 {
   DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64
 }
