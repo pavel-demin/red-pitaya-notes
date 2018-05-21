@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   ssize_t size;
   pthread_t thread;
   volatile void *cfg, *sts;
-  volatile uint32_t *mux;
+  volatile uint8_t *rx_sel;
   char *end;
   uint8_t buffer[1032];
   uint8_t reply[20] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1, 'R', '_', 'P', 'I', 'T', 'A', 'Y', 'A', 8};
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   struct sockaddr_in addr_ep2, addr_from;
   socklen_t size_from;
   int yes = 1;
-  int chan[8] = {1, 1, 1, 1, 1, 1, 1, 1};
+  uint8_t chan = 0;
   long number;
 
   for(i = 0; i < 8; ++i)
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
       printf("Usage: sdr-transceiver-hpsdr 1|2 1|2 1|2 1|2 1|2 1|2 1|2 1|2\n");
       return EXIT_FAILURE;
     }
-    chan[i] = number;
+    chan |= (number - 1) << i;
   }
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
@@ -72,11 +72,10 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
 
   for(i = 0; i < 8; ++i)
   {
-    rx_data[i] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000 + i * 0x1000);
+    rx_data[i] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000 + i * 0x1000);
     rx_freq[i] = ((uint32_t *)(cfg + 8 + i * 4));
     rx_cntr[i] = ((uint16_t *)(sts + 12 + i * 2));
 
@@ -84,19 +83,16 @@ int main(int argc, char *argv[])
     *rx_freq[i] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
   }
 
-  for(i = 0; i < 8; ++i)
-  {
-    mux[16 + i] = i * 2 + chan[i] - 1;
-  }
-
-  mux[0] = 2;
-
   rx_rst = ((uint8_t *)(cfg + 0));
 
   rx_rate = ((uint16_t *)(cfg + 4));
 
+  rx_sel = ((uint8_t *)(cfg + 6));
+
   /* set default rx sample rate */
   *rx_rate = 1000;
+
+  *rx_sel = chan;
 
   if((sock_ep2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
   {

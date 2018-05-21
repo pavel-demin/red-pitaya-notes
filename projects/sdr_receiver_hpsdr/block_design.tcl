@@ -82,6 +82,14 @@ module rx_0 {
   slice_7/din cfg_slice_0/dout
   slice_8/din cfg_slice_0/dout
   slice_9/din cfg_slice_0/dout
+  slice_10/din cfg_slice_0/dout
+  slice_11/din cfg_slice_0/dout
+  slice_12/din cfg_slice_0/dout
+  slice_13/din cfg_slice_0/dout
+  slice_14/din cfg_slice_0/dout
+  slice_15/din cfg_slice_0/dout
+  slice_16/din cfg_slice_0/dout
+  slice_17/din cfg_slice_0/dout
 }
 
 # STS
@@ -145,15 +153,6 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
 set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins rx_0/switch_0/S_AXI_CTRL]
-
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg]
-set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_switch_0_Reg]
-
 for {set i 0} {$i <= 7} {incr i} {
 
   # Create all required interconnections
@@ -163,6 +162,6 @@ for {set i 0} {$i <= 7} {incr i} {
   } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
 
   set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
-  set_property OFFSET 0x4000[format %X [expr $i + 3]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property OFFSET 0x4000[format %X [expr $i + 2]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
 
 }
