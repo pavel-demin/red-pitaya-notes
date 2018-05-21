@@ -96,10 +96,10 @@ int main(int argc, char *argv[])
   }
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000B000);
+  fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000A000);
 
-  level[0] = ((uint16_t *)(cfg + 36));
-  level[1] = ((uint16_t *)(cfg + 38));
+  level[0] = ((uint16_t *)(cfg + 40));
+  level[1] = ((uint16_t *)(cfg + 42));
 
   if(chan == 1)
   {

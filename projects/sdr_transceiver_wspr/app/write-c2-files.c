@@ -17,9 +17,8 @@ int main(int argc, char *argv[])
   struct tm *gmt;
   volatile void *cfg, *sts;
   volatile uint64_t *fifo[8];
-  volatile uint8_t *rst;
+  volatile uint8_t *rst, *sel;
   volatile uint16_t *cntr;
-  volatile uint32_t *mux;
   int32_t type = 2;
   uint64_t buffer[8][45000];
   config_t config;
@@ -30,7 +29,8 @@ int main(int argc, char *argv[])
   double dialfreq;
   double corr;
   double freq[8];
-  int upd, val, chan[8];
+  int number;
+  uint8_t chan = 0;
 
   if(argc != 2)
   {
@@ -89,17 +89,19 @@ int main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-    if(!config_setting_lookup_int(element, "chan", &chan[i]))
+    if(!config_setting_lookup_int(element, "chan", &number))
     {
       fprintf(stderr, "No 'chan' setting in element %d.\n", i);
       return EXIT_FAILURE;
     }
 
-    if(chan[i] < 1 || chan[i] > 2)
+    if(number < 1 || number > 2)
     {
       fprintf(stderr, "Wrong 'chan' setting in element %d.\n", i);
       return EXIT_FAILURE;
     }
+
+    chan |= (number - 1) << i;
   }
 
   t = time(NULL);
@@ -117,30 +119,18 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
 
   for(i = 0; i < 8; ++i)
   {
-    fifo[i] = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000 + i * 0x1000);
-    *(uint32_t *)(cfg + 4 + i * 4) = (uint32_t)floor((1.0 + 1.0e-6 * corr) * freq[i] / 125.0 * (1<<30) + 0.5);
+    fifo[i] = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000 + i * 0x1000);
+    *(uint32_t *)(cfg + 8 + i * 4) = (uint32_t)floor((1.0 + 1.0e-6 * corr) * freq[i] / 125.0 * (1<<30) + 0.5);
   }
-
-  upd = 0;
-
-  for(i = 0; i < 8; ++i)
-  {
-    val = i * 2 + chan[i] - 1;
-    if(mux[16 + i] != val)
-    {
-      mux[16 + i] = val;
-      upd = 1;
-    }
-  }
-
-  if(upd) mux[0] = 2;
 
   rst = (uint8_t *)(cfg + 0);
+  sel = (uint8_t *)(cfg + 4);
   cntr = (uint16_t *)(sts + 12);
+
+  *sel = chan;
 
   *rst |= 1;
   *rst &= ~1;
