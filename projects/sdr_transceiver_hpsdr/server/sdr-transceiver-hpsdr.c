@@ -345,6 +345,7 @@ int main(int argc, char *argv[])
   volatile int32_t *tx_ramp, *dac_ramp;
   volatile uint16_t *tx_size, *dac_size;
   volatile int16_t *ps_level;
+  volatile uint8_t *rx_sel, *tx_sel;
   float scale, ramp[1024], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 32, 1};
   uint8_t id[4] = {0xef, 0xfe, 1, 6};
@@ -358,6 +359,21 @@ int main(int argc, char *argv[])
   struct timeval tv;
   struct timespec ts;
   int yes = 1;
+  char *end;
+  uint8_t chan = 0;
+  long number;
+
+  for(i = 0; i < 5; ++i)
+  {
+    errno = 0;
+    number = (argc == 6) ? strtol(argv[i + 1], &end, 10) : -1;
+    if(errno != 0 || end == argv[i + 1] || number < 1 || number > 2)
+    {
+      printf("Usage: sdr-transceiver-hpsdr 1|2 1|2 1|2 1|2 1|2\n");
+      return EXIT_FAILURE;
+    }
+    chan |= (number - 1) << i;
+  }
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
@@ -493,6 +509,8 @@ int main(int argc, char *argv[])
 
   rx_rate = ((uint16_t *)(cfg + 4));
 
+  rx_sel = ((uint8_t *)(cfg + 6));
+
   rx_freq[0] = ((uint32_t *)(cfg + 8));
   rx_freq[1] = ((uint32_t *)(cfg + 12));
 
@@ -500,6 +518,8 @@ int main(int argc, char *argv[])
   tx_size = ((uint16_t *)(cfg + 20));
   tx_level = ((int16_t *)(cfg + 22));
   ps_level = ((int16_t *)(cfg + 24));
+
+  tx_sel = ((uint8_t *)(cfg + 26));
 
   dac_freq = ((uint32_t *)(cfg + 28));
   dac_size = ((uint16_t *)(cfg + 32));
@@ -510,6 +530,10 @@ int main(int argc, char *argv[])
   dac_cntr = ((uint16_t *)(sts + 16));
   adc_cntr = ((uint16_t *)(sts + 18));
   gpio_in = ((uint8_t *)(sts + 20));
+
+  /* set rx and tx selectors */
+  *rx_sel = chan & 7;
+  *tx_sel = (chan >> 3) & 3;
 
   /* set all GPIO pins to low */
   *gpio_out = 0;
