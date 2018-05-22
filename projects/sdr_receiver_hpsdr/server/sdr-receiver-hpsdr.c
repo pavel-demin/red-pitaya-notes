@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     number = (argc == 9) ? strtol(argv[i + 1], &end, 10) : -1;
     if(errno != 0 || end == argv[i + 1] || number < 1 || number > 2)
     {
-      printf("Usage: sdr-transceiver-hpsdr 1|2 1|2 1|2 1|2 1|2 1|2 1|2 1|2\n");
+      printf("Usage: sdr-receiver-hpsdr 1|2 1|2 1|2 1|2 1|2 1|2 1|2 1|2\n");
       return EXIT_FAILURE;
     }
     chan |= (number - 1) << i;
