@@ -421,3 +421,30 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
   In0 mult_1/P
   In1 cordic_0/m_axis_dout_tdata
 }
+
+for {set i 0} {$i <= 1} {incr i} {
+
+  # Create port_slicer
+  cell pavel-demin:user:port_slicer:1.0 slice_[expr $i + 5] {
+    DIN_WIDTH 96 DIN_FROM [expr $i + 80] DIN_TO [expr $i + 80]
+  }
+
+  # Create port_selector
+  cell pavel-demin:user:port_selector:1.0 selector_$i {
+    DOUT_WIDTH 16
+  } {
+    cfg slice_[expr $i + 5]/dout
+    din concat_0/dout
+  }
+
+}
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_1 {
+  NUM_PORTS 2
+  IN0_WIDTH 16
+  IN1_WIDTH 16
+} {
+  In0 selector_0/dout
+  In1 selector_1/dout
+}
