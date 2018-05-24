@@ -139,6 +139,23 @@ Getting started
  - Insert the SD card in Red Pitaya and connect the power.
  - Install and run one of the HPSDR programs.
 
+Configuring inputs and outputs
+-----
+
+The `sdr-transceiver-hpsdr` program running on the Red Pitaya board expects five command line arguments:
+```
+sdr-transceiver-hpsdr 1 2 2 1 2
+```
+
+The first three arguments are for the receivers (RX1, RX2, RX3), where 1 corresponds to IN1 and 2 corresponds to IN2.
+
+The last two arguments are for the outputs (OUT1 and OUT2), where 1 corresponds to the TX signal and 2 corresponds to the envelope signal.
+
+For example, to send the TX signal to OUT2, the corresponding line in [start.sh](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/app/start.sh#L9) should be edited and the last argument should be set to 1:
+```
+sdr-transceiver-hpsdr 1 2 2 1 1
+```
+
 Amplifier linearization
 -----
 
