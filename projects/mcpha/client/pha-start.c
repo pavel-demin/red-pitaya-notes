@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <signal.h>
 #include <errno.h>
 #include <time.h>
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
   FILE *fp;
   SOCKET sock;
   struct sockaddr_in addr;
-  fd_set writefds;
+  fd_set readfds, writefds;
   struct timeval timeout;
   int result;
   char *end;
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
   int32_t rate, pol1, pol2, min1, max1, min2, max2;
   time_t start, stop;
   uint64_t command[17];
-  char buffer[16];
+  char buffer[2048];
 
   if(argc != 11)
   {
@@ -185,9 +186,9 @@ int main(int argc, char *argv[])
   FD_SET(sock, &writefds);
 
   #if defined(_WIN32)
-  result = select(0, 0, &writefds, 0, &timeout);
+  result = select(0, NULL, &writefds, NULL, &timeout);
   #else
-  result = select(sock + 1, 0, &writefds, 0, &timeout);
+  result = select(sock + 1, NULL, &writefds, NULL, &timeout);
   #endif
 
   if(result <= 0)
@@ -210,8 +211,8 @@ int main(int argc, char *argv[])
   command[11] = (7ULL << 60) + (1ULL << 56) + min2;
   command[12] = (8ULL << 60) + (0ULL << 56) + max1;
   command[13] = (8ULL << 60) + (1ULL << 56) + max2;
-  command[14] = (9ULL << 60) + (0ULL << 56) + 0xffffffffffffffULL;
-  command[15] = (9ULL << 60) + (1ULL << 56) + 0xffffffffffffffULL;
+  command[14] = (9ULL << 60) + (0ULL << 56) + 125000000ULL * stop;
+  command[15] = (9ULL << 60) + (1ULL << 56) + 125000000ULL * stop;
   command[16] = (10ULL << 60);
 
   #if defined(_WIN32)
@@ -228,17 +229,34 @@ int main(int argc, char *argv[])
   {
     fprintf(stderr, "** ERROR: could not send command\n");
     return EXIT_FAILURE;
-
   }
+
+  start = time(NULL) + 1;
+
+  timeout.tv_sec = 1;
+  timeout.tv_usec = 0;
 
   signal(SIGINT, signal_handler);
 
-  start = time(NULL);
-
   while(!interrupted && time(NULL) - start < stop)
   {
-    if(recv(sock, buffer, 16, MSG_WAITALL) <= 0) break;
-    if(fwrite(buffer, 1, 16, fp) < 0) break;
+    FD_ZERO(&readfds);
+    FD_SET(sock, &readfds);
+
+    #if defined(_WIN32)
+    result = select(0, &readfds, NULL, NULL, &timeout);
+    #else
+    result = select(sock + 1, &readfds, NULL, NULL, &timeout);
+    #endif
+
+    if(result < 0) break;
+
+    if(FD_ISSET(sock, &readfds))
+    {
+      size = recv(sock, buffer, 2048, 0);
+      if(size <= 0) break;
+      if(fwrite(buffer, 1, size, fp) < size) break;
+    }
   }
 
   fclose(fp);
