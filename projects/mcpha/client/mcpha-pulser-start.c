@@ -153,9 +153,9 @@ int main(int argc, char *argv[])
   FD_SET(sock, &writefds);
 
   #if defined(_WIN32)
-  result = select(0, 0, &writefds, 0, &timeout);
+  result = select(0, NULL, &writefds, NULL, &timeout);
   #else
-  result = select(sock + 1, 0, &writefds, 0, &timeout);
+  result = select(sock + 1, NULL, &writefds, NULL, &timeout);
   #endif
 
   if(result <= 0)

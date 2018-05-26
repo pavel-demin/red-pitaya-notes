@@ -221,14 +221,19 @@ int main(int argc, char *argv[])
           return EXIT_FAILURE;
         }
         pthread_detach(thread);
-        *rst |= 8;
+        /* reset fifo */
         *rst |= 64;
         *rst &= ~64;
+        /* start timer */
+        *rst |= 8;
       }
 
     }
+    /* stop timer */
     *rst &= ~8;
+
     sock_thread = -1;
+
     close(sock_client);
   }
 
