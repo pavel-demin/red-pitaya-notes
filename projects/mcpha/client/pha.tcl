@@ -163,7 +163,7 @@ namespace eval ::pha {
 
     for {set i 1} {$i <= 2} {incr i} {
 
-       label ${config}.base_label_${i} -text "baseline level ${i}"
+      label ${config}.base_label_${i} -text "baseline level ${i}"
       spinbox ${config}.base_field_${i} -from -16380 -to 16380 -increment 5 -width 10 \
         -validate all -vcmd [list ::pha::validate -16380 16380 6 %P %V %W [my varname base_val_${i}]]
     }
