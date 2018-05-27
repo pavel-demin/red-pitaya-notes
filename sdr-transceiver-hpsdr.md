@@ -115,7 +115,7 @@ P16          | select 17/15m LPF (0 = disable, 1 = enable)
 
 Signals sent to the [PCA9555](http://www.ti.com/product/PCA9555) chip at address 3 (0x23):
 
-PCA9555 pins | HPSDR signals
+PCA9555 pins | signals
 ------------ | -------------
 P00 - P03    | BCD code for Rx1 band
 P04 - P07    | BCD code for Rx2 band
