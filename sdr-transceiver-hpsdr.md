@@ -113,6 +113,18 @@ P14          | select 6m LPF (0 = disable, 1 = enable)
 P15          | select 12/10m LPF (0 = disable, 1 = enable)
 P16          | select 17/15m LPF (0 = disable, 1 = enable)
 
+Signals sent to the [PCA9555](http://www.ti.com/product/PCA9555) chip at address 3 (0x23):
+
+PCA9555 pins | HPSDR signals
+------------ | -------------
+P00 - P03    | BCD code for Rx1 band
+P04 - P07    | BCD code for Rx2 band
+P10          | Tx frequency (0 if Tx freq. = Rx1 freq., 1 if Tx freq. = Rx2 freq.)
+P11 - P12    | ATT1
+P13 - P14    | ATT2
+P15          | disable T/R relay (0 = enable, 1 = disable)
+P16          | bypass all HPFs (0 = disable, 1 = enable)
+
 More information about the I2C interface can be found at [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABuxJW6dpV50d6QPvUQNCUza/sdr/Hermes_and_Alex_outputs.pdf?dl=1).
 
 Software
