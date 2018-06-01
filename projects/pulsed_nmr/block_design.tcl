@@ -45,6 +45,21 @@ delete_bd_objs [get_bd_ports exp_p_tri_io]
 # Create output port
 create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_n_tri_io]
+
+# Create output port
+create_bd_port -dir O -from 7 -to 0 exp_n_tri_io
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+  NUM_PORTS 2
+  IN0_WIDTH 1
+  IN1_WIDTH 7
+} {
+  dout exp_n_tri_io
+}
+
 # ADC
 
 # Create axis_red_pitaya_adc
@@ -127,6 +142,7 @@ module tx_0 {
   slice_1/din rst_slice_0/dout
   slice_2/din cfg_slice_1/dout
   slice_3/din cfg_slice_1/dout
+  or_0/Res concat_0/In0
   zeroer_0/M_AXIS dac_0/S_AXIS
 }
 
@@ -139,7 +155,7 @@ cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+cell xilinx.com:ip:xlconcat:2.1 concat_1 {
   NUM_PORTS 4
   IN0_WIDTH 32
   IN1_WIDTH 64
@@ -158,7 +174,7 @@ cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
-  sts_data concat_0/dout
+  sts_data concat_1/dout
 }
 
 # Create all required interconnections
