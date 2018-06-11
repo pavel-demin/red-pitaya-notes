@@ -35,7 +35,7 @@ The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-
 Transmitting and receiving complex baseband signals
 -----
 
-To transmit and to receive complex baseband signals, the central frequency should be set to 0. To enable both I and Q streams, the IQ bitmask should be set to 3.
+To transmit and to receive complex baseband signals via two outputs (OUT1 and OUT2) and two inputs (IN1 and IN2), the central frequency should be set to 0 and the IQ bitmask should be set to 3.
 
 ![IQ configuration]({{ "/img/iq-grc.png" | prepend: site.baseurl }})
 
