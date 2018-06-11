@@ -32,6 +32,17 @@ The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-
 
 The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wide/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and an example flow graph configuration for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
 
+Transmitting and receiving complex baseband signals
+-----
+
+To transmit and to receive complex baseband signals, the central frequency should be set to 0. To enable both I and Q streams, the IQ bitmask should be set to 3.
+
+![IQ configuration]({{ "/img/iq-grc.png" | prepend: site.baseurl }})
+
+Here is a picture of a complex 1 kHz cosine waveform as seen by an oscilloscope connected to OUT1 and OUT2:
+
+![IQ waveform]({{ "/img/iq-osc.png" | prepend: site.baseurl }})
+
 Getting started
 -----
 
