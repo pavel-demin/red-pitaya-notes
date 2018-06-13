@@ -62,6 +62,8 @@ RTL8192_URL = https://github.com/pvaret/rtl8192cu-fixes/archive/master.tar.gz
 
 all: boot.bin uImage devicetree.dtb
 
+cores: $(addprefix tmp/cores/, $(CORES))
+
 xpr: tmp/$(NAME).xpr
 
 bit: tmp/$(NAME).bit
