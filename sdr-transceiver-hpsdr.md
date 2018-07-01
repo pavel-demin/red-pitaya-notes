@@ -171,7 +171,7 @@ sdr-transceiver-hpsdr 1 2 2 1 1
 Amplifier linearization
 -----
 
-[PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) includes an amplifier linearization system called [PureSignal](http://svn.tapr.org/repos_sdr_hpsdr/trunk/W5WC/PowerSDR_HPSDR_mRX_PS/bin/Release/PureSignal.pdf). The following screenshots show what settings should be adjusted when using it with Red Pitaya. To access the "Calibration Information" panel press Ctrl+Alt+i. The attenuated feedback signal from the amplifier should be connected to IN2.
+[PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) includes an amplifier linearization system called [PureSignal](https://github.com/TAPR/OpenHPSDR-PowerSDR/raw/master/Documentation/Pure Signal/PureSignal.pdf). The following screenshots show what settings should be adjusted when using it with Red Pitaya. To access the "Calibration Information" panel press Ctrl+Alt+i. The attenuated feedback signal from the amplifier should be connected to IN2.
 
 ![PowerSDR Hardware Config]({{ "/img/powersdr-hardware.png" | prepend: site.baseurl }})
 
