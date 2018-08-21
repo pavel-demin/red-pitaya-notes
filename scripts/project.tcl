@@ -9,6 +9,8 @@ create_project -part $part_name $project_name tmp
 
 set_property IP_REPO_PATHS tmp/cores [current_project]
 
+update_ip_catalog
+
 set bd_path tmp/$project_name.srcs/sources_1/bd/system
 
 create_bd_design system
