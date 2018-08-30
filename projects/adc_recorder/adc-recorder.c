@@ -8,7 +8,8 @@ int main()
 {
   int fd, i;
   int16_t value[2];
-  volatile uint32_t *rst, *size, *slcr, *axi_hp0;
+  volatile uint8_t *rst;
+  volatile uint32_t *size, *slcr, *axi_hp0;
   volatile void *cfg;
   volatile int16_t *ram;
 
@@ -29,7 +30,7 @@ int main()
   axi_hp0[0] &= ~1;
   axi_hp0[5] &= ~1;
 
-  rst = ((uint32_t *)(cfg + 0));
+  rst = ((uint8_t *)(cfg + 0));
   size = ((uint32_t *)(cfg + 4));
 
   // reset writer
