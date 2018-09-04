@@ -16,12 +16,12 @@ int main(int argc, char *argv[])
   int fd, i;
   volatile void *cfg;
   volatile uint8_t *rst;
-  volatile uint16_t *level[2];
+  volatile uint16_t *coef[2];
   volatile uint32_t *fifo;
   unsigned char symbols[162];
   char *message, *hashtab;
   config_t config;
-  double freq, corr, dphi;
+  double freq, corr, dphi, level;
   int chan;
 
   hashtab = malloc(sizeof(char) * 32768 * 13);
@@ -77,6 +77,18 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  if(!config_lookup_float(&config, "level", &level))
+  {
+    fprintf(stderr, "No 'level' setting in configuration file.\n");
+    return EXIT_FAILURE;
+  }
+
+  if(level < -90.0 || level > 0.0)
+  {
+    fprintf(stderr, "Wrong 'level' setting in configuration file.\n");
+    return EXIT_FAILURE;
+  }
+
   if(!config_lookup_string(&config, "message", &message))
   {
     fprintf(stderr, "No 'message' setting in configuration file.\n");
@@ -98,18 +110,20 @@ int main(int argc, char *argv[])
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000A000);
 
-  level[0] = ((uint16_t *)(cfg + 40));
-  level[1] = ((uint16_t *)(cfg + 42));
+  coef[0] = ((uint16_t *)(cfg + 40));
+  coef[1] = ((uint16_t *)(cfg + 42));
+
+  level = level > -90.0 ? floor(32766 * pow(10.0, level / 20.0) + 0.5) : 0.0;
 
   if(chan == 1)
   {
-    *level[0] = 32766;
-    *level[1] = 0;
+    *coef[0] = (uint16_t)level;
+    *coef[1] = 0;
   }
   else
   {
-    *level[0] = 0;
-    *level[1] = 32766;
+    *coef[0] = 0;
+    *coef[1] = (uint16_t)level;
   }
 
   rst = (uint8_t *)(cfg + 1);
