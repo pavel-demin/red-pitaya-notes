@@ -1,9 +1,5 @@
 #! /bin/sh
 
-# CALL and GRID should be specified to enable uploads
-CALL=
-GRID=
-
 JOBS=4
 NICE=10
 
@@ -45,18 +41,8 @@ do
     sleep 1
   done
   nice -n $NICE $DECODER $file &
-done
+done > decodes_$TIMESTAMP.txt
 
 wait
 
 rm -f ft8_*_$TIMESTAMP.c2
-
-test -n "$CALL" -a -n "$GRID" -a -s $ALLMEPT || exit
-
-echo "Uploading ..."
-
-# sort by highest SNR, then print unique date/time/band/call combinations,
-# and then sort them by date/time/frequency
-sort -nr -k 4,4 $ALLMEPT | awk '!seen[$1"_"$2"_"int($6)"_"$7] {print} {++seen[$1"_"$2"_"int($6)"_"$7]}' | sort -n -k 1,1 -k 2,2 -k 6,6 -o $ALLMEPT
-
-rm -f $ALLMEPT
