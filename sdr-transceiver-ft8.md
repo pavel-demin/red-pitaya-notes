@@ -4,8 +4,6 @@ title: Multiband FT8 transceiver
 permalink: /sdr-transceiver-ft8/
 ---
 
-This is a work in progress...
-
 Short description
 -----
 
@@ -52,12 +50,20 @@ The measurement and correction of the frequency deviation is disabled by default
 * * * * * cd /dev/shm && /media/mmcblk0p1/apps/sdr_transceiver_ft8/update-corr.sh >> update-corr.log 2>&1 &
 {% endhighlight %}
 
+Getting started
+-----
+
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Copy the content of the SD card image zip file to an SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_ft8` to the topmost directory on the SD card.
+ - Insert the SD card in Red Pitaya and connect the power.
+
 Configuring FT8 receiver
 -----
 
 All the configuration files and scripts can be found in the `apps/sdr_transceiver_ft8` directory on the SD card.
 
-To enable uploads, the `CALL` and `GRID` variables should be specified in [decode-ft8.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_ft8/app/decode-ft8.sh#L4). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
+To enable uploads, the `CALL` and `GRID` variables should be specified in [upload-ft8.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_ft8/app/upload-ft8.sh#L4). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
 
 The frequency correction ppm value can be adjusted by editing the corr parameter in [write-c2-files.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_ft8/app/write-c2-files.cfg).
 
@@ -88,5 +94,5 @@ make NAME=sdr_transceiver_ft8 bit
 
 Building SD card image zip file:
 {% highlight bash %}
-sudo sh scripts/alpine-ft8.sh
+source helpers/build-all.sh
 {% endhighlight %}
