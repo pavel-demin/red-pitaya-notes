@@ -84,7 +84,7 @@ By default, the uploads to [wsprnet.org](http://wsprnet.org) are disabled and al
 
 All the configuration files and scripts can be found in the `apps/sdr_transceiver_wspr` directory on the SD card.
 
-To enable uploads, the `CALL` and `GRID` variables should be specified in [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/decode-wspr.sh#L4). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
+To enable uploads, the `CALL` and `GRID` variables should be specified in [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/decode-wspr.sh#L4-L5). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
 
 The frequency correction ppm value can be adjusted by editing the corr parameter in [write-c2-files.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/write-c2-files.cfg).
 

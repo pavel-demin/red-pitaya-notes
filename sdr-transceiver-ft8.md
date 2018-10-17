@@ -63,7 +63,7 @@ Configuring FT8 receiver
 
 All the configuration files and scripts can be found in the `apps/sdr_transceiver_ft8` directory on the SD card.
 
-To enable uploads, the `CALL` and `GRID` variables should be specified in [upload-ft8.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_ft8/app/upload-ft8.sh#L4). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
+To enable uploads, the `CALL` and `GRID` variables should be specified in [upload-ft8.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_ft8/app/upload-ft8.sh#L4-L5). These variables should be set to the call sign of the receiving station and its 6-character Maidenhead grid locator.
 
 The frequency correction ppm value can be adjusted by editing the corr parameter in [write-c2-files.cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_ft8/app/write-c2-files.cfg).
 
