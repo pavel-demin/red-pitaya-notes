@@ -32,9 +32,9 @@ VIVADO = vivado -nolog -nojournal -mode batch
 HSI = hsi -nolog -nojournal -mode batch
 RM = rm -rf
 
-UBOOT_TAG = xilinx-v2018.1
+UBOOT_TAG = xilinx-v2018.2
 LINUX_TAG = 4.14
-DTREE_TAG = xilinx-v2018.1
+DTREE_TAG = xilinx-v2018.2
 
 UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
 LINUX_DIR = tmp/linux-$(LINUX_TAG)
