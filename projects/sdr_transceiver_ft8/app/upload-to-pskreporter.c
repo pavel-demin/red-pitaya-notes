@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
       copy_int1(&dst, snr);
       copy_char(&dst, "FT8");
       copy_int1(&dst, 1);
-      copy_int4(&dst, mktime(&tm));
+      copy_int4(&dst, timegm(&tm));
 
       ++counter;
 
