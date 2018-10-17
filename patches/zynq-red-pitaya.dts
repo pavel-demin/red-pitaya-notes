@@ -1,9 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * Red Pitaya board DTS
- *
  * Copyright (C) 2013 Xilinx, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 #include "zynq-7000.dtsi"
