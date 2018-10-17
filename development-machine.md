@@ -4,7 +4,7 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/jessie) 8.10 (amd64) and [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.1 with full SDK.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/jessie) 8.10 (amd64) and [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.2 with full SDK.
 
 Creating virtual machine with Debian 8.10 (amd64)
 -----
@@ -87,19 +87,19 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 Installing Vivado Design Suite
 -----
 
-- Download "Vivado HLx 2018.1: All OS installer Single-File Download" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2018-1.html) or from [this direct link](https://www.xilinx.com/member/forms/download/xef.html?filename=Xilinx_Vivado_SDK_2018.1_0405_1.tar.gz) (the file name is Xilinx_Vivado_SDK_2018.1_0405_1.tar.gz)
+- Download "Vivado HLx 2018.2: All OS installer Single-File Download" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2018-2.html) or from [this direct link](https://www.xilinx.com/member/forms/download/xef.html?filename=Xilinx_Vivado_SDK_2018.2_0614_1954.tar.gz) (the file name is Xilinx_Vivado_SDK_2018.2_0614_1954.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
 mkdir /opt/Xilinx
 cd /opt/Xilinx
-tar -zxf Xilinx_Vivado_SDK_2018.1_0405_1.tar.gz
-cd Xilinx_Vivado_SDK_2018.1_0405_1
+tar -zxf Xilinx_Vivado_SDK_2018.2_0614_1954.tar.gz
+cd Xilinx_Vivado_SDK_2018.2_0614_1954.tar.gz
 sed -i '/uname -i/s/ -i/ -m/' xsetup
 ./xsetup
 {% endhighlight %}
 
-- Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page (for detailed information on installation, see [UG973](https://www.xilinx.com/support/documentation/sw_manuals/xilinx2018_1/ug973-vivado-release-notes-install-license.pdf))
+- Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page (for detailed information on installation, see [UG973](https://www.xilinx.com/support/documentation/sw_manuals/xilinx2018_2/ug973-vivado-release-notes-install-license.pdf))
 
 - Xilinx SDK requires `gmake` that is unavailable on Debian. The following command creates a symbolic link called `gmake` and pointing to `make`:
 {% highlight bash %}
