@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 
 const char name[] = "report.pskreporter.info";
-const char soft[] = "Red Pitaya FT8 TRX";
+const char soft[] = "Red Pitaya FT8 TRX 1.0";
 
 int32_t read_int(char **pointer, int32_t *value)
 {
