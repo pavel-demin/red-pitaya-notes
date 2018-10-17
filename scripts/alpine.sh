@@ -89,7 +89,7 @@ cp -r alpine/apps $root_dir/media/mmcblk0p1/
 
 cp -r apks $root_dir/media/mmcblk0p1/
  
-for project in led_blinker sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_emb sdr_transceiver_hpsdr sdr_transceiver_wide sdr_transceiver_wspr mcpha vna
+for project in led_blinker sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_emb sdr_transceiver_ft8 sdr_transceiver_hpsdr sdr_transceiver_wide sdr_transceiver_wspr mcpha vna
 do
   mkdir -p $root_dir/media/mmcblk0p1/apps/$project
   cp -r projects/$project/server/* $root_dir/media/mmcblk0p1/apps/$project/
@@ -108,7 +108,7 @@ echo $alpine_url/community >> $root_dir/etc/apk/repositories
 chroot $root_dir /bin/sh <<- EOF_CHROOT
 
 apk update
-apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dcron chrony gpsd-timepps musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget less nano bc
+apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dcron chrony gpsd-timepps libgfortran musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget less nano bc
 
 ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
 ln -s /etc/init.d/hostname etc/runlevels/boot/hostname
@@ -168,9 +168,9 @@ lbu delete root/.ash_history
 
 lbu commit -d
 
-apk add subversion make gcc
+apk add subversion make gcc gfortran
 
-for project in server sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_emb sdr_transceiver_hpsdr sdr_transceiver_wide mcpha vna
+for project in server sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_emb sdr_transceiver_ft8 sdr_transceiver_hpsdr sdr_transceiver_wide mcpha vna
 do
   make -C /media/mmcblk0p1/apps/\$project clean
   make -C /media/mmcblk0p1/apps/\$project
