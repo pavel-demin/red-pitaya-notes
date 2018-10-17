@@ -6,6 +6,11 @@ GRID=
 
 test -n "$CALL" -a -n "$GRID" || exit
 
+DIR=`readlink -f $0`
+DIR=`dirname $DIR`
+
+UPLOADER=$DIR/upload-to-pskreporter
+
 SLEEP=$DIR/sleep-rand-100
 
 date
@@ -29,7 +34,8 @@ done
 
 # sort by highest SNR, then print unique band/call combinations,
 # and then sort them by date/time/frequency
-
 sort -nr -k 4,4 $REPORT | awk '!seen[int($6/1e6)"_"$7]{print} {++seen[int($6/1e6)"_"$7]}' | sort -n -k 1,1 -k 2,2 -k 6,6 -o $REPORT
+
+$UPLOADER $CALL $GRID $REPORT
 
 rm -f $REPORT
