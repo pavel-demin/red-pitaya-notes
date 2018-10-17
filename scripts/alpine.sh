@@ -1,16 +1,16 @@
-alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.6
+alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.8
 
-uboot_tar=alpine-uboot-3.6.2-armhf.tar.gz
+uboot_tar=alpine-uboot-3.8.0-armhf.tar.gz
 uboot_url=$alpine_url/releases/armhf/$uboot_tar
 
-tools_tar=apk-tools-static-2.7.5-r0.apk
+tools_tar=apk-tools-static-2.10.1-r0.apk
 tools_url=$alpine_url/main/armhf/$tools_tar
 
-firmware_tar=linux-firmware-20170330-r1.apk
+firmware_tar=linux-firmware-other-20180615-r2.apk
 firmware_url=$alpine_url/main/armhf/$firmware_tar
 
 linux_dir=tmp/linux-4.14
-linux_ver=4.14.42-xilinx
+linux_ver=4.14.76-xilinx
 
 modules_dir=alpine-modloop/lib/modules/$linux_ver
 
@@ -21,8 +21,15 @@ passwd=changeme
 
 test -f $uboot_tar || curl -L $uboot_url -o $uboot_tar
 test -f $tools_tar || curl -L $tools_url -o $tools_tar
-test -f $firmware_tar || curl -L $firmware_url -o $firmware_tar
 test -f $apks_tar || curl -L $apks_url -o $apks_tar
+
+test -f $firmware_tar || curl -L $firmware_url -o $firmware_tar
+
+for tar in linux-firmware-ath9k_htc-20180615-r2.apk linux-firmware-brcm-20180615-r2.apk linux-firmware-rtlwifi-20180615-r2.apk
+do
+  url=$alpine_url/main/armhf/$tar
+  test -f $tar || curl -L $url -o $tar
+done
 
 tar -zxf $apks_tar
 touch apks/.boot_repository
@@ -36,7 +43,7 @@ tar -zxf $tools_tar --directory=alpine-apk --warning=no-unknown-keyword
 mkdir alpine-initramfs
 cd alpine-initramfs
 
-gzip -dc ../alpine-uboot/boot/initramfs-hardened | cpio -id
+gzip -dc ../alpine-uboot/boot/initramfs-vanilla | cpio -id
 rm -rf etc/modprobe.d
 rm -rf lib/firmware
 rm -rf lib/modules
@@ -54,7 +61,12 @@ cp $linux_dir/modules.order $linux_dir/modules.builtin $modules_dir/
 
 depmod -a -b alpine-modloop $linux_ver
 
-tar -zxf $firmware_tar --directory=alpine-modloop/lib/modules --warning=no-unknown-keyword --strip-components=1 --wildcards lib/firmware/ar* lib/firmware/ath* lib/firmware/brcm* lib/firmware/ht* lib/firmware/rt* lib/firmware/RT*
+tar -zxf $firmware_tar --directory=alpine-modloop/lib/modules --warning=no-unknown-keyword --strip-components=1 --wildcards lib/firmware/ar* lib/firmware/rt*
+
+for tar in linux-firmware-ath9k_htc-20180615-r2.apk linux-firmware-brcm-20180615-r2.apk linux-firmware-rtlwifi-20180615-r2.apk
+do
+  tar -zxf $tar --directory=alpine-modloop/lib/modules --warning=no-unknown-keyword --strip-components=1
+done
 
 mksquashfs alpine-modloop/lib modloop -b 1048576 -comp xz -Xdict-size 100%
 
@@ -180,6 +192,6 @@ hostname -F /etc/hostname
 
 rm -rf $root_dir alpine-apk 
 
-zip -r red-pitaya-alpine-3.6-armhf-`date +%Y%m%d`.zip apks apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz uEnv.txt uImage uInitrd wifi
+zip -r red-pitaya-alpine-3.8-armhf-`date +%Y%m%d`.zip apks apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz uEnv.txt uImage uInitrd wifi
 
 rm -rf apks apps cache modloop red-pitaya.apkovl.tar.gz uInitrd wifi
