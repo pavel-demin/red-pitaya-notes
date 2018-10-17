@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+const char name[] = "report.pskreporter.info";
 const char soft[] = "Red Pitaya FT8 TRX";
 
 int32_t read_int(char **pointer, int32_t *value)
@@ -122,7 +123,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  if((host = gethostbyname("report.pskreporter.info")) == NULL)
+  if((host = gethostbyname(name)) == NULL)
   {
     fprintf(stderr, "cannot find remote host address\n");
     return EXIT_FAILURE;
