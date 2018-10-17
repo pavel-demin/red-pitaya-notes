@@ -193,28 +193,31 @@ int main(int argc, char *argv[])
       if(counter < 13) continue;
     }
 
-    size = dst - start;
-    padding = (4 - size % 4) % 4;
-    size += padding;
-    memset(dst, 0, padding);
+    if(counter > 0)
+    {
+      size = dst - start;
+      padding = (4 - size % 4) % 4;
+      size += padding;
+      memset(dst, 0, padding);
 
-    dst = start;
-    copy_int2(&dst, 0x9993);
-    copy_int2(&dst, size);
+      dst = start;
+      copy_int2(&dst, 0x9993);
+      copy_int2(&dst, size);
 
-    dst = buffer + 2;
-    size += start - buffer;
-    copy_int2(&dst, size);
-    copy_int4(&dst, time(NULL));
-    copy_int4(&dst, sequence);
+      dst = buffer + 2;
+      size += start - buffer;
+      copy_int2(&dst, size);
+      copy_int4(&dst, time(NULL));
+      copy_int4(&dst, sequence);
 
-    sendto(sock, buffer, size, 0, (struct sockaddr *)&addr, sizeof(addr));
+      sendto(sock, buffer, size, 0, (struct sockaddr *)&addr, sizeof(addr));
+
+      counter = 0;
+      ++sequence;
+      dst = start + 4;
+    }
 
     if(src == NULL) break;
-
-    counter = 0;
-    ++sequence;
-    dst = start + 4;
   }
 
   return EXIT_SUCCESS;
