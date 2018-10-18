@@ -30,6 +30,8 @@ do
   rm -f $file
 done
 
+test -f $REPORT || exit
+
 # sort by highest SNR, then print unique band/call combinations,
 # and then sort them by date/time/frequency
 sort -nr -k 4,4 $REPORT | awk '!seen[int($6/1e6)"_"$7]{print} {++seen[int($6/1e6)"_"$7]}' | sort -n -k 1,1 -k 2,2 -k 6,6 -o $REPORT
