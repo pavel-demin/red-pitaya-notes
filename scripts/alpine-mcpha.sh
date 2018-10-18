@@ -78,7 +78,7 @@ mkdir -p $root_dir/media/mmcblk0p1/cache
 ln -s /media/mmcblk0p1/cache $root_dir/etc/apk/cache
 
 cp -r alpine/etc $root_dir/
-rm $root_dir/etc/inetd.conf
+sed -i '1,1d' $root_dir/etc/local.d/apps.start
 mkdir $root_dir/media/mmcblk0p1/apps
 
 for project in mcpha
