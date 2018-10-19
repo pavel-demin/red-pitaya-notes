@@ -93,7 +93,7 @@ cp -r alpine-apk/sbin $root_dir/
 
 chroot $root_dir /sbin/apk.static --repository $alpine_url/main --update-cache --allow-untrusted --initdb add alpine-base
 
-echo $alpine_url/main >> $root_dir/etc/apk/repositories
+echo $alpine_url/main > $root_dir/etc/apk/repositories
 echo $alpine_url/community >> $root_dir/etc/apk/repositories
 
 chroot $root_dir /bin/sh <<- EOF_CHROOT
