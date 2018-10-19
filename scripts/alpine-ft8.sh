@@ -14,10 +14,14 @@ linux_ver=4.14.76-xilinx
 
 modules_dir=alpine-modloop/lib/modules/$linux_ver
 
+apks_tar=apks.tgz
+apks_url=https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADaQEPEtSBiYXU814k4jDR4a/apks.tgz?dl=1
+
 passwd=changeme
 
 test -f $uboot_tar || curl -L $uboot_url -o $uboot_tar
 test -f $tools_tar || curl -L $tools_url -o $tools_tar
+test -f $apks_tar || curl -L $apks_url -o $apks_tar
 
 test -f $firmware_tar || curl -L $firmware_url -o $firmware_tar
 
@@ -26,6 +30,9 @@ do
   url=$alpine_url/main/armhf/$tar
   test -f $tar || curl -L $url -o $tar
 done
+
+tar -zxf $apks_tar
+touch apks/.boot_repository
 
 mkdir alpine-uboot
 tar -zxf $uboot_tar --directory=alpine-uboot
@@ -81,6 +88,8 @@ cp -r alpine/etc $root_dir/
 sed -i '1,1d' $root_dir/etc/local.d/apps.start
 mkdir $root_dir/media/mmcblk0p1/apps
 
+cp -r apks $root_dir/media/mmcblk0p1/
+
 for project in sdr_transceiver_ft8
 do
   mkdir -p $root_dir/media/mmcblk0p1/apps/$project
@@ -93,13 +102,14 @@ cp -r alpine-apk/sbin $root_dir/
 
 chroot $root_dir /sbin/apk.static --repository $alpine_url/main --update-cache --allow-untrusted --initdb add alpine-base
 
+echo /media/mmcblk0p1/apks > $root_dir/etc/apk/repositories
 echo $alpine_url/main >> $root_dir/etc/apk/repositories
 echo $alpine_url/community >> $root_dir/etc/apk/repositories
 
 chroot $root_dir /bin/sh <<- EOF_CHROOT
 
 apk update
-apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dbus dcron chrony gpsd libgfortran musl-dev fftw-dev libconfig-dev curl wget less nano bc
+apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dbus dcron chrony gpsd-timepps libgfortran musl-dev fftw-dev libconfig-dev curl wget less nano bc
 
 ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
 ln -s /etc/init.d/hostname etc/runlevels/boot/hostname
@@ -182,6 +192,6 @@ hostname -F /etc/hostname
 
 rm -rf $root_dir alpine-apk 
 
-zip -r red-pitaya-alpine-3.8-armhf-`date +%Y%m%d`-ft8.zip apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz start.sh uEnv.txt uImage uInitrd wifi
+zip -r red-pitaya-alpine-3.8-armhf-`date +%Y%m%d`-ft8.zip apks apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz start.sh uEnv.txt uImage uInitrd wifi
 
-rm -rf apps cache modloop red-pitaya.apkovl.tar.gz start.sh uInitrd wifi
+rm -rf apks apps cache modloop red-pitaya.apkovl.tar.gz start.sh uInitrd wifi
