@@ -102,20 +102,20 @@ set clifiles {
   lib/vfs1@/vfsUtils.tcl
   lib/vfs1@/zipvfs.tcl
   lib/g2lite0@/pkgIndex.tcl
-  lib/tcllib1.18/pkgIndex.tcl
-  lib/tcllib1.18/asn
-  lib/tcllib1.18/base64
-  lib/tcllib1.18/comm
-  lib/tcllib1.18/cmdline
-  lib/tcllib1.18/csv
-  lib/tcllib1.18/fileutil
-  lib/tcllib1.18/ldap
-  lib/tcllib1.18/log
-  lib/tcllib1.18/math
-  lib/tcllib1.18/ooutil
-  lib/tcllib1.18/snit
-  lib/tcllib1.18/struct
-  lib/tcllib1.18/uri
+  lib/tcllib1.19/pkgIndex.tcl
+  lib/tcllib1.19/asn
+  lib/tcllib1.19/base64
+  lib/tcllib1.19/comm
+  lib/tcllib1.19/cmdline
+  lib/tcllib1.19/csv
+  lib/tcllib1.19/fileutil
+  lib/tcllib1.19/ldap
+  lib/tcllib1.19/log
+  lib/tcllib1.19/math
+  lib/tcllib1.19/ooutil
+  lib/tcllib1.19/snit
+  lib/tcllib1.19/struct
+  lib/tcllib1.19/uri
 }
 
 if {[string equal $platform win32]} {
