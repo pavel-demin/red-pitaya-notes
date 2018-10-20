@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
   uint64_t *buffer;
   config_t config;
   config_setting_t *setting, *element;
-  char date[14];
+  char date[12];
   char name[32];
   double dialfreq;
   double corr;
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
   for(i = 0; i < length; ++i)
   {
     dialfreq = freq[i] * 1.0e6;
-    strftime(date, 14, "%y%m%d_%H%M%S", gmt);
+    strftime(date, 12, "%y%m%d_%H%M", gmt);
     sprintf(name, "ft8_%d_%d_%s.c2", i, (uint32_t)dialfreq, date);
     if((fp = fopen(name, "wb")) == NULL)
     {

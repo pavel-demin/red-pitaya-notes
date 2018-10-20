@@ -25,7 +25,7 @@ $SLEEP
 sleep 1
 
 date
-TIMESTAMP=`date --utc +'%y%m%d_%H%M%S'`
+TIMESTAMP=`date --utc +'%y%m%d_%H%M'`
 
 echo "Recording ..."
 

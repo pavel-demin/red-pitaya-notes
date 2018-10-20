@@ -18,7 +18,7 @@ echo "Sleeping ..."
 $SLEEP 300
 
 date
-TIMESTAMP=`date --utc +'%y%m%d_%H%M%S'`
+TIMESTAMP=`date --utc +'%y%m%d_%H%M'`
 
 echo "Processing ..."
 
