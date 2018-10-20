@@ -292,7 +292,7 @@ class FigureTab:
     self.mode = mode
     data1 = np.absolute(data)
     data2 = np.angle(data, deg = True)
-    max = np.maximum(0.01, data1.max())
+    max = np.fmax(0.01, data1.max())
     label1 = r'|%s|' % label
     label2 = r'$\angle$ %s, deg' % label
     self.plot_curves(freq, data1, label1, (-0.05 * max, 1.05 * max), data2, label2, (-198, 198))
@@ -394,16 +394,16 @@ class FigureTab:
     self.mode = 'imp'
     freq = self.vna.dut.freq
     z = self.vna.impedance(freq)
-    data1 = np.minimum(9.99e4, np.absolute(z))
+    data1 = np.fmin(9.99e4, np.absolute(z))
     data2 = np.angle(z, deg = True)
-    max = np.maximum(0.01, data1.max())
+    max = np.fmax(0.01, data1.max())
     self.plot_curves(freq, data1, '|Z|, \u03A9', (-0.05 * max, 1.05 * max), data2, r'$\angle$ Z, deg', (-198, 198))
 
   def update_imp(self):
     if self.mode == 'imp':
       freq = self.vna.dut.freq
       z = self.vna.impedance(freq)
-      data1 = np.minimum(9.99e4, np.absolute(z))
+      data1 = np.fmin(9.99e4, np.absolute(z))
       data2 = np.angle(z, deg = True)
       self.curve1.set_xdata(freq)
       self.curve1.set_ydata(data1)
