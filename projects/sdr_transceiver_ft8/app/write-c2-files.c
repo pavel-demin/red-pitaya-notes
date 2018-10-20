@@ -105,13 +105,13 @@ int main(int argc, char *argv[])
   t = time(NULL);
   if((gmt = gmtime(&t)) == NULL)
   {
-    perror("gmtime");
+    fprintf(stderr, "Cannot convert time.\n");
     return EXIT_FAILURE;
   }
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
-    perror("open");
+    fprintf(stderr, "Cannot open /dev/mem.\n");
     return EXIT_FAILURE;
   }
 
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
     sprintf(name, "ft8_%d_%d_%s.c2", i, (uint32_t)dialfreq, date);
     if((fp = fopen(name, "wb")) == NULL)
     {
-      perror("fopen");
+      fprintf(stderr, "Cannot open output file %s.\n", name);
       return EXIT_FAILURE;
     }
     fwrite(&dialfreq, 1, 8, fp);

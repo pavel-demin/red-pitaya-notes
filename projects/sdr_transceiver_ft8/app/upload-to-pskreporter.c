@@ -95,37 +95,37 @@ int main(int argc, char *argv[])
 
   if(argc != 4)
   {
-    fprintf(stderr, "usage: upload-to-pskreporter call grid file\n");
+    fprintf(stderr, "Usage: upload-to-pskreporter call grid file\n");
     return EXIT_FAILURE;
   }
 
   if(strlen(argv[1]) > 16)
   {
-    fprintf(stderr, "call sign is too long\n");
+    fprintf(stderr, "Call sign is too long.\n");
     return EXIT_FAILURE;
   }
 
   if(strlen(argv[2]) > 6)
   {
-    fprintf(stderr, "grid locator is too long\n");
+    fprintf(stderr, "Grid locator is too long.\n");
     return EXIT_FAILURE;
   }
 
   if((fp = fopen(argv[3], "r")) == NULL)
   {
-    fprintf(stderr, "cannot open input file\n");
+    fprintf(stderr, "Cannot open input file.\n");
     return EXIT_FAILURE;
   }
 
   if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
   {
-    fprintf(stderr, "cannot open socket\n");
+    fprintf(stderr, "Cannot open socket.\n");
     return EXIT_FAILURE;
   }
 
   if((host = gethostbyname(name)) == NULL)
   {
-    fprintf(stderr, "cannot find remote host address\n");
+    fprintf(stderr, "Cannot find remote host address.\n");
     return EXIT_FAILURE;
   }
 
