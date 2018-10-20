@@ -5,7 +5,7 @@ FT8D_DIR = ft8d-$(FT8D_TAG)
 FT8D_TAR = ft8d-$(FT8D_TAG).tar.gz
 FT8D_URL = https://github.com/pavel-demin/ft8d/archive/$(FT8D_TAG).tar.gz
 
-all: $(FT8D_DIR)/ft8d measure-corr sleep-rand-300 sleep-to-59 write-c2-files upload-to-pskreporter
+all: $(FT8D_DIR)/ft8d measure-corr sleep-rand sleep-to-59 write-c2-files upload-to-pskreporter
 
 $(FT8D_TAR):
 	curl -L $(FT8D_URL) -o $@
@@ -20,7 +20,7 @@ $(FT8D_DIR)/ft8d: $(FT8D_DIR)
 measure-corr: measure-corr.c
 	gcc $(CFLAGS) -o $@ $^
 
-sleep-rand-300: sleep-rand-300.c
+sleep-rand: sleep-rand.c
 	gcc $(CFLAGS) -o $@ $^
 
 sleep-to-59: sleep-to-59.c

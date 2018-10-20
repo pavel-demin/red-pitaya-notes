@@ -9,13 +9,13 @@ DIR=`dirname $DIR`
 
 UPLOADER=$DIR/upload-to-pskreporter
 
-SLEEP=$DIR/sleep-rand-300
+SLEEP=$DIR/sleep-rand
 
 date
 
 echo "Sleeping ..."
 
-$SLEEP
+$SLEEP 300
 
 date
 TIMESTAMP=`date --utc +'%y%m%d_%H%M%S'`
