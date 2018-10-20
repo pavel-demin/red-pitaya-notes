@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
-    perror("open");
+    fprintf(stderr, "Cannot open /dev/mem.\n");
     return EXIT_FAILURE;
   }
 
