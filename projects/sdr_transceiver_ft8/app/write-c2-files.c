@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   char name[32];
   double dialfreq;
   double corr;
-  double freq[8];
+  double freq[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   int number;
   uint8_t chan = 0;
 
@@ -71,13 +71,13 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  if(length < 8)
+  if(length < 1)
   {
-    fprintf(stderr, "Less than 8 bands in configuration file.\n");
+    fprintf(stderr, "Less than 1 band in configuration file.\n");
     return EXIT_FAILURE;
   }
 
-  for(i = 0; i < 8; ++i)
+  for(i = 0; i < length; ++i)
   {
     element = config_setting_get_elem(setting, i);
 
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
     offset += 250;
   }
 
-  for(i = 0; i < 8; ++i)
+  for(i = 0; i < length; ++i)
   {
     dialfreq = freq[i] * 1.0e6;
     strftime(date, 14, "%y%m%d_%H%M%S", gmt);
