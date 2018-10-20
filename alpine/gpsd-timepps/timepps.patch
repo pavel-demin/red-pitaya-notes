@@ -1,14 +1,13 @@
 diff --git a/SConstruct b/SConstruct
-index 3318bb4..8bbd412 100644
+index 3318bb4..5c52d57 100644
 --- a/SConstruct
 +++ b/SConstruct
-@@ -271,7 +271,8 @@ for var in import_env:
+@@ -271,7 +271,7 @@ for var in import_env:
          envs[var] = os.environ[var]
  envs["GPSD_HOME"] = os.getcwd()
  
 -env = Environment(tools=["default", "tar", "textfile"], options=opts, ENV=envs)
 +env = Environment(tools=["default", "tar", "textfile"], options=opts, ENV=envs, CPPPATH=".")
-+env.MergeFlags("-DHAVE_SYS_TIMEPPS_H=1")
  
  #  Minimal build turns off every option not set on the command line,
  if ARGUMENTS.get('minimal'):
