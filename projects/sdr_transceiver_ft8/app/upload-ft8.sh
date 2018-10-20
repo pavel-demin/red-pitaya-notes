@@ -9,7 +9,7 @@ DIR=`dirname $DIR`
 
 UPLOADER=$DIR/upload-to-pskreporter
 
-SLEEP=$DIR/sleep-rand-100
+SLEEP=$DIR/sleep-rand-300
 
 date
 
