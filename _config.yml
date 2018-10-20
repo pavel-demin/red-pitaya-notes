@@ -4,7 +4,7 @@ description: Notes on the Red Pitaya Open Source Instrument
 baseurl: /red-pitaya-notes
 url: http://pavel-demin.github.io
 
-release-image: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20180523/red-pitaya-alpine-3.6-armhf-20180523.zip
+release-image: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20181020/red-pitaya-alpine-3.6-armhf-20181020.zip
 
 # Build settings
 markdown: kramdown
