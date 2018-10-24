@@ -1150,8 +1150,6 @@ namespace eval ::mcpha {
     trace add variable [my varname slope] write [mymethod slope_update]
     trace add variable [my varname level] write [mymethod level_update]
 
-    trace add variable [my varname recs_val] write [mymethod recs_val_update]
-
     trace add variable [my varname last] write [mymethod last_update]
 
     for {set i 1} {$i <= 2} {incr i} {
@@ -1332,14 +1330,6 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
-  oo::define OscDisplay method recs_val_update args {
-    my variable recs_val recs_bak
-
-    set recs_bak $recs_val
-  }
-
-# -------------------------------------------------------------------------
-
   oo::define OscDisplay method last_update args {
     my variable graph last
 
@@ -1388,6 +1378,30 @@ namespace eval ::mcpha {
 
 # -------------------------------------------------------------------------
 
+  oo::define OscDisplay method data_update args {
+    my variable graph chan waiting sequence auto
+    my variable data yvec
+
+    $data split tmp1 tmp2
+    [dict get $yvec 1] set tmp1
+    [dict get $yvec 2] set tmp2
+    blt::vector destroy tmp1 tmp2
+
+    foreach {key value} [array get chan] {
+      $graph pen configure pen${key} -dashes 0
+    }
+
+    set waiting 0
+
+    if {$sequence} {
+      my sequence_register
+    } elseif {$auto} {
+      after 1000 [mymethod acquire_start]
+    }
+  }
+
+# -------------------------------------------------------------------------
+
   oo::define OscDisplay method acquire_start {} {
     my variable graph chan controller waiting
 
@@ -1414,8 +1428,8 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   oo::define OscDisplay method acquire_loop {} {
-    my variable controller graph chan waiting sequence auto
-    my variable data yvec
+    my variable controller waiting sequence
+    my variable data
 
     set size 65536
 
@@ -1424,28 +1438,15 @@ namespace eval ::mcpha {
 
     if {[string length $status] == 0} {
       set auto 0
-      my sequence_stop
+      if {$sequence} {
+        my sequence_stop
+      }
       return
     }
 
     if {$status == 0} {
       $controller commandReadVec 23 0 [expr {$size * 2}] i2 $data
-      $data split tmp1 tmp2
-      [dict get $yvec 1] set tmp1
-      [dict get $yvec 2] set tmp2
-      blt::vector destroy tmp1 tmp2
-
-      foreach {key value} [array get chan] {
-        $graph pen configure pen${key} -dashes 0
-      }
-
-      set waiting 0
-
-      if {$sequence} {
-        my sequence_register
-      } elseif {$auto} {
-        after 1000 [mymethod acquire_start]
-      }
+      my data_update
     }
 
     if {$waiting} {
@@ -1483,11 +1484,7 @@ namespace eval ::mcpha {
     set fid [open $fname w+]
     fconfigure $fid -translation binary -encoding binary
 
-#    puts -nonewline $fid [binary format "H*iH*" "1f8b0800" [clock seconds] "0003"]
-#    puts -nonewline $fid [zlib deflate $data]
-    puts -nonewline $fid $data
-#    puts -nonewline $fid [binary format i [zlib crc32 $data]]
-#    puts -nonewline $fid [binary format i [string length $data]]
+    $data binwrite $fid -at 0
 
     close $fid
   }
@@ -1510,11 +1507,9 @@ namespace eval ::mcpha {
     set x [catch {
       set fid [open $fname r+]
       fconfigure $fid -translation binary -encoding binary
-#      set size [file size $fname]
-#      seek $fid 10
-#      set data [zlib inflate [read $fid [expr {$size - 18}]]]
-      set data [read $fid]
+      $data binread $fid -at 0
       close $fid
+      my data_update
     }]
 
     if { $x || ![file exists $fname] || ![file isfile $fname] || ![file readable $fname] } {
@@ -1593,13 +1588,13 @@ namespace eval ::mcpha {
 
     set fname [file join $directory oscillogram_$counter.dat]
 
-    my incr counter
+    incr counter
 
     if {[catch {my save_data $fname} result]} {
       tk_messageBox -icon error \
         -message "An error occurred while writing to \"$fname\""
     } elseif {$counter <= $recs_bak} {
-      set recs_val [expr {$recs_bak - $counter}]
+      ${config}.recs_field set [expr {$recs_bak - $counter}]
       my acquire_start
       return
     }
@@ -1614,7 +1609,7 @@ namespace eval ::mcpha {
 
     set sequence 0
 
-    set recs_val $recs_bak
+    ${config}.recs_field set $recs_bak
 
     ${config}.recs_field configure -state normal
     ${config}.sequence configure -text {Start Recording} -command [mymethod sequence_start]
@@ -1633,9 +1628,7 @@ namespace eval ::mcpha {
     my variable number master controller
 
     foreach {param value} $args {
-      if {$param eq "-number"} {
-        set number $value
-      } elseif {$param eq "-master"} {
+      if {$param eq "-master"} {
         set master $value
       } elseif {$param eq "-controller"} {
         set controller $value
@@ -2002,8 +1995,8 @@ if { [catch {blt::tabnotebook .notebook -borderwidth 1 -selectforeground black -
   $notebook insert end -text "Pulse generator" -window $frame_4 -fill both
 }
 
-mcpha::HstDisplay create hst_0 -number 0 -master $frame_1 -controller cfg
-mcpha::HstDisplay create hst_1 -number 1 -master $frame_2 -controller cfg
+mcpha::HstDisplay create hst_1 -number 0 -master $frame_1 -controller cfg
+mcpha::HstDisplay create hst_2 -number 1 -master $frame_2 -controller cfg
 mcpha::OscDisplay create osc -master $frame_3 -controller cfg
 mcpha::GenDisplay create gen -master $frame_4 -controller cfg
 
@@ -2017,9 +2010,9 @@ update
 
 cfg run
 
-hst_0 run
-
 hst_1 run
+
+hst_2 run
 
 osc run
 
