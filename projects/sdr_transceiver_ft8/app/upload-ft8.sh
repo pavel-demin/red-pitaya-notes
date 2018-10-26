@@ -4,6 +4,9 @@
 CALL=
 GRID=
 
+# optional antenna description
+ANTENNA=""
+
 DIR=`readlink -f $0`
 DIR=`dirname $DIR`
 
@@ -40,6 +43,6 @@ test -n "$CALL" -a -n "$GRID" || exit
 
 echo "Uploading ..."
 
-$UPLOADER $CALL $GRID $REPORT
+$UPLOADER $CALL $GRID "$ANTENNA" $REPORT
 
 rm -f $REPORT
