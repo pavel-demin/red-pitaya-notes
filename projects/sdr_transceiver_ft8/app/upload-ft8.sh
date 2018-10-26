@@ -15,7 +15,7 @@ date
 
 echo "Sleeping ..."
 
-$SLEEP 300
+$SLEEP 60
 
 date
 TIMESTAMP=`date --utc +'%y%m%d_%H%M'`
