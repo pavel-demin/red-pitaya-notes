@@ -76,11 +76,12 @@ int main(int argc, char *argv[])
     0x00, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 
-    0x00, 0x03, 0x00, 0x24, 0x99, 0x92, 0x00, 0x03,
+    0x00, 0x03, 0x00, 0x2C, 0x99, 0x92, 0x00, 0x04,
     0x00, 0x00,
     0x80, 0x02, 0xFF, 0xFF, 0x00, 0x00, 0x76, 0x8F,
     0x80, 0x04, 0xFF, 0xFF, 0x00, 0x00, 0x76, 0x8F,
     0x80, 0x08, 0xFF, 0xFF, 0x00, 0x00, 0x76, 0x8F,
+    0x80, 0x09, 0xFF, 0xFF, 0x00, 0x00, 0x76, 0x8F,
     0x00, 0x00,
 
     0x00, 0x02, 0x00, 0x3C, 0x99, 0x93, 0x00, 0x07,
@@ -93,9 +94,9 @@ int main(int argc, char *argv[])
     0x00, 0x96, 0x00, 0x04
   };
 
-  if(argc != 4)
+  if(argc != 5)
   {
-    fprintf(stderr, "Usage: upload-to-pskreporter call grid file\n");
+    fprintf(stderr, "Usage: upload-to-pskreporter call grid antenna file\n");
     return EXIT_FAILURE;
   }
 
@@ -111,7 +112,13 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  if((fp = fopen(argv[3], "r")) == NULL)
+  if(strlen(argv[3]) > 64)
+  {
+    fprintf(stderr, "Antenna description is too long.\n");
+    return EXIT_FAILURE;
+  }
+
+  if((fp = fopen(argv[4], "r")) == NULL)
   {
     fprintf(stderr, "Cannot open input file.\n");
     return EXIT_FAILURE;
@@ -148,6 +155,7 @@ int main(int argc, char *argv[])
   copy_char(&dst, argv[1]);
   copy_char(&dst, argv[2]);
   copy_char(&dst, soft);
+  copy_char(&dst, argv[3]);
 
   size = dst - start;
   padding = (4 - size % 4) % 4;
@@ -190,7 +198,7 @@ int main(int argc, char *argv[])
 
       ++counter;
 
-      if(counter < 13) continue;
+      if(counter < 10) continue;
     }
 
     if(counter > 0)
