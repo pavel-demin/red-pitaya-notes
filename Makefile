@@ -9,7 +9,7 @@
 LD_LIBRARY_PATH =
 
 NAME = led_blinker
-PART = xc7z010clg400-1
+PART = xc7z020clg400-1
 PROC = ps7_cortexa9_0
 
 CORES = axi_axis_reader_v1_0 axi_axis_writer_v1_0 axi_bram_reader_v1_0 \

@@ -16,7 +16,7 @@ set cores [list \
   shift_register_v1_0 \
 ]
 
-set part_name xc7z010clg400-1
+set part_name xc7z020clg400-1
 
 foreach core_name $cores {
   set argv [list $core_name $part_name]
