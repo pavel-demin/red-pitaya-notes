@@ -539,14 +539,14 @@ int main(int argc, char *argv[])
   *gpio_out = 0;
 
   /* set default rx phase increment */
-  *rx_freq[0] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
-  *rx_freq[1] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+  *rx_freq[0] = (uint32_t)floor(600000 / 122.88e6 * (1 << 30) + 0.5);
+  *rx_freq[1] = (uint32_t)floor(600000 / 122.88e6 * (1 << 30) + 0.5);
 
   /* set default rx sample rate */
   *rx_rate = 1000;
 
   /* set default tx phase increment */
-  *tx_freq = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+  *tx_freq = (uint32_t)floor(600000 / 122.88e6 * (1 << 30) + 0.5);
 
   /* set tx ramp */
   size = 1001;
@@ -797,16 +797,16 @@ void process_ep2(uint8_t *frame)
       switch(frame[1] & 3)
       {
         case 0:
-          *rx_rate = 1000;
+          *rx_rate = 1280;
           break;
         case 1:
-          *rx_rate = 500;
+          *rx_rate = 640;
           break;
         case 2:
-          *rx_rate = 250;
+          *rx_rate = 320;
           break;
         case 3:
-          *rx_rate = 125;
+          *rx_rate = 160;
           break;
       }
 
@@ -884,7 +884,7 @@ void process_ep2(uint8_t *frame)
       /* set tx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *tx_freq = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      *tx_freq = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
       if(freq_data[0] != freq)
       {
         freq_data[0] = freq;
@@ -908,7 +908,7 @@ void process_ep2(uint8_t *frame)
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      *rx_freq[0] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
       if(rx_sync_data) *rx_freq[1] = *rx_freq[0];
       if(freq_data[1] != freq)
       {
@@ -940,7 +940,7 @@ void process_ep2(uint8_t *frame)
       if(rx_sync_data) break;
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      *rx_freq[1] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
       if(freq_data[2] != freq)
       {
         freq_data[2] = freq;
