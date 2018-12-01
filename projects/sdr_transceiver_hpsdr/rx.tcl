@@ -96,7 +96,7 @@ for {set i 0} {$i <= 1} {incr i} {
 
   # Create port_slicer
   cell pavel-demin:user:port_slicer:1.0 adc_slice_[expr $i + 6] {
-    DIN_WIDTH 16 DIN_FROM 13 DIN_TO 0
+    DIN_WIDTH 16 DIN_FROM 15 DIN_TO 0
   }
 
 }
@@ -119,7 +119,7 @@ for {set i 0} {$i <= 7} {incr i} {
     B_WIDTH.VALUE_SRC USER
     OUTPUT_PROPERTIES User_Defined
     A_WIDTH 24
-    B_WIDTH 14
+    B_WIDTH 16
     P_WIDTH 25
   } {
     A dds_slice_$i/dout
@@ -207,7 +207,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   SAMPLE_FREQUENCY 0.768
   CLOCK_FREQUENCY 122.88
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
-  OUTPUT_WIDTH 25
+  OUTPUT_WIDTH 26
   HAS_ARESETN true
 } {
   S_AXIS_DATA conv_0/M_AXIS

@@ -93,7 +93,7 @@ cell xilinx.com:ip:fir_compiler:7.2 fir_0 {
   SAMPLE_FREQUENCY 0.048
   CLOCK_FREQUENCY 122.88
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
-  OUTPUT_WIDTH 25
+  OUTPUT_WIDTH 26
   M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
@@ -324,7 +324,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_1 {
   OUTPUT_PROPERTIES User_Defined
   A_WIDTH 24
   B_WIDTH 16
-  P_WIDTH 16
+  P_WIDTH 15
 } {
   A mult_0/m_axis_dout_tdata
   B slice_3/dout
@@ -340,7 +340,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_2 {
   OUTPUT_PROPERTIES User_Defined
   A_WIDTH 24
   B_WIDTH 16
-  P_WIDTH 16
+  P_WIDTH 18
 } {
   A mult_0/m_axis_dout_tdata
   B slice_4/dout
