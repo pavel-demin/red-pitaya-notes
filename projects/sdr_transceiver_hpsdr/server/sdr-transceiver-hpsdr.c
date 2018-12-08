@@ -543,7 +543,7 @@ int main(int argc, char *argv[])
   *rx_freq[1] = (uint32_t)floor(600000 / 122.88e6 * (1 << 30) + 0.5);
 
   /* set default rx sample rate */
-  *rx_rate = 1000;
+  *rx_rate = 1280;
 
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(600000 / 122.88e6 * (1 << 30) + 0.5);
