@@ -351,7 +351,7 @@ for {set i 0} {$i <= 3} {incr i} {
     CLOCK_FREQUENCY 125
     INPUT_DATA_WIDTH 24
     QUANTIZATION Truncation
-    OUTPUT_DATA_WIDTH 24
+    OUTPUT_DATA_WIDTH 32
     USE_XTREME_DSP_SLICE false
     HAS_ARESETN true
   } {
@@ -366,7 +366,7 @@ for {set i 0} {$i <= 3} {incr i} {
 # Create axis_combiner
 cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 3
+  TDATA_NUM_BYTES 4
   NUM_SI 4
 } {
   S00_AXIS cic_3/M_AXIS_DATA
@@ -380,8 +380,8 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 # Create axis_dwidth_converter
 cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 12
-  M_TDATA_NUM_BYTES 3
+  S_TDATA_NUM_BYTES 16
+  M_TDATA_NUM_BYTES 4
 } {
   S_AXIS comb_0/M_AXIS
   aclk pll_0/clk_out1
@@ -396,7 +396,7 @@ cell xilinx.com:ip:floating_point:7.1 fp_0 {
   C_A_FRACTION_WIDTH.VALUE_SRC USER
   A_PRECISION_TYPE Custom
   C_A_EXPONENT_WIDTH 2
-  C_A_FRACTION_WIDTH 22
+  C_A_FRACTION_WIDTH 30
   RESULT_PRECISION_TYPE Single
   HAS_ARESETN true
 } {
