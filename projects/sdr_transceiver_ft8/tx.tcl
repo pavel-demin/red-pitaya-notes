@@ -35,7 +35,7 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0 {
   CONST_WIDTH 32
-  CONST_VAL 85333332
+  CONST_VAL 19999999
 }
 
 # Create axis_interpolator
