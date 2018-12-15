@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
   struct timespec ts;
   double sync, dt;
   int32_t snr, freq, counter, rc, padding, sequence, size;
-  char buffer[512], line[64], call[8], grid[8], *src, *dst, *start;
+  char buffer[512], line[64], call[16], grid[8], *src, *dst, *start;
   char header[] =
   {
     0x00, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
         && read_int(&src, &snr)
         && read_dbl(&src, &dt)
         && read_int(&src, &freq)
-        && sscanf(src, "%6s %4s", call, grid);
+        && sscanf(src, "%13s %4s", call, grid);
 
       if(!rc) continue;
 
