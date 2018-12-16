@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   *tx_phase[1] = 0;
   *tx_level[0] = 32766;
   *tx_level[1] = 0;
-  *rx_size = 25000 - 1;
+  *rx_size = 25600 - 1;
 
   start = 10000;
   stop = 60000000;
@@ -117,12 +117,12 @@ int main(int argc, char *argv[])
       {
         case 0:
           /* set start */
-          if(value < 0 || value > 62500000) continue;
+          if(value < 0 || value > 61440000) continue;
           start = value;
           break;
         case 1:
           /* set stop */
-          if(value < 0 || value > 62500000) continue;
+          if(value < 0 || value > 61440000) continue;
           stop = value;
           break;
         case 2:
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
           /* set rate */
           if(value < 5 || value > 50000) continue;
           rate = value;
-          *rx_size = 2500 * (rate + 5) - 1;
+          *rx_size = 2560 * (rate + 5) - 1;
           break;
         case 4:
           /* set correction */
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
           {
             freq = i > 0 ? start + (stop - start) * i / (size - 1) : start;
             freq *= (1.0 + 1.0e-9 * corr);
-            *rx_freq = (uint32_t)floor(freq / 125.0e6 * (1<<30) + 0.5);
+            *rx_freq = (uint32_t)floor(freq / 122.88e6 * (1<<30) + 0.5);
           }
           *rst |= 1;
           break;

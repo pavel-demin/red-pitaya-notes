@@ -2,12 +2,12 @@
 cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
-  PRIM_IN_FREQ 125.0
+  PRIM_IN_FREQ 122.88
   PRIM_SOURCE Differential_clock_capable_pin
   CLKOUT1_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT1_REQUESTED_OUT_FREQ 122.88
   CLKOUT2_USED true
-  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT2_REQUESTED_OUT_FREQ 245.76
   CLKOUT2_REQUESTED_PHASE -90.0
   USE_RESET false
 } {
@@ -40,7 +40,9 @@ cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
 # ADC
 
 # Create axis_red_pitaya_adc
-cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
+cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {
+  ADC_DATA_WIDTH 16
+} {
   aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
   adc_dat_b adc_dat_b_i
@@ -50,7 +52,9 @@ cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
 # DAC
 
 # Create axis_red_pitaya_dac
-cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
+cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {
+  DAC_DATA_WIDTH 14
+} {
   aclk pll_0/clk_out1
   ddr_clk pll_0/clk_out2
   locked pll_0/locked
@@ -176,7 +180,7 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
 
 # Create dds_compiler
 cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
-  DDS_CLOCK_RATE 125
+  DDS_CLOCK_RATE 122.88
   SPURIOUS_FREE_DYNAMIC_RANGE 138
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
@@ -210,7 +214,7 @@ for {set i 0} {$i <= 1} {incr i} {
 
   # Create dds_compiler
   cell xilinx.com:ip:dds_compiler:6.0 dds_[expr $i + 1] {
-    DDS_CLOCK_RATE 125
+    DDS_CLOCK_RATE 122.88
     SPURIOUS_FREE_DYNAMIC_RANGE 138
     FREQUENCY_RESOLUTION 0.2
     PHASE_INCREMENT Streaming
@@ -346,12 +350,12 @@ for {set i 0} {$i <= 3} {incr i} {
     FILTER_TYPE Decimation
     NUMBER_OF_STAGES 6
     SAMPLE_RATE_CHANGES Fixed
-    FIXED_OR_INITIAL_RATE 2500
-    INPUT_SAMPLE_FREQUENCY 125
-    CLOCK_FREQUENCY 125
+    FIXED_OR_INITIAL_RATE 2560
+    INPUT_SAMPLE_FREQUENCY 122.88
+    CLOCK_FREQUENCY 122.88
     INPUT_DATA_WIDTH 24
     QUANTIZATION Truncation
-    OUTPUT_DATA_WIDTH 24
+    OUTPUT_DATA_WIDTH 32
     USE_XTREME_DSP_SLICE false
     HAS_ARESETN true
   } {
@@ -366,7 +370,7 @@ for {set i 0} {$i <= 3} {incr i} {
 # Create axis_combiner
 cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 3
+  TDATA_NUM_BYTES 4
   NUM_SI 4
 } {
   S00_AXIS cic_3/M_AXIS_DATA
@@ -380,8 +384,8 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 # Create axis_dwidth_converter
 cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 12
-  M_TDATA_NUM_BYTES 3
+  S_TDATA_NUM_BYTES 16
+  M_TDATA_NUM_BYTES 4
 } {
   S_AXIS comb_0/M_AXIS
   aclk pll_0/clk_out1
@@ -396,7 +400,7 @@ cell xilinx.com:ip:floating_point:7.1 fp_0 {
   C_A_FRACTION_WIDTH.VALUE_SRC USER
   A_PRECISION_TYPE Custom
   C_A_EXPONENT_WIDTH 2
-  C_A_FRACTION_WIDTH 22
+  C_A_FRACTION_WIDTH 30
   RESULT_PRECISION_TYPE Single
   HAS_ARESETN true
 } {
