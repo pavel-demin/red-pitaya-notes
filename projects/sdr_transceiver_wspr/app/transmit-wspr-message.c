@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 
   for(i = 0; i < 162; ++i)
   {
-    dphi = (freq * 1.0e6 + ((double)symbols[i] - 1.5) * 375.0 / 256.0) / 125.0e6;
+    dphi = (freq * 1.0e6 + ((double)symbols[i] - 1.5) * 375.0 / 256.0) / 122.88e6;
     *fifo = (uint32_t)floor((1.0 + 1.0e-6 * corr) * dphi * (1<<30) + 0.5);
   }
 
