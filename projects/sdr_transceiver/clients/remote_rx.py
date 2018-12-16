@@ -22,7 +22,7 @@
 #
 import socket, sys, struct, argparse, signal
 
-rates = {20000:0, 50000:1, 100000:2, 250000:3, 500000:4, 1250000:5}
+rates = {24000:0, 48000:1, 966000:2, 192000:3, 384000:4, 768000:5, 1536000:6}
 activeReceiver = None
 
 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--address", help="IP address Red Pitaya", default="192.168.188.21")
     parser.add_argument("--freq", help="Center Frequency, default 14100000 Hz", type=int, default=14100000)
-    parser.add_argument("--rate", help="Sample rate, allowed values: 20000 50000 100000 250000 500000 1250000", type=int, default=500000)
+    parser.add_argument("--rate", help="Sample rate, allowed values: 24000 48000 96000 192000 384000 768000 1536000", type=int, default=384000)
     parser.add_argument("--corr", help="Correction in ppm, dafault 0", type=int, default=0)
 
     args = parser.parse_args()

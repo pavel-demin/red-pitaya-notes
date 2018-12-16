@@ -247,7 +247,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>100000</value>
+      <value>96000</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -270,7 +270,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>100000</value>
+      <value>96000</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -431,11 +431,11 @@
     </param>
     <param>
       <key>interp</key>
-      <value>tx_samp_rate/2000</value>
+      <value>tx_samp_rate/samp_rate</value>
     </param>
     <param>
       <key>decim</key>
-      <value>24</value>
+      <value>1</value>
     </param>
     <param>
       <key>taps</key>
@@ -662,11 +662,11 @@
     </param>
     <param>
       <key>interp</key>
-      <value>24</value>
+      <value>1</value>
     </param>
     <param>
       <key>decim</key>
-      <value>rx_samp_rate/2000</value>
+      <value>rx_samp_rate/samp_rate</value>
     </param>
     <param>
       <key>taps</key>
@@ -807,7 +807,7 @@
     </param>
     <param>
       <key>start</key>
-      <value>tx_samp_rate/2</value>
+      <value>0</value>
     </param>
     <param>
       <key>stop</key>
@@ -862,7 +862,7 @@
     </param>
     <param>
       <key>start</key>
-      <value>rx_samp_rate/2</value>
+      <value>0</value>
     </param>
     <param>
       <key>stop</key>

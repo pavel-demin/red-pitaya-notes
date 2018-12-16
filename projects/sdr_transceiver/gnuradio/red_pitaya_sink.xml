@@ -55,7 +55,7 @@
   <param>
     <name>Sample Rate</name>
     <key>rate</key>
-    <value>100000</value>
+    <value>96000</value>
     <type>int</type>
   </param>
   <param>

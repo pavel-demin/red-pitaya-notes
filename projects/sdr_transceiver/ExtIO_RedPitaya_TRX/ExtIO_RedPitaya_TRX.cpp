@@ -26,11 +26,11 @@ SOCKET gSock[2] = {-1, -1};
 
 char gBuffer[8192];
 
-UInt32 gRate = 100000;
+UInt32 gRate = 96000;
 Int32 gCorr = 0;
 
 UInt32 gFreq = 600000;
-UInt32 gFreqMin = 100000;
+UInt32 gFreqMin = 48000;
 UInt32 gFreqMax = 60000000;
 
 bool gInitHW = false;
@@ -139,7 +139,7 @@ bool EXTIO_API InitHW(char *name, char *model, int &type)
     ManagedGlobals::gGUI->addrValue->Text = addrString;
 
     rateIndex = Convert::ToUInt32(ManagedGlobals::gKey->GetValue("Sample Rate", 1));
-    if(rateIndex < 0 || rateIndex > 5) rateIndex = 2;
+    if(rateIndex < 0 || rateIndex > 6) rateIndex = 2;
     ManagedGlobals::gGUI->rateValue->SelectedIndex = rateIndex;
     ManagedGlobals::gGUI->rateCallback = UpdateRate;
 
@@ -279,12 +279,13 @@ static void SetRate(UInt32 rateIndex)
 {
   switch(rateIndex)
   {
-    case 0: gRate = 20000; gFreqMin = 10000; break;
-    case 1: gRate = 50000; gFreqMin = 25000; break;
-    case 2: gRate = 100000; gFreqMin = 50000; break;
-    case 3: gRate = 250000; gFreqMin = 125000; break;
-    case 4: gRate = 500000; gFreqMin = 250000; break;
-    case 5: gRate = 1250000; gFreqMin = 625000; break;
+    case 0: gRate = 24000; gFreqMin = 12000; break;
+    case 1: gRate = 48000; gFreqMin = 24000; break;
+    case 2: gRate = 96000; gFreqMin = 48000; break;
+    case 3: gRate = 192000; gFreqMin = 96000; break;
+    case 4: gRate = 384000; gFreqMin = 192000; break;
+    case 5: gRate = 768000; gFreqMin = 384000; break;
+    case 6: gRate = 1536000; gFreqMin = 768000; break;
   }
 
   if(ManagedGlobals::gKey) ManagedGlobals::gKey->SetValue("Sample Rate", rateIndex);

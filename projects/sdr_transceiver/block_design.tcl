@@ -2,12 +2,12 @@
 cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
-  PRIM_IN_FREQ 125.0
+  PRIM_IN_FREQ 122.88
   PRIM_SOURCE Differential_clock_capable_pin
   CLKOUT1_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT1_REQUESTED_OUT_FREQ 122.88
   CLKOUT2_USED true
-  CLKOUT2_REQUESTED_OUT_FREQ 250.0
+  CLKOUT2_REQUESTED_OUT_FREQ 245.76
   CLKOUT2_REQUESTED_PHASE -90.0
   USE_RESET false
 } {
@@ -40,7 +40,9 @@ cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
 # ADC
 
 # Create axis_red_pitaya_adc
-cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
+cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {
+  ADC_DATA_WIDTH 16
+} {
   aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
   adc_dat_b adc_dat_b_i
@@ -73,7 +75,9 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 }
 
 # Create axis_red_pitaya_dac
-cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
+cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {
+  DAC_DATA_WIDTH 14
+} {
   aclk pll_0/clk_out1
   ddr_clk pll_0/clk_out2
   locked pll_0/locked
