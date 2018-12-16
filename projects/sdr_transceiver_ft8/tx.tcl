@@ -35,7 +35,7 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant:1.1 const_0 {
   CONST_WIDTH 32
-  CONST_VAL 85333332
+  CONST_VAL 19660799
 }
 
 # Create axis_interpolator
@@ -54,7 +54,7 @@ cell xilinx.com:ip:xlconstant:1.1 const_1
 
 # Create dds_compiler
 cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
-  DDS_CLOCK_RATE 125
+  DDS_CLOCK_RATE 122.88
   SPURIOUS_FREE_DYNAMIC_RANGE 96
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming

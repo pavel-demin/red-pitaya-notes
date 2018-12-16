@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     buffer += *fifo + 1;
   }
 
-  corr = (125.0e6 * number / buffer - 1.0) * 1.0e6;
+  corr = (122.88e6 * number / buffer - 1.0) * 1.0e6;
 
   if(corr < -100.0 || corr > 100.0)
   {
