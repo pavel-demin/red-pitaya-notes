@@ -815,7 +815,7 @@ namespace eval ::mcpha {
   oo::define HstDisplay method cntr_val_update args {
     my variable config cntr_val
 
-    set cntr_tmp [expr {${cntr_val}/125000}]
+    set cntr_tmp [expr {${cntr_val}/122880}]
     ${config}.cntr_frame.h_field set [expr {${cntr_tmp}/3600000}]
     ${config}.cntr_frame.m_field set [expr {${cntr_tmp}%3600000/60000}]
     ${config}.cntr_frame.s_field set [format {%.3f} [expr {${cntr_tmp}%3600000%60000/1000.0}]]
@@ -890,7 +890,7 @@ namespace eval ::mcpha {
     }
 
     set cntr_tmp [expr {${h}*3600000 + ${m}*60000 + ${s}*1000}]
-    set cntr_tmp [expr {entier(125000 * ${cntr_tmp})}]
+    set cntr_tmp [expr {entier(122880 * ${cntr_tmp})}]
 
     if {$cntr_tmp > 0} {
       ${config}.cntr_frame.h_field configure -state disabled
@@ -996,8 +996,8 @@ namespace eval ::mcpha {
     set yvec_new [blt::vector expr "sum([my varname yvec](0:16383))"]
 
     if {$cntr_new < $cntr_old} {
-      set rate_val(inst) [expr {($yvec_new - $yvec_old)*125000000/($cntr_old - $cntr_new)}]
-      set rate_val(mean) [expr {($yvec_new - $yvec_bak)*125000000/($cntr_bak - $cntr_new)}]
+      set rate_val(inst) [expr {($yvec_new - $yvec_old)*122880000/($cntr_old - $cntr_new)}]
+      set rate_val(mean) [expr {($yvec_new - $yvec_bak)*122880000/($cntr_bak - $cntr_new)}]
       ${config}.chan_frame.entr_value configure -text $yvec_new
       my stat_update
 
@@ -1825,8 +1825,8 @@ namespace eval ::mcpha {
     if {$rise < 10 || $fall == 0} {
       set data 65535
     } else {
-      set r [expr int(exp(-log(2.0) / 125.0 / $rise * 1.0e3) * 65536.0 + 0.5)]
-      set f [expr int(exp(-log(2.0) / 125.0 / $fall) * 65536.0 + 0.5)]
+      set r [expr int(exp(-log(2.0) / 122.88 / $rise * 1.0e3) * 65536.0 + 0.5)]
+      set f [expr int(exp(-log(2.0) / 122.88 / $fall) * 65536.0 + 0.5)]
       set a [expr -log($r / 65536.0)]
       set b [expr -log($f / 65536.0)]
       set t [expr log($b / $a) / ($b - $a)]
@@ -1844,7 +1844,7 @@ namespace eval ::mcpha {
     if {$fall == 0} {
       set data 0
     } else {
-      set data [expr int(exp(-log(2.0) / 125.0 / $fall) * 65536.0 + 0.5)]
+      set data [expr int(exp(-log(2.0) / 122.88 / $fall) * 65536.0 + 0.5)]
     }
 
     $controller command 25 0 $data
@@ -1860,7 +1860,7 @@ namespace eval ::mcpha {
     if {$rise < 10} {
       set data 0
     } else {
-      set data [expr int(exp(-log(2.0) / 125.0 / $rise * 1.0e3) * 65536.0 + 0.5)]
+      set data [expr int(exp(-log(2.0) / 122.88 / $rise * 1.0e3) * 65536.0 + 0.5)]
     }
 
     $controller command 26 0 $data

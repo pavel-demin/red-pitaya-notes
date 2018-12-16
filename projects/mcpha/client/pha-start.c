@@ -211,8 +211,8 @@ int main(int argc, char *argv[])
   command[11] = (7ULL << 60) + (1ULL << 56) + min2;
   command[12] = (8ULL << 60) + (0ULL << 56) + max1;
   command[13] = (8ULL << 60) + (1ULL << 56) + max2;
-  command[14] = (9ULL << 60) + (0ULL << 56) + 125000000ULL * stop;
-  command[15] = (9ULL << 60) + (1ULL << 56) + 125000000ULL * stop;
+  command[14] = (9ULL << 60) + (0ULL << 56) + 122880000ULL * stop;
+  command[15] = (9ULL << 60) + (1ULL << 56) + 122880000ULL * stop;
   command[16] = (10ULL << 60);
 
   #if defined(_WIN32)

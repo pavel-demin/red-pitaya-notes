@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   rst = cfg + 3;
 
   /* set sample rate */
-  *(uint16_t *)(cfg + 6) = 125;
+  *(uint16_t *)(cfg + 6) = 128;
 
   /* reset timers and phas */
   *rst &= ~3;

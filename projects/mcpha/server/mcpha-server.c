@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
   axi_hp0[5] &= ~1;
 
   /* set sample rate */
-  *(uint16_t *)(cfg + 4) = 125;
+  *(uint16_t *)(cfg + 4) = 128;
 
   /* set trigger channel */
   trg[16] = 0;
@@ -580,11 +580,11 @@ void *pulser_handler(void *arg)
 
     if(dist == 0)
     {
-      interval = (int32_t)floor(125.0e6 / rate + 0.5);
+      interval = (int32_t)floor(122.88e6 / rate + 0.5);
     }
     else
     {
-      interval = (int32_t)floor(-logf(1.0 - rand() / (RAND_MAX + 1.0)) * 125.0e6 / rate + 0.5);
+      interval = (int32_t)floor(-logf(1.0 - rand() / (RAND_MAX + 1.0)) * 122.88e6 / rate + 0.5);
     }
 
     *gen = amplitude;
