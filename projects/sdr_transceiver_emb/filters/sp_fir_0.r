@@ -1,7 +1,7 @@
 library(signal)
 
 # CIC filter parameters
-R <- 125                       # Decimation factor
+R <- 80                        # Decimation factor
 M <- 1                         # Differential delay
 N <- 6                         # Number of stages
 

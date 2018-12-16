@@ -19,7 +19,7 @@ volatile uint16_t *tx_level, *rx_cntr, *tx_cntr;
 volatile uint8_t *rx_rst, *tx_rst, *codec_rst, *gpio;
 
 const uint32_t freq_min = 0;
-const uint32_t freq_max = 62500000;
+const uint32_t freq_max = 61440000;
 
 int sock_thread[4] = {-1, -1, -1, -1};
 
@@ -150,7 +150,7 @@ void *rx_ctrl_handler(void *arg)
   uint32_t command, freq;
 
   /* set default rx phase increment */
-  *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *rx_freq = (uint32_t)floor(600000/122.88e6*(1<<30)+0.5);
 
   while(1)
   {
@@ -161,13 +161,13 @@ void *rx_ctrl_handler(void *arg)
         /* set rx phase increment */
         freq = command & 0xfffffff;
         if(freq < freq_min || freq > freq_max) continue;
-        *rx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+        *rx_freq = (uint32_t)floor(freq/122.88e6*(1<<30)+0.5);
         break;
     }
   }
 
   /* set default rx phase increment */
-  *rx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *rx_freq = (uint32_t)floor(600000/122.88e6*(1<<30)+0.5);
 
   close(sock_client);
   sock_thread[0] = -1;
@@ -211,7 +211,7 @@ void *tx_ctrl_handler(void *arg)
   /* set PTT pin to low */
   *gpio = 0;
   /* set default tx phase increment */
-  *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *tx_freq = (uint32_t)floor(600000/122.88e6*(1<<30)+0.5);
 
   while(1)
   {
@@ -222,7 +222,7 @@ void *tx_ctrl_handler(void *arg)
         /* set tx phase increment */
         freq = command & 0xfffffff;
         if(freq < freq_min || freq > freq_max) continue;
-        *tx_freq = (uint32_t)floor(freq/125.0e6*(1<<30)+0.5);
+        *tx_freq = (uint32_t)floor(freq/122.88e6*(1<<30)+0.5);
         break;
       case 1:
         /* set PTT pin */
@@ -234,7 +234,7 @@ void *tx_ctrl_handler(void *arg)
   /* set PTT pin to low */
   *gpio = 0;
   /* set default tx phase increment */
-  *tx_freq = (uint32_t)floor(600000/125.0e6*(1<<30)+0.5);
+  *tx_freq = (uint32_t)floor(600000/122.88e6*(1<<30)+0.5);
 
   close(sock_client);
   sock_thread[2] = -1;

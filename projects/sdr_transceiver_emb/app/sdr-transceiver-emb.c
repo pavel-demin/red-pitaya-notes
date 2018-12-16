@@ -217,8 +217,8 @@ int main()
   rx_freq = 621000;
   tx_freq = 621000;
 
-  *rx_phase = (uint32_t)floor((rx_freq + shift) / 125.0e6 * (1<<30) + 0.5);
-  *tx_phase = (uint32_t)floor(tx_freq / 125.0e6 * (1<<30) + 0.5);
+  *rx_phase = (uint32_t)floor((rx_freq + shift) / 122.88e6 * (1<<30) + 0.5);
+  *tx_phase = (uint32_t)floor(tx_freq / 122.88e6 * (1<<30) + 0.5);
 
   SetRXAMode(0, RXA_AM);
   SetTXAMode(1, TXA_AM);
@@ -335,12 +335,12 @@ int main()
         case 1:
           if(data > 62000000) continue;
           rx_freq = data;
-          *rx_phase = (uint32_t)floor((rx_freq + shift) / 125.0e6 * (1<<30) + 0.5);
+          *rx_phase = (uint32_t)floor((rx_freq + shift) / 122.88e6 * (1<<30) + 0.5);
           break;
         case 2:
           if(data > 62000000) continue;
           tx_freq = data;
-          *tx_phase = (uint32_t)floor(tx_freq / 125.0e6 * (1<<30) + 0.5);
+          *tx_phase = (uint32_t)floor(tx_freq / 122.88e6 * (1<<30) + 0.5);
           break;
         case 3:
           if(data > 9) continue;
@@ -404,7 +404,7 @@ int main()
               SetTXAMode(1, TXA_AM);
               break;
           }
-          *rx_phase = (uint32_t)floor((rx_freq + shift) / 125.0e6 * (1<<30) + 0.5);
+          *rx_phase = (uint32_t)floor((rx_freq + shift) / 122.88e6 * (1<<30) + 0.5);
           RXASetPassband(0, cutoff[mode][filter][0], cutoff[mode][filter][1]);
           SetTXABandpassFreqs(1, cutoff[mode][filter][0], cutoff[mode][filter][1]);
           break;
