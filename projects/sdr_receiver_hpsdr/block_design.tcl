@@ -2,10 +2,10 @@
 cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
-  PRIM_IN_FREQ 125.0
+  PRIM_IN_FREQ 122.88
   PRIM_SOURCE Differential_clock_capable_pin
   CLKOUT1_USED true
-  CLKOUT1_REQUESTED_OUT_FREQ 125.0
+  CLKOUT1_REQUESTED_OUT_FREQ 122.88
   USE_RESET false
 } {
   clk_in1_p adc_clk_p_i
@@ -37,7 +37,9 @@ cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
 # ADC
 
 # Create axis_red_pitaya_adc
-cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
+cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {
+  ADC_DATA_WIDTH 16
+} {
   aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
   adc_dat_b adc_dat_b_i
@@ -161,7 +163,7 @@ for {set i 0} {$i <= 7} {incr i} {
     Clk Auto
   } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
 
-  set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
-  set_property OFFSET 0x4000[format %X [expr $i + 2]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property RANGE 8K [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
+  set_property OFFSET 0x4001[format %X [expr 2 * $i]]000 [get_bd_addr_segs ps_0/Data/SEG_reader_${i}_reg0]
 
 }
