@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
+cell xilinx.com:ip:clk_wiz pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -13,7 +13,7 @@ cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
 }
 
 # Create processing_system7
-cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+cell xilinx.com:ip:processing_system7 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
   PCW_USE_S_AXI_HP0 1
 } {
@@ -29,15 +29,15 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 } [get_bd_cells ps_0]
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
+cell xilinx.com:ip:xlconstant const_0
 
 # Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
 }
 
 # Create axis_red_pitaya_adc
-cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
+cell pavel-demin:user:axis_red_pitaya_adc adc_0 {} {
   aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
   adc_dat_b adc_dat_b_i
@@ -45,14 +45,14 @@ cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
 }
 
 # Create c_counter_binary
-cell xilinx.com:ip:c_counter_binary:12.0 cntr_0 {
+cell xilinx.com:ip:c_counter_binary cntr_0 {
   Output_Width 32
 } {
   CLK pll_0/clk_out1
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_0 {
+cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 32 DIN_FROM 26 DIN_TO 26
 } {
   din cntr_0/Q
@@ -60,7 +60,7 @@ cell pavel-demin:user:port_slicer:1.0 slice_0 {
 }
 
 # Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
+cell pavel-demin:user:axi_cfg_register cfg_0 {
   CFG_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
@@ -76,14 +76,14 @@ set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_1 {
+cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 32 DIN_FROM 0 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create axis_gpio_reader
-cell pavel-demin:user:axis_gpio_reader:1.0 gpio_0 {
+cell pavel-demin:user:axis_gpio_reader gpio_0 {
   AXIS_TDATA_WIDTH 8
 } {
   gpio_data exp_p_tri_io
@@ -91,7 +91,7 @@ cell pavel-demin:user:axis_gpio_reader:1.0 gpio_0 {
 }
 
 # Create axis_trigger
-cell pavel-demin:user:axis_trigger:1.0 trig_0 {
+cell pavel-demin:user:axis_trigger trig_0 {
   AXIS_TDATA_WIDTH 8
   AXIS_TDATA_SIGNED FALSE
 } {
@@ -103,7 +103,7 @@ cell pavel-demin:user:axis_trigger:1.0 trig_0 {
 }
 
 # Create axis_validator
-cell pavel-demin:user:axis_validator:1.0 vldtr_0 {
+cell pavel-demin:user:axis_validator vldtr_0 {
   AXIS_TDATA_WIDTH 32
 } {
   S_AXIS adc_0/M_AXIS
@@ -112,7 +112,7 @@ cell pavel-demin:user:axis_validator:1.0 vldtr_0 {
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
+cell xilinx.com:ip:blk_mem_gen bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   USE_BYTE_WRITE_ENABLE true
@@ -127,7 +127,7 @@ cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
 }
 
 # Create axis_bram_writer
-cell pavel-demin:user:axis_bram_writer:1.0 writer_0 {
+cell pavel-demin:user:axis_bram_writer writer_0 {
   AXIS_TDATA_WIDTH 32
   BRAM_DATA_WIDTH 32
   BRAM_ADDR_WIDTH 10
@@ -139,7 +139,7 @@ cell pavel-demin:user:axis_bram_writer:1.0 writer_0 {
 }
 
 # Create axi_bram_reader
-cell pavel-demin:user:axi_bram_reader:1.0 reader_0 {
+cell pavel-demin:user:axi_bram_reader reader_0 {
   AXI_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   BRAM_DATA_WIDTH 32
@@ -158,7 +158,7 @@ set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
 set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
 
 # Create axi_sts_register
-cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
+cell pavel-demin:user:axi_sts_register sts_0 {
   STS_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
