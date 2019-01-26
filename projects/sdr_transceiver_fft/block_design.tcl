@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
+cell xilinx.com:ip:clk_wiz pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -16,7 +16,7 @@ cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
 }
 
 # Create processing_system7
-cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+cell xilinx.com:ip:processing_system7 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
 } {
   M_AXI_GP0_ACLK pll_0/clk_out1
@@ -30,17 +30,17 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 } [get_bd_cells ps_0]
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
+cell xilinx.com:ip:xlconstant const_0
 
 # Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
 }
 
 # ADC
 
 # Create axis_red_pitaya_adc
-cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
+cell pavel-demin:user:axis_red_pitaya_adc adc_0 {} {
   aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
   adc_dat_b adc_dat_b_i
@@ -48,7 +48,7 @@ cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
 }
 
 # Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
+cell pavel-demin:user:axi_cfg_register cfg_0 {
   CFG_DATA_WIDTH 160
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
@@ -64,63 +64,63 @@ set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
+cell pavel-demin:user:port_slicer rst_slice_0 {
   DIN_WIDTH 160 DIN_FROM 0 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
+cell pavel-demin:user:port_slicer rst_slice_1 {
   DIN_WIDTH 160 DIN_FROM 1 DIN_TO 1
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 rst_slice_2 {
+cell pavel-demin:user:port_slicer rst_slice_2 {
   DIN_WIDTH 160 DIN_FROM 5 DIN_TO 2
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 rst_slice_3 {
+cell pavel-demin:user:port_slicer rst_slice_3 {
   DIN_WIDTH 160 DIN_FROM 6 DIN_TO 6
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 rst_slice_4 {
+cell pavel-demin:user:port_slicer rst_slice_4 {
   DIN_WIDTH 160 DIN_FROM 7 DIN_TO 7
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
+cell pavel-demin:user:port_slicer cfg_slice_0 {
   DIN_WIDTH 160 DIN_FROM 63 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
+cell pavel-demin:user:port_slicer cfg_slice_1 {
   DIN_WIDTH 160 DIN_FROM 127 DIN_TO 64
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 cfg_slice_2 {
+cell pavel-demin:user:port_slicer cfg_slice_2 {
   DIN_WIDTH 160 DIN_FROM 159 DIN_TO 128
 } {
   din cfg_0/cfg_data
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
+cell xilinx.com:ip:axis_subset_converter subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
@@ -133,7 +133,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
 }
 
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
+cell xilinx.com:ip:axis_broadcaster bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 2
@@ -147,7 +147,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 source projects/sdr_transceiver_fft/rx_0.tcl
 
 # Create axi_bram_reader
-cell pavel-demin:user:axi_bram_reader:1.0 rx_reader_0 {
+cell pavel-demin:user:axi_bram_reader rx_reader_0 {
   AXI_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   BRAM_DATA_WIDTH 32
@@ -168,7 +168,7 @@ set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_rx_reader_0_reg0]
 source projects/sdr_transceiver_fft/sp_0.tcl
 
 # Create axi_bram_writer
-cell pavel-demin:user:axi_bram_writer:1.0 sp_writer_0 {
+cell pavel-demin:user:axi_bram_writer sp_writer_0 {
   AXI_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   BRAM_DATA_WIDTH 32
@@ -187,7 +187,7 @@ set_property RANGE 16K [get_bd_addr_segs ps_0/Data/SEG_sp_writer_0_reg0]
 set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_sp_writer_0_reg0]
 
 # Create axi_bram_reader
-cell pavel-demin:user:axi_bram_reader:1.0 sp_reader_0 {
+cell pavel-demin:user:axi_bram_reader sp_reader_0 {
   AXI_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   BRAM_DATA_WIDTH 32
@@ -208,7 +208,7 @@ set_property OFFSET 0x40020000 [get_bd_addr_segs ps_0/Data/SEG_sp_reader_0_reg0]
 source projects/sdr_transceiver_fft/tx_0.tcl
 
 # Create axi_bram_writer
-cell pavel-demin:user:axi_bram_writer:1.0 tx_writer_0 {
+cell pavel-demin:user:axi_bram_writer tx_writer_0 {
   AXI_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   BRAM_DATA_WIDTH 32
@@ -227,7 +227,7 @@ set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_tx_writer_0_reg0]
 set_property OFFSET 0x40003000 [get_bd_addr_segs ps_0/Data/SEG_tx_writer_0_reg0]
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+cell xilinx.com:ip:xlconcat concat_0 {
   NUM_PORTS 3
   IN0_WIDTH 16
   IN1_WIDTH 16
@@ -239,7 +239,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
 }
 
 # Create axi_sts_register
-cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
+cell pavel-demin:user:axi_sts_register sts_0 {
   STS_DATA_WIDTH 64
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
@@ -257,7 +257,7 @@ set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
 set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
+cell xilinx.com:ip:axis_subset_converter subset_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
@@ -270,7 +270,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
 }
 
 # Create axis_red_pitaya_dac
-cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
+cell pavel-demin:user:axis_red_pitaya_dac dac_0 {} {
   aclk pll_0/clk_out1
   ddr_clk pll_0/clk_out2
   locked pll_0/locked

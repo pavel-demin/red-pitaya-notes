@@ -1,61 +1,61 @@
 # scope_0/aresetn
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_0 {
+cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
 # conv_0/aresetn and writer_0/aresetn
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_1 {
+cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1
 }
 
 # trig_0/pol_data
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_2 {
+cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2
 }
 
 # or_0/Op1
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_3 {
+cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 8 DIN_FROM 3 DIN_TO 3
 }
 
 # scope_0/run_flag
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_4 {
+cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 8 DIN_FROM 4 DIN_TO 4
 }
 
 # scope_0/pre_data
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_5 {
+cell pavel-demin:user:port_slicer slice_5 {
   DIN_WIDTH 96 DIN_FROM 31 DIN_TO 0
 }
 
 # scope_0/tot_data
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_6 {
+cell pavel-demin:user:port_slicer slice_6 {
   DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32
 }
 
 # trig_0/lvl_data
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_7 {
+cell pavel-demin:user:port_slicer slice_7 {
   DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64
 }
 
 # Create axis_switch
-cell xilinx.com:ip:axis_switch:1.1 switch_0 {
+cell xilinx.com:ip:axis_switch switch_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
   ROUTING_MODE 1
@@ -65,13 +65,13 @@ cell xilinx.com:ip:axis_switch:1.1 switch_0 {
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0 {
+cell xilinx.com:ip:xlconstant const_0 {
   CONST_WIDTH 16
   CONST_VAL 65535
 }
 
 # Create axis_trigger
-cell pavel-demin:user:axis_trigger:1.0 trig_0 {
+cell pavel-demin:user:axis_trigger trig_0 {
   AXIS_TDATA_WIDTH 16
   AXIS_TDATA_SIGNED TRUE
 } {
@@ -83,7 +83,7 @@ cell pavel-demin:user:axis_trigger:1.0 trig_0 {
 }
 
 # Create util_vector_logic
-cell xilinx.com:ip:util_vector_logic:2.0 or_0 {
+cell xilinx.com:ip:util_vector_logic or_0 {
   C_SIZE 1
   C_OPERATION or
 } {
@@ -92,7 +92,7 @@ cell xilinx.com:ip:util_vector_logic:2.0 or_0 {
 }
 
 # Create axis_combiner
-cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
+cell  xilinx.com:ip:axis_combiner comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
 } {
@@ -101,7 +101,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 }
 
 # Create axis_oscilloscope
-cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
+cell pavel-demin:user:axis_oscilloscope scope_0 {
   AXIS_TDATA_WIDTH 32
   CNTR_WIDTH 23
 } {
@@ -115,7 +115,7 @@ cell pavel-demin:user:axis_oscilloscope:1.0 scope_0 {
 }
 
 # Create axis_dwidth_converter
-cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
+cell xilinx.com:ip:axis_dwidth_converter conv_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 8
@@ -126,13 +126,13 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1 {
+cell xilinx.com:ip:xlconstant const_1 {
   CONST_WIDTH 32
   CONST_VAL 503316480
 }
 
 # Create axis_ram_writer
-cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {
+cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 22
 } {
   S_AXIS conv_0/M_AXIS

@@ -1,49 +1,49 @@
 source projects/cfg_test/block_design.tcl
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_2 {
+cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 1024 DIN_FROM 0 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_3 {
+cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 1024 DIN_FROM 1 DIN_TO 1
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_4 {
+cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 1024 DIN_FROM 2 DIN_TO 2
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_5 {
+cell pavel-demin:user:port_slicer slice_5 {
   DIN_WIDTH 1024 DIN_FROM 63 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_6 {
+cell pavel-demin:user:port_slicer slice_6 {
   DIN_WIDTH 1024 DIN_FROM 95 DIN_TO 64
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_7 {
+cell pavel-demin:user:port_slicer slice_7 {
   DIN_WIDTH 1024 DIN_FROM 127 DIN_TO 96
 } {
   din cfg_0/cfg_data
 }
 
 # Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 const_0 {
+cell pavel-demin:user:axis_constant const_0 {
   AXIS_TDATA_WIDTH 32
 } {
   cfg_data slice_5/dout
@@ -51,7 +51,7 @@ cell pavel-demin:user:axis_constant:1.0 const_0 {
 }
 
 # Create axis_phase_generator
-cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
+cell pavel-demin:user:axis_phase_generator phase_0 {
   AXIS_TDATA_WIDTH 32
   PHASE_WIDTH 30
 } {
@@ -61,7 +61,7 @@ cell pavel-demin:user:axis_phase_generator:1.0 phase_0 {
 }
 
 # Create cordic
-cell xilinx.com:ip:cordic:6.0 cordic_0 {
+cell xilinx.com:ip:cordic cordic_0 {
   INPUT_WIDTH.VALUE_SRC USER
   PIPELINING_MODE Optimal
   PHASE_FORMAT Scaled_Radians
@@ -76,7 +76,7 @@ cell xilinx.com:ip:cordic:6.0 cordic_0 {
 }
 
 # Create axis_packetizer
-cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
+cell pavel-demin:user:axis_packetizer pktzr_0 {
   AXIS_TDATA_WIDTH 32
   CNTR_WIDTH 32
   CONTINUOUS FALSE
@@ -88,7 +88,7 @@ cell pavel-demin:user:axis_packetizer:1.0 pktzr_0 {
 }
 
 # Create axis_dwidth_converter
-cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
+cell xilinx.com:ip:axis_dwidth_converter conv_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 8
@@ -99,13 +99,13 @@ cell xilinx.com:ip:axis_dwidth_converter:1.1 conv_0 {
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1 {
+cell xilinx.com:ip:xlconstant const_1 {
   CONST_WIDTH 32
   CONST_VAL 503316480
 }
 
 # Create axis_ram_writer
-cell pavel-demin:user:axis_ram_writer:1.0 writer_0 {} {
+cell pavel-demin:user:axis_ram_writer writer_0 {} {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
   cfg_data const_1/dout

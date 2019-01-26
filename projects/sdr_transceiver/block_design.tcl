@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
+cell xilinx.com:ip:clk_wiz pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -16,7 +16,7 @@ cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
 }
 
 # Create processing_system7
-cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+cell xilinx.com:ip:processing_system7 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
 } {
   M_AXI_GP0_ACLK pll_0/clk_out1
@@ -30,17 +30,17 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 } [get_bd_cells ps_0]
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
+cell xilinx.com:ip:xlconstant const_0
 
 # Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
 }
 
 # ADC
 
 # Create axis_red_pitaya_adc
-cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
+cell pavel-demin:user:axis_red_pitaya_adc adc_0 {} {
   aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
   adc_dat_b adc_dat_b_i
@@ -48,7 +48,7 @@ cell pavel-demin:user:axis_red_pitaya_adc:2.0 adc_0 {} {
 }
 
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
+cell xilinx.com:ip:axis_broadcaster bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
@@ -64,7 +64,7 @@ cell xilinx.com:ip:axis_broadcaster:1.1 bcast_0 {
 # DAC
 
 # Create axis_combiner
-cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
+cell  xilinx.com:ip:axis_combiner comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 2
 } {
@@ -73,7 +73,7 @@ cell  xilinx.com:ip:axis_combiner:1.1 comb_0 {
 }
 
 # Create axis_red_pitaya_dac
-cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
+cell pavel-demin:user:axis_red_pitaya_dac dac_0 {} {
   aclk pll_0/clk_out1
   ddr_clk pll_0/clk_out2
   locked pll_0/locked
@@ -88,13 +88,13 @@ cell pavel-demin:user:axis_red_pitaya_dac:1.0 dac_0 {} {
 # DNA
 
 # Create dna_reader
-cell pavel-demin:user:dna_reader:1.0 dna_0 {} {
+cell pavel-demin:user:dna_reader dna_0 {} {
   aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+cell xilinx.com:ip:xlconcat concat_0 {
   NUM_PORTS 2
   IN0_WIDTH 32
   IN1_WIDTH 64
@@ -104,7 +104,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
 }
 
 # Create axi_sts_register
-cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
+cell pavel-demin:user:axi_sts_register sts_0 {
   STS_DATA_WIDTH 96
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
@@ -130,7 +130,7 @@ delete_bd_objs [get_bd_ports exp_p_tri_io]
 create_bd_port -dir O -from 1 -to 0 exp_p_tri_io
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_1 {
+cell xilinx.com:ip:xlconcat concat_1 {
   NUM_PORTS 2
   IN0_WIDTH 1
   IN1_WIDTH 1

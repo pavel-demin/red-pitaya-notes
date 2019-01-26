@@ -1,35 +1,35 @@
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_0 {
+cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_1 {
+cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_2 {
+cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_3 {
+cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_4 {
+cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_5 {
+cell pavel-demin:user:port_slicer slice_5 {
   DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48
 }
 
 # Create axi_axis_writer
-cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
+cell pavel-demin:user:axi_axis_writer writer_0 {
   AXI_DATA_WIDTH 32
 } {
   aclk /pll_0/clk_out1
@@ -37,7 +37,7 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
   INPUT_DEPTH 1024
@@ -51,7 +51,7 @@ cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_0 {
 }
 
 # Create axis_fifo
-cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
+cell pavel-demin:user:axis_fifo fifo_0 {
   S_AXIS_TDATA_WIDTH 32
   M_AXIS_TDATA_WIDTH 32
 } {
@@ -62,7 +62,7 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
+cell xilinx.com:ip:blk_mem_gen bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 32
@@ -74,7 +74,7 @@ cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
 }
 
 # Create axi_bram_writer
-cell pavel-demin:user:axi_bram_writer:1.0 writer_1 {
+cell pavel-demin:user:axi_bram_writer writer_1 {
   AXI_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   BRAM_DATA_WIDTH 32
@@ -84,7 +84,7 @@ cell pavel-demin:user:axi_bram_writer:1.0 writer_1 {
 }
 
 # Create axis_keyer
-cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
+cell pavel-demin:user:axis_keyer keyer_0 {
   AXIS_TDATA_WIDTH 32
   BRAM_DATA_WIDTH 32
   BRAM_ADDR_WIDTH 10
@@ -96,7 +96,7 @@ cell pavel-demin:user:axis_keyer:1.0 keyer_0 {
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
+cell xilinx.com:ip:axis_subset_converter subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
@@ -109,7 +109,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
 }
 
 # Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 phase_0 {
+cell pavel-demin:user:axis_constant phase_0 {
   AXIS_TDATA_WIDTH 32
 } {
   cfg_data slice_3/dout
@@ -117,7 +117,7 @@ cell pavel-demin:user:axis_constant:1.0 phase_0 {
 }
 
 # Create dds_compiler
-cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
+cell xilinx.com:ip:dds_compiler dds_0 {
   DDS_CLOCK_RATE 125
   SPURIOUS_FREE_DYNAMIC_RANGE 96
   FREQUENCY_RESOLUTION 0.2
@@ -133,7 +133,7 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {
+cell pavel-demin:user:axis_lfsr lfsr_0 {
   HAS_TREADY true
 } {
   aclk /pll_0/clk_out1
@@ -141,7 +141,7 @@ cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {
 }
 
 # Create cmpy
-cell xilinx.com:ip:cmpy:6.0 mult_0 {
+cell xilinx.com:ip:cmpy mult_0 {
   FLOWCONTROL Blocking
   APORTWIDTH.VALUE_SRC USER
   BPORTWIDTH.VALUE_SRC USER
@@ -157,7 +157,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_0 {
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
+cell xilinx.com:ip:axis_subset_converter subset_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 3
@@ -170,7 +170,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_1 {
 }
 
 # Create axis_constant
-cell pavel-demin:user:axis_constant:1.0 const_0 {
+cell pavel-demin:user:axis_constant const_0 {
   AXIS_TDATA_WIDTH 16
 } {
   cfg_data slice_5/dout
@@ -178,7 +178,7 @@ cell pavel-demin:user:axis_constant:1.0 const_0 {
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr:1.0 lfsr_1 {
+cell pavel-demin:user:axis_lfsr lfsr_1 {
   HAS_TREADY TRUE
 } {
   aclk /pll_0/clk_out1
@@ -186,7 +186,7 @@ cell pavel-demin:user:axis_lfsr:1.0 lfsr_1 {
 }
 
 # Create cmpy
-cell xilinx.com:ip:cmpy:6.0 mult_1 {
+cell xilinx.com:ip:cmpy mult_1 {
   FLOWCONTROL Blocking
   APORTWIDTH.VALUE_SRC USER
   BPORTWIDTH.VALUE_SRC USER
@@ -202,7 +202,7 @@ cell xilinx.com:ip:cmpy:6.0 mult_1 {
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
+cell xilinx.com:ip:axis_subset_converter subset_2 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 3
@@ -215,7 +215,7 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_2 {
 }
 
 # Create axis_switch
-cell xilinx.com:ip:axis_switch:1.1 switch_0 {
+cell xilinx.com:ip:axis_switch switch_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
   ROUTING_MODE 1
@@ -229,7 +229,7 @@ cell xilinx.com:ip:axis_switch:1.1 switch_0 {
 }
 
 # Create axis_i2s
-cell pavel-demin:user:axis_i2s:1.0 i2s_0 {
+cell pavel-demin:user:axis_i2s i2s_0 {
   AXIS_TDATA_WIDTH 32
 } {
   alex_flag slice_2/dout
@@ -239,7 +239,7 @@ cell pavel-demin:user:axis_i2s:1.0 i2s_0 {
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_1 {
+cell xilinx.com:ip:fifo_generator fifo_generator_1 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
   INPUT_DEPTH 1024
@@ -253,7 +253,7 @@ cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_1 {
 }
 
 # Create axis_fifo
-cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
+cell pavel-demin:user:axis_fifo fifo_1 {
   S_AXIS_TDATA_WIDTH 32
   M_AXIS_TDATA_WIDTH 32
 } {
@@ -264,7 +264,7 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
 }
 
 # Create axi_axis_reader
-cell pavel-demin:user:axi_axis_reader:1.0 reader_0 {
+cell pavel-demin:user:axi_axis_reader reader_0 {
   AXI_DATA_WIDTH 32
 } {
   S_AXIS fifo_1/M_AXIS

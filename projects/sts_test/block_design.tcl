@@ -1,7 +1,7 @@
 source projects/cfg_test/block_design.tcl
 
 # Create axi_sts_register
-cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
+cell pavel-demin:user:axi_sts_register sts_0 {
   STS_DATA_WIDTH 1024
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
