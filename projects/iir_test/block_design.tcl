@@ -1,5 +1,5 @@
 # Create clk_wiz
-cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
+cell xilinx.com:ip:clk_wiz pll_0 {
   PRIMITIVE PLL
   PRIM_IN_FREQ.VALUE_SRC USER
   PRIM_IN_FREQ 125.0
@@ -16,7 +16,7 @@ cell xilinx.com:ip:clk_wiz:6.0 pll_0 {
 }
 
 # Create processing_system7
-cell xilinx.com:ip:processing_system7:5.5 ps_0 {
+cell xilinx.com:ip:processing_system7 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
 } {
   M_AXI_GP0_ACLK pll_0/clk_out1
@@ -30,64 +30,64 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 } [get_bd_cells ps_0]
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0
+cell xilinx.com:ip:xlconstant const_0
 
 # Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset:5.0 rst_0 {} {
+cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
 }
 
 # Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
+cell pavel-demin:user:axi_cfg_register cfg_0 {
   CFG_DATA_WIDTH 128
   AXI_ADDR_WIDTH 4
   AXI_DATA_WIDTH 32
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_0 {
+cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 128 DIN_FROM 0 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_1 {
+cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 128 DIN_FROM 47 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_2 {
+cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 128 DIN_FROM 63 DIN_TO 48
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_3 {
+cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 128 DIN_FROM 79 DIN_TO 64
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_4 {
+cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 128 DIN_FROM 95 DIN_TO 80
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_5 {
+cell pavel-demin:user:port_slicer slice_5 {
   DIN_WIDTH 128 DIN_FROM 127 DIN_TO 96
 } {
   din cfg_0/cfg_data
 }
 
 # Create blk_mem_gen
-cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
+cell xilinx.com:ip:blk_mem_gen bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
   WRITE_WIDTH_A 32
@@ -99,7 +99,7 @@ cell xilinx.com:ip:blk_mem_gen:8.4 bram_0 {
 }
 
 # Create axi_bram_writer
-cell pavel-demin:user:axi_bram_writer:1.0 writer_0 {
+cell pavel-demin:user:axi_bram_writer writer_0 {
   AXI_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   BRAM_DATA_WIDTH 32
@@ -109,7 +109,7 @@ cell pavel-demin:user:axi_bram_writer:1.0 writer_0 {
 }
 
 # Create axis_bram_reader
-cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
+cell pavel-demin:user:axis_bram_reader reader_0 {
   AXIS_TDATA_WIDTH 64
   BRAM_DATA_WIDTH 64
   BRAM_ADDR_WIDTH 13
@@ -122,14 +122,14 @@ cell pavel-demin:user:axis_bram_reader:1.0 reader_0 {
 }
 
 # Create axis_pulse_generator
-cell pavel-demin:user:axis_pulse_generator:1.0 gen_0 {} {
+cell pavel-demin:user:axis_pulse_generator gen_0 {} {
   S_AXIS reader_0/M_AXIS
   aclk pll_0/clk_out1
   aresetn slice_0/dout
 }
 
 # Create axis_zeroer
-cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
+cell pavel-demin:user:axis_zeroer zeroer_0 {
   AXIS_TDATA_WIDTH 16
 } {
   S_AXIS gen_0/M_AXIS
@@ -137,7 +137,7 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
 }
 
 # Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_0 {
+cell xilinx.com:ip:xbip_dsp48_macro dsp_0 {
   INSTRUCTION1 A*B
   A_WIDTH.VALUE_SRC USER
   B_WIDTH.VALUE_SRC USER
@@ -151,7 +151,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_0 {
 }
 
 # Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_1 {
+cell xilinx.com:ip:xbip_dsp48_macro dsp_1 {
   INSTRUCTION1 A*B+C
   PIPELINE_OPTIONS Expert
   AREG_3 false
@@ -173,7 +173,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_1 {
   CLK pll_0/clk_out1
 }
 
-cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_2 {
+cell xilinx.com:ip:xbip_dsp48_macro dsp_2 {
   INSTRUCTION1 A*B+C
   PIPELINE_OPTIONS Expert
   AREG_3 false
@@ -196,7 +196,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_2 {
 }
 
 # Create axis_iir_filter
-cell pavel-demin:user:axis_iir_filter:1.0 iir_0 {
+cell pavel-demin:user:axis_iir_filter iir_0 {
   AXIS_TDATA_WIDTH 16
 } {
   S_AXIS zeroer_0/M_AXIS
@@ -214,7 +214,7 @@ cell pavel-demin:user:axis_iir_filter:1.0 iir_0 {
 }
 
 # Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
+cell xilinx.com:ip:axis_data_fifo fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
   FIFO_DEPTH 16384
@@ -226,7 +226,7 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
 }
 
 # Create axi_axis_reader
-cell pavel-demin:user:axi_axis_reader:1.0 reader_1 {
+cell pavel-demin:user:axi_axis_reader reader_1 {
   AXI_DATA_WIDTH 32
 } {
   S_AXIS fifo_0/M_AXIS

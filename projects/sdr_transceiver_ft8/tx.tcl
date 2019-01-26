@@ -1,20 +1,20 @@
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_0 {
+cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_1 {
+cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 32 DIN_FROM 15 DIN_TO 0
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_2 {
+cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 32 DIN_FROM 31 DIN_TO 16
 }
 
 # Create axi_axis_writer
-cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
+cell pavel-demin:user:axi_axis_writer writer_0 {
   AXI_DATA_WIDTH 32
 } {
   aclk /pll_0/clk_out1
@@ -22,7 +22,7 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 }
 
 # Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
+cell xilinx.com:ip:axis_data_fifo fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
   FIFO_DEPTH 256
@@ -33,13 +33,13 @@ cell xilinx.com:ip:axis_data_fifo:1.1 fifo_0 {
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_0 {
+cell xilinx.com:ip:xlconstant const_0 {
   CONST_WIDTH 32
   CONST_VAL 19660799
 }
 
 # Create axis_interpolator
-cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
+cell pavel-demin:user:axis_interpolator inter_0 {
   AXIS_TDATA_WIDTH 32
   CNTR_WIDTH 32
 } {
@@ -50,10 +50,10 @@ cell pavel-demin:user:axis_interpolator:1.0 inter_0 {
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant:1.1 const_1
+cell xilinx.com:ip:xlconstant const_1
 
 # Create dds_compiler
-cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
+cell xilinx.com:ip:dds_compiler dds_0 {
   DDS_CLOCK_RATE 122.88
   SPURIOUS_FREE_DYNAMIC_RANGE 96
   FREQUENCY_RESOLUTION 0.2
@@ -73,13 +73,13 @@ cell xilinx.com:ip:dds_compiler:6.0 dds_0 {
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr:1.0 lfsr_0 {} {
+cell pavel-demin:user:axis_lfsr lfsr_0 {} {
   aclk /pll_0/clk_out1
   aresetn slice_0/dout
 }
 
 # Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_0 {
+cell xilinx.com:ip:xbip_dsp48_macro mult_0 {
   INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
   A_WIDTH.VALUE_SRC USER
   B_WIDTH.VALUE_SRC USER
@@ -95,7 +95,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_0 {
 }
 
 # Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_1 {
+cell xilinx.com:ip:xbip_dsp48_macro mult_1 {
   INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
   A_WIDTH.VALUE_SRC USER
   B_WIDTH.VALUE_SRC USER
@@ -111,7 +111,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 mult_1 {
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+cell xilinx.com:ip:xlconcat concat_0 {
   NUM_PORTS 2
   IN0_WIDTH 16
   IN1_WIDTH 16
@@ -121,7 +121,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
 }
 
 # Create c_shift_ram
-cell xilinx.com:ip:c_shift_ram:12.0 delay_0 {
+cell xilinx.com:ip:c_shift_ram delay_0 {
   WIDTH.VALUE_SRC USER
   WIDTH 1
   DEPTH 4
@@ -131,7 +131,7 @@ cell xilinx.com:ip:c_shift_ram:12.0 delay_0 {
 }
 
 # Create axis_zeroer
-cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
+cell pavel-demin:user:axis_zeroer zeroer_0 {
   AXIS_TDATA_WIDTH 32
 } {
   s_axis_tdata concat_0/dout

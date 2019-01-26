@@ -1,5 +1,5 @@
 # Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
+cell pavel-demin:user:axi_cfg_register cfg_0 {
   CFG_DATA_WIDTH 160
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
@@ -7,35 +7,35 @@ cell pavel-demin:user:axi_cfg_register:1.0 cfg_0 {
 
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 rst_slice_0 {
+cell pavel-demin:user:port_slicer rst_slice_0 {
   DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 rst_slice_1 {
+cell pavel-demin:user:port_slicer rst_slice_1 {
   DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 out_slice_0 {
+cell pavel-demin:user:port_slicer out_slice_0 {
   DIN_WIDTH 160 DIN_FROM 23 DIN_TO 16
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 cfg_slice_0 {
+cell pavel-demin:user:port_slicer cfg_slice_0 {
   DIN_WIDTH 160 DIN_FROM 95 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 cfg_slice_1 {
+cell pavel-demin:user:port_slicer cfg_slice_1 {
   DIN_WIDTH 160 DIN_FROM 159 DIN_TO 96
 } {
   din cfg_0/cfg_data
@@ -62,7 +62,7 @@ module tx_0 {
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat:2.1 concat_0 {
+cell xilinx.com:ip:xlconcat concat_0 {
   NUM_PORTS 2
   IN0_WIDTH 16
   IN1_WIDTH 16
@@ -72,7 +72,7 @@ cell xilinx.com:ip:xlconcat:2.1 concat_0 {
 }
 
 # Create axi_sts_register
-cell pavel-demin:user:axi_sts_register:1.0 sts_0 {
+cell pavel-demin:user:axi_sts_register sts_0 {
   STS_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32

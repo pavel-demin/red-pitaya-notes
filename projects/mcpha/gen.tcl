@@ -1,30 +1,30 @@
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_0 {
+cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_1 {
+cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 96 DIN_FROM 15 DIN_TO 0
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_2 {
+cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 96 DIN_FROM 31 DIN_TO 16
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_3 {
+cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 96 DIN_FROM 47 DIN_TO 32
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer:1.0 slice_4 {
+cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 96 DIN_FROM 79 DIN_TO 48
 }
 
 # Create axi_axis_writer
-cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
+cell pavel-demin:user:axi_axis_writer writer_0 {
   AXI_DATA_WIDTH 32
 } {
   aclk /pll_0/clk_out1
@@ -32,7 +32,7 @@ cell pavel-demin:user:axi_axis_writer:1.0 writer_0 {
 }
 
 # Create util_vector_logic
-cell xilinx.com:ip:util_vector_logic:2.0 not_0 {
+cell xilinx.com:ip:util_vector_logic not_0 {
   C_SIZE 1
   C_OPERATION not
 } {
@@ -40,7 +40,7 @@ cell xilinx.com:ip:util_vector_logic:2.0 not_0 {
 }
 
 # Create fifo_generator
-cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_0 {
+cell xilinx.com:ip:fifo_generator fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
   INPUT_DEPTH 16384
@@ -54,7 +54,7 @@ cell xilinx.com:ip:fifo_generator:13.2 fifo_generator_0 {
 }
 
 # Create axis_fifo
-cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
+cell pavel-demin:user:axis_fifo fifo_0 {
   S_AXIS_TDATA_WIDTH 32
   M_AXIS_TDATA_WIDTH 64
 } {
@@ -65,7 +65,7 @@ cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
+cell xilinx.com:ip:axis_subset_converter subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 8
@@ -78,14 +78,14 @@ cell xilinx.com:ip:axis_subset_converter:1.1 subset_0 {
 }
 
 # Create axis_pulse_generator
-cell pavel-demin:user:axis_pulse_generator:1.0 gen_0 {} {
+cell pavel-demin:user:axis_pulse_generator gen_0 {} {
   S_AXIS subset_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn slice_0/dout
 }
 
 # Create axis_zeroer
-cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
+cell pavel-demin:user:axis_zeroer zeroer_0 {
   AXIS_TDATA_WIDTH 16
 } {
   S_AXIS gen_0/M_AXIS
@@ -93,7 +93,7 @@ cell pavel-demin:user:axis_zeroer:1.0 zeroer_0 {
 }
 
 # Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_0 {
+cell xilinx.com:ip:xbip_dsp48_macro dsp_0 {
   INSTRUCTION1 A*B
   A_WIDTH.VALUE_SRC USER
   B_WIDTH.VALUE_SRC USER
@@ -107,7 +107,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_0 {
 }
 
 # Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_1 {
+cell xilinx.com:ip:xbip_dsp48_macro dsp_1 {
   INSTRUCTION1 A*B+C
   PIPELINE_OPTIONS Expert
   AREG_3 false
@@ -129,7 +129,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_1 {
   CLK /pll_0/clk_out1
 }
 
-cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_2 {
+cell xilinx.com:ip:xbip_dsp48_macro dsp_2 {
   INSTRUCTION1 A*B+C
   PIPELINE_OPTIONS Expert
   AREG_3 false
@@ -152,7 +152,7 @@ cell xilinx.com:ip:xbip_dsp48_macro:3.0 dsp_2 {
 }
 
 # Create axis_iir_filter
-cell pavel-demin:user:axis_iir_filter:1.0 iir_0 {
+cell pavel-demin:user:axis_iir_filter iir_0 {
   AXIS_TDATA_WIDTH 16
 } {
   S_AXIS zeroer_0/M_AXIS
