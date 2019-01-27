@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
   double dialfreq;
   double corr;
   double freq[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  int number;
-  uint8_t chan = 0;
+  int chan[8] = {1, 1, 1, 1, 1, 1, 1, 1};;
+  uint8_t value = 0;
 
   if(argc != 2)
   {
@@ -89,19 +89,19 @@ int main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-    if(!config_setting_lookup_int(element, "chan", &number))
+    if(!config_setting_lookup_int(element, "chan", &chan[i]))
     {
       fprintf(stderr, "No 'chan' setting in element %d.\n", i);
       return EXIT_FAILURE;
     }
 
-    if(number < 1 || number > 2)
+    if(chan[i] < 1 || chan[i] > 2)
     {
       fprintf(stderr, "Wrong 'chan' setting in element %d.\n", i);
       return EXIT_FAILURE;
     }
 
-    chan |= (number - 1) << i;
+    value |= (chan[i] - 1) << i;
   }
 
   t = time(NULL);
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
   sel = (uint8_t *)(cfg + 4);
   cntr = (uint16_t *)(sts + 12);
 
-  *sel = chan;
+  *sel = value;
 
   *rst |= 1;
   *rst &= ~1;
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   {
     dialfreq = freq[i] - 0.0015;
     strftime(date, 12, "%y%m%d_%H%M", gmt);
-    sprintf(name, "wspr_%d_%d_%s.c2", i, (uint32_t)(dialfreq * 1.0e6), date);
+    sprintf(name, "wspr_%d_%d_%d_%s.c2", i, (uint32_t)(dialfreq * 1.0e6), chan[i], date);
     if((fp = fopen(name, "wb")) == NULL)
     {
       fprintf(stderr, "Cannot open output file %s.\n", name);
