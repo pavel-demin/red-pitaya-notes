@@ -1,38 +1,31 @@
-alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.8
+alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.9
 
-uboot_tar=alpine-uboot-3.8.0-armhf.tar.gz
-uboot_url=$alpine_url/releases/armhf/$uboot_tar
+uboot_tar=alpine-uboot-3.9.0-armv7.tar.gz
+uboot_url=$alpine_url/releases/armv7/$uboot_tar
 
-tools_tar=apk-tools-static-2.10.1-r0.apk
-tools_url=$alpine_url/main/armhf/$tools_tar
+tools_tar=apk-tools-static-2.10.3-r1.apk
+tools_url=$alpine_url/main/armv7/$tools_tar
 
-firmware_tar=linux-firmware-other-20180615-r2.apk
-firmware_url=$alpine_url/main/armhf/$firmware_tar
+firmware_tar=linux-firmware-other-20181220-r0.apk
+firmware_url=$alpine_url/main/armv7/$firmware_tar
 
 linux_dir=tmp/linux-4.14
 linux_ver=4.14.96-xilinx
 
 modules_dir=alpine-modloop/lib/modules/$linux_ver
 
-apks_tar=apks.tgz
-apks_url=https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADaQEPEtSBiYXU814k4jDR4a/apks.tgz?dl=1
-
 passwd=changeme
 
 test -f $uboot_tar || curl -L $uboot_url -o $uboot_tar
 test -f $tools_tar || curl -L $tools_url -o $tools_tar
-test -f $apks_tar || curl -L $apks_url -o $apks_tar
 
 test -f $firmware_tar || curl -L $firmware_url -o $firmware_tar
 
-for tar in linux-firmware-ath9k_htc-20180615-r2.apk linux-firmware-brcm-20180615-r2.apk linux-firmware-rtlwifi-20180615-r2.apk
+for tar in linux-firmware-ath9k_htc-20181220-r0.apk linux-firmware-brcm-20181220-r0.apk linux-firmware-rtlwifi-20181220-r0.apk
 do
-  url=$alpine_url/main/armhf/$tar
+  url=$alpine_url/main/armv7/$tar
   test -f $tar || curl -L $url -o $tar
 done
-
-tar -zxf $apks_tar
-touch apks/.boot_repository
 
 mkdir alpine-uboot
 tar -zxf $uboot_tar --directory=alpine-uboot
@@ -47,6 +40,7 @@ gzip -dc ../alpine-uboot/boot/initramfs-vanilla | cpio -id
 rm -rf etc/modprobe.d
 rm -rf lib/firmware
 rm -rf lib/modules
+rm -rf var
 find . | sort | cpio --quiet -o -H newc | gzip -9 > ../initrd.gz
 
 cd ..
@@ -88,8 +82,6 @@ cp -r alpine/etc $root_dir/
 sed -i '1,1d' $root_dir/etc/local.d/apps.start
 mkdir $root_dir/media/mmcblk0p1/apps
 
-cp -r apks $root_dir/media/mmcblk0p1/
-
 for project in sdr_transceiver_ft8
 do
   mkdir -p $root_dir/media/mmcblk0p1/apps/$project
@@ -102,14 +94,13 @@ cp -r alpine-apk/sbin $root_dir/
 
 chroot $root_dir /sbin/apk.static --repository $alpine_url/main --update-cache --allow-untrusted --initdb add alpine-base
 
-echo /media/mmcblk0p1/apks > $root_dir/etc/apk/repositories
-echo $alpine_url/main >> $root_dir/etc/apk/repositories
+echo $alpine_url/main > $root_dir/etc/apk/repositories
 echo $alpine_url/community >> $root_dir/etc/apk/repositories
 
 chroot $root_dir /bin/sh <<- EOF_CHROOT
 
 apk update
-apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dbus dcron chrony gpsd-timepps libgfortran musl-dev fftw-dev libconfig-dev curl wget less nano bc
+apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dbus dcron chrony gpsd libgfortran musl-dev fftw-dev libconfig-dev curl wget less nano bc
 
 ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
 ln -s /etc/init.d/hostname etc/runlevels/boot/hostname
@@ -192,6 +183,6 @@ hostname -F /etc/hostname
 
 rm -rf $root_dir alpine-apk 
 
-zip -r red-pitaya-alpine-3.8-armhf-`date +%Y%m%d`-ft8.zip apks apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz start.sh uEnv.txt uImage uInitrd wifi
+zip -r red-pitaya-alpine-3.9-armv7-`date +%Y%m%d`-ft8.zip apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz start.sh uEnv.txt uImage uInitrd wifi
 
-rm -rf apks apps cache modloop red-pitaya.apkovl.tar.gz start.sh uInitrd wifi
+rm -rf apps cache modloop red-pitaya.apkovl.tar.gz start.sh uInitrd wifi
