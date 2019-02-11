@@ -91,7 +91,7 @@ The structure of the source code and of the development chain is described at [t
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2018.2/settings64.sh
+source /opt/Xilinx/Vivado/2018.3/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:

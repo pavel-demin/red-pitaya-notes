@@ -26,7 +26,7 @@ My development machine has the following installed:
 
  - [Debian](https://www.debian.org/releases/jessie) 8.11 (amd64)
 
- - [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.2 with full SDK
+ - [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.3 with full SDK
 
 The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
 
@@ -121,7 +121,7 @@ Getting started
 
 Setting up the Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2018.2/settings64.sh
+source /opt/Xilinx/Vivado/2018.3/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
