@@ -4,14 +4,14 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/jessie) 8.10 (amd64) and [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.2 with full SDK.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/jessie) 8.11 (amd64) and [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.2 with full SDK.
 
-Creating virtual machine with Debian 8.10 (amd64)
+Creating virtual machine with Debian 8.11 (amd64)
 -----
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](http://deb.debian.org/debian/dists/jessie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 8.10
+- Download [mini.iso](http://deb.debian.org/debian/dists/jessie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 8.11
 
 - Start VirtualBox
 
