@@ -184,6 +184,7 @@ cell xilinx.com:ip:axis_data_fifo fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
   FIFO_DEPTH 1024
+  HAS_RD_DATA_COUNT true
 } {
   S_AXIS cntr_0/M_AXIS
   s_axis_aclk pll_0/clk_out1
