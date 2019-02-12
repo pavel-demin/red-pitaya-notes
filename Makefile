@@ -32,9 +32,9 @@ VIVADO = vivado -nolog -nojournal -mode batch
 HSI = hsi -nolog -nojournal -mode batch
 RM = rm -rf
 
-UBOOT_TAG = xilinx-v2018.2
+UBOOT_TAG = xilinx-v2018.3
 LINUX_TAG = 4.14
-DTREE_TAG = xilinx-v2018.2
+DTREE_TAG = xilinx-v2018.3
 
 UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
 LINUX_DIR = tmp/linux-$(LINUX_TAG)
@@ -58,7 +58,7 @@ RTL8188_URL = https://github.com/lwfinger/rtl8188eu/archive/v4.1.8_9499.tar.gz
 RTL8192_TAR = tmp/rtl8192cu-fixes-master.tar.gz
 RTL8192_URL = https://github.com/pvaret/rtl8192cu-fixes/archive/master.tar.gz
 
-.PRECIOUS: tmp/cores/% tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system.dts
+.PRECIOUS: tmp/cores/% tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system-top.dts
 
 all: boot.bin uImage devicetree.dtb
 
@@ -132,7 +132,7 @@ boot.bin: tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit tmp/u-boot.elf
 	echo "img:{[bootloader] $^}" > tmp/boot.bif
 	bootgen -image tmp/boot.bif -w -o i $@
 
-devicetree.dtb: uImage tmp/$(NAME).tree/system.dts
+devicetree.dtb: uImage tmp/$(NAME).tree/system-top.dts
 	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb -o devicetree.dtb \
 	  -i tmp/$(NAME).tree tmp/$(NAME).tree/system-top.dts
 
@@ -156,9 +156,10 @@ tmp/%.fsbl/executable.elf: tmp/%.hwdef
 	mkdir -p $(@D)
 	$(HSI) -source scripts/fsbl.tcl -tclargs $* $(PROC)
 
-tmp/%.tree/system.dts: tmp/%.hwdef $(DTREE_DIR)
+tmp/%.tree/system-top.dts: tmp/%.hwdef $(DTREE_DIR)
 	mkdir -p $(@D)
 	$(HSI) -source scripts/devicetree.tcl -tclargs $* $(PROC) $(DTREE_DIR)
+	sed -i 's|#include|/include/|' $@
 	patch -d $(@D) < patches/devicetree.patch
 
 clean:
