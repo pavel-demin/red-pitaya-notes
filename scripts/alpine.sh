@@ -57,7 +57,7 @@ depmod -a -b alpine-modloop $linux_ver
 
 tar -zxf $firmware_tar --directory=alpine-modloop/lib/modules --warning=no-unknown-keyword --strip-components=1 --wildcards lib/firmware/ar* lib/firmware/rt*
 
-for tar in linux-firmware-ath9k_htc-20180615-r2.apk linux-firmware-brcm-20180615-r2.apk linux-firmware-rtlwifi-20180615-r2.apk
+for tar in linux-firmware-ath9k_htc-20181220-r0.apk linux-firmware-brcm-20181220-r0.apk linux-firmware-rtlwifi-20181220-r0.apk
 do
   tar -zxf $tar --directory=alpine-modloop/lib/modules --warning=no-unknown-keyword --strip-components=1
 done
