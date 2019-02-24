@@ -61,10 +61,10 @@ Creating virtual machine with Debian 8.11 (amd64)
 
 - Edit the boot parameters at the bottom of the boot screen to make them look like the following:
 
-  (the content of the `goo.gl/eagfri` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/debian.seed))
+  (the content of the `bit.ly/2GH2YHy` installation script can be seen at [this link](https://github.com/pavel-demin/red-pitaya-notes/blob/gh-pages/etc/debian.seed))
 
 {% highlight bash %}
-linux initrd=initrd.gz url=goo.gl/eagfri auto=true priority=critical interface=auto
+linux initrd=initrd.gz url=bit.ly/2GH2YHy auto=true priority=critical interface=auto
 {% endhighlight %}
 
 - Press ENTER to start the automatic installation
