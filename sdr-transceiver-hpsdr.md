@@ -187,7 +187,7 @@ CW functionality
 
 The CW keyer can be used with a straight or iambic key connected to the pins DIO1_N and DIO2_N of the [extension connector E1](http://redpitaya.readthedocs.io/en/latest/developerGuide/125-14/extent.html#extension-connector-e1). The CW signal is generated when one of the CW modes is selected in [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) and the pins DIO1_N and DIO2_N are connected to GND.
 
-The ramp generator is programmable. The default ramp's shape is the step response of the 4-term Blackman-Harris window. It's inspired by the ["CW Shaping in DSP Software"](https://github.com/pavel-demin/red-pitaya-notes/files/403696/cw-shaping-in-dsp.pdf) article appeared in the May/June, 2006 issue of QEX.
+The ramp generator is programmable. The default ramp's shape is the step response of the 4-term Blackman-Harris window. It's inspired by the ["CW Shaping in DSP Software"](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABRo_bjj9eUUQxSbS8tCjCza/sdr/cw-shaping-in-dsp.pdf?dl=1) article appeared in the May/June, 2006 issue of QEX.
 
 The measured delay between the key press and the start of the RF signal is about 2 ms. The 10%-90% rise time of the signal is about 3.5 ms.
 
