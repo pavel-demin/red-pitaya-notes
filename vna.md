@@ -59,7 +59,7 @@ Getting started with MS Windows (manual Python installation)
  - Start a command prompt using the `cmd.exe` program and run the `pip` command to install `matplotlib`:
 {% highlight winbatch %}
 C:\Python34\python.exe -m pip install --upgrade pip
-C:\Python34\Scripts\pip.exe install matplotlib
+C:\Python34\Scripts\pip.exe install numpy==1.15.4 matplotlib
 {% endhighlight %}
  - Download and unpack the [control program](https://github.com/pavel-demin/red-pitaya-notes/releases/download/20190215/vna-python3-20190215.zip).
  - Start a command prompt using the `cmd.exe` program and run the control program:

@@ -52,7 +52,7 @@ Getting started with MS Windows
  - Start a command prompt using the `cmd.exe` program and run the `pip` command to install `matplotlib`:
 {% highlight winbatch %}
 C:\Python34\python.exe -m pip install --upgrade pip
-C:\Python34\Scripts\pip.exe install matplotlib
+C:\Python34\Scripts\pip.exe install numpy==1.15.4 matplotlib
 {% endhighlight %}
  - Download [scanner.py](https://raw.githubusercontent.com/pavel-demin/red-pitaya-notes/master/projects/scanner/client/scanner.py) and [scanner.ui](https://raw.githubusercontent.com/pavel-demin/red-pitaya-notes/master/projects/scanner/client/scanner.ui).
  - Start a command prompt using the `cmd.exe` program and run the control program:
