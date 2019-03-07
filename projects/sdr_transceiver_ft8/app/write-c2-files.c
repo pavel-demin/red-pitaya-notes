@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
   config_t config;
   config_setting_t *setting, *element;
   char date[12];
-  char name[32];
+  char name[64];
   double dialfreq;
   double corr;
   double freq[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
