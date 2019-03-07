@@ -20,16 +20,16 @@ int main(int argc, char *argv[])
   volatile uint8_t *rst, *sel;
   volatile uint16_t *cntr;
   int32_t type = 2;
-  uint64_t buffer[8][45000];
+  uint64_t *buffer;
   config_t config;
   config_setting_t *setting, *element;
   char date[12];
-  char name[32];
+  char name[64];
   char zeros[15] = "000000_0000.c2";
   double dialfreq;
   double corr;
   double freq[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  int chan[8] = {1, 1, 1, 1, 1, 1, 1, 1};;
+  int chan[8] = {1, 1, 1, 1, 1, 1, 1, 1};
   uint8_t value = 0;
 
   if(argc != 2)
@@ -136,6 +136,7 @@ int main(int argc, char *argv[])
   *rst &= ~1;
 
   offset = 0;
+  buffer = malloc(45000 * 8 * 8);
   memset(buffer, 0, 45000 * 8 * 8);
 
   while(offset < 42000)
@@ -146,7 +147,7 @@ int main(int argc, char *argv[])
     {
       for(j = 0; j < 8; ++j)
       {
-        buffer[j][offset + i] = *fifo[j];
+        buffer[j * 45000 + offset + i] = *fifo[j];
       }
     }
 
@@ -166,7 +167,7 @@ int main(int argc, char *argv[])
     fwrite(zeros, 1, 14, fp);
     fwrite(&type, 1, 4, fp);
     fwrite(&dialfreq, 1, 8, fp);
-    fwrite(buffer[i], 1, 360000, fp);
+    fwrite(&buffer[i * 45000], 1, 45000 * 8, fp);
     fclose(fp);
   }
 
