@@ -36,6 +36,14 @@ cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
 }
 
+# GPIO
+
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_p_tri_io]
+
+# Create output port
+create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
+
 # ADC
 
 # Create axis_red_pitaya_adc
@@ -88,6 +96,24 @@ cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32
 } {
   din cfg_0/cfg_data
+}
+
+# Create util_vector_logic
+cell xilinx.com:ip:util_vector_logic not_0 {
+  C_SIZE 1
+  C_OPERATION not
+} {
+  Op1 slice_2/dout
+}
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat concat_0 {
+  NUM_PORTS 2
+  IN0_WIDTH 1
+  IN1_WIDTH 7
+} {
+  In0 not_0/Res
+  dout exp_p_tri_io
 }
 
 # Create axis_broadcaster
