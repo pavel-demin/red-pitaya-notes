@@ -172,10 +172,11 @@ cell pavel-demin:user:axi_axis_writer writer_1 {
 }
 
 # Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo fifo_1 {
+cell xilinx.com:ip:axis_data_fifo fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
   FIFO_DEPTH 32768
+  HAS_WR_DATA_COUNT true
 } {
   S_AXIS writer_1/M_AXIS
   s_axis_aclk pll_0/clk_out1
@@ -186,7 +187,7 @@ cell xilinx.com:ip:axis_data_fifo fifo_1 {
 cell pavel-demin:user:axis_zeroer zeroer_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  S_AXIS fifo_1/M_AXIS
+  S_AXIS fifo_0/M_AXIS
   aclk pll_0/clk_out1
 }
 
@@ -211,7 +212,7 @@ cell xilinx.com:ip:xlconcat concat_0 {
   IN1_WIDTH 32
 } {
   In0 writer_0/sts_data
-  In1 fifo_1/axis_data_count
+  In1 fifo_0/axis_wr_data_count
 }
 
 # Create axi_sts_register
