@@ -268,6 +268,7 @@ cell xilinx.com:ip:axis_data_fifo fifo_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
   FIFO_DEPTH 16384
+  HAS_WR_DATA_COUNT true
 } {
   S_AXIS writer_1/M_AXIS
   s_axis_aclk pll_0/clk_out1
@@ -303,7 +304,7 @@ cell xilinx.com:ip:xlconcat concat_0 {
   IN1_WIDTH 32
 } {
   In0 writer_0/sts_data
-  In1 fifo_0/axis_data_count
+  In1 fifo_0/axis_wr_data_count
 }
 
 # Create axi_sts_register
