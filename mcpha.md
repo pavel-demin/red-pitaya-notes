@@ -7,11 +7,12 @@ permalink: /mcpha/
 Interesting links
 -----
 
-Some interesting links on spectrum analysis:
+Some interesting links on radiation spectroscopy:
+
+ - [CAEN Digital Pulse Height Analyser - a digital approach to
+Radiation Spectroscopy](https://www.caen.it/documents/News/32/AN2508_Digital_Pulse_Height_Analyser.pdf)
 
  - [Spectrum Analysis Introduction](http://www.canberra.com/literature/fundamental-principles/pdf/Spectrum-Analysis.pdf)
-
- - [Gamma Spectrometry Software](https://www.youtube.com/watch?v=bBG_m4akFts)
 
 Hardware
 -----
