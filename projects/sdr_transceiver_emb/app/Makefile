@@ -1,4 +1,4 @@
-CFLAGS = -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math
+CFLAGS = -O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math
 
 WDSP_TAG = master
 WDSP_DIR = wdsp-$(WDSP_TAG)
