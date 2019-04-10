@@ -2,7 +2,7 @@ TARGET   = libwdsp.a
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 INCLUDES = -I.
-CFLAGS   = -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -Wall
+CFLAGS   = -O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -Wall
 ARFLAGS  = cr
 ################################################################################
 CC       = gcc
