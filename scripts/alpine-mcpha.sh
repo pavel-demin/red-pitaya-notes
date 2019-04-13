@@ -155,7 +155,6 @@ ln -s /media/mmcblk0p1/wifi root/wifi
 
 lbu add root
 lbu delete etc/resolv.conf
-lbu delete etc/periodic/wspr
 lbu delete root/.ash_history
 
 lbu commit -d
