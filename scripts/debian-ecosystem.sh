@@ -215,6 +215,14 @@ wpa_pairwise=CCMP
 rsn_pairwise=CCMP
 EOF_CAT
 
+cat <<- EOF_CAT > etc/default/hostapd
+DAEMON_CONF=/etc/hostapd/hostapd.conf
+EOF_CAT
+
+cat <<- EOF_CAT > etc/default/isc-dhcp-server
+INTERFACESv4=wlan0
+EOF_CAT
+
 cat <<- EOF_CAT > etc/dhcp/dhcpd.conf
 ddns-update-style none;
 default-lease-time 600;
