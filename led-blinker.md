@@ -161,7 +161,7 @@ Resizing SD card partitions on running Red Pitaya:
 # delete second partition
 echo -e "d\n2\nw" | fdisk /dev/mmcblk0
 # recreate partition
-parted -s /dev/mmcblk0 mkpart primary ext4 16MB 100%
+parted -s /dev/mmcblk0 mkpart primary ext4 16MiB 100%
 # resize partition
 resize2fs /dev/mmcblk0p2
 {% endhighlight %}
