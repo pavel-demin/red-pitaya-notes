@@ -12,7 +12,7 @@ For my experiments with the [Red Pitaya](http://redpitaya.readthedocs.io), I'd l
  - recent version of the [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado)
  - recent version of the [Linux kernel](https://www.kernel.org)
  - recent version of the [Debian distribution](https://www.debian.org/releases/jessie) on the development machine
- - recent version of the [Debian distribution](https://www.debian.org/releases/jessie) on the Red Pitaya
+ - recent version of the [Debian distribution](https://www.debian.org/releases/stretch) on the Red Pitaya
  - basic project with all the [Red Pitaya](http://redpitaya.readthedocs.io) peripherals connected
  - mostly command-line tools
  - shallow directory structure
@@ -145,7 +145,7 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-8.11-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-9.9-armhf.img 1024
 {% endhighlight %}
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
