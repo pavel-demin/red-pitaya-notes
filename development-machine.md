@@ -51,7 +51,7 @@ Creating virtual machine with Debian 9.9 (amd64)
 
   - Select "Storage" and select "Empty" below the "IDE Controller"
 
-  - Click the small CD/DVD icon next to the "CD/DVD Drive" drop-down list and select the location of the `mini.iso` image
+  - Click the small CD/DVD icon next to the "Optical Drive" drop-down list and select the location of the `mini.iso` image
 
   - Click "OK"
 
