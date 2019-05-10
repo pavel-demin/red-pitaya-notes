@@ -70,6 +70,8 @@ d-i grub-installer/bootdev string default
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
 
+d-i debian-installer/add-kernel-opts string net.ifnames=0 biosdevname=0
+
 d-i finish-install/reboot_in_progress note
 
 d-i preseed/late_command string \
