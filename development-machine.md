@@ -4,14 +4,14 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/jessie) 8.11 (amd64) and [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.3 with full SDK.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/stretch) 9.9 (amd64) and [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.3 with full SDK.
 
-Creating virtual machine with Debian 8.11 (amd64)
+Creating virtual machine with Debian 9.9 (amd64)
 -----
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](http://deb.debian.org/debian/dists/jessie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 8.11
+- Download [mini.iso](http://deb.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/mini.iso) for Debian 9.9
 
 - Start VirtualBox
 
@@ -33,7 +33,7 @@ Creating virtual machine with Debian 8.11 (amd64)
 
   - Set the memory size to at least 2048 MB
 
-  - Select "Create a virtual hard drive now"
+  - Select "Create a virtual hard disk now"
 
   - Select "VDI (VirtualBox Disk Image)"
 
@@ -47,7 +47,7 @@ Creating virtual machine with Debian 8.11 (amd64)
 
   - Set "Adapter Type" to "Paravirtualized Network (virtio-net)" for both "Adapter 1" and "Adapter 2"
 
-  - Select "System" and select only "CD/DVD" in the "Boot Order" list
+  - Select "System" and select only "Optical" in the "Boot Order" list
 
   - Select "Storage" and select "Empty" below the "IDE Controller"
 

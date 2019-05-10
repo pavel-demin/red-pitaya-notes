@@ -24,7 +24,7 @@ Pre-requirements
 
 My development machine has the following installed:
 
- - [Debian](https://www.debian.org/releases/jessie) 8.11 (amd64)
+ - [Debian](https://www.debian.org/releases/stretch) 9.9 (amd64)
 
  - [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.3 with full SDK
 
