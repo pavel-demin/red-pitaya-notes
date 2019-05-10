@@ -75,6 +75,7 @@ d-i debian-installer/add-kernel-opts string net.ifnames=0 biosdevname=0
 d-i finish-install/reboot_in_progress note
 
 d-i preseed/late_command string \
+  printf "\nallow-hotplug eth0\niface eth0 inet dhcp\n" >> /target/etc/network/interfaces; \
   printf "\nallow-hotplug eth1\niface eth1 inet dhcp\n" >> /target/etc/network/interfaces; \
   in-target apt-get --yes --no-install-recommends install \
   openssh-server module-assistant linux-headers-amd64 \
