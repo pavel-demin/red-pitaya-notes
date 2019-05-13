@@ -15,6 +15,8 @@ Some interesting links on radiation spectroscopy:
 
  - [Digital signal processing for segmented HPGe Detectors](https://archiv.ub.uni-heidelberg.de/volltextserver/4991)
 
+ - [FPGA-based algorithms for the stability improvement of high-flux X-ray spectrometric imaging detectors](https://tel.archives-ouvertes.fr/tel-02096235)
+
  - [CAEN Digital Pulse Height Analyser - a digital approach to
 Radiation Spectroscopy](https://www.caen.it/documents/News/32/AN2508_Digital_Pulse_Height_Analyser.pdf)
 
