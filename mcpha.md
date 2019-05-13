@@ -9,6 +9,12 @@ Interesting links
 
 Some interesting links on radiation spectroscopy:
 
+ - [Digital signal processing for BGO detectors](http://dx.doi.org/10.1016/0168-9002(93)91105-V)
+
+ - [Digital gamma-ray spectroscopy based on FPGA technology](https://doi.org/10.1016/S0168-9002(01)01925-8)
+
+ - [Digital signal processing for segmented HPGe Detectors](https://archiv.ub.uni-heidelberg.de/volltextserver/4991)
+
  - [CAEN Digital Pulse Height Analyser - a digital approach to
 Radiation Spectroscopy](https://www.caen.it/documents/News/32/AN2508_Digital_Pulse_Height_Analyser.pdf)
 
