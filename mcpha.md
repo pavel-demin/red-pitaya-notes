@@ -13,7 +13,7 @@ Some interesting links on radiation spectroscopy:
 
  - [Digital gamma-ray spectroscopy based on FPGA technology](https://doi.org/10.1016/S0168-9002(01)01925-8)
 
- - [Digital signal processing for segmented HPGe Detectors](https://archiv.ub.uni-heidelberg.de/volltextserver/4991)
+ - [Digital signal processing for segmented HPGe detectors](https://archiv.ub.uni-heidelberg.de/volltextserver/4991)
 
  - [FPGA-based algorithms for the stability improvement of high-flux X-ray spectrometric imaging detectors](https://tel.archives-ouvertes.fr/tel-02096235)
 
