@@ -17,13 +17,11 @@ Creating virtual machine with Debian 9.9 (amd64)
 
 - Create at least one host-only interface:
 
-  - From the "File" menu select "Preferences"
+  - From the "File" menu select "Host Network Manager"
 
-  - Select "Network" and then "Host-only Networks"
+  - Click the green "Create" icon
 
-  - Click the small "+" icon
-
-  - Click "OK"
+  - Click "Close"
 
 - Create a new virtual machine:
 
