@@ -77,7 +77,9 @@ d-i finish-install/reboot_in_progress note
 d-i preseed/late_command string \
   printf "\nallow-hotplug eth0\niface eth0 inet dhcp\n" >> /target/etc/network/interfaces; \
   printf "\nallow-hotplug eth1\niface eth1 inet dhcp\n" >> /target/etc/network/interfaces; \
+  printf "\ndeb http://deb.debian.org/debian stretch-backports main contrib non-free\ndeb-src http://deb.debian.org/debian stretch-backports main contrib non-free\n" >> /target/etc/apt/sources.list ; \
   in-target apt-get --yes --no-install-recommends install \
+  acpid virtualbox-guest-dkms \
   openssh-server module-assistant linux-headers-amd64 \
   autofs samba git curl ca-certificates xauth \
   build-essential less vim screen sudo psmisc \
