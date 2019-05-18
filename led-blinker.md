@@ -9,7 +9,7 @@ Introduction
 
 For my experiments with the [Red Pitaya](http://redpitaya.readthedocs.io), I'd like to have the following development environment:
 
- - recent version of the [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado)
+ - recent version of the [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado.html)
  - recent version of the [Linux kernel](https://www.kernel.org)
  - recent version of the [Debian distribution](https://www.debian.org/releases/jessie) on the development machine
  - recent version of the [Debian distribution](https://www.debian.org/releases/stretch) on the Red Pitaya
@@ -26,7 +26,7 @@ My development machine has the following installed:
 
  - [Debian](https://www.debian.org/releases/stretch) 9.9 (amd64)
 
- - [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.3 with full SDK
+ - [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado.html) 2018.3 with full SDK
 
 The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
 

@@ -4,7 +4,7 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/stretch) 9.9 (amd64) and [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado) 2018.3 with full SDK.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/stretch) 9.9 (amd64) and [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado.html) 2018.3 with full SDK.
 
 Creating virtual machine with Debian 9.9 (amd64)
 -----
