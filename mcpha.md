@@ -9,7 +9,7 @@ Interesting links
 
 Some interesting links on radiation spectroscopy:
 
- - [Digital signal processing for BGO detectors](http://dx.doi.org/10.1016/0168-9002(93)91105-V)
+ - [Digital signal processing for BGO detectors](https://doi.org/10.1016/0168-9002(93)91105-V)
 
  - [Digital gamma-ray spectroscopy based on FPGA technology](https://doi.org/10.1016/S0168-9002(01)01925-8)
 
