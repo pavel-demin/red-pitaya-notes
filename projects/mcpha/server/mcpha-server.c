@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
         *rst[3] |= 128;
         /* start pulser */
         total = 0;
-        for(i = 0; i < 4095; ++i)
+        for(i = 0; i < 4096; ++i)
         {
           total += spectrum[i];
         }
@@ -522,7 +522,7 @@ int main(int argc, char *argv[])
         if(total < 2) continue;
 
         value = 0;
-        for(i = 0; i < 4095; ++i)
+        for(i = 0; i < 4096; ++i)
         {
           value += spectrum[i];
           hist[i] = value * RAND_MAX / (total - 1) - 1;
