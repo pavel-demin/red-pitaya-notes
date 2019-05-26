@@ -365,7 +365,7 @@ namespace eval ::mcpha {
     }
 
     blt::vector create [my varname xvec](16385)
-    blt::vector create [my varname yvec](16384)
+    blt::vector create [my varname yvec](16385)
 
     # fill one vector for the x axis with 16385 points
     [my varname xvec] seq -0.5 16383.5
@@ -1043,7 +1043,7 @@ namespace eval ::mcpha {
       close $fid
     }]
 
-    if { $x || ![file exists $fname] || ![file isfile $fname] || ![file readable $fname] } {
+    if {$x || ![file exists $fname] || ![file isfile $fname] || ![file readable $fname]} {
       tk_messageBox -icon error \
         -message "An error occurred while writing to \"$fname\""
     } else {
@@ -1072,14 +1072,20 @@ namespace eval ::mcpha {
       close $fid
     }]
 
-    if { $x || ![file exists $fname] || ![file isfile $fname] || ![file readable $fname] } {
+    if {$x || ![file exists $fname] || ![file isfile $fname] || ![file readable $fname]} {
       tk_messageBox -icon error \
         -message "An error occurred while reading \"$fname\""
     } else {
       tk_messageBox -icon info \
         -message "File \"$fname\" read successfully"
       my cntr_reset
-      [my varname yvec] set $yvec_new
+      set i 0
+      foreach value $yvec_new {
+        if {[string is space $value]} continue
+        if {$i > 16383} break
+        set [my varname yvec]($i) $value
+        incr i
+      }
     }
   }
 
@@ -1512,7 +1518,7 @@ namespace eval ::mcpha {
       my data_update
     }]
 
-    if { $x || ![file exists $fname] || ![file isfile $fname] || ![file readable $fname] } {
+    if {$x || ![file exists $fname] || ![file isfile $fname] || ![file readable $fname]} {
       tk_messageBox -icon error \
         -message "An error occurred while reading \"$fname\""
     } else {
@@ -1638,7 +1644,7 @@ namespace eval ::mcpha {
     }
 
     blt::vector create [my varname xvec](4097)
-    blt::vector create [my varname yvec](4096)
+    blt::vector create [my varname yvec](4097)
 
     # fill one vector for the x axis with 4097 points
     [my varname xvec] seq -0.5 4095.5
@@ -1943,13 +1949,19 @@ namespace eval ::mcpha {
       close $fid
     }]
 
-    if { $x || ![file exists $fname] || ![file isfile $fname] || ![file readable $fname] } {
+    if {$x || ![file exists $fname] || ![file isfile $fname] || ![file readable $fname]} {
       tk_messageBox -icon error \
         -message "An error occurred while reading \"$fname\""
     } else {
       tk_messageBox -icon info \
         -message "File \"$fname\" read successfully"
-      [my varname yvec] set $yvec_new
+      set i 0
+      foreach value $yvec_new {
+        if {[string is space $value]} continue
+        if {$i > 4095} break
+        set [my varname yvec]($i) $value
+        incr i
+      }
     }
   }
 
@@ -1974,7 +1986,7 @@ set config [frame .config]
 
 mcpha::CfgDisplay create cfg -master $config
 
-if { [catch {blt::tabnotebook .notebook -borderwidth 1 -selectforeground black -side bottom} notebook] } {
+if {[catch {blt::tabnotebook .notebook -borderwidth 1 -selectforeground black -side bottom} notebook]} {
   set notebook [ttk::notebook .notebook]
   set frame_1 [frame ${notebook}.hst_1]
   set frame_2 [frame ${notebook}.hst_2]
