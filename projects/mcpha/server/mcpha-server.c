@@ -519,13 +519,13 @@ int main(int argc, char *argv[])
           total += spectrum[i];
         }
 
-        if(total < 2) continue;
+        if(total < 1) continue;
 
         value = 0;
         for(i = 0; i < 4096; ++i)
         {
           value += spectrum[i];
-          hist[i] = value * RAND_MAX / (total - 1) - 1;
+          hist[i] = value * RAND_MAX / total - 1;
         }
 
         enable_thread = 1;
@@ -576,7 +576,7 @@ void *pulser_handler(void *arg)
   {
     while(*size > 6000) usleep(1000);
 
-    amplitude = lower_bound(hist, 4096, rand());
+    amplitude = lower_bound(hist, 4096, rand() % RAND_MAX);
 
     if(dist == 0)
     {
