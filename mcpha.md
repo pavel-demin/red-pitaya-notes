@@ -25,9 +25,26 @@ Radiation Spectroscopy](https://www.caen.it/documents/News/32/AN2508_Digital_Pul
 Hardware
 -----
 
-The basic blocks of the system are shown on the following diagram:
+This system is designed to analyze the height of Gaussian-shaped pulses and it expects a signal from a pulse-shaping amplifier. It is also known to work with non-overlapping exponentially rising and exponentially decaying pulses.
+
+The position of the HV/LV jumpers of the [fast analog inputs](https://redpitaya.readthedocs.io/en/latest/developerGuide/125-14/fastIO.html#fast-analog-io) should be chosen depending on the amplitude range of the input signal. Ideally, the amplitude range of the input signal should closely match the chosen hardware input range.
+
+The basic blocks of the system are shown on the following diagrams:
 
 ![Multichannel Pulse Height Analyzer]({{ "/img/mcpha.png" | prepend: site.baseurl }})
+
+![Exponential Pulse Generator]({{ "/img/mcpha-gen.png" | prepend: site.baseurl }})
+
+The width of the pulse at the input of the pulse height analyzer module can be adjusted by varying the decimation factor of the CIC filter.
+
+Two baseline subtraction modes are implemented:
+
+ - In the manual mode, a constant value is subtracted from the measured peak height value.
+ - In the auto mode, the base line level is defined as the minimum value just before the rising edge of the analyzed pulse.
+
+The embedded oscilloscope can be used to check the shape of the pulse at the input of the pulse height analyzer module.
+
+The exponential pulse generator can be used to generate signals with specified time and amplitude distributions. It consists of an impulse generator module and two IIR filters. The impulse generator module outputs a 8 ns (1 clock cycle at 125 MHz) impulse of a required amplitude and after a required time interval. The two IIR filters are used to emulate the exponentially rising and exponentially decaying edges of the generated pulses.
 
 The [projects/mcpha](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha) directory contains five Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/block_design.tcl), [pha.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/pha.tcl), [hst.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/hst.tcl), [osc.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/osc.tcl), [gen.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/gen.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
