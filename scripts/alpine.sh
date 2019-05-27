@@ -10,7 +10,7 @@ firmware_tar=linux-firmware-other-20181220-r0.apk
 firmware_url=$alpine_url/main/armv7/$firmware_tar
 
 linux_dir=tmp/linux-4.14
-linux_ver=4.14.101-xilinx
+linux_ver=4.14.122-xilinx
 
 modules_dir=alpine-modloop/lib/modules/$linux_ver
 
