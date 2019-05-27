@@ -15,7 +15,7 @@
 EXTDIR = ../../../../8.x
 STATIC = --disable-shared --enable-static
 OUTDIR = $(shell pwd)/build
-OBJ    = $(OUTDIR)/zvfs$O $(OUTDIR)/g2lite$O
+OBJ    = $(OUTDIR)/zvfs$O
 GUIOBJ ?= $(OBJ) $(OUTDIR)/tclAppInit$O
 TCLDIR = --with-tcl=$(OUTDIR)/lib --prefix=$(OUTDIR) --exec-prefix=$(OUTDIR)
 STRIP ?= strip
@@ -39,7 +39,7 @@ tclkit-gui$(EXE): kit-gui$(EXE) ../../setupvfs.tcl build/files
 
 ifeq ($(PLAT), win)
 kit-gui$(EXE): build/tcl build/tk build/blt build/tclvfs \
-	build/zlib build/tcllib $(GUIOBJ)
+	build/zlib $(GUIOBJ)
 	$(CC) -o $@ $(CFLAGS) ../../kitInit.c $(GUIOBJ) \
 	  -Ibuild/include -DKIT_LITE -DSTATIC_BUILD -DKIT_INCLUDES_TK \
 	  build/lib/vfs1*/*vfs1*$A \
@@ -50,7 +50,7 @@ kit-gui$(EXE): build/tcl build/tk build/blt build/tclvfs \
 	  $(LDFLAGS) $(GUI_OPTS)
 else
 kit-gui$(EXE): build/tcl build/tk build/blt build/tclvfs \
-	build/zlib build/tcllib $(GUIOBJ)
+	build/zlib $(GUIOBJ)
 	$(CC) -o $@ $(CFLAGS) ../../kitInit.c $(GUIOBJ) \
 	  -Ibuild/include -DKIT_LITE -DSTATIC_BUILD -DKIT_INCLUDES_TK \
 	  build/lib/vfs1*/*vfs1*$A \
@@ -93,11 +93,6 @@ build/zlib: build/tcl
 	  sh $(EXTDIR)/zlib/configure $(ZLIB_OPTS) && \
 	  $(MAKE) install
 
-build/tcllib: build/tcl
-	mkdir -p $@ && cd $@ && CFLAGS="$(CFLAGS)" && export CFLAGS && \
-	  sh $(EXTDIR)/tcllib/configure $(STATIC) $(TCLDIR) $(TCLLIB_OPTS) && \
-	  $(MAKE) install-libraries
-
 base: build/tcl build/tk
 	ls -l build/bin
 
@@ -118,9 +113,6 @@ distclean: clean
 
 $(OUTDIR)/zvfs$O: ../../zvfs.c
 	$(CC) -o $@ $(CFLAGS) -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DSTATIC_BUILD -Ibuild/include -c $<
-
-$(OUTDIR)/g2lite$O: ../../g2lite.c
-	$(CC) -o $@ $(CFLAGS) -DSTATIC_BUILD -Ibuild/include -c $<
 
 $(OUTDIR)/tclAppInit$O: ../tcl/$(PLAT)/tclAppInit.c
 	$(CC) -o $@ $(CFLAGS) -DSTATIC_BUILD -Ibuild/include \

@@ -27,6 +27,7 @@
 #include "tclInt.h"
 #include "tclPort.h"
 #include <zlib.h>
+#include <stdint.h>
 
 /*
  * Size of the decompression input buffer

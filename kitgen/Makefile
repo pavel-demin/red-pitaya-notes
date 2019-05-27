@@ -1,7 +1,6 @@
-TCLLIB_URL = https://sourceforge.net/projects/tcllib/files/tcllib/1.19/tcllib-1.19.tar.gz
 ZLIB_URL   = https://sourceforge.net/projects/libpng/files/zlib/1.2.3/zlib-1.2.3.tar.gz
-TCL_URL    = https://sourceforge.net/projects/tcl/files/Tcl/8.6.8/tcl8.6.8-src.tar.gz
-TK_URL     = https://sourceforge.net/projects/tcl/files/Tcl/8.6.8/tk8.6.8-src.tar.gz
+TCL_URL    = https://sourceforge.net/projects/tcl/files/Tcl/8.6.9/tcl8.6.9-src.tar.gz
+TK_URL     = https://sourceforge.net/projects/tcl/files/Tcl/8.6.9/tk8.6.9-src.tar.gz
 
 VFS_CVS    = :pserver:anonymous@tclvfs.cvs.sourceforge.net:/cvsroot/tclvfs
 
@@ -15,19 +14,16 @@ tars:
 	  curl -kLO $(TCL_URL) && \
 	  curl -kLO $(TK_URL)
 	mkdir -p 8.x && cd 8.x && \
-	  curl -kLO $(TCLLIB_URL) && \
 	  curl -kLO $(ZLIB_URL)
 
 untar:
 	mkdir -p 8.6 && cd 8.6 && \
-	  tar xfz tcl8.6.8-src.tar.gz && \
-	  tar xfz tk8.6.8-src.tar.gz && \
-	  mv tcl8.6.8 tcl && \
-	  mv tk8.6.8 tk
+	  tar xfz tcl8.6.9-src.tar.gz && \
+	  tar xfz tk8.6.9-src.tar.gz && \
+	  mv tcl8.6.9 tcl && \
+	  mv tk8.6.9 tk
 	mkdir -p 8.x && cd 8.x && \
-	  tar xfz tcllib-1.19.tar.gz && \
 	  tar xfz zlib-1.2.3.tar.gz && \
-	  mv tcllib-1.19 tcllib && \
 	  mv zlib-1.2.3 zlib
 
 configs:

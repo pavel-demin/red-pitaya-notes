@@ -48,18 +48,11 @@ package require platform
 set platform [lindex [split [platform::generic] -] 0]
 
 load {} vfs
-load {} g2lite
 
 # map of proper version numbers to replace @ markers in paths given to vfscopy
 # this relies on having all necessary extensions already loaded at this point
 set versmap [list tcl8@ tcl$tcl_version tk8@ tk$tcl_version \
-                  vfs1@ vfs[package require vfs] \
-                  g2lite0@ g2lite[package require g2lite]]
-
-if {[string equal $platform win32]} {
-  load {} registry
-  lappend versmap registry1@ registry[package require registry]
-}
+                  vfs1@ vfs[package require vfs]]
 
 if {$debugOpt} {
   puts "Starting [info script]"
@@ -69,18 +62,6 @@ if {$debugOpt} {
   puts "  loaded: [info loaded]"
   puts " versmap: $versmap"
   puts ""
-}
-
-# Create package index files for the static extensions.
-set exts [list g2lite]
-if {[string equal $platform win32]} {
-  lappend exts registry
-}
-foreach ext $exts {
-  load {} $ext
-  set dst [file join lib "[string tolower $ext][package provide $ext]" pkgIndex.tcl]
-  puts $dst
-  set index($dst) "package ifneeded $ext [package provide $ext] {load {} [string tolower $ext]}"
 }
 
 set clifiles {
@@ -101,25 +82,6 @@ set clifiles {
   lib/vfs1@/vfslib.tcl
   lib/vfs1@/vfsUtils.tcl
   lib/vfs1@/zipvfs.tcl
-  lib/g2lite0@/pkgIndex.tcl
-  lib/tcllib1.19/pkgIndex.tcl
-  lib/tcllib1.19/asn
-  lib/tcllib1.19/base64
-  lib/tcllib1.19/comm
-  lib/tcllib1.19/cmdline
-  lib/tcllib1.19/csv
-  lib/tcllib1.19/fileutil
-  lib/tcllib1.19/ldap
-  lib/tcllib1.19/log
-  lib/tcllib1.19/math
-  lib/tcllib1.19/ooutil
-  lib/tcllib1.19/snit
-  lib/tcllib1.19/struct
-  lib/tcllib1.19/uri
-}
-
-if {[string equal $platform win32]} {
-  lappend clifiles lib/registry1@/pkgIndex.tcl
 }
 
 set guifiles {
