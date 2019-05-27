@@ -41,8 +41,6 @@ Tcl_AppInitProc Dde_Init, Registry_Init;
 Tcl_AppInitProc Blt_Init, Blt_SafeInit;
 #endif
 
-Tcl_AppInitProc G2lite_Init;
-
 #ifdef WIN32
 #define DEV_NULL "NUL"
 #else
@@ -103,8 +101,6 @@ TclKit_AppInit(Tcl_Interp *interp)
     Tcl_StaticPackage(0, "Tk", Tk_Init, Tk_SafeInit);
     Tcl_StaticPackage(0, "Blt", Blt_Init, Blt_SafeInit);
 #endif
-
-    Tcl_StaticPackage(0, "g2lite", G2lite_Init, NULL);
 
     /* the tcl_rcFileName variable only exists in the initial interpreter */
 #ifdef _WIN32
