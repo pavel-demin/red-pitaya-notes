@@ -1,7 +1,12 @@
 source projects/base_system/block_design.tcl
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant const_0
+
 # Create proc_sys_reset
-cell xilinx.com:ip:proc_sys_reset rst_0
+cell xilinx.com:ip:proc_sys_reset rst_0 {} {
+  ext_reset_in const_0/dout
+}
 
 # Create c_counter_binary
 cell xilinx.com:ip:c_counter_binary cntr_0 {
