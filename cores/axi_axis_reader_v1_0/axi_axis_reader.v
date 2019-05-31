@@ -38,6 +38,10 @@ module axi_axis_reader #
   reg int_rvalid_reg, int_rvalid_next;
   reg [AXI_DATA_WIDTH-1:0] int_rdata_reg, int_rdata_next;
 
+  wire int_arready_wire;
+
+  assign int_arready_wire = ~int_rvalid_reg & s_axi_arvalid;
+
   always @(posedge aclk)
   begin
     if(~aresetn)
@@ -57,22 +61,25 @@ module axi_axis_reader #
     int_rvalid_next = int_rvalid_reg;
     int_rdata_next = int_rdata_reg;
 
-    if(s_axi_arvalid)
+    if(int_arready_wire)
     begin
       int_rvalid_next = 1'b1;
       int_rdata_next = s_axis_tvalid ? s_axis_tdata : {(AXI_DATA_WIDTH){1'b0}};
     end
 
-    if(s_axi_rready & int_rvalid_reg)
+    if(int_rvalid_reg & s_axi_rready)
     begin
       int_rvalid_next = 1'b0;
     end
   end
 
-  assign s_axi_rresp = 2'd0;
-
-  assign s_axi_arready = 1'b1;
+  assign s_axi_awready = 1'b0;
+  assign s_axi_wready = 1'b0;
+  assign s_axi_bresp = 2'd0;
+  assign s_axi_bvalid = 1'b0;
+  assign s_axi_arready = int_arready_wire;
   assign s_axi_rdata = int_rdata_reg;
+  assign s_axi_rresp = 2'd0;
   assign s_axi_rvalid = int_rvalid_reg;
 
   assign s_axis_tready = s_axi_rready & int_rvalid_reg;
