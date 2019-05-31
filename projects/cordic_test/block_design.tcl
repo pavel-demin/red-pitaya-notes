@@ -43,7 +43,7 @@ cell pavel-demin:user:port_slicer slice_7 {
 }
 
 # Create axis_constant
-cell pavel-demin:user:axis_constant const_0 {
+cell pavel-demin:user:axis_constant const_1 {
   AXIS_TDATA_WIDTH 32
 } {
   cfg_data slice_5/dout
@@ -70,7 +70,7 @@ cell xilinx.com:ip:cordic cordic_0 {
   ROUND_MODE Round_Pos_Neg_Inf
   COMPENSATION_SCALING Embedded_Multiplier
 } {
-  S_AXIS_CARTESIAN const_0/M_AXIS
+  S_AXIS_CARTESIAN const_1/M_AXIS
   S_AXIS_PHASE phase_0/M_AXIS
   aclk pll_0/clk_out1
 }
@@ -99,7 +99,7 @@ cell xilinx.com:ip:axis_dwidth_converter conv_0 {
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant const_1 {
+cell xilinx.com:ip:xlconstant const_2 {
   CONST_WIDTH 32
   CONST_VAL 503316480
 }
@@ -108,7 +108,7 @@ cell xilinx.com:ip:xlconstant const_1 {
 cell pavel-demin:user:axis_ram_writer writer_0 {} {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
-  cfg_data const_1/dout
+  cfg_data const_2/dout
   aclk pll_0/clk_out1
   aresetn slice_4/dout
 }
