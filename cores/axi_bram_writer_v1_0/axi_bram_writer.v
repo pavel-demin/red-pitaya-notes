@@ -47,9 +47,10 @@ module axi_bram_writer #
   localparam integer ADDR_LSB = clogb2(AXI_DATA_WIDTH/8 - 1);
 
   reg int_bvalid_reg, int_bvalid_next;
-  wire int_wvalid_wire;
 
-  assign int_wvalid_wire = s_axi_awvalid & s_axi_wvalid;
+  wire int_awready_wire;
+
+  assign int_awready_wire = ~int_bvalid_reg & s_axi_awvalid & s_axi_wvalid;
 
   always @(posedge aclk)
   begin
@@ -67,27 +68,30 @@ module axi_bram_writer #
   begin
     int_bvalid_next = int_bvalid_reg;
 
-    if(int_wvalid_wire)
+    if(int_awready_wire)
     begin
       int_bvalid_next = 1'b1;
     end
 
-    if(s_axi_bready & int_bvalid_reg)
+    if(int_bvalid_reg & s_axi_bready)
     begin
       int_bvalid_next = 1'b0;
     end
   end
 
+  assign s_axi_awready = int_awready_wire;
+  assign s_axi_wready = int_awready_wire;
   assign s_axi_bresp = 2'd0;
-
-  assign s_axi_awready = int_wvalid_wire;
-  assign s_axi_wready = int_wvalid_wire;
   assign s_axi_bvalid = int_bvalid_reg;
+  assign s_axi_arready = 1'b0;
+  assign s_axi_rdata = {(AXI_DATA_WIDTH){1'b0}};
+  assign s_axi_rresp = 2'd0;
+  assign s_axi_rvalid = 1'b0;
 
   assign bram_porta_clk = aclk;
   assign bram_porta_rst = ~aresetn;
   assign bram_porta_addr = s_axi_awaddr[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
   assign bram_porta_wrdata = s_axi_wdata;
-  assign bram_porta_we = int_wvalid_wire ? s_axi_wstrb : {(BRAM_DATA_WIDTH/8){1'b0}};
+  assign bram_porta_we = int_awready_wire ? s_axi_wstrb : {(BRAM_DATA_WIDTH/8){1'b0}};
 
 endmodule

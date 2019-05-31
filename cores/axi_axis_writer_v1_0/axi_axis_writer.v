@@ -34,40 +34,47 @@ module axi_axis_writer #
   output wire                      m_axis_tvalid
 );
 
-  reg int_valid_reg, int_valid_next;
+  reg int_bvalid_reg, int_bvalid_next;
+
+  wire int_awready_wire;
+
+  assign int_awready_wire = ~int_bvalid_reg & s_axi_awvalid & s_axi_wvalid;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
-      int_valid_reg <= 1'b0;
+      int_bvalid_reg <= 1'b0;
     end
     else
     begin
-      int_valid_reg <= int_valid_next;
+      int_bvalid_reg <= int_bvalid_next;
     end
   end
 
   always @*
   begin
-    int_valid_next = int_valid_reg;
+    int_bvalid_next = int_bvalid_reg;
 
-    if(s_axi_wvalid)
+    if(int_awready_wire)
     begin
-      int_valid_next = 1'b1;
+      int_bvalid_next = 1'b1;
     end
 
-    if(s_axi_bready & int_valid_reg)
+    if(int_bvalid_reg & s_axi_bready)
     begin
-      int_valid_next = 1'b0;
+      int_bvalid_next = 1'b0;
     end
   end
 
+  assign s_axi_awready = int_awready_wire;
+  assign s_axi_wready = int_awready_wire;
   assign s_axi_bresp = 2'd0;
-
-  assign s_axi_awready = 1'b1;
-  assign s_axi_wready = 1'b1;
-  assign s_axi_bvalid = int_valid_reg;
+  assign s_axi_bvalid = int_bvalid_reg;
+  assign s_axi_arready = 1'b0;
+  assign s_axi_rdata = {(AXI_DATA_WIDTH){1'b0}};
+  assign s_axi_rresp = 2'd0;
+  assign s_axi_rvalid = 1'b0;
 
   assign m_axis_tdata = s_axi_wdata;
   assign m_axis_tvalid = s_axi_wvalid;

@@ -51,17 +51,19 @@ module axi_cfg_register #
   wire [AXI_DATA_WIDTH-1:0] int_data_mux [CFG_SIZE-1:0];
   wire [CFG_DATA_WIDTH-1:0] int_data_wire;
   wire [CFG_SIZE-1:0] int_ce_wire;
-  wire int_wvalid_wire;
+  wire int_awready_wire;
+  wire int_arready_wire;
 
   genvar j, k;
 
-  assign int_wvalid_wire = s_axi_awvalid & s_axi_wvalid;
+  assign int_awready_wire = ~int_bvalid_reg & s_axi_awvalid & s_axi_wvalid;
+  assign int_arready_wire = ~int_rvalid_reg & s_axi_arvalid;
 
   generate
     for(j = 0; j < CFG_SIZE; j = j + 1)
     begin : WORDS
       assign int_data_mux[j] = int_data_wire[j*AXI_DATA_WIDTH+AXI_DATA_WIDTH-1:j*AXI_DATA_WIDTH];
-      assign int_ce_wire[j] = int_wvalid_wire & (s_axi_awaddr[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB] == j);
+      assign int_ce_wire[j] = int_awready_wire & (s_axi_awaddr[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB] == j);
       for(k = 0; k < AXI_DATA_WIDTH; k = k + 1)
       begin : BITS
         FDRE #(
@@ -97,12 +99,12 @@ module axi_cfg_register #
   begin
     int_bvalid_next = int_bvalid_reg;
 
-    if(int_wvalid_wire)
+    if(int_awready_wire)
     begin
       int_bvalid_next = 1'b1;
     end
 
-    if(s_axi_bready & int_bvalid_reg)
+    if(int_bvalid_reg & s_axi_bready)
     begin
       int_bvalid_next = 1'b0;
     end
@@ -113,13 +115,13 @@ module axi_cfg_register #
     int_rvalid_next = int_rvalid_reg;
     int_rdata_next = int_rdata_reg;
 
-    if(s_axi_arvalid)
+    if(int_arready_wire)
     begin
       int_rvalid_next = 1'b1;
       int_rdata_next = int_data_mux[s_axi_araddr[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB]];
     end
 
-    if(s_axi_rready & int_rvalid_reg)
+    if(int_rvalid_reg & s_axi_rready)
     begin
       int_rvalid_next = 1'b0;
     end
@@ -127,14 +129,13 @@ module axi_cfg_register #
 
   assign cfg_data = int_data_wire;
 
+  assign s_axi_awready = int_awready_wire;
+  assign s_axi_wready = int_awready_wire;
   assign s_axi_bresp = 2'd0;
-  assign s_axi_rresp = 2'd0;
-
-  assign s_axi_awready = int_wvalid_wire;
-  assign s_axi_wready = int_wvalid_wire;
   assign s_axi_bvalid = int_bvalid_reg;
-  assign s_axi_arready = 1'b1;
+  assign s_axi_arready = int_arready_wire;
   assign s_axi_rdata = int_rdata_reg;
+  assign s_axi_rresp = 2'd0;
   assign s_axi_rvalid = int_rvalid_reg;
 
 endmodule

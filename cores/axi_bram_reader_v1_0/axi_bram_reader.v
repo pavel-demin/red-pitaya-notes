@@ -46,6 +46,10 @@ module axi_bram_reader #
 
   reg int_rvalid_reg, int_rvalid_next;
 
+  wire int_arready_wire;
+
+  assign int_arready_wire = ~int_rvalid_reg & s_axi_arvalid;
+
   always @(posedge aclk)
   begin
     if(~aresetn)
@@ -62,12 +66,12 @@ module axi_bram_reader #
   begin
     int_rvalid_next = int_rvalid_reg;
 
-    if(s_axi_arvalid)
+    if(int_arready_wire)
     begin
       int_rvalid_next = 1'b1;
     end
 
-    if(s_axi_rready & int_rvalid_reg)
+    if(int_rvalid_reg & s_axi_rready)
     begin
       int_rvalid_next = 1'b0;
     end
@@ -75,8 +79,13 @@ module axi_bram_reader #
 
   assign s_axi_rresp = 2'd0;
 
-  assign s_axi_arready = 1'b1;
+  assign s_axi_awready = 1'b0;
+  assign s_axi_wready = 1'b0;
+  assign s_axi_bresp = 2'd0;
+  assign s_axi_bvalid = 1'b0;
+  assign s_axi_arready = int_arready_wire;
   assign s_axi_rdata = bram_porta_rddata;
+  assign s_axi_rresp = 2'd0;
   assign s_axi_rvalid = int_rvalid_reg;
 
   assign bram_porta_clk = aclk;
