@@ -77,6 +77,6 @@ module axi_axis_writer #
   assign s_axi_rvalid = 1'b0;
 
   assign m_axis_tdata = s_axi_wdata;
-  assign m_axis_tvalid = s_axi_wvalid;
+  assign m_axis_tvalid = int_awready_wire;
 
 endmodule
