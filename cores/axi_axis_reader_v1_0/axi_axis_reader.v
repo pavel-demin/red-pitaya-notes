@@ -35,41 +35,40 @@ module axi_axis_reader #
   input  wire                      s_axis_tvalid
 );
 
-  reg int_rvalid_reg, int_rvalid_next;
+  reg int_arready_reg, int_arready_next;
   reg [AXI_DATA_WIDTH-1:0] int_rdata_reg, int_rdata_next;
+  reg int_rvalid_reg, int_rvalid_next;
 
-  wire int_arready_wire;
-
-  assign int_arready_wire = ~int_rvalid_reg & s_axi_arvalid;
+  wire int_ardone_wire, int_rdone_wire;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
-      int_rvalid_reg <= 1'b0;
+      int_arready_reg <= 1'b1;
       int_rdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
+      int_rvalid_reg <= 1'b0;
     end
     else
     begin
-      int_rvalid_reg <= int_rvalid_next;
+      int_arready_reg <= int_arready_next;
       int_rdata_reg <= int_rdata_next;
+      int_rvalid_reg <= int_rvalid_next;
     end
   end
 
+  assign int_ardone_wire = ~int_arready_reg | s_axi_arvalid;
+  assign int_rdone_wire = ~int_rvalid_reg | s_axi_rready;
+
   always @*
   begin
-    int_rvalid_next = int_rvalid_reg;
+    int_arready_next = ~int_ardone_wire | int_rdone_wire;
     int_rdata_next = int_rdata_reg;
+    int_rvalid_next = ~int_rdone_wire | int_ardone_wire;
 
-    if(int_arready_wire)
+    if(int_ardone_wire & int_rdone_wire)
     begin
-      int_rvalid_next = 1'b1;
       int_rdata_next = s_axis_tvalid ? s_axis_tdata : {(AXI_DATA_WIDTH){1'b0}};
-    end
-
-    if(int_rvalid_reg & s_axi_rready)
-    begin
-      int_rvalid_next = 1'b0;
     end
   end
 
@@ -77,11 +76,11 @@ module axi_axis_reader #
   assign s_axi_wready = 1'b0;
   assign s_axi_bresp = 2'd0;
   assign s_axi_bvalid = 1'b0;
-  assign s_axi_arready = int_arready_wire;
+  assign s_axi_arready = int_arready_reg;
   assign s_axi_rdata = int_rdata_reg;
   assign s_axi_rresp = 2'd0;
   assign s_axi_rvalid = int_rvalid_reg;
 
-  assign s_axis_tready = s_axi_rready & int_rvalid_reg;
+  assign s_axis_tready = int_ardone_wire & int_rdone_wire;
 
 endmodule

@@ -42,15 +42,17 @@ module axi_sts_register #
   localparam integer STS_SIZE = STS_DATA_WIDTH/AXI_DATA_WIDTH;
   localparam integer STS_WIDTH = STS_SIZE > 1 ? clogb2(STS_SIZE-1) : 1;
 
-  reg int_rvalid_reg, int_rvalid_next;
+  reg [AXI_ADDR_WIDTH-1:0] int_araddr_reg, int_araddr_next;
+  reg int_arready_reg, int_arready_next;
   reg [AXI_DATA_WIDTH-1:0] int_rdata_reg, int_rdata_next;
+  reg int_rvalid_reg, int_rvalid_next;
+
+  wire int_ardone_wire, int_rdone_wire;
+  wire [AXI_ADDR_WIDTH-1:0] int_araddr_wire;
 
   wire [AXI_DATA_WIDTH-1:0] int_data_mux [STS_SIZE-1:0];
-  wire int_arready_wire;
 
   genvar j, k;
-
-  assign int_arready_wire = ~int_rvalid_reg & s_axi_arvalid;
 
   generate
     for(j = 0; j < STS_SIZE; j = j + 1)
@@ -63,30 +65,40 @@ module axi_sts_register #
   begin
     if(~aresetn)
     begin
-      int_rvalid_reg <= 1'b0;
+      int_araddr_reg <= {(AXI_ADDR_WIDTH){1'b0}};
+      int_arready_reg <= 1'b1;
       int_rdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
+      int_rvalid_reg <= 1'b0;
     end
     else
     begin
-      int_rvalid_reg <= int_rvalid_next;
+      int_araddr_reg <= int_araddr_next;
+      int_arready_reg <= int_arready_next;
       int_rdata_reg <= int_rdata_next;
+      int_rvalid_reg <= int_rvalid_next;
     end
   end
 
+  assign int_ardone_wire = ~int_arready_reg | s_axi_arvalid;
+  assign int_rdone_wire = ~int_rvalid_reg | s_axi_rready;
+
+  assign int_araddr_wire = int_arready_reg ? s_axi_araddr : int_araddr_reg;
+
   always @*
   begin
-    int_rvalid_next = int_rvalid_reg;
+    int_araddr_next = int_araddr_reg;
+    int_arready_next = ~int_ardone_wire | int_rdone_wire;
     int_rdata_next = int_rdata_reg;
+    int_rvalid_next = ~int_rdone_wire | int_ardone_wire;
 
-    if(int_arready_wire)
+    if(int_arready_reg)
     begin
-      int_rvalid_next = 1'b1;
-      int_rdata_next = int_data_mux[s_axi_araddr[ADDR_LSB+STS_WIDTH-1:ADDR_LSB]];
+      int_araddr_next = s_axi_araddr;
     end
 
-    if(int_rvalid_reg & s_axi_rready)
+    if(int_ardone_wire & int_rdone_wire)
     begin
-      int_rvalid_next = 1'b0;
+      int_rdata_next = int_data_mux[int_araddr_wire[ADDR_LSB+STS_WIDTH-1:ADDR_LSB]];
     end
   end
 
@@ -94,7 +106,7 @@ module axi_sts_register #
   assign s_axi_wready = 1'b0;
   assign s_axi_bresp = 2'd0;
   assign s_axi_bvalid = 1'b0;
-  assign s_axi_arready = int_arready_wire;
+  assign s_axi_arready = int_arready_reg;
   assign s_axi_rdata = int_rdata_reg;
   assign s_axi_rresp = 2'd0;
   assign s_axi_rvalid = int_rvalid_reg;
