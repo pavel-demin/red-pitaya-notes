@@ -44,52 +44,68 @@ module axi_bram_reader #
 
   localparam integer ADDR_LSB = clogb2(AXI_DATA_WIDTH/8 - 1);
 
+  reg [AXI_ADDR_WIDTH-1:0] int_araddr_reg, int_araddr_next;
+  reg int_arready_reg, int_arready_next;
+  reg [AXI_ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
   reg int_rvalid_reg, int_rvalid_next;
 
-  wire int_arready_wire;
-
-  assign int_arready_wire = ~int_rvalid_reg & s_axi_arvalid;
+  wire int_ardone_wire, int_rdone_wire;
+  wire [AXI_ADDR_WIDTH-1:0] int_araddr_wire;
+  wire [AXI_ADDR_WIDTH-1:0] int_addr_wire;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
+      int_araddr_reg <= {(AXI_ADDR_WIDTH){1'b0}};
+      int_arready_reg <= 1'b1;
+      int_addr_reg <= {(AXI_ADDR_WIDTH){1'b0}};
       int_rvalid_reg <= 1'b0;
     end
     else
     begin
+      int_araddr_reg <= int_araddr_next;
+      int_arready_reg <= int_arready_next;
+      int_addr_reg <= int_addr_next;
       int_rvalid_reg <= int_rvalid_next;
     end
   end
 
+  assign int_ardone_wire = ~int_arready_reg | s_axi_arvalid;
+  assign int_rdone_wire = ~int_rvalid_reg | s_axi_rready;
+
+  assign int_araddr_wire = int_arready_reg ? s_axi_araddr : int_araddr_reg;
+  assign int_addr_wire = (int_ardone_wire & int_rdone_wire) ? int_araddr_wire : int_addr_reg;
+
   always @*
   begin
-    int_rvalid_next = int_rvalid_reg;
+    int_araddr_next = int_araddr_reg;
+    int_arready_next = ~int_ardone_wire | int_rdone_wire;
+    int_addr_next = int_addr_reg;
+    int_rvalid_next = ~int_rdone_wire | int_ardone_wire;
 
-    if(int_arready_wire)
+    if(int_arready_reg)
     begin
-      int_rvalid_next = 1'b1;
+      int_araddr_next = s_axi_araddr;
     end
 
-    if(int_rvalid_reg & s_axi_rready)
+    if(int_ardone_wire & int_rdone_wire)
     begin
-      int_rvalid_next = 1'b0;
+      int_addr_next = int_araddr_wire;
     end
   end
-
-  assign s_axi_rresp = 2'd0;
 
   assign s_axi_awready = 1'b0;
   assign s_axi_wready = 1'b0;
   assign s_axi_bresp = 2'd0;
   assign s_axi_bvalid = 1'b0;
-  assign s_axi_arready = int_arready_wire;
+  assign s_axi_arready = int_arready_reg;
   assign s_axi_rdata = bram_porta_rddata;
   assign s_axi_rresp = 2'd0;
   assign s_axi_rvalid = int_rvalid_reg;
 
   assign bram_porta_clk = aclk;
   assign bram_porta_rst = ~aresetn;
-  assign bram_porta_addr = s_axi_araddr[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
+  assign bram_porta_addr = int_addr_wire[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
 
 endmodule

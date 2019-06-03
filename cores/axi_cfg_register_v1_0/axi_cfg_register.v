@@ -43,36 +43,46 @@ module axi_cfg_register #
   localparam integer CFG_SIZE = CFG_DATA_WIDTH/AXI_DATA_WIDTH;
   localparam integer CFG_WIDTH = CFG_SIZE > 1 ? clogb2(CFG_SIZE-1) : 1;
 
+  reg [AXI_ADDR_WIDTH-1:0] int_awaddr_reg, int_awaddr_next;
+  reg int_awready_reg, int_awready_next;
+  reg [AXI_DATA_WIDTH-1:0] int_wdata_reg, int_wdata_next;
+  reg [AXI_DATA_WIDTH/8-1:0] int_wstrb_reg, int_wstrb_next;
+  reg int_wready_reg, int_wready_next;
   reg int_bvalid_reg, int_bvalid_next;
 
-  reg int_rvalid_reg, int_rvalid_next;
+  reg [AXI_ADDR_WIDTH-1:0] int_araddr_reg, int_araddr_next;
+  reg int_arready_reg, int_arready_next;
   reg [AXI_DATA_WIDTH-1:0] int_rdata_reg, int_rdata_next;
+  reg int_rvalid_reg, int_rvalid_next;
+
+  wire int_awdone_wire, int_wdone_wire, int_bdone_wire;
+  wire [AXI_ADDR_WIDTH-1:0] int_awaddr_wire;
+  wire [AXI_DATA_WIDTH-1:0] int_wdata_wire;
+  wire [AXI_DATA_WIDTH/8-1:0] int_wstrb_wire;
+
+  wire int_ardone_wire, int_rdone_wire;
+  wire [AXI_ADDR_WIDTH-1:0] int_araddr_wire;
 
   wire [AXI_DATA_WIDTH-1:0] int_data_mux [CFG_SIZE-1:0];
   wire [CFG_DATA_WIDTH-1:0] int_data_wire;
   wire [CFG_SIZE-1:0] int_ce_wire;
-  wire int_awready_wire;
-  wire int_arready_wire;
 
   genvar j, k;
-
-  assign int_awready_wire = ~int_bvalid_reg & s_axi_awvalid & s_axi_wvalid;
-  assign int_arready_wire = ~int_rvalid_reg & s_axi_arvalid;
 
   generate
     for(j = 0; j < CFG_SIZE; j = j + 1)
     begin : WORDS
       assign int_data_mux[j] = int_data_wire[j*AXI_DATA_WIDTH+AXI_DATA_WIDTH-1:j*AXI_DATA_WIDTH];
-      assign int_ce_wire[j] = int_awready_wire & (s_axi_awaddr[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB] == j);
+      assign int_ce_wire[j] = int_awdone_wire & int_wdone_wire & int_bdone_wire & (int_awaddr_wire[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB] == j);
       for(k = 0; k < AXI_DATA_WIDTH; k = k + 1)
       begin : BITS
         FDRE #(
           .INIT(1'b0)
         ) FDRE_inst (
-          .CE(int_ce_wire[j] & s_axi_wstrb[k/8]),
+          .CE(int_ce_wire[j] & int_wstrb_wire[k/8]),
           .C(aclk),
           .R(~aresetn),
-          .D(s_axi_wdata[k]),
+          .D(int_wdata_wire[k]),
           .Q(int_data_wire[j*AXI_DATA_WIDTH + k])
         );
       end
@@ -83,57 +93,101 @@ module axi_cfg_register #
   begin
     if(~aresetn)
     begin
+      int_awaddr_reg <= {(AXI_ADDR_WIDTH){1'b0}};
+      int_awready_reg <= 1'b1;
+      int_wdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
+      int_wstrb_reg <= {(AXI_DATA_WIDTH/8){1'b0}};
+      int_wready_reg <= 1'b1;
       int_bvalid_reg <= 1'b0;
-      int_rvalid_reg <= 1'b0;
-      int_rdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
     end
     else
     begin
+      int_awaddr_reg <= int_awaddr_next;
+      int_awready_reg <= int_awready_next;
+      int_wdata_reg <= int_wdata_next;
+      int_wstrb_reg <= int_wstrb_next;
+      int_wready_reg <= int_wready_next;
       int_bvalid_reg <= int_bvalid_next;
-      int_rvalid_reg <= int_rvalid_next;
+    end
+  end
+
+  assign int_awdone_wire = ~int_awready_reg | s_axi_awvalid;
+  assign int_wdone_wire = ~int_wready_reg | s_axi_wvalid;
+  assign int_bdone_wire = ~int_bvalid_reg | s_axi_bready;
+
+  assign int_awaddr_wire = int_awready_reg ? s_axi_awaddr : int_awaddr_reg;
+  assign int_wdata_wire = int_wready_reg ? s_axi_wdata : int_wdata_reg;
+  assign int_wstrb_wire = int_wready_reg ? s_axi_wstrb : int_wstrb_reg;
+
+  always @*
+  begin
+    int_awaddr_next = int_awaddr_reg;
+    int_awready_next = ~int_awdone_wire | (int_wdone_wire & int_bdone_wire);
+    int_wdata_next = int_wdata_reg;
+    int_wstrb_next = int_wstrb_reg;
+    int_wready_next = ~int_wdone_wire | (int_awdone_wire & int_bdone_wire);
+    int_bvalid_next = ~int_bdone_wire | (int_awdone_wire & int_wdone_wire);
+
+    if(int_awready_reg)
+    begin
+      int_awaddr_next = s_axi_awaddr;
+    end
+
+    if(int_wready_reg)
+    begin
+      int_wdata_next = s_axi_wdata;
+      int_wstrb_next = s_axi_wstrb;
+    end
+  end
+
+  always @(posedge aclk)
+  begin
+    if(~aresetn)
+    begin
+      int_araddr_reg <= {(AXI_ADDR_WIDTH){1'b0}};
+      int_arready_reg <= 1'b1;
+      int_rdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
+      int_rvalid_reg <= 1'b0;
+    end
+    else
+    begin
+      int_araddr_reg <= int_araddr_next;
+      int_arready_reg <= int_arready_next;
       int_rdata_reg <= int_rdata_next;
+      int_rvalid_reg <= int_rvalid_next;
     end
   end
 
-  always @*
-  begin
-    int_bvalid_next = int_bvalid_reg;
+  assign int_ardone_wire = ~int_arready_reg | s_axi_arvalid;
+  assign int_rdone_wire = ~int_rvalid_reg | s_axi_rready;
 
-    if(int_awready_wire)
-    begin
-      int_bvalid_next = 1'b1;
-    end
-
-    if(int_bvalid_reg & s_axi_bready)
-    begin
-      int_bvalid_next = 1'b0;
-    end
-  end
+  assign int_araddr_wire = int_arready_reg ? s_axi_araddr : int_araddr_reg;
 
   always @*
   begin
-    int_rvalid_next = int_rvalid_reg;
+    int_araddr_next = int_araddr_reg;
+    int_arready_next = ~int_ardone_wire | int_rdone_wire;
     int_rdata_next = int_rdata_reg;
+    int_rvalid_next = ~int_rdone_wire | int_ardone_wire;
 
-    if(int_arready_wire)
+    if(int_arready_reg)
     begin
-      int_rvalid_next = 1'b1;
-      int_rdata_next = int_data_mux[s_axi_araddr[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB]];
+      int_araddr_next = s_axi_araddr;
     end
 
-    if(int_rvalid_reg & s_axi_rready)
+    if(int_ardone_wire & int_rdone_wire)
     begin
-      int_rvalid_next = 1'b0;
+      int_rdata_next = int_data_mux[int_araddr_wire[ADDR_LSB+CFG_WIDTH-1:ADDR_LSB]];
     end
   end
 
   assign cfg_data = int_data_wire;
 
-  assign s_axi_awready = int_awready_wire;
-  assign s_axi_wready = int_awready_wire;
+  assign s_axi_awready = int_awready_reg;
+  assign s_axi_wready = int_wready_reg;
   assign s_axi_bresp = 2'd0;
   assign s_axi_bvalid = int_bvalid_reg;
-  assign s_axi_arready = int_arready_wire;
+  assign s_axi_arready = int_arready_reg;
   assign s_axi_rdata = int_rdata_reg;
   assign s_axi_rresp = 2'd0;
   assign s_axi_rvalid = int_rvalid_reg;
