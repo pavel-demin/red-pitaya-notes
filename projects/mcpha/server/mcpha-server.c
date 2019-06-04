@@ -27,7 +27,7 @@ int active_thread = 0;
 
 void *pulser_handler(void *arg);
 
-inline int lower_bound(int64_t *array, int size, int value)
+static inline int lower_bound(int64_t *array, int size, int value)
 {
   int i = 0, j = size, k;
   while(i < j)
