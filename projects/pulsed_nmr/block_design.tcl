@@ -114,8 +114,9 @@ module rx_0 {
 } {
   slice_0/din rst_slice_0/dout
   slice_1/din rst_slice_0/dout
-  slice_2/din cfg_slice_0/dout
+  slice_2/din rst_slice_0/dout
   slice_3/din cfg_slice_0/dout
+  slice_4/din cfg_slice_0/dout
 }
 
 # TX
@@ -142,8 +143,20 @@ module tx_0 {
   slice_1/din rst_slice_0/dout
   slice_2/din cfg_slice_1/dout
   slice_3/din cfg_slice_1/dout
-  or_0/Res concat_0/In0
-  zeroer_0/M_AXIS dac_0/S_AXIS
+  delay_0/Q concat_0/In0
+}
+
+# Create axis_combiner
+cell  xilinx.com:ip:axis_combiner comb_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 2
+  NUM_SI 2
+} {
+  S00_AXIS tx_0/zeroer_0/M_AXIS
+  S01_AXIS rx_0/zeroer_0/M_AXIS
+  M_AXIS dac_0/S_AXIS
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
 }
 
 # STS

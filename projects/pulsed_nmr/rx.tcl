@@ -10,11 +10,16 @@ cell pavel-demin:user:port_slicer slice_1 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0
+  DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_3 {
+  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0
+}
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32
 }
 
@@ -22,7 +27,7 @@ cell pavel-demin:user:port_slicer slice_3 {
 cell pavel-demin:user:axis_constant phase_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  cfg_data slice_2/dout
+  cfg_data slice_3/dout
   aclk /pll_0/clk_out1
 }
 
@@ -42,6 +47,37 @@ cell xilinx.com:ip:dds_compiler dds_0 {
   S_AXIS_PHASE phase_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn slice_1/dout
+}
+
+# Create axis_subset_converter
+cell xilinx.com:ip:axis_subset_converter subset_0 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  M_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 3
+  M_TDATA_NUM_BYTES 2
+  TDATA_REMAP {2'b00,tdata[23:10]}
+} {
+  s_axis_tdata dds_0/m_axis_data_tdata
+  s_axis_tvalid dds_0/m_axis_data_tvalid
+  aclk /pll_0/clk_out1
+  aresetn /rst_0/peripheral_aresetn
+}
+
+# Create axis_validator
+cell pavel-demin:user:axis_validator vldtr_0 {
+  AXIS_TDATA_WIDTH 16
+} {
+  S_AXIS subset_0/M_AXIS
+  trg_flag slice_2/dout
+  aclk /pll_0/clk_out1
+}
+
+# Create axis_zeroer
+cell pavel-demin:user:axis_zeroer zeroer_0 {
+  AXIS_TDATA_WIDTH 16
+} {
+  S_AXIS vldtr_0/M_AXIS
+  aclk /pll_0/clk_out1
 }
 
 # Create axis_lfsr
@@ -82,7 +118,7 @@ for {set i 0} {$i <= 1} {incr i} {
   cell pavel-demin:user:axis_variable rate_$i {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_3/dout
+    cfg_data slice_4/dout
     aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
@@ -160,7 +196,7 @@ cell xilinx.com:ip:fir_compiler fir_0 {
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter subset_0 {
+cell xilinx.com:ip:axis_subset_converter subset_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 5
@@ -178,7 +214,7 @@ cell xilinx.com:ip:axis_dwidth_converter conv_1 {
   S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 8
 } {
-  S_AXIS subset_0/M_AXIS
+  S_AXIS subset_1/M_AXIS
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
