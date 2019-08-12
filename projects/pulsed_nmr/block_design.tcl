@@ -142,7 +142,7 @@ module tx_0 {
   slice_1/din rst_slice_0/dout
   slice_2/din cfg_slice_1/dout
   slice_3/din cfg_slice_1/dout
-  or_0/Res concat_0/In0
+  delay_0/Q concat_0/In0
   zeroer_0/M_AXIS dac_0/S_AXIS
 }
 

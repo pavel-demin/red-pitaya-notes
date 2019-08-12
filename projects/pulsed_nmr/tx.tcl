@@ -60,32 +60,20 @@ cell pavel-demin:user:axis_gate_controller gate_0 {} {
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_0 {
-  NUM_PORTS 3
+  NUM_PORTS 2
   IN0_WIDTH 32
   IN1_WIDTH 32
-  IN2_WIDTH 1
 } {
   In0 slice_2/dout
   In1 gate_0/poff
-  In2 gate_0/sync
 }
 
-cell xilinx.com:ip:c_shift_ram delay_0 {
-  WIDTH.VALUE_SRC USER
-  WIDTH 1
-  DEPTH 11
+# Create axis_constant
+cell pavel-demin:user:axis_constant phase_0 {
+  AXIS_TDATA_WIDTH 64
 } {
-  D gate_0/dout
-  CLK /pll_0/clk_out1
-}
-
-# Create util_vector_logic
-cell xilinx.com:ip:util_vector_logic or_0 {
-  C_SIZE 1
-  C_OPERATION or
-} {
-  Op1 gate_0/dout
-  Op2 delay_0/Q
+  cfg_data concat_0/dout
+  aclk /pll_0/clk_out1
 }
 
 # Create dds_compiler
@@ -101,10 +89,8 @@ cell xilinx.com:ip:dds_compiler dds_0 {
   OUTPUT_WIDTH 24
   DSP48_USE Minimal
   OUTPUT_SELECTION Sine
-  RESYNC true
 } {
-  s_axis_phase_tdata concat_0/dout
-  s_axis_phase_tvalid or_0/Res
+  S_AXIS_PHASE phase_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn slice_1/dout
 }
@@ -132,7 +118,7 @@ cell xilinx.com:ip:xbip_dsp48_macro mult_0 {
 }
 
 # Create c_shift_ram
-cell xilinx.com:ip:c_shift_ram delay_1 {
+cell xilinx.com:ip:c_shift_ram delay_0 {
   WIDTH.VALUE_SRC USER
   WIDTH 1
   DEPTH 15
@@ -146,6 +132,6 @@ cell pavel-demin:user:axis_zeroer zeroer_0 {
   AXIS_TDATA_WIDTH 32
 } {
   s_axis_tdata mult_0/P
-  s_axis_tvalid delay_1/Q
+  s_axis_tvalid delay_0/Q
   aclk /pll_0/clk_out1
 }
