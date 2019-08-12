@@ -129,7 +129,7 @@ cell xilinx.com:ip:c_shift_ram delay_0 {
 
 # Create axis_zeroer
 cell pavel-demin:user:axis_zeroer zeroer_0 {
-  AXIS_TDATA_WIDTH 32
+  AXIS_TDATA_WIDTH 16
 } {
   s_axis_tdata mult_0/P
   s_axis_tvalid delay_0/Q
