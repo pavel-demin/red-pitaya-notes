@@ -142,28 +142,28 @@ cell pavel-demin:user:port_slicer slice_10 {
 
 # Pulse generators
 
-# Create axis_packetizer
+# Create trigger pulse generator
 cell pavel-demin:user:pulse_generator gen_0 {} {
   cfg slice_7/dout
   aclk pll_0/clk_out1
   aresetn slice_1/dout
 }
 
-# Create axis_packetizer
+# Create S&H pulse generator
 cell pavel-demin:user:pulse_generator gen_1 {} {
   cfg slice_8/dout
   aclk pll_0/clk_out1
   aresetn slice_1/dout
 }
 
-# Create axis_packetizer
+# Create DAC pulse generator
 cell pavel-demin:user:pulse_generator gen_2 {} {
   cfg slice_9/dout
   aclk pll_0/clk_out1
   aresetn slice_1/dout
 }
 
-# Create axis_packetizer
+# Create ADC pulse generator
 cell pavel-demin:user:pulse_generator gen_3 {} {
   cfg slice_10/dout
   aclk pll_0/clk_out1
