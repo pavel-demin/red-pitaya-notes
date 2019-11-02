@@ -367,7 +367,7 @@
        <item row="12" column="1">
         <widget class="QSpinBox" name="pulsesValue">
          <property name="minimum">
-          <number>1</number>
+          <number>2</number>
          </property>
          <property name="maximum">
           <number>256</number>
