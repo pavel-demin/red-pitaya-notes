@@ -1,7 +1,10 @@
 
 `timescale 1 ns / 1 ps
 
-module pulse_generator
+module pulse_generator #
+(
+  parameter         CONTINUOUS = "FALSE"
+)
 (
   input  wire        aclk,
   input  wire        aresetn,
@@ -31,7 +34,6 @@ module pulse_generator
   always @*
   begin
     int_dout_next = int_dout_reg;
-    int_cntr_next = int_cntr_reg;
 
     if(int_cntr_reg == cfg[31:0])
     begin
@@ -42,16 +44,38 @@ module pulse_generator
     begin
       int_dout_next = 1'b0;
     end
+  end
 
-    if(int_cntr_reg < cfg[95:64])
-    begin
-      int_cntr_next = int_cntr_reg + 1'b1;
+  generate
+    if(CONTINUOUS == "TRUE")
+    begin : CONTINUOUS
+      always @*
+      begin
+        int_cntr_next = int_cntr_reg;
+
+        if(int_cntr_reg < cfg[95:64])
+        begin
+          int_cntr_next = int_cntr_reg + 1'b1;
+        end
+        else
+        begin
+          int_cntr_next = 32'd0;
+        end
+      end
     end
     else
-    begin
-      int_cntr_next = 32'd0;
+    begin : STOP
+      always @*
+      begin
+        int_cntr_next = int_cntr_reg;
+
+        if(int_cntr_reg < cfg[95:64])
+        begin
+          int_cntr_next = int_cntr_reg + 1'b1;
+        end
+      end
     end
-  end
+  endgenerate
 
   assign dout = int_dout_reg;
 

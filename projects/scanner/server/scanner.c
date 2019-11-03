@@ -14,13 +14,18 @@ int main()
 {
   int fd, sock_server, sock_client;
   struct sockaddr_in addr;
-  int i, j, counter, yes = 1;
+  int i, j, counter, position, size, yes = 1;
   uint32_t command, code, data, period, pulses, shdelay, shtime;
+  uint32_t *coordinates;
   uint64_t buffer[1024], tmp;
   volatile void *cfg, *sts;
   volatile uint8_t *rst;
+  volatile uint16_t *rd_cntr, *wr_cntr;
   volatile uint32_t *dac;
   volatile uint64_t *adc;
+
+  size = 0;
+  coordinates = malloc(4194304);
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
@@ -33,53 +38,57 @@ int main()
   dac = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   adc = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
-  rst = cfg;
+  wr_cntr = (uint16_t *)(sts + 0);
+  rd_cntr = (uint16_t *)(sts + 2);
+
+  rst = (uint8_t *)(cfg + 0);
 
   /* stop pulse generators */
   *rst &= ~1;
 
+  /* configure trigger edge (0 for negative, 1 for positive) */
+  *(uint8_t *)(cfg + 1) = 1;
+
+  /* set trigger mask */
+  *(uint8_t *)(cfg + 2) = 1;
+
+  /* set trigger level */
+  *(uint8_t *)(cfg + 3) = 1;
+
   /* set number of ADC samples per pulse */
-  *(uint8_t *)(cfg + 2) = 25;
+  *(uint8_t *)(cfg + 4) = 32 - 1;
 
   /* set number of pulses per pixel */
-  pulses = 1;
-  *(uint8_t *)(cfg + 3) = pulses - 1;
+  pulses = 2;
+  *(uint8_t *)(cfg + 5) = pulses - 1;
 
-  period = 29000;
+  period = 25000;
 
   /* trigger pulse generator */
   /* number of clocks before 1 */
-  *(uint32_t *)(cfg + 4) = 0;
+  *(uint32_t *)(cfg + 8) = 0;
   /* number of clocks before 0 */
-  *(uint32_t *)(cfg + 8) = 200;
-  /* total number of clocks (200e-6 * 143e6) */
-  *(uint32_t *)(cfg + 12) = period - 1;
+  *(uint32_t *)(cfg + 12) = 200;
+  /* total number of clocks (200e-6 * 125e6) */
+  *(uint32_t *)(cfg + 16) = period - 1;
 
   /* S&H pulse generator */
   /* number of clocks before 1 */
   shdelay = 400;
-  *(uint32_t *)(cfg + 16) = shdelay;
+  *(uint32_t *)(cfg + 20) = shdelay;
   /* number of clocks before 0 */
   shtime = 30;
-  *(uint32_t *)(cfg + 20) = shdelay + shtime;
+  *(uint32_t *)(cfg + 24) = shdelay + shtime;
   /* total number of clocks (200e-6 * 143e6) */
-  *(uint32_t *)(cfg + 24) = period - 1;
-
-  /* DAC pulse generator */
-  /* number of clocks before 1 */
-  *(uint32_t *)(cfg + 28) = 0;
-  /* number of clocks before 0 (+1) */
-  *(uint32_t *)(cfg + 32) = 1;
-  /* total number of clocks (200e-6 * 143e6) */
-  *(uint32_t *)(cfg + 36) = pulses * period - 1;
+  *(uint32_t *)(cfg + 28) = period - 1;
 
   /* ADC pulse generator */
   /* number of clocks before 1 */
-  *(uint32_t *)(cfg + 40) = 2000;
+  *(uint32_t *)(cfg + 32) = 2000;
   /* number of clocks before 0 (+1) */
-  *(uint32_t *)(cfg + 44) = 2001;
+  *(uint32_t *)(cfg + 36) = 2001;
   /* total number of clocks */
-  *(uint32_t *)(cfg + 48) = period - 1;
+  *(uint32_t *)(cfg + 40) = 2001;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -121,14 +130,12 @@ int main()
         case 0:
           /* set trigger period */
           period = data;
-          *(uint32_t *)(cfg + 12) = period - 1;
-          *(uint32_t *)(cfg + 24) = period - 1;
-          *(uint32_t *)(cfg + 36) = pulses * period - 1;
-          *(uint32_t *)(cfg + 48) = period - 1;
+          *(uint32_t *)(cfg + 16) = period - 1;
+          *(uint32_t *)(cfg + 28) = period - 1;
           break;
         case 1:
           /* set trigger duration */
-          *(uint32_t *)(cfg + 8) = data;
+          *(uint32_t *)(cfg + 12) = data;
           break;
         case 2:
           /* set trigger polarity */
@@ -138,13 +145,13 @@ int main()
         case 3:
           /* set S&H delay */
           shdelay = data;
-          *(uint32_t *)(cfg + 16) = shdelay;
-          *(uint32_t *)(cfg + 20) = shdelay + shtime;
+          *(uint32_t *)(cfg + 20) = shdelay;
+          *(uint32_t *)(cfg + 24) = shdelay + shtime;
           break;
         case 4:
           /* set S&H duration */
           shtime = data;
-          *(uint32_t *)(cfg + 20) = shdelay + shtime;
+          *(uint32_t *)(cfg + 24) = shdelay + shtime;
           break;
         case 5:
           /* set S&H polarity */
@@ -153,26 +160,36 @@ int main()
           break;
         case 6:
           /* set acquisition delay */
-          *(uint32_t *)(cfg + 40) = data;
-          *(uint32_t *)(cfg + 44) = data + 1;
+          *(uint32_t *)(cfg + 32) = data;
+          *(uint32_t *)(cfg + 36) = data + 1;
+          *(uint32_t *)(cfg + 40) = data + 1;
           break;
         case 7:
           /* set number of ADC samples per pulse */
-          *(uint8_t *)(cfg + 2) = data - 1;
+          *(uint8_t *)(cfg + 4) = data - 1;
           break;
         case 8:
           /* set number of pulses per pixel */
           pulses = data;
-          *(uint8_t *)(cfg + 3) = pulses - 1;
-          *(uint32_t *)(cfg + 36) = pulses * period - 1;
+          *(uint8_t *)(cfg + 5) = pulses - 1;
           break;
         case 9:
+          /* clear coordinates */
+          size = 0;
+          break;
+        case 10:
+          /* add coordinates */
+          coordinates[size] = (data & 0xfffc000) << 2 | (data & 0x3fff);
+          ++size;
+          break;
+        case 11:
           /* start pulse generators */
           *rst |= 1;
           break;
-        case 10:
+        case 12:
           /* start scanning */
           counter = 0;
+          position = 0;
 
           /* stop pulse generators */
           *rst &= ~1;
@@ -181,67 +198,39 @@ int main()
           *rst |= 2;
           *rst &= ~2;
 
-          /* write OUT1 and OUT2 samples to DAC FIFO */
-          /* read IN1 and IN2 samples from ADC FIFO */
-          for(i = 0; i <= 8176;)
+          for(i = 0; i < size; ++i)
           {
-            if(*(uint16_t *)(sts + 2) >= 2048 && counter < 256)
+            /* read IN1 and IN2 samples from ADC FIFO */
+            if(*rd_cntr >= 2048 && counter < size)
             {
               for(j = 0; j < 1024; ++j) buffer[j] = *adc;
-              for(j = 512; j < 768; ++j)
-              {
-                tmp = buffer[j];
-                buffer[j] = buffer[1535 - j];
-                buffer[1535 - j] = tmp;
-              }
               if(send(sock_client, buffer, 8192, MSG_NOSIGNAL) < 0) break;
-              ++counter;
+              counter += 1024;
             }
 
-            /* wait if there is not enough free space in DAC FIFO */
-            if(*(uint16_t *)(sts + 0) > 15000)
+            /* write OUT1 and OUT2 samples to DAC FIFO */
+            while(*wr_cntr < 16384 - pulses && position < size)
             {
-              if(*(uint16_t *)(sts + 2) < 2048) usleep(500);
-              continue;
+              for(j = 0; j < pulses; ++j) *dac = coordinates[position];
+              ++position;
             }
 
-            for(j = 0; j <= 8176; j += 16)
-            {
-              *dac = (i << 16) | j;
-            }
+            /* start pulse generators */
+            *rst |= 1;
 
-            i += 16;
-
-            for(j = 8176; j >= 0; j -= 16)
-            {
-              *dac = (i << 16) | j;
-            }
-
-            i += 16;
-
-            if(i == 32)
-            {
-              /* start pulse generators */
-              *rst |= 1;
-            }
+            if(*rd_cntr < 2048) usleep(500);
           }
 
           /* read remaining IN1 and IN2 samples from ADC FIFO */
-          while(counter < 256)
+          while(counter < size)
           {
             if(*(uint16_t *)(sts + 2) >= 2048)
             {
               for(j = 0; j < 1024; ++j) buffer[j] = *adc;
-              for(j = 512; j < 768; ++j)
-              {
-                tmp = buffer[j];
-                buffer[j] = buffer[1535 - j];
-                buffer[1535 - j] = tmp;
-              }
               if(send(sock_client, buffer, 8192, MSG_NOSIGNAL) < 0) break;
-              ++counter;
+              counter += 1024;
             }
-            usleep(500);
+            if(*rd_cntr < 2048) usleep(500);
           }
 
           break;
