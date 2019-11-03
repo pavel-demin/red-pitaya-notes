@@ -47,7 +47,7 @@ class Scanner(QMainWindow, Ui_Scanner):
     self.idle = True
     # number of samples to show on the plot
     self.size = 512 * 512
-    self.freq = 143.0
+    self.freq = 125.0
     # buffer and offset for the incoming samples
     self.buffer = bytearray(8 * self.size)
     self.offset = 0
@@ -128,7 +128,7 @@ class Scanner(QMainWindow, Ui_Scanner):
     self.set_samples(self.samplesValue.value())
     self.set_pulses(self.pulsesValue.value())
     # start pulse generators
-    self.socket.write(struct.pack('<I', 9<<28))
+    self.socket.write(struct.pack('<I', 11<<28))
     self.connectButton.setText('Disconnect')
     self.connectButton.setEnabled(True)
     self.scanButton.setEnabled(True)
@@ -201,12 +201,21 @@ class Scanner(QMainWindow, Ui_Scanner):
     if self.idle: return
     self.socket.write(struct.pack('<I', 8<<28 | int(value)))
 
+  def set_coordinates(self):
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 9<<28))
+    for i in range(512):
+      for j in range(512):
+        value = (i << 18) | (j << 4)
+        self.socket.write(struct.pack('<I', 10<<28 | int(value)))
+
   def scan(self):
     if self.idle: return
     self.scanButton.setEnabled(False)
     self.data[:] = np.zeros(2 * 512 * 512, np.int32)
     self.update_mesh()
-    self.socket.write(struct.pack('<I', 10<<28))
+    self.set_coordinates()
+    self.socket.write(struct.pack('<I', 12<<28))
     self.meshTimer.start(1000)
 
   def update_mesh(self):
