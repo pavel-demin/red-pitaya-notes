@@ -179,6 +179,7 @@ int main()
           break;
         case 10:
           /* add coordinates */
+          if(size >= 1048576) continue;
           coordinates[size] = (data & 0xfffc000) << 2 | (data & 0x3fff);
           ++size;
           break;
