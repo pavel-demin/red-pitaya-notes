@@ -204,9 +204,12 @@ class Scanner(QMainWindow, Ui_Scanner):
   def set_coordinates(self):
     if self.idle: return
     self.socket.write(struct.pack('<I', 9<<28))
-    for i in range(512):
+    for i in range(256):
       for j in range(512):
-        value = (i << 18) | (j << 4)
+        value = (i * 2 + 0 << 18) | (j << 4)
+        self.socket.write(struct.pack('<I', 10<<28 | int(value)))
+      for j in range(512):
+        value = (i * 2 + 1 << 18) | (511 - j << 4)
         self.socket.write(struct.pack('<I', 10<<28 | int(value)))
 
   def scan(self):
@@ -219,7 +222,10 @@ class Scanner(QMainWindow, Ui_Scanner):
     self.meshTimer.start(1000)
 
   def update_mesh(self):
-    self.mesh.set_array(self.data[0::2]/(self.samplesValue.value() * self.pulsesValue.value() * 8192.0))
+    result = self.data[0::2]/(self.samplesValue.value() * self.pulsesValue.value() * 8192.0)
+    result = result.reshape(512, 512)
+    result[1::2, :] = result[1::2, ::-1]
+    self.mesh.set_array(result.reshape(512 * 512))
     self.canvas.draw()
 
 app = QApplication(sys.argv)

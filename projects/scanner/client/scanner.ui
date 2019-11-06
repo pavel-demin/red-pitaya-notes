@@ -297,6 +297,23 @@
          </property>
         </widget>
        </item>
+       <item row="12" column="0">
+        <widget class="QLabel" name="pulsesLabel">
+         <property name="text">
+          <string>Pulses per pixel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="1">
+        <widget class="QSpinBox" name="pulsesValue">
+         <property name="minimum">
+          <number>2</number>
+         </property>
+         <property name="maximum">
+          <number>256</number>
+         </property>
+        </widget>
+       </item>
        <item row="13" column="1">
         <spacer name="spacer_4">
          <property name="orientation">
@@ -361,23 +378,6 @@
         <widget class="QPushButton" name="scanButton">
          <property name="text">
           <string>Scan</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="1">
-        <widget class="QSpinBox" name="pulsesValue">
-         <property name="minimum">
-          <number>2</number>
-         </property>
-         <property name="maximum">
-          <number>256</number>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0">
-        <widget class="QLabel" name="pulsesLabel">
-         <property name="text">
-          <string>Pulses per pixel</string>
          </property>
         </widget>
        </item>
