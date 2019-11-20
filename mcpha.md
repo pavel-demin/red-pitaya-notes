@@ -67,7 +67,7 @@ Getting started with MS Windows
  - Copy the content of the SD card image zip file to an SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
- - Download and unpack the [control program](https://github.com/pavel-demin/red-pitaya-notes/releases/download/20190527/mcpha-win32-20190527.zip).
+ - Download and unpack the [control program](https://github.com/pavel-demin/red-pitaya-notes/releases/download/20191120/mcpha-win32-20191120.zip).
  - Run the control program.
  - Type in the IP address of the Red Pitaya board and press Connect button.
  - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
