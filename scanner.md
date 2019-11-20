@@ -120,5 +120,5 @@ arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex
 
 Building SD card image zip file:
 {% highlight bash %}
-source helpers/scanner-ecosystem.sh
+source helpers/build-scanner.sh
 {% endhighlight %}
