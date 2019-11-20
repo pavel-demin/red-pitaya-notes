@@ -11,7 +11,7 @@ For my experiments with the [Red Pitaya](http://redpitaya.readthedocs.io), I'd l
 
  - recent version of the [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html)
  - recent version of the [Linux kernel](https://www.kernel.org)
- - recent version of the [Debian distribution](https://www.debian.org/releases/jessie) on the development machine
+ - recent version of the [Debian distribution](https://www.debian.org/releases/stretch) on the development machine
  - recent version of the [Debian distribution](https://www.debian.org/releases/stretch) on the Red Pitaya
  - basic project with all the [Red Pitaya](http://redpitaya.readthedocs.io) peripherals connected
  - mostly command-line tools
