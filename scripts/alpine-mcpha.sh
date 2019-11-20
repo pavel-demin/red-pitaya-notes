@@ -9,8 +9,8 @@ tools_url=$alpine_url/main/armv7/$tools_tar
 firmware_tar=linux-firmware-other-20190322-r0.apk
 firmware_url=$alpine_url/main/armv7/$firmware_tar
 
-linux_dir=tmp/linux-4.14
-linux_ver=4.14.122-xilinx
+linux_dir=tmp/linux-4.19
+linux_ver=4.19.84-xilinx
 
 modules_dir=alpine-modloop/lib/modules/$linux_ver
 
