@@ -118,7 +118,7 @@ make NAME=vna bit
 
 Building `vna`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/vna/server/vna.c -o vna -lm -lpthread
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/vna/server/vna.c -o vna -lm -lpthread
 {% endhighlight %}
 
 Building SD card image zip file:

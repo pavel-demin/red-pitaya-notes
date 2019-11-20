@@ -93,7 +93,7 @@ make NAME=pulsed_nmr bit
 
 Building `pulsed-nmr`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/pulsed_nmr/server/pulsed-nmr.c -o pulsed-nmr -lm
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/pulsed_nmr/server/pulsed-nmr.c -o pulsed-nmr -lm
 {% endhighlight %}
 
 Building SD card image zip file:
