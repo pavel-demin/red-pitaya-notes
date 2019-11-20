@@ -1,4 +1,4 @@
-source /opt/Xilinx/Vivado/2018.3/settings64.sh
+source /opt/Xilinx/Vitis/2019.2/settings64.sh
 
 JOBS=`nproc 2> /dev/null || echo 1`
 

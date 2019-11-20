@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2013 Xilinx, Inc.
+ *  Copyright (C) 2011 - 2015 Xilinx
+ *  Copyright (C) 2012 National Instruments Corp.
  */
 /dts-v1/;
 #include "zynq-7000.dtsi"
@@ -12,6 +13,7 @@
 	aliases {
 		ethernet0 = &gem0;
 		serial0 = &uart0;
+		mmc0 = &sdhci0;
 	};
 
 	memory@0 {
@@ -42,6 +44,15 @@
 	ethernet_phy: ethernet-phy@1 {
 		reg = <1>;
 		device_type = "ethernet-phy";
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+	eeprom@50 {
+		compatible = "24c64";
+		reg = <0x50>;
 	};
 };
 
