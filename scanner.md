@@ -41,10 +41,7 @@ The [projects/scanner/client](https://github.com/pavel-demin/red-pitaya-notes/tr
 Getting started with MS Windows
 -----
 
- - Requirements:
-   - Computer running MS Windows.
-   - Wired Ethernet connection between the computer and the Red Pitaya board.
- - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADIN-BU_9maNliT-LVCbcoUa/scanner/ecosystem-0.95-1-6deb253-scanner.zip?dl=1).
+ - Download customized [SD card image zip file]({{ site.scanner-image }}).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
@@ -66,15 +63,12 @@ C:\Python34\pythonw.exe scanner.py
 Getting started with GNU/Linux
 -----
 
- - Requirements:
-   - Computer running Ubuntu 14.04 or Debian 8.
-   - Wired Ethernet connection between the computer and the Red Pitaya board.
- - Download customized [SD card image zip file](https://googledrive.com/host/0B-t5klOOymMNfmJ0bFQzTVNXQ3RtWm5SQ2NGTE1hRUlTd3V2emdSNzN6d0pYamNILW83Wmc/scanner/ecosystem-0.95-1-6deb253-scanner.zip).
+ - Download customized [SD card image zip file]({{ site.scanner-image }}).
  - Copy the content of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install required Python libraries:
 {% highlight bash %}
-sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5
+sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5 libfreetype6-dev
 sudo pip3 install matplotlib
 {% endhighlight %}
  - Clone the source code repository:
@@ -115,7 +109,7 @@ make NAME=scanner bit
 
 Building `scanner`:
 {% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/scanner/server/scanner.c -o scanner -lm
+arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/scanner/server/scanner.c -o scanner -lm
 {% endhighlight %}
 
 Building SD card image zip file:
