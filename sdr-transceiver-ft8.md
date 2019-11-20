@@ -76,9 +76,9 @@ The installation of the development machine is described at [this link]({{ "/dev
 
 The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
 
-Setting up the Vivado environment:
+Setting up the Vitis and Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vivado/2018.3/settings64.sh
+source /opt/Xilinx/Vitis/2019.2/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:

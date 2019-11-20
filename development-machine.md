@@ -4,14 +4,14 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/stretch) 9.9 (amd64) and [Vivado Design Suite](https://www.xilinx.com/products/design-tools/vivado.html) 2018.3 with full SDK.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/stretch) 9.11 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2019.2.
 
-Creating virtual machine with Debian 9.9 (amd64)
+Creating virtual machine with Debian 9.11 (amd64)
 -----
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](http://deb.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/mini.iso) for Debian 9.9
+- Download [mini.iso](http://deb.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/mini.iso) for Debian 9.11
 
 - Start VirtualBox
 
@@ -82,22 +82,22 @@ Accessing the virtual machine
 
 The virtual machine can be accessed via SSH. To display applications with graphical user interfaces, a X11 server ([Xming](http://sourceforge.net/projects/xming) for MS Windows or [XQuartz](https://www.xquartz.org) for Mac OS X) should be installed on the host computer. X11 forwarding should be enabled in the SSH client.
 
-Installing Vivado Design Suite
+Installing Vitis Core Development Kit
 -----
 
-- Download "Vivado HLx 2018.3: All OS installer Single-File Download" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2018-3.html) (the file name is Xilinx_Vivado_SDK_2018.3_1207_2324.tar.gz)
+- Download "Xilinx Vitis 2019.2: All OS installer Single-File Download" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2019-2.html) (the file name is Xilinx_Vitis_2019.2_1106_2127.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
 mkdir /opt/Xilinx
 cd /opt/Xilinx
-tar -zxf Xilinx_Vivado_SDK_2018.3_1207_2324.tar.gz
-cd Xilinx_Vivado_SDK_2018.3_1207_2324
+tar -zxf Xilinx_Vitis_2019.2_1106_2127.tar.gz
+cd Xilinx_Vitis_2019.2_1106_2127
 sed -i '/uname -i/s/ -i/ -m/' xsetup
 ./xsetup
 {% endhighlight %}
 
-- Follow the installation wizard and don't forget to select "Software Development Kit" on the installation customization page (for detailed information on installation, see [UG973](https://www.xilinx.com/support/documentation/sw_manuals/xilinx2018_3/ug973-vivado-release-notes-install-license.pdf))
+- Follow the installation wizard
 
 - Xilinx SDK requires `gmake` that is unavailable on Debian. The following command creates a symbolic link called `gmake` and pointing to `make`:
 {% highlight bash %}
