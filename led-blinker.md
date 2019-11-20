@@ -24,7 +24,7 @@ Pre-requirements
 
 My development machine has the following installed:
 
- - [Debian](https://www.debian.org/releases/stretch) 9.9 (amd64)
+ - [Debian](https://www.debian.org/releases/stretch) 9.11 (amd64)
 
  - [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2019.2
 
@@ -145,7 +145,7 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-9.9-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-9.11-armhf.img 1024
 {% endhighlight %}
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
@@ -154,7 +154,7 @@ To write the image to a SD card, the `dd` command-line utility can be used on GN
 
 The default password for the `root` account is `changeme`.
 
-A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADw_EUXcVdXL1TZOj0qV_9qa/red-pitaya-debian-9.9-armhf-20190509.zip?dl=1).
+A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABALhXF76tDl-8askrbhjfxa/red-pitaya-debian-9.11-armhf-20191120.zip?dl=1).
 
 Resizing SD card partitions on running Red Pitaya:
 {% highlight bash %}
