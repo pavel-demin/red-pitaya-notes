@@ -29,12 +29,12 @@ CORES = axi_axis_reader_v1_0 axi_axis_writer_v1_0 axi_bram_reader_v1_0 \
   shift_register_v1_0
 
 VIVADO = vivado -nolog -nojournal -mode batch
-HSI = hsi -nolog -nojournal -mode batch
+XSCT = xsct
 RM = rm -rf
 
-UBOOT_TAG = xilinx-v2018.3
-LINUX_TAG = 4.14
-DTREE_TAG = xilinx-v2018.3
+UBOOT_TAG = xilinx-v2019.2
+LINUX_TAG = 4.19
+DTREE_TAG = xilinx-v2019.2
 
 UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
 LINUX_DIR = tmp/linux-$(LINUX_TAG)
@@ -45,7 +45,7 @@ LINUX_TAR = tmp/linux-$(LINUX_TAG).tar.xz
 DTREE_TAR = tmp/device-tree-xlnx-$(DTREE_TAG).tar.gz
 
 UBOOT_URL = https://github.com/Xilinx/u-boot-xlnx/archive/$(UBOOT_TAG).tar.gz
-LINUX_URL = https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-$(LINUX_TAG).122.tar.xz
+LINUX_URL = https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-$(LINUX_TAG).84.tar.xz
 DTREE_URL = https://github.com/Xilinx/device-tree-xlnx/archive/$(DTREE_TAG).tar.gz
 
 LINUX_CFLAGS = "-O2 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
@@ -58,7 +58,7 @@ RTL8188_URL = https://github.com/lwfinger/rtl8188eu/archive/v4.1.8_9499.tar.gz
 RTL8192_TAR = tmp/rtl8192cu-fixes-master.tar.gz
 RTL8192_URL = https://github.com/pvaret/rtl8192cu-fixes/archive/master.tar.gz
 
-.PRECIOUS: tmp/cores/% tmp/%.xpr tmp/%.hwdef tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system-top.dts
+.PRECIOUS: tmp/cores/% tmp/%.xpr tmp/%.xsa tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system-top.dts
 
 all: boot.bin uImage devicetree.dtb
 
@@ -120,16 +120,15 @@ uImage: $(LINUX_DIR)
 	  CROSS_COMPILE=arm-linux-gnueabihf- UIMAGE_LOADADDR=0x8000 uImage modules
 	cp $</arch/arm/boot/uImage $@
 
-tmp/u-boot.elf: $(UBOOT_DIR)
+$(UBOOT_DIR)/u-boot.bin: $(UBOOT_DIR)
 	mkdir -p $(@D)
 	make -C $< mrproper
 	make -C $< ARCH=arm zynq_red_pitaya_defconfig
 	make -C $< ARCH=arm CFLAGS=$(UBOOT_CFLAGS) \
 	  CROSS_COMPILE=arm-linux-gnueabihf- all
-	cp $</u-boot $@
 
-boot.bin: tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit tmp/u-boot.elf
-	echo "img:{[bootloader] $^}" > tmp/boot.bif
+boot.bin: tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit $(UBOOT_DIR)/u-boot.bin
+	echo "img:{[bootloader] tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit [load=0x4000000,startup=0x4000000] $(UBOOT_DIR)/u-boot.bin}" > tmp/boot.bif
 	bootgen -image tmp/boot.bif -w -o i $@
 
 devicetree.dtb: uImage tmp/$(NAME).tree/system-top.dts
@@ -144,7 +143,7 @@ tmp/%.xpr: projects/% $(addprefix tmp/cores/, $(CORES))
 	mkdir -p $(@D)
 	$(VIVADO) -source scripts/project.tcl -tclargs $* $(PART)
 
-tmp/%.hwdef: tmp/%.xpr
+tmp/%.xsa: tmp/%.xpr
 	mkdir -p $(@D)
 	$(VIVADO) -source scripts/hwdef.tcl -tclargs $*
 
@@ -152,13 +151,13 @@ tmp/%.bit: tmp/%.xpr
 	mkdir -p $(@D)
 	$(VIVADO) -source scripts/bitstream.tcl -tclargs $*
 
-tmp/%.fsbl/executable.elf: tmp/%.hwdef
+tmp/%.fsbl/executable.elf: tmp/%.xsa
 	mkdir -p $(@D)
-	$(HSI) -source scripts/fsbl.tcl -tclargs $* $(PROC)
+	$(XSCT) scripts/fsbl.tcl $* $(PROC)
 
-tmp/%.tree/system-top.dts: tmp/%.hwdef $(DTREE_DIR)
+tmp/%.tree/system-top.dts: tmp/%.xsa $(DTREE_DIR)
 	mkdir -p $(@D)
-	$(HSI) -source scripts/devicetree.tcl -tclargs $* $(PROC) $(DTREE_DIR)
+	$(XSCT) scripts/devicetree.tcl $* $(PROC) $(DTREE_DIR)
 	sed -i 's|#include|/include/|' $@
 	patch -d $(@D) < patches/devicetree.patch
 

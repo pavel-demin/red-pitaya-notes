@@ -1,6 +1,6 @@
 DATE=`date +%Y%m%d`
 
-source /opt/Xilinx/Vivado/2018.3/settings64.sh
+source /opt/Xilinx/Vitis/2019.2/settings64.sh
 
 make NAME=led_blinker all
 

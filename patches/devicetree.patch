@@ -1,13 +1,15 @@
 diff -rupN pcw.dtsi.old pcw.dtsi
 --- pcw.dtsi.old
 +++ pcw.dtsi
-@@ -26,6 +26,12 @@
+@@ -26,6 +26,14 @@
  	clock-frequency = <400000>;
  	status = "okay";
  };
 +&i2c0 {
-+	eep@50 {
++	eeprom@50 {
 +		compatible = "24c64";
++ 		size = <8192>;
++ 		pagesize = <32>;
 +		reg = <0x50>;
 +	};
 +};
@@ -25,13 +27,13 @@ diff -rupN pcw.dtsi.old pcw.dtsi
 +	};
  };
  &uart0 {
- 	device_type = "serial";
-@@ -57,11 +68,33 @@
+ 	cts-override ;
+@@ -59,11 +70,33 @@
  	status = "okay";
  };
  &usb0 {
-+	dr_mode = "host";
 -	phy_type = "ulpi";
++	dr_mode = "host";
 +	usb-phy = <&usb_phy0>;
  	status = "okay";
 -	usb-reset = <&gpio0 48 0>;
