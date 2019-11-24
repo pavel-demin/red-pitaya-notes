@@ -182,7 +182,7 @@ cp -r alpine/wifi .
 
 hostname -F /etc/hostname
 
-rm -rf $root_dir alpine-apk 
+rm -rf $root_dir alpine-apk
 
 zip -r red-pitaya-alpine-3.9-armv7-`date +%Y%m%d`.zip apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz uEnv.txt uImage uInitrd wifi
 
