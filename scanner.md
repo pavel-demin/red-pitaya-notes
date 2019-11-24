@@ -42,7 +42,7 @@ Getting started with MS Windows
 -----
 
  - Download customized [SD card image zip file]({{ site.scanner-image }}).
- - Copy the content of the SD card image zip file to an SD card.
+ - Copy the contents of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
  - Download and install [PyQt 5.5](https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe/download).
@@ -64,7 +64,7 @@ Getting started with GNU/Linux
 -----
 
  - Download customized [SD card image zip file]({{ site.scanner-image }}).
- - Copy the content of the SD card image zip file to an SD card.
+ - Copy the contents of the SD card image zip file to an SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install required Python libraries:
 {% highlight bash %}

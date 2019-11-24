@@ -13,7 +13,7 @@ Getting started
 -----
 
  - Download [SD card image zip file]({{ site.release-image }}).
- - Copy the content of the SD card image zip file to an SD card.
+ - Copy the contents of the SD card image zip file to an SD card.
  - Optionally, to start one of the applications automatically at boot time, copy its `start.sh` file from `apps/<application>` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Applications can be started from the web interface.

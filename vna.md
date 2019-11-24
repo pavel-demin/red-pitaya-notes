@@ -39,7 +39,7 @@ Getting started with MS Windows (pre-built control program)
 -----
 
  - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
- - Copy the content of the SD card image zip file to an SD card.
+ - Copy the contents of the SD card image zip file to an SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and unpack the [control program](https://github.com/pavel-demin/red-pitaya-notes/releases/download/20191120/vna-win32-20191120.zip).
@@ -51,7 +51,7 @@ Getting started with MS Windows (manual Python installation)
 -----
 
  - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
- - Copy the content of the SD card image zip file to an SD card.
+ - Copy the contents of the SD card image zip file to an SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
@@ -73,7 +73,7 @@ Getting started with GNU/Linux
 -----
 
  - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
- - Copy the content of the SD card image zip file to an SD card.
+ - Copy the contents of the SD card image zip file to an SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
  - Insert the SD card in Red Pitaya and connect the power.
  - Install required Python libraries:
