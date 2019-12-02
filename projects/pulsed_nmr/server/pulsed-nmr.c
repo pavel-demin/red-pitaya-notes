@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   volatile uint64_t *rx_data;
   struct sockaddr_in addr;
   uint32_t command, value;
-  uint64_t buffer[8192];
+  uint64_t buffer[10000];
   int i, j, size, yes = 1;
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  rx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
-  tx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+  rx_data = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+  tx_data = mmap(NULL, 4*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
 
   rx_rst = ((uint8_t *)(cfg + 0));
   rx_freq = ((uint32_t *)(cfg + 4));
@@ -149,9 +149,9 @@ int main(int argc, char *argv[])
           /* transfer 10 * 5k = 50k samples */
           for(i = 0; i < 10; ++i)
           {
-            while(*rx_cntr < 10000) usleep(500);
-            for(j = 0; j < 5000; ++j) buffer[j] = *rx_data;
-            send(sock_client, buffer, 40000, MSG_NOSIGNAL);
+            while(*rx_cntr < 20000) usleep(500);
+            for(j = 0; j < 10000; ++j) buffer[j] = *rx_data;
+            send(sock_client, buffer, 80000, MSG_NOSIGNAL);
           }
           *rx_rst |= 1;
           *rx_rst &= ~2;
