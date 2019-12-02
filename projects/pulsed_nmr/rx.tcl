@@ -98,6 +98,17 @@ for {set i 0} {$i <= 1} {incr i} {
     din dds_0/m_axis_data_tdata
   }
 
+}
+
+for {set i 0} {$i <= 3} {incr i} {
+
+  # Create port_slicer
+  cell pavel-demin:user:port_slicer adc_slice_$i {
+    DIN_WIDTH 32 DIN_FROM [expr 16 * ($i / 2) + 13] DIN_TO [expr 16 * ($i / 2)]
+  } {
+    din /adc_0/m_axis_tdata
+  }
+
   # Create xbip_dsp48_macro
   cell xilinx.com:ip:xbip_dsp48_macro mult_$i {
     INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
@@ -108,8 +119,8 @@ for {set i 0} {$i <= 1} {incr i} {
     B_WIDTH 14
     P_WIDTH 25
   } {
-    A dds_slice_$i/dout
-    B /adc_0/m_axis_tdata
+    A dds_slice_[expr $i % 2]/dout
+    B adc_slice_$i/dout
     CARRYIN lfsr_0/m_axis_tdata
     CLK /pll_0/clk_out1
   }
@@ -154,9 +165,12 @@ for {set i 0} {$i <= 1} {incr i} {
 cell  xilinx.com:ip:axis_combiner comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
+  NUM_SI 4
 } {
-  S00_AXIS cic_1/M_AXIS_DATA
-  S01_AXIS cic_0/M_AXIS_DATA
+  S00_AXIS cic_3/M_AXIS_DATA
+  S01_AXIS cic_2/M_AXIS_DATA
+  S02_AXIS cic_1/M_AXIS_DATA
+  S03_AXIS cic_0/M_AXIS_DATA
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
@@ -164,7 +178,7 @@ cell  xilinx.com:ip:axis_combiner comb_0 {
 # Create axis_dwidth_converter
 cell xilinx.com:ip:axis_dwidth_converter conv_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 8
+  S_TDATA_NUM_BYTES 16
   M_TDATA_NUM_BYTES 4
 } {
   S_AXIS comb_0/M_AXIS
@@ -182,7 +196,7 @@ cell xilinx.com:ip:fir_compiler fir_0 {
   BESTPRECISION true
   FILTER_TYPE Decimation
   DECIMATION_RATE 2
-  NUMBER_CHANNELS 2
+  NUMBER_CHANNELS 4
   NUMBER_PATHS 1
   SAMPLE_FREQUENCY 5.0
   CLOCK_FREQUENCY 125
@@ -212,7 +226,7 @@ cell xilinx.com:ip:axis_subset_converter subset_1 {
 cell xilinx.com:ip:axis_dwidth_converter conv_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 8
+  M_TDATA_NUM_BYTES 16
 } {
   S_AXIS subset_1/M_AXIS
   aclk /pll_0/clk_out1
@@ -222,12 +236,12 @@ cell xilinx.com:ip:axis_dwidth_converter conv_1 {
 # Create fifo_generator
 cell xilinx.com:ip:fifo_generator fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
-  INPUT_DATA_WIDTH 64
+  INPUT_DATA_WIDTH 128
   INPUT_DEPTH 8192
   OUTPUT_DATA_WIDTH 32
-  OUTPUT_DEPTH 16384
+  OUTPUT_DEPTH 32768
   READ_DATA_COUNT true
-  READ_DATA_COUNT_WIDTH 15
+  READ_DATA_COUNT_WIDTH 16
 } {
   clk /pll_0/clk_out1
   srst slice_0/dout
@@ -235,7 +249,7 @@ cell xilinx.com:ip:fifo_generator fifo_generator_0 {
 
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo fifo_0 {
-  S_AXIS_TDATA_WIDTH 64
+  S_AXIS_TDATA_WIDTH 128
   M_AXIS_TDATA_WIDTH 32
 } {
   S_AXIS conv_1/M_AXIS
