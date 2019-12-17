@@ -75,8 +75,8 @@
   <param>
     <name>PTT</name>
     <key>ptt</key>
-    <value>False</value>
-    <type>bool</type>
+    <value>0</value>
+    <type>int</type>
   </param>
   <sink>
     <name>in</name>
