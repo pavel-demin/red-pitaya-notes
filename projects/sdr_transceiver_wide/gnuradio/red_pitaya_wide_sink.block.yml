@@ -1,0 +1,48 @@
+id: red_pitaya_wide_sink
+label: Red Pitaya Wide Sink
+category: Red Pitaya
+
+parameters:
+-   id: addr
+    label: Address
+    dtype: string
+    default: 192.168.1.100
+-   id: port
+    label: Port
+    dtype: int
+    default: '1001'
+-   id: freq
+    label: Center Frequency
+    dtype: real
+    default: '600000'
+-   id: rate
+    label: Sample Rate
+    dtype: int
+    default: '100000'
+-   id: mask
+    label: IQ Bitmask
+    dtype: int
+    default: '1'
+-   id: corr
+    label: Freq. Correction ppm
+    dtype: real
+    default: '0'
+-   id: ptt
+    label: Push to Talk
+    dtype: int
+    default: '0'
+
+inputs:
+-   domain: stream
+    dtype: complex
+
+templates:
+    imports: import red_pitaya_wide
+    make: red_pitaya_wide.sink(${addr}, ${port}, ${freq}, ${rate}, ${mask}, ${corr}, ${ptt})
+    callbacks:
+    - set_freq(${freq}, ${corr})
+    - set_rate(${rate})
+    - set_mask(${mask})
+    - set_ptt(${ptt})
+
+file_format: 1
