@@ -1096,7 +1096,7 @@ namespace eval ::mcpha {
 # -------------------------------------------------------------------------
 
   oo::define HstDisplay method register {} {
-    my save_data [join [[my varname yvec] range 0 16383] \n]
+    my save_data [join [blt::vector expr "round([my varname yvec](0:16383))"] \n]
   }
 
 # -------------------------------------------------------------------------
