@@ -86,6 +86,13 @@ cell pavel-demin:user:port_slicer slice_1 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
+  DIN_WIDTH 32 DIN_FROM 1 DIN_TO 1
+} {
+  din cfg_0/cfg_data
+}
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 32 DIN_FROM 31 DIN_TO 16
 } {
   din cfg_0/cfg_data
@@ -108,7 +115,7 @@ cell xilinx.com:ip:axis_subset_converter subset_0 {
 cell pavel-demin:user:axis_variable rate_0 {
   AXIS_TDATA_WIDTH 16
 } {
-  cfg_data slice_2/dout
+  cfg_data slice_3/dout
   aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
@@ -155,13 +162,13 @@ cell xilinx.com:ip:xlconstant const_1 {
 
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
-  ADDR_WIDTH 20
+  ADDR_WIDTH 16
 } {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
   cfg_data const_1/dout
   aclk pll_0/clk_out1
-  aresetn slice_1/dout
+  aresetn slice_2/dout
 }
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]

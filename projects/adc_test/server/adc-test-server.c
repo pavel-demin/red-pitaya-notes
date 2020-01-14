@@ -26,15 +26,30 @@ void signal_handler(int sig)
   interrupted = 1;
 }
 
+void neoncopy(void *dst, volatile void *src, int cnt)
+{
+  asm volatile
+  (
+    "loop_%=:\n"
+    "vldm %[src]!, {q0, q1, q2, q3}\n"
+    "vstm %[dst]!, {q0, q1, q2, q3}\n"
+    "subs %[cnt], %[cnt], #64\n"
+    "bgt loop_%="
+    : [dst] "+r" (dst), [src] "+r" (src), [cnt] "+r" (cnt)
+    :
+    : "q0", "q1", "q2", "q3", "cc", "memory"
+  );
+}
+
 int main ()
 {
-  pid_t pid;
-  int pipefd[2], mmapfd, sockServer, sockClient;
+  int mmapfd, sockServer, sockClient;
   int position, limit, offset;
   volatile uint32_t *slcr, *axi_hp0;
-  volatile void *cfg, *sts, *ram, *buf;
+  volatile void *cfg, *sts, *ram;
+  void *buf;
   struct sockaddr_in addr;
-  int yes = 1, buffer = 0;
+  int yes = 1;
 
   if((mmapfd = open("/dev/mem", O_RDWR)) < 0)
   {
@@ -46,8 +61,8 @@ int main ()
   axi_hp0 = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0xF8008000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40001000);
-  ram = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x1E000000);
-  buf = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+  ram = mmap(NULL, 128*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x1E000000);
+  buf = mmap(NULL, 64*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 
   /* set HP0 bus width to 64 bits */
   slcr[2] = 0xDF0D;
@@ -55,105 +70,79 @@ int main ()
   axi_hp0[0] &= ~1;
   axi_hp0[5] &= ~1;
 
-  limit = 512*1024;
-
-  /* create a pipe */
-  pipe(pipefd);
-
-  pid = fork();
-  if(pid == 0)
+  if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
-    /* child process */
-
-    close(pipefd[0]);
-
-    while(1)
-    {
-      /* read ram writer position */
-      position = *((uint32_t *)(sts + 0));
-
-      /* send 4 MB if ready, otherwise sleep 1 ms */
-      if((limit > 0 && position > limit) || (limit == 0 && position < 512*1024))
-      {
-        offset = limit > 0 ? 0 : 4096*1024;
-        limit = limit > 0 ? 0 : 512*1024;
-        memcpy(buf + offset, ram + offset, 4096*1024);
-        write(pipefd[1], &buffer, sizeof(buffer));
-      }
-      else
-      {
-        usleep(1000);
-      }
-    }
+    perror("socket");
+    return 1;
   }
-  else if(pid > 0)
+
+  setsockopt(sockServer, SOL_SOCKET, SO_REUSEADDR, (void *)&yes, sizeof(yes));
+
+  /* setup listening address */
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  addr.sin_port = htons(TCP_PORT);
+
+  if(bind(sockServer, (struct sockaddr *)&addr, sizeof(addr)) < 0)
   {
-    /* parent process */
+    perror("bind");
+    return 1;
+  }
 
-    close(pipefd[1]);
+  listen(sockServer, 1024);
 
-    if((sockServer = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+  while(!interrupted)
+  {
+    /* enter reset mode */
+    *(uint8_t *)(cfg + 0) &= ~1;
+    usleep(100);
+    *(uint8_t *)(cfg + 0) &= ~2;
+    /* set default sample rate */
+    *(uint16_t *)(cfg + 2) = 4;
+
+    if((sockClient = accept(sockServer, NULL, NULL)) < 0)
     {
-      perror("socket");
+      perror("accept");
       return 1;
     }
 
-    setsockopt(sockServer, SOL_SOCKET, SO_REUSEADDR, (void *)&yes , sizeof(yes));
+    signal(SIGINT, signal_handler);
 
-    /* setup listening address */
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    addr.sin_port = htons(TCP_PORT);
+    /* enter normal operating mode */
+    *(uint8_t *)(cfg + 0) |= 3;
 
-    if(bind(sockServer, (struct sockaddr *)&addr, sizeof(addr)) < 0)
-    {
-      perror("bind");
-      return 1;
-    }
-
-    listen(sockServer, 1024);
+    limit = 32*1024;
 
     while(!interrupted)
     {
-      /* enter reset mode */
-      *((uint16_t *)(cfg + 0)) &= ~1;
-      /* set default sample rate */
-      *((uint16_t *)(cfg + 2)) = 4;
+      /* read ram writer position */
+      position = *(uint32_t *)(sts + 0);
 
-      if((sockClient = accept(sockServer, NULL, NULL)) < 0)
+      /* send 256 kB if ready, otherwise sleep 0.1 ms */
+      if((limit > 0 && position > limit) || (limit == 0 && position < 32*1024))
       {
-        perror("accept");
-        return 1;
+        offset = limit > 0 ? 0 : 256*1024;
+        limit = limit > 0 ? 0 : 32*1024;
+        neoncopy(buf, ram + offset, 256*1024);
+        if(send(sockClient, buf, 256*1024, MSG_NOSIGNAL) < 0) break;
       }
-
-      signal(SIGINT, signal_handler);
-
-      printf("new connection\n");
-
-      /* enter normal operating mode */
-      *((uint16_t *)(cfg + 0)) |= 1;
-
-      while(!interrupted)
+      else
       {
-        read(pipefd[0], &buffer, sizeof(buffer));
-        if(send(sockClient, buf, 4096*1024, 0) < 0) break;
-
-        read(pipefd[0], &buffer, sizeof(buffer));
-        if(send(sockClient, buf + 4096*1024, 4096*1024, 0) < 0) break;
+        usleep(100);
       }
-
-      signal(SIGINT, SIG_DFL);
-      close(sockClient);
     }
 
-    /* enter reset mode */
-    *((uint16_t *)(cfg + 0)) &= ~1;
-
-    close(sockServer);
-
-    kill(pid, SIGTERM);
-
-    return 0;
+    signal(SIGINT, SIG_DFL);
+    close(sockClient);
   }
+
+  /* enter reset mode */
+  *(uint8_t *)(cfg + 0) &= ~1;
+  usleep(100);
+  *(uint8_t *)(cfg + 0) &= ~2;
+
+  close(sockServer);
+
+  return 0;
 }
