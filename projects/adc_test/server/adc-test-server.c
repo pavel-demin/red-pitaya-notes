@@ -1,13 +1,9 @@
-/*
-command to compile:
-gcc -O3 adc-test-server.c -o adc-test-server
-*/
-
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sched.h>
 #include <fcntl.h>
 #include <math.h>
 #include <sys/mman.h>
@@ -48,8 +44,18 @@ int main ()
   volatile uint32_t *slcr, *axi_hp0;
   volatile void *cfg, *sts, *ram;
   void *buf;
+  cpu_set_t mask;
+  struct sched_param param;
   struct sockaddr_in addr;
   int yes = 1;
+
+  memset(&param, 0, sizeof(param));
+  param.sched_priority = sched_get_priority_max(SCHED_FIFO);
+  sched_setscheduler(0, SCHED_FIFO, &param);
+
+  CPU_ZERO(&mask);
+  CPU_SET(1, &mask);
+  sched_setaffinity(0, sizeof(cpu_set_t), &mask);
 
   if((mmapfd = open("/dev/mem", O_RDWR)) < 0)
   {
