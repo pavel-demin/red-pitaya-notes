@@ -7,7 +7,7 @@ gcc adc-test-client.c -o adc-test-client -lws2_32
 #include <ws2tcpip.h>
 #include <windows.h>
 
-#define TCP_ADDR "192.168.137.111"
+#define TCP_ADDR "192.168.1.100"
 #define TCP_PORT 1001
 
 int main(int argc, char**argv)
