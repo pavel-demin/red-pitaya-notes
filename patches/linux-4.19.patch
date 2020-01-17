@@ -1,3 +1,138 @@
+diff -rupN old/linux-4.19/arch/arm/mach-zynq/common.c linux-4.19/arch/arm/mach-zynq/common.c
+--- old/linux-4.19/arch/arm/mach-zynq/common.c
++++ linux-4.19/arch/arm/mach-zynq/common.c
+@@ -102,6 +102,7 @@ static void __init zynq_init_late(void)
+ {
+ 	zynq_core_pm_init();
+ 	zynq_pm_late_init();
++	zynq_prefetch_init();
+ }
+ 
+ /**
+@@ -193,8 +194,13 @@ static const char * const zynq_dt_match[
+ 
+ DT_MACHINE_START(XILINX_EP107, "Xilinx Zynq Platform")
+ 	/* 64KB way size, 8-way associativity, parity disabled */
+-	.l2c_aux_val    = 0x00400000,
++#ifdef CONFIG_XILINX_PREFETCH
++	.l2c_aux_val	= 0x30400000,
++	.l2c_aux_mask	= 0xcfbfffff,
++#else
++	.l2c_aux_val	= 0x00400000,
+ 	.l2c_aux_mask	= 0xffbfffff,
++#endif
+ 	.smp		= smp_ops(zynq_smp_ops),
+ 	.map_io		= zynq_map_io,
+ 	.init_irq	= zynq_irq_init,
+diff -rupN old/linux-4.19/arch/arm/mach-zynq/common.h linux-4.19/arch/arm/mach-zynq/common.h
+--- old/linux-4.19/arch/arm/mach-zynq/common.h
++++ linux-4.19/arch/arm/mach-zynq/common.h
+@@ -23,6 +23,7 @@ extern void zynq_slcr_cpu_stop(int cpu);
+ extern void zynq_slcr_cpu_start(int cpu);
+ extern bool zynq_slcr_cpu_state_read(int cpu);
+ extern void zynq_slcr_cpu_state_write(int cpu, bool die);
++extern u32 zynq_slcr_get_ocm_config(void);
+ extern u32 zynq_slcr_get_device_id(void);
+ 
+ #ifdef CONFIG_SMP
+@@ -37,6 +38,22 @@ extern void __iomem *zynq_scu_base;
+ 
+ void zynq_pm_late_init(void);
+ 
++static inline void zynq_prefetch_init(void)
++{
++	/*
++	 * Enable prefetching in aux control register. L2 prefetch must
++	 * only be enabled if the slave supports it (PL310 does)
++	 */
++	asm volatile ("mrc   p15, 0, r1, c1, c0, 1\n"
++#ifdef CONFIG_XILINX_PREFETCH
++		      "orr   r1, r1, #6\n"
++#else
++		      "bic   r1, r1, #6\n"
++#endif
++		      "mcr   p15, 0, r1, c1, c0, 1\n"
++		      : : : "r1");
++}
++
+ static inline void zynq_core_pm_init(void)
+ {
+ 	/* A9 clock gating */
+diff -rupN old/linux-4.19/arch/arm/mach-zynq/Kconfig linux-4.19/arch/arm/mach-zynq/Kconfig
+--- old/linux-4.19/arch/arm/mach-zynq/Kconfig
++++ linux-4.19/arch/arm/mach-zynq/Kconfig
+@@ -17,3 +17,19 @@ config ARCH_ZYNQ
+ 	select SOC_BUS
+ 	help
+ 	  Support for Xilinx Zynq ARM Cortex A9 Platform
++
++if ARCH_ZYNQ
++
++menu "Xilinx Specific Options"
++
++config XILINX_PREFETCH
++	bool "Cache Prefetch"
++	default y
++	help
++	  This option turns on L1 & L2 cache prefetching to get the best performance
++	  in many cases. This may not always be the best performance depending on
++	  the usage.
++
++endmenu
++
++endif
+diff -rupN old/linux-4.19/arch/arm/mach-zynq/Makefile linux-4.19/arch/arm/mach-zynq/Makefile
+--- old/linux-4.19/arch/arm/mach-zynq/Makefile
++++ linux-4.19/arch/arm/mach-zynq/Makefile
+@@ -3,5 +3,5 @@
+ #
+ 
+ # Common support
+-obj-y				:= common.o slcr.o pm.o
++obj-y				:= common.o slcr.o zynq_ocm.o pm.o
+ obj-$(CONFIG_SMP)		+= headsmp.o platsmp.o
+diff -rupN old/linux-4.19/arch/arm/mach-zynq/platsmp.c linux-4.19/arch/arm/mach-zynq/platsmp.c
+--- old/linux-4.19/arch/arm/mach-zynq/platsmp.c
++++ linux-4.19/arch/arm/mach-zynq/platsmp.c
+@@ -121,6 +121,7 @@ static void __init zynq_smp_prepare_cpus
+ static void zynq_secondary_init(unsigned int cpu)
+ {
+ 	zynq_core_pm_init();
++	zynq_prefetch_init();
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+diff -rupN old/linux-4.19/arch/arm/mach-zynq/slcr.c linux-4.19/arch/arm/mach-zynq/slcr.c
+--- old/linux-4.19/arch/arm/mach-zynq/slcr.c
++++ linux-4.19/arch/arm/mach-zynq/slcr.c
+@@ -29,6 +29,7 @@
+ #define SLCR_REBOOT_STATUS_OFFSET	0x258 /* PS Reboot Status */
+ #define SLCR_PSS_IDCODE			0x530 /* PS IDCODE */
+ #define SLCR_L2C_RAM			0xA1C /* L2C_RAM in AR#54190 */
++#define SLCR_OCM_CFG_OFFSET		0x910 /* OCM Address Mapping */
+ 
+ #define SLCR_UNLOCK_MAGIC		0xDF0D
+ #define SLCR_A9_CPU_CLKSTOP		0x10
+@@ -125,6 +126,19 @@ static struct notifier_block zynq_slcr_r
+ };
+ 
+ /**
++ * zynq_slcr_get_ocm_config - Get SLCR OCM config
++ *
++ * return:	OCM config bits
++ */
++u32 zynq_slcr_get_ocm_config(void)
++{
++	u32 ret;
++
++	zynq_slcr_read(&ret, SLCR_OCM_CFG_OFFSET);
++	return ret;
++}
++
++/**
+  * zynq_slcr_cpu_start - Start cpu
+  * @cpu:	cpu number
+  */
 diff -rupN old/linux-4.19/drivers/char/Kconfig linux-4.19/drivers/char/Kconfig
 --- old/linux-4.19/drivers/char/Kconfig
 +++ linux-4.19/drivers/char/Kconfig
