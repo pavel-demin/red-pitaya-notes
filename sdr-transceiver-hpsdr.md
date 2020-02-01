@@ -73,7 +73,7 @@ The I2S interface should be connected to the [extension connector E1](http://red
 ALEX connections
 -----
 The [ALEX module](http://openhpsdr.org/alex.php) can be connected to the pins DIO4_N (Serial Data), DIO5_N (Clock), DIO6_N (RX Strobe) and DIO7_N (TX Strobe) of the [extension connector E1](http://redpitaya.readthedocs.io/en/latest/developerGuide/125-14/extent.html#extension-connector-e1).
-The board and the protocol are described in the [ALEX manual](http://www.tapr.org/pdf/ALEX_Manual_V1_0.pdf).
+The board and the protocol are described in the [ALEX manual](https://github.com/TAPR/OpenHPSDR-SVN/raw/master/Alexiares/Documentation/ALEX%20Manual%20V1.0.pdf).
 
 The HPSDR signals sent to the [TPIC6B595](http://www.ti.com/product/TPIC6B595) chips are shown on the following diagram:
 
