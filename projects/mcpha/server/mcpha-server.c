@@ -55,8 +55,9 @@ int main(int argc, char *argv[])
   uint32_t start, pre, tot;
   uint64_t command, data;
   uint8_t code, chan;
+  uint16_t fall, rise, f, r, s;
   uint32_t spectrum[4096];
-  int64_t value, total;
+  int64_t value, total, y[3];
   int keep_pulsing = 0;
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
@@ -110,9 +111,12 @@ int main(int argc, char *argv[])
   *rst[3] &= ~128;
   *rst[3] |= 128;
 
-  *(int16_t *)(cfg + 84) = 369;
-  *(int16_t *)(cfg + 86) = 65400;
-  *(int16_t *)(cfg + 88) = 65400;
+  fall = 50;
+  rise = 50;
+
+  *(uint16_t *)(cfg + 84) = 6932;
+  *(uint16_t *)(cfg + 86) = 65528;
+  *(uint16_t *)(cfg + 88) = 58655;
 
   *(int16_t *)(cfg + 90) = -8192;
   *(int16_t *)(cfg + 92) = 8191;
@@ -460,50 +464,47 @@ int main(int argc, char *argv[])
       }
       else if(code == 24)
       {
-        /* set scale factor */
-        *(uint16_t *)(cfg + 84) = data;
+        /* set fall time */
+        if(data < 0 || data > 100) continue;
+        fall = data;
       }
       else if(code == 25)
       {
-        /* set fall time */
-        *(uint16_t *)(cfg + 86) = data;
+        /* set rise time */
+        if(data < 0 || data > 100) continue;
+        rise = data;
       }
       else if(code == 26)
-      {
-        /* set rise time */
-        *(uint16_t *)(cfg + 88) = data;
-      }
-      else if(code == 27)
       {
         /* set lower limit */
         *(int16_t *)(cfg + 90) = data;
       }
-      else if(code == 28)
+      else if(code == 27)
       {
         /* set upper limit */
         *(int16_t *)(cfg + 92) = data;
       }
-      else if(code == 29)
+      else if(code == 28)
       {
         /* set rate */
         rate = data;
       }
-      else if(code == 30)
+      else if(code == 29)
       {
         /* set probability distribution */
         dist = data;
       }
-      else if(code == 31)
+      else if(code == 30)
       {
         /* reset spectrum */
         memset(spectrum, 0, 16384);
       }
-      else if(code == 32)
+      else if(code == 31)
       {
         /* set spectrum bin */
         spectrum[(data >> 32) & 0xfff] = data & 0xffffffff;
       }
-      else if(code == 33)
+      else if(code == 32)
       {
         keep_pulsing = data;
         /* stop pulser */
@@ -528,6 +529,24 @@ int main(int argc, char *argv[])
           hist[i] = value * RAND_MAX / total - 1;
         }
 
+        f = (uint16_t)floor(expf(-logf(2.0) / 125.0 / fall) * 65536.0 + 0.5);
+        r = (uint16_t)floor(expf(-logf(2.0) / 125.0 / rise * 1.0e3) * 65536.0 + 0.5);
+
+        y[0] = 4095 << 9;
+        y[1] = 0;
+        y[2] = 0;
+        while(y[2] <= y[1])
+        {
+          y[2] = y[1];
+          y[1] = y[0] + y[1] * r / 65536;
+          y[0] = y[0] * f / 65536;
+        }
+        s = (uint16_t)(4095 * 65535 / (y[2] >> 9));
+
+        *(uint16_t *)(cfg + 84) = s;
+        *(uint16_t *)(cfg + 86) = f;
+        *(uint16_t *)(cfg + 88) = r;
+
         enable_thread = 1;
         active_thread = 1;
         if(pthread_create(&thread, &attr, pulser_handler, NULL) < 0)
@@ -537,7 +556,7 @@ int main(int argc, char *argv[])
         }
         pthread_detach(thread);
       }
-      else if(code == 34)
+      else if(code == 33)
       {
         /* stop pulser */
         enable_thread = 0;
@@ -592,4 +611,6 @@ void *pulser_handler(void *arg)
   }
 
   active_thread = 0;
+
+  return NULL;
 }
