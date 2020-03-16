@@ -88,7 +88,7 @@ module axis_ram_writer #
       int_awvalid_reg <= 1'b0;
       int_wvalid_reg <= 1'b0;
       int_addr_reg <= {(ADDR_WIDTH){1'b0}};
-      int_addr_reg_total <= {(64){1'b0}};
+      int_addr_reg_total <= {(ADDR_WIDTH_COUNTER){1'b0}};
       int_wid_reg <= {(AXI_ID_WIDTH){1'b0}};
     end
     else
