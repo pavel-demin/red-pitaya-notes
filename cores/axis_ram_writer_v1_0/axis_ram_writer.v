@@ -82,7 +82,6 @@ module axis_ram_writer #
 
   always @(posedge aclk)
   begin
-    // Prevent locking of the AXI bus due to reset while bursting data
     if(~aresetn)
     begin
       int_awvalid_reg <= 1'b0;
