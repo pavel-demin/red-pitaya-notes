@@ -16,8 +16,8 @@ module axis_ram_writer #
   input  wire                        aresetn,
 
   input  wire [AXI_ADDR_WIDTH-1:0]   cfg_data,
-  output wire [ADDR_WIDTH:0]       sts_data,
-  output wire [ADDR_WIDTH_COUNTER:0] sts_total_data,
+  output wire [ADDR_WIDTH-1:0]       sts_data,
+  output wire [ADDR_WIDTH_COUNTER-1:0] sts_total_data,
 
   // Master side
   output wire [AXI_ID_WIDTH-1:0]     m_axi_awid,    // AXI master: Write address ID
