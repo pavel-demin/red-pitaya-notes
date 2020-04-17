@@ -81,16 +81,16 @@ module axis_gate_controller
       begin
         int_enbl_next = 1'b0;
       end
+    end
 
-      if(int_tready_reg)
-      begin
-        int_tready_next = 1'b0;
-      end
+    if(int_tready_reg)
+    begin
+      int_tready_next = 1'b0;
+    end
 
-      if(int_sync_reg)
-      begin
-        int_sync_next = 1'b0;
-      end
+    if(int_sync_reg)
+    begin
+      int_sync_next = 1'b0;
     end
   end
 
