@@ -58,9 +58,8 @@ int main(int argc, char *argv[])
   char *end;
   long value;
   char string[128];
-  int32_t scale, fall, rise, rate, dist, data;
+  int32_t fall, rise, rate, dist;
   uint32_t hist[4096];
-  float r, f, a, b, t;
   uint64_t command[4102];
 
   if(argc != 7)
@@ -164,33 +163,17 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  if(rise < 10 || fall == 0)
-  {
-    scale = 65535;
-  }
-  else
-  {
-    r = floor(expf(-logf(2.0) / 125.0 / rise * 1.0e3) * 65536.0 + 0.5);
-    f = floor(expf(-logf(2.0) / 125.0 / fall) * 65536.0 + 0.5);
-    a = -logf(r / 65536.0);
-    b = -logf(f / 65536.0);
-    t = logf(b / a) / (b - a);
-    scale = (int32_t)floor((b - a) / (expf(-a * t) - expf(-b * t)) * 65535.0 + 0.5);
-  }
-  command[0] = (24ULL << 56) + scale;
-  data = fall == 0 ? 0 : (int32_t)floor(expf(-logf(2.0) / 125.0 / fall) * 65536.0 + 0.5);
-  command[1] = (25ULL << 56) + data;
-  data = rise < 10 ? 0 : (int32_t)floor(expf(-logf(2.0) / 125.0 / rise * 1.0e3) * 65536.0 + 0.5);
-  command[2] = (26ULL << 56) + data;
-  command[3] = (29ULL << 56) + rate;
-  command[4] = (30ULL << 56) + dist;
+  command[1] = (24ULL << 56) + fall;
+  command[2] = (25ULL << 56) + rise;
+  command[3] = (28ULL << 56) + rate;
+  command[4] = (29ULL << 56) + dist;
 
   for(i = 0; i < 4096; ++i)
   {
-    command[5 + i] = (32ULL << 56) + ((uint64_t) i << 32) + hist[i];
+    command[5 + i] = (31ULL << 56) + ((uint64_t) i << 32) + hist[i];
   }
 
-  command[4101] = (33ULL << 56) + 1;
+  command[4101] = (32ULL << 56) + 1;
 
   #if defined(_WIN32)
   int total = sizeof(command);
