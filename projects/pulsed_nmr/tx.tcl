@@ -112,6 +112,23 @@ cell xilinx.com:ip:xbip_dsp48_macro mult_0 {
   P_WIDTH 15
 } {
   A dds_0/m_axis_data_tdata
+  B gate_0/level
+  CARRYIN lfsr_0/m_axis_tdata
+  CLK /pll_0/clk_out1
+}
+
+
+# Create xbip_dsp48_macro
+cell xilinx.com:ip:xbip_dsp48_macro mult_1 {
+  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+  A_WIDTH.VALUE_SRC USER
+  B_WIDTH.VALUE_SRC USER
+  OUTPUT_PROPERTIES User_Defined
+  A_WIDTH 24
+  B_WIDTH 16
+  P_WIDTH 15
+} {
+  A dds_0/m_axis_data_tdata
   B slice_3/dout
   CARRYIN lfsr_0/m_axis_tdata
   CLK /pll_0/clk_out1
@@ -133,5 +150,13 @@ cell pavel-demin:user:axis_zeroer zeroer_0 {
 } {
   s_axis_tdata mult_0/P
   s_axis_tvalid delay_0/Q
+  aclk /pll_0/clk_out1
+}
+
+# Create axis_constant
+cell pavel-demin:user:axis_constant output_0 {
+  AXIS_TDATA_WIDTH 16
+} {
+  cfg_data mult_1/P
   aclk /pll_0/clk_out1
 }

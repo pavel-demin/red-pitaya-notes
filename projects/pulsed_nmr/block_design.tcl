@@ -114,9 +114,8 @@ module rx_0 {
 } {
   slice_0/din rst_slice_0/dout
   slice_1/din rst_slice_0/dout
-  slice_2/din rst_slice_0/dout
+  slice_2/din cfg_slice_0/dout
   slice_3/din cfg_slice_0/dout
-  slice_4/din cfg_slice_0/dout
 }
 
 # TX
@@ -153,7 +152,7 @@ cell  xilinx.com:ip:axis_combiner comb_0 {
   NUM_SI 2
 } {
   S00_AXIS tx_0/zeroer_0/M_AXIS
-  S01_AXIS rx_0/zeroer_0/M_AXIS
+  S01_AXIS tx_0/output_0/M_AXIS
   M_AXIS dac_0/S_AXIS
   aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn

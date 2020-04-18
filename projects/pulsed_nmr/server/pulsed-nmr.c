@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
   /* set default tx phase increment */
   *tx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
   /* set default tx level */
-  *tx_level = 16382;
+  *tx_level = 0;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -126,20 +126,20 @@ int main(int argc, char *argv[])
           /* set A width */
           *tx_rst |= 1; *tx_rst &= ~1;
 
+          *tx_data = 32766;
           *tx_data = 0;
           *tx_data = 100-2;
           *tx_data = 50-1;
-          *tx_data = 0;
 
+          *tx_data = 32766;
           *tx_data = (uint32_t)floor(0.25 * (1<<30) + 0.5);;
           *tx_data = 150-2;
           *tx_data = 75-1;
-          *tx_data = 0;
 
+          *tx_data = 32766;
           *tx_data = (uint32_t)floor(0.5 * (1<<30) + 0.5);;
           *tx_data = 100-2;
           *tx_data = 50-1;
-          *tx_data = 0;
 
           break;
         case 3:
