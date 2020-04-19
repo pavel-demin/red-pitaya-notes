@@ -176,7 +176,7 @@ cell xilinx.com:ip:xbip_dsp48_macro mult_0 {
 cell xilinx.com:ip:c_shift_ram delay_0 {
   WIDTH.VALUE_SRC USER
   WIDTH 1
-  DEPTH 15
+  DEPTH 14
 } {
   D gate_0/dout
   CLK /pll_0/clk_out1
@@ -187,7 +187,7 @@ cell xilinx.com:ip:xlconcat concat_1 {
   NUM_PORTS 3
   IN0_WIDTH 16
   IN1_WIDTH 8
-  IN2_WIDTH 8
+  IN2_WIDTH 1
 } {
   In0 mult_0/P
   In1 delay_0/Q
