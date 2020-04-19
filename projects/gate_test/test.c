@@ -41,17 +41,17 @@ int main(int argc, char *argv[])
 
   *wr = 32766;
   *wr = (uint32_t)floor(0.25 * (1<<30) + 0.5);
-  *wr = 16-2;
+  *wr = 7-2;
   *wr = 5;
 
   *wr = 0;
   *wr = 0;
-  *wr = 12-2;
+  *wr = 3-2;
   *wr = 1;
 
   *wr = 32766;
   *wr = (uint32_t)floor(0.25 * (1<<30) + 0.5);
-  *wr = 16-2;
+  *wr = 7-2;
   *wr = 5;
 
   *rst |= 4;

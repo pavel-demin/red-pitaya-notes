@@ -150,6 +150,16 @@ cell xilinx.com:ip:dds_compiler dds_0 {
   aresetn slice_1/dout
 }
 
+# Create c_shift_ram
+cell xilinx.com:ip:c_shift_ram delay_0 {
+  WIDTH.VALUE_SRC USER
+  WIDTH 16
+  DEPTH 11
+} {
+  D gate_0/level
+  CLK /pll_0/clk_out1
+}
+
 # Create axis_lfsr
 cell pavel-demin:user:axis_lfsr lfsr_0 {} {
   aclk /pll_0/clk_out1
@@ -167,13 +177,13 @@ cell xilinx.com:ip:xbip_dsp48_macro mult_0 {
   P_WIDTH 16
 } {
   A dds_0/m_axis_data_tdata
-  B gate_0/level
+  B delay_0/Q
   CARRYIN lfsr_0/m_axis_tdata
   CLK /pll_0/clk_out1
 }
 
 # Create c_shift_ram
-cell xilinx.com:ip:c_shift_ram delay_0 {
+cell xilinx.com:ip:c_shift_ram delay_1 {
   WIDTH.VALUE_SRC USER
   WIDTH 1
   DEPTH 14
@@ -190,7 +200,7 @@ cell xilinx.com:ip:xlconcat concat_1 {
   IN2_WIDTH 1
 } {
   In0 mult_0/P
-  In1 delay_0/Q
+  In1 delay_1/Q
   In2 gate_0/dout
 }
 

@@ -129,17 +129,17 @@ int main(int argc, char *argv[])
           *tx_data = 32766;
           *tx_data = 0;
           *tx_data = 100-2;
-          *tx_data = 50-1;
+          *tx_data = 50;
 
           *tx_data = 32766;
           *tx_data = (uint32_t)floor(0.25 * (1<<30) + 0.5);;
           *tx_data = 150-2;
-          *tx_data = 75-1;
+          *tx_data = 75;
 
           *tx_data = 32766;
           *tx_data = (uint32_t)floor(0.5 * (1<<30) + 0.5);;
           *tx_data = 100-2;
-          *tx_data = 50-1;
+          *tx_data = 50;
 
           break;
         case 3:
