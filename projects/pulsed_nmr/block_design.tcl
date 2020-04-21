@@ -142,7 +142,7 @@ module tx_0 {
   slice_1/din rst_slice_0/dout
   slice_2/din cfg_slice_1/dout
   slice_3/din cfg_slice_1/dout
-  delay_0/Q concat_0/In0
+  delay_1/Q concat_0/In0
 }
 
 # Create axis_combiner
