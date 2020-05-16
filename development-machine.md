@@ -99,6 +99,8 @@ sed -i '/uname -i/s/ -i/ -m/' xsetup
 
 - Follow the installation wizard
 
+- Set the installation directory to `/opt/Xilinx`
+
 - Xilinx SDK requires `gmake` that is unavailable on Debian. The following command creates a symbolic link called `gmake` and pointing to `make`:
 {% highlight bash %}
 ln -s make /usr/bin/gmake
