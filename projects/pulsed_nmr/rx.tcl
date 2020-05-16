@@ -174,7 +174,7 @@ cell xilinx.com:ip:fir_compiler fir_0 {
 }
 
 # Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter subset_1 {
+cell xilinx.com:ip:axis_subset_converter subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 5
@@ -192,7 +192,7 @@ cell xilinx.com:ip:axis_dwidth_converter conv_1 {
   S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 16
 } {
-  S_AXIS subset_1/M_AXIS
+  S_AXIS subset_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
