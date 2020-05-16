@@ -4,14 +4,14 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/stretch) 9.11 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2019.2.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/stretch) 9.12 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2019.2.
 
-Creating virtual machine with Debian 9.11 (amd64)
+Creating virtual machine with Debian 9.12 (amd64)
 -----
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](http://deb.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/mini.iso) for Debian 9.11
+- Download [mini.iso](http://deb.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/mini.iso) for Debian 9.12
 
 - Start VirtualBox
 

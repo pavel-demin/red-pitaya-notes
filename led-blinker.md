@@ -24,7 +24,7 @@ Pre-requirements
 
 My development machine has the following installed:
 
- - [Debian](https://www.debian.org/releases/stretch) 9.11 (amd64)
+ - [Debian](https://www.debian.org/releases/stretch) 9.12 (amd64)
 
  - [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2019.2
 
