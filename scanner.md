@@ -42,8 +42,9 @@ Getting started with MS Windows
 -----
 
  - Download customized [SD card image zip file]({{ site.scanner-image }}).
- - Copy the contents of the SD card image zip file to an SD card.
- - Insert the SD card in Red Pitaya and connect the power.
+ - Take a freshly unpacked micro SD card factory-formatted with the FAT32 file system.
+ - Copy the contents of the SD card image zip file to the micro SD card.
+ - Install the micro SD card in the Red Pitaya board and connect the power.
  - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
  - Download and install [PyQt 5.5](https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe/download).
  - Start a command prompt using the `cmd.exe` program and run the `pip` command to install `matplotlib`:
@@ -64,8 +65,9 @@ Getting started with GNU/Linux
 -----
 
  - Download customized [SD card image zip file]({{ site.scanner-image }}).
- - Copy the contents of the SD card image zip file to an SD card.
- - Insert the SD card in Red Pitaya and connect the power.
+ - Take a freshly unpacked micro SD card factory-formatted with the FAT32 file system.
+ - Copy the contents of the SD card image zip file to the micro SD card.
+ - Install the micro SD card in the Red Pitaya board and connect the power.
  - Install required Python libraries:
 {% highlight bash %}
 sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5 libfreetype6-dev

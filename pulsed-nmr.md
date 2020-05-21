@@ -44,15 +44,13 @@ The [projects/pulsed_nmr/client](https://github.com/pavel-demin/red-pitaya-notes
 
 ![Pulsed NMR client]({{ "/img/pulsed-nmr-client.png" | prepend: site.baseurl }})
 
-Getting started
+Getting started with GNU/Linux
 -----
 
- - Requirements:
-   - Computer running Ubuntu 14.04 or Debian 8.
-   - Wired Ethernet connection between the computer and the Red Pitaya board.
  - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABG0Ki6nvRlxKm0q7Yb07z3a/pulsed_nmr/ecosystem-0.95-1-6deb253-pulsed-nmr.zip?dl=1).
- - Copy the contents of the SD card image zip file to an SD card.
- - Insert the SD card in Red Pitaya and connect the power.
+ - Take a freshly unpacked micro SD card factory-formatted with the FAT32 file system.
+ - Copy the contents of the SD card image zip file to the micro SD card.
+ - Install the micro SD card in the Red Pitaya board and connect the power.
  - Install required Python libraries:
 {% highlight bash %}
 sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5 libfreetype6-dev

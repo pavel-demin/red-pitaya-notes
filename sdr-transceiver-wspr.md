@@ -73,9 +73,10 @@ Getting started
 -----
 
  - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
- - Copy the contents of the SD card image zip file to an SD card.
+ - Take a freshly unpacked micro SD card factory-formatted with the FAT32 file system.
+ - Copy the contents of the SD card image zip file to the micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_wspr` to the topmost directory on the SD card.
- - Insert the SD card in Red Pitaya and connect the power.
+ - Install the micro SD card in the Red Pitaya board and connect the power.
 
 Configuring WSPR receiver
 -----

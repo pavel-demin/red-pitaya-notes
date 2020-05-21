@@ -13,9 +13,10 @@ Getting started
 -----
 
  - Download [SD card image zip file]({{ site.release-image }}).
- - Copy the contents of the SD card image zip file to an SD card.
+ - Take a freshly unpacked micro SD card factory-formatted with the FAT32 file system.
+ - Copy the contents of the SD card image zip file to the micro SD card.
  - Optionally, to start one of the applications automatically at boot time, copy its `start.sh` file from `apps/<application>` to the topmost directory on the SD card.
- - Insert the SD card in Red Pitaya and connect the power.
+ - Install the micro SD card in the Red Pitaya board and connect the power.
  - Applications can be started from the web interface.
 
 The default password for the `root` account is `changeme`.
