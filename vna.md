@@ -39,8 +39,7 @@ Getting started with MS Windows (pre-built control program)
 -----
 
  - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
- - Take a freshly unpacked micro SD card factory-formatted with the FAT32 file system.
- - Copy the contents of the SD card image zip file to the micro SD card.
+ - Copy the contents of the SD card image zip file to a micro SD card with a MBR/MSDOS partition table and a single FAT32 partition.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Download and unpack the [control program](https://github.com/pavel-demin/red-pitaya-notes/releases/download/20191120/vna-win32-20191120.zip).
@@ -52,8 +51,7 @@ Getting started with MS Windows (manual Python installation)
 -----
 
  - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
- - Take a freshly unpacked micro SD card factory-formatted with the FAT32 file system.
- - Copy the contents of the SD card image zip file to the micro SD card.
+ - Copy the contents of the SD card image zip file to a micro SD card with a MBR/MSDOS partition table and a single FAT32 partition.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
@@ -75,8 +73,7 @@ Getting started with GNU/Linux
 -----
 
  - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
- - Take a freshly unpacked micro SD card factory-formatted with the FAT32 file system.
- - Copy the contents of the SD card image zip file to the micro SD card.
+ - Copy the contents of the SD card image zip file to a micro SD card with a MBR/MSDOS partition table and a single FAT32 partition.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Install required Python libraries:

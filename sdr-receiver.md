@@ -122,8 +122,7 @@ Getting started
    - Wired or wireless Ethernet connection between the computer and the Red Pitaya board.
  - Connect an antenna to the IN2 connector on the Red Pitaya board.
  - Download customized [SD card image zip file](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACcQ6HrPC3GCAxfkL4Pjrpwa/sdr/ecosystem-0.92-65-35575ed-sdr-receiver.zip?dl=1).
- - Take a freshly unpacked micro SD card factory-formatted with the FAT32 file system.
- - Copy the contents of the SD card image zip file to the micro SD card.
+ - Copy the contents of the SD card image zip file to a micro SD card with a MBR/MSDOS partition table and a single FAT32 partition.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](http://www.hdsdr.de/).
  - Download and install [Microsoft Visual C++ 2008 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=26368).
