@@ -29,7 +29,7 @@ Creating virtual machine with Debian 9.12 (amd64)
 
   - Pick a name for the machine, then select "Linux" and "Debian (64 bit)"
 
-  - Set the memory size to at least 2048 MB
+  - Set the memory size to at least 4096 MB
 
   - Select "Create a virtual hard disk now"
 
