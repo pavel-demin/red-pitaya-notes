@@ -35,7 +35,7 @@ Here are the commands to install all the other required packages:
 sudo apt-get update
 
 sudo apt-get --no-install-recommends install \
-  build-essential git curl ca-certificates sudo \
+  build-essential bison flex git curl ca-certificates sudo \
   libxrender1 libxtst6 libxi6 lib32ncurses5 \
   bc u-boot-tools device-tree-compiler libncurses5-dev \
   libssl-dev qemu-user-static binfmt-support zip \
