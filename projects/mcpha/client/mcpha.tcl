@@ -1842,7 +1842,7 @@ namespace eval ::mcpha {
   oo::define GenDisplay method rise_update args {
     my variable controller rise
 
-    $controller command 25 0 $data
+    $controller command 25 0 $rise
   }
 
 # -------------------------------------------------------------------------
