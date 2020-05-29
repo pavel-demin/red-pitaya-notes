@@ -13,7 +13,7 @@ Getting started
 -----
 
  - Download [SD card image zip file]({{ site.release-image }}).
- - Copy the contents of the SD card image zip file to a micro SD card with a MBR/MSDOS partition table and a single FAT32 partition.
+ - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start one of the applications automatically at boot time, copy its `start.sh` file from `apps/<application>` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Applications can be started from the web interface.

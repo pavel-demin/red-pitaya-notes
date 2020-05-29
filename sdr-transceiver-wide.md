@@ -48,7 +48,7 @@ Getting started
 
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
  - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
- - Copy the contents of the SD card image zip file to a micro SD card with a MBR/MSDOS partition table and a single FAT32 partition.
+ - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_wide` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Install [GNU Radio](http://gnuradio.org):
