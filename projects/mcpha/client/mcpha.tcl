@@ -369,7 +369,7 @@ namespace eval ::mcpha {
 
     # fill one vector for the x axis with 16385 points
     [my varname xvec] seq -0.5 16383.5
-    set [my varname yvec](:) 1e-99
+    set [my varname yvec](:) 0
 
     my setup
   }
@@ -677,8 +677,7 @@ namespace eval ::mcpha {
     set index [$W axis invtransform x $x]
     set index [::tcl::mathfunc::round $index]
     catch {
-      set value [::tcl::mathfunc::round [[my varname yvec] index $index]]
-      ${config}.chan_frame.axisy_value configure -text ${value}.0
+      ${config}.chan_frame.axisy_value configure -text [[my varname yvec] index $index]
       ${config}.chan_frame.axisx_value configure -text ${index}.0
     }
   }
@@ -771,10 +770,10 @@ namespace eval ::mcpha {
     ${config}.roi_frame.max_value configure -text $xmax_val
 
     ${config}.stat_frame.tot_value configure \
-      -text [blt::vector expr "round(sum([my varname yvec]($xmin_val:$xmax_val)))"]
+      -text [blt::vector expr "sum([my varname yvec]($xmin_val:$xmax_val))"]
 
     ${config}.stat_frame.bkg_value configure \
-      -text [expr {round(($xmax_val - $xmin_val + 1) * ($ymin_val + $ymax_val)) / 2.0}]
+      -text [expr {($xmax_val - $xmin_val + 1) * ($ymin_val + $ymax_val) / 2.0}]
  }
 # -------------------------------------------------------------------------
 
@@ -902,7 +901,7 @@ namespace eval ::mcpha {
       set cntr_val $cntr_tmp
       set cntr_bak $cntr_tmp
       set cntr_old $cntr_tmp
-      set yvec_bak [blt::vector expr "round(sum([my varname yvec](0:16383)))"]
+      set yvec_bak [blt::vector expr "sum([my varname yvec](0:16383))"]
       set yvec_old $yvec_bak
 
       my base_update
@@ -995,8 +994,7 @@ namespace eval ::mcpha {
     catch {set cntr_val $cntr_new}
 
     $controller commandReadVec 14 $number $size u4 [my varname yvec]
-    [my varname yvec] expr "[my varname yvec] + 1e-99"
-    set yvec_new [blt::vector expr "round(sum([my varname yvec](0:16383)))"]
+    set yvec_new [blt::vector expr "sum([my varname yvec](0:16383))"]
 
     if {$cntr_new < $cntr_old} {
       set rate_val(inst) [expr {($yvec_new - $yvec_old)*125000000/($cntr_old - $cntr_new)}]
@@ -1089,7 +1087,6 @@ namespace eval ::mcpha {
         set [my varname yvec]($i) $value
         incr i
       }
-      [my varname yvec] expr "[my varname yvec] + 1e-99"
     }
   }
 
@@ -1104,7 +1101,7 @@ namespace eval ::mcpha {
   oo::define HstDisplay method recover {} {
     my variable config
     my open_data
-    ${config}.chan_frame.entr_value configure -text [blt::vector expr "round(sum([my varname yvec](0:16383)))"]
+    ${config}.chan_frame.entr_value configure -text [blt::vector expr "sum([my varname yvec](0:16383))"]
     my stat_update
   }
 
@@ -1652,7 +1649,7 @@ namespace eval ::mcpha {
 
     # fill one vector for the x axis with 4097 points
     [my varname xvec] seq -0.5 4095.5
-    set [my varname yvec](:) 1e-99
+    set [my varname yvec](:) 0
 
     my setup
   }
@@ -1797,8 +1794,7 @@ namespace eval ::mcpha {
     set index [$W axis invtransform x $x]
     set index [::tcl::mathfunc::round $index]
     catch {
-      set value [::tcl::mathfunc::round [[my varname yvec] index $index]]
-      ${config}.chan_frame.axisy_value configure -text ${value}.0
+      ${config}.chan_frame.axisy_value configure -text [[my varname yvec] index $index]
       ${config}.chan_frame.axisx_value configure -text ${index}.0
     }
   }
@@ -1933,7 +1929,6 @@ namespace eval ::mcpha {
         set [my varname yvec]($i) $value
         incr i
       }
-      [my varname yvec] expr "[my varname yvec] + 1e-99"
     }
   }
 
@@ -1942,7 +1937,7 @@ namespace eval ::mcpha {
   oo::define GenDisplay method recover {} {
     my variable config
     my open_data
-    ${config}.chan_frame.entr_value configure -text [blt::vector expr "round(sum([my varname yvec](0:4095)))"]
+    ${config}.chan_frame.entr_value configure -text [blt::vector expr "sum([my varname yvec](0:4095))"]
   }
 
 # -------------------------------------------------------------------------
