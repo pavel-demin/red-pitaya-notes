@@ -10,12 +10,7 @@ cell pavel-demin:user:port_slicer slice_1 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0
-}
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer slice_3 {
-  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32
+  DIN_WIDTH 32 DIN_FROM 31 DIN_TO 0
 }
 
 # Create axi_axis_writer
@@ -127,22 +122,6 @@ cell xilinx.com:ip:xbip_dsp48_macro mult_0 {
   CLK /pll_0/clk_out1
 }
 
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro mult_1 {
-  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
-  A_WIDTH.VALUE_SRC USER
-  B_WIDTH.VALUE_SRC USER
-  OUTPUT_PROPERTIES User_Defined
-  A_WIDTH 24
-  B_WIDTH 16
-  P_WIDTH 15
-} {
-  A dds_0/m_axis_data_tdata
-  B slice_3/dout
-  CARRYIN lfsr_0/m_axis_tdata
-  CLK /pll_0/clk_out1
-}
-
 # Create c_shift_ram
 cell xilinx.com:ip:c_shift_ram delay_1 {
   WIDTH.VALUE_SRC USER
@@ -159,13 +138,5 @@ cell pavel-demin:user:axis_zeroer zeroer_0 {
 } {
   s_axis_tdata mult_0/P
   s_axis_tvalid delay_1/Q
-  aclk /pll_0/clk_out1
-}
-
-# Create axis_constant
-cell pavel-demin:user:axis_constant output_0 {
-  AXIS_TDATA_WIDTH 16
-} {
-  cfg_data mult_1/P
   aclk /pll_0/clk_out1
 }
