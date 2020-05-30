@@ -88,7 +88,7 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {} {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register cfg_0 {
-  CFG_DATA_WIDTH 160
+  CFG_DATA_WIDTH 128
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -97,14 +97,14 @@ cell pavel-demin:user:axi_cfg_register cfg_0 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_0 {
-  DIN_WIDTH 160 DIN_FROM 7 DIN_TO 0
+  DIN_WIDTH 128 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_0 {
-  DIN_WIDTH 160 DIN_FROM 95 DIN_TO 32
+  DIN_WIDTH 128 DIN_FROM 95 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
@@ -116,13 +116,14 @@ module rx_0 {
   slice_1/din rst_slice_0/dout
   slice_2/din cfg_slice_0/dout
   slice_3/din cfg_slice_0/dout
+  slice_4/din cfg_slice_0/dout
 }
 
 # TX
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_1 {
-  DIN_WIDTH 160 DIN_FROM 15 DIN_TO 8
+  DIN_WIDTH 128 DIN_FROM 15 DIN_TO 8
 } {
   din cfg_0/cfg_data
   dout exp_p_tri_io
@@ -130,7 +131,7 @@ cell pavel-demin:user:port_slicer rst_slice_1 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_1 {
-  DIN_WIDTH 160 DIN_FROM 159 DIN_TO 96
+  DIN_WIDTH 128 DIN_FROM 127 DIN_TO 96
 } {
   din cfg_0/cfg_data
 }
@@ -141,7 +142,6 @@ module tx_0 {
   slice_0/din rst_slice_1/dout
   slice_1/din rst_slice_0/dout
   slice_2/din cfg_slice_1/dout
-  slice_3/din cfg_slice_1/dout
   delay_1/Q concat_0/In0
 }
 
@@ -152,7 +152,7 @@ cell  xilinx.com:ip:axis_combiner comb_0 {
   NUM_SI 2
 } {
   S00_AXIS tx_0/zeroer_0/M_AXIS
-  S01_AXIS tx_0/output_0/M_AXIS
+  S01_AXIS rx_0/output_0/M_AXIS
   M_AXIS dac_0/S_AXIS
   aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn

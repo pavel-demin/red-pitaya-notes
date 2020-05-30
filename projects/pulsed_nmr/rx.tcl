@@ -18,6 +18,11 @@ cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32
 }
 
+# Create port_slicer
+cell pavel-demin:user:port_slicer slice_4 {
+  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48
+}
+
 # Create axis_constant
 cell pavel-demin:user:axis_constant phase_0 {
   AXIS_TDATA_WIDTH 32
@@ -229,4 +234,28 @@ cell pavel-demin:user:axi_axis_reader reader_0 {
   S_AXIS fifo_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
+}
+
+# Create xbip_dsp48_macro
+cell xilinx.com:ip:xbip_dsp48_macro mult_4 {
+  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+  A_WIDTH.VALUE_SRC USER
+  B_WIDTH.VALUE_SRC USER
+  OUTPUT_PROPERTIES User_Defined
+  A_WIDTH 24
+  B_WIDTH 16
+  P_WIDTH 15
+} {
+  A dds_slice_0/dout
+  B slice_4/dout
+  CARRYIN lfsr_0/m_axis_tdata
+  CLK /pll_0/clk_out1
+}
+
+# Create axis_constant
+cell pavel-demin:user:axis_constant output_0 {
+  AXIS_TDATA_WIDTH 16
+} {
+  cfg_data mult_4/P
+  aclk /pll_0/clk_out1
 }

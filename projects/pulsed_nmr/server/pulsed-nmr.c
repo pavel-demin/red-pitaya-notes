@@ -38,11 +38,11 @@ int main(int argc, char *argv[])
   rx_rst = ((uint8_t *)(cfg + 0));
   rx_freq = ((uint32_t *)(cfg + 4));
   rx_rate = ((uint16_t *)(cfg + 8));
+  tx_level = ((int16_t *)(cfg + 10));
   rx_cntr = ((uint16_t *)(sts + 12));
 
   tx_rst = ((uint8_t *)(cfg + 1));
   tx_freq = ((uint32_t *)(cfg + 12));
-  tx_level = ((int16_t *)(cfg + 16));
   tx_cntr = ((uint16_t *)(sts + 14));
 
   *rx_rst |= 1;
