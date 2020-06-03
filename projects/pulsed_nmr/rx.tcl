@@ -55,9 +55,6 @@ cell pavel-demin:user:axis_lfsr lfsr_0 {} {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant const_0
-
 for {set i 0} {$i <= 1} {incr i} {
 
   # Create port_slicer
