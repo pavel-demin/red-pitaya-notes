@@ -20,9 +20,20 @@ int main(int argc, char *argv[])
   volatile uint8_t *rx_rst, *tx_rst;
   volatile uint64_t *rx_data;
   struct sockaddr_in addr;
-  uint32_t command, value;
-  uint64_t buffer[10000];
-  int i, j, size, yes = 1;
+  uint32_t command, code, data;
+  uint32_t *pulses;
+  uint64_t *buffer;
+  int i, n, counter, position, size, yes = 1;
+
+  size = 0;
+  pulses = malloc(16777216);
+  buffer = malloc(32768);
+
+  if(pulses == NULL || buffer == NULL)
+  {
+    perror("malloc");
+    return EXIT_FAILURE;
+  }
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
@@ -32,8 +43,8 @@ int main(int argc, char *argv[])
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  rx_data = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
-  tx_data = mmap(NULL, 4*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
+  rx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
+  tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
 
   rx_rst = ((uint8_t *)(cfg + 0));
   rx_freq = ((uint32_t *)(cfg + 4));
@@ -49,15 +60,16 @@ int main(int argc, char *argv[])
   *rx_rst &= ~2;
   *tx_rst |= 1;
 
-  /* set default rx phase increment */
+  /* set default RX phase increment */
   *rx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
-  /* set default rx sample rate */
+  /* set default RX sample rate */
   *rx_rate = 250;
 
-  /* set default tx phase increment */
-  *tx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
-  /* set default tx level */
+  /* set default TX level */
   *tx_level = 0;
+
+  /* set default TX phase increment */
+  *tx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -92,67 +104,97 @@ int main(int argc, char *argv[])
     while(1)
     {
       if(recv(sock_client, (char *)&command, 4, MSG_WAITALL) <= 0) break;
-      value = command & 0xfffffff;
-      switch(command >> 28)
+      code = command >> 28;
+      data = command & 0xfffffff;
+      switch(code)
       {
         case 0:
-          /* set rx and tx phase increment */
-          if(value < 0 || value > 60000000) continue;
-          *rx_freq = (uint32_t)floor(value / 125.0e6 * (1<<30) + 0.5);
-          *tx_freq = (uint32_t)floor(value / 125.0e6 * (1<<30) + 0.5);
+          /* set RX phase increment */
+          if(data > 62500000) continue;
+          *rx_freq = (uint32_t)floor(data / 125.0e6 * (1<<30) + 0.5);
           break;
         case 1:
-          /* set rx sample rate */
-          switch(command & 7)
-          {
-            case 0:
-              *rx_rate = 2500;
-              break;
-            case 1:
-              *rx_rate = 1250;
-              break;
-            case 2:
-              *rx_rate = 250;
-              break;
-            case 3:
-              *rx_rate = 125;
-              break;
-            case 4:
-              *rx_rate = 25;
-              break;
-          }
+          /* set TX phase increment */
+          if(data > 62500000) continue;
+          *tx_freq = (uint32_t)floor(data / 125.0e6 * (1<<30) + 0.5);
           break;
         case 2:
-          /* set A width */
-          *tx_rst |= 1; *tx_rst &= ~1;
-
-          *tx_data = 32766;
-          *tx_data = 0;
-          *tx_data = 100-2;
-          *tx_data = 50;
-
-          *tx_data = 32766;
-          *tx_data = (uint32_t)floor(0.25 * (1<<30) + 0.5);;
-          *tx_data = 150-2;
-          *tx_data = 75;
-
-          *tx_data = 32766;
-          *tx_data = (uint32_t)floor(0.5 * (1<<30) + 0.5);;
-          *tx_data = 100-2;
-          *tx_data = 50;
-
+          /* set RX sample rate */
+          if(data < 50 || data > 2500) continue;
+          *rx_rate = data;
           break;
         case 3:
-          /* fire */
+          /* set TX level */
+          if(data > 32766) continue;
+          *tx_level = data;
+          break;
+        case 4:
+          /* clear pulses */
+          size = 0;
+          break;
+        case 5:
+          /* add pulse */
+          if(size >= 1048576) continue;
+          ++size;
+          memset(pulses + (size - 1) * 16, 0, 16);
+          break;
+        case 6:
+          /* set pulse level */
+          if(data > 32766) continue;
+          pulses[(size - 1) * 4 + 0] = data;
+          break;
+        case 7:
+          /* set pulse phase */
+          if(data > 359) continue;
+          pulses[(size - 1) * 4 + 1] = (uint32_t)floor(data / 360.0 * (1<<30) + 0.5);
+          break;
+        case 8:
+          /* set pulse delay */
+          pulses[(size - 1) * 4 + 2] = data;
+          break;
+        case 9:
+          /* set pulse width */
+          pulses[(size - 1) * 4 + 3] = data;
+          break;
+        case 10:
+          /* start sequence */
+          counter = 0;
+          position = 0;
+          n = 2048;
+
+          /* stop RX and TX */
+          *rx_rst &= ~2;
+
+          /* clear RX FIFO */
           *rx_rst |= 1; *rx_rst &= ~1;
-          *rx_rst &= ~2; *rx_rst |= 2;
-          /* transfer 10 * 5k = 50k samples */
-          for(i = 0; i < 10; ++i)
+
+          /* clear TX FIFO */
+          *tx_rst |= 1; *tx_rst &= ~1;
+
+          while(counter < data)
           {
-            while(*rx_cntr < 20000) usleep(500);
-            for(j = 0; j < 10000; ++j) buffer[j] = *rx_data;
-            send(sock_client, buffer, 80000, MSG_NOSIGNAL);
+            /* read I/Q samples from RX FIFO */
+            if(counter + n > data) n = data - counter;
+            if(*rx_cntr >= n * 4)
+            {
+              for(i = 0; i < n * 2; ++i) buffer[i] = *rx_data;
+              if(send(sock_client, buffer, n * 16, MSG_NOSIGNAL) < 0) break;
+              counter += n;
+            }
+
+            /* write pulses to TX FIFO */
+            while(*tx_cntr < 16384 && position < size * 4)
+            {
+              *tx_data = pulses[position];
+              ++position;
+            }
+
+            /* start RX and TX */
+            *rx_rst |= 2;
+
+            if(*rx_cntr < n * 4) usleep(500);
           }
+
           *rx_rst |= 1;
           *rx_rst &= ~2;
           *tx_rst |= 1;
