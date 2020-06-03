@@ -36,11 +36,11 @@ from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 Ui_PulsedNMR, QMainWindow = loadUiType('pulsed_nmr.ui')
 
 class PulsedNMR(QMainWindow, Ui_PulsedNMR):
-  rates = {0:25.0e3, 1:50.0e3, 2:250.0e3, 3:500.0e3, 4:2500.0e3}
+  rates = {0:25.0e3, 1:50.0e3, 2:125.0e3, 3:250.0e3, 4:500.0e3, 5:1250.0e3}
   def __init__(self):
     super(PulsedNMR, self).__init__()
     self.setupUi(self)
-    self.rateValue.addItems(['25', '50', '250', '500', '2500'])
+    self.rateValue.addItems(['25', '50', '125', '250', '500', '1250'])
     # IP address validator
     rx = QRegExp('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
     self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
@@ -75,33 +75,41 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     # connect signals from buttons and boxes
     self.startButton.clicked.connect(self.start)
     self.freqValue.valueChanged.connect(self.set_freq)
-    self.awidthValue.valueChanged.connect(self.set_awidth)
     self.deltaValue.valueChanged.connect(self.set_delta)
     self.rateValue.currentIndexChanged.connect(self.set_rate)
     # set rate
-    self.rateValue.setCurrentIndex(2)
+    self.rateValue.setCurrentIndex(3)
     # create timer for the repetitions
+    self.startTimer = QTimer(self)
+    self.startTimer.timeout.connect(self.timeout)
     self.timer = QTimer(self)
-    self.timer.timeout.connect(self.fire)
+    self.timer.timeout.connect(self.start_sequence)
 
   def start(self):
     if self.idle:
       self.startButton.setEnabled(False)
       self.socket.connectToHost(self.addrValue.text(), 1001)
+      self.startTimer.start(5000)
     else:
-      self.idle = True
-      self.timer.stop()
-      self.socket.close()
-      self.offset = 0
-      self.startButton.setText('Start')
-      self.startButton.setEnabled(True)
+      self.stop()
+
+  def stop(self):
+    self.idle = True
+    self.timer.stop()
+    self.socket.abort()
+    self.offset = 0
+    self.startButton.setText('Start')
+    self.startButton.setEnabled(True)
+
+  def timeout(self):
+    self.display_error('timeout')
 
   def connected(self):
+    self.startTimer.stop()
     self.idle = False
     self.set_freq(self.freqValue.value())
     self.set_rate(self.rateValue.currentIndex())
-    self.set_awidth(self.awidthValue.value())
-    self.fire()
+    self.start_sequence()
     self.timer.start(self.deltaValue.value())
     self.startButton.setText('Stop')
     self.startButton.setEnabled(True)
@@ -119,16 +127,17 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
       self.canvas.draw()
 
   def display_error(self, socketError):
-    if socketError == QAbstractSocket.RemoteHostClosedError:
-      pass
+    self.startTimer.stop()
+    if socketError == 'timeout':
+      QMessageBox.information(self, 'PulsedNMR', 'Error: connection timeout.')
     else:
-      QMessageBox.information(self, 'PulsedNMR', 'Error: %s.' % self.socket.errorString())
-    self.startButton.setText('Start')
-    self.startButton.setEnabled(True)
+      QMessageBox.information(self, 'VNA', 'Error: %s.' % self.socket.errorString())
+    self.stop()
 
   def set_freq(self, value):
     if self.idle: return
     self.socket.write(struct.pack('<I', 0<<28 | int(1.0e6 * value)))
+    self.socket.write(struct.pack('<I', 1<<28 | int(1.0e6 * value)))
 
   def set_rate(self, index):
     # time axis
@@ -136,8 +145,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     time = np.linspace(0.0, (self.size - 1) * 1000.0 / rate, self.size)
     # reset toolbar
     self.toolbar.home()
-    self.toolbar._views.clear()
-    self.toolbar._positions.clear()
+    self.toolbar.update()
     # reset plot
     self.axes.clear()
     self.axes.grid()
@@ -145,29 +153,40 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     self.curve, = self.axes.plot(time, np.zeros(self.size))
     x1, x2, y1, y2 = self.axes.axis()
     # set y axis limits
-    self.axes.axis((x1, x2, -0.1, 0.4))
+    self.axes.axis((x1, x2, -0.1, 1.1))
     self.axes.set_xlabel('time, ms')
     self.canvas.draw()
-    # set repetition time
-    minimum = self.size / rate * 2000.0
-    if minimum < 100.0: minimum = 100.0
-    self.deltaValue.setMinimum(minimum)
-    self.deltaValue.setValue(minimum)
     if self.idle: return
-    self.socket.write(struct.pack('<I', 1<<28 | index))
-
-  def set_awidth(self, value):
-    if self.idle: return
-    self.socket.write(struct.pack('<I', 2<<28 | int(1.0e1 * value)))
+    self.socket.write(struct.pack('<I', 2<<28 | int(125.0e6 / rate / 2)))
 
   def set_delta(self, value):
     if self.idle: return
     self.timer.stop()
     self.timer.start(value)
 
-  def fire(self):
+  def clear_pulses(self):
     if self.idle: return
-    self.socket.write(struct.pack('<I', 3<<28))
+    self.socket.write(struct.pack('<I', 4<<28))
+
+  def add_pulse(self, level, phase, delay, width):
+    if self.idle: return
+    self.socket.write(struct.pack('<I', 5<<28))
+    self.socket.write(struct.pack('<I', 6<<28 | int(level)))
+    self.socket.write(struct.pack('<I', 7<<28 | int(phase)))
+    self.socket.write(struct.pack('<I', 8<<28 | int(delay)))
+    self.socket.write(struct.pack('<I', 9<<28 | int(width)))
+
+  def start_sequence(self):
+    if self.idle: return
+    awidth = 125 * self.awidthValue.value()
+    bwidth = 125 * self.bwidthValue.value()
+    delay = 125 * self.delayValue.value()
+    delay += (awidth - bwidth) / 2
+    size = self.size
+    self.clear_pulses()
+    self.add_pulse(32766, 0, delay, awidth)
+    self.add_pulse(32766, 0, bwidth, bwidth)
+    self.socket.write(struct.pack('<I', 10<<28 | int(size)))
 
 app = QApplication(sys.argv)
 window = PulsedNMR()

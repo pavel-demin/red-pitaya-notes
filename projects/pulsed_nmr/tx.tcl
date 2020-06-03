@@ -25,11 +25,11 @@ cell pavel-demin:user:axi_axis_writer writer_0 {
 cell xilinx.com:ip:fifo_generator fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
   INPUT_DATA_WIDTH 32
-  INPUT_DEPTH 4096
+  INPUT_DEPTH 16384
   OUTPUT_DATA_WIDTH 128
-  OUTPUT_DEPTH 1024
+  OUTPUT_DEPTH 4096
   WRITE_DATA_COUNT true
-  WRITE_DATA_COUNT_WIDTH 13
+  WRITE_DATA_COUNT_WIDTH 15
 } {
   clk /pll_0/clk_out1
   srst slice_0/dout
