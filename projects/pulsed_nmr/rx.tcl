@@ -46,7 +46,7 @@ cell xilinx.com:ip:dds_compiler dds_0 {
 } {
   S_AXIS_PHASE phase_0/M_AXIS
   aclk /pll_0/clk_out1
-  aresetn slice_1/dout
+  aresetn /rst_0/peripheral_aresetn
 }
 
 # Create axis_lfsr
@@ -54,6 +54,9 @@ cell pavel-demin:user:axis_lfsr lfsr_0 {} {
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant const_0
 
 for {set i 0} {$i <= 1} {incr i} {
 
@@ -119,7 +122,7 @@ for {set i 0} {$i <= 3} {incr i} {
     HAS_ARESETN true
   } {
     s_axis_data_tdata mult_$i/P
-    s_axis_data_tvalid slice_1/dout
+    s_axis_data_tvalid const_0/dout
     S_AXIS_CONFIG rate_$i/M_AXIS
     aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
@@ -216,6 +219,15 @@ cell xilinx.com:ip:axis_dwidth_converter conv_1 {
   aresetn /rst_0/peripheral_aresetn
 }
 
+# Create axis_validator
+cell pavel-demin:user:axis_validator vldtr_0 {
+  AXIS_TDATA_WIDTH 128
+} {
+  S_AXIS conv_1/M_AXIS
+  trg_flag slice_1/dout
+  aclk /pll_0/clk_out1
+}
+
 # Create fifo_generator
 cell xilinx.com:ip:fifo_generator fifo_generator_0 {
   PERFORMANCE_OPTIONS First_Word_Fall_Through
@@ -235,7 +247,7 @@ cell pavel-demin:user:axis_fifo fifo_0 {
   S_AXIS_TDATA_WIDTH 128
   M_AXIS_TDATA_WIDTH 32
 } {
-  S_AXIS conv_1/M_AXIS
+  S_AXIS vldtr_0/M_AXIS
   FIFO_READ fifo_generator_0/FIFO_READ
   FIFO_WRITE fifo_generator_0/FIFO_WRITE
   aclk /pll_0/clk_out1
