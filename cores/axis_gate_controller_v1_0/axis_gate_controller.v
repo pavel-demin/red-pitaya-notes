@@ -19,7 +19,7 @@ module axis_gate_controller
   reg int_tready_reg, int_tready_next;
   reg int_dout_reg, int_dout_next;
   reg int_enbl_reg, int_enbl_next;
-  reg [31:0] int_cntr_reg, int_cntr_next;
+  reg [63:0] int_cntr_reg, int_cntr_next;
   reg [127:0] int_data_reg, int_data_next;
 
   always @(posedge aclk)
@@ -29,7 +29,7 @@ module axis_gate_controller
       int_tready_reg <= 1'b0;
       int_dout_reg <= 1'b0;
       int_enbl_reg <= 1'b0;
-      int_cntr_reg <= 32'd0;
+      int_cntr_reg <= 64'd0;
       int_data_reg <= 128'd0;
     end
     else
@@ -54,7 +54,7 @@ module axis_gate_controller
     begin
       int_tready_next = 1'b1;
       int_enbl_next = 1'b1;
-      int_cntr_next = 32'd0;
+      int_cntr_next = 64'd0;
       int_data_next = s_axis_tdata;
     end
 
@@ -62,18 +62,14 @@ module axis_gate_controller
     begin
       int_cntr_next = int_cntr_reg + 1'b1;
 
-      if(int_cntr_reg == 32'd0)
+      if(int_cntr_reg == 64'd0)
       begin
-        int_dout_next = 1'b1;
+        int_dout_next = |int_data_reg[111:96];
       end
 
-      if(int_cntr_reg == int_data_reg[31:0])
+      if(int_cntr_reg == int_data_reg[63:0])
       begin
         int_dout_next = 1'b0;
-      end
-
-      if(int_cntr_reg == int_data_reg[63:32])
-      begin
         int_enbl_next = 1'b0;
       end
     end

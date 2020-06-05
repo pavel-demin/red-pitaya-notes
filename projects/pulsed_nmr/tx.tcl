@@ -46,9 +46,22 @@ cell pavel-demin:user:axis_fifo fifo_0 {
   aclk /pll_0/clk_out1
 }
 
+# Create axis_subset_converter
+cell xilinx.com:ip:axis_subset_converter subset_0 {
+  S_TDATA_NUM_BYTES.VALUE_SRC USER
+  M_TDATA_NUM_BYTES.VALUE_SRC USER
+  S_TDATA_NUM_BYTES 16
+  M_TDATA_NUM_BYTES 16
+  TDATA_REMAP {tdata[31:0],tdata[63:32],tdata[95:64],tdata[127:96]}
+} {
+  S_AXIS fifo_0/M_AXIS
+  aclk /pll_0/clk_out1
+  aresetn /rst_0/peripheral_aresetn
+}
+
 # Create axis_gate_controller
 cell pavel-demin:user:axis_gate_controller gate_0 {} {
-  S_AXIS fifo_0/M_AXIS
+  S_AXIS subset_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn slice_1/dout
 }

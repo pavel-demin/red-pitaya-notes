@@ -136,8 +136,8 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
 
   def set_freq(self, value):
     if self.idle: return
-    self.socket.write(struct.pack('<I', 0<<28 | int(1.0e6 * value)))
-    self.socket.write(struct.pack('<I', 1<<28 | int(1.0e6 * value)))
+    self.socket.write(struct.pack('<Q', 0<<60 | int(1.0e6 * value)))
+    self.socket.write(struct.pack('<Q', 1<<60 | int(1.0e6 * value)))
 
   def set_rate(self, index):
     # time axis
@@ -157,7 +157,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     self.axes.set_xlabel('time, ms')
     self.canvas.draw()
     if self.idle: return
-    self.socket.write(struct.pack('<I', 2<<28 | int(125.0e6 / rate / 2)))
+    self.socket.write(struct.pack('<Q', 2<<60 | int(125.0e6 / rate / 2)))
 
   def set_delta(self, value):
     if self.idle: return
@@ -166,27 +166,28 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
 
   def clear_pulses(self):
     if self.idle: return
-    self.socket.write(struct.pack('<I', 4<<28))
+    self.socket.write(struct.pack('<Q', 4<<60))
 
-  def add_pulse(self, level, phase, delay, width):
+  def add_delay(self, width):
     if self.idle: return
-    self.socket.write(struct.pack('<I', 5<<28))
-    self.socket.write(struct.pack('<I', 6<<28 | int(level)))
-    self.socket.write(struct.pack('<I', 7<<28 | int(phase)))
-    self.socket.write(struct.pack('<I', 8<<28 | int(delay)))
-    self.socket.write(struct.pack('<I', 9<<28 | int(width)))
+    self.socket.write(struct.pack('<Q', 5<<60 | int(width - 4)))
+
+  def add_pulse(self, level, phase, width):
+    if self.idle: return
+    self.socket.write(struct.pack('<Q', 5<<60 | int(width)))
+    self.socket.write(struct.pack('<Q', 6<<60 | int(phase << 16 | level)))
 
   def start_sequence(self):
     if self.idle: return
     awidth = 125 * self.awidthValue.value()
     bwidth = 125 * self.bwidthValue.value()
     delay = 125 * self.delayValue.value()
-    delay += (awidth - bwidth) / 2
     size = self.size
     self.clear_pulses()
-    self.add_pulse(32766, 0, delay, awidth)
-    self.add_pulse(32766, 0, bwidth, bwidth)
-    self.socket.write(struct.pack('<I', 10<<28 | int(size)))
+    self.add_pulse(32766, 0, awidth)
+    self.add_delay(delay)
+    self.add_pulse(32766, 0, bwidth)
+    self.socket.write(struct.pack('<Q', 7<<60 | int(size)))
 
 app = QApplication(sys.argv)
 window = PulsedNMR()
