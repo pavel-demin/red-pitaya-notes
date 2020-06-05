@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
   volatile uint8_t *rx_rst, *tx_rst;
   volatile uint64_t *rx_data;
   struct sockaddr_in addr;
-  uint32_t command, code, data;
+  uint64_t command, code, data, phase, level;
   uint32_t *pulses;
   uint64_t *buffer;
   int i, n, counter, position, size, yes = 1;
@@ -100,12 +100,11 @@ int main(int argc, char *argv[])
       perror("accept");
       return EXIT_FAILURE;
     }
-
     while(1)
     {
-      if(recv(sock_client, (char *)&command, 4, MSG_WAITALL) <= 0) break;
-      code = command >> 28;
-      data = command & 0xfffffff;
+      if(recv(sock_client, (char *)&command, 8, MSG_WAITALL) <= 0) break;
+      code = command >> 60;
+      data = command & 0xfffffffffffffffULL;
       switch(code)
       {
         case 0:
@@ -136,27 +135,18 @@ int main(int argc, char *argv[])
           /* add pulse */
           if(size >= 1048576) continue;
           ++size;
-          memset(pulses + (size - 1) * 16, 0, 16);
+          memset(pulses + (size - 1) * 4, 0, 16);
+          /* set pulse width */
+          memcpy(pulses + (size - 1) * 4, &data, 8);
           break;
         case 6:
-          /* set pulse level */
-          if(data > 32766) continue;
-          pulses[(size - 1) * 4 + 0] = data;
+          /* set pulse phase and level */
+          phase = data >> 16;
+          level = data & 0xffff;
+          if(phase < 360) pulses[(size - 1) * 4 + 2] = (uint32_t)floor(phase / 360.0 * (1<<30) + 0.5);
+          if(level < 32767) pulses[(size - 1) * 4 + 3] = level;
           break;
         case 7:
-          /* set pulse phase */
-          if(data > 359) continue;
-          pulses[(size - 1) * 4 + 1] = (uint32_t)floor(data / 360.0 * (1<<30) + 0.5);
-          break;
-        case 8:
-          /* set pulse delay */
-          pulses[(size - 1) * 4 + 2] = data;
-          break;
-        case 9:
-          /* set pulse width */
-          pulses[(size - 1) * 4 + 3] = data;
-          break;
-        case 10:
           /* start sequence */
           counter = 0;
           position = 0;
