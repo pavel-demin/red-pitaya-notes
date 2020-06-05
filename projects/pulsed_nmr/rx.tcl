@@ -46,7 +46,7 @@ cell xilinx.com:ip:dds_compiler dds_0 {
 } {
   S_AXIS_PHASE phase_0/M_AXIS
   aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
+  aresetn slice_1/dout
 }
 
 # Create axis_lfsr
