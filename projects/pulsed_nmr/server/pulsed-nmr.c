@@ -20,10 +20,10 @@ int main(int argc, char *argv[])
   volatile uint8_t *rx_rst, *tx_rst;
   volatile uint64_t *rx_data;
   struct sockaddr_in addr;
-  uint64_t command, code, data, phase, level;
+  uint64_t command, code, data, phase, level, counter;
   uint32_t *pulses;
   uint64_t *buffer;
-  int i, n, counter, position, size, yes = 1;
+  int i, n, position, size, yes = 1;
 
   size = 0;
   pulses = malloc(16777216);
@@ -164,7 +164,8 @@ int main(int argc, char *argv[])
           while(counter < data)
           {
             /* read I/Q samples from RX FIFO */
-            if(counter + n > data) n = data - counter;
+            if(n > data - counter) n = data - counter;
+            if(*rx_cntr < n * 4) usleep(500);
             if(*rx_cntr >= n * 4)
             {
               for(i = 0; i < n * 2; ++i) buffer[i] = *rx_data;
@@ -181,8 +182,6 @@ int main(int argc, char *argv[])
 
             /* start RX and TX */
             *rx_rst |= 2;
-
-            if(*rx_cntr < n * 4) usleep(500);
           }
 
           *rx_rst |= 1;
