@@ -105,36 +105,39 @@ namespace PulsedNMR
       SendCommand(6, (phase << 16) + level);
     }
 
-    public float[] RecieveData(long size)
+    public float[] RecieveData(int size)
     {
-      byte[] buffer = new byte[65536];
-      float[] result = new float[size * 4];
-      long offset = 0;
-      int i, n, current, previous = 0;
+      int n, offset = 0, limit = size * 16;
+      byte[] buffer;
+      float[] result;
+      try
+      {
+        buffer = new byte[65536];
+        result = new float[size * 4];
+      }
+      catch(Exception ex)
+      {
+        MessageBox.Show(ex.Message);
+        return new float[0];
+      }
       if(s == null) return result;
       SendCommand(7, size);
-      while(offset < result.LongLength)
+      while(offset < limit)
       {
         try
         {
-          n = buffer.Length;
-          if(n > (result.LongLength - offset) * 4) n = (int)(result.LongLength - offset) * 4;
-          current = s.Receive(buffer, previous, n - previous, SocketFlags.None);
+          n = limit - offset;
+          if(n > buffer.Length) n = buffer.Length;
+          n = s.Receive(buffer, 0, n, SocketFlags.None);
         }
         catch
         {
           Disconnect();
           break;
         }
-        if(current == 0) break;
-        n = current + previous;
-        for(i = 0; i < n / 4; ++i)
-        {
-          result[offset + i] = BitConverter.ToSingle(buffer, i * 4);
-        }
-        previous = n % 4;
-        if(previous > 0) Buffer.BlockCopy(buffer, n - previous, buffer, 0, previous);
-        offset += n / 4;
+        if(n == 0) break;
+        Buffer.BlockCopy(buffer, 0, result, offset, n);
+        offset += n;
       }
       return result;
     }
