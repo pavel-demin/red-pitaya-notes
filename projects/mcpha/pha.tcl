@@ -61,7 +61,7 @@ cell pavel-demin:user:port_slicer slice_8 {
   DIN_WIDTH 128 DIN_FROM 127 DIN_TO 112
 }
 
-# Create axis_validator
+# Create axis_timer
 cell pavel-demin:user:axis_timer timer_0 {
   CNTR_WIDTH 64
 } {
@@ -70,6 +70,7 @@ cell pavel-demin:user:axis_timer timer_0 {
   aclk /pll_0/clk_out1
   aresetn slice_1/dout
 }
+
 # Create axis_pulse_height_analyzer
 cell pavel-demin:user:axis_pulse_height_analyzer pha_0 {
   AXIS_TDATA_WIDTH 16
