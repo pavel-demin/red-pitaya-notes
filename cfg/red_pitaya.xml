@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE project PUBLIC "project" "project.dtd" >
 <project version="1.0" >
-  <description >
-  </description>
-  <Projinfo Part="xc7z010clg400-1" DeviceSize="xc7z010" Package="clg400" Speed="-1" />
   <set param="PCW::ENET0::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::ENET0::GRP_MDIO::ENABLE" value="1" />
   <set param="PCW::ENET0::ENET0::IO" value="MIO 16 .. 27" />
@@ -29,12 +26,8 @@
   <set param="PCW::SPI0::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::SPI1::PERIPHERAL::ENABLE" value="1" />
   <set param="PCW::SPI1::SPI1::IO" value="MIO 10 .. 15" />
-  <set param="PCW::PRESET::FPGA::PARTNUMBER" value="xc7z010clg400-1" />
-  <set param="PCW::PRESET::FPGA::SPEED" value="-1" />
   <set param="PCW::PRESET::BANK0::VOLTAGE" value="LVCMOS 3.3V" />
   <set param="PCW::PRESET::BANK1::VOLTAGE" value="LVCMOS 2.5V" />
-  <set param="PCW::PRESET::GLOBAL::CONFIG" value="Default" />
-  <set param="PCW::PRESET::GLOBAL::DEFAULT" value="powerup" />
   <set param="PCW::UIPARAM::DDR::PARTNO" value="MT41J256M16 RE-125" />
   <set param="PCW::UIPARAM::DDR::BUS_WIDTH" value="16 Bit" />
   <set param="PCW::MIO::MIO[0]::PULLUP" value="disabled" />
