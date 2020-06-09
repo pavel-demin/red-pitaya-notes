@@ -16,6 +16,8 @@ modules_dir=alpine-modloop/lib/modules/$linux_ver
 
 passwd=changeme
 
+project=$1
+
 test -f $uboot_tar || curl -L $uboot_url -o $uboot_tar
 test -f $tools_tar || curl -L $tools_url -o $tools_tar
 
@@ -82,13 +84,10 @@ cp -r alpine/etc $root_dir/
 sed -i '1,1d' $root_dir/etc/local.d/apps.start
 mkdir $root_dir/media/mmcblk0p1/apps
 
-for project in scanner
-do
-  mkdir -p $root_dir/media/mmcblk0p1/apps/$project
-  cp -r projects/$project/server/* $root_dir/media/mmcblk0p1/apps/$project/
-  cp -r projects/$project/app/* $root_dir/media/mmcblk0p1/apps/$project/
-  cp tmp/$project.bit $root_dir/media/mmcblk0p1/apps/$project/
-done
+mkdir -p $root_dir/media/mmcblk0p1/apps/$project
+cp -r projects/$project/server/* $root_dir/media/mmcblk0p1/apps/$project/
+cp -r projects/$project/app/* $root_dir/media/mmcblk0p1/apps/$project/
+cp tmp/$project.bit $root_dir/media/mmcblk0p1/apps/$project/
 
 cp -r alpine-apk/sbin $root_dir/
 
@@ -161,11 +160,8 @@ lbu commit -d
 
 apk add make gcc
 
-for project in scanner
-do
-  make -C /media/mmcblk0p1/apps/\$project clean
-  make -C /media/mmcblk0p1/apps/\$project
-done
+make -C /media/mmcblk0p1/apps/$project clean
+make -C /media/mmcblk0p1/apps/$project
 
 EOF_CHROOT
 
@@ -173,9 +169,9 @@ cp -r $root_dir/media/mmcblk0p1/apps .
 cp -r $root_dir/media/mmcblk0p1/cache .
 cp $root_dir/media/mmcblk0p1/red-pitaya.apkovl.tar.gz .
 
-sed -i '5,6d' apps/scanner/start.sh
-rm -f apps/scanner/index.html
-cp apps/scanner/start.sh .
+sed -i '5,6d' apps/$project/start.sh
+rm -f apps/$project/index.html
+cp apps/$project/start.sh .
 
 cp -r alpine/wifi .
 
@@ -183,6 +179,6 @@ hostname -F /etc/hostname
 
 rm -rf $root_dir alpine-apk
 
-zip -r red-pitaya-alpine-3.11-armv7-`date +%Y%m%d`-scanner.zip apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz start.sh uEnv.txt uImage uInitrd wifi
+zip -r red-pitaya-alpine-3.11-armv7-`date +%Y%m%d`-$project.zip apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz start.sh uEnv.txt uImage uInitrd wifi
 
 rm -rf apps cache modloop red-pitaya.apkovl.tar.gz start.sh uInitrd wifi
