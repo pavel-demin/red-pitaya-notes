@@ -6,6 +6,6 @@ make -j $JOBS cores
 
 make NAME=led_blinker all
 
-make NAME=scanner bit
+make NAME=$1 bit
 
-sudo sh scripts/alpine-scanner.sh
+sudo sh scripts/alpine-project.sh $1
