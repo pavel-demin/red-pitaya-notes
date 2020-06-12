@@ -55,10 +55,10 @@ namespace PulsedNMR
       }
     }
 
-    public void SendCommand(long code, long data)
+    public void SendCommand(double code, double data)
     {
       if(s == null) return;
-      byte[] buffer = BitConverter.GetBytes(code << 60 | data);
+      byte[] buffer = BitConverter.GetBytes((long)code << 60 | (long)data);
       try
       {
         s.Send(buffer);
@@ -94,31 +94,31 @@ namespace PulsedNMR
       SendCommand(4, 0);
     }
 
-    public void AddDelay(long width)
+    public void AddDelay(double width)
     {
       SendCommand(5, width - 4);
     }
 
-    public void AddPulse(int level, int phase, long width)
+    public void AddPulse(int level, int phase, double width)
     {
       SendCommand(5, width);
       SendCommand(6, (phase << 16) + level);
     }
 
-    public float[] RecieveData(int size)
+    public int[] RecieveData(int size)
     {
       int n, offset = 0, limit = size * 16;
       byte[] buffer;
-      float[] result;
+      int[] result;
       try
       {
         buffer = new byte[65536];
-        result = new float[size * 4];
+        result = new int[size * 4];
       }
       catch(Exception ex)
       {
         MessageBox.Show(ex.Message);
-        return new float[0];
+        return new int[0];
       }
       if(s == null) return result;
       SendCommand(7, size);
