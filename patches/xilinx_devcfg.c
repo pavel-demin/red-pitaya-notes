@@ -2076,6 +2076,8 @@ static int xdevcfg_drv_probe(struct platform_device *pdev)
 		goto failed7;
 	}
 
+	drvdata->dev = &pdev->dev;
+
 	/* create sysfs files for the device */
 	retval = sysfs_create_group(&(pdev->dev.kobj), &xdevcfg_attr_group);
 	if (retval) {
