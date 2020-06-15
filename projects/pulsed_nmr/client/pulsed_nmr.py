@@ -166,16 +166,16 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
 
   def clear_pulses(self):
     if self.idle: return
-    self.socket.write(struct.pack('<Q', 4<<60))
+    self.socket.write(struct.pack('<Q', 7<<60))
 
   def add_delay(self, width):
     if self.idle: return
-    self.socket.write(struct.pack('<Q', 5<<60 | int(width - 4)))
+    self.socket.write(struct.pack('<Q', 8<<60 | int(width - 4)))
 
   def add_pulse(self, level, phase, width):
     if self.idle: return
-    self.socket.write(struct.pack('<Q', 5<<60 | int(width)))
-    self.socket.write(struct.pack('<Q', 6<<60 | int(phase << 16 | level)))
+    self.socket.write(struct.pack('<Q', 8<<60 | int(width)))
+    self.socket.write(struct.pack('<Q', 9<<60 | int(phase << 16 | level)))
 
   def start_sequence(self):
     if self.idle: return
@@ -187,7 +187,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     self.add_pulse(32766, 0, awidth)
     self.add_delay(delay)
     self.add_pulse(32766, 0, bwidth)
-    self.socket.write(struct.pack('<Q', 7<<60 | int(size)))
+    self.socket.write(struct.pack('<Q', 10<<60 | int(size)))
 
 app = QApplication(sys.argv)
 window = PulsedNMR()

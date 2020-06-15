@@ -89,20 +89,35 @@ namespace PulsedNMR
       SendCommand(3, level);
     }
 
+    public void SetPin(int pin)
+    {
+      SendCommand(4, pin);
+    }
+
+    public void ClearPin(int pin)
+    {
+      SendCommand(5, pin);
+    }
+
+    public void SetDAC(int data)
+    {
+      SendCommand(6, data);
+    }
+
     public void ClearPulses()
     {
-      SendCommand(4, 0);
+      SendCommand(7, 0);
     }
 
     public void AddDelay(double width)
     {
-      SendCommand(5, width - 4);
+      SendCommand(8, width - 4);
     }
 
     public void AddPulse(int level, int phase, double width)
     {
-      SendCommand(5, width);
-      SendCommand(6, (phase << 16) + level);
+      SendCommand(8, width);
+      SendCommand(9, (phase << 16) + level);
     }
 
     public int[] RecieveData(int size)
@@ -121,7 +136,7 @@ namespace PulsedNMR
         return new int[0];
       }
       if(s == null) return result;
-      SendCommand(7, size);
+      SendCommand(10, size);
       while(offset < limit)
       {
         try

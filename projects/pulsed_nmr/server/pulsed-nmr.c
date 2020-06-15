@@ -6,13 +6,29 @@
 #include <fcntl.h>
 #include <math.h>
 #include <sys/mman.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#define I2C_SLAVE       0x0703 /* Use this slave address */
+#define I2C_SLAVE_FORCE 0x0706 /* Use this slave address, even if it
+                                  is already in use by a driver! */
+
+#define ADDR_DAC 0x0F /* AD5622 address 3 */
+
+ssize_t i2c_write_data16(int fd, uint16_t data)
+{
+  uint8_t buffer[2];
+  buffer[0] = data >> 8;
+  buffer[1] = data;
+  return write(fd, buffer, 2);
+}
+
 int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
+  int i2c_fd, i2c_dac;
   void *cfg, *sts;
   volatile uint32_t *tx_data, *rx_freq, *tx_freq;
   volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr;
@@ -39,6 +55,18 @@ int main(int argc, char *argv[])
   {
     perror("open");
     return EXIT_FAILURE;
+  }
+
+  i2c_dac = 0;
+  if((i2c_fd = open("/dev/i2c-0", O_RDWR)) >= 0)
+  {
+    if(ioctl(i2c_fd, I2C_SLAVE, ADDR_DAC) >= 0)
+    {
+      if(i2c_write_data16(i2c_fd, 0x0000) > 0)
+      {
+        i2c_dac = 1;
+      }
+    }
   }
 
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
@@ -128,10 +156,26 @@ int main(int argc, char *argv[])
           *tx_level = data;
           break;
         case 4:
+          /* set pin */
+          if(data < 1 || data > 7) continue;
+          *tx_rst |= (1 << data);
+          break;
+        case 5:
+          /* clear pin */
+          if(data < 1 || data > 7) continue;
+          *tx_rst &= ~(1 << data);
+          break;
+        case 6:
+          /* set DAC */
+          if(i2c_dac == 0) continue;
+          ioctl(i2c_fd, I2C_SLAVE, ADDR_DAC);
+          i2c_write_data16(i2c_fd, data);
+          break;
+        case 7:
           /* clear pulses */
           size = 0;
           break;
-        case 5:
+        case 8:
           /* add pulse */
           if(size >= 1048576) continue;
           ++size;
@@ -139,14 +183,14 @@ int main(int argc, char *argv[])
           /* set pulse width */
           memcpy(pulses + (size - 1) * 4, &data, 8);
           break;
-        case 6:
+        case 9:
           /* set pulse phase and level */
           phase = data >> 16;
           level = data & 0xffff;
           if(phase < 360) pulses[(size - 1) * 4 + 2] = (uint32_t)floor(phase / 360.0 * (1<<30) + 0.5);
           if(level < 32767) pulses[(size - 1) * 4 + 3] = level;
           break;
-        case 7:
+        case 10:
           /* start sequence */
           counter = 0;
           position = 0;
