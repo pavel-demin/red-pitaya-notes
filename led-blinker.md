@@ -26,7 +26,7 @@ My development machine has the following installed:
 
  - [Debian](https://www.debian.org/releases/stretch) 9.12 (amd64)
 
- - [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2019.2
+ - [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2020.1
 
 The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
 
@@ -121,7 +121,7 @@ Getting started
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vitis/2019.2/settings64.sh
+source /opt/Xilinx/Vitis/2020.1/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:
