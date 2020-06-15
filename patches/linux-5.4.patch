@@ -1,0 +1,502 @@
+diff -rupN old/linux-5.4/arch/arm/mach-zynq/common.c linux-5.4/arch/arm/mach-zynq/common.c
+--- old/linux-5.4/arch/arm/mach-zynq/common.c
++++ linux-5.4/arch/arm/mach-zynq/common.c
+@@ -95,6 +95,7 @@ static void __init zynq_init_late(void)
+ {
+ 	zynq_core_pm_init();
+ 	zynq_pm_late_init();
++	zynq_prefetch_init();
+ }
+ 
+ /**
+@@ -186,8 +187,13 @@ static const char * const zynq_dt_match[
+ 
+ DT_MACHINE_START(XILINX_EP107, "Xilinx Zynq Platform")
+ 	/* 64KB way size, 8-way associativity, parity disabled */
+-	.l2c_aux_val    = 0x00400000,
++#ifdef CONFIG_XILINX_PREFETCH
++	.l2c_aux_val	= 0x30400000,
++	.l2c_aux_mask	= 0xcfbfffff,
++#else
++	.l2c_aux_val	= 0x00400000,
+ 	.l2c_aux_mask	= 0xffbfffff,
++#endif
+ 	.smp		= smp_ops(zynq_smp_ops),
+ 	.map_io		= zynq_map_io,
+ 	.init_irq	= zynq_irq_init,
+diff -rupN old/linux-5.4/arch/arm/mach-zynq/common.h linux-5.4/arch/arm/mach-zynq/common.h
+--- old/linux-5.4/arch/arm/mach-zynq/common.h
++++ linux-5.4/arch/arm/mach-zynq/common.h
+@@ -15,6 +15,7 @@ extern void zynq_slcr_cpu_stop(int cpu);
+ extern void zynq_slcr_cpu_start(int cpu);
+ extern bool zynq_slcr_cpu_state_read(int cpu);
+ extern void zynq_slcr_cpu_state_write(int cpu, bool die);
++extern u32 zynq_slcr_get_ocm_config(void);
+ extern u32 zynq_slcr_get_device_id(void);
+ 
+ #ifdef CONFIG_SMP
+@@ -29,6 +30,22 @@ extern void __iomem *zynq_scu_base;
+ 
+ void zynq_pm_late_init(void);
+ 
++static inline void zynq_prefetch_init(void)
++{
++	/*
++	 * Enable prefetching in aux control register. L2 prefetch must
++	 * only be enabled if the slave supports it (PL310 does)
++	 */
++	asm volatile ("mrc   p15, 0, r1, c1, c0, 1\n"
++#ifdef CONFIG_XILINX_PREFETCH
++		      "orr   r1, r1, #6\n"
++#else
++		      "bic   r1, r1, #6\n"
++#endif
++		      "mcr   p15, 0, r1, c1, c0, 1\n"
++		      : : : "r1");
++}
++
+ static inline void zynq_core_pm_init(void)
+ {
+ 	/* A9 clock gating */
+diff -rupN old/linux-5.4/arch/arm/mach-zynq/Kconfig linux-5.4/arch/arm/mach-zynq/Kconfig
+--- old/linux-5.4/arch/arm/mach-zynq/Kconfig
++++ linux-5.4/arch/arm/mach-zynq/Kconfig
+@@ -17,3 +17,19 @@ config ARCH_ZYNQ
+ 	select SOC_BUS
+ 	help
+ 	  Support for Xilinx Zynq ARM Cortex A9 Platform
++
++if ARCH_ZYNQ
++
++menu "Xilinx Specific Options"
++
++config XILINX_PREFETCH
++	bool "Cache Prefetch"
++	default y
++	help
++	  This option turns on L1 & L2 cache prefetching to get the best performance
++	  in many cases. This may not always be the best performance depending on
++	  the usage.
++
++endmenu
++
++endif
+diff -rupN old/linux-5.4/arch/arm/mach-zynq/Makefile linux-5.4/arch/arm/mach-zynq/Makefile
+--- old/linux-5.4/arch/arm/mach-zynq/Makefile
++++ linux-5.4/arch/arm/mach-zynq/Makefile
+@@ -4,5 +4,5 @@
+ #
+ 
+ # Common support
+-obj-y				:= common.o slcr.o pm.o
++obj-y				:= common.o slcr.o zynq_ocm.o pm.o
+ obj-$(CONFIG_SMP)		+= headsmp.o platsmp.o
+diff -rupN old/linux-5.4/arch/arm/mach-zynq/platsmp.c linux-5.4/arch/arm/mach-zynq/platsmp.c
+--- old/linux-5.4/arch/arm/mach-zynq/platsmp.c
++++ linux-5.4/arch/arm/mach-zynq/platsmp.c
+@@ -15,6 +15,7 @@
+ #include <linux/init.h>
+ #include <linux/io.h>
+ #include <asm/cacheflush.h>
++#include <asm/smp_plat.h>
+ #include <asm/smp_scu.h>
+ #include <linux/irqchip/arm-gic.h>
+ #include "common.h"
+@@ -30,6 +31,7 @@ int zynq_cpun_start(u32 address, int cpu
+ {
+ 	u32 trampoline_code_size = &zynq_secondary_trampoline_end -
+ 						&zynq_secondary_trampoline;
++	u32 phy_cpuid = cpu_logical_map(cpu);
+ 
+ 	/* MS: Expectation that SLCR are directly map and accessible */
+ 	/* Not possible to jump to non aligned address */
+@@ -39,7 +41,7 @@ int zynq_cpun_start(u32 address, int cpu
+ 		u32 trampoline_size = &zynq_secondary_trampoline_jump -
+ 						&zynq_secondary_trampoline;
+ 
+-		zynq_slcr_cpu_stop(cpu);
++		zynq_slcr_cpu_stop(phy_cpuid);
+ 		if (address) {
+ 			if (__pa(PAGE_OFFSET)) {
+ 				zero = ioremap(0, trampoline_code_size);
+@@ -68,7 +70,7 @@ int zynq_cpun_start(u32 address, int cpu
+ 			if (__pa(PAGE_OFFSET))
+ 				iounmap(zero);
+ 		}
+-		zynq_slcr_cpu_start(cpu);
++		zynq_slcr_cpu_start(phy_cpuid);
+ 
+ 		return 0;
+ 	}
+@@ -113,6 +115,7 @@ static void __init zynq_smp_prepare_cpus
+ static void zynq_secondary_init(unsigned int cpu)
+ {
+ 	zynq_core_pm_init();
++	zynq_prefetch_init();
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+diff -rupN old/linux-5.4/arch/arm/mach-zynq/slcr.c linux-5.4/arch/arm/mach-zynq/slcr.c
+--- old/linux-5.4/arch/arm/mach-zynq/slcr.c
++++ linux-5.4/arch/arm/mach-zynq/slcr.c
+@@ -20,6 +20,7 @@
+ #define SLCR_REBOOT_STATUS_OFFSET	0x258 /* PS Reboot Status */
+ #define SLCR_PSS_IDCODE			0x530 /* PS IDCODE */
+ #define SLCR_L2C_RAM			0xA1C /* L2C_RAM in AR#54190 */
++#define SLCR_OCM_CFG_OFFSET		0x910 /* OCM Address Mapping */
+ 
+ #define SLCR_UNLOCK_MAGIC		0xDF0D
+ #define SLCR_A9_CPU_CLKSTOP		0x10
+@@ -116,6 +117,19 @@ static struct notifier_block zynq_slcr_r
+ };
+ 
+ /**
++ * zynq_slcr_get_ocm_config - Get SLCR OCM config
++ *
++ * return:	OCM config bits
++ */
++u32 zynq_slcr_get_ocm_config(void)
++{
++	u32 ret;
++
++	zynq_slcr_read(&ret, SLCR_OCM_CFG_OFFSET);
++	return ret;
++}
++
++/**
+  * zynq_slcr_cpu_start - Start cpu
+  * @cpu:	cpu number
+  */
+diff -rupN old/linux-5.4/drivers/char/Kconfig linux-5.4/drivers/char/Kconfig
+--- old/linux-5.4/drivers/char/Kconfig
++++ linux-5.4/drivers/char/Kconfig
+@@ -535,6 +535,13 @@ config ADI
+ 	  and SSM (Silicon Secured Memory).  Intended consumers of this
+ 	  driver include crash and makedumpfile.
+ 
++config XILINX_DEVCFG
++	tristate "Xilinx Device Configuration"
++	depends on ARCH_ZYNQ
++	help
++	  This option enables support for the Xilinx device configuration driver.
++	  If unsure, say N
++
+ endmenu
+ 
+ config RANDOM_TRUST_CPU
+diff -rupN old/linux-5.4/drivers/char/Makefile linux-5.4/drivers/char/Makefile
+--- old/linux-5.4/drivers/char/Makefile
++++ linux-5.4/drivers/char/Makefile
+@@ -52,3 +52,4 @@ js-rtc-y = rtc.o
+ obj-$(CONFIG_XILLYBUS)		+= xillybus/
+ obj-$(CONFIG_POWERNV_OP_PANEL)	+= powernv-op-panel.o
+ obj-$(CONFIG_ADI)		+= adi.o
++obj-$(CONFIG_XILINX_DEVCFG)	+= xilinx_devcfg.o
+diff -rupN old/linux-5.4/drivers/net/phy/intel-xway.c linux-5.4/drivers/net/phy/intel-xway.c
+--- old/linux-5.4/drivers/net/phy/intel-xway.c
++++ linux-5.4/drivers/net/phy/intel-xway.c
+@@ -159,6 +159,12 @@ static int xway_gphy_config_init(struct
+ 	/* Clear all pending interrupts */
+ 	phy_read(phydev, XWAY_MDIO_ISTAT);
+ 
++	/* Set SGMII RX & TX timing skew to 2 ns & 2.5 ns respectively. */
++	/* Set MII power supply to 2V5. */
++	err = phy_write(phydev, 0x17, 0x4D00);
++	if (err)
++		return err;
++
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LEDCH,
+ 		      XWAY_MMD_LEDCH_NACS_NONE |
+ 		      XWAY_MMD_LEDCH_SBF_F02HZ |
+@@ -168,20 +174,16 @@ static int xway_gphy_config_init(struct
+ 		      XWAY_MMD_LEDCH_SCAN_NONE);
+ 
+ 	/**
+-	 * In most cases only one LED is connected to this phy, so
+-	 * configure them all to constant on and pulse mode. LED3 is
+-	 * only available in some packages, leave it in its reset
+-	 * configuration.
++	 * Set LED0 blinking on RX/TX.
++	 * Set LED1 blinking on link speed: slow=10M, fast=100M, on=1G.
+ 	 */
+-	ledxh = XWAY_MMD_LEDxH_BLINKF_NONE | XWAY_MMD_LEDxH_CON_LINK10XX;
+-	ledxl = XWAY_MMD_LEDxL_PULSE_TXACT | XWAY_MMD_LEDxL_PULSE_RXACT |
+-		XWAY_MMD_LEDxL_BLINKS_NONE;
+-	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0H, ledxh);
++	ledxl = XWAY_MMD_LEDxL_PULSE_TXACT | XWAY_MMD_LEDxL_PULSE_RXACT;
++	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0H, 0);
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0L, ledxl);
++	ledxh = XWAY_MMD_LEDxH_CON_LINK1000 | XWAY_MMD_LEDxH_BLINKF_LINK100;
++	ledxl = XWAY_MMD_LEDxH_CON_LINK10;
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED1H, ledxh);
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED1L, ledxl);
+-	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED2H, ledxh);
+-	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED2L, ledxl);
+ 
+ 	return 0;
+ }
+diff -rupN old/linux-5.4/drivers/net/wireless/realtek/Kconfig linux-5.4/drivers/net/wireless/realtek/Kconfig
+--- old/linux-5.4/drivers/net/wireless/realtek/Kconfig
++++ linux-5.4/drivers/net/wireless/realtek/Kconfig
+@@ -13,8 +13,9 @@ config WLAN_VENDOR_REALTEK
+ if WLAN_VENDOR_REALTEK
+ 
+ source "drivers/net/wireless/realtek/rtl818x/Kconfig"
+-source "drivers/net/wireless/realtek/rtlwifi/Kconfig"
+ source "drivers/net/wireless/realtek/rtl8xxxu/Kconfig"
+ source "drivers/net/wireless/realtek/rtw88/Kconfig"
++source "drivers/net/wireless/realtek/rtl8188eu/Kconfig"
++source "drivers/net/wireless/realtek/rtl8192cu/Kconfig"
+ 
+ endif # WLAN_VENDOR_REALTEK
+diff -rupN old/linux-5.4/drivers/net/wireless/realtek/Makefile linux-5.4/drivers/net/wireless/realtek/Makefile
+--- old/linux-5.4/drivers/net/wireless/realtek/Makefile
++++ linux-5.4/drivers/net/wireless/realtek/Makefile
+@@ -5,7 +5,8 @@
+ 
+ obj-$(CONFIG_RTL8180)		+= rtl818x/
+ obj-$(CONFIG_RTL8187)		+= rtl818x/
+-obj-$(CONFIG_RTLWIFI)		+= rtlwifi/
+ obj-$(CONFIG_RTL8XXXU)		+= rtl8xxxu/
+ obj-$(CONFIG_RTW88)		+= rtw88/
++obj-$(CONFIG_RTL8188EU)		+= rtl8188eu/
++obj-$(CONFIG_RTL8192CU)		+= rtl8192cu/
+ 
+diff -rupN old/linux-5.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig linux-5.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig
+--- old/linux-5.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig	1970-01-01 00:00:00.000000000 +0000
++++ linux-5.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig
+@@ -0,0 +1,9 @@
++config RTL8192CU
++	tristate "Realtek 8192CU USB WiFi"
++	depends on MAC80211 && USB
++	select CFG80211_WEXT
++	select WIRELESS_EXT
++	select WEXT_PRIV
++	---help---
++	  This option adds the Realtek RTL8192CU USB device.
++
+diff -rupN old/linux-5.4/drivers/pps/clients/pps-gpio.c linux-5.4/drivers/pps/clients/pps-gpio.c
+--- old/linux-5.4/drivers/pps/clients/pps-gpio.c
++++ linux-5.4/drivers/pps/clients/pps-gpio.c
+@@ -145,6 +145,8 @@ static int pps_gpio_setup(struct platfor
+ 
+ 	if (of_property_read_bool(np, "assert-falling-edge"))
+ 		data->assert_falling_edge = true;
++	if (of_get_property(np, "capture-clear", NULL))
++		data->capture_clear = true;
+ 	return 0;
+ }
+ 
+diff -rupN old/linux-5.4/drivers/usb/chipidea/ci_hdrc_usb2.c linux-5.4/drivers/usb/chipidea/ci_hdrc_usb2.c
+--- old/linux-5.4/drivers/usb/chipidea/ci_hdrc_usb2.c
++++ linux-5.4/drivers/usb/chipidea/ci_hdrc_usb2.c
+@@ -30,6 +30,7 @@ static const struct ci_hdrc_platform_dat
+ 
+ static struct ci_hdrc_platform_data ci_zynq_pdata = {
+ 	.capoffset	= DEF_CAPOFFSET,
++	.flags		= CI_HDRC_PHY_VBUS_CONTROL,
+ };
+ 
+ static const struct of_device_id ci_hdrc_usb2_of_match[] = {
+@@ -58,6 +59,9 @@ static int ci_hdrc_usb2_probe(struct pla
+ 	if (match && match->data) {
+ 		/* struct copy */
+ 		*ci_pdata = *(struct ci_hdrc_platform_data *)match->data;
++		ci_pdata->usb_phy = devm_usb_get_phy_by_phandle(dev, "usb-phy", 0);
++		if (IS_ERR(ci_pdata->usb_phy))
++			return PTR_ERR(ci_pdata->usb_phy);
+ 	}
+ 
+ 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+diff -rupN old/linux-5.4/drivers/usb/chipidea/host.c linux-5.4/drivers/usb/chipidea/host.c
+--- old/linux-5.4/drivers/usb/chipidea/host.c
++++ linux-5.4/drivers/usb/chipidea/host.c
+@@ -57,6 +57,14 @@ static int ehci_ci_portpower(struct usb_
+ 		priv->enabled = enable;
+ 	}
+ 
++	if (ci->platdata->flags & CI_HDRC_PHY_VBUS_CONTROL &&
++			ci->usb_phy && ci->usb_phy->set_vbus) {
++		if (enable)
++			ci->usb_phy->set_vbus(ci->usb_phy, 1);
++		else
++			ci->usb_phy->set_vbus(ci->usb_phy, 0);
++	}
++
+ 	if (enable && (ci->platdata->phy_mode == USBPHY_INTERFACE_MODE_HSIC)) {
+ 		/*
+ 		 * Marvell 28nm HSIC PHY requires forcing the port to HS mode.
+diff -rupN old/linux-5.4/drivers/usb/chipidea/otg_fsm.c linux-5.4/drivers/usb/chipidea/otg_fsm.c
+--- old/linux-5.4/drivers/usb/chipidea/otg_fsm.c
++++ linux-5.4/drivers/usb/chipidea/otg_fsm.c
+@@ -471,6 +471,11 @@ static void ci_otg_drv_vbus(struct otg_f
+ 				return;
+ 			}
+ 		}
++
++		if (ci->platdata->flags & CI_HDRC_PHY_VBUS_CONTROL &&
++				ci->usb_phy && ci->usb_phy->set_vbus)
++			ci->usb_phy->set_vbus(ci->usb_phy, 1);
++
+ 		/* Disable data pulse irq */
+ 		hw_write_otgsc(ci, OTGSC_DPIE, 0);
+ 
+@@ -480,6 +485,10 @@ static void ci_otg_drv_vbus(struct otg_f
+ 		if (ci->platdata->reg_vbus)
+ 			regulator_disable(ci->platdata->reg_vbus);
+ 
++		if (ci->platdata->flags & CI_HDRC_PHY_VBUS_CONTROL &&
++				ci->usb_phy && ci->usb_phy->set_vbus)
++			ci->usb_phy->set_vbus(ci->usb_phy, 0);
++
+ 		fsm->a_bus_drop = 1;
+ 		fsm->a_bus_req = 0;
+ 	}
+diff -rupN old/linux-5.4/drivers/usb/phy/phy-ulpi.c linux-5.4/drivers/usb/phy/phy-ulpi.c
+--- old/linux-5.4/drivers/usb/phy/phy-ulpi.c
++++ linux-5.4/drivers/usb/phy/phy-ulpi.c
+@@ -13,9 +13,16 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/export.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/io.h>
++#include <linux/of_address.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
+ #include <linux/usb.h>
+ #include <linux/usb/otg.h>
+ #include <linux/usb/ulpi.h>
++#include <linux/usb/phy.h>
+ 
+ 
+ struct ulpi_info {
+@@ -39,6 +46,13 @@ static struct ulpi_info ulpi_ids[] = {
+ 	ULPI_INFO(ULPI_ID(0x0451, 0x1507), "TI TUSB1210"),
+ };
+ 
++struct ulpi_phy {
++	struct usb_phy	*usb_phy;
++	void __iomem *regs;
++	unsigned int vp_offset;
++	unsigned int flags;
++};
++
+ static int ulpi_set_otg_flags(struct usb_phy *phy)
+ {
+ 	unsigned int flags = ULPI_OTG_CTRL_DP_PULLDOWN |
+@@ -240,6 +254,23 @@ static int ulpi_set_vbus(struct usb_otg
+ 	return usb_phy_io_write(phy, flags, ULPI_OTG_CTRL);
+ }
+ 
++static int usbphy_set_vbus(struct usb_phy *phy, int on)
++{
++	unsigned int flags = usb_phy_io_read(phy, ULPI_OTG_CTRL);
++
++	flags &= ~(ULPI_OTG_CTRL_DRVVBUS | ULPI_OTG_CTRL_DRVVBUS_EXT);
++
++	if (on) {
++		if (phy->flags & ULPI_OTG_DRVVBUS)
++			flags |= ULPI_OTG_CTRL_DRVVBUS;
++
++		if (phy->flags & ULPI_OTG_DRVVBUS_EXT)
++			flags |= ULPI_OTG_CTRL_DRVVBUS_EXT;
++	}
++
++	return usb_phy_io_write(phy, flags, ULPI_OTG_CTRL);
++}
++
+ struct usb_phy *
+ otg_ulpi_create(struct usb_phy_io_ops *ops,
+ 		unsigned int flags)
+@@ -262,6 +293,7 @@ otg_ulpi_create(struct usb_phy_io_ops *o
+ 	phy->io_ops	= ops;
+ 	phy->otg	= otg;
+ 	phy->init	= ulpi_init;
++	phy->set_vbus	= usbphy_set_vbus;
+ 
+ 	otg->usb_phy	= phy;
+ 	otg->set_host	= ulpi_set_host;
+@@ -271,3 +303,70 @@ otg_ulpi_create(struct usb_phy_io_ops *o
+ }
+ EXPORT_SYMBOL_GPL(otg_ulpi_create);
+ 
++static int ulpi_phy_probe(struct platform_device *pdev)
++{
++	struct device_node *np = pdev->dev.of_node;
++	struct resource *res;
++	struct ulpi_phy *uphy;
++	bool flag;
++	int ret;
++
++	uphy = devm_kzalloc(&pdev->dev, sizeof(*uphy), GFP_KERNEL);
++	if (!uphy)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	uphy->regs = devm_ioremap(&pdev->dev, res->start, resource_size(res));
++	if (IS_ERR(uphy->regs))
++		return PTR_ERR(uphy->regs);
++
++	ret = of_property_read_u32(np, "view-port", &uphy->vp_offset);
++	if (IS_ERR(uphy->regs)) {
++		dev_err(&pdev->dev, "view-port register not specified\n");
++		return PTR_ERR(uphy->regs);
++	}
++
++	flag = of_property_read_bool(np, "drv-vbus");
++	if (flag)
++		uphy->flags |= ULPI_OTG_DRVVBUS | ULPI_OTG_DRVVBUS_EXT;
++
++	uphy->usb_phy = otg_ulpi_create(&ulpi_viewport_access_ops, uphy->flags);
++
++	uphy->usb_phy->dev = &pdev->dev;
++
++	uphy->usb_phy->io_priv = uphy->regs + uphy->vp_offset;
++
++	ret = usb_add_phy_dev(uphy->usb_phy);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
++static int ulpi_phy_remove(struct platform_device *pdev)
++{
++	struct ulpi_phy *uphy = platform_get_drvdata(pdev);
++
++	usb_remove_phy(uphy->usb_phy);
++
++	return 0;
++}
++
++static const struct of_device_id ulpi_phy_table[] = {
++	{ .compatible = "ulpi-phy" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ulpi_phy_table);
++
++static struct platform_driver ulpi_phy_driver = {
++	.probe		= ulpi_phy_probe,
++	.remove		= ulpi_phy_remove,
++	.driver		= {
++		.name	= "ulpi-phy",
++		.of_match_table = ulpi_phy_table,
++	},
++};
++module_platform_driver(ulpi_phy_driver);
++
++MODULE_DESCRIPTION("ULPI PHY driver");
++MODULE_LICENSE("GPL v2");
+diff -rupN old/linux-5.4/include/linux/usb/chipidea.h linux-5.4/include/linux/usb/chipidea.h
+--- old/linux-5.4/include/linux/usb/chipidea.h
++++ linux-5.4/include/linux/usb/chipidea.h
+@@ -62,6 +62,7 @@ struct ci_hdrc_platform_data {
+ #define CI_HDRC_REQUIRES_ALIGNED_DMA	BIT(13)
+ #define CI_HDRC_IMX_IS_HSIC		BIT(14)
+ #define CI_HDRC_PMQOS			BIT(15)
++#define CI_HDRC_PHY_VBUS_CONTROL	BIT(16)
+ 	enum usb_dr_mode	dr_mode;
+ #define CI_HDRC_CONTROLLER_RESET_EVENT		0
+ #define CI_HDRC_CONTROLLER_STOPPED_EVENT	1
