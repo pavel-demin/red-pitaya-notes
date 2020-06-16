@@ -1,2 +1,2 @@
-tcpserver 0 80 /media/mmcblk0p1/apps/server/server &
+tcpserver -H -l 0 0 80 /media/mmcblk0p1/apps/server/server &
 /media/mmcblk0p1/start.sh &
