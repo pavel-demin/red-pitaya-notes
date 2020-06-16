@@ -34,7 +34,7 @@ int main()
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
-    fwrite(redirect, 32, 1, stdout);
+    fwrite(forbidden, 24, 1, stdout);
     return 1;
   }
 
