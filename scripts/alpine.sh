@@ -89,6 +89,14 @@ do
   cp tmp/$project.bit $root_dir/media/mmcblk0p1/apps/$project/
 done
 
+for project in led_blinker_122_88 sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 vna_122_88
+do
+  mkdir -p $root_dir/media/mmcblk0p1/apps/$project
+  cp -r projects/$project/server/* $root_dir/media/mmcblk0p1/apps/$project/
+  cp -r projects/$project/app/* $root_dir/media/mmcblk0p1/apps/$project/
+  cp tmp/$project.bit $root_dir/media/mmcblk0p1/apps/$project/
+done
+
 cp -r alpine-apk/sbin $root_dir/
 
 chroot $root_dir /sbin/apk.static --repository $alpine_url/main --update-cache --allow-untrusted --initdb add alpine-base
@@ -168,8 +176,29 @@ do
   make -C /media/mmcblk0p1/apps/\$project
 done
 
-svn co svn://svn.code.sf.net/p/wsjt/wsjt/wsjtx/trunk/lib/wsprd /media/mmcblk0p1/apps/sdr_transceiver_wspr/wsprd
-make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr/wsprd CFLAGS='-O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd
+for project in sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 vna_122_88
+do
+  make -C /media/mmcblk0p1/apps/\$project clean
+  make -C /media/mmcblk0p1/apps/\$project
+done
+
+ft8d_dir=/media/mmcblk0p1/apps/ft8d
+ft8d_tar=/media/mmcblk0p1/apps/ft8d.tar.gz
+ft8d_url=https://github.com/pavel-demin/ft8d/archive/master.tar.gz
+
+curl -L \$ft8d_url -o \$ft8d_tar
+mkdir -p \$ft8d_dir
+tar -zxf \$ft8d_tar --strip-components=1 --directory=\$ft8d_dir
+rm \$ft8d_tar
+make -C \$ft8d_dir
+
+wsprd_dir=/media/mmcblk0p1/apps/wsprd
+wsprd_url=svn://svn.code.sf.net/p/wsjt/wsjt/wsjtx/trunk/lib/wsprd
+
+svn co \$wsprd_url \$wsprd_dir
+rm -rf \$wsprd_dir/.svn
+make -C \$wsprd_dir CFLAGS='-O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd
+
 make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr
 
 EOF_CHROOT

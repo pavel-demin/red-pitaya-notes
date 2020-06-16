@@ -1,0 +1,3 @@
+* * * * * cd /dev/shm && /media/mmcblk0p1/apps/sdr_transceiver_ft8_122_88/decode-ft8.sh >> decode-ft8.log 2>&1 &
+*/6 * * * * cd /dev/shm && /media/mmcblk0p1/apps/sdr_transceiver_ft8_122_88/upload-ft8.sh >> upload-ft8.log 2>&1 &
+#* * * * * cd /dev/shm && /media/mmcblk0p1/apps/sdr_transceiver_ft8_122_88/update-corr.sh >> update-corr.log 2>&1 &

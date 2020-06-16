@@ -1,0 +1,15 @@
+Configuring WSPR receiver
+
+By default, the uploads to wsprnet.org are disabled and all the decoded data are
+accumulated in /dev/shm/ALL_WSPR.TXT.
+
+To enable uploads, the CALL and GRID variables should be specified in
+decode-wspr.sh. These variables should be set to the call sign of the receiving
+station and its 6-character Maidenhead grid locator.
+
+The frequency correction ppm value can be adjusted by editing the corr parameter
+in write-c2-files.cfg.
+
+The bands list in write-c2-files.cfg contains all the WSPR frequencies. They
+can be enabled or disabled by uncommenting or by commenting the corresponding
+lines.

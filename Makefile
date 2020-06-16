@@ -58,7 +58,7 @@ RTL8192_URL = https://github.com/pvaret/rtl8192cu-fixes/archive/master.tar.gz
 
 .PRECIOUS: tmp/cores/% tmp/%.xpr tmp/%.xsa tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system-top.dts
 
-all: boot.bin uImage devicetree.dtb
+all: tmp/$(NAME).bit boot.bin uImage devicetree.dtb
 
 cores: $(addprefix tmp/cores/, $(CORES))
 
@@ -125,8 +125,8 @@ $(UBOOT_DIR)/u-boot.bin: $(UBOOT_DIR)
 	make -C $< ARCH=arm zynq_red_pitaya_defconfig
 	make -C $< ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- all
 
-boot.bin: tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit $(UBOOT_DIR)/u-boot.bin
-	echo "img:{[bootloader] tmp/$(NAME).fsbl/executable.elf tmp/$(NAME).bit [load=0x4000000,startup=0x4000000] $(UBOOT_DIR)/u-boot.bin}" > tmp/boot.bif
+boot.bin: tmp/$(NAME).fsbl/executable.elf $(UBOOT_DIR)/u-boot.bin
+	echo "img:{[bootloader] tmp/$(NAME).fsbl/executable.elf [load=0x4000000,startup=0x4000000] $(UBOOT_DIR)/u-boot.bin}" > tmp/boot.bif
 	bootgen -image tmp/boot.bif -w -o i $@
 
 devicetree.dtb: uImage tmp/$(NAME).tree/system-top.dts
