@@ -24,6 +24,7 @@ namespace PulsedNMR
       try
       {
         s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        s.ReceiveTimeout = 1000;
         s.Connect(address, 1001);
       }
       catch(Exception ex)
