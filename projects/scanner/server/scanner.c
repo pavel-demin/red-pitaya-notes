@@ -14,7 +14,7 @@ int main()
 {
   int fd, sock_server, sock_client;
   struct sockaddr_in addr;
-  int i, j, counter, position, size, yes = 1;
+  int i, j, n, counter, position, size, yes = 1;
   uint32_t command, code, data, period, pulses, shdelay, shtime;
   uint32_t *coordinates;
   uint64_t buffer[1024], tmp;
@@ -191,22 +191,24 @@ int main()
           /* start scanning */
           counter = 0;
           position = 0;
+          n = 1024;
 
           /* stop pulse generators */
           *rst &= ~1;
 
           /* reset DAC and ADC FIFO */
-          *rst |= 2;
-          *rst &= ~2;
+          *rst |= 2; *rst &= ~2;
 
-          for(i = 0; i < size; ++i)
+          while(counter < size)
           {
             /* read IN1 and IN2 samples from ADC FIFO */
-            if(*rd_cntr >= 2048 && counter < size)
+            if(n > size - counter) n = size - counter;
+            if(*rd_cntr < n * 2) usleep(500);
+            if(*rd_cntr >= n * 2 && counter < size)
             {
-              for(j = 0; j < 1024; ++j) buffer[j] = *adc;
-              if(send(sock_client, buffer, 8192, MSG_NOSIGNAL) < 0) break;
-              counter += 1024;
+              for(j = 0; j < n; ++j) buffer[j] = *adc;
+              if(send(sock_client, buffer, n * 8, MSG_NOSIGNAL) < 0) break;
+              counter += n;
             }
 
             /* write OUT1 and OUT2 samples to DAC FIFO */
@@ -218,20 +220,6 @@ int main()
 
             /* start pulse generators */
             *rst |= 1;
-
-            if(*rd_cntr < 2048) usleep(500);
-          }
-
-          /* read remaining IN1 and IN2 samples from ADC FIFO */
-          while(counter < size)
-          {
-            if(*(uint16_t *)(sts + 2) >= 2048)
-            {
-              for(j = 0; j < 1024; ++j) buffer[j] = *adc;
-              if(send(sock_client, buffer, 8192, MSG_NOSIGNAL) < 0) break;
-              counter += 1024;
-            }
-            if(*rd_cntr < 2048) usleep(500);
           }
 
           break;
