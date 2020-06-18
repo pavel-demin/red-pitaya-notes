@@ -48,7 +48,7 @@ Getting started with MS Windows
  - Download and install [PyQt 5.5](https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe/download).
  - Start a command prompt using the `cmd.exe` program and run the `pip` command to install `matplotlib`:
 {% highlight winbatch %}
-C:\Python34\python.exe -m pip install --upgrade pip
+C:\Python34\python.exe -m pip install --upgrade pip==19.1.1
 C:\Python34\python.exe -m pip install numpy==1.15.4 matplotlib==2.2.4
 {% endhighlight %}
  - Download [scanner.py](https://raw.githubusercontent.com/pavel-demin/red-pitaya-notes/master/projects/scanner/client/scanner.py) and [scanner.ui](https://raw.githubusercontent.com/pavel-demin/red-pitaya-notes/master/projects/scanner/client/scanner.ui).
