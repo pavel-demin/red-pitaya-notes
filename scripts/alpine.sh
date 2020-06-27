@@ -168,7 +168,7 @@ lbu delete root/.ash_history
 
 lbu commit -d
 
-apk add subversion patch make gcc gfortran
+apk add patch make gcc gfortran
 
 for project in server sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_emb sdr_transceiver_ft8 sdr_transceiver_hpsdr sdr_transceiver_wide mcpha vna
 do
@@ -193,11 +193,14 @@ rm \$ft8d_tar
 make -C \$ft8d_dir
 
 wsprd_dir=/media/mmcblk0p1/apps/wsprd
-wsprd_url=svn://svn.code.sf.net/p/wsjt/wsjt/wsjtx/trunk/lib/wsprd
+wsprd_tar=/media/mmcblk0p1/apps/wsprd.tar.gz
+wsprd_url=https://github.com/pavel-demin/wsprd/archive/master.tar.gz
 
-svn co \$wsprd_url \$wsprd_dir
-rm -rf \$wsprd_dir/.svn
-make -C \$wsprd_dir CFLAGS='-O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd
+curl -L \$wsprd_url -o \$wsprd_tar
+mkdir -p \$wsprd_dir
+tar -zxf \$wsprd_tar --strip-components=1 --directory=\$wsprd_dir
+rm \$wsprd_tar
+make -C \$wsprd_dir
 
 make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr
 make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr_122_88
