@@ -176,7 +176,7 @@ do
   make -C /media/mmcblk0p1/apps/\$project
 done
 
-for project in sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 vna_122_88
+for project in sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 vna_122_88
 do
   make -C /media/mmcblk0p1/apps/\$project clean
   make -C /media/mmcblk0p1/apps/\$project
@@ -200,6 +200,7 @@ rm -rf \$wsprd_dir/.svn
 make -C \$wsprd_dir CFLAGS='-O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad' wsprd
 
 make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr
+make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr_122_88
 
 EOF_CHROOT
 
