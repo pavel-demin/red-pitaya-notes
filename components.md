@@ -33,4 +33,11 @@ Premier Farnell
 
  - [Oscilloscope probe, 150 MHz, 1:10](http://uk.farnell.com/jsp/search/productdetail.jsp?id=4308098)
 
- - [Wi-Pi, USB Wi-Fi Module, MediaTek/Ralink RT5370](http://uk.farnell.com/jsp/search/productdetail.jsp?id=2133900)
+Mini-Circuits
+-----
+
+ - [Low Pass Filter, DC-22 MHz](https://www.minicircuits.com/WebStore/dashboard.html?model=SLP-21.4%2B)
+
+ - [Low Pass Filter, DC-32 MHz](https://www.minicircuits.com/WebStore/dashboard.html?model=SLP-30%2B)
+
+ - [Low Pass Filter, DC-48 MHz](https://www.minicircuits.com/WebStore/dashboard.html?model=SLP-50%2B)

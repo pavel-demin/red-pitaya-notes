@@ -6,10 +6,14 @@ permalink: /links/
  - [Red Pitaya Documentation](http://redpitaya.readthedocs.io)
 
  - [Red Pitaya Forum](http://forum.redpitaya.com)
- 
+
  - [LTC2145-14, dual 14-bit ADC](http://www.analog.com/en/products/analog-to-digital-converters/standard-adc/high-speed-ad-10msps/ltc2145-14.html)
 
+ - [LTC2185, dual 16-bit ADC](https://www.analog.com/en/products/ltc2185.html)
+
  - [DAC1401D125, dual 14-bit DAC](http://www.idt.com/document/dst/dac1401d125-datasheet)
+
+ - [AD9767, dual 14-bit DAC](https://www.analog.com/en/products/ad9767.html)
 
  - [Xilinx Wiki](http://www.wiki.xilinx.com)
 
