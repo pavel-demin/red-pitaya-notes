@@ -24,7 +24,7 @@ The system consists of one in-phase/quadrature (I/Q) digital down-converter (DDC
 
 The tunable frequency range covers from 0 Hz to 60 MHz.
 
-The I/Q data rate is configurable and five settings are available: 25, 50, 250, 500, 2500 kSPS.
+The I/Q data rate is configurable and six settings are available: 25, 50, 125, 250, 500, 1250 kSPS.
 
 Hardware
 -----
@@ -38,7 +38,7 @@ The [projects/pulsed_nmr](https://github.com/pavel-demin/red-pitaya-notes/tree/m
 Software
 -----
 
-The [projects/pulsed_nmr/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/pulsed_nmr/server) directory contains the source code of the TCP server ([pulsed-nmr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr/server/pulsed-nmr.c)) that receives control commands and transmits the I/Q data streams (up to 2 x 32 bit x 2500 kSPS = 152 Mbit/s) to the control program running on a remote PC.
+The [projects/pulsed_nmr/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/pulsed_nmr/server) directory contains the source code of the TCP server ([pulsed-nmr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr/server/pulsed-nmr.c)) that receives control commands and transmits the I/Q data streams (up to 4 x 32 bit x 1250 kSPS = 152 Mbit/s) to the control program running on a remote PC.
 
 The [projects/pulsed_nmr/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/pulsed_nmr/client) directory contains the source code of the control program ([pulsed_nmr.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr/client/pulsed_nmr.py)).
 
