@@ -23,7 +23,7 @@ This project implements a standalone multiband WSPR transceiver with all the WSP
 
  - simultaneously record WPSR signals from eight bands
  - use FPGA for all the conversions needed to produce .c2 files (complex 32-bit floating-point data at 375 samples per second)
- - use on-board CPU to process the .c2 files with the [WSPR decoder](https://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wsjtx/lib/wsprd/)
+ - use on-board CPU to process the .c2 files with the [WSPR decoder](https://github.com/pavel-demin/wsprd)
  - upload decoded data to [wsprnet.org](http://wsprnet.org)
 
 With this configuration, it is enough to connect Red Pitaya to an antenna and to a network. After switching Red Pitaya on, it will automatically start operating as a WSPR receiver.
@@ -37,7 +37,7 @@ The FPGA configuration consists of eight identical digital down-converters (DDC)
 
 ![WSPR receiver]({{ "/img/sdr-receiver-wspr.png" | prepend: site.baseurl }})
 
-The DDC output contains complex 32-bit floating-point data at 375 samples per second and is directly compatible with the [WSPR decoder](https://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wsjtx/lib/wsprd/).
+The DDC output contains complex 32-bit floating-point data at 375 samples per second and is directly compatible with the [WSPR decoder](https://github.com/pavel-demin/wsprd).
 
 The [projects/sdr_transceiver_wspr](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_wspr/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_wspr/rx.tcl) and [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_wspr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
@@ -46,7 +46,7 @@ Software
 
 The [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr/app/write-c2-files.c) program accumulates 42000 samples at 375 samples per second for each of the eight bands and saves the samples to eight .c2 files.
 
-The recorded .c2 files are processed with the [WSPR decoder](https://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wsjtx/lib/wsprd/).
+The recorded .c2 files are processed with the [WSPR decoder](https://github.com/pavel-demin/wsprd).
 
 The decoded data are uploaded to [wsprnet.org](http://wsprnet.org) using [curl](https://curl.haxx.se).
 
