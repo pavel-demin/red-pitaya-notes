@@ -33,14 +33,14 @@ The basic blocks of the system are shown on the following diagram:
 
 ![Pulsed NMR]({{ "/img/pulsed-nmr.png" | prepend: site.baseurl }})
 
-The [projects/pulsed_nmr](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/pulsed_nmr) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/pulsed_nmr/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/pulsed_nmr/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/pulsed_nmr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/pulsed_nmr](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/pulsed_nmr) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
 Software
 -----
 
-The [projects/pulsed_nmr/server](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/pulsed_nmr/server) directory contains the source code of the TCP server ([pulsed-nmr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/pulsed_nmr/server/pulsed-nmr.c)) that receives control commands and transmits the I/Q data streams (up to 2 x 32 bit x 2500 kSPS = 152 Mbit/s) to the control program running on a remote PC.
+The [projects/pulsed_nmr/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/pulsed_nmr/server) directory contains the source code of the TCP server ([pulsed-nmr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr/server/pulsed-nmr.c)) that receives control commands and transmits the I/Q data streams (up to 2 x 32 bit x 2500 kSPS = 152 Mbit/s) to the control program running on a remote PC.
 
-The [projects/pulsed_nmr/client](https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/pulsed_nmr/client) directory contains the source code of the control program ([pulsed_nmr.py](https://github.com/pavel-demin/red-pitaya-notes/blob/develop/projects/pulsed_nmr/client/pulsed_nmr.py)).
+The [projects/pulsed_nmr/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/pulsed_nmr/client) directory contains the source code of the control program ([pulsed_nmr.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr/client/pulsed_nmr.py)).
 
 ![Pulsed NMR client]({{ "/img/pulsed-nmr-client.png" | prepend: site.baseurl }})
 
