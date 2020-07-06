@@ -116,7 +116,7 @@ cd red-pitaya-notes
 
 Building `sdr_transceiver_wspr_122_88.bit`:
 {% highlight bash %}
-make NAME=sdr_transceiver_wspr_122_88 bit
+make NAME=sdr_transceiver_wspr_122_88 PART=xc7z020clg400-1 bit
 {% endhighlight %}
 
 Building SD card image zip file:
