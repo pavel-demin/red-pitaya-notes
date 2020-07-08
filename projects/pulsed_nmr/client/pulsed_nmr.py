@@ -131,7 +131,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     if socketError == 'timeout':
       QMessageBox.information(self, 'PulsedNMR', 'Error: connection timeout.')
     else:
-      QMessageBox.information(self, 'VNA', 'Error: %s.' % self.socket.errorString())
+      QMessageBox.information(self, 'PulsedNMR', 'Error: %s.' % self.socket.errorString())
     self.stop()
 
   def set_freq(self, value):
