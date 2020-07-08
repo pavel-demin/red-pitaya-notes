@@ -27,4 +27,5 @@ layout: default
    1. [SDR receiver compatible with HPSDR]({{ "/sdr-receiver-hpsdr-122-88/" | prepend: site.baseurl }})
    1. [Multiband WSPR transceiver]({{ "/sdr-transceiver-wspr-122-88/" | prepend: site.baseurl }})
    1. [Multiband FT8 transceiver]({{ "/sdr-transceiver-ft8-122-88/" | prepend: site.baseurl }})
+   1. [Pulsed NMR system]({{ "/pulsed-nmr-122-88/" | prepend: site.baseurl }})
    1. [Vector Network Analyzer]({{ "/vna-122-88/" | prepend: site.baseurl }})
