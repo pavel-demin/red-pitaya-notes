@@ -322,7 +322,7 @@ Blt_ProcessSwitches(interp, specs, argc, argv, record, flags)
     for (count = 0; count < argc; count++) {
 	arg = argv[count];
 	if (flags & BLT_SWITCH_OBJV_PARTIAL) {
-	    if ((arg[0] != '-') || ((arg[1] == '-') && (argv[2] == '\0'))) {
+	    if ((arg[0] != '-') || ((arg[1] == '-') && (arg[2] == '\0'))) {
 		/* 
 		 * If the argument doesn't start with a '-' (not a switch)
 		 * or is '--', stop processing and return the number of
