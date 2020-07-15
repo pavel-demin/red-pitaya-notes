@@ -7,7 +7,7 @@ permalink: /links/
 
  - [Red Pitaya Forum](http://forum.redpitaya.com)
 
- - [LTC2145-14, dual 14-bit ADC](http://www.analog.com/en/products/analog-to-digital-converters/standard-adc/high-speed-ad-10msps/ltc2145-14.html)
+ - [LTC2145-14, dual 14-bit ADC](https://www.analog.com/en/products/ltc2145-14.html)
 
  - [LTC2185, dual 16-bit ADC](https://www.analog.com/en/products/ltc2185.html)
 
