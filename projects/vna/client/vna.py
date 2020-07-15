@@ -157,13 +157,13 @@ class FigureTab:
       gain = self.vna.gain_short(freq)
       magnitude = 20.0 * np.log10(np.absolute(gain))
       angle = np.angle(gain, deg = True)
-      row[1].set_text(unicode_minus('%.1f' % magnitude))
+      row[1].set_text(unicode_minus('%.2f' % magnitude))
       row[2].set_text(unicode_minus('%.1f' % angle))
     elif self.mode == 'gain_open':
       gain = self.vna.gain_open(freq)
       magnitude = 20.0 * np.log10(np.absolute(gain))
       angle = np.angle(gain, deg = True)
-      row[1].set_text(unicode_minus('%.1f' % magnitude))
+      row[1].set_text(unicode_minus('%.2f' % magnitude))
       row[2].set_text(unicode_minus('%.1f' % angle))
     else:
       swr = self.vna.swr(freq)
