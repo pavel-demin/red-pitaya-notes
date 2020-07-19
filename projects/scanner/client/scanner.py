@@ -41,7 +41,7 @@ class Scanner(QMainWindow, Ui_Scanner):
     super(Scanner, self).__init__()
     self.setupUi(self)
     # IP address validator
-    rx = QRegExp('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
+    rx = QRegExp('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$')
     self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
     # state variable
     self.idle = True
