@@ -88,7 +88,7 @@ uint16_t i2c_misc_data = 0;
 uint16_t i2c_drive_data = 0;
 uint16_t i2c_dac0_data = 0xfff;
 uint16_t i2c_dac1_data = 0xfff;
-uint32_t i2c_nucleo_data = 0;
+uint32_t i2c_nucleo_data[2] = {0};
 
 uint16_t i2c_ard_frx1_data = 0; /* rx 1 freq in kHz */
 uint16_t i2c_ard_frx2_data = 0; /* rx 2 freq in kHz */
@@ -158,11 +158,12 @@ ssize_t i2c_write_data16(int fd, uint16_t data)
   return write(fd, buffer, 2);
 }
 
-ssize_t i2c_write_data32(int fd, uint32_t data)
+ssize_t i2c_write_data40(int fd, uint32_t low, uint32_t high)
 {
-  uint32_t buffer;
-  buffer = data;
-  return write(fd, &buffer, 4);
+  uint32_t buffer[2];
+  buffer[0] = low;
+  buffer[1] = high;
+  return write(fd, buffer, 5);
 }
 
 uint16_t alex_data_rx = 0;
@@ -266,10 +267,6 @@ void alex_write()
   }
 }
 
-uint16_t misc_data_0 = 0;
-uint16_t misc_data_1 = 0;
-uint16_t misc_data_2 = 0;
-
 static inline int lower_bound(int *array, int size, int value)
 {
   int i = 0, j = size, k;
@@ -282,10 +279,27 @@ static inline int lower_bound(int *array, int size, int value)
   return i;
 }
 
+uint16_t misc_data_0 = 0;
+uint16_t misc_data_1 = 0;
+uint16_t misc_data_2 = 0;
+uint16_t misc_update = 0;
+
 void misc_write()
 {
   uint16_t code[3], data = 0;
-  int i, freqs[20] = {1700000, 2100000, 3400000, 4100000, 6900000, 7350000, 9950000, 10200000, 12075000, 16209000, 16210000, 19584000, 19585000, 23170000, 23171000, 26465000, 26466000, 39850000, 39851000, 61000000};
+  int i, freqs[20] =
+  {
+     1700000,  2100000,
+     3400000,  3900000,
+     6900000,  7350000,
+     9900000, 10250000,
+    13900000, 14450000,
+    17950000, 18250000,
+    20900000, 21550000,
+    24800000, 25100000,
+    26900000, 30000000,
+    49000000, 55000000
+  };
 
   for(i = 0; i < 3; ++i)
   {
@@ -309,27 +323,42 @@ uint32_t nucleo_data_0 = 0;
 uint32_t nucleo_data_1 = 0;
 uint32_t nucleo_data_2 = 0;
 uint32_t nucleo_data_3 = 0;
+uint32_t nucleo_update = 0;
 
 void nucleo_write()
 {
-  uint32_t data = 0;
-  uint16_t code[3];
-  int i, freqs[20] = {1700000, 2100000, 3400000, 4100000, 6900000, 7350000, 9950000, 10200000, 12075000, 16209000, 16210000, 19584000, 19585000, 23170000, 23171000, 26465000, 26466000, 39850000, 39851000, 61000000};
+  uint32_t data[2] = {0};
+  uint32_t code[3];
+  int i, freqs[22] =
+  {
+     1700000,  2100000,
+     3400000,  3900000,
+     5250000,  5450000,
+     6900000,  7350000,
+     9900000, 10250000,
+    13900000, 14450000,
+    17950000, 18250000,
+    20900000, 21550000,
+    24800000, 25100000,
+    26900000, 30000000,
+    49000000, 55000000
+  };
 
   for(i = 0; i < 3; ++i)
   {
-    code[i] = lower_bound(freqs, 20, freq_data[i]);
+    code[i] = lower_bound(freqs, 22, freq_data[i]);
     code[i] = code[i] % 2 ? code[i] / 2 + 1 : 0;
   }
 
-  data |= nucleo_data_3 << 15 | nucleo_data_2 << 10 | nucleo_data_1 << 9 | nucleo_data_0;
-  data |= code[2] << 25 | code[1] << 21 | (code[0] != code[1]) << 20;
+  data[0] = nucleo_data_3 << 25 | nucleo_data_2 << 20 | nucleo_data_1 << 17 | nucleo_data_0 << 1 | (code[0] != code[1]);
+  data[1] = code[2] << 4 | code[1];
 
-  if(i2c_nucleo_data != data)
+  if(i2c_nucleo_data[0] != data[0] || i2c_nucleo_data[1] != data[1])
   {
-    i2c_nucleo_data = data;
+    i2c_nucleo_data[0] = data[0];
+    i2c_nucleo_data[1] = data[1];
     ioctl(i2c_fd, I2C_SLAVE, ADDR_NUCLEO);
-    i2c_write_data32(i2c_fd, data);
+    i2c_write_data40(i2c_fd, data[0], data[1]);
   }
 }
 
@@ -503,7 +532,7 @@ int main(int argc, char *argv[])
     }
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_NUCLEO) >= 0)
     {
-      if(i2c_write_data32(i2c_fd, 0) > 0)
+      if(i2c_write_data40(i2c_fd, 0, 0) > 0)
       {
         i2c_nucleo = 1;
       }
@@ -799,6 +828,18 @@ int main(int argc, char *argv[])
           break;
       }
     }
+
+    if(misc_update)
+    {
+      misc_update = 0;
+      misc_write();
+    };
+
+    if(nucleo_update)
+    {
+      nucleo_update = 0;
+      nucleo_write();
+    };
   }
   close(sock_ep2);
 
@@ -877,11 +918,19 @@ void process_ep2(uint8_t *frame)
 
       if(i2c_nucleo)
       {
-        data = (frame[4] & 0x03) << 7 | frame[2] >> 1;
+        data =
+          ((frame[4] & 0x03) == 2) << 15 |
+          ((frame[4] & 0x03) == 1) << 14 |
+          ((frame[4] & 0x03) == 0) << 13 |
+          (((frame[3] >> 5) & 0x03) == 3) << 12 |
+          (((frame[3] >> 5) & 0x03) == 2) << 11 |
+          (((frame[3] >> 5) & 0x03) == 1) << 10 |
+          (frame[3] & 0x18) << 5 | (frame[2] & 0xfe) | (frame[0] & 0x01);
+
         if(nucleo_data_0 != data)
         {
           nucleo_data_0 = data;
-          nucleo_write();
+          nucleo_update = 1;
         }
       }
 
@@ -946,8 +995,8 @@ void process_ep2(uint8_t *frame)
         freq_data[0] = freq;
         alex_write();
         icom_write();
-        if(i2c_misc) misc_write();
-        if(i2c_nucleo) nucleo_write();
+        if(i2c_misc) misc_update = 1;
+        if(i2c_nucleo) nucleo_update = 1;
         if(i2c_arduino)
         {
           data = freq / 1000;
@@ -977,8 +1026,8 @@ void process_ep2(uint8_t *frame)
           *lo_rst |= 3;
         }
         alex_write();
-        if(i2c_misc) misc_write();
-        if(i2c_nucleo) nucleo_write();
+        if(i2c_misc) misc_update = 1;
+        if(i2c_nucleo) nucleo_update = 1;
         if(i2c_arduino)
         {
           data = freq / 1000;
@@ -1002,8 +1051,8 @@ void process_ep2(uint8_t *frame)
       {
         freq_data[2] = freq;
         alex_write();
-        if(i2c_misc) misc_write();
-        if(i2c_nucleo) nucleo_write();
+        if(i2c_misc) misc_update = 1;
+        if(i2c_nucleo) nucleo_update = 1;
         if(i2c_arduino)
         {
           data = freq / 1000;
@@ -1031,17 +1080,17 @@ void process_ep2(uint8_t *frame)
         if(misc_data_2 != data)
         {
           misc_data_2 = data;
-          misc_write();
+          misc_update = 1;
         }
       }
 
       if(i2c_nucleo)
       {
-        data = (frame[3] & 0x80) >> 7;
+        data = (frame[3] & 0xe0) >> 5;
         if(nucleo_data_1 != data)
         {
           nucleo_data_1 = data;
-          nucleo_write();
+          nucleo_update = 1;
         }
       }
 
@@ -1120,7 +1169,7 @@ void process_ep2(uint8_t *frame)
         if(misc_data_0 != data)
         {
           misc_data_0 = data;
-          misc_write();
+          misc_update = 1;
         }
       }
       if(i2c_nucleo)
@@ -1129,7 +1178,7 @@ void process_ep2(uint8_t *frame)
         if(nucleo_data_2 != data)
         {
           nucleo_data_2 = data;
-          nucleo_write();
+          nucleo_update = 1;
         }
       }
       if(i2c_arduino)
@@ -1157,7 +1206,7 @@ void process_ep2(uint8_t *frame)
         if(misc_data_1 != data)
         {
           misc_data_1 = data;
-          misc_write();
+          misc_update = 1;
         }
       }
       if(i2c_nucleo)
@@ -1166,7 +1215,7 @@ void process_ep2(uint8_t *frame)
         if(nucleo_data_3 != data)
         {
           nucleo_data_3 = data;
-          nucleo_write();
+          nucleo_update = 1;
         }
       }
       cw_reversed = (frame[2] >> 6) & 1;
