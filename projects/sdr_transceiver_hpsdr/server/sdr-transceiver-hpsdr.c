@@ -532,7 +532,7 @@ int main(int argc, char *argv[])
     }
     if(ioctl(i2c_fd, I2C_SLAVE, ADDR_NUCLEO) >= 0)
     {
-      if(i2c_write_data40(i2c_fd, 0, 0) > 0)
+      if(i2c_write_data40(i2c_fd, 0x02100000, 0) > 0)
       {
         i2c_nucleo = 1;
       }
