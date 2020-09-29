@@ -350,7 +350,7 @@ void nucleo_write()
     code[i] = code[i] % 2 ? code[i] / 2 + 1 : 0;
   }
 
-  data[0] = nucleo_data_3 << 25 | nucleo_data_2 << 20 | nucleo_data_1 << 17 | nucleo_data_0 << 1 | (code[0] != code[1]);
+  data[0] = nucleo_data_3 << 25 | nucleo_data_2 << 20 | nucleo_data_1 << 17 | nucleo_data_0 << 1 | cw_ptt << 1 | (code[0] != code[1]);
   data[1] = code[2] << 4 | code[1];
 
   if(i2c_nucleo_data[0] != data[0] || i2c_nucleo_data[1] != data[1])
