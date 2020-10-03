@@ -45,9 +45,9 @@ int main(int argc, char *argv[])
   number = (argc == 3) ? strtol(argv[1], &end, 10) : -1;
   if(errno != 0 || end == argv[1] || number < 10 || number > 65535)
   {
-    printf("Usage: dac-player factor file\n");
-    printf("factor - DAC interpolation factor (10 - 65535),\n");
-    printf("file - input file.\n");
+    fprintf(stderr, "Usage: dac-player rate file\n");
+    fprintf(stderr, " rate - interpolation rate (10 - 65535),\n");
+    fprintf(stderr, " file - input file.\n");
     return EXIT_FAILURE;
   }
 
@@ -57,12 +57,12 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  /* set DAC interpolation factor */
+  /* set interpolation rate */
   *((uint16_t *)(cfg + 4)) = (uint16_t)number - 1;
 
   signal(SIGINT, signal_handler);
 
-  /* write OUT1 and OUT2 samples to DAC FIFO */
+  /* write OUT1 and OUT2 samples to FIFO */
   while(!interrupted)
   {
     if((size = fread(buffer, 1, 65536, fileIn)) <= 0) break;
