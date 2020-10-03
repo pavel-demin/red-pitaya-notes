@@ -23,10 +23,11 @@ void signal_handler(int sig)
 int main(int argc, char *argv[])
 {
   FILE *fileIn;
-  int mmapfd;
-  volatile void *cfg, *sts, *dac;
+  int i, mmapfd;
+  volatile void *cfg, *sts;
+  volatile uint64_t *dac;
   char *end;
-  char buffer[65536];
+  uint64_t buffer[8192];
   long number;
   size_t size;
 
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
   }
 
   /* set DAC interpolation factor */
-  *((uint16_t *)(cfg + 6)) = (uint16_t)number - 1;
+  *((uint16_t *)(cfg + 4)) = (uint16_t)number - 1;
 
   signal(SIGINT, signal_handler);
 
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
       usleep(500);
     }
 
-    memcpy(dac, buffer, size);
+    for(i = 0; i < size / 8; ++i) *dac = buffer[i];
   }
 
   munmap(cfg, sysconf(_SC_PAGESIZE));

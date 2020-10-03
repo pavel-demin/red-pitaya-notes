@@ -9,6 +9,7 @@ gcc adc-recorder.c -o adc-recorder
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <sched.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <fcntl.h>
@@ -20,36 +21,34 @@ void signal_handler(int sig)
   interrupted = 1;
 }
 
+void neoncopy(void *dst, volatile void *src, int cnt)
+{
+  asm volatile
+  (
+    "loop_%=:\n"
+    "vldm %[src]!, {q0, q1, q2, q3}\n"
+    "vstm %[dst]!, {q0, q1, q2, q3}\n"
+    "subs %[cnt], %[cnt], #64\n"
+    "bgt loop_%="
+    : [dst] "+r" (dst), [src] "+r" (src), [cnt] "+r" (cnt)
+    :
+    : "q0", "q1", "q2", "q3", "cc", "memory"
+  );
+}
+
 int main(int argc, char *argv[])
 {
-  pid_t pid;
   FILE *fileOut;
-  int pipefd[2], mmapfd;
+  int mmapfd;
   int position, limit, offset;
   volatile uint32_t *slcr, *axi_hp0;
-  volatile void *cfg, *sts, *adc, *buf;
+  volatile void *cfg, *sts, *adc;
+  void *buf;
+  cpu_set_t mask;
+  struct sched_param param;
   char *end;
   int buffer = 0;
   long number;
-
-  if((mmapfd = open("/dev/mem", O_RDWR)) < 0)
-  {
-    perror("open");
-    return 1;
-  }
-
-  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0xF8000000);
-  axi_hp0 = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0xF8008000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40001000);
-  adc = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x1E000000);
-  buf = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
-
-  /* set HP0 bus width to 64 bits */
-  slcr[2] = 0xDF0D;
-  slcr[144] = 0;
-  axi_hp0[0] &= ~1;
-  axi_hp0[5] &= ~1;
 
   errno = 0;
   number = (argc == 3) ? strtol(argv[1], &end, 10) : -1;
@@ -61,77 +60,79 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  limit = 512*1024;
-
-  /* create a pipe */
-  pipe(pipefd);
-
-  pid = fork();
-  if(pid == 0)
+  if((fileOut = fopen(argv[2], "wb")) < 0)
   {
-    /* child process */
+    perror("fopen");
+    return EXIT_FAILURE;
+  }
 
-    close(pipefd[0]);
+  memset(&param, 0, sizeof(param));
+  param.sched_priority = sched_get_priority_max(SCHED_FIFO);
+  sched_setscheduler(0, SCHED_FIFO, &param);
 
-    while(1)
+  CPU_ZERO(&mask);
+  CPU_SET(1, &mask);
+  sched_setaffinity(0, sizeof(cpu_set_t), &mask);
+
+  if((mmapfd = open("/dev/mem", O_RDWR)) < 0)
+  {
+    perror("open");
+    return EXIT_FAILURE;
+  }
+
+  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0xF8000000);
+  axi_hp0 = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0xF8008000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x40001000);
+  adc = mmap(NULL, 128*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x1E000000);
+  buf = mmap(NULL, 64*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+
+  /* set HP0 bus width to 64 bits */
+  slcr[2] = 0xDF0D;
+  slcr[144] = 0;
+  axi_hp0[0] &= ~1;
+  axi_hp0[5] &= ~1;
+
+  /* enter reset mode */
+  *(uint8_t *)(cfg + 0) &= ~1;
+  usleep(100);
+  *(uint8_t *)(cfg + 0) &= ~2;
+
+  /* set ADC decimation factor */
+  *(uint16_t *)(cfg + 2) = (uint16_t)number - 1;
+
+  signal(SIGINT, signal_handler);
+
+  /* enter normal operating mode */
+  *(uint8_t *)(cfg + 0) |= 3;
+
+  limit = 32*1024;
+
+  while(!interrupted)
+  {
+    /* read ADC writer position */
+    position = *(uint32_t *)(sts + 0);
+
+    /* send 256 kB if ready, otherwise sleep 0.1 ms */
+    if((limit > 0 && position > limit) || (limit == 0 && position < 32*1024))
     {
-      /* read ram writer position */
-      position = *((uint32_t *)(sts + 0));
-
-      /* write 4 MB if ready, otherwise sleep 1 ms */
-      if((limit > 0 && position > limit) || (limit == 0 && position < 512*1024))
-      {
-        offset = limit > 0 ? 0 : 4096*1024;
-        limit = limit > 0 ? 0 : 512*1024;
-        memcpy(buf + offset, adc + offset, 4096*1024);
-        write(pipefd[1], &buffer, sizeof(buffer));
-      }
-      else
-      {
-        usleep(1000);
-      }
+      offset = limit > 0 ? 0 : 256*1024;
+      limit = limit > 0 ? 0 : 32*1024;
+      neoncopy(buf, adc + offset, 256*1024);
+      if(fwrite(buf, 1, 256*1024, fileOut) < 0) break;
+    }
+    else
+    {
+      usleep(100);
     }
   }
-  else if(pid > 0)
-  {
-    /* parent process */
 
-    close(pipefd[1]);
+  /* enter reset mode */
+  *(uint8_t *)(cfg + 0) &= ~1;
+  usleep(100);
+  *(uint8_t *)(cfg + 0) &= ~2;
 
-    if((fileOut = fopen(argv[2], "wb")) < 0)
-    {
-      perror("fopen");
-      kill(pid, SIGTERM);
-      return EXIT_FAILURE;
-    }
+  fclose(fileOut);
 
-    /* enter reset mode */
-    *((uint32_t *)(cfg + 0)) &= ~3;
-
-    /* set ADC decimation factor */
-    *((uint16_t *)(cfg + 4)) = (uint16_t)number - 1;
-
-    signal(SIGINT, signal_handler);
-
-    /* enter normal operating mode */
-    *((uint32_t *)(cfg + 0)) |= 3;
-
-    while(!interrupted)
-    {
-      read(pipefd[0], &buffer, sizeof(buffer));
-      if(fwrite(buf, 1, 4096*1024, fileOut) < 0) break;
-
-      read(pipefd[0], &buffer, sizeof(buffer));
-      if(fwrite(buf + 4096*1024, 1, 4096*1024, fileOut) < 0) break;
-    }
-
-    kill(pid, SIGTERM);
-
-    /* enter reset mode */
-    *((uint32_t *)(cfg + 0)) &= ~3;
-
-    fclose(fileOut);
-
-    return EXIT_SUCCESS;
-  }
+  return EXIT_SUCCESS;
 }

@@ -81,15 +81,22 @@ cell pavel-demin:user:axi_cfg_register cfg_0 {
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_1 {
+cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 64 DIN_FROM 0 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_2 {
+cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 64 DIN_FROM 1 DIN_TO 1
+} {
+  din cfg_0/cfg_data
+}
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer slice_2 {
+  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 16
 } {
   din cfg_0/cfg_data
 }
@@ -97,13 +104,6 @@ cell pavel-demin:user:port_slicer slice_2 {
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32
-} {
-  din cfg_0/cfg_data
-}
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer slice_4 {
-  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48
 } {
   din cfg_0/cfg_data
 }
@@ -116,27 +116,9 @@ cell pavel-demin:user:axis_decimator dcmtr_0 {
   CNTR_WIDTH 16
 } {
   S_AXIS adc_0/M_AXIS
-  cfg_data slice_3/dout
+  cfg_data slice_2/dout
   aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
-}
-
-# Create xlconstant
-cell xilinx.com:ip:xlconstant const_1 {
-  CONST_WIDTH 9
-  CONST_VAL 511
-}
-
-# Create axis_packetizer
-cell pavel-demin:user:axis_packetizer pktzr_0 {
-  AXIS_TDATA_WIDTH 32
-  CNTR_WIDTH 9
-  CONTINUOUS TRUE
-} {
-  S_AXIS dcmtr_0/M_AXIS
-  cfg_data const_1/dout
-  aclk pll_0/clk_out1
-  aresetn slice_1/dout
 }
 
 # Create axis_dwidth_converter
@@ -145,26 +127,26 @@ cell xilinx.com:ip:axis_dwidth_converter conv_0 {
   S_TDATA_NUM_BYTES 4
   M_TDATA_NUM_BYTES 8
 } {
-  S_AXIS pktzr_0/M_AXIS
+  S_AXIS dcmtr_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn slice_2/dout
+  aresetn slice_0/dout
 }
 
 # Create xlconstant
-cell xilinx.com:ip:xlconstant const_2 {
+cell xilinx.com:ip:xlconstant const_1 {
   CONST_WIDTH 32
   CONST_VAL 503316480
 }
 
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
-  ADDR_WIDTH 20
+  ADDR_WIDTH 16
 } {
   S_AXIS conv_0/M_AXIS
   M_AXI ps_0/S_AXI_HP0
-  cfg_data const_2/dout
+  cfg_data const_1/dout
   aclk pll_0/clk_out1
-  aresetn slice_2/dout
+  aresetn slice_1/dout
 }
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
@@ -206,7 +188,7 @@ cell pavel-demin:user:axis_interpolator inter_0 {
 } {
   S_AXIS zeroer_0/M_AXIS
   M_AXIS dac_0/S_AXIS
-  cfg_data slice_4/dout
+  cfg_data slice_3/dout
   aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
 }
