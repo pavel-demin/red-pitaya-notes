@@ -76,9 +76,5 @@ int main(int argc, char *argv[])
     for(i = 0; i < size / 8; ++i) *dac = buffer[i];
   }
 
-  munmap(cfg, sysconf(_SC_PAGESIZE));
-  munmap(sts, sysconf(_SC_PAGESIZE));
-  munmap(dac, sysconf(_SC_PAGESIZE));
-
   return EXIT_SUCCESS;
 }
