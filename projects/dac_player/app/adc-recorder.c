@@ -13,6 +13,7 @@ gcc adc-recorder.c -o adc-recorder
 #include <unistd.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <time.h>
 
 int interrupted = 0;
 
@@ -36,6 +37,14 @@ void neoncopy(void *dst, volatile void *src, int cnt)
   );
 }
 
+void usage()
+{
+  fprintf(stderr, "Usage: adc-recorder rate time file\n");
+  fprintf(stderr, " rate - decimation rate (10 - 65536),\n");
+  fprintf(stderr, " time - duration of the acquisition in seconds (from 1 to 99999999),\n");
+  fprintf(stderr, " file - output file.\n");
+}
+
 int main(int argc, char *argv[])
 {
   FILE *fileOut;
@@ -48,19 +57,35 @@ int main(int argc, char *argv[])
   struct sched_param param;
   char *end;
   int buffer = 0;
-  long number;
+  long value;
+  int32_t rate;
+  time_t start, stop;
 
-  errno = 0;
-  number = (argc == 3) ? strtol(argv[1], &end, 10) : -1;
-  if(errno != 0 || end == argv[1] || number < 10 || number > 65535)
+  if(argc != 4)
   {
-    printf("Usage: adc-recorder factor file\n");
-    printf("factor - ADC decimation factor (10 - 65535),\n");
-    printf("file - output file.\n");
+    usage();
     return EXIT_FAILURE;
   }
 
-  if((fileOut = fopen(argv[2], "wb")) < 0)
+  errno = 0;
+  value = strtol(argv[1], &end, 10);
+  if(errno != 0 || end == argv[1] || value < 1 || value > 65536)
+  {
+    usage();
+    return EXIT_FAILURE;
+  }
+  rate = value;
+
+  errno = 0;
+  value = strtol(argv[2], &end, 10);
+  if(errno != 0 || end == argv[2] || value < 1 || value > 99999999)
+  {
+    usage();
+    return EXIT_FAILURE;
+  }
+  stop = value;
+
+  if((fileOut = fopen(argv[3], "wb")) < 0)
   {
     perror("fopen");
     return EXIT_FAILURE;
@@ -98,8 +123,10 @@ int main(int argc, char *argv[])
   usleep(100);
   *(uint8_t *)(cfg + 0) &= ~2;
 
-  /* set ADC decimation factor */
-  *(uint16_t *)(cfg + 2) = (uint16_t)number - 1;
+  /* set decimation rate */
+  *(uint16_t *)(cfg + 2) = (uint16_t)rate - 1;
+
+  start = time(NULL) + 1;
 
   signal(SIGINT, signal_handler);
 
@@ -108,12 +135,12 @@ int main(int argc, char *argv[])
 
   limit = 32*1024;
 
-  while(!interrupted)
+  while(!interrupted && time(NULL) - start < stop)
   {
-    /* read ADC writer position */
+    /* read writer position */
     position = *(uint32_t *)(sts + 0);
 
-    /* send 256 kB if ready, otherwise sleep 0.1 ms */
+    /* write 256 kB if ready, otherwise sleep 0.1 ms */
     if((limit > 0 && position > limit) || (limit == 0 && position < 32*1024))
     {
       offset = limit > 0 ? 0 : 256*1024;
@@ -127,9 +154,21 @@ int main(int argc, char *argv[])
     }
   }
 
-  /* enter reset mode */
+  /* stop acquisition */
   *(uint8_t *)(cfg + 0) &= ~1;
   usleep(100);
+
+  /* read writer position */
+  position = *(uint32_t *)(sts + 0);
+
+  /* write remaining data */
+  if((limit > 0 && position < limit) || (limit == 0 && position > 32*1024))
+  {
+    offset = limit > 0 ? 0 : 256*1024;
+    neoncopy(buf, adc + offset, 256*1024);
+    fwrite(buf, 1, position * 8 - offset, fileOut);
+  }
+
   *(uint8_t *)(cfg + 0) &= ~2;
 
   fclose(fileOut);
