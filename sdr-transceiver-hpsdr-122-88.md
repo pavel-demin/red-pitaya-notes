@@ -60,7 +60,7 @@ RF, GPIO and XADC connections
 I2S connections
 -----
 
-The I2S interface is sharing pins with the ALEX interface. So, the two can't be used simultaneously. The supported I2S audio codecs are [TLV320AIC23B](http://www.ti.com/product/TLV320AIC23B) and [WM8731](http://www.cirrus.com/en/products/pro/detail/P1307.html). The I2S audio codecs should be clocked with a 12.288 MHz oscillator crystal.
+The I2S interface is sharing pins with the ALEX interface. So, the two can't be used simultaneously. The supported I2S audio codecs are [TLV320AIC23B](https://www.ti.com/product/TLV320AIC23B) and [WM8731](https://www.cirrus.com/products/wm8731). The I2S audio codecs should be clocked with a 12.288 MHz oscillator crystal.
 
 The I2S interface should be connected to the [extension connector E1](http://redpitaya.readthedocs.io/en/latest/developerGuide/125-14/extent.html#extension-connector-e1) as shown on the above diagram. The I2C interface should be connected to the I2C pins of the [extension connector E2](http://redpitaya.readthedocs.io/en/latest/developerGuide/125-14/extent.html#extension-connector-e2).
 
