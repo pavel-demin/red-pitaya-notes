@@ -406,7 +406,7 @@ cell xilinx.com:ip:cordic cordic_0 {
   INPUT_WIDTH 24
   OUTPUT_WIDTH 15
   ROUND_MODE Round_Pos_Neg_Inf
-  COMPENSATION_SCALING Embedded_Multiplier
+  COMPENSATION_SCALING BRAM
 } {
   S_AXIS_CARTESIAN comb_1/M_AXIS
   aclk /pll_0/clk_out1
