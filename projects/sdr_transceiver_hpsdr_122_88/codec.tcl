@@ -103,19 +103,6 @@ cell pavel-demin:user:axis_keyer keyer_0 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter subset_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 4
-  TDATA_REMAP {16'b0000000000000000,tdata[15:0]}
-} {
-  S_AXIS keyer_0/M_AXIS
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
 # Create axis_constant
 cell pavel-demin:user:axis_constant phase_0 {
   AXIS_TDATA_WIDTH 32
@@ -135,79 +122,58 @@ cell xilinx.com:ip:dds_compiler dds_0 {
   PHASE_WIDTH 30
   OUTPUT_WIDTH 16
   DSP48_USE Minimal
+  OUTPUT_SELECTION Sine
 } {
   S_AXIS_PHASE phase_0/M_AXIS
   aclk /pll_0/clk_out1
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr lfsr_0 {
-  HAS_TREADY TRUE
-} {
+cell pavel-demin:user:axis_lfsr lfsr_0 {} {
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create cmpy
-cell xilinx.com:ip:cmpy mult_0 {
-  FLOWCONTROL Blocking
-  APORTWIDTH.VALUE_SRC USER
-  BPORTWIDTH.VALUE_SRC USER
-  APORTWIDTH 16
-  BPORTWIDTH 16
-  ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 18
+# Create xbip_dsp48_macro
+cell xilinx.com:ip:xbip_dsp48_macro mult_0 {
+  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+  A_WIDTH.VALUE_SRC USER
+  B_WIDTH.VALUE_SRC USER
+  OUTPUT_PROPERTIES User_Defined
+  A_WIDTH 16
+  B_WIDTH 16
+  P_WIDTH 18
 } {
-  S_AXIS_A subset_0/M_AXIS
-  S_AXIS_B dds_0/M_AXIS_DATA
-  S_AXIS_CTRL lfsr_0/M_AXIS
-  aclk /pll_0/clk_out1
-}
-
-# Create axis_subset_converter
-cell xilinx.com:ip:axis_subset_converter subset_1 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 3
-  M_TDATA_NUM_BYTES 4
-  TDATA_REMAP {16'b0000000000000000,tdata[15:0]}
-} {
-  S_AXIS mult_0/M_AXIS_DOUT
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_constant
-cell pavel-demin:user:axis_constant const_0 {
-  AXIS_TDATA_WIDTH 16
-} {
-  cfg_data slice_4/dout
-  aclk /pll_0/clk_out1
+  A dds_0/m_axis_data_tdata
+  B keyer_0/m_axis_tdata
+  CARRYIN lfsr_0/m_axis_tdata
+  CLK /pll_0/clk_out1
 }
 
 # Create axis_lfsr
-cell pavel-demin:user:axis_lfsr lfsr_1 {
-  HAS_TREADY TRUE
-} {
+cell pavel-demin:user:axis_lfsr lfsr_1 {} {
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create cmpy
-cell xilinx.com:ip:cmpy mult_1 {
-  FLOWCONTROL Blocking
-  APORTWIDTH.VALUE_SRC USER
-  BPORTWIDTH.VALUE_SRC USER
-  APORTWIDTH 16
-  BPORTWIDTH 16
-  ROUNDMODE Random_Rounding
-  OUTPUTWIDTH 18
+# Create xbip_dsp48_macro
+cell xilinx.com:ip:xbip_dsp48_macro mult_1 {
+  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
+  A_WIDTH.VALUE_SRC USER
+  B_WIDTH.VALUE_SRC USER
+  OUTPUT_PROPERTIES User_Defined
+  A_WIDTH 18
+  B_WIDTH 16
+  P_WIDTH 18
 } {
-  S_AXIS_A subset_1/M_AXIS
-  S_AXIS_B const_0/M_AXIS
-  S_AXIS_CTRL lfsr_1/M_AXIS
-  aclk /pll_0/clk_out1
+  A mult_0/P
+  B slice_4/dout
+  CARRYIN lfsr_1/m_axis_tdata
+  CLK /pll_0/clk_out1
 }
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant const_0
 
 # Create axis_broadcaster
 cell xilinx.com:ip:axis_broadcaster bcast_1 {
@@ -218,7 +184,10 @@ cell xilinx.com:ip:axis_broadcaster bcast_1 {
   M00_TDATA_REMAP {tdata[15:0]}
   M01_TDATA_REMAP {tdata[15:0]}
 } {
-  S_AXIS mult_1/M_AXIS_DOUT
+  s_axis_tready keyer_0/m_axis_tready
+  s_axis_tready dds_0/m_axis_data_tready
+  s_axis_tdata mult_1/P
+  s_axis_tvalid const_0/dout
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }

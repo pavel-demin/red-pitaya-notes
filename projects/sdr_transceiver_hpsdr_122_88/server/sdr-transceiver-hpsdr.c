@@ -43,11 +43,11 @@
 #define ADDR_ARDUINO 0x40 /* G8NJJ Arduino sketch */
 #define ADDR_NUCLEO 0x55 /* NUCLEO-G071RB */
 
-volatile uint32_t *rx_freq[2], *tx_freq, *alex, *tx_mux, *dac_freq;
+volatile uint32_t *rx_freq[3], *tx_freq, *alex, *tx_mux, *dac_freq;
 volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr, *dac_cntr, *adc_cntr;
 volatile int16_t *tx_level, *dac_level;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *lo_rst;
-volatile uint64_t *rx_data;
+volatile uint64_t *rx_data[5];
 volatile uint32_t *tx_data, *dac_data;
 volatile uint16_t *adc_data;
 volatile int32_t *xadc;
@@ -433,10 +433,10 @@ int main(int argc, char *argv[])
   for(i = 0; i < 5; ++i)
   {
     errno = 0;
-    number = (argc == 6) ? strtol(argv[i + 1], &end, 10) : -1;
+    number = (argc == 7) ? strtol(argv[i + 1], &end, 10) : -1;
     if(errno != 0 || end == argv[i + 1] || number < 1 || number > 2)
     {
-      printf("Usage: sdr-transceiver-hpsdr 1|2 1|2 1|2 1|2 1|2\n");
+      printf("Usage: sdr-transceiver-hpsdr 1|2 1|2 1|2 1|2 1|2 1|2\n");
       return EXIT_FAILURE;
     }
     chan |= (number - 1) << i;
@@ -573,8 +573,12 @@ int main(int argc, char *argv[])
   dac_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
   adc_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
   tx_data = mmap(NULL, 4*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000c000);
-  rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   xadc = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+
+  for(i = 0; i < 5; ++i)
+  {
+    rx_data[i] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000 + i * 0x2000);
+  }
 
   rx_rst = ((uint8_t *)(cfg + 0));
   lo_rst = ((uint8_t *)(cfg + 1));
@@ -587,17 +591,18 @@ int main(int argc, char *argv[])
 
   rx_freq[0] = ((uint32_t *)(cfg + 8));
   rx_freq[1] = ((uint32_t *)(cfg + 12));
+  rx_freq[2] = ((uint32_t *)(cfg + 16));
 
-  tx_freq = ((uint32_t *)(cfg + 16));
-  tx_size = ((uint16_t *)(cfg + 20));
-  tx_level = ((int16_t *)(cfg + 22));
-  ps_level = ((int16_t *)(cfg + 24));
+  tx_freq = ((uint32_t *)(cfg + 20));
+  tx_size = ((uint16_t *)(cfg + 24));
+  tx_level = ((int16_t *)(cfg + 26));
+  ps_level = ((int16_t *)(cfg + 28));
 
-  tx_sel = ((uint8_t *)(cfg + 26));
+  tx_sel = ((uint8_t *)(cfg + 30));
 
-  dac_freq = ((uint32_t *)(cfg + 28));
-  dac_size = ((uint16_t *)(cfg + 32));
-  dac_level = ((int16_t *)(cfg + 34));
+  dac_freq = ((uint32_t *)(cfg + 32));
+  dac_size = ((uint16_t *)(cfg + 36));
+  dac_level = ((int16_t *)(cfg + 38));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 14));
@@ -606,8 +611,8 @@ int main(int argc, char *argv[])
   gpio_in = ((uint8_t *)(sts + 20));
 
   /* set rx and tx selectors */
-  *rx_sel = chan & 7;
-  *tx_sel = (chan >> 3) & 3;
+  *rx_sel = chan & 15;
+  *tx_sel = (chan >> 4) & 3;
 
   /* set all GPIO pins to low */
   *gpio_out = 0;
@@ -615,6 +620,7 @@ int main(int argc, char *argv[])
   /* set default rx phase increment */
   *rx_freq[0] = (uint32_t)floor(600000 / 122.88e6 * (1 << 30) + 0.5);
   *rx_freq[1] = (uint32_t)floor(600000 / 122.88e6 * (1 << 30) + 0.5);
+  *rx_freq[2] = (uint32_t)floor(600000 / 122.88e6 * (1 << 30) + 0.5);
 
   /* set default rx sample rate */
   *rx_rate = 1280;
@@ -1065,6 +1071,13 @@ void process_ep2(uint8_t *frame)
         }
       }
       break;
+    case 8:
+    case 9:
+      /* set rx phase increment */
+      freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *rx_freq[2] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      break;
     case 18:
     case 19:
       data = (frame[2] & 0x40) << 9 | frame[4] << 8 | frame[3];
@@ -1295,6 +1308,7 @@ void *handler_ep6(void *arg)
   uint8_t data1[4096];
   uint8_t data2[4096];
   uint8_t data3[4096];
+  uint8_t data4[4096];
   uint8_t buffer[25 * 1032];
   uint8_t *pointer;
   struct iovec iovec[25][1];
@@ -1348,7 +1362,7 @@ void *handler_ep6(void *arg)
     n = 504 / size;
     m = 256 / n;
 
-    if((i2c_codec && *adc_cntr >= 1024) || *rx_cntr >= 8192)
+    if((i2c_codec && *adc_cntr >= 1024) || *rx_cntr >= 2048)
     {
       if(i2c_codec)
       {
@@ -1362,7 +1376,7 @@ void *handler_ep6(void *arg)
       *rx_rst &= ~1;
     }
 
-    while(*rx_cntr < m * n * 16) usleep(1000);
+    while(*rx_cntr < m * n * 4) usleep(1000);
 
     if(i2c_codec && --rate_counter == 0)
     {
@@ -1376,10 +1390,11 @@ void *handler_ep6(void *arg)
 
     for(i = 0; i < m * n * 16; i += 8)
     {
-      *(uint64_t *)(data0 + i) = *rx_data;
-      *(uint64_t *)(data1 + i) = *rx_data;
-      *(uint64_t *)(data2 + i) = *rx_data;
-      *(uint64_t *)(data3 + i) = *rx_data;
+      *(uint64_t *)(data0 + i) = *rx_data[0];
+      *(uint64_t *)(data1 + i) = *rx_data[1];
+      *(uint64_t *)(data2 + i) = *rx_data[2];
+      *(uint64_t *)(data3 + i) = *rx_data[3];
+      *(uint64_t *)(data4 + i) = *rx_data[4];
     }
 
     data_offset = 0;
@@ -1429,20 +1444,24 @@ void *handler_ep6(void *arg)
 #ifndef ANANXD
         if(size > 14)
         {
+          memcpy(pointer + 12, data3 + data_offset, 6);
+        }
+        if(size > 20)
+        {
+          memcpy(pointer + 18, data4 + data_offset, 6);
+        }
+#else
+        if(size > 14)
+        {
           memcpy(pointer + 12, data2 + data_offset, 6);
         }
         if(size > 20)
         {
           memcpy(pointer + 18, data3 + data_offset, 6);
         }
-#else
-        if(size > 20)
-        {
-          memcpy(pointer + 18, data2 + data_offset, 6);
-        }
         if(size > 26)
         {
-          memcpy(pointer + 24, data3 + data_offset, 6);
+          memcpy(pointer + 24, data4 + data_offset, 6);
         }
 #endif
         data_offset += 8;
