@@ -620,7 +620,7 @@ class VNA(QMainWindow, Ui_VNA):
 
   def set_corr(self, value):
     if self.idle: return
-    self.socket.write(struct.pack('<I', 4<<28 | int(value)))
+    self.socket.write(struct.pack('<I', 4<<28 | int(value & 0xfffffff)))
 
   def set_phase1(self, value):
     if self.idle: return
