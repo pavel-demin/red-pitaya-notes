@@ -72,7 +72,7 @@ class Measurement:
     self.period = 62500
 
 class FigureTab:
-  cursors = [15000, 45000]
+  cursors = [15000, 35000]
   colors = ['orange', 'violet']
 
   def __init__(self, layout, vna):
@@ -222,6 +222,7 @@ class FigureTab:
       value = self.cursors[i]
       self.cursorValues[i].setRange(min, max)
       self.cursorValues[i].setValue(value)
+      value = self.cursorValues[i].value()
       self.set_cursor(i, value)
     getattr(self, 'update_%s' % mode)()
 
@@ -466,8 +467,8 @@ class VNA(QMainWindow, Ui_VNA):
     self.auto = False
     # sweep parameters
     self.sweep_start = 10
-    self.sweep_stop = 60000
-    self.sweep_size = 6000
+    self.sweep_stop = 50000
+    self.sweep_size = 5000
     # buffer and offset for the incoming samples
     self.buffer = bytearray(16 * 32768)
     self.offset = 0
@@ -484,7 +485,7 @@ class VNA(QMainWindow, Ui_VNA):
       layout = getattr(self, '%sLayout' % self.graphs[i])
       self.tabs[i] = FigureTab(layout, self)
     # configure widgets
-    self.rateValue.addItems(['10000', '5000', '1000', '500', '100', '50', '10', '5', '1'])
+    self.rateValue.addItems(['5000', '1000', '500', '100', '50', '10', '5', '1'])
     self.rateValue.lineEdit().setReadOnly(True)
     self.rateValue.lineEdit().setAlignment(Qt.AlignRight)
     for i in range(self.rateValue.count()):
@@ -615,7 +616,7 @@ class VNA(QMainWindow, Ui_VNA):
 
   def set_rate(self, value):
     if self.idle: return
-    rate = [5, 10, 50, 100, 500, 1000, 5000, 10000, 50000][value]
+    rate = [10, 50, 100, 500, 1000, 5000, 10000, 50000][value]
     self.socket.write(struct.pack('<I', 3<<28 | int(rate)))
 
   def set_corr(self, value):
@@ -782,17 +783,17 @@ class VNA(QMainWindow, Ui_VNA):
     self.level1Value.setValue(settings.value('level_1', 0, type = int))
     self.level2Value.setValue(settings.value('level_2', -90, type = int))
     open_start = settings.value('open_start', 10, type = int)
-    open_stop = settings.value('open_stop', 60000, type = int)
-    open_size = settings.value('open_size', 6000, type = int)
+    open_stop = settings.value('open_stop', 50000, type = int)
+    open_size = settings.value('open_size', 5000, type = int)
     short_start = settings.value('short_start', 10, type = int)
-    short_stop = settings.value('short_stop', 60000, type = int)
-    short_size = settings.value('short_size', 6000, type = int)
+    short_stop = settings.value('short_stop', 50000, type = int)
+    short_size = settings.value('short_size', 5000, type = int)
     load_start = settings.value('load_start', 10, type = int)
-    load_stop = settings.value('load_stop', 60000, type = int)
-    load_size = settings.value('load_size', 6000, type = int)
+    load_stop = settings.value('load_stop', 50000, type = int)
+    load_size = settings.value('load_size', 5000, type = int)
     dut_start = settings.value('dut_start', 10, type = int)
-    dut_stop = settings.value('dut_stop', 60000, type = int)
-    dut_size = settings.value('dut_size', 6000, type = int)
+    dut_stop = settings.value('dut_stop', 50000, type = int)
+    dut_size = settings.value('dut_size', 5000, type = int)
     self.startValue.setValue(dut_start)
     self.stopValue.setValue(dut_stop)
     self.sizeValue.setValue(dut_size)
