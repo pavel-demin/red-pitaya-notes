@@ -32,9 +32,9 @@ VIVADO = vivado -nolog -nojournal -mode batch
 XSCT = xsct
 RM = rm -rf
 
-UBOOT_TAG = xilinx-v2020.1
+UBOOT_TAG = xilinx-v2020.2
 LINUX_TAG = 5.4
-DTREE_TAG = xilinx-v2020.1
+DTREE_TAG = xilinx-v2020.2
 
 UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
 LINUX_DIR = tmp/linux-$(LINUX_TAG)
