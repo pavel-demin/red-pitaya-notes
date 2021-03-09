@@ -43,8 +43,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins writer_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
-set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+assign_bd_address -range 4K -offset 0x40002000 [get_bd_addr_segs -of_objects [get_bd_intf_pins writer_0/S_AXI]]
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -52,8 +51,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins reader_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
-set_property OFFSET 0x40003000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
+assign_bd_address -range 4K -offset 0x40003000 [get_bd_addr_segs -of_objects [get_bd_intf_pins reader_0/S_AXI]]
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_1 {
@@ -80,6 +78,5 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins sts_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
-set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
+assign_bd_address -range 4K -offset 0x40001000 [get_bd_addr_segs -of_objects [get_bd_intf_pins sts_0/S_AXI]]
 

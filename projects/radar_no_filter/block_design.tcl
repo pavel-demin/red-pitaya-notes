@@ -86,8 +86,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins cfg_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
-set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
+assign_bd_address -range 4K -offset 0x40000000 [get_bd_addr_segs -of_objects [get_bd_intf_pins cfg_0/S_AXI]]
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
@@ -173,8 +172,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins gpio_1/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_gpio_1_Reg]
-set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_gpio_1_Reg]
+assign_bd_address -range 4K -offset 0x40002000 [get_bd_addr_segs -of_objects [get_bd_intf_pins gpio_1/S_AXI]]
 
 # Delete input/output port
 delete_bd_objs [get_bd_ports exp_p_tri_io]
@@ -195,8 +193,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins gpio_2/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_gpio_2_Reg]
-set_property OFFSET 0x40003000 [get_bd_addr_segs ps_0/Data/SEG_gpio_2_Reg]
+assign_bd_address -range 4K -offset 0x40003000 [get_bd_addr_segs -of_objects [get_bd_intf_pins gpio_2/S_AXI]]
 
 # Create axis_decimator
 cell pavel-demin:user:axis_decimator dcmtr_0 {
@@ -278,8 +275,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins reader_0/S_AXI]
 
-set_property RANGE 64K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
-set_property OFFSET 0x40010000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
+assign_bd_address -range 64K -offset 0x40010000 [get_bd_addr_segs -of_objects [get_bd_intf_pins reader_0/S_AXI]]
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_1 {
@@ -306,5 +302,4 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins sts_0/S_AXI]
 
-set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
-set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
+assign_bd_address -range 4K -offset 0x40001000 [get_bd_addr_segs -of_objects [get_bd_intf_pins sts_0/S_AXI]]
