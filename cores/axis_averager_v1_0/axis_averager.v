@@ -67,11 +67,6 @@ module axis_averager #
     if(s_axis_tvalid)
     begin
       int_cntr_next = int_cntr_reg + 1'b1;
-    end
-
-    if(s_axis_tvalid)
-    begin
-      int_cntr_next = int_cntr_reg + 1'b1;
 
       if(int_cntr_reg == pre_data)
       begin
