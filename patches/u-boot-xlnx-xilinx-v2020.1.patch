@@ -80,3 +80,13 @@ diff -rupN old/u-boot-xlnx-xilinx-v2020.1/include/phy.h u-boot-xlnx-xilinx-v2020
  int phy_et1011c_init(void);
  int phy_lxt_init(void);
  int phy_marvell_init(void);
++++ old/u-boot-xlnx-xilinx-v2020.1/scripts/dtc/dtc-lexer.l
++++ u-boot-xlnx-xilinx-v2020.1/scripts/dtc/dtc-lexer.l
+@@ -38,7 +38,6 @@
+ #include "srcpos.h"
+ #include "dtc-parser.tab.h"
+
+-YYLTYPE yylloc;
+ extern bool treesource_error;
+
+ /* CAUTION: this will stop working if we ever use yyless() or yyunput() */
