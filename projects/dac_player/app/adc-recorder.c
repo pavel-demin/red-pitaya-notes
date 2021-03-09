@@ -40,7 +40,7 @@ void neoncopy(void *dst, volatile void *src, int cnt)
 void usage()
 {
   fprintf(stderr, "Usage: adc-recorder rate time file\n");
-  fprintf(stderr, " rate - decimation rate (10 - 65536),\n");
+  fprintf(stderr, " rate - decimation rate (16 - 16384),\n");
   fprintf(stderr, " time - duration of the acquisition in seconds (from 1 to 99999999),\n");
   fprintf(stderr, " file - output file.\n");
 }
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
   errno = 0;
   value = strtol(argv[1], &end, 10);
-  if(errno != 0 || end == argv[1] || value < 1 || value > 65536)
+  if(errno != 0 || end == argv[1] || value < 16 || value > 16384)
   {
     usage();
     return EXIT_FAILURE;
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
   *(uint8_t *)(cfg + 0) &= ~2;
 
   /* set decimation rate */
-  *(uint16_t *)(cfg + 2) = (uint16_t)rate - 1;
+  *(uint16_t *)(cfg + 2) = (uint16_t)(rate >> 1);
 
   start = time(NULL) + 1;
 

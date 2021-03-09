@@ -43,10 +43,10 @@ int main(int argc, char *argv[])
 
   errno = 0;
   number = (argc == 3) ? strtol(argv[1], &end, 10) : -1;
-  if(errno != 0 || end == argv[1] || number < 10 || number > 65535)
+  if(errno != 0 || end == argv[1] || number < 16 || number > 16384)
   {
     fprintf(stderr, "Usage: dac-player rate file\n");
-    fprintf(stderr, " rate - interpolation rate (10 - 65535),\n");
+    fprintf(stderr, " rate - interpolation rate (16 - 16384),\n");
     fprintf(stderr, " file - input file.\n");
     return EXIT_FAILURE;
   }
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   }
 
   /* set interpolation rate */
-  *((uint16_t *)(cfg + 4)) = (uint16_t)number - 1;
+  *((uint16_t *)(cfg + 4)) = (uint16_t)(number >> 1);
 
   signal(SIGINT, signal_handler);
 
