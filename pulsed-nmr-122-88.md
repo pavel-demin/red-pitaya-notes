@@ -88,11 +88,6 @@ Building `pulsed_nmr_122_88.bit`:
 make NAME=pulsed_nmr_122_88 PART=xc7z020clg400-1 bit
 {% endhighlight %}
 
-Building `pulsed-nmr`:
-{% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/pulsed_nmr_122_88/server/pulsed-nmr.c -o pulsed-nmr -lm
-{% endhighlight %}
-
 Building SD card image zip file:
 {% highlight bash %}
 source helpers/build-all.sh

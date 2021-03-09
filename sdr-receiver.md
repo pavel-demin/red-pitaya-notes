@@ -156,11 +156,6 @@ Building `sdr_receiver.bit`:
 make NAME=sdr_receiver bit
 {% endhighlight %}
 
-Building `sdr-receiver`:
-{% highlight bash %}
-arm-linux-gnueabihf-gcc projects/sdr_receiver/server/sdr-receiver.c -o sdr-receiver -lm -static
-{% endhighlight %}
-
 Building SD card image zip file:
 {% highlight bash %}
 source helpers/sdr-receiver-ecosystem.sh

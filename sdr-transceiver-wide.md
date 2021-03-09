@@ -89,11 +89,6 @@ Building `sdr_transceiver_wide.bit`:
 make NAME=sdr_transceiver_wide bit
 {% endhighlight %}
 
-Building `sdr-transceiver`:
-{% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/sdr_transceiver_wide/server/sdr-transceiver-wide.c -o sdr-transceiver-wide -lm -lpthread
-{% endhighlight %}
-
 Building SD card image zip file:
 {% highlight bash %}
 source helpers/build-all.sh

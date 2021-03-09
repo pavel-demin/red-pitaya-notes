@@ -93,11 +93,6 @@ Building `sdr_receiver_hpsdr_122_88.bit`:
 make NAME=sdr_receiver_hpsdr_122_88 PART=xc7z020clg400-1 bit
 {% endhighlight %}
 
-Building `sdr-receiver-hpsdr`:
-{% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -D_GNU_SOURCE projects/sdr_receiver_hpsdr_122_88/server/sdr-receiver-hpsdr.c -o sdr-receiver-hpsdr -lm -lpthread
-{% endhighlight %}
-
 Building SD card image zip file:
 {% highlight bash %}
 source helpers/build-all.sh

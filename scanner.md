@@ -107,11 +107,6 @@ Building `scanner.bit`:
 make NAME=scanner bit
 {% endhighlight %}
 
-Building `scanner`:
-{% highlight bash %}
-arm-linux-gnueabihf-gcc -static -O3 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard projects/scanner/server/scanner.c -o scanner -lm
-{% endhighlight %}
-
 Building SD card image zip file:
 {% highlight bash %}
 source helpers/build-project.sh scanner
