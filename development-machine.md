@@ -4,7 +4,7 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/stretch) 9.12 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2020.1.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/stretch) 9.12 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2020.2.
 
 Creating virtual machine with Debian 9.12 (amd64)
 -----
@@ -85,14 +85,14 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 Installing Vitis Core Development Kit
 -----
 
-- Download "Xilinx Vitis 2020.1: All OS installer Single-File Download" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2020-1.html) (the file name is Xilinx_Unified_2020.1_0602_1208.tar.gz)
+- Download "Xilinx Vitis 2020.2: All OS installer Single-File Download" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2020-2.html) (the file name is Xilinx_Unified_2020.2_1118_1232.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
 mkdir /opt/Xilinx
 cd /opt/Xilinx
-tar -zxf Xilinx_Unified_2020.1_0602_1208.tar.gz
-cd Xilinx_Unified_2020.1_0602_1208
+tar -zxf Xilinx_Unified_2020.2_1118_1232.tar.gz
+cd Xilinx_Unified_2020.2_1118_1232
 ./xsetup
 {% endhighlight %}
 
