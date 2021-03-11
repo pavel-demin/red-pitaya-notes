@@ -11,6 +11,24 @@ diff -rupN old/u-boot-xlnx-xilinx-v2020.2/arch/arm/dts/Makefile u-boot-xlnx-xili
  dtb-$(CONFIG_ARCH_ZYNQMP) += \
  	avnet-ultra96-rev1.dtb			\
  	avnet-ultrazedev-cc-v1.0-ultrazedev-som-v1.0.dtb	\
+diff -rupN old/u-boot-xlnx-xilinx-v2020.2/board/xilinx/zynq/board.c u-boot-xlnx-xilinx-v2020.2/board/xilinx/zynq/board.c
+--- old/u-boot-xlnx-xilinx-v2020.2/board/xilinx/zynq/board.c
++++ u-boot-xlnx-xilinx-v2020.2/board/xilinx/zynq/board.c
+@@ -32,12 +32,12 @@ int board_late_init(void)
+ 	const char *mode;
+ 	char *new_targets;
+ 	char *env_targets;
+-
++/*
+ 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
+ 		debug("Saved variables - Skipping\n");
+ 		return 0;
+ 	}
+-
++*/
+ 	if (!CONFIG_IS_ENABLED(ENV_VARS_UBOOT_RUNTIME_CONFIG))
+ 		return 0;
+ 
 diff -rupN old/u-boot-xlnx-xilinx-v2020.2/common/main.c u-boot-xlnx-xilinx-v2020.2/common/main.c
 --- old/u-boot-xlnx-xilinx-v2020.2/common/main.c
 +++ u-boot-xlnx-xilinx-v2020.2/common/main.c
