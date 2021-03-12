@@ -25,6 +25,9 @@ module axis_averager #
   output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata,
   output wire                        m_axis_tvalid,
 
+  // FIFO programmable flag
+  input  wire                        fifo_prog_full,
+
   // FIFO_WRITE port
   input  wire                        fifo_write_full,
   output wire [AXIS_TDATA_WIDTH-1:0] fifo_write_data,
@@ -48,7 +51,7 @@ module axis_averager #
     begin
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
       int_rden_reg <= 1'b0;
-      int_tvalid_reg <= 1'b0;
+      int_tvalid_reg <= 1'b1;
     end
     else
     begin
@@ -82,7 +85,7 @@ module axis_averager #
     end
   end
 
-  assign int_data_wire = ~int_tvalid_reg ? fifo_read_data : {(AXIS_TDATA_WIDTH){1'b0}};
+  assign int_data_wire = int_tvalid_reg ? {(AXIS_TDATA_WIDTH){1'b0}} : fifo_read_data;
 
   generate
     if(AXIS_TDATA_SIGNED == "TRUE")
@@ -98,7 +101,7 @@ module axis_averager #
   assign s_axis_tready = 1'b1;
 
   assign m_axis_tdata = fifo_read_data;
-  assign m_axis_tvalid = int_tvalid_reg & s_axis_tvalid;
+  assign m_axis_tvalid = fifo_prog_full & int_tvalid_reg & s_axis_tvalid;
 
   assign fifo_read_rden = int_rden_reg & s_axis_tvalid;
 
