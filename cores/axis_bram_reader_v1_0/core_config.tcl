@@ -14,13 +14,9 @@ set bus [ipx::get_bus_interfaces -of_objects $core m_axis]
 set_property NAME M_AXIS $bus
 set_property INTERFACE_MODE master $bus
 
-set bus [ipx::get_bus_interfaces -of_objects $core m_axis_config]
-set_property NAME M_AXIS_CONFIG $bus
-set_property INTERFACE_MODE master $bus
-
 set bus [ipx::get_bus_interfaces aclk]
 set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
-set_property VALUE M_AXIS:M_AXIS_CONFIG $parameter
+set_property VALUE M_AXIS $parameter
 
 set bus [ipx::add_bus_interface BRAM_PORTA $core]
 set_property ABSTRACTION_TYPE_VLNV xilinx.com:interface:bram_rtl:1.0 $bus
