@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
 
   rx_freq = ((uint32_t *)(cfg + 4));
 
-  tx_freq = ((uint32_t *)(cfg + 24));
-  tx_level = ((uint16_t *)(cfg + 30));
+  tx_freq = ((uint32_t *)(cfg + 28));
+  tx_level = ((uint16_t *)(cfg + 34));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   tx_cntr = ((uint16_t *)(sts + 20));

@@ -94,7 +94,7 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register cfg_0 {
-  CFG_DATA_WIDTH 320
+  CFG_DATA_WIDTH 352
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
@@ -109,7 +109,7 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer out_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 31 DIN_TO 24
+  DIN_WIDTH 352 DIN_FROM 31 DIN_TO 24
 } {
   din cfg_0/cfg_data
   dout exp_p_tri_io
@@ -151,14 +151,14 @@ module alex {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0
+  DIN_WIDTH 352 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 95 DIN_TO 32
+  DIN_WIDTH 352 DIN_FROM 95 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
@@ -175,14 +175,14 @@ module rx_0 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0
+  DIN_WIDTH 352 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_1 {
-  DIN_WIDTH 320 DIN_FROM 191 DIN_TO 96
+  DIN_WIDTH 352 DIN_FROM 223 DIN_TO 96
 } {
   din cfg_0/cfg_data
 }
@@ -196,20 +196,21 @@ module sp_0 {
   slice_3/din cfg_slice_1/dout
   slice_4/din cfg_slice_1/dout
   slice_5/din cfg_slice_1/dout
+  slice_6/din cfg_slice_1/dout
 }
 
 # TX 0
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_2 {
-  DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8
+  DIN_WIDTH 352 DIN_FROM 15 DIN_TO 8
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_2 {
-  DIN_WIDTH 320 DIN_FROM 255 DIN_TO 192
+  DIN_WIDTH 352 DIN_FROM 287 DIN_TO 224
 } {
   din cfg_0/cfg_data
 }
@@ -236,7 +237,7 @@ module tx_0 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_3 {
-  DIN_WIDTH 320 DIN_FROM 23 DIN_TO 16
+  DIN_WIDTH 352 DIN_FROM 23 DIN_TO 16
 } {
   din cfg_0/cfg_data
 }
@@ -244,7 +245,7 @@ cell pavel-demin:user:port_slicer rst_slice_3 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_3 {
-  DIN_WIDTH 320 DIN_FROM 319 DIN_TO 256
+  DIN_WIDTH 352 DIN_FROM 351 DIN_TO 288
 } {
   din cfg_0/cfg_data
 }

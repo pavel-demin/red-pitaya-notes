@@ -21,11 +21,11 @@
 
 #define ADDR_CODEC 0x1A /* WM8731 or TLV320AIC23B address 0 */
 
-volatile float *rx_data, *tx_data;
+volatile float *rx_data, *sp_data, *tx_data;
 volatile uint16_t *rx_cntr, *tx_cntr, *dac_cntr, *adc_cntr;
 volatile uint8_t *rx_rst, *sp_rst, *tx_rst, *codec_rst;
 volatile int32_t *dac_data, *adc_data;
-volatile int32_t *win_data, *fft_data;
+volatile int32_t *sp_win;
 volatile int32_t *xadc;
 
 int i2c_codec = 0;
@@ -49,10 +49,11 @@ int main()
   volatile void *cfg, *sts;
   volatile uint32_t *rx_phase, *sp_phase, *tx_phase, *dac_phase, *alex, *tx_mux, *dac_mux;
   volatile int32_t *tx_ramp, *dac_ramp;
-  volatile uint16_t *tx_size, *dac_size, *sp_rate, *sp_pre, *sp_tot, *sp_cntr;
+  volatile uint16_t *tx_size, *dac_size, *sp_rate, *sp_total, *sp_scale, *sp_cntr;
   volatile uint16_t *tx_level, *dac_level;
   volatile uint8_t *gpio_in, *gpio_out;
-  float scale, ramp[1024], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
+  volatile float *sp_corr;
+  float scale, value, ramp[1024], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   unsigned long num = 0;
   struct termios tty;
   uint8_t buffer[6];
@@ -60,7 +61,7 @@ int main()
   uint32_t data;
   uint8_t crc8;
   uint8_t volume;
-  int32_t rx_freq, tx_freq, shift;
+  int32_t rx_freq, sp_freq, tx_freq, shift;
   long min, max;
   snd_mixer_t *handle;
   snd_mixer_selem_id_t *sid;
@@ -146,8 +147,8 @@ int main()
   tx_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40005000);
   tx_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
   tx_mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
-  win_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
-  fft_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40009000);
+  sp_win = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  sp_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40009000);
   dac_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000A000);
   dac_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000B000);
   dac_mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000C000);
@@ -164,16 +165,17 @@ int main()
 
   sp_rate = ((uint16_t *)(cfg + 12));
   sp_phase = ((uint32_t *)(cfg + 16));
-  sp_pre = ((uint16_t *)(cfg + 20));
-  sp_tot = ((uint16_t *)(cfg + 22));
+  sp_total = ((uint16_t *)(cfg + 20));
+  sp_scale = ((uint16_t *)(cfg + 22));
+  sp_corr = ((float *)(cfg + 24));
 
-  tx_phase = ((uint32_t *)(cfg + 24));
-  tx_size = ((uint16_t *)(cfg + 28));
-  tx_level = ((uint16_t *)(cfg + 30));
+  tx_phase = ((uint32_t *)(cfg + 28));
+  tx_size = ((uint16_t *)(cfg + 32));
+  tx_level = ((uint16_t *)(cfg + 34));
 
-  dac_phase = ((uint32_t *)(cfg + 32));
-  dac_size = ((uint16_t *)(cfg + 36));
-  dac_level = ((uint16_t *)(cfg + 38));
+  dac_phase = ((uint32_t *)(cfg + 36));
+  dac_size = ((uint16_t *)(cfg + 40));
+  dac_level = ((uint16_t *)(cfg + 42));
 
   rx_cntr = ((uint16_t *)(sts + 12));
   sp_cntr = ((uint16_t *)(sts + 18));
@@ -215,9 +217,11 @@ int main()
   shift = 0;
   filter = 5;
   rx_freq = 621000;
+  sp_freq = 621000;
   tx_freq = 621000;
 
   *rx_phase = (uint32_t)floor((rx_freq + shift) / 125.0e6 * (1<<30) + 0.5);
+  *sp_phase = (uint32_t)floor(sp_freq / 125.0e6 * (1<<30) + 0.5);
   *tx_phase = (uint32_t)floor(tx_freq / 125.0e6 * (1<<30) + 0.5);
 
   SetRXAMode(0, RXA_AM);
@@ -225,6 +229,19 @@ int main()
 
   RXASetPassband(0, cutoff[mode][filter][0], cutoff[mode][filter][1]);
   SetTXABandpassFreqs(1, cutoff[mode][filter][0], cutoff[mode][filter][1]);
+
+  *sp_rate = 125;
+  *sp_total = 32767;
+  *sp_scale = 1024;
+  *sp_corr = 8.68589;
+
+  /* set sp window */
+  size = 512;
+  for(i = 0; i < size; ++i)
+  {
+    value = a[0] - a[1] * cos(2.0 * M_PI * i / (size - 1)) + a[2] * cos(4.0 * M_PI * i / (size - 1)) - a[3] * cos(6.0 * M_PI * i / (size - 1));
+    sp_win[i] = (int32_t)floor(value * 8388607 + 0.5);
+  }
 
   /* set tx ramp */
   size = 1001;
