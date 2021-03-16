@@ -53,18 +53,68 @@ module axis_red_pitaya_dac #
     int_rst_reg <= ~locked | ~s_axis_tvalid;
   end
 
-  ODDR ODDR_rst(.Q(dac_rst), .D1(int_rst_reg), .D2(int_rst_reg), .C(aclk), .CE(1'b1), .R(1'b0), .S(1'b0));
-  ODDR ODDR_sel(.Q(dac_sel), .D1(1'b0), .D2(1'b1), .C(aclk), .CE(1'b1), .R(1'b0), .S(1'b0));
-  ODDR ODDR_wrt(.Q(dac_wrt), .D1(1'b0), .D2(1'b1), .C(wrt_clk), .CE(1'b1), .R(1'b0), .S(1'b0));
-  ODDR ODDR_clk(.Q(dac_clk), .D1(1'b0), .D2(1'b1), .C(ddr_clk), .CE(1'b1), .R(1'b0), .S(1'b0));
+  ODDR #(
+    .DDR_CLK_EDGE("SAME_EDGE"),
+    .INIT(1'b0)
+  ) ODDR_rst (
+    .Q(dac_rst),
+    .D1(int_rst_reg),
+    .D2(int_rst_reg),
+    .C(aclk),
+    .CE(1'b1),
+    .R(1'b0),
+    .S(1'b0)
+  );
+
+  ODDR #(
+    .DDR_CLK_EDGE("SAME_EDGE"),
+    .INIT(1'b0)
+  ) ODDR_sel (
+    .Q(dac_sel),
+    .D1(1'b1),
+    .D2(1'b0),
+    .C(aclk),
+    .CE(1'b1),
+    .R(1'b0),
+    .S(1'b0)
+  );
+
+  ODDR #(
+    .DDR_CLK_EDGE("SAME_EDGE"),
+    .INIT(1'b0)
+  ) ODDR_wrt (
+    .Q(dac_wrt),
+    .D1(1'b1),
+    .D2(1'b0),
+    .C(wrt_clk),
+    .CE(1'b1),
+    .R(1'b0),
+    .S(1'b0)
+  );
+
+  ODDR #(
+    .DDR_CLK_EDGE("SAME_EDGE"),
+    .INIT(1'b0)
+  ) ODDR_clk (
+    .Q(dac_clk),
+    .D1(1'b1),
+    .D2(1'b0),
+    .C(ddr_clk),
+    .CE(1'b1),
+    .R(1'b0),
+    .S(1'b0)
+  );
 
   generate
     for(j = 0; j < DAC_DATA_WIDTH; j = j + 1)
     begin : DAC_DAT
-      ODDR ODDR_inst(
+      ODDR #(
+        .DDR_CLK_EDGE("SAME_EDGE"),
+        .INIT(1'b0)
+      ) ODDR_inst (
         .Q(dac_dat[j]),
-        .D1(int_dat_a_reg[j]),
-        .D2(int_dat_b_reg[j]),
+        .D1(int_dat_b_reg[j]),
+        .D2(int_dat_a_reg[j]),
         .C(aclk),
         .CE(1'b1),
         .R(1'b0),
