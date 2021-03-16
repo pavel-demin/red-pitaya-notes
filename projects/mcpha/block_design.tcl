@@ -568,7 +568,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins sts_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40000000 [get_bd_addr_segs -of_objects [get_bd_intf_pins sts_0/S_AXI]]
+addr 0x40000000 4K sts_0/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -576,7 +576,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins cfg_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40001000 [get_bd_addr_segs -of_objects [get_bd_intf_pins cfg_0/S_AXI]]
+addr 0x40001000 4K cfg_0/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -584,7 +584,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 }  [get_bd_intf_pins osc_0/switch_0/S_AXI_CTRL]
 
-assign_bd_address -range 4K -offset 0x40002000 [get_bd_addr_segs -of_objects [get_bd_intf_pins osc_0/switch_0/S_AXI_CTRL]]
+addr 0x40002000 4K osc_0/switch_0/S_AXI_CTRL
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -592,7 +592,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins reader_0/S_AXI]
 
-assign_bd_address -range 32K -offset 0x40008000 [get_bd_addr_segs -of_objects [get_bd_intf_pins reader_0/S_AXI]]
+addr 0x40008000 32K reader_0/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -600,7 +600,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins hst_0/reader_0/S_AXI]
 
-assign_bd_address -range 64K -offset 0x40010000 [get_bd_addr_segs -of_objects [get_bd_intf_pins hst_0/reader_0/S_AXI]]
+addr 0x40010000 64K hst_0/reader_0/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -608,7 +608,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins hst_1/reader_0/S_AXI]
 
-assign_bd_address -range 64K -offset 0x40020000 [get_bd_addr_segs -of_objects [get_bd_intf_pins hst_1/reader_0/S_AXI]]
+addr 0x40020000 64K hst_1/reader_0/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -616,6 +616,6 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins gen_0/writer_0/S_AXI]
 
-assign_bd_address -range 64K -offset 0x40030000 [get_bd_addr_segs -of_objects [get_bd_intf_pins gen_0/writer_0/S_AXI]]
+addr 0x40030000 64K gen_0/writer_0/S_AXI
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]

@@ -86,7 +86,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins cfg_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40000000 [get_bd_addr_segs -of_objects [get_bd_intf_pins cfg_0/S_AXI]]
+addr 0x40000000 4K cfg_0/S_AXI
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
@@ -172,7 +172,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins gpio_1/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40002000 [get_bd_addr_segs -of_objects [get_bd_intf_pins gpio_1/S_AXI]]
+addr 0x40002000 4K gpio_1/S_AXI
 
 # Delete input/output port
 delete_bd_objs [get_bd_ports exp_p_tri_io]
@@ -193,7 +193,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins gpio_2/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40003000 [get_bd_addr_segs -of_objects [get_bd_intf_pins gpio_2/S_AXI]]
+addr 0x40003000 4K gpio_2/S_AXI
 
 # Create axis_broadcaster
 cell xilinx.com:ip:axis_broadcaster bcast_0 {
@@ -382,7 +382,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins reader_0/S_AXI]
 
-assign_bd_address -range 64K -offset 0x40010000 [get_bd_addr_segs -of_objects [get_bd_intf_pins reader_0/S_AXI]]
+addr 0x40010000 64K reader_0/S_AXI
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_1 {
@@ -409,4 +409,4 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins sts_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40001000 [get_bd_addr_segs -of_objects [get_bd_intf_pins sts_0/S_AXI]]
+addr 0x40001000 4K sts_0/S_AXI

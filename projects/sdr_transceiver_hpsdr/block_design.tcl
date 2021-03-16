@@ -357,7 +357,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins sts_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40000000 [get_bd_addr_segs -of_objects [get_bd_intf_pins sts_0/S_AXI]]
+addr 0x40000000 4K sts_0/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -365,7 +365,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins cfg_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40001000 [get_bd_addr_segs -of_objects [get_bd_intf_pins cfg_0/S_AXI]]
+addr 0x40001000 4K cfg_0/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -373,7 +373,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins writer_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40002000 [get_bd_addr_segs -of_objects [get_bd_intf_pins writer_0/S_AXI]]
+addr 0x40002000 4K writer_0/S_AXI
 
 for {set i 0} {$i <= 4} {incr i} {
 
@@ -383,7 +383,7 @@ for {set i 0} {$i <= 4} {incr i} {
     Clk Auto
   } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
 
-  assign_bd_address -range 8K -offset 0x4001[format %X [expr 2 * $i]]000 [get_bd_addr_segs -of_objects [get_bd_intf_pins rx_0/reader_$i/S_AXI]]
+  addr 0x4001[format %X [expr 2 * $i]]000 8K rx_0/reader_$i/S_AXI
 
 }
 
@@ -393,7 +393,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins tx_0/writer_0/S_AXI]
 
-assign_bd_address -range 16K -offset 0x4000C000 [get_bd_addr_segs -of_objects [get_bd_intf_pins tx_0/writer_0/S_AXI]]
+addr 0x4000C000 16K tx_0/writer_0/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -401,7 +401,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins tx_0/switch_0/S_AXI_CTRL]
 
-assign_bd_address -range 4K -offset 0x40003000 [get_bd_addr_segs -of_objects [get_bd_intf_pins tx_0/switch_0/S_AXI_CTRL]]
+addr 0x40003000 4K tx_0/switch_0/S_AXI_CTRL
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -409,7 +409,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins tx_0/writer_1/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40004000 [get_bd_addr_segs -of_objects [get_bd_intf_pins tx_0/writer_1/S_AXI]]
+addr 0x40004000 4K tx_0/writer_1/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -417,7 +417,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins codec/writer_1/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40005000 [get_bd_addr_segs -of_objects [get_bd_intf_pins codec/writer_1/S_AXI]]
+addr 0x40005000 4K codec/writer_1/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -425,7 +425,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins codec/writer_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40006000 [get_bd_addr_segs -of_objects [get_bd_intf_pins codec/writer_0/S_AXI]]
+addr 0x40006000 4K codec/writer_0/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -433,7 +433,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins codec/reader_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40007000 [get_bd_addr_segs -of_objects [get_bd_intf_pins codec/reader_0/S_AXI]]
+addr 0x40007000 4K codec/reader_0/S_AXI
 
 # Create all required interconnections
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
@@ -441,4 +441,4 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins xadc_0/s_axi_lite]
 
-assign_bd_address -range 64K -offset 0x40020000 [get_bd_addr_segs -of_objects [get_bd_intf_pins xadc_0/s_axi_lite]]
+addr 0x40020000 64K xadc_0/s_axi_lite

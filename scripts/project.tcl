@@ -65,6 +65,10 @@ proc module {module_name module_body {module_ports {}}} {
   }
 }
 
+proc addr {offset range port} {
+  assign_bd_address -offset $offset -range $range [get_bd_addr_segs -of_objects [get_bd_intf_pins $port]]
+}
+
 source projects/$project_name/block_design.tcl
 
 rename cell {}

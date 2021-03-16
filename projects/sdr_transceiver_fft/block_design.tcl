@@ -65,7 +65,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins cfg_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40000000 [get_bd_addr_segs -of_objects [get_bd_intf_pins cfg_0/S_AXI]]
+addr 0x40000000 4K cfg_0/S_AXI
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_0 {
@@ -166,7 +166,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins rx_reader_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40002000 [get_bd_addr_segs -of_objects [get_bd_intf_pins rx_reader_0/S_AXI]]
+addr 0x40002000 4K rx_reader_0/S_AXI
 
 source projects/sdr_transceiver_fft/sp_0.tcl
 
@@ -186,7 +186,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins sp_writer_0/S_AXI]
 
-assign_bd_address -range 16K -offset 0x40010000 [get_bd_addr_segs -of_objects [get_bd_intf_pins sp_writer_0/S_AXI]]
+addr 0x40010000 16K sp_writer_0/S_AXI
 
 # Create axi_bram_reader
 cell pavel-demin:user:axi_bram_reader sp_reader_0 {
@@ -204,7 +204,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins sp_reader_0/S_AXI]
 
-assign_bd_address -range 32K -offset 0x40020000 [get_bd_addr_segs -of_objects [get_bd_intf_pins sp_reader_0/S_AXI]]
+addr 0x40020000 32K sp_reader_0/S_AXI
 
 source projects/sdr_transceiver_fft/tx_0.tcl
 
@@ -224,7 +224,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins tx_writer_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40003000 [get_bd_addr_segs -of_objects [get_bd_intf_pins tx_writer_0/S_AXI]]
+addr 0x40003000 4K tx_writer_0/S_AXI
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_0 {
@@ -253,7 +253,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
   Clk Auto
 } [get_bd_intf_pins sts_0/S_AXI]
 
-assign_bd_address -range 4K -offset 0x40001000 [get_bd_addr_segs -of_objects [get_bd_intf_pins sts_0/S_AXI]]
+addr 0x40001000 4K sts_0/S_AXI
 
 # Create axis_subset_converter
 cell xilinx.com:ip:axis_subset_converter subset_1 {
