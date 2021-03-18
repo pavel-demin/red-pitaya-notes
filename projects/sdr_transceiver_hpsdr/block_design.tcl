@@ -351,94 +351,28 @@ cell pavel-demin:user:axi_sts_register sts_0 {
   sts_data concat_0/dout
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins sts_0/S_AXI]
+addr 0x40000000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
 
-addr 0x40000000 4K sts_0/S_AXI
+addr 0x40001000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins cfg_0/S_AXI]
-
-addr 0x40001000 4K cfg_0/S_AXI
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins writer_0/S_AXI]
-
-addr 0x40002000 4K writer_0/S_AXI
+addr 0x40002000 4K writer_0/S_AXI /ps_0/M_AXI_GP0
 
 for {set i 0} {$i <= 4} {incr i} {
 
-  # Create all required interconnections
-  apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-    Master /ps_0/M_AXI_GP0
-    Clk Auto
-  } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
-
-  addr 0x4001[format %X [expr 2 * $i]]000 8K rx_0/reader_$i/S_AXI
+  addr 0x4001[format %X [expr 2 * $i]]000 8K rx_0/reader_$i/S_AXI /ps_0/M_AXI_GP0
 
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins tx_0/writer_0/S_AXI]
+addr 0x4000C000 16K tx_0/writer_0/S_AXI /ps_0/M_AXI_GP0
 
-addr 0x4000C000 16K tx_0/writer_0/S_AXI
+addr 0x40003000 4K tx_0/switch_0/S_AXI_CTRL /ps_0/M_AXI_GP0
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins tx_0/switch_0/S_AXI_CTRL]
+addr 0x40004000 4K tx_0/writer_1/S_AXI /ps_0/M_AXI_GP0
 
-addr 0x40003000 4K tx_0/switch_0/S_AXI_CTRL
+addr 0x40005000 4K codec/writer_1/S_AXI /ps_0/M_AXI_GP0
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins tx_0/writer_1/S_AXI]
+addr 0x40006000 4K codec/writer_0/S_AXI /ps_0/M_AXI_GP0
 
-addr 0x40004000 4K tx_0/writer_1/S_AXI
+addr 0x40007000 4K codec/reader_0/S_AXI /ps_0/M_AXI_GP0
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins codec/writer_1/S_AXI]
-
-addr 0x40005000 4K codec/writer_1/S_AXI
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins codec/writer_0/S_AXI]
-
-addr 0x40006000 4K codec/writer_0/S_AXI
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins codec/reader_0/S_AXI]
-
-addr 0x40007000 4K codec/reader_0/S_AXI
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins xadc_0/s_axi_lite]
-
-addr 0x40020000 64K xadc_0/s_axi_lite
+addr 0x40020000 64K xadc_0/s_axi_lite /ps_0/M_AXI_GP0

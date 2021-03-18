@@ -192,38 +192,14 @@ cell pavel-demin:user:axi_sts_register sts_0 {
   sts_data concat_0/dout
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins sts_0/S_AXI]
+addr 0x40000000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
 
-addr 0x40000000 4K sts_0/S_AXI
-
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins cfg_0/S_AXI]
-
-addr 0x40001000 4K cfg_0/S_AXI
+addr 0x40001000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
 
 for {set i 0} {$i <= 7} {incr i} {
 
-  # Create all required interconnections
-  apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-    Master /ps_0/M_AXI_GP0
-    Clk Auto
-  } [get_bd_intf_pins rx_0/reader_$i/S_AXI]
+  addr 0x4001[format %X [expr 2 * $i]]000 8K rx_0/reader_$i/S_AXI /ps_0/M_AXI_GP0
 
-  addr 0x4001[format %X [expr 2 * $i]]000 8K rx_0/reader_$i/S_AXI
-
-  # Create all required interconnections
-  apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-    Master /ps_0/M_AXI_GP0
-    Clk Auto
-  } [get_bd_intf_pins rx_1/reader_$i/S_AXI]
-
-  addr 0x4002[format %X [expr 2 * $i]]000 8K rx_1/reader_$i/S_AXI
+  addr 0x4002[format %X [expr 2 * $i]]000 8K rx_1/reader_$i/S_AXI /ps_0/M_AXI_GP0
 
 }

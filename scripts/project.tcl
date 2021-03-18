@@ -65,14 +65,19 @@ proc module {module_name module_body {module_ports {}}} {
   }
 }
 
-proc addr {offset range port} {
-  assign_bd_address -offset $offset -range $range [get_bd_addr_segs -of_objects [get_bd_intf_pins $port]]
+proc addr {offset range port master} {
+  set object [get_bd_intf_pins $port]
+  set segment [get_bd_addr_segs -of_objects $object]
+  set config [list Master $master Clk Auto]
+  apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config $config $object
+  assign_bd_address -offset $offset -range $range $segment
 }
 
 source projects/$project_name/block_design.tcl
 
 rename cell {}
 rename module {}
+rename addr {}
 
 if {[version -short] >= 2016.3} {
   set_property synth_checkpoint_mode None [get_files $bd_path/system.bd]

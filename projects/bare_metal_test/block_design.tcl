@@ -68,13 +68,7 @@ cell pavel-demin:user:axi_cfg_register cfg_0 {
   AXI_DATA_WIDTH 32
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins cfg_0/S_AXI]
-
-addr 0x40000000 4K cfg_0/S_AXI
+addr 0x40000000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {

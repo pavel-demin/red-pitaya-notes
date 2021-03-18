@@ -59,13 +59,7 @@ cell pavel-demin:user:axi_cfg_register cfg_0 {
   AXI_DATA_WIDTH 32
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins cfg_0/S_AXI]
-
-addr 0x40000000 4K cfg_0/S_AXI
+addr 0x40000000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_0 {
@@ -160,13 +154,7 @@ cell pavel-demin:user:axi_bram_reader rx_reader_0 {
   BRAM_PORTA rx_0/bram_0/BRAM_PORTB
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins rx_reader_0/S_AXI]
-
-addr 0x40002000 4K rx_reader_0/S_AXI
+addr 0x40002000 4K rx_reader_0/S_AXI /ps_0/M_AXI_GP0
 
 source projects/sdr_transceiver_fft/sp_0.tcl
 
@@ -180,13 +168,7 @@ cell pavel-demin:user:axi_bram_writer sp_writer_0 {
   BRAM_PORTA sp_0/bram_0/BRAM_PORTB
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins sp_writer_0/S_AXI]
-
-addr 0x40010000 16K sp_writer_0/S_AXI
+addr 0x40010000 16K sp_writer_0/S_AXI /ps_0/M_AXI_GP0
 
 # Create axi_bram_reader
 cell pavel-demin:user:axi_bram_reader sp_reader_0 {
@@ -198,13 +180,7 @@ cell pavel-demin:user:axi_bram_reader sp_reader_0 {
   BRAM_PORTA sp_0/bram_1/BRAM_PORTB
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins sp_reader_0/S_AXI]
-
-addr 0x40020000 32K sp_reader_0/S_AXI
+addr 0x40020000 32K sp_reader_0/S_AXI /ps_0/M_AXI_GP0
 
 source projects/sdr_transceiver_fft/tx_0.tcl
 
@@ -218,13 +194,7 @@ cell pavel-demin:user:axi_bram_writer tx_writer_0 {
   BRAM_PORTA tx_0/bram_0/BRAM_PORTB
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins tx_writer_0/S_AXI]
-
-addr 0x40003000 4K tx_writer_0/S_AXI
+addr 0x40003000 4K tx_writer_0/S_AXI /ps_0/M_AXI_GP0
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_0 {
@@ -247,13 +217,7 @@ cell pavel-demin:user:axi_sts_register sts_0 {
   sts_data concat_0/dout
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins sts_0/S_AXI]
-
-addr 0x40001000 4K sts_0/S_AXI
+addr 0x40001000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
 
 # Create axis_subset_converter
 cell xilinx.com:ip:axis_subset_converter subset_1 {

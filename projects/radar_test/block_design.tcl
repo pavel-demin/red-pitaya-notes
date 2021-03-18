@@ -80,13 +80,7 @@ cell pavel-demin:user:axi_cfg_register cfg_0 {
   AXI_DATA_WIDTH 32
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins cfg_0/S_AXI]
-
-addr 0x40000000 4K cfg_0/S_AXI
+addr 0x40000000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
@@ -166,13 +160,7 @@ cell xilinx.com:ip:axi_gpio gpio_1 {
   GPIO exp_n
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins gpio_1/S_AXI]
-
-addr 0x40002000 4K gpio_1/S_AXI
+addr 0x40002000 4K gpio_1/S_AXI /ps_0/M_AXI_GP0
 
 # Delete input/output port
 delete_bd_objs [get_bd_ports exp_p_tri_io]
@@ -187,13 +175,7 @@ cell xilinx.com:ip:axi_gpio gpio_2 {
   GPIO exp_p
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins gpio_2/S_AXI]
-
-addr 0x40003000 4K gpio_2/S_AXI
+addr 0x40003000 4K gpio_2/S_AXI /ps_0/M_AXI_GP0
 
 # Create axis_broadcaster
 cell xilinx.com:ip:axis_broadcaster bcast_0 {
@@ -376,13 +358,7 @@ cell pavel-demin:user:axi_bram_reader reader_0 {
   BRAM_PORTA bram_0/BRAM_PORTB
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins reader_0/S_AXI]
-
-addr 0x40010000 64K reader_0/S_AXI
+addr 0x40010000 64K reader_0/S_AXI /ps_0/M_AXI_GP0
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_1 {
@@ -403,10 +379,4 @@ cell pavel-demin:user:axi_sts_register sts_0 {
   sts_data concat_1/dout
 }
 
-# Create all required interconnections
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
-  Master /ps_0/M_AXI_GP0
-  Clk Auto
-} [get_bd_intf_pins sts_0/S_AXI]
-
-addr 0x40001000 4K sts_0/S_AXI
+addr 0x40001000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
