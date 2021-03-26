@@ -47,8 +47,9 @@ The [projects/pulsed_nmr/client](https://github.com/pavel-demin/red-pitaya-notes
 Getting started with GNU/Linux
 -----
 
- - Download customized [SD card image zip file]({{ site.pulsed-nmr-image }}).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
  - Copy the contents of the SD card image zip file to a micro SD card.
+ - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/pulsed_nmr` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Install required Python libraries:
 {% highlight bash %}
@@ -90,5 +91,5 @@ make NAME=pulsed_nmr bit
 
 Building SD card image zip file:
 {% highlight bash %}
-source helpers/build-project.sh pulsed_nmr
+source helpers/build-all.sh
 {% endhighlight %}
