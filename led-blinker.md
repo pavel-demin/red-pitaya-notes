@@ -145,7 +145,7 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-9.11-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-9.13-armhf.img 1024
 {% endhighlight %}
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
@@ -154,7 +154,7 @@ To write the image to a SD card, the `dd` command-line utility can be used on GN
 
 The default password for the `root` account is `changeme`.
 
-A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABALhXF76tDl-8askrbhjfxa/red-pitaya-debian-9.11-armhf-20191120.zip?dl=1).
+A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AACvjcxPFbSXyCzGLlAB3eYka/red-pitaya-debian-9.13-armhf-20210326.zip?dl=1).
 
 Resizing SD card partitions on running Red Pitaya:
 {% highlight bash %}
