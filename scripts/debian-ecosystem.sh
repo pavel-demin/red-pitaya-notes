@@ -4,7 +4,7 @@ boot_dir=`mktemp -d /tmp/BOOT.XXXXXXXXXX`
 root_dir=`mktemp -d /tmp/ROOT.XXXXXXXXXX`
 
 linux_dir=tmp/linux-5.4
-linux_ver=5.4.104-xilinx
+linux_ver=5.4.108-xilinx
 
 ecosystem_tar=red-pitaya-ecosystem-0.95-20160526.tgz
 ecosystem_url=https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADrueq0P1OJFy9z6AaJ72nWa/red-pitaya-ecosystem/red-pitaya-ecosystem-0.95-20160526.tgz?dl=1
