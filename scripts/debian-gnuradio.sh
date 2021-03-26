@@ -89,12 +89,6 @@ cat <<- EOF_CAT > etc/fstab
 /dev/mmcblk0p1  /boot           vfat    defaults            0       2
 EOF_CAT
 
-cat <<- EOF_CAT >> etc/securetty
-
-# Serial Console for Xilinx Zynq-7000
-ttyPS0
-EOF_CAT
-
 echo red-pitaya > etc/hostname
 
 apt-get update
@@ -117,6 +111,12 @@ apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   python-alsaaudio xauth xterm parallel ifplugd ntfs-3g net-tools less
 
 sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
+
+cat <<- EOF_CAT >> etc/securetty
+
+# Serial Console for Xilinx Zynq-7000
+ttyPS0
+EOF_CAT
 
 touch etc/udev/rules.d/80-net-setup-link.rules
 
