@@ -1076,7 +1076,7 @@ void process_ep2(uint8_t *frame)
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[2] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      *rx_freq[2] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
       break;
     case 18:
     case 19:
