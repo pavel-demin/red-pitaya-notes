@@ -1046,6 +1046,7 @@ void process_ep2(uint8_t *frame)
         }
       }
       break;
+#ifndef THETIS
     case 6:
     case 7:
       /* set rx phase increment */
@@ -1078,6 +1079,40 @@ void process_ep2(uint8_t *frame)
       if(freq < freq_min || freq > freq_max) break;
       *rx_freq[2] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
+#else
+    case 6:
+    case 7:
+      /* set rx phase increment */
+      if(rx_sync_data) break;
+      freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      break;
+    case 8:
+    case 9:
+      /* set rx phase increment */
+      freq = ntohl(*(uint32_t *)(frame + 1));
+      if(freq < freq_min || freq > freq_max) break;
+      *rx_freq[2] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      if(freq_data[2] != freq)
+      {
+        freq_data[2] = freq;
+        alex_write();
+        if(i2c_misc) misc_update = 1;
+        if(i2c_nucleo) nucleo_update = 1;
+        if(i2c_arduino)
+        {
+          data = freq / 1000;
+          if(data != i2c_ard_frx2_data)
+          {
+            i2c_ard_frx2_data = data;
+            ioctl(i2c_fd, I2C_SLAVE, ADDR_ARDUINO);
+            i2c_write_addr_data16(i2c_fd, 0x02, data);
+          }
+        }
+      }
+      break;
+#endif
     case 18:
     case 19:
       data = (frame[2] & 0x40) << 9 | frame[4] << 8 | frame[3];
