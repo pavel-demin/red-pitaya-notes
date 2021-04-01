@@ -43,12 +43,12 @@ int main(int argc, char *argv[])
   switch(number[0])
   {
     case 1:
-      *(uint32_t *)(cfg + 4) = (uint32_t)floor(number[2] / 125.0e6 * (1<<30) + 0.5);
-      *(uint16_t *)(cfg + 12) = (uint16_t)number[1];
+      *(uint32_t *)(cfg + 8) = (uint32_t)floor(number[2] / 125.0e6 * (1<<30) + 0.5);
+      *(uint16_t *)(cfg + 16) = (uint16_t)number[1];
       break;
     case 2:
-      *(uint32_t *)(cfg + 8) = (uint32_t)floor(number[2] / 125.0e6 * (1<<30) + 0.5);
-      *(uint16_t *)(cfg + 14) = (uint16_t)number[1];
+      *(uint32_t *)(cfg + 12) = (uint32_t)floor(number[2] / 125.0e6 * (1<<30) + 0.5);
+      *(uint16_t *)(cfg + 18) = (uint16_t)number[1];
       break;
   }
 
