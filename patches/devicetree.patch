@@ -86,11 +86,3 @@ diff -rupN system-top.dts.old system-top.dts
  	aliases {
  		ethernet0 = &gem0;
  		i2c0 = &i2c0;
-@@ -24,6 +36,6 @@
- 	};
- 	memory {
- 		device_type = "memory";
--		reg = <0x0 0x20000000>;
-+		reg = <0x0 0x1E000000>;
- 	};
- };
