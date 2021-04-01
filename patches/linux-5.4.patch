@@ -192,6 +192,28 @@ diff -rupN old/linux-5.4/drivers/char/Makefile linux-5.4/drivers/char/Makefile
  obj-$(CONFIG_POWERNV_OP_PANEL)	+= powernv-op-panel.o
  obj-$(CONFIG_ADI)		+= adi.o
 +obj-$(CONFIG_XILINX_DEVCFG)	+= xilinx_devcfg.o
+diff -rupN old/linux-5.4/drivers/misc/Kconfig linux-5.4/drivers/misc/Kconfig
+--- old/linux-5.4/drivers/misc/Kconfig
++++ linux-5.4/drivers/misc/Kconfig
+@@ -454,6 +454,10 @@ config XILINX_SDFEC
+ 
+ 	  If unsure, say N.
+ 
++config DEVCMA
++	bool "/dev/cma virtual device support"
++	default y
++
+ config MISC_RTSX
+ 	tristate
+ 	default MISC_RTSX_PCI || MISC_RTSX_USB
+diff -rupN old/linux-5.4/drivers/misc/Makefile linux-5.4/drivers/misc/Makefile
+--- old/linux-5.4/drivers/misc/Makefile
++++ linux-5.4/drivers/misc/Makefile
+@@ -57,3 +57,4 @@ obj-y				+= cardreader/
+ obj-$(CONFIG_PVPANIC)   	+= pvpanic.o
+ obj-$(CONFIG_HABANA_AI)		+= habanalabs/
+ obj-$(CONFIG_XILINX_SDFEC)	+= xilinx_sdfec.o
++obj-$(CONFIG_DEVCMA)		+= cma.o
 diff -rupN old/linux-5.4/drivers/net/phy/intel-xway.c linux-5.4/drivers/net/phy/intel-xway.c
 --- old/linux-5.4/drivers/net/phy/intel-xway.c
 +++ linux-5.4/drivers/net/phy/intel-xway.c
