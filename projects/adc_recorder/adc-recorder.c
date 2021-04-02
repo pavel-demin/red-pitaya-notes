@@ -1,37 +1,55 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/ioctl.h>
+
+#define CMA_ALLOC _IOWR('Z', 0, uint32_t)
 
 int main()
 {
   int fd, i;
-  int16_t value[2];
   volatile uint8_t *rst;
-  volatile uint32_t *size, *slcr, *axi_hp0;
   volatile void *cfg;
   volatile int16_t *ram;
+  uint32_t size;
+  int16_t value[2];
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
     perror("open");
-    return 1;
+    return EXIT_FAILURE;
   }
 
-  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
-  axi_hp0 = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8008000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  ram = mmap(NULL, 1024*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
 
-  // set HP0 bus width to 64 bits
-  slcr[2] = 0xDF0D;
-  slcr[144] = 0;
-  axi_hp0[0] &= ~1;
-  axi_hp0[5] &= ~1;
+  close(fd);
 
-  rst = ((uint8_t *)(cfg + 0));
-  size = ((uint32_t *)(cfg + 4));
+  if((fd = open("/dev/cma", O_RDWR)) < 0)
+  {
+    perror("open");
+    return EXIT_FAILURE;
+  }
+
+  size = 1024*sysconf(_SC_PAGESIZE);
+
+  if(ioctl(fd, CMA_ALLOC, &size) < 0)
+  {
+    perror("ioctl");
+    return EXIT_FAILURE;
+  }
+
+  ram = mmap(NULL, 1024*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+
+  rst = (uint8_t *)(cfg + 0);
+
+  // set writer address
+  *(uint32_t *)(cfg + 4) = size;
+
+  // set number of samples
+  *(uint32_t *)(cfg + 8) = 1024 * 1024 - 1;
 
   // reset writer
   *rst &= ~4;
@@ -44,13 +62,8 @@ int main()
   // wait 1 second
   sleep(1);
 
-  // enter reset mode for packetizer
+  // reset packetizer
   *rst &= ~2;
-
-  // set number of samples
-  *size = 1024 * 1024 - 1;
-
-  // enter normal mode
   *rst |= 2;
 
   // wait 1 second
@@ -64,5 +77,5 @@ int main()
     printf("%5d %5d\n", value[0], value[1]);
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }
