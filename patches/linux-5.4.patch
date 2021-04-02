@@ -170,16 +170,17 @@ diff -rupN old/linux-5.4/arch/arm/mach-zynq/slcr.c linux-5.4/arch/arm/mach-zynq/
 diff -rupN old/linux-5.4/drivers/char/Kconfig linux-5.4/drivers/char/Kconfig
 --- old/linux-5.4/drivers/char/Kconfig
 +++ linux-5.4/drivers/char/Kconfig
-@@ -535,6 +535,13 @@ config ADI
+@@ -535,6 +535,14 @@ config ADI
  	  and SSM (Silicon Secured Memory).  Intended consumers of this
  	  driver include crash and makedumpfile.
  
++config DEVCMA
++	bool "/dev/cma virtual device support"
++	default y
++
 +config XILINX_DEVCFG
 +	tristate "Xilinx Device Configuration"
 +	depends on ARCH_ZYNQ
-+	help
-+	  This option enables support for the Xilinx device configuration driver.
-+	  If unsure, say N
 +
  endmenu
  
@@ -187,33 +188,12 @@ diff -rupN old/linux-5.4/drivers/char/Kconfig linux-5.4/drivers/char/Kconfig
 diff -rupN old/linux-5.4/drivers/char/Makefile linux-5.4/drivers/char/Makefile
 --- old/linux-5.4/drivers/char/Makefile
 +++ linux-5.4/drivers/char/Makefile
-@@ -52,3 +52,4 @@ js-rtc-y = rtc.o
+@@ -52,3 +52,5 @@ js-rtc-y = rtc.o
  obj-$(CONFIG_XILLYBUS)		+= xillybus/
  obj-$(CONFIG_POWERNV_OP_PANEL)	+= powernv-op-panel.o
  obj-$(CONFIG_ADI)		+= adi.o
-+obj-$(CONFIG_XILINX_DEVCFG)	+= xilinx_devcfg.o
-diff -rupN old/linux-5.4/drivers/misc/Kconfig linux-5.4/drivers/misc/Kconfig
---- old/linux-5.4/drivers/misc/Kconfig
-+++ linux-5.4/drivers/misc/Kconfig
-@@ -454,6 +454,10 @@ config XILINX_SDFEC
- 
- 	  If unsure, say N.
- 
-+config DEVCMA
-+	bool "/dev/cma virtual device support"
-+	default y
-+
- config MISC_RTSX
- 	tristate
- 	default MISC_RTSX_PCI || MISC_RTSX_USB
-diff -rupN old/linux-5.4/drivers/misc/Makefile linux-5.4/drivers/misc/Makefile
---- old/linux-5.4/drivers/misc/Makefile
-+++ linux-5.4/drivers/misc/Makefile
-@@ -57,3 +57,4 @@ obj-y				+= cardreader/
- obj-$(CONFIG_PVPANIC)   	+= pvpanic.o
- obj-$(CONFIG_HABANA_AI)		+= habanalabs/
- obj-$(CONFIG_XILINX_SDFEC)	+= xilinx_sdfec.o
 +obj-$(CONFIG_DEVCMA)		+= cma.o
++obj-$(CONFIG_XILINX_DEVCFG)	+= xilinx_devcfg.o
 diff -rupN old/linux-5.4/drivers/net/phy/intel-xway.c linux-5.4/drivers/net/phy/intel-xway.c
 --- old/linux-5.4/drivers/net/phy/intel-xway.c
 +++ linux-5.4/drivers/net/phy/intel-xway.c
