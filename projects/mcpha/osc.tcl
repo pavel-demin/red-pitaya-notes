@@ -33,25 +33,32 @@ cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 8 DIN_FROM 4 DIN_TO 4
 }
 
-# scope_0/pre_data
+# writer_0/cfg_data
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_5 {
-  DIN_WIDTH 96 DIN_FROM 31 DIN_TO 0
+  DIN_WIDTH 128 DIN_FROM 31 DIN_TO 0
+}
+
+# scope_0/pre_data
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer slice_6 {
+  DIN_WIDTH 128 DIN_FROM 63 DIN_TO 32
 }
 
 # scope_0/tot_data
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_6 {
-  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32
+cell pavel-demin:user:port_slicer slice_7 {
+  DIN_WIDTH 128 DIN_FROM 95 DIN_TO 64
 }
 
 # trig_0/lvl_data
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_7 {
-  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64
+cell pavel-demin:user:port_slicer slice_8 {
+  DIN_WIDTH 128 DIN_FROM 111 DIN_TO 96
 }
 
 # Create axis_switch
@@ -78,7 +85,7 @@ cell pavel-demin:user:axis_trigger trig_0 {
   S_AXIS switch_0/M00_AXIS
   pol_data slice_2/dout
   msk_data const_0/dout
-  lvl_data slice_7/dout
+  lvl_data slice_8/dout
   aclk /pll_0/clk_out1
 }
 
@@ -108,8 +115,8 @@ cell pavel-demin:user:axis_oscilloscope scope_0 {
   S_AXIS comb_0/M_AXIS
   run_flag slice_4/dout
   trg_flag or_0/Res
-  pre_data slice_5/dout
-  tot_data slice_6/dout
+  pre_data slice_6/dout
+  tot_data slice_7/dout
   aclk /pll_0/clk_out1
   aresetn slice_0/dout
 }
@@ -125,18 +132,13 @@ cell xilinx.com:ip:axis_dwidth_converter conv_0 {
   aresetn slice_1/dout
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant const_1 {
-  CONST_WIDTH 32
-  CONST_VAL 503316480
-}
-
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 22
+  AXI_ID_WIDTH 3
 } {
   S_AXIS conv_0/M_AXIS
-  cfg_data const_1/dout
+  cfg_data slice_5/dout
   aclk /pll_0/clk_out1
   aresetn slice_1/dout
 }

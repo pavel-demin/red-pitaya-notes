@@ -21,10 +21,11 @@ cell xilinx.com:ip:clk_wiz pll_0 {
 # Create processing_system7
 cell xilinx.com:ip:processing_system7 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
-  PCW_USE_S_AXI_HP0 1
+  PCW_USE_S_AXI_ACP 1
+  PCW_USE_DEFAULT_ACP_USER_VAL 1
 } {
   M_AXI_GP0_ACLK pll_0/clk_out1
-  S_AXI_HP0_ACLK pll_0/clk_out1
+  S_AXI_ACP_ACLK pll_0/clk_out1
 }
 
 # Create all required interconnections
@@ -71,77 +72,77 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register cfg_0 {
-  CFG_DATA_WIDTH 768
+  CFG_DATA_WIDTH 800
   AXI_ADDR_WIDTH 7
   AXI_DATA_WIDTH 32
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_0 {
-  DIN_WIDTH 768 DIN_FROM 7 DIN_TO 0
+  DIN_WIDTH 800 DIN_FROM 7 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer neg_slice_0 {
-  DIN_WIDTH 768 DIN_FROM 4 DIN_TO 4
+  DIN_WIDTH 800 DIN_FROM 4 DIN_TO 4
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_1 {
-  DIN_WIDTH 768 DIN_FROM 15 DIN_TO 8
+  DIN_WIDTH 800 DIN_FROM 15 DIN_TO 8
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer neg_slice_1 {
-  DIN_WIDTH 768 DIN_FROM 12 DIN_TO 12
+  DIN_WIDTH 800 DIN_FROM 12 DIN_TO 12
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_2 {
-  DIN_WIDTH 768 DIN_FROM 23 DIN_TO 16
+  DIN_WIDTH 800 DIN_FROM 23 DIN_TO 16
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_3 {
-  DIN_WIDTH 768 DIN_FROM 31 DIN_TO 24
+  DIN_WIDTH 800 DIN_FROM 31 DIN_TO 24
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer neg_slice_2 {
-  DIN_WIDTH 768 DIN_FROM 28 DIN_TO 28
+  DIN_WIDTH 800 DIN_FROM 28 DIN_TO 28
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer neg_slice_3 {
-  DIN_WIDTH 768 DIN_FROM 29 DIN_TO 29
+  DIN_WIDTH 800 DIN_FROM 29 DIN_TO 29
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_4 {
-  DIN_WIDTH 768 DIN_FROM 30 DIN_TO 30
+  DIN_WIDTH 800 DIN_FROM 30 DIN_TO 30
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_5 {
-  DIN_WIDTH 768 DIN_FROM 31 DIN_TO 31
+  DIN_WIDTH 800 DIN_FROM 31 DIN_TO 31
 } {
   din cfg_0/cfg_data
 }
@@ -150,7 +151,7 @@ cell pavel-demin:user:port_slicer rst_slice_5 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_0 {
-  DIN_WIDTH 768 DIN_FROM 47 DIN_TO 32
+  DIN_WIDTH 800 DIN_FROM 47 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
@@ -159,49 +160,49 @@ cell pavel-demin:user:port_slicer slice_0 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
-  DIN_WIDTH 768 DIN_FROM 63 DIN_TO 48
+  DIN_WIDTH 800 DIN_FROM 63 DIN_TO 48
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_0 {
-  DIN_WIDTH 768 DIN_FROM 191 DIN_TO 64
+  DIN_WIDTH 800 DIN_FROM 191 DIN_TO 64
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_1 {
-  DIN_WIDTH 768 DIN_FROM 319 DIN_TO 192
+  DIN_WIDTH 800 DIN_FROM 319 DIN_TO 192
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_2 {
-  DIN_WIDTH 768 DIN_FROM 447 DIN_TO 320
+  DIN_WIDTH 800 DIN_FROM 447 DIN_TO 320
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_3 {
-  DIN_WIDTH 768 DIN_FROM 575 DIN_TO 448
+  DIN_WIDTH 800 DIN_FROM 575 DIN_TO 448
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_4 {
-  DIN_WIDTH 768 DIN_FROM 671 DIN_TO 576
+  DIN_WIDTH 800 DIN_FROM 703 DIN_TO 576
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_5 {
-  DIN_WIDTH 768 DIN_FROM 767 DIN_TO 672
+  DIN_WIDTH 800 DIN_FROM 799 DIN_TO 704
 } {
   din cfg_0/cfg_data
 }
@@ -397,11 +398,12 @@ module osc_0 {
   slice_5/din cfg_slice_4/dout
   slice_6/din cfg_slice_4/dout
   slice_7/din cfg_slice_4/dout
+  slice_8/din cfg_slice_4/dout
   switch_0/S00_AXIS bcast_1/M02_AXIS
   switch_0/S01_AXIS bcast_1/M03_AXIS
   comb_0/S00_AXIS bcast_1/M04_AXIS
   comb_0/S01_AXIS bcast_1/M05_AXIS
-  writer_0/M_AXI ps_0/S_AXI_HP0
+  writer_0/M_AXI ps_0/S_AXI_ACP
 }
 
 module pha_2 {
@@ -576,4 +578,4 @@ addr 0x40020000 64K hst_1/reader_0/S_AXI /ps_0/M_AXI_GP0
 
 addr 0x40030000 64K gen_0/writer_0/S_AXI /ps_0/M_AXI_GP0
 
-assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
+assign_bd_address [get_bd_addr_segs ps_0/S_AXI_ACP/ACP_DDR_LOWOCM]

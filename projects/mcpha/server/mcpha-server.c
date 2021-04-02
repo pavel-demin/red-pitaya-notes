@@ -15,8 +15,10 @@
 
 #define TCP_PORT 1001
 
+#define CMA_ALLOC _IOWR('Z', 0, uint32_t)
+
 volatile int32_t *gen;
-volatile uint16_t *size;
+volatile void *sts;
 
 uint32_t rate = 1000;
 uint32_t dist = 0;
@@ -45,14 +47,13 @@ int main(int argc, char *argv[])
   struct sched_param param;
   pthread_attr_t attr;
   pthread_t thread;
-  volatile uint32_t *slcr, *axi_hp0;
-  volatile void *sts, *cfg;
+  volatile void *cfg;
   void *hst[2], *ram, *buf;
   volatile uint8_t *rst[4];
   volatile uint32_t *trg;
   struct sockaddr_in addr;
   int yes = 1;
-  uint32_t start, pre, tot;
+  uint32_t start, pre, tot, size;
   uint64_t command, data;
   uint8_t code, chan;
   uint16_t fall, rise, f, r, s;
@@ -66,29 +67,39 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
-  axi_hp0 = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8008000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
   trg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
   hst[0] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
   hst[1] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
   gen = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40030000);
-  ram = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x1E000000);
-  buf = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+
+  close(fd);
+
+  if((fd = open("/dev/cma", O_RDWR)) < 0)
+  {
+    perror("open");
+    return EXIT_FAILURE;
+  }
+
+  size = 8192*sysconf(_SC_PAGESIZE);
+
+  if(ioctl(fd, CMA_ALLOC, &size) < 0)
+  {
+    perror("ioctl");
+    return EXIT_FAILURE;
+  }
+
+  ram = mmap(NULL, 8192*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+
+  *(uint32_t *)(cfg + 72) = size;
+
+  buf = malloc(65536);
 
   rst[0] = cfg + 0;
   rst[1] = cfg + 1;
   rst[2] = cfg + 2;
   rst[3] = cfg + 3;
-
-  size = (uint16_t *)(sts + 54);
-
-  /* set HP0 bus width to 64 bits */
-  slcr[2] = 0xDF0D;
-  slcr[144] = 0;
-  axi_hp0[0] &= ~1;
-  axi_hp0[5] &= ~1;
 
   /* set sample rate */
   *(uint16_t *)(cfg + 4) = 125;
@@ -114,12 +125,12 @@ int main(int argc, char *argv[])
   fall = 50;
   rise = 50;
 
-  *(uint16_t *)(cfg + 84) = 6932;
-  *(uint16_t *)(cfg + 86) = 65528;
-  *(uint16_t *)(cfg + 88) = 58655;
+  *(uint16_t *)(cfg + 88) = 6932;
+  *(uint16_t *)(cfg + 90) = 65528;
+  *(uint16_t *)(cfg + 92) = 58655;
 
-  *(int16_t *)(cfg + 90) = -8192;
-  *(int16_t *)(cfg + 92) = 8191;
+  *(int16_t *)(cfg + 94) = -8192;
+  *(int16_t *)(cfg + 96) = 8191;
 
   /* reset spectrum */
   memset(spectrum, 0, 16384);
@@ -418,17 +429,17 @@ int main(int argc, char *argv[])
       else if(code == 18)
       {
         /* set trigger level */
-        *(uint16_t *)(cfg + 80) = data;
+        *(uint16_t *)(cfg + 84) = data;
       }
       else if(code == 19)
       {
         /* set number of samples before trigger */
-        *(uint32_t *)(cfg + 72) = data - 1;
+        *(uint32_t *)(cfg + 76) = data - 1;
       }
       else if(code == 20)
       {
         /* set total number of samples */
-        *(uint32_t *)(cfg + 76) = data - 1;
+        *(uint32_t *)(cfg + 80) = data - 1;
       }
       else if(code == 21)
       {
@@ -445,21 +456,18 @@ int main(int argc, char *argv[])
       else if(code == 23)
       {
         /* read oscilloscope data */
-        pre = *(uint32_t *)(cfg + 72) + 1;
-        tot = *(uint32_t *)(cfg + 76) + 1;
+        pre = *(uint32_t *)(cfg + 76) + 1;
+        tot = *(uint32_t *)(cfg + 80) + 1;
         start = *(uint32_t *)(sts + 44) >> 1;
         start = (start - pre) & 0x007FFFFF;
         if(start + tot <= 0x007FFFFF)
         {
-          memcpy(buf, ram + start * 4, tot * 4);
-          if(send(sock_client, buf, tot * 4, MSG_NOSIGNAL) < 0) break;
+          if(send(sock_client, ram + start * 4, tot * 4, MSG_NOSIGNAL) < 0) break;
         }
         else
         {
-          memcpy(buf, ram + start * 4, (0x007FFFFF - start) * 4);
-          if(send(sock_client, buf, (0x007FFFFF - start) * 4, MSG_NOSIGNAL) < 0) break;
-          memcpy(buf, ram, (start + tot - 0x007FFFFF) * 4);
-          if(send(sock_client, buf, (start + tot - 0x007FFFFF) * 4, MSG_NOSIGNAL) < 0) break;
+          if(send(sock_client, ram + start * 4, (0x007FFFFF - start) * 4, MSG_NOSIGNAL) < 0) break;
+          if(send(sock_client, ram, (start + tot - 0x007FFFFF) * 4, MSG_NOSIGNAL) < 0) break;
         }
       }
       else if(code == 24)
@@ -543,9 +551,9 @@ int main(int argc, char *argv[])
         }
         s = (uint16_t)(4095 * 65535 / (y[2] >> 9));
 
-        *(uint16_t *)(cfg + 84) = s;
-        *(uint16_t *)(cfg + 86) = f;
-        *(uint16_t *)(cfg + 88) = r;
+        *(uint16_t *)(cfg + 88) = s;
+        *(uint16_t *)(cfg + 90) = f;
+        *(uint16_t *)(cfg + 92) = r;
 
         enable_thread = 1;
         active_thread = 1;
@@ -593,7 +601,7 @@ void *pulser_handler(void *arg)
 
   while(enable_thread)
   {
-    while(*size > 6000) usleep(1000);
+    while(*(uint16_t *)(sts + 54) > 6000) usleep(1000);
 
     amplitude = lower_bound(hist, 4096, rand() % RAND_MAX);
 
