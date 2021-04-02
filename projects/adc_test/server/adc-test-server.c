@@ -33,7 +33,6 @@ int main ()
   volatile uint16_t *rx_rate;
   volatile uint8_t *rx_rst;
   volatile void *cfg, *sts, *ram;
-  void *buf;
   cpu_set_t mask;
   struct sched_param param;
   struct sockaddr_in addr;
@@ -137,7 +136,7 @@ int main ()
       {
         offset = limit > 0 ? 0 : 256*1024;
         limit = limit > 0 ? 0 : 32*1024;
-        if(send(sock_client, buf, 256*1024, MSG_NOSIGNAL) < 0) break;
+        if(send(sock_client, ram + offset, 256*1024, MSG_NOSIGNAL) < 0) break;
       }
       else
       {
