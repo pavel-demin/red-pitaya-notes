@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   }
 
   /* set interpolation rate */
-  *((uint16_t *)(cfg + 4)) = (uint16_t)(number >> 1);
+  *((uint16_t *)(cfg + 10)) = (uint16_t)(number >> 1);
 
   signal(SIGINT, signal_handler);
 

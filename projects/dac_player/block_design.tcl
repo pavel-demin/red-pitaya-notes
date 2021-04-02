@@ -21,10 +21,11 @@ cell xilinx.com:ip:clk_wiz pll_0 {
 # Create processing_system7
 cell xilinx.com:ip:processing_system7 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
-  PCW_USE_S_AXI_HP0 1
+  PCW_USE_S_AXI_ACP 1
+  PCW_USE_DEFAULT_ACP_USER_VAL 1
 } {
   M_AXI_GP0_ACLK pll_0/clk_out1
-  S_AXI_HP0_ACLK pll_0/clk_out1
+  S_AXI_ACP_ACLK pll_0/clk_out1
 }
 
 # Create all required interconnections
@@ -75,35 +76,42 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
 
 # Create axi_cfg_register
 cell pavel-demin:user:axi_cfg_register cfg_0 {
-  CFG_DATA_WIDTH 64
+  CFG_DATA_WIDTH 96
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_0 {
-  DIN_WIDTH 64 DIN_FROM 0 DIN_TO 0
+  DIN_WIDTH 96 DIN_FROM 0 DIN_TO 0
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
-  DIN_WIDTH 64 DIN_FROM 1 DIN_TO 1
+  DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 16
+  DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32
 } {
   din cfg_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_3 {
-  DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32
+  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64
+} {
+  din cfg_0/cfg_data
+}
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer slice_4 {
+  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 80
 } {
   din cfg_0/cfg_data
 }
@@ -130,7 +138,7 @@ for {set i 0} {$i <= 1} {incr i} {
   cell pavel-demin:user:axis_variable rate_$i {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_2/dout
+    cfg_data slice_3/dout
     aclk pll_0/clk_out1
     aresetn rst_0/peripheral_aresetn
   }
@@ -217,24 +225,17 @@ cell xilinx.com:ip:axis_dwidth_converter conv_1 {
   aresetn rst_0/peripheral_aresetn
 }
 
-# Create xlconstant
-cell xilinx.com:ip:xlconstant const_1 {
-  CONST_WIDTH 32
-  CONST_VAL 503316480
-}
-
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 16
+  AXI_ID_WIDTH 3
 } {
   S_AXIS conv_1/M_AXIS
-  M_AXI ps_0/S_AXI_HP0
-  cfg_data const_1/dout
+  M_AXI ps_0/S_AXI_ACP
+  cfg_data slice_2/dout
   aclk pll_0/clk_out1
   aresetn slice_1/dout
 }
-
-assign_bd_address [get_bd_addr_segs ps_0/S_AXI_HP0/HP0_DDR_LOWOCM]
 
 # TX
 
@@ -331,7 +332,7 @@ for {set i 0} {$i <= 1} {incr i} {
   cell pavel-demin:user:axis_variable rate_[expr $i + 2] {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_3/dout
+    cfg_data slice_4/dout
     aclk pll_0/clk_out1
     aresetn rst_0/peripheral_aresetn
   }
@@ -399,3 +400,5 @@ addr 0x40000000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
 addr 0x40001000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
 
 addr 0x40020000 128K writer_1/S_AXI /ps_0/M_AXI_GP0
+
+assign_bd_address [get_bd_addr_segs ps_0/S_AXI_ACP/ACP_DDR_LOWOCM]
