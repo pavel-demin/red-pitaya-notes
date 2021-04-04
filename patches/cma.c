@@ -36,7 +36,6 @@ static long cma_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
   {
     rc = PTR_ERR(cpu_addr);
     if(rc == 0) rc = -ENOMEM;
-    dma_size = 0;
     cpu_addr = NULL;
     return rc;
   }
