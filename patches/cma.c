@@ -24,7 +24,7 @@ static long cma_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
   if(cmd != CMA_ALLOC) return -ENOTTY;
 
-  rc = copy_from_user(&buffer, (char *)arg, sizeof(buffer));
+  rc = copy_from_user(&buffer, (void __user *)arg, sizeof(buffer));
   if(rc) return rc;
 
   cma_free();
@@ -41,7 +41,7 @@ static long cma_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
   }
 
   buffer = dma_addr;
-  return copy_to_user((char *)arg, &buffer, sizeof(buffer));
+  return copy_to_user((void __user *)arg, &buffer, sizeof(buffer));
 }
 
 static int cma_mmap(struct file *file, struct vm_area_struct *vma)
