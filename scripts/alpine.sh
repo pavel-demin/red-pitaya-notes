@@ -3,7 +3,7 @@ alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.12
 uboot_tar=alpine-uboot-3.12.0-armv7.tar.gz
 uboot_url=$alpine_url/releases/armv7/$uboot_tar
 
-tools_tar=apk-tools-static-2.10.5-r1.apk
+tools_tar=apk-tools-static-2.10.6-r0.apk
 tools_url=$alpine_url/main/armv7/$tools_tar
 
 firmware_tar=linux-firmware-other-20200519-r1.apk
