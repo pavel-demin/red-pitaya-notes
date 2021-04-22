@@ -1,0 +1,213 @@
+# Create clk_wiz
+cell xilinx.com:ip:clk_wiz pll_0 {
+  PRIMITIVE PLL
+  PRIM_IN_FREQ.VALUE_SRC USER
+  PRIM_IN_FREQ 122.88
+  PRIM_SOURCE Differential_clock_capable_pin
+  CLKOUT1_USED true
+  CLKOUT1_REQUESTED_OUT_FREQ 122.88
+  USE_RESET false
+} {
+  clk_in1_p adc_clk_p_i
+  clk_in1_n adc_clk_n_i
+}
+
+# Create processing_system7
+cell xilinx.com:ip:processing_system7 ps_0 {
+  PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+} {
+  M_AXI_GP0_ACLK pll_0/clk_out1
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
+  make_external {FIXED_IO, DDR}
+  Master Disable
+  Slave Disable
+} [get_bd_cells ps_0]
+
+# Create xlconstant
+cell xilinx.com:ip:xlconstant const_0
+
+# Create proc_sys_reset
+cell xilinx.com:ip:proc_sys_reset rst_0 {} {
+  ext_reset_in const_0/dout
+}
+
+# CFG
+
+# Create axi_cfg_register
+cell pavel-demin:user:axi_cfg_register cfg_0 {
+  CFG_DATA_WIDTH 32
+  AXI_ADDR_WIDTH 32
+  AXI_DATA_WIDTH 32
+}
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer slice_0 {
+  DIN_WIDTH 32 DIN_FROM 0 DIN_TO 0
+} {
+  din cfg_0/cfg_data
+}
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer slice_1 {
+  DIN_WIDTH 32 DIN_FROM 31 DIN_TO 16
+} {
+  din cfg_0/cfg_data
+}
+
+# FIFO
+
+# Create axi_axis_writer
+cell pavel-demin:user:axi_axis_writer writer_0 {
+  AXI_DATA_WIDTH 32
+} {
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
+}
+
+# Create axis_data_fifo
+cell xilinx.com:ip:axis_data_fifo fifo_0 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 4
+  FIFO_DEPTH 1024
+  HAS_WR_DATA_COUNT true
+} {
+  S_AXIS writer_0/M_AXIS
+  s_axis_aclk pll_0/clk_out1
+  s_axis_aresetn slice_0/dout
+}
+
+# Create axis_variable
+cell pavel-demin:user:axis_variable rate_0 {
+  AXIS_TDATA_WIDTH 16
+} {
+  cfg_data slice_1/dout
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
+}
+
+# Create cic_compiler
+cell xilinx.com:ip:cic_compiler cic_0 {
+  INPUT_DATA_WIDTH.VALUE_SRC USER
+  FILTER_TYPE Decimation
+  NUMBER_OF_STAGES 6
+  SAMPLE_RATE_CHANGES Programmable
+  MINIMUM_RATE 160
+  MAXIMUM_RATE 1280
+  FIXED_OR_INITIAL_RATE 1280
+  INPUT_SAMPLE_FREQUENCY 122.88
+  CLOCK_FREQUENCY 122.88
+  INPUT_DATA_WIDTH 24
+  QUANTIZATION Truncation
+  OUTPUT_DATA_WIDTH 32
+  USE_XTREME_DSP_SLICE false
+  HAS_ARESETN true
+} {
+  S_AXIS_DATA fifo_0/M_AXIS
+  S_AXIS_CONFIG rate_0/M_AXIS
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
+}
+
+# Create fir_compiler
+cell xilinx.com:ip:fir_compiler fir_0 {
+  DATA_WIDTH.VALUE_SRC USER
+  DATA_WIDTH 32
+  COEFFICIENTVECTOR {-1.6476107645e-08, -4.7318509958e-08, -7.9334153761e-10, 3.0931608556e-08, 1.8625777766e-08, 3.2745890947e-08, -6.2992383002e-09, -1.5226740325e-07, -8.3038268718e-08, 3.1450977739e-07, 3.0560017042e-07, -4.7413404537e-07, -7.1343433668e-07, 5.4727968794e-07, 1.3345092769e-06, -4.1410811573e-07, -2.1503295275e-06, -6.7732889107e-08, 3.0752073447e-06, 1.0369330452e-06, -3.9440341990e-06, -2.5916933930e-06, 4.5149980933e-06, 4.7474257033e-06, -4.4924674575e-06, -7.3976242805e-06, 3.5718649624e-06, 1.0288667838e-05, -1.5036944713e-06, -1.3019774519e-05, -1.8319253834e-06, 1.5076892291e-05, 6.3541186734e-06, -1.5904356404e-05, -1.1731503131e-05, 1.5009749328e-05, 1.7370530688e-05, -1.2093326664e-05, -2.2465004229e-05, 7.1691240631e-06, 2.6101082206e-05, -6.6349494949e-07, -2.7426975813e-05, -6.5501064436e-06, 2.5862172503e-05, 1.3203245774e-05, -2.1315222860e-05, -1.7788562838e-05, 1.4365152661e-05, 1.8818106866e-05, -6.3570996029e-06, -1.5161221980e-05, -6.3457567365e-07, 6.4152166211e-06, 4.0075505603e-06, 6.7570516180e-06, -1.0054020629e-06, -2.2401189151e-05, -1.0761621117e-05, 3.7230337647e-05, 3.2697976810e-05, -4.6856694979e-05, -6.4647159673e-05, 4.6256242042e-05, 1.0439305935e-04, -3.0537983209e-05, -1.4744482623e-04, -4.1196388391e-06, 1.8717023806e-04, 5.9467156273e-05, -2.1535691238e-04, -1.3429069300e-04, 2.2320550831e-04, 2.2381644313e-04, -2.0268372358e-04, -3.1959686240e-04, 1.4808384411e-04, 4.1001595749e-04, -5.7554972650e-05, -4.8147459816e-04, -6.5670848380e-05, 5.2020732914e-04, 2.1264643506e-04, -5.1457546013e-04, -3.6897505552e-04, 4.5742882004e-04, 5.1593056840e-04, -3.4844836896e-04, -6.3282836452e-04, 1.9563287413e-04, 7.0013009948e-04, -1.5797262215e-05, -7.0314632126e-04, -1.6636357778e-04, 6.3579024895e-04, 3.2080628120e-04, -5.0376816185e-04, -4.1622133931e-04, 3.2654155861e-04, 4.2535701264e-04, -1.3745398968e-04, -3.3101812992e-04, -1.8432492399e-05, 1.3194196375e-04, 8.8985983325e-05, 1.5239403533e-04, -2.2006323174e-05, -4.7907013006e-04, -2.2613780527e-04, 7.8153219188e-04, 6.8027730730e-04, -9.7376214155e-04, -1.3373172349e-03, 9.5742785253e-04, 2.1580561165e-03, -6.3300841569e-04, -3.0621388977e-03, -8.6267116792e-05, 3.9271636219e-03, 1.2587925143e-03, -4.5928174022e-03, -2.8988192404e-03, 4.8704019911e-03, 4.9622987682e-03, -4.5575005029e-03, -7.3360561955e-03, 3.4568745542e-03, 9.8317111012e-03, -1.3980757112e-03, -1.2185141263e-02, -1.7401992634e-03, 1.4061101768e-02, 6.0080366772e-03, -1.5064307706e-02, -1.1369193695e-02, 1.4747112328e-02, 1.7685750649e-02, -1.2617452322e-02, -2.4711098353e-02, 8.1301963965e-03, 3.2083780259e-02, -6.4505858596e-04, -3.9313739227e-02, -1.0691566598e-02, 4.5732768283e-02, 2.7247960597e-02, -5.0317155092e-02, -5.1711593898e-02, 5.1015082518e-02, 9.0563371328e-02, -4.1604576660e-02, -1.6373399431e-01, -1.0799599424e-02, 3.5635861240e-01, 5.5477063056e-01, 3.5635861240e-01, -1.0799599424e-02, -1.6373399431e-01, -4.1604576660e-02, 9.0563371328e-02, 5.1015082518e-02, -5.1711593898e-02, -5.0317155092e-02, 2.7247960597e-02, 4.5732768283e-02, -1.0691566598e-02, -3.9313739227e-02, -6.4505858596e-04, 3.2083780259e-02, 8.1301963965e-03, -2.4711098353e-02, -1.2617452322e-02, 1.7685750649e-02, 1.4747112328e-02, -1.1369193695e-02, -1.5064307706e-02, 6.0080366772e-03, 1.4061101768e-02, -1.7401992634e-03, -1.2185141263e-02, -1.3980757112e-03, 9.8317111012e-03, 3.4568745542e-03, -7.3360561955e-03, -4.5575005029e-03, 4.9622987682e-03, 4.8704019911e-03, -2.8988192404e-03, -4.5928174022e-03, 1.2587925143e-03, 3.9271636219e-03, -8.6267116792e-05, -3.0621388977e-03, -6.3300841569e-04, 2.1580561165e-03, 9.5742785253e-04, -1.3373172349e-03, -9.7376214155e-04, 6.8027730730e-04, 7.8153219188e-04, -2.2613780527e-04, -4.7907013006e-04, -2.2006323174e-05, 1.5239403533e-04, 8.8985983325e-05, 1.3194196375e-04, -1.8432492399e-05, -3.3101812992e-04, -1.3745398968e-04, 4.2535701264e-04, 3.2654155861e-04, -4.1622133931e-04, -5.0376816185e-04, 3.2080628120e-04, 6.3579024895e-04, -1.6636357778e-04, -7.0314632126e-04, -1.5797262215e-05, 7.0013009948e-04, 1.9563287413e-04, -6.3282836452e-04, -3.4844836896e-04, 5.1593056840e-04, 4.5742882004e-04, -3.6897505552e-04, -5.1457546013e-04, 2.1264643506e-04, 5.2020732914e-04, -6.5670848380e-05, -4.8147459816e-04, -5.7554972650e-05, 4.1001595749e-04, 1.4808384411e-04, -3.1959686240e-04, -2.0268372358e-04, 2.2381644313e-04, 2.2320550831e-04, -1.3429069300e-04, -2.1535691238e-04, 5.9467156273e-05, 1.8717023806e-04, -4.1196388391e-06, -1.4744482623e-04, -3.0537983209e-05, 1.0439305935e-04, 4.6256242042e-05, -6.4647159673e-05, -4.6856694979e-05, 3.2697976810e-05, 3.7230337647e-05, -1.0761621117e-05, -2.2401189151e-05, -1.0054020629e-06, 6.7570516180e-06, 4.0075505603e-06, 6.4152166211e-06, -6.3457567365e-07, -1.5161221980e-05, -6.3570996029e-06, 1.8818106866e-05, 1.4365152661e-05, -1.7788562838e-05, -2.1315222860e-05, 1.3203245774e-05, 2.5862172503e-05, -6.5501064436e-06, -2.7426975813e-05, -6.6349494949e-07, 2.6101082206e-05, 7.1691240631e-06, -2.2465004229e-05, -1.2093326664e-05, 1.7370530688e-05, 1.5009749328e-05, -1.1731503131e-05, -1.5904356404e-05, 6.3541186734e-06, 1.5076892291e-05, -1.8319253834e-06, -1.3019774519e-05, -1.5036944713e-06, 1.0288667838e-05, 3.5718649624e-06, -7.3976242805e-06, -4.4924674575e-06, 4.7474257033e-06, 4.5149980933e-06, -2.5916933930e-06, -3.9440341990e-06, 1.0369330452e-06, 3.0752073447e-06, -6.7732889107e-08, -2.1503295275e-06, -4.1410811573e-07, 1.3345092769e-06, 5.4727968794e-07, -7.1343433668e-07, -4.7413404537e-07, 3.0560017042e-07, 3.1450977739e-07, -8.3038268718e-08, -1.5226740325e-07, -6.2992383002e-09, 3.2745890947e-08, 1.8625777766e-08, 3.0931608556e-08, -7.9334153761e-10, -4.7318509957e-08, -1.6476107645e-08}
+  COEFFICIENT_WIDTH 24
+  QUANTIZATION Quantize_Only
+  BESTPRECISION true
+  FILTER_TYPE Decimation
+  DECIMATION_RATE 2
+  NUMBER_CHANNELS 1
+  NUMBER_PATHS 1
+  SAMPLE_FREQUENCY 0.768
+  CLOCK_FREQUENCY 122.88
+  OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
+  OUTPUT_WIDTH 26
+  HAS_ARESETN true
+} {
+  S_AXIS_DATA cic_0/M_AXIS_DATA
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
+}
+
+# Create axis_data_fifo
+cell xilinx.com:ip:axis_data_fifo fifo_1 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 4
+  FIFO_DEPTH 1024
+  HAS_RD_DATA_COUNT true
+} {
+  S_AXIS fir_0/M_AXIS_DATA
+  s_axis_aclk pll_0/clk_out1
+  s_axis_aresetn slice_0/dout
+}
+
+# Create axi_axis_reader
+cell pavel-demin:user:axi_axis_reader reader_0 {
+  AXI_DATA_WIDTH 32
+} {
+  S_AXIS fifo_1/M_AXIS
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
+}
+
+# STS
+
+# Create xlconcat
+cell xilinx.com:ip:xlconcat concat_0 {
+  NUM_PORTS 2
+  IN0_WIDTH 32
+  IN1_WIDTH 32
+} {
+  In0 fifo_0/axis_wr_data_count
+  In1 fifo_1/axis_rd_data_count
+}
+
+# Create axi_sts_register
+cell pavel-demin:user:axi_sts_register sts_0 {
+  STS_DATA_WIDTH 64
+  AXI_ADDR_WIDTH 32
+  AXI_DATA_WIDTH 32
+} {
+  sts_data concat_0/dout
+}
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins sts_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
+set_property OFFSET 0x40000000 [get_bd_addr_segs ps_0/Data/SEG_sts_0_reg0]
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins cfg_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
+set_property OFFSET 0x40001000 [get_bd_addr_segs ps_0/Data/SEG_cfg_0_reg0]
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins writer_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+set_property OFFSET 0x40002000 [get_bd_addr_segs ps_0/Data/SEG_writer_0_reg0]
+
+# Create all required interconnections
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {
+  Master /ps_0/M_AXI_GP0
+  Clk Auto
+} [get_bd_intf_pins reader_0/S_AXI]
+
+set_property RANGE 4K [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
+set_property OFFSET 0x40003000 [get_bd_addr_segs ps_0/Data/SEG_reader_0_reg0]
