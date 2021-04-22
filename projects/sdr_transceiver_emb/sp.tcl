@@ -70,7 +70,7 @@ for {set i 0} {$i <= 1} {incr i} {
 
   # Create port_slicer
   cell pavel-demin:user:port_slicer adc_slice_$i {
-    DIN_WIDTH 32 DIN_FROM 13 DIN_TO 0
+    DIN_WIDTH 32 DIN_FROM 15 DIN_TO 0
   } {
     din /adc_0/m_axis_tdata
   }
@@ -89,7 +89,7 @@ for {set i 0} {$i <= 1} {incr i} {
     B_WIDTH.VALUE_SRC USER
     OUTPUT_PROPERTIES User_Defined
     A_WIDTH 24
-    B_WIDTH 14
+    B_WIDTH 16
     P_WIDTH 25
   } {
     A dds_slice_$i/dout
