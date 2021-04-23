@@ -229,7 +229,7 @@ cell xilinx.com:ip:axis_dwidth_converter conv_1 {
 }
 
 # Create axis_broadcaster
-cell xilinx.com:ip:axis_broadcaster bcast_3 {
+cell xilinx.com:ip:axis_broadcaster bcast_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 16
@@ -264,7 +264,7 @@ for {set i 0} {$i <= 1} {incr i} {
     S_AXIS_TDATA_WIDTH 64
     M_AXIS_TDATA_WIDTH 32
   } {
-    S_AXIS bcast_3/M0${i}_AXIS
+    S_AXIS bcast_0/M0${i}_AXIS
     FIFO_READ fifo_generator_$i/FIFO_READ
     FIFO_WRITE fifo_generator_$i/FIFO_WRITE
     aclk /pll_0/clk_out1
