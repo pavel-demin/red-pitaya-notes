@@ -14,7 +14,7 @@ Hardware
 
 The structure of this version is very similar to the SDR transceiver described at [this link]({{ "/sdr-transceiver-hpsdr/" | prepend: site.baseurl }}). The two main differences are:
 
- - fixed sample rate (48kSPS),
+ - fixed sample rate (48 kSPS),
  - fewer FIR filters.
 
 The basic blocks of the digital down-converters (DDC) and of the digital up-converters (DUC) are shown on the following diagram:
