@@ -23,6 +23,7 @@ layout: default
    1. [Scanning system]({{ "/scanner/" | prepend: site.baseurl }})
    1. [Vector Network Analyzer]({{ "/vna/" | prepend: site.baseurl }})
 1. Applications for Red Pitaya STEMlab 122.88-16 SDR:
+   1. [SDR transceiver]({{ "/sdr-transceiver-122-88/" | prepend: site.baseurl }})
    1. [SDR transceiver compatible with HPSDR]({{ "/sdr-transceiver-hpsdr-122-88/" | prepend: site.baseurl }})
    1. [SDR receiver compatible with HPSDR]({{ "/sdr-receiver-hpsdr-122-88/" | prepend: site.baseurl }})
    1. [Multiband WSPR transceiver]({{ "/sdr-transceiver-wspr-122-88/" | prepend: site.baseurl }})
