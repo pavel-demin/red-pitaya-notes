@@ -230,7 +230,7 @@ int main()
   RXASetPassband(0, cutoff[mode][filter][0], cutoff[mode][filter][1]);
   SetTXABandpassFreqs(1, cutoff[mode][filter][0], cutoff[mode][filter][1]);
 
-  *sp_rate = 125;
+  *sp_rate = 80;
   *sp_total = 32767;
   *sp_scale = 1024;
   *sp_corr = 8.68589;
