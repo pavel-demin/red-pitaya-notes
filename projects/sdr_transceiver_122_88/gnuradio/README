@@ -1,0 +1,12 @@
+Instructions to run GNU Radio Companion with Red Pitaya
+
+Cloning the source code repository:
+
+  git clone https://github.com/pavel-demin/red-pitaya-notes
+  cd red-pitaya-notes/projects/sdr_transceiver/gnuradio
+
+Running example AM transceiver:
+
+  export GRC_BLOCKS_PATH=.
+  gnuradio-companion trx_am.grc
+

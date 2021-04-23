@@ -89,7 +89,7 @@ do
   cp tmp/$project.bit $root_dir/media/mmcblk0p1/apps/$project/
 done
 
-for project in led_blinker_122_88 sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_emb_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 pulsed_nmr_122_88 vna_122_88
+for project in led_blinker_122_88 sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_122_88 sdr_transceiver_emb_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 pulsed_nmr_122_88 vna_122_88
 do
   mkdir -p $root_dir/media/mmcblk0p1/apps/$project
   cp -r projects/$project/server/* $root_dir/media/mmcblk0p1/apps/$project/
@@ -208,7 +208,7 @@ do
   make -C /media/mmcblk0p1/apps/\$project
 done
 
-for project in sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_emb_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 pulsed_nmr_122_88 vna_122_88
+for project in sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_122_88 sdr_transceiver_emb_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 pulsed_nmr_122_88 vna_122_88
 do
   make -C /media/mmcblk0p1/apps/\$project clean
   make -C /media/mmcblk0p1/apps/\$project
