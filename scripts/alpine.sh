@@ -172,17 +172,15 @@ lbu commit -d
 
 apk add patch make gcc gfortran
 
-for project in server sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_emb sdr_transceiver_ft8 sdr_transceiver_hpsdr sdr_transceiver_wide mcpha pulsed_nmr vna
-do
-  make -C /media/mmcblk0p1/apps/\$project clean
-  make -C /media/mmcblk0p1/apps/\$project
-done
+wdsp_dir=/media/mmcblk0p1/apps/wdsp
+wdsp_tar=/media/mmcblk0p1/apps/wdsp.tar.gz
+wdsp_url=https://github.com/pavel-demin/wdsp/archive/master.tar.gz
 
-for project in sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 pulsed_nmr_122_88 vna_122_88
-do
-  make -C /media/mmcblk0p1/apps/\$project clean
-  make -C /media/mmcblk0p1/apps/\$project
-done
+curl -L \$wdsp_url -o \$wdsp_tar
+mkdir -p \$wdsp_dir
+tar -zxf \$wdsp_tar --strip-components=1 --directory=\$wdsp_dir
+rm \$wdsp_tar
+make -C \$wdsp_dir
 
 ft8d_dir=/media/mmcblk0p1/apps/ft8d
 ft8d_tar=/media/mmcblk0p1/apps/ft8d.tar.gz
@@ -204,8 +202,17 @@ tar -zxf \$wsprd_tar --strip-components=1 --directory=\$wsprd_dir
 rm \$wsprd_tar
 make -C \$wsprd_dir
 
-make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr
-make -C /media/mmcblk0p1/apps/sdr_transceiver_wspr_122_88
+for project in server sdr_receiver_hpsdr sdr_transceiver sdr_transceiver_emb sdr_transceiver_ft8 sdr_transceiver_hpsdr sdr_transceiver_wide sdr_transceiver_wspr mcpha pulsed_nmr vna
+do
+  make -C /media/mmcblk0p1/apps/\$project clean
+  make -C /media/mmcblk0p1/apps/\$project
+done
+
+for project in sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 pulsed_nmr_122_88 vna_122_88
+do
+  make -C /media/mmcblk0p1/apps/\$project clean
+  make -C /media/mmcblk0p1/apps/\$project
+done
 
 EOF_CHROOT
 
