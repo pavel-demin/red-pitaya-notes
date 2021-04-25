@@ -1,7 +1,5 @@
 from setuptools import setup
-import os
 import py2exe
-import matplotlib
 
 includes = [
   'PySide2.QtCore',
