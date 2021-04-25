@@ -4,37 +4,29 @@ import py2exe
 import matplotlib
 
 includes = [
-  'sip',
-  'PyQt5',
-  'PyQt5.uic',
-  'PyQt5.QtCore',
-  'PyQt5.QtDesigner',
-  'PyQt5.QtGui',
-  'PyQt5.QtNetwork',
-  'PyQt5.QtMultimedia',
-  'PyQt5.QtPrintSupport',
-  'PyQt5.QtWebSockets',
-  'PyQt5.QtWidgets',
-  'PyQt5.QtXml',
+  'PySide2.QtCore',
+  'PySide2.QtGui',
+  'PySide2.QtNetwork',
+  'PySide2.QtMultimedia',
+  'PySide2.QtPrintSupport',
+  'PySide2.QtUiTools',
+  'PySide2.QtWebSockets',
+  'PySide2.QtWidgets',
+  'PySide2.QtXml',
   'numpy',
   'matplotlib.backends.backend_qt5agg'
 ]
 
-excludes = [
-  'six.moves.urllib.parse',
-  'six.moves.urllib.request'
-]
-
 setup(
   windows = [{'script': 'exec.py'}],
-  data_files = matplotlib.get_py2exe_datafiles() + [
-    ('', ['c:\\Python34\\Lib\\site-packages\\PyQt5\\Qt5DesignerComponents.dll', 'c:\\Python34\\Lib\\site-packages\\PyQt5\\designer.exe']),
-    ('platforms', ['c:\\Python34\\Lib\\site-packages\\PyQt5\\plugins\\platforms\\qwindows.dll'])
+  data_files = [
+    ('', ['c:\\Python38\\Scripts\\pyside2-uic.exe', 'c:\\Python38\\Lib\\site-packages\\PySide2\\Qt5Designer.dll', 'c:\\Python38\\Lib\\site-packages\\PySide2\\Qt5DesignerComponents.dll', 'c:\\Python38\\Lib\\site-packages\\PySide2\\designer.exe']),
+    ('platforms', ['c:\\Python38\\Lib\\site-packages\\PySide2\\plugins\\platforms\\qwindows.dll']),
+    ('styles', ['c:\\Python38\\Lib\\site-packages\\PySide2\\plugins\\styles\\qwindowsvistastyle.dll'])
   ],
   options = {
     'py2exe':{
       'includes': includes,
-      'excludes': excludes,
       'bundle_files': 3,
       'compressed': True
     }
