@@ -31,11 +31,18 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from matplotlib.figure import Figure
 from matplotlib.ticker import Formatter, FuncFormatter
 
-from PyQt5.uic import loadUiType
-from PyQt5.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
-from PyQt5.QtGui import QRegExpValidator
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
-from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
+try:
+  from PyQt5.uic import loadUiType
+  from PyQt5.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
+  from PyQt5.QtGui import QRegExpValidator
+  from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
+  from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
+except ImportError:
+  from PySide2.QtUiTools import loadUiType
+  from PySide2.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
+  from PySide2.QtGui import QRegExpValidator
+  from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
+  from PySide2.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_VNA, QMainWindow = loadUiType('vna.ui')
 
@@ -883,4 +890,4 @@ app = QApplication(sys.argv)
 window = VNA()
 window.update_tab()
 window.show()
-sys.exit(app.exec())
+sys.exit(app.exec_())
