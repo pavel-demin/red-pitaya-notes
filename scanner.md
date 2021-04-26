@@ -38,28 +38,6 @@ The [projects/scanner/client](https://github.com/pavel-demin/red-pitaya-notes/tr
 
 ![Scanner client]({{ "/img/scanner-client.png" | prepend: site.baseurl }})
 
-Getting started with MS Windows
------
-
- - Download customized [SD card image zip file]({{ site.scanner-image }}).
- - Copy the contents of the SD card image zip file to a micro SD card.
- - Install the micro SD card in the Red Pitaya board and connect the power.
- - Download and install [Python 3.4](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi).
- - Download and install [PyQt 5.5](https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe/download).
- - Start a command prompt using the `cmd.exe` program and run the `pip` command to install `matplotlib`:
-{% highlight winbatch %}
-C:\Python34\python.exe -m pip install --upgrade pip==19.1.1
-C:\Python34\python.exe -m pip install numpy==1.15.4 matplotlib==2.2.4
-{% endhighlight %}
- - Download [scanner.py](https://raw.githubusercontent.com/pavel-demin/red-pitaya-notes/master/projects/scanner/client/scanner.py) and [scanner.ui](https://raw.githubusercontent.com/pavel-demin/red-pitaya-notes/master/projects/scanner/client/scanner.ui).
- - Start a command prompt using the `cmd.exe` program and run the control program:
-{% highlight winbatch %}
-C:\Python34\pythonw.exe scanner.py
-{% endhighlight %}
- - Type in the IP address of the Red Pitaya board and press Connect button.
- - Adjust trigger and S&H pulses and number of samples per pixel.
- - Press Scan button.
-
 Getting started with GNU/Linux
 -----
 
@@ -68,8 +46,7 @@ Getting started with GNU/Linux
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Install required Python libraries:
 {% highlight bash %}
-sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5 libfreetype6-dev
-sudo pip3 install matplotlib
+sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5
 {% endhighlight %}
  - Clone the source code repository:
 {% highlight bash %}

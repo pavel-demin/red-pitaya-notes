@@ -52,8 +52,7 @@ Getting started with GNU/Linux
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/pulsed_nmr_122_88` to the topmost directory on the SD card.
  - Install required Python libraries:
 {% highlight bash %}
-sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5 libfreetype6-dev
-sudo pip3 install matplotlib
+sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5
 {% endhighlight %}
  - Clone the source code repository:
 {% highlight bash %}

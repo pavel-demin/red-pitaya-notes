@@ -53,8 +53,7 @@ Getting started with GNU/Linux
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Install required Python libraries:
 {% highlight bash %}
-sudo apt-get install python3-dev python3-pip python3-numpy python3-pyqt5 libfreetype6-dev
-sudo pip3 install matplotlib
+sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5
 {% endhighlight %}
  - Clone the source code repository:
 {% highlight bash %}
