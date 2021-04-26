@@ -144,7 +144,7 @@ cell xilinx.com:ip:util_vector_logic not_0 {
 create_bd_port -dir IO -from 3 -to 0 exp_n_alex
 
 module alex {
-  source projects/sdr_transceiver_emb/alex.tcl
+  source projects/sdr_transceiver_emb_122_88/alex.tcl
 }
 
 # RX 0
@@ -164,7 +164,7 @@ cell pavel-demin:user:port_slicer cfg_slice_0 {
 }
 
 module rx_0 {
-  source projects/sdr_transceiver_emb/rx.tcl
+  source projects/sdr_transceiver_emb_122_88/rx.tcl
 } {
   slice_0/din rst_slice_0/dout
   slice_1/din cfg_slice_0/dout
@@ -188,7 +188,7 @@ cell pavel-demin:user:port_slicer cfg_slice_1 {
 }
 
 module sp_0 {
-  source projects/sdr_transceiver_emb/sp.tcl
+  source projects/sdr_transceiver_emb_122_88/sp.tcl
 } {
   slice_0/din rst_slice_1/dout
   slice_1/din rst_slice_1/dout
@@ -223,7 +223,7 @@ cell pavel-demin:user:port_slicer key_slice_0 {
 }
 
 module tx_0 {
-  source projects/sdr_transceiver_emb/tx.tcl
+  source projects/sdr_transceiver_emb_122_88/tx.tcl
 } {
   slice_0/din rst_slice_2/dout
   slice_1/din cfg_slice_2/dout
@@ -251,7 +251,7 @@ cell pavel-demin:user:port_slicer cfg_slice_3 {
 }
 
 module codec {
-  source projects/sdr_transceiver_emb/codec.tcl
+  source projects/sdr_transceiver_emb_122_88/codec.tcl
 } {
   slice_0/din rst_slice_3/dout
   slice_1/din rst_slice_3/dout
