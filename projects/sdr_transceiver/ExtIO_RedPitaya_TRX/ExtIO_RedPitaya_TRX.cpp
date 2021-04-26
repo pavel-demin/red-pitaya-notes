@@ -30,7 +30,7 @@ UInt32 gRate = 100000;
 Int32 gCorr = 0;
 
 UInt32 gFreq = 600000;
-UInt32 gFreqMin = 100000;
+UInt32 gFreqMin = 50000;
 UInt32 gFreqMax = 60000000;
 
 bool gInitHW = false;
