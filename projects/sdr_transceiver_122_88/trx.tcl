@@ -42,7 +42,7 @@ cell pavel-demin:user:port_slicer cfg_slice_1 {
 }
 
 module rx_0 {
-  source projects/sdr_transceiver/rx.tcl
+  source projects/sdr_transceiver_122_88/rx.tcl
 } {
   slice_0/din rst_slice_0/dout
   slice_1/din cfg_slice_0/dout
@@ -50,7 +50,7 @@ module rx_0 {
 }
 
 module tx_0 {
-  source projects/sdr_transceiver/tx.tcl
+  source projects/sdr_transceiver_122_88/tx.tcl
 } {
   slice_0/din rst_slice_1/dout
   slice_1/din cfg_slice_1/dout

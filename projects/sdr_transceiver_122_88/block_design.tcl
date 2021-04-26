@@ -142,7 +142,7 @@ cell xilinx.com:ip:xlconcat concat_1 {
 # TRX
 
 module trx_0 {
-  source projects/sdr_transceiver/trx.tcl
+  source projects/sdr_transceiver_122_88/trx.tcl
 } {
   out_slice_0/dout concat_1/In0
   rx_0/mult_0/S_AXIS_A bcast_0/M00_AXIS
@@ -158,7 +158,7 @@ addr 0x40010000 32K trx_0/rx_0/reader_0/S_AXI /ps_0/M_AXI_GP0
 addr 0x40018000 32K trx_0/tx_0/writer_0/S_AXI /ps_0/M_AXI_GP0
 
 module trx_1 {
-  source projects/sdr_transceiver/trx.tcl
+  source projects/sdr_transceiver_122_88/trx.tcl
 } {
   out_slice_0/dout concat_1/In1
   rx_0/mult_0/S_AXIS_A bcast_0/M01_AXIS
