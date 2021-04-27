@@ -1,4 +1,3 @@
-
 #include <string.h>
 #include <math.h>
 
@@ -22,7 +21,7 @@ using namespace ExtIO_RedPitaya_122_88;
 #define TCP_PORT 1001
 #define TCP_ADDR "192.168.1.100"
 
-SOCKET gSock[2] = {-1, -1};
+SOCKET gSock[2] = {INVALID_SOCKET, INVALID_SOCKET};
 
 char gBuffer[8192];
 
@@ -51,6 +50,7 @@ ref class ManagedGlobals
 
 void (*ExtIOCallback)(int, int, float, void *) = 0;
 
+static SOCKET OpenConnection(char *buffer);
 static void SetRate(UInt32);
 static void UpdateRate(UInt32);
 static void SetCorr(Int32);
@@ -64,6 +64,7 @@ DWORD WINAPI GeneratorThreadProc(__in LPVOID lpParameter)
   while(!gExitThread)
   {
     SleepEx(1, FALSE);
+
     if(gExitThread) break;
 
     ioctlsocket(gSock[1], FIONREAD, &size);
@@ -184,24 +185,24 @@ int EXTIO_API StartHW(long LOfreq)
   addrString = ManagedGlobals::gGUI->addrValue->Text;
   ManagedGlobals::gKey->SetValue("IP Address", addrString);
 
-  buffer = (char*)Marshal::StringToHGlobalAnsi(addrString).ToPointer();
+  buffer = (char *)Marshal::StringToHGlobalAnsi(addrString).ToPointer();
 
-  for(i = 0; i < 2; ++i)
-  {
-    gSock[i] = socket(AF_INET, SOCK_STREAM, 0);
-
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr(buffer);
-    addr.sin_port = htons(TCP_PORT);
-
-    connect(gSock[i], (struct sockaddr *)&addr, sizeof(addr));
-
-    command = i;
-    send(gSock[i], (char *)&command, 4, 0);
-  }
+  gSock[0] = OpenConnection(buffer);
+  gSock[1] = OpenConnection(buffer);
 
   Marshal::FreeHGlobal(IntPtr(buffer));
+
+  if(gSock[0] == INVALID_SOCKET || gSock[1] == INVALID_SOCKET)
+  {
+    closesocket(gSock[1]);
+    closesocket(gSock[0]);
+    return 0;
+  }
+
+  command = 0;
+  send(gSock[0], (char *)&command, 4, 0);
+  command = 1;
+  send(gSock[1], (char *)&command, 4, 0);
 
   StopThread();
   gFreq = LOfreq;
@@ -221,8 +222,8 @@ void EXTIO_API StopHW()
   closesocket(gSock[1]);
   closesocket(gSock[0]);
 
-  gSock[1] = -1;
-  gSock[0] = -1;
+  gSock[1] = INVALID_SOCKET;
+  gSock[0] = INVALID_SOCKET;
 
   WSACleanup();
 }
@@ -271,6 +272,56 @@ int EXTIO_API SetHWLO(long LOfreq)
   if(gSock[0] > 0) send(gSock[0], (char *)&buffer, 4, 0);
 
   return rc;
+}
+
+//---------------------------------------------------------------------------
+
+static SOCKET OpenConnection(char *buffer)
+{
+  struct sockaddr_in addr;
+  fd_set writefds, exceptfds;
+  struct timeval timeout;
+  int result;
+  SOCKET sock;
+  u_long mode;
+
+  sock = socket(AF_INET, SOCK_STREAM, 0);
+
+  if(sock == INVALID_SOCKET)
+  {
+    return INVALID_SOCKET;
+  }
+
+  mode = 1;
+  ioctlsocket(sock, FIONBIO, &mode);
+
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  inet_pton(AF_INET, buffer, &addr.sin_addr);
+  addr.sin_port = htons(TCP_PORT);
+
+  connect(sock, (struct sockaddr *)&addr, sizeof(addr));
+
+  timeout.tv_sec = 5;
+  timeout.tv_usec = 0;
+
+  FD_ZERO(&writefds);
+  FD_SET(sock, &writefds);
+  FD_ZERO(&exceptfds);
+  FD_SET(sock, &exceptfds);
+
+  result = select(0, NULL, &writefds, &exceptfds, &timeout);
+
+  if(result == 0 || result == SOCKET_ERROR)
+  {
+    closesocket(sock);
+    return INVALID_SOCKET;
+  }
+
+  mode = 0;
+  ioctlsocket(sock, FIONBIO, &mode);
+
+  return sock;
 }
 
 //---------------------------------------------------------------------------
