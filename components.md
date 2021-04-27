@@ -41,3 +41,5 @@ Mini-Circuits
  - [Low Pass Filter, DC-32 MHz](https://www.minicircuits.com/WebStore/dashboard.html?model=SLP-30%2B)
 
  - [Low Pass Filter, DC-48 MHz](https://www.minicircuits.com/WebStore/dashboard.html?model=SLP-50%2B)
+
+ - [Band Pass Filter, 87-117 MHz](https://www.minicircuits.com/WebStore/dashboard.html?model=SBP-100%2B)
