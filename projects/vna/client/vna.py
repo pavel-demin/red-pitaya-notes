@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Control program for the Red Pitaya vector network analyzer
-# Copyright (C) 2017  Pavel Demin
+# Copyright (C) 2021  Pavel Demin
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
