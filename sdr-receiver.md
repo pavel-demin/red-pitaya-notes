@@ -125,7 +125,7 @@ Getting started
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](http://www.hdsdr.de/).
- - Download and install [Microsoft Visual C++ 2008 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=26368).
+ - Download and install [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019).
  - Download [pre-built ExtIO plug-in](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AADBqDFBJpAnkcpAEARf5xQNa/sdr/ExtIO_RedPitaya.dll?dl=1) for SDR# and HDSDR.
  - Copy `ExtIO_RedPitaya.dll` into the SDR# or HDSDR installation directory.
  - Start SDR# or HDSDR.
