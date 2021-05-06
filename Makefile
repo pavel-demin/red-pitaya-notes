@@ -48,8 +48,6 @@ UBOOT_URL = https://github.com/Xilinx/u-boot-xlnx/archive/$(UBOOT_TAG).tar.gz
 LINUX_URL = https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-$(LINUX_TAG).114.tar.xz
 DTREE_URL = https://github.com/Xilinx/device-tree-xlnx/archive/$(DTREE_TAG).tar.gz
 
-LINUX_CFLAGS = "-O2 -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard"
-
 RTL8188_TAR = tmp/rtl8188eu-v5.2.2.4.tar.gz
 RTL8188_URL = https://github.com/lwfinger/rtl8188eu/archive/v5.2.2.4.tar.gz
 
@@ -114,8 +112,7 @@ $(DTREE_DIR): $(DTREE_TAR)
 uImage: $(LINUX_DIR)
 	make -C $< mrproper
 	make -C $< ARCH=arm xilinx_zynq_defconfig
-	make -C $< ARCH=arm CFLAGS=$(LINUX_CFLAGS) \
-	  -j $(shell nproc 2> /dev/null || echo 1) \
+	make -C $< ARCH=arm -j $(shell nproc 2> /dev/null || echo 1) \
 	  CROSS_COMPILE=arm-linux-gnueabihf- UIMAGE_LOADADDR=0x8000 \
 	  uImage modules
 	cp $</arch/arm/boot/uImage $@
@@ -124,7 +121,8 @@ $(UBOOT_DIR)/u-boot.bin: $(UBOOT_DIR)
 	mkdir -p $(@D)
 	make -C $< mrproper
 	make -C $< ARCH=arm zynq_red_pitaya_defconfig
-	make -C $< ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- all
+	make -C $< ARCH=arm -j $(shell nproc 2> /dev/null || echo 1) \
+	  CROSS_COMPILE=arm-linux-gnueabihf- all
 
 boot.bin: tmp/$(NAME).fsbl/executable.elf $(UBOOT_DIR)/u-boot.bin
 	echo "img:{[bootloader] tmp/$(NAME).fsbl/executable.elf [load=0x4000000,startup=0x4000000] $(UBOOT_DIR)/u-boot.bin}" > tmp/boot.bif
