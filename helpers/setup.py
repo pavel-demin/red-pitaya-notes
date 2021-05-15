@@ -16,9 +16,9 @@ includes = [
 ]
 
 setup(
-  windows = [{'script': 'exec.py'}],
+  windows = [{'script': 'exec.py'}, {'script': 'pyside2-uic.py'}],
   data_files = [
-    ('', ['c:\\Python38\\Scripts\\pyside2-uic.exe', 'c:\\Python38\\Lib\\site-packages\\PySide2\\Qt5Designer.dll', 'c:\\Python38\\Lib\\site-packages\\PySide2\\Qt5DesignerComponents.dll', 'c:\\Python38\\Lib\\site-packages\\PySide2\\designer.exe']),
+    ('', ['c:\\Python38\\Lib\\site-packages\\PySide2\\Qt5Designer.dll', 'c:\\Python38\\Lib\\site-packages\\PySide2\\Qt5DesignerComponents.dll', 'c:\\Python38\\Lib\\site-packages\\PySide2\\designer.exe', 'c:\\Python38\\Lib\\site-packages\\PySide2\\uic.exe']),
     ('platforms', ['c:\\Python38\\Lib\\site-packages\\PySide2\\plugins\\platforms\\qwindows.dll']),
     ('styles', ['c:\\Python38\\Lib\\site-packages\\PySide2\\plugins\\styles\\qwindowsvistastyle.dll'])
   ],
