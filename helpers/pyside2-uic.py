@@ -1,6 +1,4 @@
 import sys
-from subprocess import Popen, PIPE
+import subprocess as sp
 cmd = ['uic', '-g', 'python'] + sys.argv[1:]
-proc = Popen(cmd, stderr=PIPE, shell=True)
-out, err = proc.communicate()
-sys.exit(proc.returncode)
+sys.exit(sp.run(cmd, stderr = sp.PIPE, shell = True).returncode)
