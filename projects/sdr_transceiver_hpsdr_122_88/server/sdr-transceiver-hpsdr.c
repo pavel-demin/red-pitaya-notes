@@ -170,9 +170,9 @@ uint16_t alex_data_rx = 0;
 uint16_t alex_data_tx = 0;
 uint16_t alex_data_0 = 0;
 uint16_t alex_data_1 = 0;
+uint16_t alex_update = 0;
 
 uint32_t freq_data[3] = {0, 0, 0};
-
 
 /* calculate lookup table from drive scale value to 0.5 dB attenuation units */
 void calc_log_lookup()
@@ -417,6 +417,7 @@ int main(int argc, char *argv[])
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 32, 1};
   uint8_t id[4] = {0xef, 0xfe, 1, 6};
   uint32_t code;
+  uint16_t data;
   struct termios tty;
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from[10];
@@ -835,6 +836,19 @@ int main(int argc, char *argv[])
       }
     }
 
+    data = alex_data_0 | cw_ptt;
+    if(alex_data_0 != data)
+    {
+      alex_data_0 = data;
+      alex_update = 1;
+    }
+
+    if(alex_update)
+    {
+      alex_update = 0;
+      alex_write();
+    };
+
     if(misc_update)
     {
       misc_update = 0;
@@ -907,7 +921,7 @@ void process_ep2(uint8_t *frame)
       if(alex_data_0 != data)
       {
         alex_data_0 = data;
-        alex_write();
+        alex_update = 1;
       }
 
       /* configure PENELOPE */
@@ -999,8 +1013,8 @@ void process_ep2(uint8_t *frame)
       if(freq_data[0] != freq)
       {
         freq_data[0] = freq;
-        alex_write();
         icom_write();
+        alex_update = 1;
         if(i2c_misc) misc_update = 1;
         if(i2c_nucleo) nucleo_update = 1;
         if(i2c_arduino)
@@ -1031,7 +1045,7 @@ void process_ep2(uint8_t *frame)
           *lo_rst &= ~3;
           *lo_rst |= 3;
         }
-        alex_write();
+        alex_update = 1;
         if(i2c_misc) misc_update = 1;
         if(i2c_nucleo) nucleo_update = 1;
         if(i2c_arduino)
@@ -1057,7 +1071,7 @@ void process_ep2(uint8_t *frame)
       if(freq_data[2] != freq)
       {
         freq_data[2] = freq;
-        alex_write();
+        alex_update = 1;
         if(i2c_misc) misc_update = 1;
         if(i2c_nucleo) nucleo_update = 1;
         if(i2c_arduino)
@@ -1097,7 +1111,7 @@ void process_ep2(uint8_t *frame)
       if(freq_data[2] != freq)
       {
         freq_data[2] = freq;
-        alex_write();
+        alex_update = 1;
         if(i2c_misc) misc_update = 1;
         if(i2c_nucleo) nucleo_update = 1;
         if(i2c_arduino)
@@ -1119,7 +1133,7 @@ void process_ep2(uint8_t *frame)
       if(alex_data_1 != data)
       {
         alex_data_1 = data;
-        alex_write();
+        alex_update = 1;
       }
 
       if(i2c_misc)
