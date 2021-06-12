@@ -32,7 +32,7 @@ The resulting I/Q data rate is configurable and four settings are available: 48,
 
 The tunable frequency range covers from 0 Hz to 61.44 MHz.
 
-This SDR transceiver consists of four digital down-converters (DDC) and one digital up-converter (DUC). The first two digital down-converters are connected to two ADC channels. Two additional digital down-converters are required for the amplifier linearization system. One of them is connected to the second ADC channel and the other one is connected to the output of the digital up-converter.
+This SDR transceiver consists of five digital down-converters (DDC) and one digital up-converter (DUC). The first three digital down-converters are connected to the ADC channels. Two additional digital down-converters are required for the amplifier linearization system. One of them is connected to one of the ADC channels and the other is connected to the output of the digital up-converter.
 
 The basic blocks of the digital down-converters are shown on the following diagram:
 
@@ -154,18 +154,18 @@ Getting started
 Configuring inputs and outputs
 -----
 
-The `sdr-transceiver-hpsdr` program running on the Red Pitaya board expects five command line arguments:
+The `sdr-transceiver-hpsdr` program running on the Red Pitaya board expects six command line arguments:
 ```
-sdr-transceiver-hpsdr 1 2 2 1 2
+sdr-transceiver-hpsdr 1 2 2 2 1 2
 ```
 
-The first three arguments are for the receivers (RX1, RX2, RX3), where 1 corresponds to IN1 and 2 corresponds to IN2.
+The first four arguments are for the receivers (RX1, RX2, RX3, RX4), where 1 corresponds to IN1 and 2 corresponds to IN2.
 
 The last two arguments are for the outputs (OUT1, OUT2), where 1 corresponds to the TX signal and 2 corresponds to the envelope signal.
 
 For example, to send the TX signal to OUT2, the corresponding line in [start.sh](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/app/start.sh#L9) should be edited and the last argument should be set to 1:
 ```
-sdr-transceiver-hpsdr 1 2 2 1 1
+sdr-transceiver-hpsdr 1 2 2 2 1 1
 ```
 
 Amplifier linearization
