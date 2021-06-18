@@ -1497,7 +1497,7 @@ void *handler_ep6(void *arg)
         {
           memcpy(pointer + 6, data1 + data_offset, 6);
         }
-#ifndef ANANXD
+#ifndef THETIS
         if(size > 14)
         {
           memcpy(pointer + 12, data3 + data_offset, 6);
