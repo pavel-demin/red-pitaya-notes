@@ -1,16 +1,16 @@
-alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.12
+alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.14
 
-uboot_tar=alpine-uboot-3.12.0-armv7.tar.gz
+uboot_tar=alpine-uboot-3.14.0-armv7.tar.gz
 uboot_url=$alpine_url/releases/armv7/$uboot_tar
 
-tools_tar=apk-tools-static-2.10.6-r0.apk
+tools_tar=apk-tools-static-2.12.5-r1.apk
 tools_url=$alpine_url/main/armv7/$tools_tar
 
-firmware_tar=linux-firmware-other-20200519-r1.apk
+firmware_tar=linux-firmware-other-20210511-r0.apk
 firmware_url=$alpine_url/main/armv7/$firmware_tar
 
 linux_dir=tmp/linux-5.4
-linux_ver=5.4.114-xilinx
+linux_ver=5.4.126-xilinx
 
 modules_dir=alpine-modloop/lib/modules/$linux_ver
 
@@ -23,7 +23,7 @@ test -f $tools_tar || curl -L $tools_url -o $tools_tar
 
 test -f $firmware_tar || curl -L $firmware_url -o $firmware_tar
 
-for tar in linux-firmware-ath9k_htc-20200519-r1.apk linux-firmware-brcm-20200519-r1.apk linux-firmware-rtlwifi-20200519-r1.apk
+for tar in linux-firmware-ath9k_htc-20210511-r0.apk linux-firmware-brcm-20210511-r0.apk linux-firmware-cypress-20210511-r0.apk linux-firmware-rtlwifi-20210511-r0.apk
 do
   url=$alpine_url/main/armv7/$tar
   test -f $tar || curl -L $url -o $tar
@@ -59,7 +59,7 @@ depmod -a -b alpine-modloop $linux_ver
 
 tar -zxf $firmware_tar --directory=alpine-modloop/lib/modules --warning=no-unknown-keyword --strip-components=1 --wildcards lib/firmware/ar* lib/firmware/rt*
 
-for tar in linux-firmware-ath9k_htc-20200519-r1.apk linux-firmware-brcm-20200519-r1.apk linux-firmware-rtlwifi-20200519-r1.apk
+for tar in linux-firmware-ath9k_htc-20210511-r0.apk linux-firmware-brcm-20210511-r0.apk linux-firmware-cypress-20210511-r0.apk linux-firmware-rtlwifi-20210511-r0.apk
 do
   tar -zxf $tar --directory=alpine-modloop/lib/modules --warning=no-unknown-keyword --strip-components=1
 done
@@ -179,6 +179,6 @@ hostname -F /etc/hostname
 
 rm -rf $root_dir alpine-apk
 
-zip -r red-pitaya-alpine-3.12-armv7-`date +%Y%m%d`-$project.zip apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz start.sh uEnv.txt uImage uInitrd wifi
+zip -r red-pitaya-alpine-3.14-armv7-`date +%Y%m%d`-$project.zip apps boot.bin cache devicetree.dtb modloop red-pitaya.apkovl.tar.gz start.sh uEnv.txt uImage uInitrd wifi
 
 rm -rf apps cache modloop red-pitaya.apkovl.tar.gz start.sh uInitrd wifi
