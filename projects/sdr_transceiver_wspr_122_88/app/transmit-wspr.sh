@@ -6,9 +6,9 @@ DIR=`dirname $DIR`
 TRANSMITTER=$DIR/transmit-wspr-message
 CONFIG=transmit-wspr-message.cfg
 
-GPIO=$DIR/gpio-output
+GPIO=/media/mmcblk0p1/apps/common_tools/gpio-output
 
-SLEEP=$DIR/sleep-to-59
+SLEEP=/media/mmcblk0p1/apps/common_tools/sleep-to-59
 
 date
 

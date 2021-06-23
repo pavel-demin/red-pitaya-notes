@@ -12,7 +12,7 @@ CONFIG=write-c2-files.cfg
 DECODER=/media/mmcblk0p1/apps/ft8d/ft8d
 ALLMEPT=ALL_FT8.TXT
 
-SLEEP=$DIR/sleep-to-59
+SLEEP=/media/mmcblk0p1/apps/common_tools/sleep-to-59
 
 date
 

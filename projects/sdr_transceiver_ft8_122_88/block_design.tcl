@@ -78,36 +78,6 @@ cell pavel-demin:user:axi_cfg_register cfg_0 {
   AXI_DATA_WIDTH 32
 }
 
-# GPIO
-
-# Delete input/output port
-delete_bd_objs [get_bd_ports exp_p_tri_io]
-
-# Create output port
-create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer out_slice_0 {
-  DIN_WIDTH 608 DIN_FROM 23 DIN_TO 16
-} {
-  din cfg_0/cfg_data
-  dout exp_p_tri_io
-}
-
-# Delete input/output port
-delete_bd_objs [get_bd_ports exp_n_tri_io]
-
-# Create input port
-create_bd_port -dir I -from 3 -to 0 exp_n_tri_io
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer pps_slice_0 {
-  DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3
-} {
-  din exp_n_tri_io
-  dout ps_0/GPIO_I
-}
-
 # RX 0
 
 # Create port_slicer
@@ -187,41 +157,10 @@ module tx_0 {
   zeroer_0/M_AXIS dac_0/S_AXIS
 }
 
-# PPS
+# GPIO, PPS and level measurement
 
-# Create port_slicer
-cell pavel-demin:user:port_slicer rst_slice_2 {
-  DIN_WIDTH 608 DIN_FROM 24 DIN_TO 24
-} {
-  din cfg_0/cfg_data
-}
-
-# Create axis_pps_counter
-cell pavel-demin:user:axis_pps_counter cntr_0 {} {
-  pps_data pps_slice_0/dout
-  aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
-}
-
-# Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo fifo_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
-  FIFO_DEPTH 1024
-  HAS_RD_DATA_COUNT true
-} {
-  S_AXIS cntr_0/M_AXIS
-  s_axis_aclk pll_0/clk_out1
-  s_axis_aresetn rst_slice_2/dout
-}
-
-# Create axi_axis_reader
-cell pavel-demin:user:axi_axis_reader reader_0 {
-  AXI_DATA_WIDTH 32
-} {
-  S_AXIS fifo_0/M_AXIS
-  aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+module common_0 {
+  source projects/common_tools/block_design.tcl
 }
 
 # STS
@@ -234,7 +173,7 @@ cell pavel-demin:user:dna_reader dna_0 {} {
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_0 {
-  NUM_PORTS 19
+  NUM_PORTS 18
   IN0_WIDTH 32
   IN1_WIDTH 64
   IN2_WIDTH 16
@@ -253,7 +192,6 @@ cell xilinx.com:ip:xlconcat concat_0 {
   IN15_WIDTH 16
   IN16_WIDTH 16
   IN17_WIDTH 16
-  IN18_WIDTH 16
 } {
   In0 const_0/dout
   In1 dna_0/dna_data
@@ -273,12 +211,11 @@ cell xilinx.com:ip:xlconcat concat_0 {
   In15 rx_0/fifo_generator_13/rd_data_count
   In16 rx_0/fifo_generator_14/rd_data_count
   In17 rx_0/fifo_generator_15/rd_data_count
-  In18 fifo_0/axis_rd_data_count
 }
 
 # Create axi_sts_register
 cell pavel-demin:user:axi_sts_register sts_0 {
-  STS_DATA_WIDTH 384
+  STS_DATA_WIDTH 352
   AXI_ADDR_WIDTH 32
   AXI_DATA_WIDTH 32
 } {
@@ -296,5 +233,3 @@ for {set i 0} {$i <= 15} {incr i} {
 }
 
 addr 0x40012000 4K tx_0/writer_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40013000 4K reader_0/S_AXI /ps_0/M_AXI_GP0

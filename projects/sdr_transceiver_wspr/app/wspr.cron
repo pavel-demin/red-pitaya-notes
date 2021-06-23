@@ -1,3 +1,3 @@
 1-59/2 * * * * cd /dev/shm && /media/mmcblk0p1/apps/sdr_transceiver_wspr/decode-wspr.sh >> decode-wspr.log 2>&1 &
 #1-51/10 * * * * cd /dev/shm && /media/mmcblk0p1/apps/sdr_transceiver_wspr/transmit-wspr.sh >> transmit-wspr.log 2>&1 &
-#1-59/2 * * * * cd /dev/shm && /media/mmcblk0p1/apps/sdr_transceiver_wspr/update-corr.sh >> update-corr.log 2>&1 &
+#1-59/2 * * * * cd /dev/shm && /media/mmcblk0p1/apps/common_tools/update-corr.sh >> update-corr.log 2>&1 &

@@ -12,7 +12,7 @@ DIR=`dirname $DIR`
 
 UPLOADER=$DIR/upload-to-pskreporter
 
-SLEEP=$DIR/sleep-rand
+SLEEP=/media/mmcblk0p1/apps/common_tools/sleep-rand
 
 date
 
