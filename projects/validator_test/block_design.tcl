@@ -108,12 +108,9 @@ cell pavel-demin:user:axis_validator vldtr_0 {
 cell xilinx.com:ip:blk_mem_gen bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
-  USE_BYTE_WRITE_ENABLE true
-  BYTE_SIZE 8
   WRITE_WIDTH_A 32
   WRITE_DEPTH_A 1024
   WRITE_WIDTH_B 32
-  WRITE_DEPTH_B 1024
   ENABLE_A Always_Enabled
   ENABLE_B Always_Enabled
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
