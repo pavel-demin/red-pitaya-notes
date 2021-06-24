@@ -20,7 +20,7 @@ cell pavel-demin:user:port_slicer slice_3 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_4 {
-  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 48
+  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 64
 }
 
 # Create axi_axis_writer

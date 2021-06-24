@@ -129,8 +129,8 @@ int main(int argc, char *argv[])
   *(uint16_t *)(cfg + 90) = 65528;
   *(uint16_t *)(cfg + 92) = 58655;
 
-  *(int16_t *)(cfg + 94) = -8192;
-  *(int16_t *)(cfg + 96) = 8191;
+  *(int16_t *)(cfg + 96) = -8192;
+  *(int16_t *)(cfg + 98) = 8191;
 
   /* reset spectrum */
   memset(spectrum, 0, 16384);
