@@ -15,6 +15,6 @@ rm -rf /dev/shm/*
 
 cat $apps_dir/sdr_transceiver_ft8_122_88/sdr_transceiver_ft8_122_88.bit > /dev/xdevcfg
 
-ln -sf $apps_dir/sdr_transceiver_ft8_122_88/ft8.cron /etc/periodic/ft8_122_88
+ln -sf $apps_dir/sdr_transceiver_ft8_122_88/ft8.cron /etc/cron.d/ft8_122_88
 
 service dcron restart

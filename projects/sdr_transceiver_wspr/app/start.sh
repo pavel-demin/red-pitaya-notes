@@ -15,6 +15,6 @@ rm -rf /dev/shm/*
 
 cat $apps_dir/sdr_transceiver_wspr/sdr_transceiver_wspr.bit > /dev/xdevcfg
 
-ln -sf $apps_dir/sdr_transceiver_wspr/wspr.cron /etc/periodic/wspr
+ln -sf $apps_dir/sdr_transceiver_wspr/wspr.cron /etc/cron.d/wspr
 
 service dcron restart
