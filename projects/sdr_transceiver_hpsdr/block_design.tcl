@@ -107,6 +107,14 @@ delete_bd_objs [get_bd_ports exp_n_tri_io]
 # Create input/output port
 create_bd_port -dir IO -from 3 -to 0 exp_n_tri_io
 
+# Create port_slicer
+cell pavel-demin:user:port_slicer pps_slice_0 {
+  DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3
+} {
+  din exp_n_tri_io
+  dout ps_0/GPIO_I
+}
+
 # Create gpio_debouncer
 cell pavel-demin:user:gpio_debouncer gpio_0 {
   DATA_WIDTH 4
@@ -314,6 +322,43 @@ module codec {
   i2s_0/alex_data alex_0/alex_data
 }
 
+# PPS
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer rst_slice_4 {
+  DIN_WIDTH 320 DIN_FROM 19 DIN_TO 19
+} {
+  din cfg_0/cfg_data
+}
+
+# Create axis_pps_counter
+cell pavel-demin:user:axis_pps_counter cntr_0 {} {
+  pps_data pps_slice_0/dout
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
+}
+
+# Create axis_data_fifo
+cell xilinx.com:ip:axis_data_fifo fifo_1 {
+  TDATA_NUM_BYTES.VALUE_SRC USER
+  TDATA_NUM_BYTES 4
+  FIFO_DEPTH 1024
+  HAS_RD_DATA_COUNT true
+} {
+  S_AXIS cntr_0/M_AXIS
+  s_axis_aclk pll_0/clk_out1
+  s_axis_aresetn rst_slice_4/dout
+}
+
+# Create axi_axis_reader
+cell pavel-demin:user:axi_axis_reader reader_0 {
+  AXI_DATA_WIDTH 32
+} {
+  S_AXIS fifo_1/M_AXIS
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
+}
+
 # STS
 
 # Create dna_reader
@@ -376,3 +421,5 @@ addr 0x40006000 4K codec/writer_0/S_AXI /ps_0/M_AXI_GP0
 addr 0x40007000 4K codec/reader_0/S_AXI /ps_0/M_AXI_GP0
 
 addr 0x40020000 64K xadc_0/s_axi_lite /ps_0/M_AXI_GP0
+
+addr 0x40030000 4K reader_0/S_AXI /ps_0/M_AXI_GP0
