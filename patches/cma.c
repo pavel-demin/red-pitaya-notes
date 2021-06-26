@@ -2,6 +2,7 @@
 #include <linux/module.h>
 #include <linux/uaccess.h>
 #include <linux/dma-mapping.h>
+#include <linux/dma-map-ops.h>
 
 #define CMA_ALLOC _IOWR('Z', 0, u32)
 
