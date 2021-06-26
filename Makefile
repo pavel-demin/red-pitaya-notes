@@ -33,19 +33,19 @@ VIVADO = vivado -nolog -nojournal -mode batch
 XSCT = xsct
 RM = rm -rf
 
-UBOOT_TAG = xilinx-v2020.2
+UBOOT_TAG = 2021.04
 LINUX_TAG = 5.10
 DTREE_TAG = xilinx-v2020.2
 
-UBOOT_DIR = tmp/u-boot-xlnx-$(UBOOT_TAG)
+UBOOT_DIR = tmp/u-boot-$(UBOOT_TAG)
 LINUX_DIR = tmp/linux-$(LINUX_TAG)
 DTREE_DIR = tmp/device-tree-xlnx-$(DTREE_TAG)
 
-UBOOT_TAR = tmp/u-boot-xlnx-$(UBOOT_TAG).tar.gz
+UBOOT_TAR = tmp/u-boot-$(UBOOT_TAG).tar.bz2
 LINUX_TAR = tmp/linux-$(LINUX_TAG).tar.xz
 DTREE_TAR = tmp/device-tree-xlnx-$(DTREE_TAG).tar.gz
 
-UBOOT_URL = https://github.com/Xilinx/u-boot-xlnx/archive/$(UBOOT_TAG).tar.gz
+UBOOT_URL = https://ftp.denx.de/pub/u-boot/u-boot-$(UBOOT_TAG).tar.bz2
 LINUX_URL = https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-$(LINUX_TAG).46.tar.xz
 DTREE_URL = https://github.com/Xilinx/device-tree-xlnx/archive/$(DTREE_TAG).tar.gz
 
@@ -87,11 +87,10 @@ $(RTL8192_TAR):
 
 $(UBOOT_DIR): $(UBOOT_TAR)
 	mkdir -p $@
-	tar -zxf $< --strip-components=1 --directory=$@
-	patch -d tmp -p 0 < patches/u-boot-xlnx-$(UBOOT_TAG).patch
+	tar -jxf $< --strip-components=1 --directory=$@
+	patch -d tmp -p 0 < patches/u-boot-$(UBOOT_TAG).patch
 	cp patches/zynq_red_pitaya_defconfig $@/configs
 	cp patches/zynq-red-pitaya.dts $@/arch/arm/dts
-	cp patches/u-boot-lantiq.c $@/drivers/net/phy/lantiq.c
 
 $(LINUX_DIR): $(LINUX_TAR) $(RTL8188_TAR) $(RTL8192_TAR)
 	mkdir -p $@
