@@ -1,0 +1,43 @@
+diff -rupN old/u-boot-2021.04/arch/arm/dts/Makefile u-boot-2021.04/arch/arm/dts/Makefile
+--- old/u-boot-2021.04/arch/arm/dts/Makefile
++++ u-boot-2021.04/arch/arm/dts/Makefile
+@@ -286,7 +286,8 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
+ 	zynq-zturn.dtb \
+ 	zynq-zturn-v5.dtb \
+ 	zynq-zybo.dtb \
+-	zynq-zybo-z7.dtb
++	zynq-zybo-z7.dtb \
++	zynq-red-pitaya.dtb
+ dtb-$(CONFIG_ARCH_ZYNQMP) += \
+ 	avnet-ultra96-rev1.dtb			\
+ 	avnet-ultrazedev-cc-v1.0-ultrazedev-som-v1.0.dtb	\
+diff -rupN old/u-boot-2021.04/board/xilinx/zynq/board.c u-boot-2021.04/board/xilinx/zynq/board.c
+--- old/u-boot-2021.04/board/xilinx/zynq/board.c
++++ u-boot-2021.04/board/xilinx/zynq/board.c
+@@ -37,12 +37,12 @@ int board_late_init(void)
+ 	const char *mode;
+ 	char *new_targets;
+ 	char *env_targets;
+-
++/*
+ 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
+ 		debug("Saved variables - Skipping\n");
+ 		return 0;
+ 	}
+-
++*/
+ 	if (!CONFIG_IS_ENABLED(ENV_VARS_UBOOT_RUNTIME_CONFIG))
+ 		return 0;
+ 
+diff -rupN old/u-boot-2021.04/common/main.c u-boot-2021.04/common/main.c
+--- old/u-boot-2021.04/common/main.c
++++ u-boot-2021.04/common/main.c
+@@ -61,6 +61,8 @@ void main_loop(void)
+ 	if (cli_process_fdt(&s))
+ 		cli_secure_boot_cmd(s);
+ 
++	env_set("sdboot", "echo Importing environment from SD... && mmcinfo && load mmc 0 0x2000000 uEnv.txt && env import -t 0x2000000 ${filesize} && boot");
++
+ 	autoboot_command(s);
+ 
+ 	cli_loop();
