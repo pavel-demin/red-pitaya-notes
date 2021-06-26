@@ -71,8 +71,8 @@ for {set i 0} {$i <= 15} {incr i} {
     din dds_[expr $i / 2]/m_axis_data_tdata
   }
 
-  # Create xbip_dsp48_macro
-  cell xilinx.com:ip:xbip_dsp48_macro mult_$i {
+  # Create dsp_macro
+  cell xilinx.com:ip:dsp_macro mult_$i {
     INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
     A_WIDTH.VALUE_SRC USER
     B_WIDTH.VALUE_SRC USER

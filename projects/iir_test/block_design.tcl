@@ -135,8 +135,8 @@ cell pavel-demin:user:axis_zeroer zeroer_0 {
   aclk pll_0/clk_out1
 }
 
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro dsp_0 {
+# Create dsp_macro
+cell xilinx.com:ip:dsp_macro dsp_0 {
   INSTRUCTION1 A*B
   A_WIDTH.VALUE_SRC USER
   B_WIDTH.VALUE_SRC USER
@@ -149,8 +149,8 @@ cell xilinx.com:ip:xbip_dsp48_macro dsp_0 {
   CLK pll_0/clk_out1
 }
 
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro dsp_1 {
+# Create dsp_macro
+cell xilinx.com:ip:dsp_macro dsp_1 {
   INSTRUCTION1 A*B+C
   PIPELINE_OPTIONS Expert
   AREG_3 false
@@ -172,7 +172,7 @@ cell xilinx.com:ip:xbip_dsp48_macro dsp_1 {
   CLK pll_0/clk_out1
 }
 
-cell xilinx.com:ip:xbip_dsp48_macro dsp_2 {
+cell xilinx.com:ip:dsp_macro dsp_2 {
   INSTRUCTION1 A*B+C
   PIPELINE_OPTIONS Expert
   AREG_3 false

@@ -284,8 +284,8 @@ cell pavel-demin:user:axis_lfsr lfsr_1 {} {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro mult_1 {
+# Create dsp_macro
+cell xilinx.com:ip:dsp_macro mult_1 {
   INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
   A_WIDTH.VALUE_SRC USER
   B_WIDTH.VALUE_SRC USER

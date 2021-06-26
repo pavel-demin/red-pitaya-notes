@@ -191,8 +191,8 @@ cell pavel-demin:user:axis_lfsr lfsr_0 {} {
   aresetn slice_0/dout
 }
 
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro mult_4 {
+# Create dsp_macro
+cell xilinx.com:ip:dsp_macro mult_4 {
   INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
   A_WIDTH.VALUE_SRC USER
   B_WIDTH.VALUE_SRC USER
@@ -249,8 +249,8 @@ for {set i 0} {$i <= 1} {incr i} {
 
 for {set i 0} {$i <= 3} {incr i} {
 
-  # Create xbip_dsp48_macro
-  cell xilinx.com:ip:xbip_dsp48_macro mult_$i {
+  # Create dsp_macro
+  cell xilinx.com:ip:dsp_macro mult_$i {
     INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
     A_WIDTH.VALUE_SRC USER
     B_WIDTH.VALUE_SRC USER

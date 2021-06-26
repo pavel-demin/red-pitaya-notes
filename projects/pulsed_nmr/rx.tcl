@@ -78,8 +78,8 @@ for {set i 0} {$i <= 3} {incr i} {
     din /adc_0/m_axis_tdata
   }
 
-  # Create xbip_dsp48_macro
-  cell xilinx.com:ip:xbip_dsp48_macro mult_$i {
+  # Create dsp_macro
+  cell xilinx.com:ip:dsp_macro mult_$i {
     INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
     A_WIDTH.VALUE_SRC USER
     B_WIDTH.VALUE_SRC USER
@@ -245,8 +245,8 @@ cell pavel-demin:user:axi_axis_reader reader_0 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro mult_4 {
+# Create dsp_macro
+cell xilinx.com:ip:dsp_macro mult_4 {
   INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
   A_WIDTH.VALUE_SRC USER
   B_WIDTH.VALUE_SRC USER
