@@ -78,8 +78,8 @@ cell pavel-demin:user:axis_lfsr lfsr_0 {} {
   aresetn slice_0/dout
 }
 
-# Create dsp_macro
-cell xilinx.com:ip:dsp_macro mult_0 {
+# Create xbip_dsp48_macro
+cell xilinx.com:ip:xbip_dsp48_macro mult_0 {
   INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
   A_WIDTH.VALUE_SRC USER
   B_WIDTH.VALUE_SRC USER
@@ -94,8 +94,8 @@ cell xilinx.com:ip:dsp_macro mult_0 {
   CLK /pll_0/clk_out1
 }
 
-# Create dsp_macro
-cell xilinx.com:ip:dsp_macro mult_1 {
+# Create xbip_dsp48_macro
+cell xilinx.com:ip:xbip_dsp48_macro mult_1 {
   INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
   A_WIDTH.VALUE_SRC USER
   B_WIDTH.VALUE_SRC USER
