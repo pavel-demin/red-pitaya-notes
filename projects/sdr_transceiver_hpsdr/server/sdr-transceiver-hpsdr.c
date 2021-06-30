@@ -409,9 +409,9 @@ int main(int argc, char *argv[])
   pthread_attr_t attr;
   pthread_t thread;
   volatile void *cfg, *sts;
-  volatile int32_t *tx_ramp, *dac_ramp;
+  volatile int32_t *tx_ramp;
   volatile uint16_t *tx_size, *dac_size;
-  volatile int16_t *ps_level;
+  volatile int16_t *ps_level, *dac_ramp;
   volatile uint8_t *rx_sel, *tx_sel;
   float scale, ramp[1024], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 32, 1};
@@ -682,7 +682,7 @@ int main(int argc, char *argv[])
     scale = 3.2e4 / ramp[size];
     for(i = 0; i <= size; ++i)
     {
-      dac_ramp[i] = (int32_t)floor(ramp[i] * scale + 0.5);
+      dac_ramp[i] = (int16_t)floor(ramp[i] * scale + 0.5);
     }
     *dac_size = size;
 

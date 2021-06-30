@@ -76,8 +76,8 @@ cell xilinx.com:ip:blk_mem_gen bram_0 {
   USE_BYTE_WRITE_ENABLE true
   BYTE_SIZE 8
   WRITE_WIDTH_A 32
-  WRITE_DEPTH_A 1024
-  WRITE_WIDTH_B 32
+  WRITE_DEPTH_A 512
+  WRITE_WIDTH_B 16
   ENABLE_A Always_Enabled
   ENABLE_B Always_Enabled
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
@@ -88,15 +88,15 @@ cell pavel-demin:user:axi_bram_writer writer_1 {
   AXI_DATA_WIDTH 32
   AXI_ADDR_WIDTH 32
   BRAM_DATA_WIDTH 32
-  BRAM_ADDR_WIDTH 10
+  BRAM_ADDR_WIDTH 9
 } {
   BRAM_PORTA bram_0/BRAM_PORTA
 }
 
 # Create axis_keyer
 cell pavel-demin:user:axis_keyer keyer_0 {
-  AXIS_TDATA_WIDTH 32
-  BRAM_DATA_WIDTH 32
+  AXIS_TDATA_WIDTH 16
+  BRAM_DATA_WIDTH 16
   BRAM_ADDR_WIDTH 10
 } {
   BRAM_PORTA bram_0/BRAM_PORTB
