@@ -99,7 +99,7 @@ echo $alpine_url/community >> $root_dir/etc/apk/repositories
 chroot $root_dir /bin/sh <<- EOF_CHROOT
 
 apk update
-apk add haveged openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dbus dcron chrony musl-dev curl wget less nano bc
+apk add openssh iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dbus dcron chrony musl-dev curl wget less nano bc
 
 ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
 ln -s /etc/init.d/hostname etc/runlevels/boot/hostname
@@ -123,7 +123,6 @@ rc-update add chronyd default
 rc-update add dhcpcd default
 rc-update add local default
 rc-update add dcron default
-rc-update add haveged default
 rc-update add sshd default
 
 mkdir -p etc/runlevels/wifi
