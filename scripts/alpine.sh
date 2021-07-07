@@ -109,22 +109,22 @@ chroot $root_dir /bin/sh <<- EOF_CHROOT
 apk update
 apk add openssh ucspi-tcp6 iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dbus dcron chrony gpsd libgfortran musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget less nano bc dos2unix
 
-ln -s /etc/init.d/bootmisc etc/runlevels/boot/bootmisc
-ln -s /etc/init.d/hostname etc/runlevels/boot/hostname
-ln -s /etc/init.d/hwdrivers etc/runlevels/boot/hwdrivers
-ln -s /etc/init.d/modloop etc/runlevels/boot/modloop
-ln -s /etc/init.d/swclock etc/runlevels/boot/swclock
-ln -s /etc/init.d/sysctl etc/runlevels/boot/sysctl
-ln -s /etc/init.d/syslog etc/runlevels/boot/syslog
-ln -s /etc/init.d/urandom etc/runlevels/boot/urandom
+rc-update add bootmisc boot
+rc-update add hostname boot
+rc-update add hwdrivers boot
+rc-update add modloop boot
+rc-update add swclock boot
+rc-update add sysctl boot
+rc-update add syslog boot
+rc-update add urandom boot
 
-ln -s /etc/init.d/killprocs etc/runlevels/shutdown/killprocs
-ln -s /etc/init.d/mount-ro etc/runlevels/shutdown/mount-ro
-ln -s /etc/init.d/savecache etc/runlevels/shutdown/savecache
+rc-update add killprocs shutdown
+rc-update add mount-ro shutdown
+rc-update add savecache shutdown
 
-ln -s /etc/init.d/devfs etc/runlevels/sysinit/devfs
-ln -s /etc/init.d/dmesg etc/runlevels/sysinit/dmesg
-ln -s /etc/init.d/mdev etc/runlevels/sysinit/mdev
+rc-update add devfs sysinit
+rc-update add dmesg sysinit
+rc-update add mdev sysinit
 
 rc-update add avahi-daemon default
 rc-update add chronyd default
