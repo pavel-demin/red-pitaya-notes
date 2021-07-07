@@ -1,1 +1,0 @@
-wpa_supplicant_args="-Dnl80211,wext"
