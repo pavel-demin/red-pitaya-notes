@@ -5,7 +5,7 @@ DIR=`dirname $DIR`
 
 date
 
-CORR=`$DIR/measure-corr 30` || exit
+CORR=`$DIR/measure-corr $1 30` || exit
 
 for file in *.cfg
 do
