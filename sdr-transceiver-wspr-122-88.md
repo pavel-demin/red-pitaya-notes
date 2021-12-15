@@ -66,7 +66,7 @@ The PPS signal should be connected to the pin DIO3_N of the [extension connector
 
 The measurement and correction of the frequency deviation is disabled by default and should be enabled by uncommenting the following line in [wspr.cron](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr_122_88/app/wspr.cron):
 {% highlight bash %}
-1-59/2 * * * * cd /dev/shm && /media/mmcblk0p1/apps/sdr_transceiver_wspr_122_88/update-corr.sh >> update-corr.log 2>&1 &
+1-59/2 * * * * cd /dev/shm && /media/mmcblk0p1/apps/common_tools/update-corr.sh >> update-corr.log 2>&1 &
 {% endhighlight %}
 
 Getting started
