@@ -242,7 +242,7 @@ diff -rupN old/linux-5.10/drivers/net/wireless/realtek/rtl8188eu/Kconfig linux-5
  	  Help message of RTL8188EU
  
 diff -rupN old/linux-5.10/drivers/net/wireless/realtek/rtl8192cu/Kconfig linux-5.10/drivers/net/wireless/realtek/rtl8192cu/Kconfig
---- old/linux-5.10/drivers/net/wireless/realtek/rtl8192cu/Kconfig	1970-01-01 00:00:00.000000000 +0000
+--- old/linux-5.10/drivers/net/wireless/realtek/rtl8192cu/Kconfig
 +++ linux-5.10/drivers/net/wireless/realtek/rtl8192cu/Kconfig
 @@ -0,0 +1,9 @@
 +config RTL8192CU

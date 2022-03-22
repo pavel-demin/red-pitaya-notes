@@ -265,7 +265,7 @@ diff -rupN old/linux-5.4/drivers/net/wireless/realtek/Makefile linux-5.4/drivers
 +obj-$(CONFIG_RTL8192CU)		+= rtl8192cu/
  
 diff -rupN old/linux-5.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig linux-5.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig
---- old/linux-5.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig	1970-01-01 00:00:00.000000000 +0000
+--- old/linux-5.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig
 +++ linux-5.4/drivers/net/wireless/realtek/rtl8192cu/Kconfig
 @@ -0,0 +1,9 @@
 +config RTL8192CU

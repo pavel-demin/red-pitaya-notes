@@ -227,7 +227,7 @@ diff -rupN old/linux-4.19/drivers/net/wireless/realtek/Makefile linux-4.19/drive
 +obj-$(CONFIG_RTL8192CU)		+= rtl8192cu/
  
 diff -rupN old/linux-4.19/drivers/net/wireless/realtek/rtl8188eu/Kconfig linux-4.19/drivers/net/wireless/realtek/rtl8188eu/Kconfig
---- old/linux-4.19/drivers/net/wireless/realtek/rtl8188eu/Kconfig	1970-01-01 00:00:00.000000000 +0000
+--- old/linux-4.19/drivers/net/wireless/realtek/rtl8188eu/Kconfig
 +++ linux-4.19/drivers/net/wireless/realtek/rtl8188eu/Kconfig
 @@ -0,0 +1,9 @@
 +config RTL8188EU
@@ -240,7 +240,7 @@ diff -rupN old/linux-4.19/drivers/net/wireless/realtek/rtl8188eu/Kconfig linux-4
 +	  This option adds the Realtek RTL8188EU USB device.
 +
 diff -rupN old/linux-4.19/drivers/net/wireless/realtek/rtl8192cu/Kconfig linux-4.19/drivers/net/wireless/realtek/rtl8192cu/Kconfig
---- old/linux-4.19/drivers/net/wireless/realtek/rtl8192cu/Kconfig	1970-01-01 00:00:00.000000000 +0000
+--- old/linux-4.19/drivers/net/wireless/realtek/rtl8192cu/Kconfig
 +++ linux-4.19/drivers/net/wireless/realtek/rtl8192cu/Kconfig
 @@ -0,0 +1,9 @@
 +config RTL8192CU
