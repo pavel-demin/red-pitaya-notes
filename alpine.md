@@ -100,8 +100,8 @@ parted -s /dev/mmcblk0 mklabel msdos
 parted -s /dev/mmcblk0 mkpart primary fat32 4MiB 100%
 mkfs.vfat -v /dev/mmcblk0p1
 {% endhighlight %}
-where /dev/mmcblk0 is the name of the device corresponding to the micro SD card.
+where `/dev/mmcblk0` is the name of the device corresponding to the micro SD card.
 
 It is also possible to write an empty SD card image with a single FAT32 partition instead of using partitioning and formatting commands. For example, a repository with several empty SD card images can be found at [this link](https://github.com/procount/fat32images).
 
-If the Ethernet interface of the Red Pitaya board is directly connected to the Ethernet interface of a computer, the the Ethernet interface of the computer should be configured to have an IP address in the same 192.168.1.x sub-network. For example, 192.168.1.111. Instructions on how to set a static IP address in Windows can be found at [this link](https://kb.netgear.com/27476/How-do-I-set-a-static-IP-address-in-Windows).
+If the Ethernet interface of the Red Pitaya board is directly connected to the Ethernet interface of a computer, then the Ethernet interface of the computer should be configured to have an IP address in the same 192.168.1.x sub-network. For example, 192.168.1.111. Instructions on how to set a static IP address in Windows can be found at [this link](https://kb.netgear.com/27476/How-do-I-set-a-static-IP-address-in-Windows).
