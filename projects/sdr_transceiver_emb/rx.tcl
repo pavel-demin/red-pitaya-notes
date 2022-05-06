@@ -3,7 +3,7 @@ cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
-for {set i 0} {$i <= 1} {incr i} {
+for {set i 0} {$i <= 0} {incr i} {
 
   # Create port_slicer
   cell pavel-demin:user:port_slicer slice_[expr $i + 1] {
@@ -45,7 +45,7 @@ cell pavel-demin:user:axis_lfsr lfsr_0 {} {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant const_0
 
-for {set i 0} {$i <= 3} {incr i} {
+for {set i 0} {$i <= 1} {incr i} {
 
   # Create port_slicer
   cell pavel-demin:user:port_slicer adc_slice_$i {
@@ -103,12 +103,10 @@ for {set i 0} {$i <= 3} {incr i} {
 cell  xilinx.com:ip:axis_combiner comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
-  NUM_SI 4
+  NUM_SI 2
 } {
   S00_AXIS cic_0/M_AXIS_DATA
   S01_AXIS cic_1/M_AXIS_DATA
-  S02_AXIS cic_2/M_AXIS_DATA
-  S03_AXIS cic_3/M_AXIS_DATA
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
@@ -243,7 +241,7 @@ cell xilinx.com:ip:axis_broadcaster bcast_0 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-for {set i 0} {$i <= 1} {incr i} {
+for {set i 0} {$i <= 0} {incr i} {
 
   # Create fifo_generator
   cell xilinx.com:ip:fifo_generator fifo_generator_$i {

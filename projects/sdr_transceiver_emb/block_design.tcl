@@ -168,7 +168,6 @@ module rx_0 {
 } {
   slice_0/din rst_slice_0/dout
   slice_1/din cfg_slice_0/dout
-  slice_2/din cfg_slice_0/dout
 }
 
 # SP 0
@@ -289,7 +288,6 @@ cell xilinx.com:ip:xlconcat concat_0 {
   In0 const_0/dout
   In1 dna_0/dna_data
   In2 rx_0/fifo_generator_0/rd_data_count
-  In3 rx_0/fifo_generator_1/rd_data_count
   In4 sp_0/fifo_generator_0/data_count
   In5 sp_0/fifo_generator_1/data_count
   In6 tx_0/fifo_generator_0/wr_data_count
@@ -313,7 +311,7 @@ addr 0x40001000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
 
 addr 0x40002000 4K alex/writer_0/S_AXI /ps_0/M_AXI_GP0
 
-for {set i 0} {$i <= 1} {incr i} {
+for {set i 0} {$i <= 0} {incr i} {
 
   addr 0x4000[format %X [expr $i + 3]]000 4K rx_0/reader_$i/S_AXI /ps_0/M_AXI_GP0
 
