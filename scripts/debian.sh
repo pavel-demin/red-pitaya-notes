@@ -9,7 +9,7 @@ linux_ver=5.10.107-xilinx
 # Choose mirror automatically, depending the geographic and network location
 mirror=http://deb.debian.org/debian
 
-distro=stretch
+distro=bullseye
 arch=armhf
 
 passwd=changeme
@@ -73,8 +73,8 @@ deb $mirror $distro main contrib non-free
 deb-src $mirror $distro main contrib non-free
 deb $mirror $distro-updates main contrib non-free
 deb-src $mirror $distro-updates main contrib non-free
-deb http://security.debian.org/debian-security $distro/updates main contrib non-free
-deb-src http://security.debian.org/debian-security $distro/updates main contrib non-free
+deb http://security.debian.org/debian-security $distro-security main contrib non-free
+deb-src http://security.debian.org/debian-security $distro-security main contrib non-free
 EOF_CAT
 
 cat <<- EOF_CAT > etc/apt/apt.conf.d/99norecommends
@@ -105,8 +105,12 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
-  iw firmware-realtek firmware-ralink firmware-atheros firmware-brcm80211 \
-  ifplugd ntfs-3g net-tools less
+  firmware-misc-nonfree firmware-realtek firmware-atheros firmware-brcm80211 \
+  iw iptables ifplugd ntfs-3g net-tools less
+
+systemctl disable isc-dhcp-server
+systemctl disable nftables
+systemctl disable wpa_supplicant
 
 sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
 
