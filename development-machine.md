@@ -4,14 +4,14 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/stretch) 9.13 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2020.2.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/bullseye) 11.3 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2020.2.
 
-Creating virtual machine with Debian 9.13 (amd64)
+Creating virtual machine with Debian 11.3 (amd64)
 -----
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](http://deb.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/mini.iso) for Debian 9.13
+- Download [mini.iso](http://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/mini.iso) for Debian 11.3
 
 - Start VirtualBox
 
@@ -85,7 +85,7 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 Installing Vitis Core Development Kit
 -----
 
-- Download "Xilinx Vitis 2020.2: All OS installer Single-File Download" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2020-2.html) (the file name is Xilinx_Unified_2020.2_1118_1232.tar.gz)
+- Download "Xilinx Vitis 2020.2: All OS installer Single-File Download" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/archive-vitis.html) (the file name is Xilinx_Unified_2020.2_1118_1232.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
@@ -99,8 +99,3 @@ cd Xilinx_Unified_2020.2_1118_1232
 - Follow the installation wizard
 
 - Set the installation directory to `/opt/Xilinx`
-
-- Xilinx SDK requires `gmake` that is unavailable on Debian. The following command creates a symbolic link called `gmake` and pointing to `make`:
-{% highlight bash %}
-ln -s make /usr/bin/gmake
-{% endhighlight %}

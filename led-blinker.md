@@ -11,8 +11,8 @@ For my experiments with the [Red Pitaya](http://redpitaya.readthedocs.io), I'd l
 
  - recent version of the [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html)
  - recent version of the [Linux kernel](https://www.kernel.org)
- - recent version of the [Debian distribution](https://www.debian.org/releases/stretch) on the development machine
- - recent version of the [Debian distribution](https://www.debian.org/releases/stretch) on the Red Pitaya
+ - recent version of the [Debian distribution](https://www.debian.org/releases/bullseye) on the development machine
+ - recent version of the [Debian distribution](https://www.debian.org/releases/bullseye) on the the Red Pitaya board
  - basic project with all the [Red Pitaya](http://redpitaya.readthedocs.io) peripherals connected
  - mostly command-line tools
  - shallow directory structure
@@ -24,11 +24,9 @@ Pre-requirements
 
 My development machine has the following installed:
 
- - [Debian](https://www.debian.org/releases/stretch) 9.13 (amd64)
+ - [Debian](https://www.debian.org/releases/bullseye) 11.3 (amd64)
 
  - [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2020.2
-
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
 
 Here are the commands to install all the other required packages:
 {% highlight bash %}
@@ -36,12 +34,10 @@ sudo apt-get update
 
 sudo apt-get --no-install-recommends install \
   build-essential bison flex git curl ca-certificates sudo \
-  xvfb fontconfig libxrender1 libxtst6 libxi6 lib32ncurses5 \
-  bc u-boot-tools device-tree-compiler libncurses5-dev \
+  xvfb fontconfig libtinfo5 libxrender1 libxtst6 libxi6 \
+  bc u-boot-tools device-tree-compiler libncurses-dev \
   libssl-dev qemu-user-static binfmt-support zip \
   squashfs-tools dosfstools parted debootstrap zerofree
-
-sudo ln -s make /usr/bin/gmake
 {% endhighlight %}
 
 Source code
@@ -145,7 +141,7 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-9.13-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-11.3-armhf.img 1024
 {% endhighlight %}
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
