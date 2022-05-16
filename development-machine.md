@@ -37,7 +37,7 @@ Creating virtual machine with Debian 11.3 (amd64)
 
   - Select "Dynamically allocated"
 
-  - Set the image size to at least 129 GB
+  - Set the image size to at least 128 GB
 
   - Select the newly created virtual machine and click the yellow "Settings" icon
 
