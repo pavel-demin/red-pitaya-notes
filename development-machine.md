@@ -90,7 +90,6 @@ Installing Vitis Core Development Kit
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
 mkdir /opt/Xilinx
-cd /opt/Xilinx
 tar -zxf Xilinx_Unified_2020.2_1118_1232.tar.gz
 cd Xilinx_Unified_2020.2_1118_1232
 ./xsetup
