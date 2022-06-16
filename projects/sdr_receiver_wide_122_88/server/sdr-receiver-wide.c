@@ -145,6 +145,7 @@ int main ()
             /* set sample rate */
             if(value < 6 || value > 64) continue;
             *rx_rate = value;
+            break;
           case 1:
             /* set first phase increment */
             if(value < 0 || value > 61440000) continue;
