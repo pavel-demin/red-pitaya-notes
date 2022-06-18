@@ -54,7 +54,7 @@ module axis_ram_writer #
 
   wire int_full_wire, int_empty_wire, int_rden_wire;
   wire int_wlast_wire, int_tready_wire;
-  wire [71:0] int_wdata_wire;
+  wire [63:0] int_wdata_wire;
 
   assign int_tready_wire = ~int_full_wire;
   assign int_wlast_wire = &int_addr_reg[3:0];
@@ -71,7 +71,7 @@ module axis_ram_writer #
     .RST(~aresetn),
     .WRCLK(aclk),
     .WREN(int_tready_wire & s_axis_tvalid),
-    .DI({{(72-AXIS_TDATA_WIDTH){1'b0}}, s_axis_tdata}),
+    .DI({{(64-AXIS_TDATA_WIDTH){1'b0}}, s_axis_tdata}),
     .RDCLK(aclk),
     .RDEN(int_rden_wire),
     .DO(int_wdata_wire)
