@@ -62,7 +62,7 @@ module axis_ram_writer #
 
   FIFO36E1 #(
     .FIRST_WORD_FALL_THROUGH("TRUE"),
-    .ALMOST_EMPTY_OFFSET(13'hf),
+    .ALMOST_EMPTY_OFFSET(13'd15),
     .DATA_WIDTH(72),
     .FIFO_MODE("FIFO36_72")
   ) fifo_0 (
