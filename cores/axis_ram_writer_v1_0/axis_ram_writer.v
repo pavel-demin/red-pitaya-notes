@@ -45,7 +45,8 @@ module axis_ram_writer #
     for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
   endfunction
 
-  localparam integer ADDR_SIZE = clogb2((AXI_DATA_WIDTH/8)-1);
+  localparam integer ADDR_SIZE = clogb2(AXI_DATA_WIDTH/8 - 1);
+  localparam integer COUNT_SIZE = clogb2(512*AXIS_TDATA_WIDTH/64 - 1) + 1;
 
   reg int_awvalid_reg, int_awvalid_next;
   reg int_wvalid_reg, int_wvalid_next;
@@ -54,6 +55,7 @@ module axis_ram_writer #
 
   wire int_full_wire, int_empty_wire, int_rden_wire;
   wire int_wlast_wire, int_tready_wire;
+  wire [COUNT_SIZE-1:0] int_count_wire;
   wire [63:0] int_wdata_wire;
 
   assign int_tready_wire = ~int_full_wire;
@@ -66,10 +68,11 @@ module axis_ram_writer #
     .READ_DATA_WIDTH(64),
     .READ_MODE("fwft"),
     .FIFO_READ_LATENCY(0),
-    .PROG_EMPTY_THRESH(15)
+    .USE_ADV_FEATURES("0400"),
+    .RD_DATA_COUNT_WIDTH(COUNT_SIZE)
   ) fifo_0 (
     .full(int_full_wire),
-    .prog_empty(int_empty_wire),
+    .rd_data_count(int_count_wire),
     .rst(~aresetn),
     .wr_clk(aclk),
     .wr_en(int_tready_wire & s_axis_tvalid),
@@ -103,7 +106,7 @@ module axis_ram_writer #
     int_addr_next = int_addr_reg;
     int_awid_next = int_awid_reg;
 
-    if(~int_empty_wire & ~int_awvalid_reg & ~int_wvalid_reg)
+    if((int_count_wire > 4'd15) & ~int_awvalid_reg & ~int_wvalid_reg)
     begin
       int_awvalid_next = 1'b1;
       int_wvalid_next = 1'b1;
@@ -122,13 +125,13 @@ module axis_ram_writer #
     if(m_axi_wready & int_wlast_wire)
     begin
       int_awid_next = int_awid_reg + 1'b1;
-      if(int_empty_wire)
+      if(int_count_wire > 5'd16)
       begin
-        int_wvalid_next = 1'b0;
+        int_awvalid_next = 1'b1;
       end
       else
       begin
-        int_awvalid_next = 1'b1;
+        int_wvalid_next = 1'b0;
       end
     end
   end
