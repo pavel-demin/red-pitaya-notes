@@ -60,21 +60,22 @@ module axis_ram_writer #
   assign int_wlast_wire = &int_addr_reg[3:0];
   assign int_rden_wire = m_axi_wready & int_wvalid_reg;
 
-  FIFO36E1 #(
-    .FIRST_WORD_FALL_THROUGH("TRUE"),
-    .ALMOST_EMPTY_OFFSET(13'd15),
-    .DATA_WIDTH(72),
-    .FIFO_MODE("FIFO36_72")
+  xpm_fifo_sync #(
+    .WRITE_DATA_WIDTH(AXIS_TDATA_WIDTH),
+    .FIFO_WRITE_DEPTH(512),
+    .READ_DATA_WIDTH(64),
+    .READ_MODE("fwft"),
+    .FIFO_READ_LATENCY(0),
+    .PROG_EMPTY_THRESH(15)
   ) fifo_0 (
-    .FULL(int_full_wire),
-    .ALMOSTEMPTY(int_empty_wire),
-    .RST(~aresetn),
-    .WRCLK(aclk),
-    .WREN(int_tready_wire & s_axis_tvalid),
-    .DI({{(64-AXIS_TDATA_WIDTH){1'b0}}, s_axis_tdata}),
-    .RDCLK(aclk),
-    .RDEN(int_rden_wire),
-    .DO(int_wdata_wire)
+    .full(int_full_wire),
+    .prog_empty(int_empty_wire),
+    .rst(~aresetn),
+    .wr_clk(aclk),
+    .wr_en(int_tready_wire & s_axis_tvalid),
+    .din(s_axis_tdata),
+    .rd_en(int_rden_wire),
+    .dout(int_wdata_wire)
   );
 
   always @(posedge aclk)
