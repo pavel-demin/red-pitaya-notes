@@ -128,7 +128,7 @@ cell xilinx.com:ip:axis_broadcaster bcast_0 {
 } {
   S_AXIS adc_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }
 
 # Create cic_compiler
@@ -177,7 +177,7 @@ cell  xilinx.com:ip:axis_combiner comb_0 {
   S00_AXIS cic_0/M_AXIS_DATA
   S01_AXIS cic_1/M_AXIS_DATA
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }
 
 # Create fir_compiler
@@ -195,6 +195,7 @@ cell xilinx.com:ip:fir_compiler fir_0 {
   SAMPLEPERIOD 32
   OUTPUT_ROUNDING_MODE Truncate_LSBs
   OUTPUT_WIDTH 16
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA comb_0/M_AXIS
@@ -214,23 +215,13 @@ cell pavel-demin:user:axis_packetizer pktzr_0 {
   aresetn slice_1/dout
 }
 
-# Create axis_dwidth_converter
-cell xilinx.com:ip:axis_dwidth_converter conv_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 8
-} {
-  S_AXIS pktzr_0/M_AXIS
-  aclk pll_0/clk_out1
-  aresetn slice_2/dout
-}
-
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 22
   AXI_ID_WIDTH 3
+  AXIS_TDATA_WIDTH 32
 } {
-  S_AXIS conv_0/M_AXIS
+  S_AXIS pktzr_0/M_AXIS
   M_AXI ps_0/S_AXI_ACP
   cfg_data slice_3/dout
   aclk pll_0/clk_out1
