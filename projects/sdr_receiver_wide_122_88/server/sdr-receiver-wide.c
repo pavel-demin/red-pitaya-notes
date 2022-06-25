@@ -113,7 +113,7 @@ int main ()
     usleep(100);
     *rx_rst &= ~2;
     /* set default sample rate */
-    *rx_rate = 8;
+    *rx_rate = 6;
     /* set default phase increments */
     rx_freq[0] = (uint32_t)floor(10000000 / 122.88e6 * (1<<30) + 0.5);
     rx_freq[1] = (uint32_t)floor(10000000 / 122.88e6 * (1<<30) + 0.5);
@@ -127,7 +127,9 @@ int main ()
     signal(SIGINT, signal_handler);
 
     /* enter normal operating mode */
-    *rx_rst |= 3;
+    *rx_rst |= 2;
+    usleep(100);
+    *rx_rst |= 1;
 
     limit = 32*1024;
 

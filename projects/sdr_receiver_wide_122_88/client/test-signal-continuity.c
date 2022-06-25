@@ -17,7 +17,7 @@ gcc -O3 test-signal-continuity.c -o test-signal-continuity
 #define TCP_ADDR "192.168.1.100"
 #define TCP_PORT 1001
 
-#define N 4194304
+#define N 1048576
 
 int main()
 {
@@ -45,7 +45,7 @@ int main()
     return 1;
   }
 
-  command[0] = 8;
+  command[0] = 6;
   command[1] = (1 << 28) + 10000000;
   command[2] = (2 << 28) + 10000000;
   send(sock, command, sizeof(command), MSG_NOSIGNAL);
@@ -54,7 +54,7 @@ int main()
   {
     recv(sock, data, 8 * N, MSG_WAITALL);
     dmax = 0;
-    for(i = 4; i < N; i += 4)
+    for(i = 4; i < 4 * N; i += 4)
     {
       d = abs(data[i] - data[i - 4]);
       if(dmax < d) dmax = d;
