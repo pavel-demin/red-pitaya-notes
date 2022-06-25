@@ -1,0 +1,43 @@
+id: red_pitaya_source
+label: Red Pitaya Source
+category: Red Pitaya
+
+parameters:
+-   id: addr
+    label: Address
+    dtype: string
+    default: 192.168.1.100
+-   id: port
+    label: Port
+    dtype: int
+    default: '1001'
+-   id: rate
+    label: Sample Rate
+    dtype: int
+    default: '500000'
+-   id: freq1
+    label: Center Frequency 1
+    dtype: int
+    default: '10000000'
+-   id: freq2
+    label: Center Frequency 2
+    dtype: int
+    default: '10000000'
+-   id: corr
+    label: Freq. Correction ppm
+    dtype: real
+    default: '0'
+
+outputs:
+-   domain: stream
+    dtype: complex
+
+templates:
+    imports: import red_pitaya
+    make: red_pitaya.source(${addr}, ${port}, ${rate}, ${freq1}, ${freq2}, ${corr})
+    callbacks:
+    - set_rate(${rate})
+    - set_freq1(${freq1}, ${corr})
+    - set_freq2(${freq2}, ${corr})
+
+file_format: 1
