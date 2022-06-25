@@ -431,7 +431,7 @@
     </param>
     <param>
       <key>interp</key>
-      <value>tx_samp_rate/2000</value>
+      <value>tx_samp_rate//2000</value>
     </param>
     <param>
       <key>decim</key>
@@ -666,7 +666,7 @@
     </param>
     <param>
       <key>decim</key>
-      <value>rx_samp_rate/2000</value>
+      <value>rx_samp_rate//2000</value>
     </param>
     <param>
       <key>taps</key>
