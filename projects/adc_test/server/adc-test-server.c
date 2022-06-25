@@ -122,7 +122,9 @@ int main ()
     signal(SIGINT, signal_handler);
 
     /* enter normal operating mode */
-    *rx_rst |= 3;
+    *rx_rst |= 2;
+    usleep(100);
+    *rx_rst |= 1;
 
     limit = 32*1024;
 

@@ -122,7 +122,7 @@ cell xilinx.com:ip:axis_subset_converter subset_0 {
 } {
   S_AXIS adc_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }
 
 # Create axis_constant
@@ -131,7 +131,7 @@ cell pavel-demin:user:axis_variable rate_0 {
 } {
   cfg_data slice_2/dout
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }
 
 # Create cic_compiler
@@ -154,17 +154,6 @@ cell xilinx.com:ip:cic_compiler cic_0 {
   S_AXIS_DATA subset_0/M_AXIS
   S_AXIS_CONFIG rate_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
-}
-
-# Create axis_dwidth_converter
-cell xilinx.com:ip:axis_dwidth_converter conv_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 2
-  M_TDATA_NUM_BYTES 8
-} {
-  S_AXIS cic_0/M_AXIS_DATA
-  aclk pll_0/clk_out1
   aresetn slice_0/dout
 }
 
@@ -174,8 +163,9 @@ cell xilinx.com:ip:axis_dwidth_converter conv_0 {
 cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 16
   AXI_ID_WIDTH 3
+  AXIS_TDATA_WIDTH 16
 } {
-  S_AXIS conv_0/M_AXIS
+  S_AXIS cic_0/M_AXIS_DATA
   M_AXI ps_0/S_AXI_ACP
   cfg_data slice_3/dout
   aclk pll_0/clk_out1
@@ -187,7 +177,7 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
 # Create axis_lfsr
 cell pavel-demin:user:axis_lfsr lfsr_0 {} {
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }
 
 for {set i 0} {$i <= 1} {incr i} {
