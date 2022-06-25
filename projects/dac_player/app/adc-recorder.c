@@ -127,7 +127,9 @@ int main(int argc, char *argv[])
   signal(SIGINT, signal_handler);
 
   /* enter normal operating mode */
-  *(uint8_t *)(cfg + 0) |= 3;
+  *(uint8_t *)(cfg + 0) |= 2;
+  usleep(100);
+  *(uint8_t *)(cfg + 0) |= 1;
 
   limit = 32*1024;
 

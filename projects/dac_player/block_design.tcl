@@ -129,7 +129,7 @@ cell xilinx.com:ip:axis_broadcaster bcast_0 {
 } {
   S_AXIS adc_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }
 
 for {set i 0} {$i <= 1} {incr i} {
@@ -140,7 +140,7 @@ for {set i 0} {$i <= 1} {incr i} {
   } {
     cfg_data slice_3/dout
     aclk pll_0/clk_out1
-    aresetn rst_0/peripheral_aresetn
+    aresetn slice_0/dout
   }
 
   # Create cic_compiler
@@ -163,7 +163,7 @@ for {set i 0} {$i <= 1} {incr i} {
     S_AXIS_DATA bcast_0/M0${i}_AXIS
     S_AXIS_CONFIG rate_$i/M_AXIS
     aclk pll_0/clk_out1
-    aresetn rst_0/peripheral_aresetn
+    aresetn slice_0/dout
   }
 
 }
@@ -177,7 +177,7 @@ cell  xilinx.com:ip:axis_combiner comb_0 {
   S00_AXIS cic_0/M_AXIS_DATA
   S01_AXIS cic_1/M_AXIS_DATA
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }
 
 # Create axis_dwidth_converter
@@ -188,7 +188,7 @@ cell xilinx.com:ip:axis_dwidth_converter conv_0 {
 } {
   S_AXIS comb_0/M_AXIS
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }
 
 # Create fir_compiler
@@ -207,30 +207,21 @@ cell xilinx.com:ip:fir_compiler fir_0 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 16
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA conv_0/M_AXIS
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_dwidth_converter
-cell xilinx.com:ip:axis_dwidth_converter conv_1 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 2
-  M_TDATA_NUM_BYTES 8
-} {
-  S_AXIS fir_0/M_AXIS_DATA
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }
 
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 16
   AXI_ID_WIDTH 3
+  AXIS_TDATA_WIDTH 16
 } {
-  S_AXIS conv_1/M_AXIS
+  S_AXIS fir_0/M_AXIS_DATA
   M_AXI ps_0/S_AXI_ACP
   cfg_data slice_2/dout
   aclk pll_0/clk_out1
