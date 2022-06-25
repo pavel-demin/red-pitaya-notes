@@ -35,27 +35,28 @@ cell pavel-demin:user:axis_counter cntr_1 {} {
   aresetn slice_2/dout
 }
 
-# Create axis_dwidth_converter
-cell xilinx.com:ip:axis_dwidth_converter conv_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 8
-} {
-  S_AXIS cntr_1/M_AXIS
-  aclk pll_0/clk_out1
-  aresetn slice_3/dout
-}
-
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 20
   AXI_ID_WIDTH 3
+  AXIS_TDATA_WIDTH 32
 } {
-  S_AXIS conv_0/M_AXIS
+  S_AXIS cntr_1/M_AXIS
   M_AXI ps_0/S_AXI_ACP
   cfg_data slice_4/dout
   aclk pll_0/clk_out1
   aresetn slice_3/dout
 }
+
+# Create axi_sts_register
+cell pavel-demin:user:axi_sts_register sts_0 {
+  STS_DATA_WIDTH 32
+  AXI_ADDR_WIDTH 32
+  AXI_DATA_WIDTH 32
+} {
+  sts_data writer_0/sts_data
+}
+
+addr 0x40001000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_ACP/ACP_DDR_LOWOCM]
