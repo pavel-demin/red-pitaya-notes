@@ -5,7 +5,7 @@ cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
 }
 
-# conv_0/aresetn and writer_0/aresetn
+# writer_0/aresetn
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
@@ -121,23 +121,13 @@ cell pavel-demin:user:axis_oscilloscope scope_0 {
   aresetn slice_0/dout
 }
 
-# Create axis_dwidth_converter
-cell xilinx.com:ip:axis_dwidth_converter conv_0 {
-  S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 8
-} {
-  S_AXIS scope_0/M_AXIS
-  aclk /pll_0/clk_out1
-  aresetn slice_1/dout
-}
-
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 22
   AXI_ID_WIDTH 3
+  AXIS_TDATA_WIDTH 32
 } {
-  S_AXIS conv_0/M_AXIS
+  S_AXIS scope_0/M_AXIS
   cfg_data slice_5/dout
   aclk /pll_0/clk_out1
   aresetn slice_1/dout
