@@ -56,7 +56,7 @@ module axis_ram_writer #
   wire int_full_wire, int_empty_wire, int_rden_wire;
   wire int_wlast_wire, int_tready_wire;
   wire [COUNT_SIZE-1:0] int_count_wire;
-  wire [63:0] int_wdata_wire;
+  wire [AXI_DATA_WIDTH-1:0] int_wdata_wire;
 
   assign int_tready_wire = ~int_full_wire;
   assign int_wlast_wire = &int_addr_reg[3:0];
@@ -65,7 +65,7 @@ module axis_ram_writer #
   xpm_fifo_sync #(
     .WRITE_DATA_WIDTH(AXIS_TDATA_WIDTH),
     .FIFO_WRITE_DEPTH(512),
-    .READ_DATA_WIDTH(64),
+    .READ_DATA_WIDTH(AXI_DATA_WIDTH),
     .READ_MODE("fwft"),
     .FIFO_READ_LATENCY(0),
     .USE_ADV_FEATURES("0400"),
@@ -146,7 +146,7 @@ module axis_ram_writer #
   assign m_axi_awcache = 4'b0110;
   assign m_axi_awvalid = int_awvalid_reg;
   assign m_axi_wid = int_awid_reg;
-  assign m_axi_wdata = int_wdata_wire[AXI_DATA_WIDTH-1:0];
+  assign m_axi_wdata = int_wdata_wire;
   assign m_axi_wstrb = {(AXI_DATA_WIDTH/8){1'b1}};
   assign m_axi_wlast = int_wlast_wire;
   assign m_axi_wvalid = int_wvalid_reg;
