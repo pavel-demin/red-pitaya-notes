@@ -164,6 +164,7 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 16
   AXI_ID_WIDTH 3
   AXIS_TDATA_WIDTH 16
+  FIFO_WRITE_DEPTH 2048
 } {
   S_AXIS cic_0/M_AXIS_DATA
   M_AXI ps_0/S_AXI_ACP

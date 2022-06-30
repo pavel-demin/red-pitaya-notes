@@ -220,6 +220,7 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 22
   AXI_ID_WIDTH 3
   AXIS_TDATA_WIDTH 32
+  FIFO_WRITE_DEPTH 1024
 } {
   S_AXIS pktzr_0/M_AXIS
   M_AXI ps_0/S_AXI_ACP
