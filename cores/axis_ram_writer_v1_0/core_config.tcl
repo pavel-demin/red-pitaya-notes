@@ -10,6 +10,7 @@ core_parameter AXI_ID_WIDTH {AXI ID WIDTH} {Width of the AXI ID bus.}
 core_parameter AXI_ADDR_WIDTH {AXI ADDR WIDTH} {Width of the AXI address bus.}
 core_parameter AXI_DATA_WIDTH {AXI DATA WIDTH} {Width of the AXI data bus.}
 core_parameter AXIS_TDATA_WIDTH {AXIS TDATA WIDTH} {Width of the S_AXIS data bus.}
+core_parameter FIFO_WRITE_DEPTH {FIFO WRITE DEPTH} {Depth of the write side of the FIFO buffer.}
 
 set address [ipx::get_address_spaces m_axi -of_objects $core]
 set_property NAME M_AXI $address

@@ -7,7 +7,8 @@ module axis_ram_writer #
   parameter integer AXI_ID_WIDTH = 6,
   parameter integer AXI_ADDR_WIDTH = 32,
   parameter integer AXI_DATA_WIDTH = 64,
-  parameter integer AXIS_TDATA_WIDTH = 64
+  parameter integer AXIS_TDATA_WIDTH = 64,
+  parameter integer FIFO_WRITE_DEPTH = 512
 )
 (
   // System signals
@@ -64,7 +65,7 @@ module axis_ram_writer #
 
   xpm_fifo_sync #(
     .WRITE_DATA_WIDTH(AXIS_TDATA_WIDTH),
-    .FIFO_WRITE_DEPTH(512),
+    .FIFO_WRITE_DEPTH(FIFO_WRITE_DEPTH),
     .READ_DATA_WIDTH(AXI_DATA_WIDTH),
     .READ_MODE("fwft"),
     .FIFO_READ_LATENCY(0),
