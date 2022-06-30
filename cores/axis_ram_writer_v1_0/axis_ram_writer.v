@@ -47,7 +47,7 @@ module axis_ram_writer #
   endfunction
 
   localparam integer ADDR_SIZE = clogb2(AXI_DATA_WIDTH/8 - 1);
-  localparam integer COUNT_SIZE = clogb2(512*AXIS_TDATA_WIDTH/64 - 1) + 1;
+  localparam integer COUNT_SIZE = clogb2(FIFO_WRITE_DEPTH*AXIS_TDATA_WIDTH/AXI_DATA_WIDTH - 1) + 1;
 
   reg int_awvalid_reg, int_awvalid_next;
   reg int_wvalid_reg, int_wvalid_next;
