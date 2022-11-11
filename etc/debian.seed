@@ -37,6 +37,8 @@ d-i partman-auto/expert_recipe string      \
 
 d-i partman/default_filesystem string ext4
 
+d-i partman-basicfilesystems/no_swap boolean false
+
 d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
