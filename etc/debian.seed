@@ -76,8 +76,7 @@ d-i preseed/late_command string \
   printf "\nallow-hotplug eth0\niface eth0 inet dhcp\n\nallow-hotplug eth1\niface eth1 inet dhcp\n" >> /target/etc/network/interfaces; \
   in-target apt-get update ; \
   in-target apt-get --yes --no-install-recommends install \
-  acpid openssh-server linux-headers-amd64 \
-  autofs samba less psmisc screen vim xauth \
+  openssh-server linux-headers-amd64 autofs samba psmisc screen vim xauth \
   bc binfmt-support bison build-essential ca-certificates curl \
   debootstrap device-tree-compiler dosfstools flex fontconfig git \
   libgtk-3-0 libncurses-dev libssl-dev libtinfo5 parted qemu-user-static \
