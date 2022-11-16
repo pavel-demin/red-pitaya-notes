@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
   uint8_t chan = 0;
   long number;
 
-  for(i = 0; i < 5; ++i)
+  for(i = 0; i < 6; ++i)
   {
     errno = 0;
     number = (argc == 7) ? strtol(argv[i + 1], &end, 10) : -1;
