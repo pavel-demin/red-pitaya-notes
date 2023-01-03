@@ -517,9 +517,6 @@ module gen_0 {
 } {
   slice_0/din rst_slice_5/dout
   slice_1/din cfg_slice_5/dout
-  slice_2/din cfg_slice_5/dout
-  slice_3/din cfg_slice_5/dout
-  slice_4/din cfg_slice_5/dout
   iir_0/M_AXIS dac_0/S_AXIS
 }
 

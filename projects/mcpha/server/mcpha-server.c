@@ -50,6 +50,8 @@ int main(int argc, char *argv[])
   volatile void *cfg;
   void *hst[2], *ram, *buf;
   volatile uint8_t *rst[4];
+  volatile uint16_t *iir_params;
+  volatile int16_t *iir_limits;
   volatile uint32_t *trg;
   struct sockaddr_in addr;
   int yes = 1;
@@ -125,12 +127,14 @@ int main(int argc, char *argv[])
   fall = 50;
   rise = 50;
 
-  *(uint16_t *)(cfg + 88) = 6932;
-  *(uint16_t *)(cfg + 90) = 65528;
-  *(uint16_t *)(cfg + 92) = 58655;
+  iir_params = cfg + 88;
+  iir_params[0] = 6932;
+  iir_params[1] = 65528;
+  iir_params[2] = 58655;
 
-  *(int16_t *)(cfg + 96) = -8192;
-  *(int16_t *)(cfg + 98) = 8191;
+  iir_limits = cfg + 94;
+  iir_limits[0] = -8192;
+  iir_limits[1] = 8191;
 
   /* reset spectrum */
   memset(spectrum, 0, 16384);
@@ -485,12 +489,12 @@ int main(int argc, char *argv[])
       else if(code == 26)
       {
         /* set lower limit */
-        *(int16_t *)(cfg + 90) = data;
+        iir_limits[0] = data;
       }
       else if(code == 27)
       {
         /* set upper limit */
-        *(int16_t *)(cfg + 92) = data;
+        iir_limits[1] = data;
       }
       else if(code == 28)
       {
@@ -551,9 +555,9 @@ int main(int argc, char *argv[])
         }
         s = (uint16_t)(4095 * 65535 / (y[2] >> 9));
 
-        *(uint16_t *)(cfg + 88) = s;
-        *(uint16_t *)(cfg + 90) = f;
-        *(uint16_t *)(cfg + 92) = r;
+        iir_params[0] = s;
+        iir_params[1] = f;
+        iir_params[2] = r;
 
         enable_thread = 1;
         active_thread = 1;

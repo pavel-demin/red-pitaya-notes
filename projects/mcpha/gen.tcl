@@ -5,22 +5,7 @@ cell pavel-demin:user:port_slicer slice_0 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
-  DIN_WIDTH 96 DIN_FROM 15 DIN_TO 0
-}
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer slice_2 {
-  DIN_WIDTH 96 DIN_FROM 31 DIN_TO 16
-}
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer slice_3 {
-  DIN_WIDTH 96 DIN_FROM 47 DIN_TO 32
-}
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer slice_4 {
-  DIN_WIDTH 96 DIN_FROM 95 DIN_TO 64
+  DIN_WIDTH 96 DIN_FROM 79 DIN_TO 0
 }
 
 # Create axi_axis_writer
@@ -92,79 +77,12 @@ cell pavel-demin:user:axis_zeroer zeroer_0 {
   aclk /pll_0/clk_out1
 }
 
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro dsp_0 {
-  INSTRUCTION1 A*B
-  A_WIDTH.VALUE_SRC USER
-  B_WIDTH.VALUE_SRC USER
-  OUTPUT_PROPERTIES User_Defined
-  A_WIDTH 16
-  B_WIDTH 17
-  P_WIDTH 33
-} {
-  B slice_1/dout
-  CLK /pll_0/clk_out1
-}
-
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro dsp_1 {
-  INSTRUCTION1 A*B+C
-  PIPELINE_OPTIONS Expert
-  AREG_3 false
-  AREG_4 false
-  CREG_3 false
-  CREG_4 false
-  MREG_5 false
-  PREG_6 false
-  A_WIDTH.VALUE_SRC USER
-  B_WIDTH.VALUE_SRC USER
-  C_WIDTH.VALUE_SRC USER
-  OUTPUT_PROPERTIES User_Defined
-  A_WIDTH 25
-  B_WIDTH 17
-  C_WIDTH 42
-  P_WIDTH 42
-} {
-  B slice_2/dout
-  CLK /pll_0/clk_out1
-}
-
-cell xilinx.com:ip:xbip_dsp48_macro dsp_2 {
-  INSTRUCTION1 A*B+C
-  PIPELINE_OPTIONS Expert
-  AREG_3 false
-  AREG_4 false
-  CREG_3 false
-  CREG_4 false
-  MREG_5 false
-  PREG_6 false
-  A_WIDTH.VALUE_SRC USER
-  B_WIDTH.VALUE_SRC USER
-  C_WIDTH.VALUE_SRC USER
-  OUTPUT_PROPERTIES User_Defined
-  A_WIDTH 25
-  B_WIDTH 17
-  C_WIDTH 42
-  P_WIDTH 42
-} {
-  B slice_3/dout
-  CLK /pll_0/clk_out1
-}
-
 # Create axis_iir_filter
 cell pavel-demin:user:axis_iir_filter iir_0 {
   AXIS_TDATA_WIDTH 16
 } {
   S_AXIS zeroer_0/M_AXIS
-  cfg_data slice_4/dout
-  dsp_a_a dsp_0/A
-  dsp_a_p dsp_0/P
-  dsp_b_a dsp_1/A
-  dsp_b_c dsp_1/C
-  dsp_b_p dsp_1/P
-  dsp_c_a dsp_2/A
-  dsp_c_c dsp_2/C
-  dsp_c_p dsp_2/P
+  cfg_data slice_1/dout
   aclk /pll_0/clk_out1
   aresetn slice_0/dout
 }
