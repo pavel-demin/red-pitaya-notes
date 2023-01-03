@@ -24,7 +24,7 @@ module axis_lfsr #
   begin
     if(~aresetn)
     begin
-      int_lfsr_reg <= 64'h5555555555555555;
+      int_lfsr_reg <= 64'h85fac8a1658d6f0d;
       int_enbl_reg <= 1'b0;
     end
     else
