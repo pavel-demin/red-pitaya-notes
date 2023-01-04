@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   }
 
   /* set pulse height */
-  bram[8] = 4095;
+  bram[6] = 4095;
   /* set size */
   *(uint16_t *)(cfg + 4) = 1024;
   /* set scale factor */
