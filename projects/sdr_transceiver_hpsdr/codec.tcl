@@ -130,47 +130,25 @@ cell xilinx.com:ip:dds_compiler dds_0 {
   aclk /pll_0/clk_out1
 }
 
-# Create axis_lfsr
-cell pavel-demin:user:axis_lfsr lfsr_0 {} {
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro mult_0 {
-  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
-  A_WIDTH.VALUE_SRC USER
-  B_WIDTH.VALUE_SRC USER
-  OUTPUT_PROPERTIES User_Defined
+# Create dsp48
+cell pavel-demin:user:dsp48 mult_0 {
   A_WIDTH 16
   B_WIDTH 16
-  P_WIDTH 18
+  P_WIDTH 24
 } {
   A dds_0/m_axis_data_tdata
   B keyer_0/m_axis_tdata
-  CARRYIN lfsr_0/m_axis_tdata
   CLK /pll_0/clk_out1
 }
 
-# Create axis_lfsr
-cell pavel-demin:user:axis_lfsr lfsr_1 {} {
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro mult_1 {
-  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
-  A_WIDTH.VALUE_SRC USER
-  B_WIDTH.VALUE_SRC USER
-  OUTPUT_PROPERTIES User_Defined
-  A_WIDTH 18
+# Create dsp48
+cell pavel-demin:user:dsp48 mult_1 {
+  A_WIDTH 24
   B_WIDTH 16
-  P_WIDTH 18
+  P_WIDTH 16
 } {
   A mult_0/P
   B slice_4/dout
-  CARRYIN lfsr_1/m_axis_tdata
   CLK /pll_0/clk_out1
 }
 
@@ -181,10 +159,8 @@ cell xilinx.com:ip:xlconstant const_0
 cell xilinx.com:ip:axis_broadcaster bcast_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 3
+  S_TDATA_NUM_BYTES 2
   M_TDATA_NUM_BYTES 2
-  M00_TDATA_REMAP {tdata[15:0]}
-  M01_TDATA_REMAP {tdata[15:0]}
 } {
   s_axis_tready keyer_0/m_axis_tready
   s_axis_tready dds_0/m_axis_data_tready
@@ -194,7 +170,7 @@ cell xilinx.com:ip:axis_broadcaster bcast_1 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_lfsr
+# Create axis_adder
 cell pavel-demin:user:axis_adder adder_0 {
   AXIS_TDATA_WIDTH 16
   AXIS_TDATA_SIGNED TRUE
@@ -204,7 +180,7 @@ cell pavel-demin:user:axis_adder adder_0 {
   aclk /pll_0/clk_out1
 }
 
-# Create axis_lfsr
+# Create axis_adder
 cell pavel-demin:user:axis_adder adder_1 {
   AXIS_TDATA_WIDTH 16
   AXIS_TDATA_SIGNED TRUE

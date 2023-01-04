@@ -49,12 +49,6 @@ cell xilinx.com:ip:dds_compiler dds_0 {
   aresetn slice_1/dout
 }
 
-# Create axis_lfsr
-cell pavel-demin:user:axis_lfsr lfsr_0 {} {
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
 # Create xlconstant
 cell xilinx.com:ip:xlconstant const_0
 
@@ -78,19 +72,14 @@ for {set i 0} {$i <= 3} {incr i} {
     din /adc_0/m_axis_tdata
   }
 
-  # Create xbip_dsp48_macro
-  cell xilinx.com:ip:xbip_dsp48_macro mult_$i {
-    INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
-    A_WIDTH.VALUE_SRC USER
-    B_WIDTH.VALUE_SRC USER
-    OUTPUT_PROPERTIES User_Defined
+  # Create dsp48
+  cell pavel-demin:user:dsp48 mult_$i {
     A_WIDTH 24
     B_WIDTH 14
-    P_WIDTH 25
+    P_WIDTH 24
   } {
     A dds_slice_[expr $i % 2]/dout
     B adc_slice_$i/dout
-    CARRYIN lfsr_0/m_axis_tdata
     CLK /pll_0/clk_out1
   }
 
@@ -245,19 +234,14 @@ cell pavel-demin:user:axi_axis_reader reader_0 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro mult_4 {
-  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
-  A_WIDTH.VALUE_SRC USER
-  B_WIDTH.VALUE_SRC USER
-  OUTPUT_PROPERTIES User_Defined
+# Create dsp48
+cell pavel-demin:user:dsp48 mult_4 {
   A_WIDTH 24
   B_WIDTH 16
-  P_WIDTH 15
+  P_WIDTH 14
 } {
   A dds_slice_0/dout
   B slice_4/dout
-  CARRYIN lfsr_0/m_axis_tdata
   CLK /pll_0/clk_out1
 }
 

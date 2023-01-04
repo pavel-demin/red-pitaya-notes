@@ -175,12 +175,6 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
 
 # GEN
 
-# Create axis_lfsr
-cell pavel-demin:user:axis_lfsr lfsr_0 {} {
-  aclk pll_0/clk_out1
-  aresetn slice_0/dout
-}
-
 for {set i 0} {$i <= 1} {incr i} {
 
   # Create port_slicer
@@ -221,19 +215,14 @@ for {set i 0} {$i <= 1} {incr i} {
     aclk pll_0/clk_out1
   }
 
-  # Create xbip_dsp48_macro
-  cell xilinx.com:ip:xbip_dsp48_macro mult_$i {
-    INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
-    A_WIDTH.VALUE_SRC USER
-    B_WIDTH.VALUE_SRC USER
-    OUTPUT_PROPERTIES User_Defined
+  # Create dsp48
+  cell pavel-demin:user:dsp48 mult_$i {
     A_WIDTH 24
     B_WIDTH 16
-    P_WIDTH 15
+    P_WIDTH 14
   } {
     A dds_$i/m_axis_data_tdata
     B slice_[expr $i + 6]/dout
-    CARRYIN lfsr_0/m_axis_tdata
     CLK pll_0/clk_out1
   }
 

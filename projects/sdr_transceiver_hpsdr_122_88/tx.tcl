@@ -312,41 +312,25 @@ cell xilinx.com:ip:cmpy mult_0 {
   aclk /pll_0/clk_out1
 }
 
-# Create axis_lfsr
-cell pavel-demin:user:axis_lfsr lfsr_1 {} {
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro mult_1 {
-  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
-  A_WIDTH.VALUE_SRC USER
-  B_WIDTH.VALUE_SRC USER
-  OUTPUT_PROPERTIES User_Defined
+# Create dsp48
+cell pavel-demin:user:dsp48 mult_1 {
   A_WIDTH 24
   B_WIDTH 16
-  P_WIDTH 17
+  P_WIDTH 16
 } {
   A mult_0/m_axis_dout_tdata
   B slice_3/dout
-  CARRYIN lfsr_1/m_axis_tdata
   CLK /pll_0/clk_out1
 }
 
-# Create xbip_dsp48_macro
-cell xilinx.com:ip:xbip_dsp48_macro mult_2 {
-  INSTRUCTION1 RNDSIMPLE(A*B+CARRYIN)
-  A_WIDTH.VALUE_SRC USER
-  B_WIDTH.VALUE_SRC USER
-  OUTPUT_PROPERTIES User_Defined
+# Create dsp48
+cell pavel-demin:user:dsp48 mult_2 {
   A_WIDTH 24
   B_WIDTH 16
-  P_WIDTH 19
+  P_WIDTH 18
 } {
   A mult_0/m_axis_dout_tdata
   B slice_4/dout
-  CARRYIN lfsr_1/m_axis_tdata
   CLK /pll_0/clk_out1
 }
 
