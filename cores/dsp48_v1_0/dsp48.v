@@ -24,15 +24,12 @@ module dsp48 #
 
   DSP48E1 #(
     .ALUMODEREG(0), .CARRYINSELREG(0), .INMODEREG(0), .OPMODEREG(0),
-    .AREG(0), .ACASCREG(0), .BREG(0), .BCASCREG(0),
     .CREG(0), .CARRYINREG(0), .MREG(1), .PREG(1),
     .USE_PATTERN_DETECT("PATDET"), .SEL_MASK("ROUNDING_MODE1")
   ) dsp_0 (
     .CLK(CLK),
-    .RSTM(1'b0),
-    .RSTP(1'b0),
-    .CEM(1'b1),
-    .CEP(1'b1),
+    .RSTA(1'b0), .RSTB(1'b0), .RSTM(1'b0), .RSTP(1'b0),
+    .CEA2(1'b1), .CEB2(1'b1), .CED(1'b0), .CEAD(1'b0), .CEM(1'b1), .CEP(1'b1),
     .OPMODE(7'b0110101),
     .A({{(30-A_WIDTH){A[A_WIDTH-1]}}, A}),
     .B({{(18-B_WIDTH){B[B_WIDTH-1]}}, B}),
