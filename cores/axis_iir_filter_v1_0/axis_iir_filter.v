@@ -21,17 +21,18 @@ module axis_iir_filter
 );
 
   wire [47:0] int_p_wire [2:0];
+  wire int_rst_wire;
+
+  assign int_rst_wire = ~aresetn;
 
   DSP48E1 #(
     .ALUMODEREG(0), .CARRYINSELREG(0), .INMODEREG(0), .OPMODEREG(0),
-    .AREG(0), .ACASCREG(0), .BREG(0), .BCASCREG(0),
     .CREG(0), .CARRYINREG(0), .MREG(1), .PREG(1)
   ) dsp_0 (
     .CLK(aclk),
-    .RSTM(~aresetn),
-    .RSTP(~aresetn),
-    .CEM(1'b1),
-    .CEP(1'b1),
+    .RSTA(int_rst_wire), .RSTB(int_rst_wire),
+    .RSTM(int_rst_wire), .RSTP(int_rst_wire),
+    .CEA2(1'b1), .CEB2(1'b1), .CED(1'b0), .CEAD(1'b0), .CEM(1'b1), .CEP(1'b1),
     .OPMODE(7'b0000101),
     .A({{(5){s_axis_tdata[15]}}, s_axis_tdata, 9'd0}),
     .B(cfg_data[15:0]),
@@ -44,8 +45,8 @@ module axis_iir_filter
     .CREG(0), .CARRYINREG(0), .MREG(0), .PREG(1)
   ) dsp_1 (
     .CLK(aclk),
-    .RSTP(~aresetn),
-    .CEP(1'b1),
+    .RSTP(int_rst_wire),
+    .CED(1'b0), .CEAD(1'b0), .CEP(1'b1),
     .OPMODE(7'b0110101),
     .A(int_p_wire[1][45:16]),
     .B(cfg_data[31:16]),
@@ -59,8 +60,8 @@ module axis_iir_filter
     .CREG(0), .CARRYINREG(0), .MREG(0), .PREG(1)
   ) dsp_2 (
     .CLK(aclk),
-    .RSTP(~aresetn),
-    .CEP(1'b1),
+    .RSTP(int_rst_wire),
+    .CED(1'b0), .CEAD(1'b0), .CEP(1'b1),
     .OPMODE(7'b0110101),
     .A(int_p_wire[2][45:16]),
     .B(cfg_data[47:32]),
