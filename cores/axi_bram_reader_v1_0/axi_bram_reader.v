@@ -45,7 +45,7 @@ module axi_bram_reader #
 
   localparam integer ADDR_LSB = clogb2(AXI_DATA_WIDTH/8 - 1);
 
-  wire int_arvalid_wire, int_rready_wire, int_en_wire;
+  wire int_arvalid_wire, int_rready_wire;
   wire [AXI_ADDR_WIDTH-1:0] int_araddr_wire;
   wire [AXI_ADDR_WIDTH-1:0] int_addr_wire;
 
