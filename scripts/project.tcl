@@ -88,7 +88,7 @@ make_wrapper -files [get_files $bd_path/system.bd] -top
 
 add_files -norecurse $bd_path/hdl/system_wrapper.v
 
-set files [glob -nocomplain projects/$project_name/*.v projects/$project_name/*.sv]
+set files [glob -nocomplain cores/common_modules/*.v projects/$project_name/*.v projects/$project_name/*.sv]
 if {[llength $files] > 0} {
   add_files -norecurse $files
 }
