@@ -242,7 +242,6 @@ cell xilinx.com:ip:blk_mem_gen bram_0 {
   WRITE_DEPTH_A 1024
   WRITE_WIDTH_B 32
   ENABLE_A Always_Enabled
-  ENABLE_B Always_Enabled
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
 }
 
