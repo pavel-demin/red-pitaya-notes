@@ -62,8 +62,7 @@ module axi_bram_reader #
   ) buf_1 (
     .aclk(aclk), .aresetn(aresetn),
     .in_ready(int_rready_wire), .in_valid(int_arvalid_wire),
-    .out_ready(s_axi_rready), .out_valid(s_axi_rvalid),
-    .out_en(int_en_wire)
+    .out_ready(s_axi_rready), .out_valid(s_axi_rvalid)
   );
 
   assign s_axi_awready = 1'b0;
@@ -76,7 +75,7 @@ module axi_bram_reader #
 
   assign bram_porta_clk = aclk;
   assign bram_porta_rst = ~aresetn;
-  assign bram_porta_en = int_en_wire;
+  assign bram_porta_en = int_rready_wire;
   assign bram_porta_addr = int_araddr_wire[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
 
 endmodule

@@ -13,8 +13,6 @@ module output_buffer #
   input  wire [DATA_WIDTH-1:0] in_data,
   input  wire                  in_valid,
 
-  output wire                  out_en,
-
   input  wire                  out_ready,
   output wire [DATA_WIDTH-1:0] out_data,
   output wire                  out_valid
@@ -43,8 +41,6 @@ module output_buffer #
   end
 
   assign in_ready = int_ready_wire;
-
-  assign out_en = int_ready_wire;
 
   assign out_data = int_data_reg;
   assign out_valid = int_valid_reg;
