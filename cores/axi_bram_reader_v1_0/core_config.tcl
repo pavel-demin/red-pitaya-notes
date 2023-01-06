@@ -25,6 +25,7 @@ set_property INTERFACE_MODE master $bus
 foreach {logical physical} {
   RST  bram_porta_rst
   CLK  bram_porta_clk
+  EN   bram_porta_en
   ADDR bram_porta_addr
   DOUT bram_porta_rddata
 } {

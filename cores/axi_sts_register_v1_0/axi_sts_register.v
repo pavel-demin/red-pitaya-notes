@@ -42,13 +42,9 @@ module axi_sts_register #
   localparam integer STS_SIZE = STS_DATA_WIDTH/AXI_DATA_WIDTH;
   localparam integer STS_WIDTH = STS_SIZE > 1 ? clogb2(STS_SIZE-1) : 1;
 
-  reg [AXI_ADDR_WIDTH-1:0] int_araddr_reg, int_araddr_next;
-  reg int_arready_reg, int_arready_next;
-  reg [AXI_DATA_WIDTH-1:0] int_rdata_reg, int_rdata_next;
-  reg int_rvalid_reg, int_rvalid_next;
-
-  wire int_ardone_wire, int_rdone_wire;
+  wire int_arvalid_wire, int_rready_wire;
   wire [AXI_ADDR_WIDTH-1:0] int_araddr_wire;
+  wire [AXI_DATA_WIDTH-1:0] int_rdata_wire;
 
   wire [AXI_DATA_WIDTH-1:0] int_data_mux [STS_SIZE-1:0];
 
@@ -61,54 +57,29 @@ module axi_sts_register #
     end
   endgenerate
 
-  always @(posedge aclk)
-  begin
-    if(~aresetn)
-    begin
-      int_araddr_reg <= {(AXI_ADDR_WIDTH){1'b0}};
-      int_arready_reg <= 1'b1;
-      int_rdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
-      int_rvalid_reg <= 1'b0;
-    end
-    else
-    begin
-      int_araddr_reg <= int_araddr_next;
-      int_arready_reg <= int_arready_next;
-      int_rdata_reg <= int_rdata_next;
-      int_rvalid_reg <= int_rvalid_next;
-    end
-  end
+  assign int_rdata_wire = int_data_mux[int_araddr_wire[ADDR_LSB+STS_WIDTH-1:ADDR_LSB]];
 
-  assign int_ardone_wire = ~int_arready_reg | s_axi_arvalid;
-  assign int_rdone_wire = ~int_rvalid_reg | s_axi_rready;
+  input_buffer #(
+    .DATA_WIDTH(AXI_ADDR_WIDTH)
+  ) buf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_ready(s_axi_arready), .in_data(s_axi_araddr), .in_valid(s_axi_arvalid),
+    .out_ready(int_rready_wire), .out_data(int_araddr_wire), .out_valid(int_arvalid_wire)
+  );
 
-  assign int_araddr_wire = int_arready_reg ? s_axi_araddr : int_araddr_reg;
-
-  always @*
-  begin
-    int_araddr_next = int_araddr_reg;
-    int_arready_next = ~int_ardone_wire | int_rdone_wire;
-    int_rdata_next = int_rdata_reg;
-    int_rvalid_next = ~int_rdone_wire | int_ardone_wire;
-
-    if(int_arready_reg)
-    begin
-      int_araddr_next = s_axi_araddr;
-    end
-
-    if(int_ardone_wire & int_rdone_wire)
-    begin
-      int_rdata_next = int_data_mux[int_araddr_wire[ADDR_LSB+STS_WIDTH-1:ADDR_LSB]];
-    end
-  end
+  output_buffer #(
+    .DATA_WIDTH(AXI_DATA_WIDTH)
+  ) buf_1 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_ready(int_rready_wire), .in_data(int_rdata_wire), .in_valid(int_arvalid_wire),
+    .out_ready(s_axi_rready), .out_data(s_axi_rdata), .out_valid(s_axi_rvalid)
+  );
 
   assign s_axi_awready = 1'b0;
   assign s_axi_wready = 1'b0;
   assign s_axi_bresp = 2'd0;
   assign s_axi_bvalid = 1'b0;
-  assign s_axi_arready = int_arready_reg;
-  assign s_axi_rdata = int_rdata_reg;
+
   assign s_axi_rresp = 2'd0;
-  assign s_axi_rvalid = int_rvalid_reg;
 
 endmodule

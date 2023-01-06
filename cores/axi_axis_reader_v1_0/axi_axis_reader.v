@@ -35,52 +35,35 @@ module axi_axis_reader #
   input  wire                      s_axis_tvalid
 );
 
-  reg int_arready_reg, int_arready_next;
-  reg [AXI_DATA_WIDTH-1:0] int_rdata_reg, int_rdata_next;
-  reg int_rvalid_reg, int_rvalid_next;
+  wire int_arvalid_wire, int_rready_wire;
+  wire [AXI_ADDR_WIDTH-1:0] int_araddr_wire;
+  wire [AXI_DATA_WIDTH-1:0] int_rdata_wire;
 
-  wire int_ardone_wire, int_rdone_wire;
+  assign int_rdata_wire = s_axis_tvalid ? s_axis_tdata : {(AXI_DATA_WIDTH){1'b0}};
 
-  always @(posedge aclk)
-  begin
-    if(~aresetn)
-    begin
-      int_arready_reg <= 1'b1;
-      int_rdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
-      int_rvalid_reg <= 1'b0;
-    end
-    else
-    begin
-      int_arready_reg <= int_arready_next;
-      int_rdata_reg <= int_rdata_next;
-      int_rvalid_reg <= int_rvalid_next;
-    end
-  end
+  input_buffer #(
+    .DATA_WIDTH(AXI_ADDR_WIDTH)
+  ) buf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_ready(s_axi_arready), .in_data(s_axi_araddr), .in_valid(s_axi_arvalid),
+    .out_ready(int_rready_wire), .out_data(int_araddr_wire), .out_valid(int_arvalid_wire)
+  );
 
-  assign int_ardone_wire = ~int_arready_reg | s_axi_arvalid;
-  assign int_rdone_wire = ~int_rvalid_reg | s_axi_rready;
-
-  always @*
-  begin
-    int_arready_next = ~int_ardone_wire | int_rdone_wire;
-    int_rdata_next = int_rdata_reg;
-    int_rvalid_next = ~int_rdone_wire | int_ardone_wire;
-
-    if(int_ardone_wire & int_rdone_wire)
-    begin
-      int_rdata_next = s_axis_tvalid ? s_axis_tdata : {(AXI_DATA_WIDTH){1'b0}};
-    end
-  end
+  output_buffer #(
+    .DATA_WIDTH(AXI_DATA_WIDTH)
+  ) buf_1 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_ready(int_rready_wire), .in_data(int_rdata_wire), .in_valid(int_arvalid_wire),
+    .out_ready(s_axi_rready), .out_data(s_axi_rdata), .out_valid(s_axi_rvalid)
+  );
 
   assign s_axi_awready = 1'b0;
   assign s_axi_wready = 1'b0;
   assign s_axi_bresp = 2'd0;
   assign s_axi_bvalid = 1'b0;
-  assign s_axi_arready = int_arready_reg;
-  assign s_axi_rdata = int_rdata_reg;
-  assign s_axi_rresp = 2'd0;
-  assign s_axi_rvalid = int_rvalid_reg;
 
-  assign s_axis_tready = int_ardone_wire & int_rdone_wire;
+  assign s_axi_rresp = 2'd0;
+
+  assign s_axis_tready = int_arvalid_wire & int_rready_wire;
 
 endmodule

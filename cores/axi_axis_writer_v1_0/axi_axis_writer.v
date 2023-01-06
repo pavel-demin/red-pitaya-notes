@@ -34,61 +34,49 @@ module axi_axis_writer #
   output wire                      m_axis_tvalid
 );
 
-  reg int_awready_reg, int_awready_next;
-  reg [AXI_DATA_WIDTH-1:0] int_wdata_reg, int_wdata_next;
-  reg int_wready_reg, int_wready_next;
-  reg int_bvalid_reg, int_bvalid_next;
-
-  wire int_awdone_wire, int_wdone_wire, int_bdone_wire;
+  wire int_awready_wire, int_awvalid_wire;
+  wire int_wready_wire, int_wvalid_wire;
+  wire int_bready_wire, int_bvalid_wire;
+  wire [AXI_ADDR_WIDTH-1:0] int_awaddr_wire;
   wire [AXI_DATA_WIDTH-1:0] int_wdata_wire;
+  wire [AXI_DATA_WIDTH/8-1:0] int_wstrb_wire;
 
-  always @(posedge aclk)
-  begin
-    if(~aresetn)
-    begin
-      int_awready_reg <= 1'b1;
-      int_wdata_reg <= {(AXI_DATA_WIDTH){1'b0}};
-      int_wready_reg <= 1'b1;
-      int_bvalid_reg <= 1'b0;
-    end
-    else
-    begin
-      int_awready_reg <= int_awready_next;
-      int_wdata_reg <= int_wdata_next;
-      int_wready_reg <= int_wready_next;
-      int_bvalid_reg <= int_bvalid_next;
-    end
-  end
+  assign int_awready_wire = int_wvalid_wire & int_bready_wire;
+  assign int_wready_wire = int_awvalid_wire & int_bready_wire;
+  assign int_bvalid_wire = int_awvalid_wire & int_wvalid_wire;
 
-  assign int_awdone_wire = ~int_awready_reg | s_axi_awvalid;
-  assign int_wdone_wire = ~int_wready_reg | s_axi_wvalid;
-  assign int_bdone_wire = ~int_bvalid_reg | s_axi_bready;
+  input_buffer #(
+    .DATA_WIDTH(AXI_ADDR_WIDTH)
+  ) buf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_ready(s_axi_awready), .in_data(s_axi_awaddr), .in_valid(s_axi_awvalid),
+    .out_ready(int_awready_wire), .out_data(int_awaddr_wire), .out_valid(int_awvalid_wire)
+  );
 
-  assign int_wdata_wire = int_wready_reg ? s_axi_wdata : int_wdata_reg;
+  input_buffer #(
+    .DATA_WIDTH(AXI_DATA_WIDTH + AXI_DATA_WIDTH/8)
+  ) buf_1 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_ready(s_axi_wready), .in_data({s_axi_wstrb, s_axi_wdata}), .in_valid(s_axi_wvalid),
+    .out_ready(int_wready_wire), .out_data({int_wstrb_wire, int_wdata_wire}), .out_valid(int_wvalid_wire)
+  );
 
-  always @*
-  begin
-    int_awready_next = ~int_awdone_wire | (int_wdone_wire & int_bdone_wire);
-    int_wdata_next = int_wdata_reg;
-    int_wready_next = ~int_wdone_wire | (int_awdone_wire & int_bdone_wire);
-    int_bvalid_next = ~int_bdone_wire | (int_awdone_wire & int_wdone_wire);
+  output_buffer #(
+    .DATA_WIDTH(0)
+  ) buf_2 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_ready(int_bready_wire), .in_valid(int_bvalid_wire),
+    .out_ready(s_axi_bready), .out_valid(s_axi_bvalid)
+  );
 
-    if(int_wready_reg)
-    begin
-      int_wdata_next = s_axi_wdata;
-    end
-  end
-
-  assign s_axi_awready = int_awready_reg;
-  assign s_axi_wready = int_wready_reg;
   assign s_axi_bresp = 2'd0;
-  assign s_axi_bvalid = int_bvalid_reg;
+
   assign s_axi_arready = 1'b0;
   assign s_axi_rdata = {(AXI_DATA_WIDTH){1'b0}};
   assign s_axi_rresp = 2'd0;
   assign s_axi_rvalid = 1'b0;
 
   assign m_axis_tdata = int_wdata_wire;
-  assign m_axis_tvalid = int_awdone_wire & int_wdone_wire & int_bdone_wire;
+  assign m_axis_tvalid = int_bvalid_wire;
 
 endmodule
