@@ -27,7 +27,6 @@ module output_buffer #
   begin
     if(~aresetn)
     begin
-      int_data_reg <= {(DATA_WIDTH){1'b0}};
       int_valid_reg <= 1'b0;
     end
     else

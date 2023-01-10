@@ -27,7 +27,6 @@ module input_buffer #
   begin
     if(~aresetn)
     begin
-      int_data_reg <= {(DATA_WIDTH){1'b0}};
       int_ready_reg <= 1'b1;
     end
     else
