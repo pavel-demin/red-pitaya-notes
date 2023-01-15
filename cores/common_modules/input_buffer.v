@@ -9,13 +9,13 @@ module input_buffer #
   input  wire                  aclk,
   input  wire                  aresetn,
 
-  output wire                  in_ready,
   input  wire [DATA_WIDTH-1:0] in_data,
   input  wire                  in_valid,
+  output wire                  in_ready,
 
-  input  wire                  out_ready,
   output wire [DATA_WIDTH-1:0] out_data,
-  output wire                  out_valid
+  output wire                  out_valid,
+  input  wire                  out_ready
 );
 
   reg [DATA_WIDTH-1:0] int_data_reg;
