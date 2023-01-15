@@ -73,7 +73,7 @@ rename module {}
 rename addr {}
 
 if {[version -short] >= 2016.3} {
-  set_property synth_checkpoint_mode None [get_files $bd_path/system.bd]
+  set_property SYNTH_CHECKPOINT_MODE None [get_files $bd_path/system.bd]
 }
 
 generate_target all [get_files $bd_path/system.bd]
@@ -81,7 +81,16 @@ make_wrapper -files [get_files $bd_path/system.bd] -top
 
 add_files -norecurse $bd_path/hdl/system_wrapper.v
 
-set files [glob -nocomplain cores/common_modules/*.v projects/$project_name/*.v projects/$project_name/*.sv]
+set files [glob -nocomplain cores/common_modules/*.v]
+if {[llength $files] > 0} {
+  add_files -norecurse $files
+}
+
+foreach f $files {
+  set_property IS_GLOBAL_INCLUDE TRUE [get_files $f]
+}
+
+set files [glob -nocomplain projects/$project_name/*.v projects/$project_name/*.sv]
 if {[llength $files] > 0} {
   add_files -norecurse $files
 }
