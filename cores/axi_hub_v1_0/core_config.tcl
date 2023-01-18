@@ -14,10 +14,30 @@ set_property INTERFACE_MODE slave $bus
 
 set buses [list S_AXI]
 
-set num_axis 16
+set hub_size 8
 
-for {set i 0} {$i < $num_axis} {incr i} {
+for {set i 0} {$i < $hub_size} {incr i} {
   set index [format %02d $i]
+
+  set bus [ipx::add_bus_interface B${index}_BRAM $core]
+  set_property ABSTRACTION_TYPE_VLNV xilinx.com:interface:bram_rtl:1.0 $bus
+  set_property BUS_TYPE_VLNV xilinx.com:interface:bram:1.0 $bus
+  set_property INTERFACE_MODE master $bus
+  foreach {logical physical} {
+    RST  rst
+    CLK  clk
+    EN   en
+    WE   we
+    ADDR addr
+    DIN  wdata
+    DOUT rdata
+  } {
+    set_property PHYSICAL_NAME b${index}_bram_$physical [ipx::add_port_map $logical $bus]
+  }
+
+  set bus [ipx::get_bus_interfaces b${index}_bram_clk]
+  set parameter [ipx::add_bus_parameter ASSOCIATED_BUSIF $bus]
+  set_property VALUE B${index}_BRAM $parameter
 
   set bus [ipx::get_bus_interfaces -of_objects $core s${index}_axis]
   set_property NAME S${index}_AXIS $bus
@@ -33,43 +53,3 @@ for {set i 0} {$i < $num_axis} {incr i} {
 set bus [ipx::get_bus_interfaces aclk]
 set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
 set_property VALUE [join $buses :] $parameter
-
-set bus [ipx::add_bus_interface BRAM_PORTA $core]
-set_property ABSTRACTION_TYPE_VLNV xilinx.com:interface:bram_rtl:1.0 $bus
-set_property BUS_TYPE_VLNV xilinx.com:interface:bram:1.0 $bus
-set_property INTERFACE_MODE master $bus
-foreach {logical physical} {
-  RST  bram_porta_rst
-  CLK  bram_porta_clk
-  EN   bram_porta_en
-  WE   bram_porta_we
-  ADDR bram_porta_addr
-  DIN  bram_porta_wrdata
-  DOUT bram_porta_rddata
-} {
-  set_property PHYSICAL_NAME $physical [ipx::add_port_map $logical $bus]
-}
-
-set bus [ipx::get_bus_interfaces bram_porta_clk]
-set parameter [ipx::add_bus_parameter ASSOCIATED_BUSIF $bus]
-set_property VALUE BRAM_PORTA $parameter
-
-set bus [ipx::add_bus_interface BRAM_PORTB $core]
-set_property ABSTRACTION_TYPE_VLNV xilinx.com:interface:bram_rtl:1.0 $bus
-set_property BUS_TYPE_VLNV xilinx.com:interface:bram:1.0 $bus
-set_property INTERFACE_MODE master $bus
-foreach {logical physical} {
-  RST  bram_portb_rst
-  CLK  bram_portb_clk
-  EN   bram_portb_en
-  WE   bram_portb_we
-  ADDR bram_portb_addr
-  DIN  bram_portb_wrdata
-  DOUT bram_portb_rddata
-} {
-  set_property PHYSICAL_NAME $physical [ipx::add_port_map $logical $bus]
-}
-
-set bus [ipx::get_bus_interfaces bram_portb_clk]
-set parameter [ipx::add_bus_parameter ASSOCIATED_BUSIF $bus]
-set_property VALUE BRAM_PORTB $parameter

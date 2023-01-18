@@ -1,4 +1,4 @@
-num_axis = 16
+hub_size = 8
 source = """
 `timescale 1 ns / 1 ps
 
@@ -41,24 +41,16 @@ module axi_hub #
   output wire [CFG_DATA_WIDTH-1:0] cfg_data,
 
   input  wire [STS_DATA_WIDTH-1:0] sts_data,
-
-  output wire                      bram_porta_clk,
-  output wire                      bram_porta_rst,
-  output wire                      bram_porta_en,
-  output wire [3:0]                bram_porta_we,
-  output wire [15:0]               bram_porta_addr,
-  output wire [31:0]               bram_porta_wrdata,
-  input  wire [31:0]               bram_porta_rddata,
-
-  output wire                      bram_portb_clk,
-  output wire                      bram_portb_rst,
-  output wire                      bram_portb_en,
-  output wire [3:0]                bram_portb_we,
-  output wire [15:0]               bram_portb_addr,
-  output wire [31:0]               bram_portb_wrdata,
-  input  wire [31:0]               bram_portb_rddata,
-{% for i in range(num_axis) -%}
+{% for i in range(hub_size) -%}
 {% set index =  "%02d" % i %}
+  output wire                      b{{index}}_bram_clk,
+  output wire                      b{{index}}_bram_rst,
+  output wire                      b{{index}}_bram_en,
+  output wire [3:0]                b{{index}}_bram_we,
+  output wire [15:0]               b{{index}}_bram_addr,
+  output wire [31:0]               b{{index}}_bram_wdata,
+  input  wire [31:0]               b{{index}}_bram_rdata,
+
   input  wire [31:0]               s{{index}}_axis_tdata,
   input  wire                      s{{index}}_axis_tvalid,
   output wire                      s{{index}}_axis_tready,
@@ -73,8 +65,8 @@ module axi_hub #
     for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
   endfunction
 
-  localparam integer NUM_AXIS = {{num_axis}};
-  localparam integer MUX_SIZE = NUM_AXIS + 4;
+  localparam integer HUB_SIZE = {{hub_size}};
+  localparam integer MUX_SIZE = HUB_SIZE + 2;
   localparam integer CFG_SIZE = CFG_DATA_WIDTH / 32;
   localparam integer CFG_WIDTH = CFG_SIZE > 1 ? clogb2(CFG_SIZE - 1) : 1;
   localparam integer STS_SIZE = STS_DATA_WIDTH / 32;
@@ -82,7 +74,7 @@ module axi_hub #
 
   reg [3:0] int_awcntr_reg, int_awcntr_next;
   reg [3:0] int_arcntr_reg, int_arcntr_next;
-  reg [1:0] int_rsel_reg;
+  reg [HUB_SIZE-1:0] int_rsel_reg;
 
   wire int_awvalid_wire, int_awready_wire;
   wire int_wvalid_wire, int_wready_wire;
@@ -103,12 +95,14 @@ module axi_hub #
 
   wire [11:0] int_rid_wire;
   wire int_rlast_wire;
-  wire [31:0] int_rdata_wire [3:0];
+  wire [31:0] int_rdata_wire [MUX_SIZE-1:0];
 
-  wire [31:0] int_sdata_wire [NUM_AXIS-1:0];
-  wire [31:0] int_mdata_wire [NUM_AXIS-1:0];
-  wire [NUM_AXIS-1:0] int_svalid_wire, int_sready_wire;
-  wire [NUM_AXIS-1:0] int_mvalid_wire, int_mready_wire;
+  wire [31:0] int_sdata_wire [HUB_SIZE-1:0];
+  wire [31:0] int_mdata_wire [HUB_SIZE-1:0];
+  wire [HUB_SIZE-1:0] int_svalid_wire, int_sready_wire;
+  wire [HUB_SIZE-1:0] int_mvalid_wire, int_mready_wire;
+
+  wire [31:0] int_bdata_wire [HUB_SIZE-1:0];
 
   wire [15:0] int_waddr_wire;
   wire [15:0] int_raddr_wire;
@@ -139,21 +133,18 @@ module axi_hub #
   assign int_raddr_wire = int_araddr_wire[17:2] + int_arcntr_reg;
 
   assign int_rdata_wire[0] = int_rdata_mux[int_araddr_wire[27:20]];
-  assign int_rdata_wire[2] = int_rsel_reg[0] ? bram_porta_rddata : 32'd0;
-  assign int_rdata_wire[3] = int_rsel_reg[1] ? bram_portb_rddata : 32'd0;
 
   assign int_rdata_mux[0] = int_cfg_mux[int_raddr_wire[CFG_WIDTH-1:0]];
   assign int_rdata_mux[1] = int_sts_mux[int_raddr_wire[STS_WIDTH-1:0]];
-  assign int_rdata_mux[2] = 32'd0;
-  assign int_rdata_mux[3] = 32'd0;
 
   generate
-    for(j = 0; j < NUM_AXIS; j = j + 1)
+    for(j = 0; j < HUB_SIZE; j = j + 1)
     begin : MUXES
-      assign int_rdata_mux[j+4] = int_svalid_wire[j] ? int_sdata_wire[j] : 32'd0;
+      assign int_rdata_mux[j+2] = int_svalid_wire[j] ? int_sdata_wire[j] : 32'd0;
+      assign int_rdata_wire[j+2] = int_rsel_reg[j] ? int_bdata_wire[j] : 32'd0;
       assign int_mdata_wire[j] = int_wdata_wire;
-      assign int_mvalid_wire[j] = int_wsel_wire[j+4];
-      assign int_sready_wire[j] = int_rsel_wire[j+4];
+      assign int_mvalid_wire[j] = int_wsel_wire[j+2];
+      assign int_sready_wire[j] = int_rsel_wire[j+2];
     end
   endgenerate
 
@@ -198,13 +189,13 @@ module axi_hub #
     begin
       int_awcntr_reg <= 4'd0;
       int_arcntr_reg <= 4'd0;
-      int_rsel_reg <= 2'd0;
+      int_rsel_reg <= {(HUB_SIZE){1'b0}};
     end
     else
     begin
       int_awcntr_reg <= int_awcntr_next;
       int_arcntr_reg <= int_arcntr_next;
-      int_rsel_reg <= {int_rsel_wire[3], int_rsel_wire[2]};
+      int_rsel_reg <= int_rsel_wire[2+HUB_SIZE-1:2] & ~int_svalid_wire;
     end
   end
 
@@ -233,7 +224,7 @@ module axi_hub #
       int_arcntr_next = int_arcntr_reg + 1'b1;
     end
   end
-{% for i in range(num_axis) -%}
+{% for i in range(hub_size) -%}
 {% set index =  "%02d" % i %}
   assign int_sdata_wire[{{i}}] = s{{index}}_axis_tdata;
   assign int_svalid_wire[{{i}}] = s{{index}}_axis_tvalid;
@@ -295,25 +286,25 @@ module axi_hub #
     .out_valid(s_axi_rvalid), .out_ready(s_axi_rready)
   );
 
-  assign s_axi_rdata = int_rdata_wire[1] | int_rdata_wire[2] | int_rdata_wire[3];
-
-  assign bram_porta_clk = aclk;
-  assign bram_porta_rst = ~aresetn;
-  assign bram_porta_en = int_rsel_wire[2] | int_wsel_wire[2];
-  assign bram_porta_we = int_wsel_wire[2] ? int_wstrb_wire : 4'd0;
-  assign bram_porta_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
-  assign bram_porta_wrdata = int_wdata_wire;
-
-  assign bram_portb_clk = aclk;
-  assign bram_portb_rst = ~aresetn;
-  assign bram_portb_en = int_rsel_wire[3] | int_wsel_wire[3];
-  assign bram_portb_we = int_wsel_wire[3] ? int_wstrb_wire : 4'd0;
-  assign bram_portb_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
-  assign bram_portb_wrdata = int_wdata_wire;
-
+  assign s_axi_rdata = {{s_axi_rdata(hub_size)}};
+{% for i in range(hub_size) -%}
+{% set index =  "%02d" % i %}
+  assign int_bdata_wire[{{i}}] = b{{index}}_bram_rdata;
+  assign b{{index}}_bram_clk = aclk;
+  assign b{{index}}_bram_rst = ~aresetn;
+  assign b{{index}}_bram_en = int_rsel_wire[{{i+2}}] | int_wsel_wire[{{i+2}}];
+  assign b{{index}}_bram_we = int_wsel_wire[{{i+2}}] ? int_wstrb_wire : 4'd0;
+  assign b{{index}}_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
+  assign b{{index}}_bram_wdata = int_wdata_wire;
+{% endfor %}
 endmodule
 """
 
 import jinja2
 
-print(jinja2.Template(source).render(num_axis=num_axis))
+
+def s_axi_rdata(n):
+    return " | ".join(map(lambda i: "int_rdata_wire[%d]" % i, range(1, n + 2)))
+
+
+print(jinja2.Template(source).render(hub_size=hub_size, s_axi_rdata=s_axi_rdata))
