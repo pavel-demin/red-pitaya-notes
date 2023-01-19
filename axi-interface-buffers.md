@@ -79,4 +79,4 @@ The Verilog code of the modules that use these input and output buffers can be f
 
  - [AXI Block RAM Reader](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_bram_reader_v1_0/axi_bram_reader.v)
 
- - [AXI Block RAM Writer](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_bram_reader_v1_0/axi_bram_reader.v)
+ - [AXI Block RAM Writer](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_bram_writer_v1_0/axi_bram_writer.v)
