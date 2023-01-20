@@ -61,7 +61,7 @@ module axis_oscilloscope #
 
     case(int_case_reg)
       // idle
-      0:
+      2'd0:
       begin
         if(run_flag)
         begin
@@ -73,7 +73,7 @@ module axis_oscilloscope #
       end
 
       // pre-trigger recording
-      1:
+      2'd1:
       begin
         if(s_axis_tvalid)
         begin
@@ -86,7 +86,7 @@ module axis_oscilloscope #
       end
 
       // pre-trigger recording
-      2:
+      2'd2:
       begin
         if(s_axis_tvalid)
         begin
@@ -101,7 +101,7 @@ module axis_oscilloscope #
       end
 
       // post-trigger recording
-      3:
+      2'd3:
       begin
         if(s_axis_tvalid)
         begin
