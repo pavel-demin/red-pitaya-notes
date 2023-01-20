@@ -50,6 +50,8 @@ module axi_bram_writer #
   wire int_awready_wire, int_awvalid_wire;
   wire int_wready_wire, int_wvalid_wire;
   wire int_bready_wire, int_bvalid_wire;
+  wire int_we_wire;
+
   wire [AXI_ADDR_WIDTH-1:0] int_awaddr_wire;
   wire [AXI_DATA_WIDTH-1:0] int_wdata_wire;
   wire [AXI_DATA_WIDTH/8-1:0] int_wstrb_wire;
@@ -57,6 +59,7 @@ module axi_bram_writer #
   assign int_awready_wire = int_wvalid_wire & int_bready_wire;
   assign int_wready_wire = int_awvalid_wire & int_bready_wire;
   assign int_bvalid_wire = int_awvalid_wire & int_wvalid_wire;
+  assign int_we_wire = int_bready_wire & int_awvalid_wire & int_wvalid_wire;
 
   input_buffer #(
     .DATA_WIDTH(AXI_ADDR_WIDTH)
@@ -91,8 +94,8 @@ module axi_bram_writer #
 
   assign b_bram_clk = aclk;
   assign b_bram_rst = ~aresetn;
-  assign b_bram_en = int_bvalid_wire;
-  assign b_bram_we = int_bvalid_wire ? int_wstrb_wire : {(BRAM_DATA_WIDTH/8){1'b0}};
+  assign b_bram_en = int_we_wire;
+  assign b_bram_we = int_we_wire ? int_wstrb_wire : {(BRAM_DATA_WIDTH/8){1'b0}};
   assign b_bram_addr = int_awaddr_wire[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
   assign b_bram_wdata = int_wdata_wire;
 
