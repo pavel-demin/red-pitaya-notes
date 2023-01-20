@@ -33,11 +33,12 @@ module axi_bram_writer #
   input  wire                         s_axi_rready,  // AXI4-Lite slave: Read data ready
 
   // BRAM port
-  output wire                         bram_porta_clk,
-  output wire                         bram_porta_rst,
-  output wire [BRAM_ADDR_WIDTH-1:0]   bram_porta_addr,
-  output wire [BRAM_DATA_WIDTH-1:0]   bram_porta_wrdata,
-  output wire [BRAM_DATA_WIDTH/8-1:0] bram_porta_we
+  output wire                         b_bram_clk,
+  output wire                         b_bram_rst,
+  output wire                         b_bram_en,
+  output wire [BRAM_DATA_WIDTH/8-1:0] b_bram_we,
+  output wire [BRAM_ADDR_WIDTH-1:0]   b_bram_addr,
+  output wire [BRAM_DATA_WIDTH-1:0]   b_bram_wdata
 );
 
   function integer clogb2 (input integer value);
@@ -88,10 +89,11 @@ module axi_bram_writer #
   assign s_axi_rresp = 2'd0;
   assign s_axi_rvalid = 1'b0;
 
-  assign bram_porta_clk = aclk;
-  assign bram_porta_rst = ~aresetn;
-  assign bram_porta_addr = int_awaddr_wire[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
-  assign bram_porta_wrdata = int_wdata_wire;
-  assign bram_porta_we = int_bvalid_wire ? int_wstrb_wire : {(BRAM_DATA_WIDTH/8){1'b0}};
+  assign b_bram_clk = aclk;
+  assign b_bram_rst = ~aresetn;
+  assign b_bram_en = int_bvalid_wire;
+  assign b_bram_we = int_bvalid_wire ? int_wstrb_wire : {(BRAM_DATA_WIDTH/8){1'b0}};
+  assign b_bram_addr = int_awaddr_wire[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
+  assign b_bram_wdata = int_wdata_wire;
 
 endmodule

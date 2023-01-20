@@ -32,11 +32,11 @@ module axi_bram_reader #
   input  wire                       s_axi_rready,  // AXI4-Lite slave: Read data ready
 
   // BRAM port
-  output wire                       bram_porta_clk,
-  output wire                       bram_porta_rst,
-  output wire                       bram_porta_en,
-  output wire [BRAM_ADDR_WIDTH-1:0] bram_porta_addr,
-  input  wire [BRAM_DATA_WIDTH-1:0] bram_porta_rddata
+  output wire                       b_bram_clk,
+  output wire                       b_bram_rst,
+  output wire                       b_bram_en,
+  output wire [BRAM_ADDR_WIDTH-1:0] b_bram_addr,
+  input  wire [BRAM_DATA_WIDTH-1:0] b_bram_rdata
 );
 
   function integer clogb2 (input integer value);
@@ -70,12 +70,12 @@ module axi_bram_reader #
   assign s_axi_bresp = 2'd0;
   assign s_axi_bvalid = 1'b0;
 
-  assign s_axi_rdata = bram_porta_rddata;
+  assign s_axi_rdata = b_bram_rdata;
   assign s_axi_rresp = 2'd0;
 
-  assign bram_porta_clk = aclk;
-  assign bram_porta_rst = ~aresetn;
-  assign bram_porta_en = int_rready_wire;
-  assign bram_porta_addr = int_araddr_wire[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
+  assign b_bram_clk = aclk;
+  assign b_bram_rst = ~aresetn;
+  assign b_bram_en = int_rready_wire;
+  assign b_bram_addr = int_araddr_wire[ADDR_LSB+BRAM_ADDR_WIDTH-1:ADDR_LSB];
 
 endmodule
