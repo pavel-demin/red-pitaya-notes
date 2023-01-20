@@ -15,7 +15,7 @@ set cores [list \
   axis_validator_v1_0 axis_variable_v1_0 axis_variant_v1_0 axis_zeroer_v1_0 \
   dna_reader_v1_0 dsp48_v1_0 edge_detector_v1_0 gpio_debouncer_v1_0 \
   port_selector_v1_0 port_slicer_v1_0 pulse_generator_v1_0 \
-  shift_register_v1_0 \
+  shift_register_v1_0 xadc_bram_v1_0 \
 ]
 
 set part_name xc7z010clg400-1
