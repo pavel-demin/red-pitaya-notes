@@ -224,20 +224,7 @@ module axi_hub #
       int_arcntr_next = int_arcntr_reg + 1'b1;
     end
   end
-{% for i in range(hub_size) -%}
-{% set index =  "%02d" % i %}
-  assign int_sdata_wire[{{i}}] = s{{index}}_axis_tdata;
-  assign int_svalid_wire[{{i}}] = s{{index}}_axis_tvalid;
-  assign s{{index}}_axis_tready = int_sready_wire[{{i}}];
 
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_{{i}} (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[{{i}}]), .in_valid(int_mvalid_wire[{{i}}]), .in_ready(int_mready_wire[{{i}}]),
-    .out_data(m{{index}}_axis_tdata), .out_valid(m{{index}}_axis_tvalid), .out_ready(m{{index}}_axis_tready)
-  );
-{% endfor %}
   input_buffer #(
     .DATA_WIDTH(44)
   ) buf_0 (
@@ -296,6 +283,18 @@ module axi_hub #
   assign b{{index}}_bram_we = int_wsel_wire[{{i+2}}] ? int_wstrb_wire : 4'd0;
   assign b{{index}}_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
   assign b{{index}}_bram_wdata = int_wdata_wire;
+
+  assign int_sdata_wire[{{i}}] = s{{index}}_axis_tdata;
+  assign int_svalid_wire[{{i}}] = s{{index}}_axis_tvalid;
+  assign s{{index}}_axis_tready = int_sready_wire[{{i}}];
+
+  inout_buffer #(
+    .DATA_WIDTH(32)
+  ) mbuf_{{i}} (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_mdata_wire[{{i}}]), .in_valid(int_mvalid_wire[{{i}}]), .in_ready(int_mready_wire[{{i}}]),
+    .out_data(m{{index}}_axis_tdata), .out_valid(m{{index}}_axis_tvalid), .out_ready(m{{index}}_axis_tready)
+  );
 {% endfor %}
 endmodule
 """

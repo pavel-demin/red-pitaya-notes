@@ -334,102 +334,6 @@ module axi_hub #
     end
   end
 
-  assign int_sdata_wire[0] = s00_axis_tdata;
-  assign int_svalid_wire[0] = s00_axis_tvalid;
-  assign s00_axis_tready = int_sready_wire[0];
-
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_0 (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[0]), .in_valid(int_mvalid_wire[0]), .in_ready(int_mready_wire[0]),
-    .out_data(m00_axis_tdata), .out_valid(m00_axis_tvalid), .out_ready(m00_axis_tready)
-  );
-
-  assign int_sdata_wire[1] = s01_axis_tdata;
-  assign int_svalid_wire[1] = s01_axis_tvalid;
-  assign s01_axis_tready = int_sready_wire[1];
-
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_1 (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[1]), .in_valid(int_mvalid_wire[1]), .in_ready(int_mready_wire[1]),
-    .out_data(m01_axis_tdata), .out_valid(m01_axis_tvalid), .out_ready(m01_axis_tready)
-  );
-
-  assign int_sdata_wire[2] = s02_axis_tdata;
-  assign int_svalid_wire[2] = s02_axis_tvalid;
-  assign s02_axis_tready = int_sready_wire[2];
-
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_2 (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[2]), .in_valid(int_mvalid_wire[2]), .in_ready(int_mready_wire[2]),
-    .out_data(m02_axis_tdata), .out_valid(m02_axis_tvalid), .out_ready(m02_axis_tready)
-  );
-
-  assign int_sdata_wire[3] = s03_axis_tdata;
-  assign int_svalid_wire[3] = s03_axis_tvalid;
-  assign s03_axis_tready = int_sready_wire[3];
-
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_3 (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[3]), .in_valid(int_mvalid_wire[3]), .in_ready(int_mready_wire[3]),
-    .out_data(m03_axis_tdata), .out_valid(m03_axis_tvalid), .out_ready(m03_axis_tready)
-  );
-
-  assign int_sdata_wire[4] = s04_axis_tdata;
-  assign int_svalid_wire[4] = s04_axis_tvalid;
-  assign s04_axis_tready = int_sready_wire[4];
-
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_4 (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[4]), .in_valid(int_mvalid_wire[4]), .in_ready(int_mready_wire[4]),
-    .out_data(m04_axis_tdata), .out_valid(m04_axis_tvalid), .out_ready(m04_axis_tready)
-  );
-
-  assign int_sdata_wire[5] = s05_axis_tdata;
-  assign int_svalid_wire[5] = s05_axis_tvalid;
-  assign s05_axis_tready = int_sready_wire[5];
-
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_5 (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[5]), .in_valid(int_mvalid_wire[5]), .in_ready(int_mready_wire[5]),
-    .out_data(m05_axis_tdata), .out_valid(m05_axis_tvalid), .out_ready(m05_axis_tready)
-  );
-
-  assign int_sdata_wire[6] = s06_axis_tdata;
-  assign int_svalid_wire[6] = s06_axis_tvalid;
-  assign s06_axis_tready = int_sready_wire[6];
-
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_6 (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[6]), .in_valid(int_mvalid_wire[6]), .in_ready(int_mready_wire[6]),
-    .out_data(m06_axis_tdata), .out_valid(m06_axis_tvalid), .out_ready(m06_axis_tready)
-  );
-
-  assign int_sdata_wire[7] = s07_axis_tdata;
-  assign int_svalid_wire[7] = s07_axis_tvalid;
-  assign s07_axis_tready = int_sready_wire[7];
-
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_7 (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[7]), .in_valid(int_mvalid_wire[7]), .in_ready(int_mready_wire[7]),
-    .out_data(m07_axis_tdata), .out_valid(m07_axis_tvalid), .out_ready(m07_axis_tready)
-  );
-
   input_buffer #(
     .DATA_WIDTH(44)
   ) buf_0 (
@@ -488,6 +392,18 @@ module axi_hub #
   assign b00_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
   assign b00_bram_wdata = int_wdata_wire;
 
+  assign int_sdata_wire[0] = s00_axis_tdata;
+  assign int_svalid_wire[0] = s00_axis_tvalid;
+  assign s00_axis_tready = int_sready_wire[0];
+
+  inout_buffer #(
+    .DATA_WIDTH(32)
+  ) mbuf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_mdata_wire[0]), .in_valid(int_mvalid_wire[0]), .in_ready(int_mready_wire[0]),
+    .out_data(m00_axis_tdata), .out_valid(m00_axis_tvalid), .out_ready(m00_axis_tready)
+  );
+
   assign int_bdata_wire[1] = b01_bram_rdata;
   assign b01_bram_clk = aclk;
   assign b01_bram_rst = ~aresetn;
@@ -495,6 +411,18 @@ module axi_hub #
   assign b01_bram_we = int_wsel_wire[3] ? int_wstrb_wire : 4'd0;
   assign b01_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
   assign b01_bram_wdata = int_wdata_wire;
+
+  assign int_sdata_wire[1] = s01_axis_tdata;
+  assign int_svalid_wire[1] = s01_axis_tvalid;
+  assign s01_axis_tready = int_sready_wire[1];
+
+  inout_buffer #(
+    .DATA_WIDTH(32)
+  ) mbuf_1 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_mdata_wire[1]), .in_valid(int_mvalid_wire[1]), .in_ready(int_mready_wire[1]),
+    .out_data(m01_axis_tdata), .out_valid(m01_axis_tvalid), .out_ready(m01_axis_tready)
+  );
 
   assign int_bdata_wire[2] = b02_bram_rdata;
   assign b02_bram_clk = aclk;
@@ -504,6 +432,18 @@ module axi_hub #
   assign b02_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
   assign b02_bram_wdata = int_wdata_wire;
 
+  assign int_sdata_wire[2] = s02_axis_tdata;
+  assign int_svalid_wire[2] = s02_axis_tvalid;
+  assign s02_axis_tready = int_sready_wire[2];
+
+  inout_buffer #(
+    .DATA_WIDTH(32)
+  ) mbuf_2 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_mdata_wire[2]), .in_valid(int_mvalid_wire[2]), .in_ready(int_mready_wire[2]),
+    .out_data(m02_axis_tdata), .out_valid(m02_axis_tvalid), .out_ready(m02_axis_tready)
+  );
+
   assign int_bdata_wire[3] = b03_bram_rdata;
   assign b03_bram_clk = aclk;
   assign b03_bram_rst = ~aresetn;
@@ -511,6 +451,18 @@ module axi_hub #
   assign b03_bram_we = int_wsel_wire[5] ? int_wstrb_wire : 4'd0;
   assign b03_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
   assign b03_bram_wdata = int_wdata_wire;
+
+  assign int_sdata_wire[3] = s03_axis_tdata;
+  assign int_svalid_wire[3] = s03_axis_tvalid;
+  assign s03_axis_tready = int_sready_wire[3];
+
+  inout_buffer #(
+    .DATA_WIDTH(32)
+  ) mbuf_3 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_mdata_wire[3]), .in_valid(int_mvalid_wire[3]), .in_ready(int_mready_wire[3]),
+    .out_data(m03_axis_tdata), .out_valid(m03_axis_tvalid), .out_ready(m03_axis_tready)
+  );
 
   assign int_bdata_wire[4] = b04_bram_rdata;
   assign b04_bram_clk = aclk;
@@ -520,6 +472,18 @@ module axi_hub #
   assign b04_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
   assign b04_bram_wdata = int_wdata_wire;
 
+  assign int_sdata_wire[4] = s04_axis_tdata;
+  assign int_svalid_wire[4] = s04_axis_tvalid;
+  assign s04_axis_tready = int_sready_wire[4];
+
+  inout_buffer #(
+    .DATA_WIDTH(32)
+  ) mbuf_4 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_mdata_wire[4]), .in_valid(int_mvalid_wire[4]), .in_ready(int_mready_wire[4]),
+    .out_data(m04_axis_tdata), .out_valid(m04_axis_tvalid), .out_ready(m04_axis_tready)
+  );
+
   assign int_bdata_wire[5] = b05_bram_rdata;
   assign b05_bram_clk = aclk;
   assign b05_bram_rst = ~aresetn;
@@ -527,6 +491,18 @@ module axi_hub #
   assign b05_bram_we = int_wsel_wire[7] ? int_wstrb_wire : 4'd0;
   assign b05_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
   assign b05_bram_wdata = int_wdata_wire;
+
+  assign int_sdata_wire[5] = s05_axis_tdata;
+  assign int_svalid_wire[5] = s05_axis_tvalid;
+  assign s05_axis_tready = int_sready_wire[5];
+
+  inout_buffer #(
+    .DATA_WIDTH(32)
+  ) mbuf_5 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_mdata_wire[5]), .in_valid(int_mvalid_wire[5]), .in_ready(int_mready_wire[5]),
+    .out_data(m05_axis_tdata), .out_valid(m05_axis_tvalid), .out_ready(m05_axis_tready)
+  );
 
   assign int_bdata_wire[6] = b06_bram_rdata;
   assign b06_bram_clk = aclk;
@@ -536,6 +512,18 @@ module axi_hub #
   assign b06_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
   assign b06_bram_wdata = int_wdata_wire;
 
+  assign int_sdata_wire[6] = s06_axis_tdata;
+  assign int_svalid_wire[6] = s06_axis_tvalid;
+  assign s06_axis_tready = int_sready_wire[6];
+
+  inout_buffer #(
+    .DATA_WIDTH(32)
+  ) mbuf_6 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_mdata_wire[6]), .in_valid(int_mvalid_wire[6]), .in_ready(int_mready_wire[6]),
+    .out_data(m06_axis_tdata), .out_valid(m06_axis_tvalid), .out_ready(m06_axis_tready)
+  );
+
   assign int_bdata_wire[7] = b07_bram_rdata;
   assign b07_bram_clk = aclk;
   assign b07_bram_rst = ~aresetn;
@@ -543,5 +531,17 @@ module axi_hub #
   assign b07_bram_we = int_wsel_wire[9] ? int_wstrb_wire : 4'd0;
   assign b07_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
   assign b07_bram_wdata = int_wdata_wire;
+
+  assign int_sdata_wire[7] = s07_axis_tdata;
+  assign int_svalid_wire[7] = s07_axis_tvalid;
+  assign s07_axis_tready = int_sready_wire[7];
+
+  inout_buffer #(
+    .DATA_WIDTH(32)
+  ) mbuf_7 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_mdata_wire[7]), .in_valid(int_mvalid_wire[7]), .in_ready(int_mready_wire[7]),
+    .out_data(m07_axis_tdata), .out_valid(m07_axis_tvalid), .out_ready(m07_axis_tready)
+  );
 
 endmodule
