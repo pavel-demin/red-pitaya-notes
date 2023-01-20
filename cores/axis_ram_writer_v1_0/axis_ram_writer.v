@@ -37,9 +37,9 @@ module axis_ram_writer #
   output wire                        m_axi_bready,  // AXI master: Write response ready
 
   // Slave side
-  output wire                        s_axis_tready,
   input  wire [AXIS_TDATA_WIDTH-1:0] s_axis_tdata,
-  input  wire                        s_axis_tvalid
+  input  wire                        s_axis_tvalid,
+  output wire                        s_axis_tready
 );
 
   function integer clogb2 (input integer value);
@@ -69,6 +69,7 @@ module axis_ram_writer #
     .READ_DATA_WIDTH(AXI_DATA_WIDTH),
     .READ_MODE("fwft"),
     .FIFO_READ_LATENCY(0),
+    .FIFO_MEMORY_TYPE("block"),
     .USE_ADV_FEATURES("0400"),
     .RD_DATA_COUNT_WIDTH(COUNT_SIZE)
   ) fifo_0 (
