@@ -18,19 +18,20 @@ set bus [ipx::get_bus_interfaces aclk]
 set parameter [ipx::get_bus_parameters -of_objects $bus ASSOCIATED_BUSIF]
 set_property VALUE M_AXIS $parameter
 
-set bus [ipx::add_bus_interface BRAM_PORTA $core]
+set bus [ipx::add_bus_interface B_BRAM $core]
 set_property ABSTRACTION_TYPE_VLNV xilinx.com:interface:bram_rtl:1.0 $bus
 set_property BUS_TYPE_VLNV xilinx.com:interface:bram:1.0 $bus
 set_property INTERFACE_MODE master $bus
 foreach {logical physical} {
-  RST  bram_porta_rst
-  CLK  bram_porta_clk
-  ADDR bram_porta_addr
-  DOUT bram_porta_rddata
+  RST  rst
+  CLK  clk
+  EN   en
+  ADDR addr
+  DOUT rdata
 } {
-  set_property PHYSICAL_NAME $physical [ipx::add_port_map $logical $bus]
+  set_property PHYSICAL_NAME b_bram_$physical [ipx::add_port_map $logical $bus]
 }
 
-set bus [ipx::get_bus_interfaces bram_porta_clk]
+set bus [ipx::get_bus_interfaces b_bram_clk]
 set parameter [ipx::add_bus_parameter ASSOCIATED_BUSIF $bus]
-set_property VALUE BRAM_PORTA $parameter
+set_property VALUE B_BRAM $parameter
