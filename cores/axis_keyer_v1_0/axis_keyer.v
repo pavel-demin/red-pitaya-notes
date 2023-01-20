@@ -16,21 +16,23 @@ module axis_keyer #
   input  wire                        key_flag,
 
   // Master side
-  input  wire                        m_axis_tready,
   output wire [AXIS_TDATA_WIDTH-1:0] m_axis_tdata,
   output wire                        m_axis_tvalid,
+  input  wire                        m_axis_tready,
 
   // BRAM port
-  output wire                        bram_porta_clk,
-  output wire                        bram_porta_rst,
-  output wire [BRAM_ADDR_WIDTH-1:0]  bram_porta_addr,
-  input  wire [BRAM_DATA_WIDTH-1:0]  bram_porta_rddata
+  output wire                        b_bram_clk,
+  output wire                        b_bram_rst,
+  output wire                        b_bram_en,
+  output wire [BRAM_ADDR_WIDTH-1:0]  b_bram_addr,
+  input  wire [BRAM_DATA_WIDTH-1:0]  b_bram_rdata
 );
 
   reg [BRAM_ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
   reg [BRAM_ADDR_WIDTH-1:0] int_data_reg;
-  reg [1:0] int_case_reg, int_case_next;
+  reg int_enbl_reg, int_enbl_next;
 
+  wire [1:0] int_valid_wire, int_ready_wire;
   wire [1:0] int_comp_wire;
 
   always @(posedge aclk)
@@ -39,74 +41,66 @@ module axis_keyer #
     begin
       int_addr_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
       int_data_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
-      int_case_reg <= 2'd0;
+      int_enbl_reg <= 1'b0;
     end
     else
     begin
       int_addr_reg <= int_addr_next;
       int_data_reg <= cfg_data;
-      int_case_reg <= int_case_next;
+      int_enbl_reg <= int_enbl_next;
     end
   end
 
+
   assign int_comp_wire = {|int_addr_reg, int_addr_reg < int_data_reg};
+
+  assign int_valid_wire[0] = 1'b1;
 
   always @*
   begin
     int_addr_next = int_addr_reg;
-    int_case_next = int_case_reg;
+    int_enbl_next = int_enbl_reg;
 
-    case(int_case_reg)
-      2'd0:
-      begin
-        if(key_flag & int_comp_wire[0])
-        begin
-          int_case_next = 2'd1;
-        end
-      end
-      2'd1:
-      begin
-        if(m_axis_tready)
-        begin
-          if(int_comp_wire[0])
-          begin
-            int_addr_next = int_addr_reg + 1'b1;
-          end
-          else
-          begin
-            int_case_next = 2'd2;
-          end
-        end
-      end
-      2'd2:
-      begin
-        if(~key_flag)
-        begin
-          int_case_next = 2'd3;
-        end
-      end
-      2'd3:
-      begin
-        if(m_axis_tready)
-        begin
-          if(int_comp_wire[1])
-          begin
-            int_addr_next = int_addr_reg - 1'b1;
-          end
-          else
-          begin
-            int_case_next = 2'd0;
-          end
-        end
-      end
-    endcase
+    if(~int_enbl_reg & ~int_comp_wire[1] & key_flag)
+    begin
+      int_enbl_next = 1'b1;
+    end
+
+    if(int_ready_wire[0] & int_enbl_reg & int_comp_wire[0])
+    begin
+      int_addr_next = int_addr_reg + 1'b1;
+    end
+
+    if(int_ready_wire[0] & int_enbl_reg & ~int_comp_wire[0] & ~key_flag)
+    begin
+      int_enbl_next = 1'b0;
+    end
+
+    if(int_ready_wire[0] & ~int_enbl_reg & int_comp_wire[1])
+    begin
+      int_addr_next = int_addr_reg - 1'b1;
+    end
   end
 
-  assign m_axis_tdata = bram_porta_rddata;
-  assign m_axis_tvalid = 1'b1;
+  output_buffer #(
+    .DATA_WIDTH(0)
+  ) buf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_valid(int_valid_wire[0]), .in_ready(int_ready_wire[0]),
+    .out_valid(int_valid_wire[1]), .out_ready(int_ready_wire[1])
+  );
 
-  assign bram_porta_clk = aclk;
-  assign bram_porta_rst = ~aresetn;
-  assign bram_porta_addr = m_axis_tready ? int_addr_next : int_addr_reg;
+  inout_buffer #(
+    .DATA_WIDTH(AXIS_TDATA_WIDTH)
+  ) buf_1 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(b_bram_rdata), .in_valid(int_valid_wire[1]), .in_ready(int_ready_wire[1]),
+    .out_data(m_axis_tdata), .out_valid(m_axis_tvalid), .out_ready(m_axis_tready)
+  );
+
+  assign b_bram_clk = aclk;
+  assign b_bram_rst = ~aresetn;
+  assign b_bram_en = int_ready_wire[0];
+  assign b_bram_addr = int_addr_reg;
 
 endmodule
