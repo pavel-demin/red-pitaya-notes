@@ -21,8 +21,10 @@ cell xilinx.com:ip:clk_wiz pll_0 {
 # Create processing_system7
 cell xilinx.com:ip:processing_system7 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+  PCW_USE_M_AXI_GP1 1
 } {
   M_AXI_GP0_ACLK pll_0/clk_out1
+  M_AXI_GP1_ACLK pll_0/clk_out1
 }
 
 # Create all required interconnections
@@ -340,3 +342,13 @@ wire tx_0/bram_0/BRAM_PORTA hub_0/B04_BRAM
 wire codec/bram_0/BRAM_PORTA hub_0/B05_BRAM
 
 assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]
+
+# RX 1
+
+module rx_1 {
+  source projects/sdr_receiver_122_88/rx.tcl
+} {
+  hub_0/S_AXI ps_0/M_AXI_GP1
+}
+
+assign_bd_address [get_bd_addr_segs [get_bd_intf_pins rx_1/hub_0/S_AXI]]
