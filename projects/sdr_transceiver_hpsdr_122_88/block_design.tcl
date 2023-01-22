@@ -38,21 +38,27 @@ cell xilinx.com:ip:xlconstant const_0
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
+  dcm_locked pll_0/locked
+  slowest_sync_clk pll_0/clk_out1
+}
+
+# HUB
+
+# Create axi_hub
+cell pavel-demin:user:axi_hub hub_0 {
+  CFG_DATA_WIDTH 320
+  STS_DATA_WIDTH 96
+} {
+  S_AXI ps_0/M_AXI_GP0
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
 }
 
 # XADC
 
-# Create xadc_wiz
-cell xilinx.com:ip:xadc_wiz xadc_0 {
-  DCLK_FREQUENCY 122.88
-  ADC_CONVERSION_RATE 204.8
-  XADC_STARUP_SELECTION independent_adc
-  CHANNEL_ENABLE_VAUXP0_VAUXN0 true
-  CHANNEL_ENABLE_VAUXP1_VAUXN1 true
-  CHANNEL_ENABLE_VAUXP8_VAUXN8 true
-  CHANNEL_ENABLE_VAUXP9_VAUXN9 true
-  CHANNEL_ENABLE_VP_VN true
-} {
+# Create xadc_bram
+cell pavel-demin:user:xadc_bram xadc_0 {} {
+  B_BRAM hub_0/B02_BRAM
   Vp_Vn Vp_Vn
   Vaux0 Vaux0
   Vaux1 Vaux1
@@ -90,15 +96,6 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
   s_axis_tvalid const_0/dout
 }
 
-# CFG
-
-# Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register cfg_0 {
-  CFG_DATA_WIDTH 320
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
-}
-
 # GPIO
 
 # Delete input/output port
@@ -134,14 +131,14 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 cell pavel-demin:user:port_slicer out_slice_0 {
   DIN_WIDTH 320 DIN_FROM 31 DIN_TO 24
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer ptt_slice_0 {
-  DIN_WIDTH 320 DIN_FROM 20 DIN_TO 20
+  DIN_WIDTH 320 DIN_FROM 21 DIN_TO 21
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create util_vector_logic
@@ -168,23 +165,15 @@ cell xilinx.com:ip:util_vector_logic or_1 {
 # Create output port
 create_bd_port -dir IO -from 3 -to 0 exp_n_alex
 
-# Create axi_axis_writer
-cell pavel-demin:user:axi_axis_writer writer_0 {
-  AXI_DATA_WIDTH 32
+# Create axis_fifo
+cell pavel-demin:user:axis_fifo fifo_0 {
+  S_AXIS_TDATA_WIDTH 32
+  M_AXIS_TDATA_WIDTH 32
+  WRITE_DEPTH 1024
 } {
+  S_AXIS hub_0/M03_AXIS
   aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
-}
-
-# Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo fifo_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
-  FIFO_DEPTH 1024
-} {
-  S_AXIS writer_0/M_AXIS
-  s_axis_aclk pll_0/clk_out1
-  s_axis_aresetn rst_0/peripheral_aresetn
 }
 
 # Create axis_alex
@@ -200,21 +189,21 @@ cell pavel-demin:user:axis_alex alex_0 {} {
 cell pavel-demin:user:port_slicer rst_slice_0 {
   DIN_WIDTH 320 DIN_FROM 7 DIN_TO 0
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_1 {
   DIN_WIDTH 320 DIN_FROM 15 DIN_TO 8
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_0 {
   DIN_WIDTH 320 DIN_FROM 159 DIN_TO 32
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 module rx_0 {
@@ -239,42 +228,50 @@ module rx_0 {
 cell pavel-demin:user:port_slicer rst_slice_2 {
   DIN_WIDTH 320 DIN_FROM 16 DIN_TO 16
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_3 {
   DIN_WIDTH 320 DIN_FROM 17 DIN_TO 17
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer key_slice_0 {
   DIN_WIDTH 320 DIN_FROM 18 DIN_TO 18
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer key_slice_1 {
   DIN_WIDTH 320 DIN_FROM 19 DIN_TO 19
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
+}
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer sel_slice_0 {
+  DIN_WIDTH 320 DIN_FROM 20 DIN_TO 20
+} {
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_1 {
   DIN_WIDTH 320 DIN_FROM 255 DIN_TO 160
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 module tx_0 {
   source projects/sdr_transceiver_hpsdr_122_88/tx.tcl
 } {
-  fifo_generator_0/srst rst_slice_2/dout
+  fifo_0/aresetn rst_slice_2/dout
   keyer_0/key_flag key_slice_0/dout
+  sel_0/cfg_data sel_slice_0/dout
   slice_0/din rst_slice_1/dout
   slice_1/din cfg_slice_1/dout
   slice_2/din cfg_slice_1/dout
@@ -297,13 +294,13 @@ module tx_0 {
 cell pavel-demin:user:port_slicer cfg_slice_2 {
   DIN_WIDTH 320 DIN_FROM 319 DIN_TO 256
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 module codec {
   source projects/sdr_transceiver_hpsdr_122_88/codec.tcl
 } {
-  fifo_generator_0/srst rst_slice_3/dout
+  fifo_0/aresetn rst_slice_3/dout
   keyer_0/key_flag key_slice_1/dout
   slice_0/din rst_slice_0/dout
   slice_1/din rst_slice_0/dout
@@ -316,63 +313,30 @@ module codec {
 
 # STS
 
-# Create dna_reader
-cell pavel-demin:user:dna_reader dna_0 {} {
-  aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
-}
-
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_0 {
-  NUM_PORTS 7
-  IN0_WIDTH 32
-  IN1_WIDTH 64
+  NUM_PORTS 5
+  IN0_WIDTH 16
+  IN1_WIDTH 16
   IN2_WIDTH 16
   IN3_WIDTH 16
-  IN4_WIDTH 16
-  IN5_WIDTH 16
-  IN6_WIDTH 4
+  IN4_WIDTH 4
 } {
-  In0 const_0/dout
-  In1 dna_0/dna_data
-  In2 rx_0/fifo_generator_0/rd_data_count
-  In3 tx_0/fifo_generator_0/wr_data_count
-  In4 codec/fifo_generator_0/data_count
-  In5 codec/fifo_generator_1/data_count
-  In6 not_0/Res
+  In0 rx_0/fifo_0/read_count
+  In1 tx_0/fifo_0/write_count
+  In2 codec/fifo_0/write_count
+  In3 codec/fifo_1/read_count
+  In4 not_0/Res
+  dout hub_0/sts_data
 }
 
-# Create axi_sts_register
-cell pavel-demin:user:axi_sts_register sts_0 {
-  STS_DATA_WIDTH 192
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
-} {
-  sts_data concat_0/dout
-}
+wire rx_0/fifo_0/M_AXIS hub_0/S00_AXIS
+wire tx_0/fifo_0/S_AXIS hub_0/M00_AXIS
 
-addr 0x40000000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
+wire codec/fifo_0/S_AXIS hub_0/M01_AXIS
+wire codec/fifo_1/M_AXIS hub_0/S01_AXIS
 
-addr 0x40001000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
+wire tx_0/bram_0/BRAM_PORTA hub_0/B04_BRAM
+wire codec/bram_0/BRAM_PORTA hub_0/B05_BRAM
 
-addr 0x40002000 4K writer_0/S_AXI /ps_0/M_AXI_GP0
-
-for {set i 0} {$i <= 4} {incr i} {
-
-  addr 0x4001[format %X [expr 2 * $i]]000 8K rx_0/reader_$i/S_AXI /ps_0/M_AXI_GP0
-
-}
-
-addr 0x4000C000 16K tx_0/writer_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40003000 4K tx_0/switch_0/S_AXI_CTRL /ps_0/M_AXI_GP0
-
-addr 0x40004000 4K tx_0/writer_1/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40005000 4K codec/writer_1/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40006000 4K codec/writer_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40007000 4K codec/reader_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40020000 64K xadc_0/s_axi_lite /ps_0/M_AXI_GP0
+assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]
