@@ -48,11 +48,11 @@ int main(int argc, char *argv[])
   pthread_attr_t attr;
   pthread_t thread;
   volatile void *cfg;
-  void *hst[2], *ram, *buf;
+  void *ram, *buf;
   volatile uint8_t *rst[4];
   volatile uint16_t *iir_params;
   volatile int16_t *iir_limits;
-  volatile uint32_t *trg;
+  volatile uint32_t *hst[2];
   struct sockaddr_in addr;
   int yes = 1;
   uint32_t start, pre, tot, size;
@@ -69,12 +69,11 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  trg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-  hst[0] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
-  hst[1] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
-  gen = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40030000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40100000);
+  gen = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40200000);
+  hst[0] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40300000);
+  hst[1] = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40400000);
 
   close(fd);
 
@@ -106,10 +105,6 @@ int main(int argc, char *argv[])
   /* set sample rate */
   *(uint16_t *)(cfg + 4) = 125;
 
-  /* set trigger channel */
-  trg[16] = 0;
-  trg[0] = 2;
-
   /* reset timers and histograms */
   *rst[0] &= ~3;
   *rst[0] |= 3;
@@ -119,6 +114,9 @@ int main(int argc, char *argv[])
   /* reset oscilloscope */
   *rst[2] &= ~3;
   *rst[2] |= 3;
+
+  /* set trigger channel */
+  *rst[2] &= ~4;
 
   /* reset generator */
   *rst[3] &= ~128;
@@ -202,11 +200,13 @@ int main(int argc, char *argv[])
         {
           *rst[0] &= ~1;
           *rst[0] |= 1;
+          for(i = 0; i < 16384; ++i) hst[0][i] = 0;
         }
         else if(chan == 1)
         {
           *rst[1] &= ~1;
           *rst[1] |= 1;
+          for(i = 0; i < 16384; ++i) hst[1][i] = 0;
         }
       }
       else if(code == 2)
@@ -369,12 +369,12 @@ int main(int argc, char *argv[])
         /* read timer */
         if(chan == 0)
         {
-          data = *(uint64_t *)(sts + 12);
+          data = *(uint64_t *)(sts + 0);
           if(send(sock_client, &data, 8, MSG_NOSIGNAL) < 0) break;
         }
         else if(chan == 1)
         {
-          data = *(uint64_t *)(sts + 20);
+          data = *(uint64_t *)(sts + 8);
           if(send(sock_client, &data, 8, MSG_NOSIGNAL) < 0) break;
         }
       }
@@ -397,13 +397,11 @@ int main(int argc, char *argv[])
         /* set trigger source (0 for channel 1, 1 for channel 2) */
         if(chan == 0)
         {
-          trg[16] = 0;
-          trg[0] = 2;
+          *rst[2] &= ~4;
         }
         else if(chan == 1)
         {
-          trg[16] = 1;
-          trg[0] = 2;
+          *rst[2] |= 4;
         }
       }
       else if(code == 16)
@@ -411,11 +409,11 @@ int main(int argc, char *argv[])
         /* set trigger slope (0 for rising, 1 for falling) */
         if(data == 0)
         {
-          *rst[2] &= ~4;
+          *rst[2] &= ~8;
         }
         else if(data == 1)
         {
-          *rst[2] |= 4;
+          *rst[2] |= 8;
         }
       }
       else if(code == 17)
@@ -423,11 +421,11 @@ int main(int argc, char *argv[])
         /* set trigger mode (0 for normal, 1 for auto) */
         if(data == 0)
         {
-          *rst[2] &= ~8;
+          *rst[2] &= ~16;
         }
         else if(data == 1)
         {
-          *rst[2] |= 8;
+          *rst[2] |= 16;
         }
       }
       else if(code == 18)
@@ -448,13 +446,13 @@ int main(int argc, char *argv[])
       else if(code == 21)
       {
         /* start oscilloscope */
-        *rst[2] |= 16;
-        *rst[2] &= ~16;
+        *rst[2] |= 32;
+        *rst[2] &= ~32;
       }
       else if(code == 22)
       {
         /* read oscilloscope status */
-        *(uint32_t *)buf = *(uint32_t *)(sts + 44) & 1;
+        *(uint32_t *)buf = *(uint32_t *)(sts + 32) & 1;
         if(send(sock_client, buf, 4, MSG_NOSIGNAL) < 0) break;
       }
       else if(code == 23)
@@ -462,7 +460,7 @@ int main(int argc, char *argv[])
         /* read oscilloscope data */
         pre = *(uint32_t *)(cfg + 76) + 1;
         tot = *(uint32_t *)(cfg + 80) + 1;
-        start = *(uint32_t *)(sts + 44) >> 1;
+        start = *(uint32_t *)(sts + 32) >> 1;
         start = (start - pre) & 0x007FFFFF;
         if(start + tot <= 0x007FFFFF)
         {
@@ -605,7 +603,7 @@ void *pulser_handler(void *arg)
 
   while(enable_thread)
   {
-    while(*(uint16_t *)(sts + 54) > 6000) usleep(1000);
+    while(*(uint16_t *)(sts + 42) > 6000) usleep(1000);
 
     amplitude = lower_bound(hist, 4096, rand() % RAND_MAX);
 

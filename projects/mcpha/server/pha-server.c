@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  pha = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40100000);
+  pha = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40200000);
 
   rst = cfg + 3;
 
@@ -222,8 +222,8 @@ int main(int argc, char *argv[])
         }
         pthread_detach(thread);
         /* reset fifo */
-        *rst |= 64;
         *rst &= ~64;
+        *rst |= 64;
         /* start timer */
         *rst |= 8;
       }
@@ -251,7 +251,7 @@ void *read_handler(void *arg)
   {
     if(sock_thread < 0) break;
 
-    size = *(uint16_t *)(sts + 52);
+    size = *(uint16_t *)(sts + 40);
 
     if(size < 4)
     {
