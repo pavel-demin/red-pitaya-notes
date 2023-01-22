@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SDR receiver</title>
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+<div id="header">
+<div id="logo">
+<a href="/">Back to all apps</a>
+</div>
+<div id="menu">
+<a href="https://github.com/pavel-demin/red-pitaya-notes" target="_blank">Source</a>
+<a href="https://github.com/pavel-demin/red-pitaya-notes/issues" target="_blank">Issues</a>
+</div>
+</div>
+<div id="content">
+<h1>SDR receiver</h1>
+<p>The SDR receiver is ready.</p>
+<p>Now you can run the SDR programs such as SDR#, HDSDR.</p>
+<p>More details about this application can be found at <a href="http://pavel-demin.github.io/red-pitaya-notes/sdr-receiver-122-88/" target="_blank">this link</a>.</p>
+<h2>Getting started with SDR# and HDSDR</h2>
+<ul>
+<li>Connect an antenna to the IN1 connector on the Red Pitaya board.</li>
+<li>Download and install <a href="https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1">SDR#</a> or <a href="http://www.hdsdr.de/" target="_blank">HDSDR</a>.</li>
+<li>Download and install <a href="https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019" target="_blank">Microsoft Visual C++ Redistributable for Visual Studio 2019</a>.</li>
+<li>Download <a href="https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAA6mFLQaCF-wT2fhACJHotra/sdr/ExtIO_RedPitaya_122_88.dll?dl=1">pre-built ExtIO plug-in</a> for SDR# and HDSDR.</li>
+<li>Copy ExtIO_RedPitaya_122_88.dll into the SDR# or HDSDR installation directory.</li>
+<li>Start SDR# or HDSDR.</li>
+<li>Select Red Pitaya SDR 122.88 from the Source list in SDR# or from the Options [F7] → Select Input menu in HDSDR.</li>
+<li>Press Configure icon in SDR# or press ExtIO button in HDSDR, then type in the IP address of the Red Pitaya board and close the configuration window.</li>
+<li>Press Play icon in SDR# or press Start [F2] button in HDSDR.</li>
+</ul>
+</div>
+</body>
+</html>
