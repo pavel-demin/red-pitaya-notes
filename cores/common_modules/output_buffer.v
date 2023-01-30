@@ -31,7 +31,7 @@ module output_buffer #
     end
     else
     begin
-      if (int_ready_wire)
+      if(int_ready_wire)
       begin
         int_data_reg <= in_data;
         int_valid_reg <= in_valid;
