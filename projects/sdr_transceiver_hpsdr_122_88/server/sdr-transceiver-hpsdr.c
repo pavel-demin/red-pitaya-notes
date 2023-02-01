@@ -85,7 +85,7 @@ uint16_t i2c_misc_data = 0;
 uint16_t i2c_drive_data = 0;
 uint16_t i2c_dac0_data = 0xfff;
 uint16_t i2c_dac1_data = 0xfff;
-uint32_t i2c_nucleo_data[2] = {0};
+uint32_t i2c_nucleo_data[2] = {0, 0};
 
 uint16_t i2c_ard_frx1_data = 0; /* rx 1 freq in kHz */
 uint16_t i2c_ard_frx2_data = 0; /* rx 2 freq in kHz */
@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40100000);
   fifo = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40200000);
-  codec = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40300000);
+  codec = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40300000);
   xadc = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40400000);
   alex = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40500000);
   tx_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40600000);
@@ -1505,6 +1505,7 @@ static inline void cw_on()
   *tx_rst |= 32;
   cw_ptt = 1;
   *tx_rst |= 16;
+  tx_mux_data = 1;
   if(i2c_codec && dac_level_data > 0)
   {
     *tx_rst |= 8; /* sidetone on */
