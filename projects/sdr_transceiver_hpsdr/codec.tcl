@@ -45,7 +45,7 @@ cell xilinx.com:ip:fifo_generator fifo_generator_0 {
 }
 
 # Create axis_fifo
-cell pavel-demin:user:axis_fifo fifo_0 {
+cell pavel-demin:user:axis_fifo:1.0 fifo_0 {
   S_AXIS_TDATA_WIDTH 32
   M_AXIS_TDATA_WIDTH 32
 } {
@@ -90,7 +90,7 @@ cell pavel-demin:user:axi_bram_writer writer_1 {
   BRAM_DATA_WIDTH 32
   BRAM_ADDR_WIDTH 9
 } {
-  BRAM_PORTA bram_0/BRAM_PORTA
+  B_BRAM bram_0/BRAM_PORTA
 }
 
 # Create axis_keyer
@@ -99,7 +99,7 @@ cell pavel-demin:user:axis_keyer keyer_0 {
   BRAM_DATA_WIDTH 16
   BRAM_ADDR_WIDTH 10
 } {
-  BRAM_PORTA bram_0/BRAM_PORTB
+  B_BRAM bram_0/BRAM_PORTB
   cfg_data slice_3/dout
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
@@ -240,7 +240,7 @@ cell xilinx.com:ip:axis_subset_converter subset_2 {
 }
 
 # Create axis_fifo
-cell pavel-demin:user:axis_fifo fifo_1 {
+cell pavel-demin:user:axis_fifo:1.0 fifo_1 {
   S_AXIS_TDATA_WIDTH 32
   M_AXIS_TDATA_WIDTH 32
 } {
