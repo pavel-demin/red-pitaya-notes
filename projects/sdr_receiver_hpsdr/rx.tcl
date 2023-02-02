@@ -260,7 +260,7 @@ for {set i 0} {$i <= 7} {incr i} {
   }
 
   # Create axis_fifo
-  cell pavel-demin:user:axis_fifo fifo_$i {
+  cell pavel-demin:user:axis_fifo:1.0 fifo_$i {
     S_AXIS_TDATA_WIDTH 64
     M_AXIS_TDATA_WIDTH 32
   } {
