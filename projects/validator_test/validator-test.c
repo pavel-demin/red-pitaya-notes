@@ -26,21 +26,21 @@ int main()
   }
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40100000);
+  ram = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40200000);
 
   signal(SIGINT, signal_handler);
 
   limit = 512;
 
   /* reset fifo and writer */
-  *((uint32_t *)(cfg + 0)) &= ~1;
-  *((uint32_t *)(cfg + 0)) |= 1;
+  *(uint32_t *)(cfg + 0) &= ~1;
+  *(uint32_t *)(cfg + 0) |= 1;
 
   while(!interrupted)
   {
     /* read writer position */
-    position = *((uint32_t *)(sts + 0));
+    position = *(uint32_t *)(sts + 0);
 
     /* print 512 IN1 and IN2 samples if ready, otherwise sleep 1 ms */
     if((limit > 0 && position > limit) || (limit == 0 && position < 512))
@@ -50,8 +50,8 @@ int main()
 
       for(i = 0; i < 512; ++i)
       {
-        value[0] = *((int16_t *)(ram + offset + 4*i + 0));
-        value[1] = *((int16_t *)(ram + offset + 4*i + 2));
+        value[0] = *(int16_t *)(ram + offset + 4*i + 0);
+        value[1] = *(int16_t *)(ram + offset + 4*i + 2);
         printf("%5d %5d\n", value[0], value[1]);
       }
     }
@@ -67,8 +67,8 @@ int main()
   /* print last IN1 and IN2 samples */
   for(i = 0; i < limit; ++i)
   {
-    value[0] = *((int16_t *)(ram + 4*i + 0));
-    value[1] = *((int16_t *)(ram + 4*i + 2));
+    value[0] = *(int16_t *)(ram + 4*i + 0);
+    value[1] = *(int16_t *)(ram + 4*i + 2);
     printf("%5d %5d\n", value[0], value[1]);
   }
 

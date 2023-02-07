@@ -10,8 +10,8 @@ int main ()
 {
   int fd, i;
   volatile void *cfg;
-  volatile uint32_t *sts, *fifo;
-  volatile uint16_t *level;
+  volatile uint32_t *fifo;
+  volatile uint16_t *sts, *level;
   volatile uint8_t *rst;
   int32_t value;
 
@@ -21,9 +21,9 @@ int main ()
     return EXIT_FAILURE;
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40100000);
+  fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40200000);
 
   rst = (uint8_t *)(cfg + 0);
   level = (uint16_t *)(cfg + 2);

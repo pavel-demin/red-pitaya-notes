@@ -32,34 +32,46 @@ cell xilinx.com:ip:xlconstant const_0
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
+  dcm_locked pll_0/locked
+  slowest_sync_clk pll_0/clk_out1
 }
 
-# Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register cfg_0 {
+# Create axi_hub
+cell pavel-demin:user:axi_hub hub_0 {
   CFG_DATA_WIDTH 128
-  AXI_ADDR_WIDTH 4
-  AXI_DATA_WIDTH 32
+  STS_DATA_WIDTH 32
+} {
+  S_AXI ps_0/M_AXI_GP0
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 128 DIN_FROM 0 DIN_TO 0
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
-  DIN_WIDTH 128 DIN_FROM 47 DIN_TO 32
+  DIN_WIDTH 128 DIN_FROM 1 DIN_TO 1
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
+  DIN_WIDTH 128 DIN_FROM 47 DIN_TO 32
+} {
+  din hub_0/cfg_data
+}
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 128 DIN_FROM 127 DIN_TO 48
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create blk_mem_gen
@@ -71,19 +83,10 @@ cell xilinx.com:ip:blk_mem_gen bram_0 {
   WRITE_WIDTH_A 32
   WRITE_DEPTH_A 16384
   WRITE_WIDTH_B 64
-  ENABLE_A Always_Enabled
-  ENABLE_B Always_Enabled
+  REGISTER_PORTA_OUTPUT_OF_MEMORY_PRIMITIVES false
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
-}
-
-# Create axi_bram_writer
-cell pavel-demin:user:axi_bram_writer writer_0 {
-  AXI_DATA_WIDTH 32
-  AXI_ADDR_WIDTH 32
-  BRAM_DATA_WIDTH 32
-  BRAM_ADDR_WIDTH 14
 } {
-  BRAM_PORTA bram_0/BRAM_PORTA
+  BRAM_PORTA hub_0/B00_BRAM
 }
 
 # Create axis_bram_reader
@@ -93,8 +96,8 @@ cell pavel-demin:user:axis_bram_reader reader_0 {
   BRAM_ADDR_WIDTH 13
   CONTINUOUS FALSE
 } {
-  BRAM_PORTA bram_0/BRAM_PORTB
-  cfg_data slice_1/dout
+  B_BRAM bram_0/BRAM_PORTB
+  cfg_data slice_2/dout
   aclk pll_0/clk_out1
   aresetn slice_0/dout
 }
@@ -119,35 +122,22 @@ cell pavel-demin:user:axis_iir_filter iir_0 {
   AXIS_TDATA_WIDTH 16
 } {
   S_AXIS zeroer_0/M_AXIS
-  cfg_data slice_2/dout
+  cfg_data slice_3/dout
   aclk pll_0/clk_out1
   aresetn slice_0/dout
 }
 
-# Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo fifo_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
-  FIFO_DEPTH 16384
+# Create axis_fifo
+cell pavel-demin:user:axis_fifo fifo_0 {
+  S_AXIS_TDATA_WIDTH 32
+  M_AXIS_TDATA_WIDTH 32
+  WRITE_DEPTH 16384
 } {
   S_AXIS iir_0/M_AXIS
-  s_axis_tvalid const_0/dout
-  s_axis_aclk pll_0/clk_out1
-  s_axis_aresetn slice_0/dout
-}
-
-# Create axi_axis_reader
-cell pavel-demin:user:axi_axis_reader reader_1 {
-  AXI_DATA_WIDTH 32
-} {
-  S_AXIS fifo_0/M_AXIS
+  M_AXIS hub_0/S01_AXIS
+  read_count hub_0/sts_data
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_1/dout
 }
 
-addr 0x40001000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40010000 64K reader_1/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40030000 64K writer_0/S_AXI /ps_0/M_AXI_GP0
-
+assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]

@@ -43,10 +43,10 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
 }
 
 # Delete input/output port
-delete_bd_objs [get_bd_ports exp_p_tri_io]
+delete_bd_objs [get_bd_ports exp_n_tri_io]
 
 # Create output port
-create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
+create_bd_port -dir O -from 7 -to 0 exp_n_tri_io
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_0 {

@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     number = (i < argc - 1) ? strtol(argv[i + 1], &end, 10) : 0;
     if(argc != 3 || errno != 0 || end == argv[i + 1])
     {
-      printf("Usage: test a b\n");
+      fprintf(stderr, "Usage: test a b\n");
       return EXIT_FAILURE;
     }
     n[i] = number;
@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40100000);
 
   a = cfg + 0;
   b = cfg + 4;
