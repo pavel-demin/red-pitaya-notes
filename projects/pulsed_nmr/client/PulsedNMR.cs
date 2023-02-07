@@ -112,12 +112,12 @@ namespace PulsedNMR
 
     public void AddDelay(double width)
     {
-      SendCommand(8, width - 4);
+      SendCommand(8, width - 1);
     }
 
     public void AddPulse(int level, int phase, double width)
     {
-      SendCommand(8, width);
+      SendCommand(8, width - 1);
       SendCommand(9, (phase << 16) + level);
     }
 

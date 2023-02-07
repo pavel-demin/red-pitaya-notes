@@ -38,6 +38,8 @@ cell xilinx.com:ip:xlconstant const_0
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
+  dcm_locked pll_0/locked
+  slowest_sync_clk pll_0/clk_out1
 }
 
 # GPIO
@@ -92,13 +94,16 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
   dac_dat dac_dat_o
 }
 
-# CFG
+# HUB
 
-# Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register cfg_0 {
+# Create axi_hub
+cell pavel-demin:user:axi_hub hub_0 {
   CFG_DATA_WIDTH 128
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
+  STS_DATA_WIDTH 32
+} {
+  S_AXI ps_0/M_AXI_GP0
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
 }
 
 # RX
@@ -107,14 +112,14 @@ cell pavel-demin:user:axi_cfg_register cfg_0 {
 cell pavel-demin:user:port_slicer rst_slice_0 {
   DIN_WIDTH 128 DIN_FROM 7 DIN_TO 0
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_0 {
   DIN_WIDTH 128 DIN_FROM 95 DIN_TO 32
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 module rx_0 {
@@ -133,7 +138,7 @@ module rx_0 {
 cell pavel-demin:user:port_slicer rst_slice_1 {
   DIN_WIDTH 128 DIN_FROM 15 DIN_TO 8
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
   dout exp_p_tri_io
 }
 
@@ -141,7 +146,7 @@ cell pavel-demin:user:port_slicer rst_slice_1 {
 cell pavel-demin:user:port_slicer cfg_slice_1 {
   DIN_WIDTH 128 DIN_FROM 127 DIN_TO 96
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 module tx_0 {
@@ -168,39 +173,18 @@ cell  xilinx.com:ip:axis_combiner comb_0 {
 
 # STS
 
-# Create dna_reader
-cell pavel-demin:user:dna_reader dna_0 {} {
-  aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
-}
-
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_1 {
-  NUM_PORTS 4
-  IN0_WIDTH 32
-  IN1_WIDTH 64
-  IN2_WIDTH 16
-  IN3_WIDTH 16
+  NUM_PORTS 2
+  IN0_WIDTH 16
+  IN1_WIDTH 16
 } {
-  In0 const_0/dout
-  In1 dna_0/dna_data
-  In2 rx_0/fifo_generator_0/rd_data_count
-  In3 tx_0/fifo_generator_0/wr_data_count
+  In0 rx_0/fifo_0/read_count
+  In1 tx_0/fifo_0/write_count
+  dout hub_0/sts_data
 }
 
-# Create axi_sts_register
-cell pavel-demin:user:axi_sts_register sts_0 {
-  STS_DATA_WIDTH 160
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
-} {
-  sts_data concat_1/dout
-}
+wire rx_0/fifo_0/M_AXIS hub_0/S00_AXIS
+wire tx_0/fifo_0/S_AXIS hub_0/M00_AXIS
 
-addr 0x40000000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40001000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40010000 64K rx_0/reader_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40020000 64K tx_0/writer_0/S_AXI /ps_0/M_AXI_GP0
+assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]
