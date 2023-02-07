@@ -16,73 +16,49 @@ module axis_gate_controller
   output wire         dout
 );
 
-  reg int_tready_reg, int_tready_next;
-  reg int_dout_reg, int_dout_next;
-  reg int_enbl_reg, int_enbl_next;
-  reg [63:0] int_cntr_reg, int_cntr_next;
-  reg [127:0] int_data_reg, int_data_next;
+  reg [63:0] int_cntr_reg;
+  reg [47:0] int_data_reg;
+  reg [31:0] int_poff_reg;
+  reg [15:0] int_level_reg;
+  reg int_dout_reg;
+
+  wire [47:0] int_data_wire;
+  wire int_enbl_wire;
+
+  assign int_data_wire = int_enbl_wire ? int_data_reg : s_axis_tdata[111:64];
+  assign int_enbl_wire = |int_cntr_reg;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
-      int_tready_reg <= 1'b0;
-      int_dout_reg <= 1'b0;
-      int_enbl_reg <= 1'b0;
       int_cntr_reg <= 64'd0;
-      int_data_reg <= 128'd0;
+      int_data_reg <= 48'd0;
+      int_poff_reg <= 32'd0;
+      int_level_reg <= 16'd0;
+      int_dout_reg <= 1'b0;
     end
     else
     begin
-      int_tready_reg <= int_tready_next;
-      int_dout_reg <= int_dout_next;
-      int_enbl_reg <= int_enbl_next;
-      int_cntr_reg <= int_cntr_next;
-      int_data_reg <= int_data_next;
+      if(int_enbl_wire)
+      begin
+        int_cntr_reg <= int_cntr_reg - 1'b1;
+      end
+      else if(s_axis_tvalid)
+      begin
+        int_cntr_reg <= s_axis_tdata[63:0];
+        int_data_reg <= s_axis_tdata[111:64];
+      end
+      int_poff_reg <= int_data_wire[31:0];
+      int_level_reg <= int_data_wire[47:32];
+      int_dout_reg <= |int_data_wire[47:32] & (int_enbl_wire | s_axis_tvalid);
     end
   end
 
-  always @*
-  begin
-    int_tready_next = int_tready_reg;
-    int_dout_next = int_dout_reg;
-    int_enbl_next = int_enbl_reg;
-    int_cntr_next = int_cntr_reg;
-    int_data_next = int_data_reg;
+  assign s_axis_tready = ~int_enbl_wire & aresetn;
 
-    if(~int_enbl_reg & s_axis_tvalid)
-    begin
-      int_tready_next = 1'b1;
-      int_enbl_next = 1'b1;
-      int_cntr_next = 64'd0;
-      int_data_next = s_axis_tdata;
-    end
-
-    if(int_enbl_reg)
-    begin
-      int_cntr_next = int_cntr_reg + 1'b1;
-
-      if(int_cntr_reg == 64'd0)
-      begin
-        int_dout_next = |int_data_reg[111:96];
-      end
-
-      if(int_cntr_reg == int_data_reg[63:0])
-      begin
-        int_dout_next = 1'b0;
-        int_enbl_next = 1'b0;
-      end
-    end
-
-    if(int_tready_reg)
-    begin
-      int_tready_next = 1'b0;
-    end
-  end
-
-  assign s_axis_tready = int_tready_reg;
-  assign poff = int_data_reg[95:64];
-  assign level = int_data_reg[111:96];
+  assign poff = int_poff_reg;
+  assign level = int_level_reg;
   assign dout = int_dout_reg;
 
 endmodule
