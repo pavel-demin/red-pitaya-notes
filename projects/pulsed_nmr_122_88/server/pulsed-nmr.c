@@ -30,15 +30,13 @@ int main(int argc, char *argv[])
   int fd, sock_server, sock_client;
   int i2c_fd, i2c_dac;
   void *cfg, *sts;
-  volatile uint32_t *tx_data, *rx_freq, *tx_freq;
+  volatile uint32_t *fifo, *rx_freq, *tx_freq;
   volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr;
   volatile int16_t *tx_level;
   volatile uint8_t *rx_rst, *tx_rst;
-  volatile uint64_t *rx_data;
   struct sockaddr_in addr;
   uint64_t command, code, data, phase, level, counter;
-  uint32_t *pulses;
-  uint64_t *buffer;
+  uint32_t *buffer, *pulses;
   int i, n, position, size, yes = 1;
 
   size = 0;
@@ -69,24 +67,23 @@ int main(int argc, char *argv[])
     }
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  rx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
-  tx_data = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40100000);
+  fifo = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40200000);
 
-  rx_rst = ((uint8_t *)(cfg + 0));
-  rx_freq = ((uint32_t *)(cfg + 4));
-  rx_rate = ((uint16_t *)(cfg + 8));
-  tx_level = ((int16_t *)(cfg + 10));
-  rx_cntr = ((uint16_t *)(sts + 12));
+  rx_rst = (uint8_t *)(cfg + 0);
+  rx_freq = (uint32_t *)(cfg + 4);
+  rx_rate = (uint16_t *)(cfg + 8);
+  tx_level = (int16_t *)(cfg + 10);
+  rx_cntr = (uint16_t *)(sts + 0);
 
-  tx_rst = ((uint8_t *)(cfg + 1));
-  tx_freq = ((uint32_t *)(cfg + 12));
-  tx_cntr = ((uint16_t *)(sts + 14));
+  tx_rst = (uint8_t *)(cfg + 1);
+  tx_freq = (uint32_t *)(cfg + 12);
+  tx_cntr = (uint16_t *)(sts + 2);
 
-  *rx_rst |= 1;
+  *rx_rst &= ~1;
   *rx_rst &= ~2;
-  *tx_rst |= 1;
+  *tx_rst &= ~1;
 
   /* set default RX phase increment */
   *rx_freq = (uint32_t)floor(19000000 / 122.88e6 * (1<<30) + 0.5);
@@ -200,10 +197,10 @@ int main(int argc, char *argv[])
           *rx_rst &= ~2;
 
           /* clear RX FIFO */
-          *rx_rst |= 1; *rx_rst &= ~1;
+          *rx_rst &= ~1; *rx_rst |= 1;
 
           /* clear TX FIFO */
-          *tx_rst |= 1; *tx_rst &= ~1;
+          *tx_rst &= ~1; *tx_rst |= 1;
 
           while(counter < data)
           {
@@ -212,7 +209,7 @@ int main(int argc, char *argv[])
             if(*rx_cntr < n * 4) usleep(500);
             if(*rx_cntr >= n * 4)
             {
-              for(i = 0; i < n * 2; ++i) buffer[i] = *rx_data;
+              memcpy(buffer, fifo, n * 16);
               if(send(sock_client, buffer, n * 16, MSG_NOSIGNAL) < 0) break;
               counter += n;
             }
@@ -220,7 +217,7 @@ int main(int argc, char *argv[])
             /* write pulses to TX FIFO */
             while(*tx_cntr < 16384 && position < size * 4)
             {
-              *tx_data = pulses[position];
+              *fifo = pulses[position];
               ++position;
             }
 
@@ -228,9 +225,9 @@ int main(int argc, char *argv[])
             *rx_rst |= 2;
           }
 
-          *rx_rst |= 1;
+          *rx_rst &= ~1;
           *rx_rst &= ~2;
-          *tx_rst |= 1;
+          *tx_rst &= ~1;
           break;
       }
     }
