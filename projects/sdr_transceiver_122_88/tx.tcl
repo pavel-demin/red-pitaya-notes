@@ -13,37 +13,15 @@ cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48
 }
 
-# Create axi_axis_writer
-cell pavel-demin:user:axi_axis_writer writer_0 {
-  AXI_DATA_WIDTH 32
-} {
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create fifo_generator
-cell xilinx.com:ip:fifo_generator fifo_generator_0 {
-  PERFORMANCE_OPTIONS First_Word_Fall_Through
-  INPUT_DATA_WIDTH 32
-  INPUT_DEPTH 8192
-  OUTPUT_DATA_WIDTH 64
-  OUTPUT_DEPTH 4096
-  WRITE_DATA_COUNT true
-  WRITE_DATA_COUNT_WIDTH 14
-} {
-  clk /pll_0/clk_out1
-  srst slice_0/dout
-}
-
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo fifo_0 {
   S_AXIS_TDATA_WIDTH 32
   M_AXIS_TDATA_WIDTH 64
+  WRITE_DEPTH 8192
+  ALWAYS_VALID TRUE
 } {
-  S_AXIS writer_0/M_AXIS
-  FIFO_READ fifo_generator_0/FIFO_READ
-  FIFO_WRITE fifo_generator_0/FIFO_WRITE
   aclk /pll_0/clk_out1
+  aresetn slice_0/dout
 }
 
 # Create axis_dwidth_converter
@@ -111,8 +89,8 @@ cell xilinx.com:ip:axis_broadcaster bcast_0 {
   M_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 8
   M_TDATA_NUM_BYTES 3
-  M00_TDATA_REMAP {tdata[55:32]}
-  M01_TDATA_REMAP {tdata[23:0]}
+  M00_TDATA_REMAP {tdata[23:0]}
+  M01_TDATA_REMAP {tdata[55:32]}
 } {
   S_AXIS conv_1/M_AXIS
   aclk /pll_0/clk_out1
