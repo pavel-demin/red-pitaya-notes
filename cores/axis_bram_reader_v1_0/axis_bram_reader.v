@@ -63,7 +63,7 @@ module axis_bram_reader #
 
   generate
     if(CONTINUOUS == "TRUE")
-    begin : CONTINUOUS
+    begin : CONTINUE
       always @*
       begin
         int_addr_next = int_addr_reg;

@@ -72,7 +72,7 @@ module axis_accumulator #
 
   generate
     if(CONTINUOUS == "TRUE")
-    begin : CONTINUOUS
+    begin : CONTINUE
       always @*
       begin
         int_tdata_next = int_tdata_reg;
