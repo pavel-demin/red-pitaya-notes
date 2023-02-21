@@ -80,7 +80,7 @@ int main ()
   rx_addr = (uint32_t *)(cfg + 4);
   rx_freq = (uint32_t *)(cfg + 8);
 
-  rx_cntr = (uint32_t *)(sts + 12);
+  rx_cntr = (uint32_t *)(sts + 0);
 
   *rx_addr = size;
 
