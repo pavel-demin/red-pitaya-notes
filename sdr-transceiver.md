@@ -58,7 +58,7 @@ sudo apt-get install gnuradio python-numpy python-gtk2
 {% highlight bash %}
 git clone https://github.com/pavel-demin/red-pitaya-notes
 {% endhighlight %}
- - Run [GNU Radio Companion](http://gnuradio.org/redmine/projects/gnuradio/wiki/GNURadioCompanion) and open AM transceiver flow graph:
+ - Run [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion) and open AM transceiver flow graph:
 {% highlight bash %}
 cd red-pitaya-notes/projects/sdr_transceiver/gnuradio
 export GRC_BLOCKS_PATH=.
