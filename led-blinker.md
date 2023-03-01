@@ -30,9 +30,9 @@ My development machine has the following installed:
 
 Here are the commands to install all the other required packages:
 {% highlight bash %}
-sudo apt-get update
+apt-get update
 
-sudo apt-get --no-install-recommends install \
+apt-get --no-install-recommends install \
   bc binfmt-support bison build-essential ca-certificates curl \
   debootstrap device-tree-compiler dosfstools flex fontconfig git \
   libgtk-3-0 libncurses-dev libssl-dev libtinfo5 parted qemu-user-static \
