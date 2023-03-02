@@ -81,35 +81,7 @@ cell xilinx.com:ip:processing_system7:5.5 ps_0 {
 }
 {% endhighlight %}
 
-The `cell` command is defined in the [scripts/project.tcl
-](https://github.com/pavel-demin/red-pitaya-notes/blob/master/scripts/project.tcl) script as follows:
-{% highlight Tcl %}
-proc cell {cell_vlnv cell_name {cell_props {}} {cell_ports {}}} {
-  set cell [create_bd_cell -type ip -vlnv $cell_vlnv $cell_name]
-  set prop_list {}
-  foreach {prop_name prop_value} [uplevel 1 [list subst $cell_props]] {
-    lappend prop_list CONFIG.$prop_name $prop_value
-  }
-  if {[llength $prop_list] > 1} {
-    set_property -dict $prop_list $cell
-  }
-  foreach {local_name remote_name} [uplevel 1 [list subst $cell_ports]] {
-    set local_port [get_bd_pins $cell_name/$local_name]
-    set remote_port [get_bd_pins $remote_name]
-    if {[llength $local_port] == 1 && [llength $remote_port] == 1} {
-      connect_bd_net $local_port $remote_port
-      continue
-    }
-    set local_port [get_bd_intf_pins $cell_name/$local_name]
-    set remote_port [get_bd_intf_pins $remote_name]
-    if {[llength $local_port] == 1 && [llength $remote_port] == 1} {
-      connect_bd_intf_net $local_port $remote_port
-      continue
-    }
-    error "** ERROR: can't connect $cell_name/$local_name and $remote_name"
-  }
-}
-{% endhighlight %}
+The `cell` command and other helper commands are defined in the [scripts/project.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/scripts/project.tcl) script.
 
 Getting started
 -----
