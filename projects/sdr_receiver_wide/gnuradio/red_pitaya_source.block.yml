@@ -17,11 +17,11 @@ parameters:
     default: '500000'
 -   id: freq1
     label: Center Frequency 1
-    dtype: int
+    dtype: real
     default: '10000000'
 -   id: freq2
     label: Center Frequency 2
-    dtype: int
+    dtype: real
     default: '10000000'
 -   id: corr
     label: Freq. Correction ppm
