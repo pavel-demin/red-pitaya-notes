@@ -50,4 +50,5 @@ while size > 0:
     output.write(data)
     size -= len(data)
 
+sock.close()
 output.close()
