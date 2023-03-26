@@ -1,6 +1,5 @@
 import struct
 import socket
-import time
 
 addr = "192.168.1.100"
 port = 1001
@@ -50,7 +49,5 @@ while size > 0:
     data = sock.recv(l, socket.MSG_WAITALL)
     output.write(data)
     size -= len(data)
-
-time.sleep(0.001)
 
 output.close()
