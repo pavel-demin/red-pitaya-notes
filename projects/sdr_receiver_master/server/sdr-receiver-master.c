@@ -36,7 +36,7 @@ int main ()
   cpu_set_t mask;
   struct sched_param param;
   struct sockaddr_in addr_server;
-  uint32_t command, size;
+  uint32_t command, size, addr_dma;
   int32_t value;
   int yes = 1;
 
@@ -73,6 +73,8 @@ int main ()
     return EXIT_FAILURE;
   }
 
+  addr_dma = size;
+
   ram = mmap(NULL, 128*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
   rst = (uint8_t *)(cfg + 0);
@@ -82,8 +84,6 @@ int main ()
   level = (uint16_t *)(cfg + 40);
 
   cntr = (uint32_t *)(sts + 0);
-
-  *addr = size;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -109,13 +109,18 @@ int main ()
 
   while(!interrupted)
   {
-    /* enter reset mode */
-    *rst &= ~1;
-    usleep(100);
-    *rst &= ~2;
+    if((sock_client = accept(sock_server, NULL, NULL)) < 0)
+    {
+      perror("accept");
+      return EXIT_FAILURE;
+    }
+
+    signal(SIGINT, signal_handler);
 
     /* set default sample rate */
     *rate = 20;
+
+    *addr = addr_dma;
 
     /* set default phase increments */
     freq[0] = (uint32_t)floor(10000000 / 125.0e6 * (1<<30) + 0.5);
@@ -126,14 +131,6 @@ int main ()
     freq[5] = 0;
     freq[6] = (uint32_t)floor(10000000 / 125.0e6 * (1<<30) + 0.5);
     freq[7] = 0;
-
-    if((sock_client = accept(sock_server, NULL, NULL)) < 0)
-    {
-      perror("accept");
-      return EXIT_FAILURE;
-    }
-
-    signal(SIGINT, signal_handler);
 
     /* enter normal operating mode */
     *rst |= 2;
@@ -214,6 +211,11 @@ int main ()
 
     signal(SIGINT, SIG_DFL);
     close(sock_client);
+
+    /* enter reset mode */
+    *rst &= ~1;
+    usleep(100);
+    *rst &= ~2;
   }
 
   /* enter reset mode */
