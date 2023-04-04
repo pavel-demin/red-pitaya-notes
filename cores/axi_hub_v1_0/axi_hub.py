@@ -47,7 +47,7 @@ module axi_hub #
   output wire                      b{{index}}_bram_rst,
   output wire                      b{{index}}_bram_en,
   output wire [3:0]                b{{index}}_bram_we,
-  output wire [15:0]               b{{index}}_bram_addr,
+  output wire [21:0]               b{{index}}_bram_addr,
   output wire [31:0]               b{{index}}_bram_wdata,
   input  wire [31:0]               b{{index}}_bram_rdata,
 
@@ -103,8 +103,8 @@ module axi_hub #
 
   wire [31:0] int_bdata_wire [HUB_SIZE-1:0];
 
-  wire [15:0] int_waddr_wire;
-  wire [15:0] int_raddr_wire;
+  wire [21:0] int_waddr_wire;
+  wire [21:0] int_raddr_wire;
 
   wire [31:0] int_cfg_mux [CFG_SIZE-1:0];
   wire [31:0] int_sts_mux [STS_SIZE-1:0];
@@ -130,10 +130,10 @@ module axi_hub #
   assign int_we_wire = int_bready_wire & int_awvalid_wire & int_wvalid_wire;
   assign int_re_wire = int_rready_wire & int_arvalid_wire;
 
-  assign int_waddr_wire = int_awaddr_wire[17:2] + int_awcntr_reg;
-  assign int_raddr_wire = int_araddr_wire[17:2] + int_arcntr_reg;
+  assign int_waddr_wire = int_awaddr_wire[23:2] + int_awcntr_reg;
+  assign int_raddr_wire = int_araddr_wire[23:2] + int_arcntr_reg;
 
-  assign int_rdata_wire[0] = int_rdata_mux[int_araddr_wire[27:20]];
+  assign int_rdata_wire[0] = int_rdata_mux[int_araddr_wire[27:24]];
 
   assign int_rdata_mux[0] = int_cfg_mux[int_raddr_wire[CFG_WIDTH-1:0]];
   assign int_rdata_mux[1] = int_sts_mux[int_raddr_wire[STS_WIDTH-1:0]];
@@ -152,8 +152,8 @@ module axi_hub #
   generate
     for(j = 0; j < MUX_SIZE; j = j + 1)
     begin : SELECTS
-      assign int_wsel_wire[j] = int_we_wire & (int_awaddr_wire[27:20] == j);
-      assign int_rsel_wire[j] = int_re_wire & (int_araddr_wire[27:20] == j);
+      assign int_wsel_wire[j] = int_we_wire & (int_awaddr_wire[27:24] == j);
+      assign int_rsel_wire[j] = int_re_wire & (int_araddr_wire[27:24] == j);
     end
   endgenerate
 
