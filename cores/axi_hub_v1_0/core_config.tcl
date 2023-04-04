@@ -14,7 +14,7 @@ set_property INTERFACE_MODE slave $bus
 
 set buses [list S_AXI]
 
-set hub_size 8
+set hub_size 6
 
 for {set i 0} {$i < $hub_size} {incr i} {
   set index [format %02d $i]

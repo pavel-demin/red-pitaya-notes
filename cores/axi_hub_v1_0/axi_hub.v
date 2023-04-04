@@ -135,46 +135,14 @@ module axi_hub #
 
   output wire [31:0]               m05_axis_tdata,
   output wire                      m05_axis_tvalid,
-  input  wire                      m05_axis_tready,
-
-  output wire                      b06_bram_clk,
-  output wire                      b06_bram_rst,
-  output wire                      b06_bram_en,
-  output wire [3:0]                b06_bram_we,
-  output wire [15:0]               b06_bram_addr,
-  output wire [31:0]               b06_bram_wdata,
-  input  wire [31:0]               b06_bram_rdata,
-
-  input  wire [31:0]               s06_axis_tdata,
-  input  wire                      s06_axis_tvalid,
-  output wire                      s06_axis_tready,
-
-  output wire [31:0]               m06_axis_tdata,
-  output wire                      m06_axis_tvalid,
-  input  wire                      m06_axis_tready,
-
-  output wire                      b07_bram_clk,
-  output wire                      b07_bram_rst,
-  output wire                      b07_bram_en,
-  output wire [3:0]                b07_bram_we,
-  output wire [15:0]               b07_bram_addr,
-  output wire [31:0]               b07_bram_wdata,
-  input  wire [31:0]               b07_bram_rdata,
-
-  input  wire [31:0]               s07_axis_tdata,
-  input  wire                      s07_axis_tvalid,
-  output wire                      s07_axis_tready,
-
-  output wire [31:0]               m07_axis_tdata,
-  output wire                      m07_axis_tvalid,
-  input  wire                      m07_axis_tready
+  input  wire                      m05_axis_tready
 );
 
   function integer clogb2 (input integer value);
     for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
   endfunction
 
-  localparam integer HUB_SIZE = 8;
+  localparam integer HUB_SIZE = 6;
   localparam integer MUX_SIZE = HUB_SIZE + 2;
   localparam integer CFG_SIZE = CFG_DATA_WIDTH / 32;
   localparam integer CFG_WIDTH = CFG_SIZE > 1 ? clogb2(CFG_SIZE - 1) : 1;
@@ -381,7 +349,7 @@ module axi_hub #
     .out_valid(s_axi_rvalid), .out_ready(s_axi_rready)
   );
 
-  assign s_axi_rdata = int_rdata_wire[1] | int_rdata_wire[2] | int_rdata_wire[3] | int_rdata_wire[4] | int_rdata_wire[5] | int_rdata_wire[6] | int_rdata_wire[7] | int_rdata_wire[8] | int_rdata_wire[9];
+  assign s_axi_rdata = int_rdata_wire[1] | int_rdata_wire[2] | int_rdata_wire[3] | int_rdata_wire[4] | int_rdata_wire[5] | int_rdata_wire[6] | int_rdata_wire[7];
 
   assign int_bdata_wire[0] = b00_bram_rdata;
   assign b00_bram_clk = aclk;
@@ -501,46 +469,6 @@ module axi_hub #
     .aclk(aclk), .aresetn(aresetn),
     .in_data(int_mdata_wire[5]), .in_valid(int_mvalid_wire[5]), .in_ready(int_mready_wire[5]),
     .out_data(m05_axis_tdata), .out_valid(m05_axis_tvalid), .out_ready(m05_axis_tready)
-  );
-
-  assign int_bdata_wire[6] = b06_bram_rdata;
-  assign b06_bram_clk = aclk;
-  assign b06_bram_rst = ~aresetn;
-  assign b06_bram_en = int_rsel_wire[8] | int_wsel_wire[8];
-  assign b06_bram_we = int_wsel_wire[8] ? int_wstrb_wire : 4'd0;
-  assign b06_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
-  assign b06_bram_wdata = int_wdata_wire;
-
-  assign int_sdata_wire[6] = s06_axis_tdata;
-  assign int_svalid_wire[6] = s06_axis_tvalid;
-  assign s06_axis_tready = int_sready_wire[6];
-
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_6 (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[6]), .in_valid(int_mvalid_wire[6]), .in_ready(int_mready_wire[6]),
-    .out_data(m06_axis_tdata), .out_valid(m06_axis_tvalid), .out_ready(m06_axis_tready)
-  );
-
-  assign int_bdata_wire[7] = b07_bram_rdata;
-  assign b07_bram_clk = aclk;
-  assign b07_bram_rst = ~aresetn;
-  assign b07_bram_en = int_rsel_wire[9] | int_wsel_wire[9];
-  assign b07_bram_we = int_wsel_wire[9] ? int_wstrb_wire : 4'd0;
-  assign b07_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
-  assign b07_bram_wdata = int_wdata_wire;
-
-  assign int_sdata_wire[7] = s07_axis_tdata;
-  assign int_svalid_wire[7] = s07_axis_tvalid;
-  assign s07_axis_tready = int_sready_wire[7];
-
-  inout_buffer #(
-    .DATA_WIDTH(32)
-  ) mbuf_7 (
-    .aclk(aclk), .aresetn(aresetn),
-    .in_data(int_mdata_wire[7]), .in_valid(int_mvalid_wire[7]), .in_ready(int_mready_wire[7]),
-    .out_data(m07_axis_tdata), .out_valid(m07_axis_tvalid), .out_ready(m07_axis_tready)
   );
 
 endmodule

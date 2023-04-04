@@ -1,4 +1,4 @@
-hub_size = 8
+hub_size = 6
 source = """
 `timescale 1 ns / 1 ps
 
