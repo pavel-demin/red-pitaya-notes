@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
   time_t t;
   struct tm *gmt;
   volatile void *cfg, *sts;
-  volatile uint64_t *fifo[8];
+  volatile uint64_t *fifo;
   volatile uint8_t *rst, *sel;
   volatile uint16_t *cntr;
   uint64_t *buffer;
@@ -115,12 +115,12 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x41000000);
+  fifo = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
 
   for(i = 0; i < 8; ++i)
   {
-    fifo[i] = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000 + i * 0x1000);
     *(uint32_t *)(cfg + 8 + i * 4) = (uint32_t)floor((1.0 + 1.0e-6 * corr) * freq[i] / 125.0 * (1<<30) + 0.5);
   }
 
@@ -130,8 +130,8 @@ int main(int argc, char *argv[])
 
   *sel = value;
 
-  *rst |= 1;
   *rst &= ~1;
+  *rst |= 1;
 
   offset = 0;
   buffer = malloc(240000 * 8 * 8);
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     {
       for(j = 0; j < 8; ++j)
       {
-        buffer[j * 240000 + offset + i] = *fifo[j];
+        buffer[j * 240000 + offset + i] = *fifo;
       }
     }
 

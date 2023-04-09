@@ -13,23 +13,14 @@ cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 32 DIN_FROM 31 DIN_TO 16
 }
 
-# Create axi_axis_writer
-cell pavel-demin:user:axi_axis_writer writer_0 {
-  AXI_DATA_WIDTH 32
+# Create axis_fifo
+cell pavel-demin:user:axis_fifo fifo_0 {
+  S_AXIS_TDATA_WIDTH 32
+  M_AXIS_TDATA_WIDTH 32
+  WRITE_DEPTH 256
 } {
   aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create axis_data_fifo
-cell xilinx.com:ip:axis_data_fifo fifo_0 {
-  TDATA_NUM_BYTES.VALUE_SRC USER
-  TDATA_NUM_BYTES 4
-  FIFO_DEPTH 256
-} {
-  S_AXIS writer_0/M_AXIS
-  s_axis_aclk /pll_0/clk_out1
-  s_axis_aresetn slice_0/dout
+  aresetn slice_0/dout
 }
 
 # Create xlconstant
@@ -108,7 +99,7 @@ cell xilinx.com:ip:xlconcat concat_0 {
 cell xilinx.com:ip:c_shift_ram delay_0 {
   WIDTH.VALUE_SRC USER
   WIDTH 1
-  DEPTH 4
+  DEPTH 3
 } {
   D dds_0/m_axis_data_tvalid
   CLK /pll_0/clk_out1
