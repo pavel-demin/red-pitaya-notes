@@ -35,6 +35,8 @@ cell xilinx.com:ip:xlconstant const_0
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
+  dcm_locked pll_0/locked
+  slowest_sync_clk pll_0/clk_out1
 }
 
 # GPIO
@@ -57,46 +59,49 @@ cell pavel-demin:user:axis_red_pitaya_adc adc_0 {
   adc_csn adc_csn_o
 }
 
-# Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register cfg_0 {
+# Create axi_hub
+cell pavel-demin:user:axi_hub hub_0 {
   CFG_DATA_WIDTH 96
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
+  STS_DATA_WIDTH 32
+} {
+  S_AXI ps_0/M_AXI_GP0
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 96 DIN_FROM 0 DIN_TO 0
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 96 DIN_FROM 2 DIN_TO 2
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 96 DIN_FROM 95 DIN_TO 64
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create util_vector_logic
@@ -228,7 +233,5 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
   aclk pll_0/clk_out1
   aresetn slice_2/dout
 }
-
-addr 0x40000000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_ACP/ACP_DDR_LOWOCM]
