@@ -4,18 +4,18 @@ import socket
 addr = "192.168.1.100"
 port = 1001
 
-rate = 500000
+rate = 100000
 
-rx_freq1 = 10000000
-rx_freq2 = 10000000
+rx_freq1 = 2000000
+rx_freq2 = 2000000
 
-tx_freq1 = 10000010
-tx_freq2 = 10000010
+tx_freq1 = 2001000
+tx_freq2 = 2001000
 
 tx_level1 = 32766
 tx_level2 = 32766
 
-size = 1000000 * 16
+size = rate * 16
 
 # connect
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
