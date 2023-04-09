@@ -15,8 +15,11 @@ cell xilinx.com:ip:clk_wiz pll_0 {
 # Create processing_system7
 cell xilinx.com:ip:processing_system7 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+  PCW_USE_S_AXI_ACP 1
+  PCW_USE_DEFAULT_ACP_USER_VAL 1
 } {
   M_AXI_GP0_ACLK pll_0/clk_out1
+  S_AXI_ACP_ACLK pll_0/clk_out1
 }
 
 # Create all required interconnections
@@ -50,28 +53,28 @@ cell pavel-demin:user:axi_hub hub_0 {
 cell pavel-demin:user:port_slicer slice_0 {
   DIN_WIDTH 96 DIN_FROM 0 DIN_TO 0
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 96 DIN_FROM 63 DIN_TO 32
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 96 DIN_FROM 95 DIN_TO 64
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create axis_counter
@@ -95,7 +98,5 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
   aclk pll_0/clk_out1
   aresetn slice_1/dout
 }
-
-assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]
 
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_ACP/ACP_DDR_LOWOCM]
