@@ -245,6 +245,4 @@ cell xilinx.com:ip:xlconcat concat_0 {
   dout dac_0/s_axis_tdata
 }
 
-assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]
-
 assign_bd_address [get_bd_addr_segs ps_0/S_AXI_ACP/ACP_DDR_LOWOCM]

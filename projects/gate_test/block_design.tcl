@@ -200,5 +200,3 @@ cell pavel-demin:user:axis_fifo fifo_1 {
   aclk pll_0/clk_out1
   aresetn slice_2/dout
 }
-
-assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]

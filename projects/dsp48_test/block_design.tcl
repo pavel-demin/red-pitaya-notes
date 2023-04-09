@@ -71,5 +71,3 @@ cell pavel-demin:user:dsp48 dsp_0 {
   P hub_0/sts_data
   CLK pll_0/clk_out1
 }
-
-assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]

@@ -260,5 +260,3 @@ cell xilinx.com:ip:xlconcat concat_0 {
   In1 fifo_1/read_count
   dout hub_0/sts_data
 }
-
-assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]

@@ -338,5 +338,3 @@ wire codec/fifo_1/M_AXIS hub_0/S01_AXIS
 
 wire tx_0/bram_0/BRAM_PORTA hub_0/B04_BRAM
 wire codec/bram_0/BRAM_PORTA hub_0/B05_BRAM
-
-assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]

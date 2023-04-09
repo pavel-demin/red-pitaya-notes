@@ -88,5 +88,3 @@ cell xilinx.com:ip:xlconcat concat_0 {
   In1 slice_1/dout
   dout led_o
 }
-
-assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]

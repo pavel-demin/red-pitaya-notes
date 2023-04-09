@@ -186,5 +186,3 @@ cell xilinx.com:ip:xlconcat concat_1 {
 
 wire rx_0/fifo_0/M_AXIS hub_0/S00_AXIS
 wire tx_0/fifo_0/S_AXIS hub_0/M00_AXIS
-
-assign_bd_address [get_bd_addr_segs [get_bd_intf_pins hub_0/S_AXI]]
