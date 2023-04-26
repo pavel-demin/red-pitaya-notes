@@ -12,8 +12,6 @@ module axis_pulse_height_analyzer #
   input  wire                           aclk,
   input  wire                           aresetn,
 
-  input  wire                           bln_flag,
-  input  wire [AXIS_TDATA_WIDTH-1:0]    bln_data,
   input  wire [CNTR_WIDTH-1:0]          cfg_data,
   input  wire [AXIS_TDATA_WIDTH-1:0]    min_data,
   input  wire [AXIS_TDATA_WIDTH-1:0]    max_data,
@@ -36,26 +34,25 @@ module axis_pulse_height_analyzer #
   reg int_rising_reg, int_rising_next;
   reg int_tvalid_reg, int_tvalid_next;
 
-  wire [AXIS_TDATA_WIDTH-1:0] int_tdata_wire, int_min_wire;
+  wire [AXIS_TDATA_WIDTH-1:0] int_tdata_wire;
   wire int_mincut_wire, int_maxcut_wire, int_rising_wire, int_delay_wire;
 
   assign int_delay_wire = int_cntr_reg < cfg_data;
-  assign int_min_wire = bln_flag ? int_min_reg : bln_data;
 
   generate
     if(AXIS_TDATA_SIGNED == "TRUE")
     begin : SIGNED
       assign int_rising_wire = $signed(int_data_reg[1]) < $signed(s_axis_tdata);
-      assign int_tdata_wire = $signed(int_data_reg[0]) - $signed(int_min_wire);
+      assign int_tdata_wire = $signed(int_data_reg[0]) - $signed(int_min_reg);
       assign int_mincut_wire = $signed(int_tdata_wire) > $signed(min_data);
-      assign int_maxcut_wire = $signed(int_data_reg[0]) < $signed(max_data);
+      assign int_maxcut_wire = $signed(int_tdata_wire) < $signed(max_data);
     end
     else
     begin : UNSIGNED
       assign int_rising_wire = int_data_reg[1] < s_axis_tdata;
-      assign int_tdata_wire = int_data_reg[0] - int_min_wire;
+      assign int_tdata_wire = int_data_reg[0] - int_min_reg;
       assign int_mincut_wire = int_tdata_wire > min_data;
-      assign int_maxcut_wire = int_data_reg[0] < max_data;
+      assign int_maxcut_wire = int_tdata_wire < max_data;
     end
   endgenerate
 
@@ -118,7 +115,7 @@ module axis_pulse_height_analyzer #
     // maximum after minimum
     if(s_axis_tvalid & int_enbl_reg & int_rising_reg & ~int_rising_wire & int_mincut_wire)
     begin
-      int_tdata_next = int_maxcut_wire ? int_tdata_wire : {(AXIS_TDATA_WIDTH){1'b0}};
+      int_tdata_next = int_tdata_wire;
       int_tvalid_next = int_maxcut_wire;
       int_cntr_next = {(CNTR_WIDTH){1'b0}};
       int_enbl_next = 1'b0;
@@ -126,7 +123,6 @@ module axis_pulse_height_analyzer #
 
     if(m_axis_tready & int_tvalid_reg)
     begin
-      int_tdata_next = {(AXIS_TDATA_WIDTH){1'b0}};
       int_tvalid_next = 1'b0;
     end
   end
