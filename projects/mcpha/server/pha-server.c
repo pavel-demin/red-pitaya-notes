@@ -98,15 +98,15 @@ int main(int argc, char *argv[])
 
       if(code == 0)
       {
-        /* reset timer */
-        *rst &= ~2;
-        *rst |= 2;
-      }
-      else if(code == 1)
-      {
         /* reset pha */
         *rst &= ~1;
         *rst |= 1;
+      }
+      else if(code == 1)
+      {
+        /* reset timer */
+        *rst &= ~2;
+        *rst |= 2;
       }
       else if(code == 2)
       {
@@ -140,30 +140,6 @@ int main(int argc, char *argv[])
         }
       }
       else if(code == 4)
-      {
-        /* set baseline mode (0 for none, 1 for auto) */
-        if(data == 0)
-        {
-          *rst &= ~4;
-        }
-        else if(data == 1)
-        {
-          *rst |= 4;
-        }
-      }
-      else if(code == 5)
-      {
-        /* set baseline level */
-        if(chan == 0)
-        {
-          *(uint16_t *)(cfg + 48) = data;
-        }
-        else if(chan == 1)
-        {
-          *(uint16_t *)(cfg + 64) = data;
-        }
-      }
-      else if(code == 6)
       {
         /* set pha delay */
         if(chan == 0)

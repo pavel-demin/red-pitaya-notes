@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  command = (33ULL << 56);
+  command = (30ULL << 56);
 
   #if defined(_WIN32)
   int total = sizeof(command);

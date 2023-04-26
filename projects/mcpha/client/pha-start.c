@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
   long value;
   int32_t rate, pol1, pol2, min1, max1, min2, max2;
   time_t start, stop;
-  uint64_t command[17];
+  uint64_t command[14];
   char buffer[2048];
 
   if(argc != 11)
@@ -202,18 +202,15 @@ int main(int argc, char *argv[])
   command[2] = (2ULL << 60) + rate;
   command[3] = (3ULL << 60) + (0ULL << 56) + pol1;
   command[4] = (3ULL << 60) + (1ULL << 56) + pol2;
-  command[5] = (4ULL << 60) + 1;
-  command[6] = (5ULL << 60) + (0ULL << 56) + 0;
-  command[7] = (5ULL << 60) + (1ULL << 56) + 0;
-  command[8] = (6ULL << 60) + (0ULL << 56) + 100;
-  command[9] = (6ULL << 60) + (1ULL << 56) + 100;
-  command[10] = (7ULL << 60) + (0ULL << 56) + min1;
-  command[11] = (7ULL << 60) + (1ULL << 56) + min2;
-  command[12] = (8ULL << 60) + (0ULL << 56) + max1;
-  command[13] = (8ULL << 60) + (1ULL << 56) + max2;
-  command[14] = (9ULL << 60) + (0ULL << 56) + 125000000ULL * stop;
-  command[15] = (9ULL << 60) + (1ULL << 56) + 125000000ULL * stop;
-  command[16] = (10ULL << 60);
+  command[5] = (4ULL << 60) + (0ULL << 56) + 100;
+  command[6] = (4ULL << 60) + (1ULL << 56) + 100;
+  command[7] = (5ULL << 60) + (0ULL << 56) + min1;
+  command[8] = (5ULL << 60) + (1ULL << 56) + min2;
+  command[9] = (6ULL << 60) + (0ULL << 56) + max1;
+  command[10] = (6ULL << 60) + (1ULL << 56) + max2;
+  command[11] = (7ULL << 60) + (0ULL << 56) + 125000000ULL * stop;
+  command[12] = (7ULL << 60) + (1ULL << 56) + 125000000ULL * stop;
+  command[13] = (8ULL << 60);
 
   #if defined(_WIN32)
   int total = sizeof(command);

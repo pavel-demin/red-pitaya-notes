@@ -352,12 +352,10 @@ module pha_0 {
   slice_0/din rst_slice_0/dout
   slice_1/din rst_slice_0/dout
   slice_2/din rst_slice_0/dout
-  slice_3/din rst_slice_0/dout
+  slice_3/din cfg_slice_0/dout
   slice_4/din cfg_slice_0/dout
   slice_5/din cfg_slice_0/dout
   slice_6/din cfg_slice_0/dout
-  slice_7/din cfg_slice_0/dout
-  slice_8/din cfg_slice_0/dout
   timer_0/S_AXIS bcast_0/M04_AXIS
   pha_0/S_AXIS bcast_1/M00_AXIS
 }
@@ -375,12 +373,10 @@ module pha_1 {
   slice_0/din rst_slice_1/dout
   slice_1/din rst_slice_1/dout
   slice_2/din rst_slice_1/dout
-  slice_3/din rst_slice_1/dout
+  slice_3/din cfg_slice_1/dout
   slice_4/din cfg_slice_1/dout
   slice_5/din cfg_slice_1/dout
   slice_6/din cfg_slice_1/dout
-  slice_7/din cfg_slice_1/dout
-  slice_8/din cfg_slice_1/dout
   timer_0/S_AXIS bcast_0/M05_AXIS
   pha_0/S_AXIS bcast_1/M01_AXIS
 }
@@ -418,12 +414,10 @@ module pha_2 {
   slice_0/din rst_slice_3/dout
   slice_1/din rst_slice_3/dout
   slice_2/din rst_slice_3/dout
-  slice_3/din rst_slice_3/dout
+  slice_3/din cfg_slice_2/dout
   slice_4/din cfg_slice_2/dout
   slice_5/din cfg_slice_2/dout
   slice_6/din cfg_slice_2/dout
-  slice_7/din cfg_slice_2/dout
-  slice_8/din cfg_slice_2/dout
   timer_0/S_AXIS bcast_0/M06_AXIS
   pha_0/S_AXIS bcast_2/M00_AXIS
   vldtr_0/m_axis_tready const_0/dout
@@ -435,12 +429,10 @@ module pha_3 {
   slice_0/din rst_slice_3/dout
   slice_1/din rst_slice_3/dout
   slice_2/din rst_slice_3/dout
-  slice_3/din rst_slice_3/dout
+  slice_3/din cfg_slice_3/dout
   slice_4/din cfg_slice_3/dout
   slice_5/din cfg_slice_3/dout
   slice_6/din cfg_slice_3/dout
-  slice_7/din cfg_slice_3/dout
-  slice_8/din cfg_slice_3/dout
   timer_0/S_AXIS bcast_0/M07_AXIS
   pha_0/S_AXIS bcast_2/M01_AXIS
   vldtr_0/m_axis_tready const_0/dout

@@ -163,17 +163,17 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  command[1] = (24ULL << 56) + fall;
-  command[2] = (25ULL << 56) + rise;
-  command[3] = (28ULL << 56) + rate;
-  command[4] = (29ULL << 56) + dist;
+  command[1] = (21ULL << 56) + fall;
+  command[2] = (22ULL << 56) + rise;
+  command[3] = (25ULL << 56) + rate;
+  command[4] = (26ULL << 56) + dist;
 
   for(i = 0; i < 4096; ++i)
   {
-    command[5 + i] = (31ULL << 56) + ((uint64_t) i << 32) + hist[i];
+    command[5 + i] = (28ULL << 56) + ((uint64_t) i << 32) + hist[i];
   }
 
-  command[4101] = (32ULL << 56) + 1;
+  command[4101] = (29ULL << 56) + 1;
 
   #if defined(_WIN32)
   int total = sizeof(command);
