@@ -31,8 +31,15 @@ module axis_oscilloscope #
 
   reg [CNTR_WIDTH-1:0] int_addr_reg, int_addr_next;
   reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
-  reg [1:0] int_case_reg, int_case_next;
-  reg int_enbl_reg, int_enbl_next;
+  reg int_run_reg, int_run_next;
+  reg int_pre_reg, int_pre_next;
+  reg int_trg_reg, int_trg_next;
+  reg int_tot_reg, int_tot_next;
+
+  wire int_valid_wire, int_comp_wire;
+
+  assign int_valid_wire = int_run_reg & s_axis_tvalid;
+  assign int_last_wire = int_cntr_reg == tot_data;
 
   always @(posedge aclk)
   begin
@@ -40,15 +47,19 @@ module axis_oscilloscope #
     begin
       int_addr_reg <= {(CNTR_WIDTH){1'b0}};
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
-      int_case_reg <= 2'd0;
-      int_enbl_reg <= 1'b0;
+      int_run_reg <= 1'b0;
+      int_pre_reg <= 1'b0;
+      int_trg_reg <= 1'b0;
+      int_tot_reg <= 1'b0;
     end
     else
     begin
       int_addr_reg <= int_addr_next;
       int_cntr_reg <= int_cntr_next;
-      int_case_reg <= int_case_next;
-      int_enbl_reg <= int_enbl_next;
+      int_run_reg <= int_run_next;
+      int_pre_reg <= int_pre_next;
+      int_trg_reg <= int_trg_next;
+      int_tot_reg <= int_tot_next;
     end
   end
 
@@ -56,73 +67,53 @@ module axis_oscilloscope #
   begin
     int_addr_next = int_addr_reg;
     int_cntr_next = int_cntr_reg;
-    int_case_next = int_case_reg;
-    int_enbl_next = int_enbl_reg;
+    int_run_next = int_run_reg;
+    int_pre_next = int_pre_reg;
+    int_trg_next = int_trg_reg;
+    int_tot_next = int_tot_reg;
 
-    case(int_case_reg)
-      // idle
-      2'd0:
+    if(~int_run_reg & run_flag)
+    begin
+      int_addr_next = {(CNTR_WIDTH){1'b0}};
+      int_cntr_next = {(CNTR_WIDTH){1'b0}};
+      int_run_next = 1'b1;
+      int_pre_next = 1'b0;
+      int_trg_next = 1'b0;
+      int_tot_next = 1'b0;
+    end
+
+    if(int_run_reg & int_pre_reg & trg_flag)
+    begin
+      int_trg_next = 1'b1;
+    end
+
+    if(int_valid_wire)
+    begin
+      int_cntr_next = int_last_wire ? {(CNTR_WIDTH){1'b0}} : int_cntr_reg + 1'b1;
+
+      if(int_cntr_reg == pre_data)
       begin
-        if(run_flag)
-        begin
-          int_addr_next = {(CNTR_WIDTH){1'b0}};
-          int_cntr_next = {(CNTR_WIDTH){1'b0}};
-          int_case_next = 2'd1;
-          int_enbl_next = 1'b1;
-        end
+        int_pre_next = 1'b1;
       end
 
-      // pre-trigger recording
-      2'd1:
+      if(~int_tot_reg & int_trg_reg)
       begin
-        if(s_axis_tvalid)
-        begin
-          int_cntr_next = int_cntr_reg + 1'b1;
-          if(int_cntr_reg == pre_data)
-          begin
-            int_case_next = 2'd2;
-          end
-        end
+        int_addr_next = int_cntr_reg;
+        int_cntr_next = pre_data + int_cntr_reg[5:0];
+        int_tot_next = 1'b1;
       end
 
-      // pre-trigger recording
-      2'd2:
+      if(int_tot_reg & int_last_wire)
       begin
-        if(s_axis_tvalid)
-        begin
-          int_cntr_next = int_cntr_reg + 1'b1;
-        end
-        if(trg_flag)
-        begin
-          int_addr_next = int_cntr_reg;
-          int_cntr_next = pre_data + int_cntr_reg[5:0];
-          int_case_next = 2'd3;
-        end
+        int_run_next = 1'b0;
       end
-
-      // post-trigger recording
-      2'd3:
-      begin
-        if(s_axis_tvalid)
-        begin
-          if(int_cntr_reg < tot_data)
-          begin
-            int_cntr_next = int_cntr_reg + 1'b1;
-          end
-          else
-          begin
-            int_case_next = 2'd0;
-            int_enbl_next = 1'b0;
-          end
-        end
-      end
-    endcase
+    end
   end
 
-  assign sts_data = {int_addr_reg, int_enbl_reg};
+  assign sts_data = {int_addr_reg, int_run_reg};
 
   assign s_axis_tready = 1'b1;
   assign m_axis_tdata = s_axis_tdata;
-  assign m_axis_tvalid = int_enbl_reg & s_axis_tvalid;
+  assign m_axis_tvalid = int_valid_wire;
 
 endmodule
