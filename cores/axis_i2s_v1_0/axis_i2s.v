@@ -1,7 +1,7 @@
 
 `timescale 1 ns / 1 ps
 
-module axis_decimator #
+module axis_i2s #
 (
   parameter integer AXIS_TDATA_WIDTH = 32
 )
