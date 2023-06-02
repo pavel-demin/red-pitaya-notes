@@ -43,12 +43,19 @@ module axi_hub #
   input  wire [STS_DATA_WIDTH-1:0] sts_data,
 {% for i in range(hub_size) -%}
 {% set index =  "%02d" % i %}
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b{{index}}_bram CLK" *)
   output wire                      b{{index}}_bram_clk,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b{{index}}_bram RST" *)
   output wire                      b{{index}}_bram_rst,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b{{index}}_bram EN" *)
   output wire                      b{{index}}_bram_en,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b{{index}}_bram WE" *)
   output wire [3:0]                b{{index}}_bram_we,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b{{index}}_bram ADDR" *)
   output wire [21:0]               b{{index}}_bram_addr,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b{{index}}_bram DIN" *)
   output wire [31:0]               b{{index}}_bram_wdata,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b{{index}}_bram DOUT" *)
   input  wire [31:0]               b{{index}}_bram_rdata,
 
   input  wire [31:0]               s{{index}}_axis_tdata,

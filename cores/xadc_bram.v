@@ -4,22 +4,37 @@
 module xadc_bram
 (
   // XADC inputs
+  (* X_INTERFACE_INFO = "xilinx.com:interface:diff_analog_io:1.0 Vp_Vn V_P" *)
   input  wire        Vp_Vn_p,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:diff_analog_io:1.0 Vp_Vn V_N" *)
   input  wire        Vp_Vn_n,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:diff_analog_io:1.0 Vaux0 V_P" *)
   input  wire        Vaux0_p,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:diff_analog_io:1.0 Vaux0 V_N" *)
   input  wire        Vaux0_n,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:diff_analog_io:1.0 Vaux1 V_P" *)
   input  wire        Vaux1_p,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:diff_analog_io:1.0 Vaux1 V_N" *)
   input  wire        Vaux1_n,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:diff_analog_io:1.0 Vaux8 V_P" *)
   input  wire        Vaux8_p,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:diff_analog_io:1.0 Vaux8 V_N" *)
   input  wire        Vaux8_n,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:diff_analog_io:1.0 Vaux9 V_P" *)
   input  wire        Vaux9_p,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:diff_analog_io:1.0 Vaux9 V_N" *)
   input  wire        Vaux9_n,
 
   // BRAM port
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram CLK" *)
   input  wire        b_bram_clk,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram RST" *)
   input  wire        b_bram_rst,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram EN" *)
   input  wire        b_bram_en,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram ADDR" *)
   input  wire [4:0]  b_bram_addr,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram DOUT" *)
   output wire [15:0] b_bram_rdata
 );
 

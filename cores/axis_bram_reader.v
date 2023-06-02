@@ -23,10 +23,15 @@ module axis_bram_reader #
   input  wire                        m_axis_tready,
 
   // BRAM port
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram CLK" *)
   output wire                        b_bram_clk,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram RST" *)
   output wire                        b_bram_rst,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram EN" *)
   output wire                        b_bram_en,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram ADDR" *)
   output wire [BRAM_ADDR_WIDTH-1:0]  b_bram_addr,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram DOUT" *)
   input  wire [BRAM_DATA_WIDTH-1:0]  b_bram_rdata
 );
 

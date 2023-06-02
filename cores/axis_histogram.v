@@ -18,12 +18,19 @@ module axis_histogram #
   output wire                         s_axis_tready,
 
   // BRAM port
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram CLK" *)
   output wire                         b_bram_clk,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram RST" *)
   output wire                         b_bram_rst,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram EN" *)
   output wire                         b_bram_en,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram WE" *)
   output wire [BRAM_DATA_WIDTH/8-1:0] b_bram_we,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram ADDR" *)
   output wire [BRAM_ADDR_WIDTH-1:0]   b_bram_addr,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram DIN" *)
   output wire [BRAM_DATA_WIDTH-1:0]   b_bram_wdata,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b_bram DOUT" *)
   input  wire [BRAM_DATA_WIDTH-1:0]   b_bram_rdata
 );
 

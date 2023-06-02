@@ -41,12 +41,19 @@ module axi_hub #
 
   input  wire [STS_DATA_WIDTH-1:0] sts_data,
 
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b00_bram CLK" *)
   output wire                      b00_bram_clk,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b00_bram RST" *)
   output wire                      b00_bram_rst,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b00_bram EN" *)
   output wire                      b00_bram_en,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b00_bram WE" *)
   output wire [3:0]                b00_bram_we,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b00_bram ADDR" *)
   output wire [21:0]               b00_bram_addr,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b00_bram DIN" *)
   output wire [31:0]               b00_bram_wdata,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b00_bram DOUT" *)
   input  wire [31:0]               b00_bram_rdata,
 
   input  wire [31:0]               s00_axis_tdata,
@@ -57,12 +64,19 @@ module axi_hub #
   output wire                      m00_axis_tvalid,
   input  wire                      m00_axis_tready,
 
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b01_bram CLK" *)
   output wire                      b01_bram_clk,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b01_bram RST" *)
   output wire                      b01_bram_rst,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b01_bram EN" *)
   output wire                      b01_bram_en,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b01_bram WE" *)
   output wire [3:0]                b01_bram_we,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b01_bram ADDR" *)
   output wire [21:0]               b01_bram_addr,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b01_bram DIN" *)
   output wire [31:0]               b01_bram_wdata,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b01_bram DOUT" *)
   input  wire [31:0]               b01_bram_rdata,
 
   input  wire [31:0]               s01_axis_tdata,
@@ -73,12 +87,19 @@ module axi_hub #
   output wire                      m01_axis_tvalid,
   input  wire                      m01_axis_tready,
 
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b02_bram CLK" *)
   output wire                      b02_bram_clk,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b02_bram RST" *)
   output wire                      b02_bram_rst,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b02_bram EN" *)
   output wire                      b02_bram_en,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b02_bram WE" *)
   output wire [3:0]                b02_bram_we,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b02_bram ADDR" *)
   output wire [21:0]               b02_bram_addr,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b02_bram DIN" *)
   output wire [31:0]               b02_bram_wdata,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b02_bram DOUT" *)
   input  wire [31:0]               b02_bram_rdata,
 
   input  wire [31:0]               s02_axis_tdata,
@@ -89,12 +110,19 @@ module axi_hub #
   output wire                      m02_axis_tvalid,
   input  wire                      m02_axis_tready,
 
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b03_bram CLK" *)
   output wire                      b03_bram_clk,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b03_bram RST" *)
   output wire                      b03_bram_rst,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b03_bram EN" *)
   output wire                      b03_bram_en,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b03_bram WE" *)
   output wire [3:0]                b03_bram_we,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b03_bram ADDR" *)
   output wire [21:0]               b03_bram_addr,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b03_bram DIN" *)
   output wire [31:0]               b03_bram_wdata,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b03_bram DOUT" *)
   input  wire [31:0]               b03_bram_rdata,
 
   input  wire [31:0]               s03_axis_tdata,
@@ -105,12 +133,19 @@ module axi_hub #
   output wire                      m03_axis_tvalid,
   input  wire                      m03_axis_tready,
 
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b04_bram CLK" *)
   output wire                      b04_bram_clk,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b04_bram RST" *)
   output wire                      b04_bram_rst,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b04_bram EN" *)
   output wire                      b04_bram_en,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b04_bram WE" *)
   output wire [3:0]                b04_bram_we,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b04_bram ADDR" *)
   output wire [21:0]               b04_bram_addr,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b04_bram DIN" *)
   output wire [31:0]               b04_bram_wdata,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b04_bram DOUT" *)
   input  wire [31:0]               b04_bram_rdata,
 
   input  wire [31:0]               s04_axis_tdata,
@@ -121,12 +156,19 @@ module axi_hub #
   output wire                      m04_axis_tvalid,
   input  wire                      m04_axis_tready,
 
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b05_bram CLK" *)
   output wire                      b05_bram_clk,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b05_bram RST" *)
   output wire                      b05_bram_rst,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b05_bram EN" *)
   output wire                      b05_bram_en,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b05_bram WE" *)
   output wire [3:0]                b05_bram_we,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b05_bram ADDR" *)
   output wire [21:0]               b05_bram_addr,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b05_bram DIN" *)
   output wire [31:0]               b05_bram_wdata,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 b05_bram DOUT" *)
   input  wire [31:0]               b05_bram_rdata,
 
   input  wire [31:0]               s05_axis_tdata,
