@@ -27,11 +27,18 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 
-from PyQt5.uic import loadUiType
-from PyQt5.QtCore import QRegExp, QTimer
-from PyQt5.QtGui import QRegExpValidator
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget
-from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
+if 'PyQt5' in sys.modules:
+  from PyQt5.uic import loadUiType
+  from PyQt5.QtCore import QRegExp, QTimer
+  from PyQt5.QtGui import QRegExpValidator
+  from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget
+  from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
+else:
+  from PySide2.QtUiTools import loadUiType
+  from PySide2.QtCore import QRegExp, QTimer
+  from PySide2.QtGui import QRegExpValidator
+  from PySide2.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget
+  from PySide2.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_PulsedNMR, QMainWindow = loadUiType('pulsed_nmr.ui')
 
