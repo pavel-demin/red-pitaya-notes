@@ -79,7 +79,7 @@ static int __init cma_init(void)
 
   dma_device = cma_device.this_device;
 
-  dma_device->dma_ops = &arm_coherent_dma_ops;
+  dma_device->dma_coherent = true;
   dma_device->coherent_dma_mask = DMA_BIT_MASK(32);
 
   return 0;
