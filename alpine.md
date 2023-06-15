@@ -68,7 +68,7 @@ lbu commit -d
 
 Installing packages:
 {% highlight bash %}
-apk add python3
+apk add gcc make
 
 lbu commit -d
 {% endhighlight %}
