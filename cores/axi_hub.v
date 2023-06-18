@@ -343,7 +343,7 @@ module axi_hub #
     end
   end
 
-  input_buffer #(
+  inout_buffer #(
     .DATA_WIDTH(44)
   ) buf_0 (
     .aclk(aclk), .aresetn(aresetn),
@@ -353,7 +353,7 @@ module axi_hub #
     .out_valid(int_awvalid_wire), .out_ready(int_awready_wire)
   );
 
-  input_buffer #(
+  inout_buffer #(
     .DATA_WIDTH(37)
   ) buf_1 (
     .aclk(aclk), .aresetn(aresetn),
@@ -371,7 +371,7 @@ module axi_hub #
     .out_data(s_axi_bid), .out_valid(s_axi_bvalid), .out_ready(s_axi_bready)
   );
 
-  input_buffer #(
+  inout_buffer #(
     .DATA_WIDTH(48)
   ) buf_3 (
     .aclk(aclk), .aresetn(aresetn),
