@@ -12,9 +12,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+volatile uint64_t *fifo;
 volatile uint32_t *rx_freq, *tx_freq;
 volatile uint16_t *rx_rate, *rx_cntr, *tx_rate, *tx_cntr;
-volatile uint8_t *fifo, *gpio, *rx_rst, *rx_sync, *rx_mask, *tx_rst, *tx_sync, *tx_mask;
+volatile uint8_t *gpio, *rx_rst, *rx_sync, *rx_mask, *tx_rst, *tx_sync, *tx_mask;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 62500000;
