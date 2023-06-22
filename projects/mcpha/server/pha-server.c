@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 66) = data;
         }
       }
-      else if(code == 7)
+      else if(code == 5)
       {
         /* set pha min threshold */
         if(chan == 0)
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 68) = data;
         }
       }
-      else if(code == 8)
+      else if(code == 6)
       {
         /* set pha max threshold */
         if(chan == 0)
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 70) = data;
         }
       }
-      else if(code == 9)
+      else if(code == 7)
       {
         /* set timer */
         if(chan == 0)
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
           *(uint64_t *)(cfg + 56) = data;
         }
       }
-      else if(code == 10)
+      else if(code == 8)
       {
         /* start */
         sock_thread = sock_client;
