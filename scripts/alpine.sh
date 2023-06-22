@@ -81,7 +81,7 @@ ln -s /media/mmcblk0p1/cache $root_dir/etc/apk/cache
 cp -r alpine/etc $root_dir/
 cp -r alpine/apps $root_dir/media/mmcblk0p1/
 
-for project in common_tools led_blinker sdr_receiver_hpsdr sdr_receiver_wide sdr_transceiver sdr_transceiver_emb sdr_transceiver_ft8 sdr_transceiver_hpsdr sdr_transceiver_wide sdr_transceiver_wspr mcpha pulsed_nmr vna
+for project in common_tools led_blinker sdr_receiver_hpsdr sdr_receiver_wide sdr_transceiver sdr_transceiver_ft8 sdr_transceiver_hpsdr sdr_transceiver_wide sdr_transceiver_wspr mcpha pulsed_nmr vna
 do
   mkdir -p $root_dir/media/mmcblk0p1/apps/$project
   cp -r projects/$project/server/* $root_dir/media/mmcblk0p1/apps/$project/
@@ -89,7 +89,7 @@ do
   cp tmp/$project.bit $root_dir/media/mmcblk0p1/apps/$project/
 done
 
-for project in led_blinker_122_88 sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_122_88 sdr_transceiver_emb_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 pulsed_nmr_122_88 vna_122_88
+for project in led_blinker_122_88 sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 pulsed_nmr_122_88 vna_122_88
 do
   mkdir -p $root_dir/media/mmcblk0p1/apps/$project
   cp -r projects/$project/server/* $root_dir/media/mmcblk0p1/apps/$project/
@@ -169,17 +169,7 @@ lbu delete root/.ash_history
 
 lbu commit -d
 
-apk add patch make gcc gfortran
-
-wdsp_dir=/media/mmcblk0p1/apps/wdsp
-wdsp_tar=/media/mmcblk0p1/apps/wdsp.tar.gz
-wdsp_url=https://github.com/pavel-demin/wdsp/archive/master.tar.gz
-
-curl -L \$wdsp_url -o \$wdsp_tar
-mkdir -p \$wdsp_dir
-tar -zxf \$wdsp_tar --strip-components=1 --directory=\$wdsp_dir
-rm \$wdsp_tar
-make -C \$wdsp_dir
+apk add make gcc gfortran
 
 ft8d_dir=/media/mmcblk0p1/apps/ft8d
 ft8d_tar=/media/mmcblk0p1/apps/ft8d.tar.gz
@@ -201,13 +191,13 @@ tar -zxf \$wsprd_tar --strip-components=1 --directory=\$wsprd_dir
 rm \$wsprd_tar
 make -C \$wsprd_dir
 
-for project in server common_tools sdr_receiver_hpsdr sdr_receiver_wide sdr_transceiver sdr_transceiver_emb sdr_transceiver_ft8 sdr_transceiver_hpsdr sdr_transceiver_wide sdr_transceiver_wspr mcpha pulsed_nmr vna
+for project in server common_tools sdr_receiver_hpsdr sdr_receiver_wide sdr_transceiver sdr_transceiver_ft8 sdr_transceiver_hpsdr sdr_transceiver_wide sdr_transceiver_wspr mcpha pulsed_nmr vna
 do
   make -C /media/mmcblk0p1/apps/\$project clean
   make -C /media/mmcblk0p1/apps/\$project
 done
 
-for project in sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_122_88 sdr_transceiver_emb_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 pulsed_nmr_122_88 vna_122_88
+for project in sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 pulsed_nmr_122_88 vna_122_88
 do
   make -C /media/mmcblk0p1/apps/\$project clean
   make -C /media/mmcblk0p1/apps/\$project
