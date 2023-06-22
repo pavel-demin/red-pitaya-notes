@@ -46,6 +46,8 @@ module axis_i2s #
 
   wire i2s_bclk, i2s_lrclk, i2s_adc_data, i2s_dac_data;
 
+  wire int_bclk_posedge, int_bclk_negedge, int_lrclk_negedge;
+
   wire not_alex_flag = ~alex_flag;
 
   IOBUF buf_bclk (.O(i2s_bclk), .IO(gpio_data[0]), .I(alex_data[0]), .T(not_alex_flag));
