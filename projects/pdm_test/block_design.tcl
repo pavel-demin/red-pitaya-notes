@@ -202,7 +202,7 @@ cell pavel-demin:user:dsp48 mult_0 {
 cell xilinx.com:ip:c_shift_ram delay_0 {
   WIDTH.VALUE_SRC USER
   WIDTH 1
-  DEPTH 4
+  DEPTH 3
 } {
   D cic_0/m_axis_data_tvalid
   CLK pll_0/clk_out1
