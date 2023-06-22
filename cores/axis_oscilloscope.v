@@ -36,7 +36,7 @@ module axis_oscilloscope #
   reg int_trg_reg, int_trg_next;
   reg int_tot_reg, int_tot_next;
 
-  wire int_valid_wire, int_comp_wire;
+  wire int_valid_wire, int_last_wire;
 
   assign int_valid_wire = int_run_reg & s_axis_tvalid;
   assign int_last_wire = int_cntr_reg == tot_data;
