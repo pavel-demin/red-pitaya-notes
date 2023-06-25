@@ -26,7 +26,7 @@ My development machine has the following installed:
 
  - [Debian](https://www.debian.org/releases/bullseye) 11.7 (amd64)
 
- - [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2020.2
+ - [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2023.1
 
 Here are the commands to install all the other required packages:
 {% highlight bash %}
@@ -88,7 +88,7 @@ Getting started
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}
-source /opt/Xilinx/Vitis/2020.2/settings64.sh
+source /opt/Xilinx/Vitis/2023.1/settings64.sh
 {% endhighlight %}
 
 Cloning the source code repository:

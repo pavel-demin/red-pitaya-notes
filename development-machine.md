@@ -4,7 +4,7 @@ title: Development machine
 permalink: /development-machine/
 ---
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/bullseye) 11.7 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2020.2.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/bullseye) 11.7 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2023.1.
 
 Creating virtual machine with Debian 11.7 (amd64)
 -----
@@ -37,7 +37,7 @@ Creating virtual machine with Debian 11.7 (amd64)
 
   - Select "Dynamically allocated"
 
-  - Set the image size to at least 128 GB
+  - Set the image size to at least 256 GB
 
   - Select the newly created virtual machine and click the yellow "Settings" icon
 
@@ -85,13 +85,13 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 Installing Vitis Core Development Kit
 -----
 
-- Download "Xilinx Vitis 2020.2: All OS installer Single-File Download" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/archive-vitis.html) (the file name is Xilinx_Unified_2020.2_1118_1232.tar.gz)
+- Download "AMD Unified Installer for FPGAs & Adaptive SoCs 2023.1 SFD" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2023-1.html) (the file name is Xilinx_Unified_2023.1_0507_1903.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 {% highlight bash %}
 mkdir /opt/Xilinx
-tar -zxf Xilinx_Unified_2020.2_1118_1232.tar.gz
-cd Xilinx_Unified_2020.2_1118_1232
+tar -zxf Xilinx_Unified_2023.1_0507_1903.tar.gz
+cd Xilinx_Unified_2023.1_0507_1903
 ./xsetup
 {% endhighlight %}
 
