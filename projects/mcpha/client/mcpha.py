@@ -13,12 +13,20 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
-from PySide2.QtUiTools import loadUiType
-from PySide2.QtCore import Qt, QTimer, QEventLoop, QRegExp
-from PySide2.QtGui import QPalette, QColor, QRegExpValidator
-from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog
-from PySide2.QtWidgets import QWidget, QLabel, QCheckBox, QComboBox
-from PySide2.QtNetwork import QAbstractSocket, QTcpSocket
+if "PyQt5" in sys.modules:
+    from PyQt5.uic import loadUiType
+    from PyQt5.QtCore import Qt, QTimer, QEventLoop, QRegExp
+    from PyQt5.QtGui import QPalette, QColor, QRegExpValidator
+    from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog
+    from PyQt5.QtWidgets import QWidget, QLabel, QCheckBox, QComboBox
+    from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
+else:
+    from PySide2.QtUiTools import loadUiType
+    from PySide2.QtCore import Qt, QTimer, QEventLoop, QRegExp
+    from PySide2.QtGui import QPalette, QColor, QRegExpValidator
+    from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog
+    from PySide2.QtWidgets import QWidget, QLabel, QCheckBox, QComboBox
+    from PySide2.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_MCPHA, QMainWindow = loadUiType("mcpha.ui")
 Ui_LogDisplay, QWidget = loadUiType("mcpha_log.ui")
