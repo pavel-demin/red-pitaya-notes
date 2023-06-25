@@ -107,11 +107,11 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000A000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
 
-  coef[0] = ((uint16_t *)(cfg + 40));
-  coef[1] = ((uint16_t *)(cfg + 42));
+  coef[0] = (uint16_t *)(cfg + 40);
+  coef[1] = (uint16_t *)(cfg + 42);
 
   level = level > -90.0 ? floor(32766 * pow(10.0, level / 20.0) + 0.5) : 0.0;
 

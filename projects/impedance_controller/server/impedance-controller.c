@@ -40,17 +40,17 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x41000000);
+  data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
 
-  cntr = ((uint16_t *)(sts + 12));
+  cntr = (uint16_t *)(sts + 0);
 
-  rst = ((uint8_t *)(cfg + 0));
-  gpio = ((uint8_t *)(cfg + 1));
-  rate = ((uint16_t *)(cfg + 2));
-  freq = ((uint32_t *)(cfg + 4));
-  level = ((int16_t *)(cfg + 8));
+  rst = (uint8_t *)(cfg + 0);
+  gpio = (uint8_t *)(cfg + 1);
+  rate = (uint16_t *)(cfg + 2);
+  freq = (uint32_t *)(cfg + 4);
+  level = (int16_t *)(cfg + 8);
 
   *rate = 4;
   *freq = (uint32_t)floor(100000 / 125.0e6 * (1<<30) + 0.5);
@@ -58,7 +58,6 @@ int main(int argc, char *argv[])
   *level = 0;
 
   *rst &= ~1;
-  *rst |= 2;
   *gpio = 0;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -129,7 +128,6 @@ int main(int argc, char *argv[])
           if(sock_thread >= 0) continue;
           /* reset */
           *rst &= ~1;
-          *rst |= 2;
           sock_thread = sock_client;
           if(pthread_create(&thread, &attr, read_handler, NULL) < 0)
           {
@@ -137,21 +135,18 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
           }
           pthread_detach(thread);
-          *rst &= ~2;
           *rst |= 1;
           break;
         case 5:
           /* stop */
           sock_thread = -1;
           *rst &= ~1;
-          *rst |= 2;
           break;
       }
     }
 
     sock_thread = -1;
     *rst &= ~1;
-    *rst |= 2;
     *gpio = 0;
     close(sock_client);
   }

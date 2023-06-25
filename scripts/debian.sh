@@ -3,8 +3,8 @@ device=$1
 boot_dir=`mktemp -d /tmp/BOOT.XXXXXXXXXX`
 root_dir=`mktemp -d /tmp/ROOT.XXXXXXXXXX`
 
-linux_dir=tmp/linux-5.10
-linux_ver=5.10.107-xilinx
+linux_dir=tmp/linux-6.1
+linux_ver=6.1.32-xilinx
 
 # Choose mirror automatically, depending the geographic and network location
 mirror=http://deb.debian.org/debian

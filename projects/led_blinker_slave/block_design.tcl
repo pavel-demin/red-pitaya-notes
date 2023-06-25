@@ -50,7 +50,7 @@ create_bd_port -dir O adc_clk_p_o
 create_bd_port -dir O adc_clk_n_o
 
 # Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 trg_buf_0 {
+cell xilinx.com:ip:util_ds_buf trg_buf_0 {
   C_SIZE 1
   C_BUF_TYPE OBUFDS
 } {
@@ -60,7 +60,7 @@ cell xilinx.com:ip:util_ds_buf:2.1 trg_buf_0 {
 }
 
 # Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 trg_buf_1 {
+cell xilinx.com:ip:util_ds_buf trg_buf_1 {
   C_SIZE 1
   C_BUF_TYPE IBUFDS
 } {
@@ -69,7 +69,7 @@ cell xilinx.com:ip:util_ds_buf:2.1 trg_buf_1 {
 }
 
 # Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 clk_buf_0 {
+cell xilinx.com:ip:util_ds_buf clk_buf_0 {
   C_SIZE 1
   C_BUF_TYPE IBUFDS
 } {
@@ -78,7 +78,7 @@ cell xilinx.com:ip:util_ds_buf:2.1 clk_buf_0 {
 }
 
 # Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 clk_buf_1 {
+cell xilinx.com:ip:util_ds_buf clk_buf_1 {
   C_SIZE 1
   C_BUF_TYPE OBUFDS
 } {
@@ -88,7 +88,7 @@ cell xilinx.com:ip:util_ds_buf:2.1 clk_buf_1 {
 }
 
 # Create util_ds_buf
-cell xilinx.com:ip:util_ds_buf:2.1 clk_buf_2 {
+cell xilinx.com:ip:util_ds_buf clk_buf_2 {
   C_SIZE 1
   C_BUF_TYPE OBUFDS
 } {

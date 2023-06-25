@@ -141,8 +141,8 @@ cell  xilinx.com:ip:axis_combiner comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
 } {
-  S00_AXIS cic_1/M_AXIS_DATA
-  S01_AXIS cic_0/M_AXIS_DATA
+  S00_AXIS cic_0/M_AXIS_DATA
+  S01_AXIS cic_1/M_AXIS_DATA
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
@@ -222,36 +222,14 @@ cell xilinx.com:ip:axis_dwidth_converter conv_1 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create fifo_generator
-cell xilinx.com:ip:fifo_generator fifo_generator_0 {
-  PERFORMANCE_OPTIONS First_Word_Fall_Through
-  INPUT_DATA_WIDTH 64
-  INPUT_DEPTH 4096
-  OUTPUT_DATA_WIDTH 32
-  OUTPUT_DEPTH 8192
-  READ_DATA_COUNT true
-  READ_DATA_COUNT_WIDTH 14
-} {
-  clk /pll_0/clk_out1
-  srst slice_0/dout
-}
-
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo fifo_0 {
   S_AXIS_TDATA_WIDTH 64
   M_AXIS_TDATA_WIDTH 32
+  WRITE_DEPTH 4096
+  ALWAYS_READY TRUE
 } {
   S_AXIS conv_1/M_AXIS
-  FIFO_READ fifo_generator_0/FIFO_READ
-  FIFO_WRITE fifo_generator_0/FIFO_WRITE
   aclk /pll_0/clk_out1
-}
-
-# Create axi_axis_reader
-cell pavel-demin:user:axi_axis_reader reader_0 {
-  AXI_DATA_WIDTH 32
-} {
-  S_AXIS fifo_0/M_AXIS
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }

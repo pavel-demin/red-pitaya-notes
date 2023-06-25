@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
   struct sched_param param;
   pthread_attr_t attr;
   pthread_t thread;
-  volatile void *cfg, *sts;
-  volatile uint32_t *rx_freq, *rx_size, *tx_phase[2];
-  volatile int16_t *tx_level[2];
+  volatile void *cfg, *sts, *fifo;
+  volatile uint32_t *rx_freq, *rx_size, *tx_phase;
+  volatile int16_t *tx_level;
   volatile uint8_t *rst, *gpio;
   struct sockaddr_in addr;
   uint32_t command, freq, rate, size, i;
@@ -42,25 +42,25 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  rx_data = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-  rx_freq = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x41000000);
+  fifo = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
 
-  rx_cntr = ((uint16_t *)(sts + 12));
+  rst = (uint8_t *)(cfg + 0);
+  gpio = (uint8_t *)(cfg + 1);
+  rx_size = (uint32_t *)(cfg + 4);
+  tx_phase = (uint32_t *)(cfg + 8);
+  tx_level = (int16_t *)(cfg + 16);
 
-  rst = ((uint8_t *)(cfg + 0));
-  gpio = ((uint8_t *)(cfg + 1));
-  rx_size = ((uint32_t *)(cfg + 4));
-  tx_phase[0] = ((uint32_t *)(cfg + 8));
-  tx_phase[1] = ((uint32_t *)(cfg + 12));
-  tx_level[0] = ((int16_t *)(cfg + 16));
-  tx_level[1] = ((int16_t *)(cfg + 18));
+  rx_cntr = (uint16_t *)(sts + 0);
 
-  *tx_phase[0] = 0;
-  *tx_phase[1] = 0;
-  *tx_level[0] = 32766;
-  *tx_level[1] = 0;
+  rx_data = fifo;
+  rx_freq = fifo;
+
+  tx_phase[0] = 0;
+  tx_phase[1] = 0;
+  tx_level[0] = 32766;
+  tx_level[1] = 0;
   *rx_size = 51200 - 1;
 
   start = 10000;
@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
   corr = 0;
 
   *rst &= ~3;
-  *rst |= 4;
   *gpio = 0;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -145,22 +144,22 @@ int main(int argc, char *argv[])
         case 5:
           /* set phase */
           if(value < 0 || value > 360) continue;
-          *tx_phase[0] = (uint32_t)floor(value / 360.0 * (1<<30) + 0.5);
+          tx_phase[0] = (uint32_t)floor(value / 360.0 * (1<<30) + 0.5);
           break;
         case 6:
           /* set phase */
           if(value < 0 || value > 360) continue;
-          *tx_phase[1] = (uint32_t)floor(value / 360.0 * (1<<30) + 0.5);
+          tx_phase[1] = (uint32_t)floor(value / 360.0 * (1<<30) + 0.5);
           break;
         case 7:
           /* set level */
           if(value < -32766 || value > 32766) continue;
-          *tx_level[0] = value;
+          tx_level[0] = value;
           break;
         case 8:
           /* set level */
           if(value < -32766 || value > 32766) continue;
-          *tx_level[1] = value;
+          tx_level[1] = value;
           break;
         case 9:
           /* set gpio */
@@ -170,8 +169,6 @@ int main(int argc, char *argv[])
         case 10:
           /* sweep */
           *rst &= ~3;
-          *rst |= 4;
-          *rst &= ~4;
           *rst |= 2;
           rate_thread = rate;
           size_thread = size;
@@ -193,14 +190,12 @@ int main(int argc, char *argv[])
         case 11:
           /* cancel */
           *rst &= ~3;
-          *rst |= 4;
           sock_thread = -1;
           break;
       }
     }
 
     *rst &= ~3;
-    *rst |= 4;
     *gpio = 0;
     sock_thread = -1;
     close(sock_client);
@@ -232,10 +227,7 @@ void *read_handler(void *arg)
 
     if(i < 10)
     {
-      for(j = 0; j < 4; ++j)
-      {
-        buffer[j] = *rx_data;
-      }
+      memcpy(buffer, rx_data, 16);
       memset(buffer, 0, 16);
     }
     else

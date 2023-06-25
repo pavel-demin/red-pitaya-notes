@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 {
   int fd;
   char *end;
-  volatile void *cfg;
+  volatile uint8_t *cfg;
   long number;
 
   errno = 0;
@@ -28,9 +28,9 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40041000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x80000000);
 
-  *(uint8_t *)(cfg + 3) = (uint8_t)number;
+  cfg[3] = (uint8_t)number;
 
   return EXIT_SUCCESS;
 }

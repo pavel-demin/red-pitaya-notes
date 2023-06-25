@@ -21,8 +21,10 @@ cell xilinx.com:ip:clk_wiz pll_0 {
 # Create processing_system7
 cell xilinx.com:ip:processing_system7 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
+  PCW_USE_M_AXI_GP1 1
 } {
   M_AXI_GP0_ACLK pll_0/clk_out1
+  M_AXI_GP1_ACLK pll_0/clk_out1
 }
 
 # Create all required interconnections
@@ -38,6 +40,8 @@ cell xilinx.com:ip:xlconstant const_0
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
+  dcm_locked pll_0/locked
+  slowest_sync_clk pll_0/clk_out1
 }
 
 # ADC
@@ -69,13 +73,16 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
   dac_dat dac_dat_o
 }
 
-# CFG
+# HUB
 
-# Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register cfg_0 {
+# Create axi_hub
+cell pavel-demin:user:axi_hub hub_0 {
   CFG_DATA_WIDTH 608
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
+  STS_DATA_WIDTH 32
+} {
+  S_AXI ps_0/M_AXI_GP0
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
 }
 
 # RX 0
@@ -84,14 +91,14 @@ cell pavel-demin:user:axi_cfg_register cfg_0 {
 cell pavel-demin:user:port_slicer rst_slice_0 {
   DIN_WIDTH 608 DIN_FROM 7 DIN_TO 0
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_0 {
   DIN_WIDTH 608 DIN_FROM 575 DIN_TO 32
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 module rx_0 {
@@ -130,6 +137,8 @@ module rx_0 {
   slice_30/din cfg_slice_0/dout
   slice_31/din cfg_slice_0/dout
   slice_32/din cfg_slice_0/dout
+  fifo_0/read_count hub_0/sts_data
+  conv_2/M_AXIS hub_0/S00_AXIS
 }
 
 # TX 0
@@ -138,14 +147,14 @@ module rx_0 {
 cell pavel-demin:user:port_slicer rst_slice_1 {
   DIN_WIDTH 608 DIN_FROM 15 DIN_TO 8
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_1 {
   DIN_WIDTH 608 DIN_FROM 607 DIN_TO 576
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 module tx_0 {
@@ -154,6 +163,7 @@ module tx_0 {
   slice_0/din rst_slice_1/dout
   slice_1/din cfg_slice_1/dout
   slice_2/din cfg_slice_1/dout
+  fifo_0/S_AXIS hub_0/M00_AXIS
   zeroer_0/M_AXIS dac_0/S_AXIS
 }
 
@@ -162,74 +172,3 @@ module tx_0 {
 module common_0 {
   source projects/common_tools/block_design.tcl
 }
-
-# STS
-
-# Create dna_reader
-cell pavel-demin:user:dna_reader dna_0 {} {
-  aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
-}
-
-# Create xlconcat
-cell xilinx.com:ip:xlconcat concat_0 {
-  NUM_PORTS 18
-  IN0_WIDTH 32
-  IN1_WIDTH 64
-  IN2_WIDTH 16
-  IN3_WIDTH 16
-  IN4_WIDTH 16
-  IN5_WIDTH 16
-  IN6_WIDTH 16
-  IN7_WIDTH 16
-  IN8_WIDTH 16
-  IN9_WIDTH 16
-  IN10_WIDTH 16
-  IN11_WIDTH 16
-  IN12_WIDTH 16
-  IN13_WIDTH 16
-  IN14_WIDTH 16
-  IN15_WIDTH 16
-  IN16_WIDTH 16
-  IN17_WIDTH 16
-} {
-  In0 const_0/dout
-  In1 dna_0/dna_data
-  In2 rx_0/fifo_generator_0/rd_data_count
-  In3 rx_0/fifo_generator_1/rd_data_count
-  In4 rx_0/fifo_generator_2/rd_data_count
-  In5 rx_0/fifo_generator_3/rd_data_count
-  In6 rx_0/fifo_generator_4/rd_data_count
-  In7 rx_0/fifo_generator_5/rd_data_count
-  In8 rx_0/fifo_generator_6/rd_data_count
-  In9 rx_0/fifo_generator_7/rd_data_count
-  In10 rx_0/fifo_generator_8/rd_data_count
-  In11 rx_0/fifo_generator_9/rd_data_count
-  In12 rx_0/fifo_generator_10/rd_data_count
-  In13 rx_0/fifo_generator_11/rd_data_count
-  In14 rx_0/fifo_generator_12/rd_data_count
-  In15 rx_0/fifo_generator_13/rd_data_count
-  In16 rx_0/fifo_generator_14/rd_data_count
-  In17 rx_0/fifo_generator_15/rd_data_count
-}
-
-# Create axi_sts_register
-cell pavel-demin:user:axi_sts_register sts_0 {
-  STS_DATA_WIDTH 352
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
-} {
-  sts_data concat_0/dout
-}
-
-addr 0x40000000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40001000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
-
-for {set i 0} {$i <= 15} {incr i} {
-
-  addr 0x400[format %02X [expr $i + 2]]000 4K rx_0/reader_$i/S_AXI /ps_0/M_AXI_GP0
-
-}
-
-addr 0x40012000 4K tx_0/writer_0/S_AXI /ps_0/M_AXI_GP0

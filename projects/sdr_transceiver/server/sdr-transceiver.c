@@ -13,7 +13,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-volatile uint64_t *rx_data, *tx_data;
+volatile uint64_t *fifo;
 volatile uint32_t *rx_freq, *tx_freq;
 volatile uint16_t *rx_rate, *rx_cntr, *tx_rate, *tx_cntr;
 volatile uint8_t *gpio, *rx_rst, *rx_sync, *tx_rst, *tx_sync;
@@ -67,33 +67,31 @@ int main(int argc, char *argv[])
   {
     case 1:
       port = 1001;
-      cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-      sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-      rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000);
-      tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40018000);
+      cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+      sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x41000000);
+      fifo = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
       break;
     case 2:
       port = 1002;
-      cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
-      sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
-      rx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
-      tx_data = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40028000);
+      cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x80000000);
+      sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x81000000);
+      fifo = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x82000000);
       break;
   }
 
-  gpio = ((uint8_t *)(cfg + 2));
+  gpio = (uint8_t *)(cfg + 2);
 
-  rx_rst = ((uint8_t *)(cfg + 0));
-  rx_freq = ((uint32_t *)(cfg + 4));
-  rx_sync = ((uint8_t *)(cfg + 8));
-  rx_rate = ((uint16_t *)(cfg + 10));
-  rx_cntr = ((uint16_t *)(sts + 0));
+  rx_rst = (uint8_t *)(cfg + 0);
+  rx_freq = (uint32_t *)(cfg + 4);
+  rx_sync = (uint8_t *)(cfg + 8);
+  rx_rate = (uint16_t *)(cfg + 10);
+  rx_cntr = (uint16_t *)(sts + 0);
 
-  tx_rst = ((uint8_t *)(cfg + 1));
-  tx_freq = ((uint32_t *)(cfg + 12));
-  tx_sync = ((uint8_t *)(cfg + 16));
-  tx_rate = ((uint16_t *)(cfg + 18));
-  tx_cntr = ((uint16_t *)(sts + 2));
+  tx_rst = (uint8_t *)(cfg + 1);
+  tx_freq = (uint32_t *)(cfg + 12);
+  tx_sync = (uint8_t *)(cfg + 16);
+  tx_rate = (uint16_t *)(cfg + 18);
+  tx_cntr = (uint16_t *)(sts + 2);
 
   /* set PTT pin to low */
   *gpio = 0;
@@ -227,22 +225,22 @@ void *rx_ctrl_handler(void *arg)
 void *rx_data_handler(void *arg)
 {
   int i, sock_client = sock_thread[1];
-  uint64_t buffer[2048];
+  uint8_t buffer[16384];
 
-  *rx_rst |= 1;
   *rx_rst &= ~1;
+  *rx_rst |= 1;
 
   while(1)
   {
     if(*rx_cntr >= 8192)
     {
-      *rx_rst |= 1;
       *rx_rst &= ~1;
+      *rx_rst |= 1;
     }
 
     while(*rx_cntr < 4096) usleep(500);
 
-    for(i = 0; i < 2048; ++i) buffer[i] = *rx_data;
+    memcpy(buffer, fifo, 16384);
     if(send(sock_client, buffer, 16384, MSG_NOSIGNAL) < 0) break;
   }
 
@@ -329,10 +327,10 @@ void *tx_ctrl_handler(void *arg)
 void *tx_data_handler(void *arg)
 {
   int i, sock_client = sock_thread[3];
-  uint64_t buffer[2048];
+  uint8_t buffer[16384];
 
-  *tx_rst |= 1;
   *tx_rst &= ~1;
+  *tx_rst |= 1;
 
   while(1)
   {
@@ -340,11 +338,11 @@ void *tx_data_handler(void *arg)
 
     if(*tx_cntr == 0)
     {
-      for(i = 0; i < 2048; ++i) *tx_data = 0;
+      for(i = 0; i < 2048; ++i) *fifo = 0;
     }
 
     if(recv(sock_client, buffer, 16384, 0) <= 0) break;
-    for(i = 0; i < 2048; ++i) *tx_data = buffer[i];
+    memcpy(fifo, buffer, 16384);
   }
 
   close(sock_client);

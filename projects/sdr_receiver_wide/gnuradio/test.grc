@@ -1,6 +1,7 @@
 options:
   parameters:
     author: ''
+    catch_exceptions: 'True'
     category: Custom
     cmake_opt: ''
     comment: ''
@@ -22,12 +23,12 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: ''
-    window_size: 2000,2000
+    window_size: (1000,1000)
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [16, 16.0]
+    coordinate: [8, 8.0]
     rotation: 0
     state: enabled
 
@@ -39,18 +40,18 @@ blocks:
     gui_hint: 0,0,1,1
     label: ''
     min_len: '200'
-    orient: Qt.Horizontal
-    rangeType: int
-    start: '0'
-    step: '1000'
-    stop: '62500000'
-    value: '10000000'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '80'
+    step: '0.1'
+    stop: '120'
+    value: '100.0'
     widget: counter
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [16, 92.0]
+    coordinate: [8, 84.0]
     rotation: 0
     state: enabled
 - name: rx_freq2
@@ -60,18 +61,18 @@ blocks:
     gui_hint: 0,1,1,1
     label: ''
     min_len: '200'
-    orient: Qt.Horizontal
-    rangeType: int
-    start: '0'
-    step: '1000'
-    stop: '62500000'
-    value: '10000000'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '80'
+    step: '0.1'
+    stop: '120'
+    value: '100.0'
     widget: counter
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [184, 92.0]
+    coordinate: [152, 84.0]
     rotation: 0
     state: enabled
 - name: rx_rate
@@ -83,7 +84,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [232, 16.0]
+    coordinate: [208, 8.0]
     rotation: 180
     state: enabled
 - name: analog_wfm_rcv_0
@@ -100,7 +101,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [728, 136.0]
+    coordinate: [704, 136.0]
     rotation: 0
     state: true
 - name: audio_sink_0
@@ -117,7 +118,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1200, 144.0]
+    coordinate: [1176, 144.0]
     rotation: 0
     state: true
 - name: blocks_deinterleave_0
@@ -136,7 +137,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [272, 264.0]
+    coordinate: [264, 264.0]
     rotation: 0
     state: true
 - name: low_pass_filter_0
@@ -155,12 +156,12 @@ blocks:
     samp_rate: rx_rate
     type: fir_filter_ccf
     width: '10000'
-    win: firdes.WIN_HAMMING
+    win: window.WIN_HAMMING
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [504, 88.0]
+    coordinate: [480, 88.0]
     rotation: 0
     state: true
 - name: qtgui_freq_sink_x_0
@@ -215,6 +216,7 @@ blocks:
     minoutbuf: '0'
     name: '""'
     nconnections: '1'
+    norm_window: 'False'
     showports: 'False'
     tr_chan: '0'
     tr_level: '0.0'
@@ -233,14 +235,14 @@ blocks:
     width7: '1'
     width8: '1'
     width9: '1'
-    wintype: firdes.WIN_BLACKMAN_hARRIS
+    wintype: window.WIN_HAMMING
     ymax: '10'
     ymin: '-140'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [504, 264.0]
+    coordinate: [480, 260.0]
     rotation: 0
     state: true
 - name: qtgui_freq_sink_x_0_0
@@ -295,6 +297,7 @@ blocks:
     minoutbuf: '0'
     name: '""'
     nconnections: '1'
+    norm_window: 'False'
     showports: 'False'
     tr_chan: '0'
     tr_level: '0.0'
@@ -313,14 +316,14 @@ blocks:
     width7: '1'
     width8: '1'
     width9: '1'
-    wintype: firdes.WIN_BLACKMAN_hARRIS
+    wintype: window.WIN_HAMMING
     ymax: '10'
     ymin: '-140'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [504, 376.0]
+    coordinate: [480, 364.0]
     rotation: 0
     state: true
 - name: rational_resampler_xxx_0
@@ -329,7 +332,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    decim: '3125'
+    decim: rx_rate//1000
     fbw: '0'
     interp: '48'
     maxoutbuf: '0'
@@ -340,7 +343,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [976, 116.0]
+    coordinate: [952, 116.0]
     rotation: 0
     state: true
 - name: red_pitaya_source_0
@@ -351,8 +354,8 @@ blocks:
     alias: ''
     comment: ''
     corr: '0'
-    freq1: '10000000'
-    freq2: '10000000'
+    freq1: rx_freq1*1000000
+    freq2: rx_freq2*1000000
     maxoutbuf: '0'
     minoutbuf: '0'
     port: '1001'
@@ -361,7 +364,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [16, 228.0]
+    coordinate: [8, 228.0]
     rotation: 0
     state: true
 
@@ -376,3 +379,4 @@ connections:
 
 metadata:
   file_format: 1
+  grc_version: 3.10.5.1

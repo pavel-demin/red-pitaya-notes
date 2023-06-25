@@ -38,6 +38,8 @@ cell xilinx.com:ip:xlconstant const_0
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
+  dcm_locked pll_0/locked
+  slowest_sync_clk pll_0/clk_out1
 }
 
 # ADC
@@ -69,35 +71,6 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
   dac_dat dac_dat_o
 }
 
-# DNA
-
-# Create dna_reader
-cell pavel-demin:user:dna_reader dna_0 {} {
-  aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
-}
-
-# Create xlconcat
-cell xilinx.com:ip:xlconcat concat_0 {
-  NUM_PORTS 2
-  IN0_WIDTH 32
-  IN1_WIDTH 64
-} {
-  In0 const_0/dout
-  In1 dna_0/dna_data
-}
-
-# Create axi_sts_register
-cell pavel-demin:user:axi_sts_register sts_0 {
-  STS_DATA_WIDTH 96
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
-} {
-  sts_data concat_0/dout
-}
-
-addr 0x40000000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
-
 # GPIO
 
 # Delete input/output port
@@ -111,16 +84,9 @@ create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
 module trx_0 {
   source projects/sdr_transceiver_wide/trx.tcl
 } {
+  hub_0/S_AXI ps_0/M_AXI_GP0
   out_slice_0/dout exp_p_tri_io
   rx_0/adc_slice_0/din adc_0/m_axis_tdata
   rx_0/adc_slice_1/din adc_0/m_axis_tdata
   tx_0/comb_1/M_AXIS dac_0/S_AXIS
 }
-
-addr 0x40001000 4K trx_0/cfg_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40002000 4K trx_0/sts_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40010000 64K trx_0/rx_0/reader_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40020000 64K trx_0/tx_0/writer_0/S_AXI /ps_0/M_AXI_GP0

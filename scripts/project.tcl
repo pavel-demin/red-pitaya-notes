@@ -83,7 +83,7 @@ add_files -norecurse $bd_path/hdl/system_wrapper.v
 
 set_property TOP system_wrapper [current_fileset]
 
-set files [glob -nocomplain cores/common_modules/*.v]
+set files [glob -nocomplain modules/*.v]
 if {[llength $files] > 0} {
   add_files -norecurse $files
 }

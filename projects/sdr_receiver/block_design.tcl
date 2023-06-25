@@ -32,6 +32,8 @@ cell xilinx.com:ip:xlconstant const_0
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
+  dcm_locked pll_0/locked
+  slowest_sync_clk pll_0/clk_out1
 }
 
 # ADC
@@ -46,48 +48,51 @@ cell pavel-demin:user:axis_red_pitaya_adc adc_0 {
   adc_csn adc_csn_o
 }
 
-# Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register cfg_0 {
-  CFG_DATA_WIDTH 96
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
-}
+# HUB
 
-addr 0x40000000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
+# Create axi_hub
+cell pavel-demin:user:axi_hub hub_0 {
+  CFG_DATA_WIDTH 96
+  STS_DATA_WIDTH 32
+} {
+  S_AXI ps_0/M_AXI_GP0
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
+}
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 96 DIN_FROM 0 DIN_TO 0
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 96 DIN_FROM 1 DIN_TO 1
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 96 DIN_FROM 2 DIN_TO 2
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 96 DIN_FROM 61 DIN_TO 32
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_5 {
   DIN_WIDTH 96 DIN_FROM 79 DIN_TO 64
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create axis_subset_converter
@@ -238,11 +243,15 @@ cell xilinx.com:ip:fir_compiler fir_0 {
 cell xilinx.com:ip:blk_mem_gen bram_0 {
   MEMORY_TYPE True_Dual_Port_RAM
   USE_BRAM_BLOCK Stand_Alone
+  USE_BYTE_WRITE_ENABLE true
+  BYTE_SIZE 8
   WRITE_WIDTH_A 64
   WRITE_DEPTH_A 1024
   WRITE_WIDTH_B 32
-  ENABLE_A Always_Enabled
+  REGISTER_PORTA_OUTPUT_OF_MEMORY_PRIMITIVES false
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
+} {
+  BRAM_PORTB hub_0/B00_BRAM
 }
 
 # Create axis_bram_writer
@@ -252,30 +261,8 @@ cell pavel-demin:user:axis_bram_writer writer_0 {
   BRAM_ADDR_WIDTH 10
 } {
   S_AXIS fir_0/M_AXIS_DATA
-  BRAM_PORTA bram_0/BRAM_PORTA
+  B_BRAM bram_0/BRAM_PORTA
+  sts_data hub_0/sts_data
   aclk pll_0/clk_out1
   aresetn slice_3/dout
 }
-
-# Create axi_bram_reader
-cell pavel-demin:user:axi_bram_reader reader_0 {
-  AXI_DATA_WIDTH 32
-  AXI_ADDR_WIDTH 32
-  BRAM_DATA_WIDTH 32
-  BRAM_ADDR_WIDTH 11
-} {
-  BRAM_PORTA bram_0/BRAM_PORTB
-}
-
-addr 0x40002000 8K reader_0/S_AXI /ps_0/M_AXI_GP0
-
-# Create axi_sts_register
-cell pavel-demin:user:axi_sts_register sts_0 {
-  STS_DATA_WIDTH 32
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
-} {
-  sts_data writer_0/sts_data
-}
-
-addr 0x40001000 4K sts_0/S_AXI /ps_0/M_AXI_GP0

@@ -38,6 +38,8 @@ cell xilinx.com:ip:xlconstant const_0
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
+  dcm_locked pll_0/locked
+  slowest_sync_clk pll_0/clk_out1
 }
 
 # ADC
@@ -69,97 +71,100 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
   dac_dat dac_dat_o
 }
 
-# CFG
+# HUB
 
-# Create axi_cfg_register
-cell pavel-demin:user:axi_cfg_register cfg_0 {
+# Create axi_hub
+cell pavel-demin:user:axi_hub hub_0 {
   CFG_DATA_WIDTH 352
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
+  STS_DATA_WIDTH 32
+} {
+  S_AXI ps_0/M_AXI_GP0
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 352 DIN_FROM 0 DIN_TO 0
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 352 DIN_FROM 1 DIN_TO 1
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 352 DIN_FROM 2 DIN_TO 2
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 352 DIN_FROM 3 DIN_TO 3
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_5 {
   DIN_WIDTH 352 DIN_FROM 8 DIN_TO 8
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_6 {
   DIN_WIDTH 352 DIN_FROM 23 DIN_TO 16
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_7 {
   DIN_WIDTH 352 DIN_FROM 31 DIN_TO 24
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_8 {
   DIN_WIDTH 352 DIN_FROM 39 DIN_TO 32
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_9 {
   DIN_WIDTH 352 DIN_FROM 47 DIN_TO 40
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_10 {
   DIN_WIDTH 352 DIN_FROM 159 DIN_TO 64
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_11 {
   DIN_WIDTH 352 DIN_FROM 255 DIN_TO 160
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_12 {
   DIN_WIDTH 352 DIN_FROM 351 DIN_TO 256
 } {
-  din cfg_0/cfg_data
+  din hub_0/cfg_data
 }
 
 # Pulse generators
@@ -258,37 +263,15 @@ cell xilinx.com:ip:xlconcat concat_0 {
 
 # Scan control
 
-# Create axi_axis_writer
-cell pavel-demin:user:axi_axis_writer writer_0 {
-  AXI_DATA_WIDTH 32
-} {
-  aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
-}
-
-# Create fifo_generator
-cell xilinx.com:ip:fifo_generator fifo_generator_0 {
-  PERFORMANCE_OPTIONS First_Word_Fall_Through
-  INPUT_DATA_WIDTH 32
-  INPUT_DEPTH 16384
-  OUTPUT_DATA_WIDTH 32
-  OUTPUT_DEPTH 16384
-  DATA_COUNT true
-  DATA_COUNT_WIDTH 15
-} {
-  clk /pll_0/clk_out1
-  srst slice_2/dout
-}
-
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo fifo_0 {
   S_AXIS_TDATA_WIDTH 32
   M_AXIS_TDATA_WIDTH 32
+  WRITE_DEPTH 16384
 } {
-  S_AXIS writer_0/M_AXIS
-  FIFO_READ fifo_generator_0/FIFO_READ
-  FIFO_WRITE fifo_generator_0/FIFO_WRITE
-  aclk /pll_0/clk_out1
+  S_AXIS hub_0/M00_AXIS
+  aclk pll_0/clk_out1
+  aresetn slice_2/dout
 }
 
 # Create axis_stepper
@@ -386,47 +369,23 @@ cell  xilinx.com:ip:axis_combiner comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
 } {
-  S00_AXIS accu_3/M_AXIS
-  S01_AXIS accu_1/M_AXIS
+  S00_AXIS accu_1/M_AXIS
+  S01_AXIS accu_3/M_AXIS
   aclk pll_0/clk_out1
   aresetn rst_0/peripheral_aresetn
-}
-
-# Create fifo_generator
-cell xilinx.com:ip:fifo_generator fifo_generator_1 {
-  PERFORMANCE_OPTIONS First_Word_Fall_Through
-  INPUT_DATA_WIDTH 64
-  INPUT_DEPTH 16384
-  OUTPUT_DATA_WIDTH 32
-  OUTPUT_DEPTH 32768
-  READ_DATA_COUNT true
-  READ_DATA_COUNT_WIDTH 16
-} {
-  clk /pll_0/clk_out1
-  srst slice_2/dout
 }
 
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo fifo_1 {
   S_AXIS_TDATA_WIDTH 64
   M_AXIS_TDATA_WIDTH 32
+  WRITE_DEPTH 16384
 } {
   S_AXIS comb_0/M_AXIS
-  FIFO_READ fifo_generator_1/FIFO_READ
-  FIFO_WRITE fifo_generator_1/FIFO_WRITE
-  aclk /pll_0/clk_out1
-}
-
-# Create axi_axis_reader
-cell pavel-demin:user:axi_axis_reader reader_0 {
-  AXI_DATA_WIDTH 32
-} {
-  S_AXIS fifo_1/M_AXIS
+  M_AXIS hub_0/S00_AXIS
   aclk pll_0/clk_out1
-  aresetn rst_0/peripheral_aresetn
+  aresetn slice_2/dout
 }
-
-# STS
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_1 {
@@ -434,23 +393,7 @@ cell xilinx.com:ip:xlconcat concat_1 {
   IN0_WIDTH 16
   IN1_WIDTH 16
 } {
-  In0 fifo_generator_0/data_count
-  In1 fifo_generator_1/rd_data_count
+  In0 fifo_0/write_count
+  In1 fifo_1/read_count
+  dout hub_0/sts_data
 }
-
-# Create axi_sts_register
-cell pavel-demin:user:axi_sts_register sts_0 {
-  STS_DATA_WIDTH 32
-  AXI_ADDR_WIDTH 32
-  AXI_DATA_WIDTH 32
-} {
-  sts_data concat_1/dout
-}
-
-addr 0x40000000 4K cfg_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40001000 4K sts_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40010000 64K writer_0/S_AXI /ps_0/M_AXI_GP0
-
-addr 0x40020000 128K reader_0/S_AXI /ps_0/M_AXI_GP0

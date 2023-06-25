@@ -43,14 +43,11 @@
 #define ADDR_ARDUINO 0x40 /* G8NJJ Arduino sketch */
 #define ADDR_NUCLEO 0x55 /* NUCLEO-G071RB */
 
-volatile uint32_t *rx_freq[3], *tx_freq, *alex, *tx_mux, *dac_freq;
+volatile uint32_t *rx_freq, *tx_freq, *alex, *dac_freq;
 volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr, *dac_cntr, *adc_cntr;
 volatile int16_t *tx_level, *dac_level;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *lo_rst;
-volatile uint64_t *rx_data[5];
-volatile uint32_t *tx_data, *dac_data;
-volatile uint16_t *adc_data;
-volatile int32_t *xadc;
+volatile uint32_t *fifo, *codec, *xadc;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
@@ -88,7 +85,7 @@ uint16_t i2c_misc_data = 0;
 uint16_t i2c_drive_data = 0;
 uint16_t i2c_dac0_data = 0xfff;
 uint16_t i2c_dac1_data = 0xfff;
-uint32_t i2c_nucleo_data[2] = {0};
+uint32_t i2c_nucleo_data[2] = {0, 0};
 
 uint16_t i2c_ard_frx1_data = 0; /* rx 1 freq in kHz */
 uint16_t i2c_ard_frx2_data = 0; /* rx 2 freq in kHz */
@@ -437,7 +434,7 @@ int main(int argc, char *argv[])
     number = (argc == 7) ? strtol(argv[i + 1], &end, 10) : -1;
     if(errno != 0 || end == argv[i + 1] || number < 1 || number > 2)
     {
-      printf("Usage: sdr-transceiver-hpsdr 1|2 1|2 1|2 1|2 1|2 1|2\n");
+      fprintf(stderr, "Usage: sdr-transceiver-hpsdr 1|2 1|2 1|2 1|2 1|2 1|2\n");
       return EXIT_FAILURE;
     }
     chan |= (number - 1) << i;
@@ -565,51 +562,42 @@ int main(int argc, char *argv[])
     }
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  alex = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40002000);
-  tx_mux = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40003000);
-  tx_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40004000);
-  dac_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40005000);
-  dac_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40006000);
-  adc_data = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40007000);
-  tx_data = mmap(NULL, 4*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x4000c000);
-  xadc = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40020000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x41000000);
+  fifo = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
+  codec = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x43000000);
+  xadc = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x44000000);
+  alex = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x45000000);
+  tx_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x46000000);
+  dac_ramp = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x47000000);
 
-  for(i = 0; i < 5; ++i)
-  {
-    rx_data[i] = mmap(NULL, 2*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40010000 + i * 0x2000);
-  }
+  rx_rst = (uint8_t *)(cfg + 0);
+  lo_rst = (uint8_t *)(cfg + 1);
+  tx_rst = (uint8_t *)(cfg + 2);
+  gpio_out = (uint8_t *)(cfg + 3);
 
-  rx_rst = ((uint8_t *)(cfg + 0));
-  lo_rst = ((uint8_t *)(cfg + 1));
-  tx_rst = ((uint8_t *)(cfg + 2));
-  gpio_out = ((uint8_t *)(cfg + 3));
+  rx_rate = (uint16_t *)(cfg + 4);
 
-  rx_rate = ((uint16_t *)(cfg + 4));
+  rx_sel = (uint8_t *)(cfg + 6);
 
-  rx_sel = ((uint8_t *)(cfg + 6));
+  rx_freq = (uint32_t *)(cfg + 8);
 
-  rx_freq[0] = ((uint32_t *)(cfg + 8));
-  rx_freq[1] = ((uint32_t *)(cfg + 12));
-  rx_freq[2] = ((uint32_t *)(cfg + 16));
+  tx_freq = (uint32_t *)(cfg + 20);
+  tx_size = (uint16_t *)(cfg + 24);
+  tx_level = (int16_t *)(cfg + 26);
+  ps_level = (int16_t *)(cfg + 28);
 
-  tx_freq = ((uint32_t *)(cfg + 20));
-  tx_size = ((uint16_t *)(cfg + 24));
-  tx_level = ((int16_t *)(cfg + 26));
-  ps_level = ((int16_t *)(cfg + 28));
+  tx_sel = (uint8_t *)(cfg + 30);
 
-  tx_sel = ((uint8_t *)(cfg + 30));
+  dac_freq = (uint32_t *)(cfg + 32);
+  dac_size = (uint16_t *)(cfg + 36);
+  dac_level = (int16_t *)(cfg + 38);
 
-  dac_freq = ((uint32_t *)(cfg + 32));
-  dac_size = ((uint16_t *)(cfg + 36));
-  dac_level = ((int16_t *)(cfg + 38));
-
-  rx_cntr = ((uint16_t *)(sts + 12));
-  tx_cntr = ((uint16_t *)(sts + 14));
-  dac_cntr = ((uint16_t *)(sts + 16));
-  adc_cntr = ((uint16_t *)(sts + 18));
-  gpio_in = ((uint8_t *)(sts + 20));
+  rx_cntr = (uint16_t *)(sts + 0);
+  tx_cntr = (uint16_t *)(sts + 2);
+  dac_cntr = (uint16_t *)(sts + 4);
+  adc_cntr = (uint16_t *)(sts + 6);
+  gpio_in = (uint8_t *)(sts + 8);
 
   /* set rx and tx selectors */
   *rx_sel = chan & 15;
@@ -619,9 +607,9 @@ int main(int argc, char *argv[])
   *gpio_out = 0;
 
   /* set default rx phase increment */
-  *rx_freq[0] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
-  *rx_freq[1] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
-  *rx_freq[2] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+  rx_freq[0] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+  rx_freq[1] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
+  rx_freq[2] = (uint32_t)floor(600000 / 125.0e6 * (1 << 30) + 0.5);
 
   /* set default rx sample rate */
   *rx_rate = 1000;
@@ -650,12 +638,11 @@ int main(int argc, char *argv[])
   *ps_level = 23080;
 
   /* set default tx mux channel */
-  tx_mux[16] = 0;
-  tx_mux[0] = 2;
+  *tx_rst &= ~16;
 
   /* reset tx and codec DAC fifo */
-  *tx_rst |= 3;
   *tx_rst &= ~3;
+  *tx_rst |= 3;
 
   /* reset tx lo */
   *lo_rst &= ~4;
@@ -664,8 +651,8 @@ int main(int argc, char *argv[])
   if(i2c_codec)
   {
     /* reset codec ADC fifo */
-    *rx_rst |= 2;
     *rx_rst &= ~2;
+    *rx_rst |= 2;
     /* enable I2S interface */
     *rx_rst &= ~4;
 
@@ -772,31 +759,31 @@ int main(int argc, char *argv[])
           if(!tx_mux_data)
           {
             while(*tx_cntr > 3844) usleep(1000);
-            if(*tx_cntr == 0) for(j = 0; j < 2520; ++j) *tx_data = 0;
+            if(*tx_cntr == 0) for(j = 0; j < 2520; ++j) *fifo = 0;
             if((*gpio_out & 1) | (*gpio_in & 1))
             {
               for(j = 0; j < 504; j += 8)
               {
-                *tx_data = tx_eer_data ? *(uint32_t *)(buffer[i] + 16 + j) : 0;
-                *tx_data = *(uint32_t *)(buffer[i] + 20 + j);
+                *fifo = tx_eer_data ? *(uint32_t *)(buffer[i] + 16 + j) : 0;
+                *fifo = *(uint32_t *)(buffer[i] + 20 + j);
               }
               for(j = 0; j < 504; j += 8)
               {
-                *tx_data = tx_eer_data ? *(uint32_t *)(buffer[i] + 528 + j) : 0;
-                *tx_data = *(uint32_t *)(buffer[i] + 532 + j);
+                *fifo = tx_eer_data ? *(uint32_t *)(buffer[i] + 528 + j) : 0;
+                *fifo = *(uint32_t *)(buffer[i] + 532 + j);
               }
             }
             else
             {
-              for(j = 0; j < 126; ++j) *tx_data = 0;
+              for(j = 0; j < 252; ++j) *fifo = 0;
             }
           }
           if(i2c_codec)
           {
-            while(*dac_cntr > 898) usleep(1000);
-            if(*dac_cntr == 0) for(j = 0; j < 504; ++j) *dac_data = 0;
-            for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 16 + j);
-            for(j = 0; j < 504; j += 8) *dac_data = *(uint32_t *)(buffer[i] + 528 + j);
+            while(*dac_cntr > 1922) usleep(1000);
+            if(*dac_cntr == 0) for(j = 0; j < 1260; ++j) *codec = 0;
+            for(j = 0; j < 504; j += 8) *codec = *(uint32_t *)(buffer[i] + 16 + j);
+            for(j = 0; j < 504; j += 8) *codec = *(uint32_t *)(buffer[i] + 528 + j);
           }
           process_ep2(buffer[i] + 11);
           process_ep2(buffer[i] + 523);
@@ -892,7 +879,7 @@ void process_ep2(uint8_t *frame)
         rx_sync_data = data;
         if(rx_sync_data)
         {
-          *rx_freq[1] = *rx_freq[0];
+          rx_freq[1] = rx_freq[0];
           /* reset rx los */
           *lo_rst &= ~3;
           *lo_rst |= 3;
@@ -1041,8 +1028,8 @@ void process_ep2(uint8_t *frame)
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
-      if(rx_sync_data) *rx_freq[1] = *rx_freq[0];
+      rx_freq[0] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      if(rx_sync_data) rx_freq[1] = rx_freq[0];
       if(freq_data[1] != freq)
       {
         freq_data[1] = freq;
@@ -1074,7 +1061,7 @@ void process_ep2(uint8_t *frame)
       if(rx_sync_data) break;
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       if(freq_data[2] != freq)
       {
         freq_data[2] = freq;
@@ -1098,7 +1085,7 @@ void process_ep2(uint8_t *frame)
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[2] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      rx_freq[2] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
 #else
     case 6:
@@ -1107,14 +1094,14 @@ void process_ep2(uint8_t *frame)
       if(rx_sync_data) break;
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      rx_freq[1] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       break;
     case 8:
     case 9:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
       if(freq < freq_min || freq > freq_max) break;
-      *rx_freq[2] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
+      rx_freq[2] = (uint32_t)floor(freq / 125.0e6 * (1 << 30) + 0.5);
       if(freq_data[2] != freq)
       {
         freq_data[2] = freq;
@@ -1358,13 +1345,9 @@ void *handler_ep6(void *arg)
   int i, j, k, m, n, size, rate_counter;
   int data_offset, header_offset;
   uint32_t counter;
-  int32_t value;
-  uint16_t audio[512];
-  uint8_t data0[4096];
-  uint8_t data1[4096];
-  uint8_t data2[4096];
-  uint8_t data3[4096];
-  uint8_t data4[4096];
+  uint16_t value;
+  uint32_t audio[512];
+  uint8_t data[4 * 4096];
   uint8_t buffer[25 * 1032];
   uint8_t *pointer;
   struct iovec iovec[25][1];
@@ -1402,13 +1385,13 @@ void *handler_ep6(void *arg)
   if(i2c_codec)
   {
     /* reset codec ADC fifo */
-    *rx_rst |= 2;
     *rx_rst &= ~2;
+    *rx_rst |= 2;
   }
 
   /* reset rx fifo */
-  *rx_rst |= 1;
   *rx_rst &= ~1;
+  *rx_rst |= 1;
 
   while(1)
   {
@@ -1418,40 +1401,30 @@ void *handler_ep6(void *arg)
     n = 504 / size;
     m = 256 / n;
 
-    if((i2c_codec && *adc_cntr >= 1024) || *rx_cntr >= 2048)
+    if((i2c_codec && *adc_cntr >= 1024) || *rx_cntr >= 8192)
     {
       if(i2c_codec)
       {
         /* reset codec ADC fifo */
-        *rx_rst |= 2;
         *rx_rst &= ~2;
+        *rx_rst |= 2;
       }
 
       /* reset rx fifo */
-      *rx_rst |= 1;
       *rx_rst &= ~1;
+      *rx_rst |= 1;
     }
 
-    while(*rx_cntr < m * n * 4) usleep(1000);
+    while(*rx_cntr < m * n * 16) usleep(1000);
 
     if(i2c_codec && --rate_counter == 0)
     {
-      for(i = 0; i < m * n * 2; ++i)
-      {
-        audio[i] = *adc_data;
-      }
+      memcpy(audio, codec, m * n * 8);
       rate_counter = 1 << rate;
       k = 0;
     }
 
-    for(i = 0; i < m * n * 16; i += 8)
-    {
-      *(uint64_t *)(data0 + i) = *rx_data[0];
-      *(uint64_t *)(data1 + i) = *rx_data[1];
-      *(uint64_t *)(data2 + i) = *rx_data[2];
-      *(uint64_t *)(data3 + i) = *rx_data[3];
-      *(uint64_t *)(data4 + i) = *rx_data[4];
-    }
+    memcpy(data, fifo, m * n * 64);
 
     data_offset = 0;
     for(i = 0; i < m; ++i)
@@ -1467,22 +1440,22 @@ void *handler_ep6(void *arg)
       pointer[3] |= (*gpio_in & 7) | cw_ptt;
       if(header_offset == 8)
       {
-        value = xadc[152] >> 3;
+        value = xadc[24] >> 3;
         pointer[6] = (value >> 8) & 0xff;
         pointer[7] = value & 0xff;
       }
       else if(header_offset == 16)
       {
-        value = xadc[144] >> 3;
+        value = xadc[16] >> 3;
         pointer[4] = (value >> 8) & 0xff;
         pointer[5] = value & 0xff;
-        value = xadc[145] >> 3;
+        value = xadc[17] >> 3;
         pointer[6] = (value >> 8) & 0xff;
         pointer[7] = value & 0xff;
       }
       else if(header_offset == 24)
       {
-        value = xadc[153] >> 3;
+        value = xadc[25] >> 3;
         pointer[4] = (value >> 8) & 0xff;
         pointer[5] = value & 0xff;
       }
@@ -1492,35 +1465,16 @@ void *handler_ep6(void *arg)
       memset(pointer, 0, 504);
       for(j = 0; j < n; ++j)
       {
-        memcpy(pointer, data0 + data_offset, 6);
-        if(size > 8)
+        memcpy(pointer, data + data_offset, size > 14 ? 12 : size - 2);
+        if(size > 14)
         {
-          memcpy(pointer + 6, data1 + data_offset, 6);
-        }
 #ifndef THETIS
-        if(size > 14)
-        {
-          memcpy(pointer + 12, data3 + data_offset, 6);
-        }
-        if(size > 20)
-        {
-          memcpy(pointer + 18, data4 + data_offset, 6);
-        }
+          memcpy(pointer + 12, data + 18 + data_offset, size > 26 ? 12 : size - 14);
 #else
-        if(size > 14)
-        {
-          memcpy(pointer + 12, data2 + data_offset, 6);
-        }
-        if(size > 20)
-        {
-          memcpy(pointer + 18, data3 + data_offset, 6);
-        }
-        if(size > 26)
-        {
-          memcpy(pointer + 24, data4 + data_offset, 6);
-        }
+          memcpy(pointer + 12, data + 12 + data_offset, size > 32 ? 18 : size - 14);
 #endif
-        data_offset += 8;
+        }
+        data_offset += 32;
         pointer += size;
         if(i2c_codec) memcpy(pointer - 2, &audio[(k++) >> rate], 2);
       }
@@ -1548,10 +1502,9 @@ static inline void cw_on()
   int delay = 1200 / cw_speed;
   if(cw_delay < delay) delay = cw_delay;
   /* PTT on */
-  *tx_rst |= 16;
+  *tx_rst |= 32;
   cw_ptt = 1;
-  tx_mux[16] = 1;
-  tx_mux[0] = 2;
+  *tx_rst |= 16;
   tx_mux_data = 1;
   if(i2c_codec && dac_level_data > 0)
   {
@@ -1589,13 +1542,12 @@ static inline void cw_ptt_off()
 {
   if(--cw_ptt_delay > 0) return;
   /* PTT off */
-  *tx_rst &= ~16;
+  *tx_rst &= ~32;
   cw_ptt = 0;
   /* reset tx fifo */
-  *tx_rst |= 1;
   *tx_rst &= ~1;
-  tx_mux[16] = 0;
-  tx_mux[0] = 2;
+  *tx_rst |= 1;
+  *tx_rst &= ~16;
   tx_mux_data = 0;
 }
 

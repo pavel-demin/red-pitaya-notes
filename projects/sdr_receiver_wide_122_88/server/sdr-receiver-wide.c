@@ -54,8 +54,8 @@ int main ()
     return EXIT_FAILURE;
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x41000000);
 
   close(fd);
 
@@ -80,7 +80,7 @@ int main ()
   rx_addr = (uint32_t *)(cfg + 4);
   rx_freq = (uint32_t *)(cfg + 8);
 
-  rx_cntr = (uint32_t *)(sts + 12);
+  rx_cntr = (uint32_t *)(sts + 0);
 
   *rx_addr = size;
 

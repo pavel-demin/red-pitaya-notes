@@ -21,14 +21,14 @@ int main(int argc, char *argv[])
     number[i] = (argc == 4) ? strtol(argv[i + 1], &end, 10) : -1;
     if(errno != 0 || end == argv[i + 1])
     {
-      printf("Usage: gen [1-2] [0-32766] [0-62500000]\n");
+      fprintf(stderr, "Usage: gen [1-2] [0-32766] [0-62500000]\n");
       return EXIT_FAILURE;
     }
   }
 
   if(number[0] < 1 || number[0] > 2 || number[1] < 0 || number[1] > 32766 || number[2] < 0 || number[2] > 62500000)
   {
-    printf("Usage: gen [1-2] [0-32766] [0-62500000]\n");
+    fprintf(stderr, "Usage: gen [1-2] [0-32766] [0-62500000]\n");
     return EXIT_FAILURE;
   }
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
 
   switch(number[0])
   {

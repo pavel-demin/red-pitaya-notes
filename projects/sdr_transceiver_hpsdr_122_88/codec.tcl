@@ -23,35 +23,13 @@ cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48
 }
 
-# Create axi_axis_writer
-cell pavel-demin:user:axi_axis_writer writer_0 {
-  AXI_DATA_WIDTH 32
-} {
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
-}
-
-# Create fifo_generator
-cell xilinx.com:ip:fifo_generator fifo_generator_0 {
-  PERFORMANCE_OPTIONS First_Word_Fall_Through
-  INPUT_DATA_WIDTH 32
-  INPUT_DEPTH 1024
-  OUTPUT_DATA_WIDTH 32
-  OUTPUT_DEPTH 1024
-  DATA_COUNT true
-  DATA_COUNT_WIDTH 11
-} {
-  clk /pll_0/clk_out1
-}
-
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo fifo_0 {
   S_AXIS_TDATA_WIDTH 32
   M_AXIS_TDATA_WIDTH 32
+  WRITE_DEPTH 2048
+  ALWAYS_VALID TRUE
 } {
-  S_AXIS writer_0/M_AXIS
-  FIFO_READ fifo_generator_0/FIFO_READ
-  FIFO_WRITE fifo_generator_0/FIFO_WRITE
   aclk /pll_0/clk_out1
 }
 
@@ -78,19 +56,8 @@ cell xilinx.com:ip:blk_mem_gen bram_0 {
   WRITE_WIDTH_A 32
   WRITE_DEPTH_A 512
   WRITE_WIDTH_B 16
-  ENABLE_A Always_Enabled
-  ENABLE_B Always_Enabled
+  REGISTER_PORTA_OUTPUT_OF_MEMORY_PRIMITIVES false
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
-}
-
-# Create axi_bram_writer
-cell pavel-demin:user:axi_bram_writer writer_1 {
-  AXI_DATA_WIDTH 32
-  AXI_ADDR_WIDTH 32
-  BRAM_DATA_WIDTH 32
-  BRAM_ADDR_WIDTH 9
-} {
-  BRAM_PORTA bram_0/BRAM_PORTA
 }
 
 # Create axis_keyer
@@ -99,7 +66,7 @@ cell pavel-demin:user:axis_keyer keyer_0 {
   BRAM_DATA_WIDTH 16
   BRAM_ADDR_WIDTH 10
 } {
-  BRAM_PORTA bram_0/BRAM_PORTB
+  B_BRAM bram_0/BRAM_PORTB
   cfg_data slice_3/dout
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
@@ -212,20 +179,6 @@ cell pavel-demin:user:axis_i2s i2s_0 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create fifo_generator
-cell xilinx.com:ip:fifo_generator fifo_generator_1 {
-  PERFORMANCE_OPTIONS First_Word_Fall_Through
-  INPUT_DATA_WIDTH 32
-  INPUT_DEPTH 1024
-  OUTPUT_DATA_WIDTH 32
-  OUTPUT_DEPTH 1024
-  DATA_COUNT true
-  DATA_COUNT_WIDTH 11
-} {
-  clk /pll_0/clk_out1
-  srst slice_0/dout
-}
-
 # Create axis_subset_converter
 cell xilinx.com:ip:axis_subset_converter subset_2 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
@@ -243,18 +196,10 @@ cell xilinx.com:ip:axis_subset_converter subset_2 {
 cell pavel-demin:user:axis_fifo fifo_1 {
   S_AXIS_TDATA_WIDTH 32
   M_AXIS_TDATA_WIDTH 32
+  WRITE_DEPTH 1024
+  ALWAYS_READY TRUE
 } {
   S_AXIS subset_2/M_AXIS
-  FIFO_READ fifo_generator_1/FIFO_READ
-  FIFO_WRITE fifo_generator_1/FIFO_WRITE
   aclk /pll_0/clk_out1
-}
-
-# Create axi_axis_reader
-cell pavel-demin:user:axi_axis_reader reader_0 {
-  AXI_DATA_WIDTH 32
-} {
-  S_AXIS fifo_1/M_AXIS
-  aclk /pll_0/clk_out1
-  aresetn /rst_0/peripheral_aresetn
+  aresetn slice_0/dout
 }

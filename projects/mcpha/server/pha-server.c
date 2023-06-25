@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
-  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40001000);
-  pha = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40008000);
+  cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
+  sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x41000000);
+  pha = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
 
   rst = cfg + 3;
 
@@ -98,15 +98,15 @@ int main(int argc, char *argv[])
 
       if(code == 0)
       {
-        /* reset timer */
-        *rst &= ~2;
-        *rst |= 2;
-      }
-      else if(code == 1)
-      {
         /* reset pha */
         *rst &= ~1;
         *rst |= 1;
+      }
+      else if(code == 1)
+      {
+        /* reset timer */
+        *rst &= ~2;
+        *rst |= 2;
       }
       else if(code == 2)
       {
@@ -141,30 +141,6 @@ int main(int argc, char *argv[])
       }
       else if(code == 4)
       {
-        /* set baseline mode (0 for none, 1 for auto) */
-        if(data == 0)
-        {
-          *rst &= ~4;
-        }
-        else if(data == 1)
-        {
-          *rst |= 4;
-        }
-      }
-      else if(code == 5)
-      {
-        /* set baseline level */
-        if(chan == 0)
-        {
-          *(uint16_t *)(cfg + 48) = data;
-        }
-        else if(chan == 1)
-        {
-          *(uint16_t *)(cfg + 64) = data;
-        }
-      }
-      else if(code == 6)
-      {
         /* set pha delay */
         if(chan == 0)
         {
@@ -175,7 +151,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 66) = data;
         }
       }
-      else if(code == 7)
+      else if(code == 5)
       {
         /* set pha min threshold */
         if(chan == 0)
@@ -187,7 +163,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 68) = data;
         }
       }
-      else if(code == 8)
+      else if(code == 6)
       {
         /* set pha max threshold */
         if(chan == 0)
@@ -199,7 +175,7 @@ int main(int argc, char *argv[])
           *(uint16_t *)(cfg + 70) = data;
         }
       }
-      else if(code == 9)
+      else if(code == 7)
       {
         /* set timer */
         if(chan == 0)
@@ -211,7 +187,7 @@ int main(int argc, char *argv[])
           *(uint64_t *)(cfg + 56) = data;
         }
       }
-      else if(code == 10)
+      else if(code == 8)
       {
         /* start */
         sock_thread = sock_client;
@@ -222,8 +198,8 @@ int main(int argc, char *argv[])
         }
         pthread_detach(thread);
         /* reset fifo */
-        *rst |= 64;
         *rst &= ~64;
+        *rst |= 64;
         /* start timer */
         *rst |= 8;
       }
@@ -251,7 +227,7 @@ void *read_handler(void *arg)
   {
     if(sock_thread < 0) break;
 
-    size = *(uint16_t *)(sts + 52);
+    size = *(uint16_t *)(sts + 40);
 
     if(size < 4)
     {
