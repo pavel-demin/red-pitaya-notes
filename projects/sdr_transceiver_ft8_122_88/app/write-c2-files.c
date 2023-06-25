@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 
   rst = (uint8_t *)(cfg + 0);
   sel = (uint16_t *)(cfg + 4);
-  cntr = (uint16_t *)(sts + 12);
+  cntr = (uint16_t *)(sts + 0);
 
   *sel = value;
 
