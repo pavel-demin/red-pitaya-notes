@@ -299,7 +299,7 @@ cell xilinx.com:ip:floating_point fp_0 {
 
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
-  ADDR_WIDTH 16
+  ADDR_WIDTH 12
   AXI_ID_WIDTH 3
   AXIS_TDATA_WIDTH 32
   FIFO_WRITE_DEPTH 1024

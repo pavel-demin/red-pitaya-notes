@@ -93,7 +93,7 @@ int main()
     printf("%08x\n", value);
   }
 
-  while(*pos != 32)
+  while(*pos != 2)
   {
     printf("pos: %08x\n", *pos);
     usleep(100000);

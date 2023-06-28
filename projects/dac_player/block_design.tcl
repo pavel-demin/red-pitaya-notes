@@ -222,7 +222,7 @@ cell xilinx.com:ip:fir_compiler fir_0 {
 
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
-  ADDR_WIDTH 16
+  ADDR_WIDTH 12
   AXI_ID_WIDTH 3
   AXIS_TDATA_WIDTH 16
   FIFO_WRITE_DEPTH 2048

@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
   usleep(100);
   *(uint8_t *)(cfg + 0) |= 1;
 
-  limit = 32*1024;
+  limit = 2*1024;
 
   while(!interrupted && time(NULL) - start < stop)
   {
@@ -139,10 +139,10 @@ int main(int argc, char *argv[])
     position = *(uint32_t *)(sts + 0);
 
     /* write 256 kB if ready, otherwise sleep 0.1 ms */
-    if((limit > 0 && position > limit) || (limit == 0 && position < 32*1024))
+    if((limit > 0 && position > limit) || (limit == 0 && position < 2*1024))
     {
       offset = limit > 0 ? 0 : 256*1024;
-      limit = limit > 0 ? 0 : 32*1024;
+      limit = limit > 0 ? 0 : 2*1024;
       if(fwrite(adc + offset, 1, 256*1024, fileOut) < 0) break;
     }
     else
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
   position = *(uint32_t *)(sts + 0);
 
   /* write remaining data */
-  if((limit > 0 && position < limit) || (limit == 0 && position > 32*1024))
+  if((limit > 0 && position < limit) || (limit == 0 && position > 2*1024))
   {
     offset = limit > 0 ? 0 : 256*1024;
     fwrite(adc + offset, 1, position * 8 - offset, fileOut);

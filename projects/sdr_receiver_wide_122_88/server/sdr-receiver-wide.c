@@ -131,7 +131,7 @@ int main ()
     usleep(100);
     *rx_rst |= 1;
 
-    limit = 32*1024;
+    limit = 2*1024;
 
     while(!interrupted)
     {
@@ -165,10 +165,10 @@ int main ()
       position = *rx_cntr;
 
       /* send 256 kB if ready, otherwise sleep 0.1 ms */
-      if((limit > 0 && position > limit) || (limit == 0 && position < 32*1024))
+      if((limit > 0 && position > limit) || (limit == 0 && position < 2*1024))
       {
         offset = limit > 0 ? 0 : 256*1024;
-        limit = limit > 0 ? 0 : 32*1024;
+        limit = limit > 0 ? 0 : 2*1024;
         if(send(sock_client, ram + offset, 256*1024, MSG_NOSIGNAL) < 0) break;
       }
       else
