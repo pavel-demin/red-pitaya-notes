@@ -51,7 +51,7 @@ A circuit implementing this behavior is shown in the following diagram:
 
 ![Input buffer]({{ "/img/input-buffer.png" | prepend: site.baseurl }})
 
-The corresponding Verilog code can be found in [cores/common_modules/input_buffer.v](https://github.com/pavel-demin/red-pitaya-notes/tree/master/cores/common_modules/input_buffer.v).
+The corresponding Verilog code can be found in [modules/input_buffer.v](https://github.com/pavel-demin/red-pitaya-notes/tree/master/modules/input_buffer.v).
 
 Output buffer
 -----
@@ -62,7 +62,7 @@ A circuit implementing this behavior is shown in the following diagram:
 
 ![Output buffer]({{ "/img/output-buffer.png" | prepend: site.baseurl }})
 
-The corresponding Verilog code can be found in [cores/common_modules/output_buffer.v](https://github.com/pavel-demin/red-pitaya-notes/tree/master/cores/common_modules/output_buffer.v).
+The corresponding Verilog code can be found in [modules/output_buffer.v](https://github.com/pavel-demin/red-pitaya-notes/tree/master/modules/output_buffer.v).
 
 Since the `in_ready` signal is used to enable the data register, it can also be used to enable data registers outside the output buffer module. This feature can be useful when controlling a pipeline that provides enable inputs for its internal registers, like for example the internal registers in [DSP48E1](https://docs.xilinx.com/v/u/en-US/ug479_7Series_DSP48E1) as shown in the diagram below:
 
