@@ -73,10 +73,6 @@ Usage examples
 
 The Verilog code of the modules that use these input and output buffers can be found at the following links:
 
- - [AXI Configuration Register](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_cfg_register_v1_0/axi_cfg_register.v)
+ - [AXI4 Hub](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_hub.v)
 
- - [AXI Status Register](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_sts_register_v1_0/axi_sts_register.v)
-
- - [AXI Block RAM Reader](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_bram_reader_v1_0/axi_bram_reader.v)
-
- - [AXI Block RAM Writer](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_bram_writer_v1_0/axi_bram_writer.v)
+ - [AXI4-Stream FIFO](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axis_fifo.v)
