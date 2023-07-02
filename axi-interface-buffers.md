@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Buffers for AXI4-Lite and AXI4-Stream interfaces
+title: Buffers for AXI4, AXI4-Lite and AXI4-Stream interfaces
 permalink: /axi-interface-buffers/
 ---
 
