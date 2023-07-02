@@ -1,0 +1,12 @@
+name: red-pitaya-notes
+
+channels:
+  - conda-forge
+
+dependencies:
+  - ipykernel
+  - matplotlib
+  - libusb1
+  - pip
+  - pip:
+    - pyhubio
