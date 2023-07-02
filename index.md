@@ -9,6 +9,7 @@ layout: default
 1. [Development machine]({{ "/development-machine/" | prepend: site.baseurl }})
 1. [LED blinker]({{ "/led-blinker/" | prepend: site.baseurl }})
 1. [Buffers for AXI4-Lite and AXI4-Stream interfaces]({{ "/axi-interface-buffers/" | prepend: site.baseurl }})
+1. [AXI4 hub]({{ "/axi-hub/" | prepend: site.baseurl }})
 1. [Alpine with pre-built applications]({{ "/alpine/" | prepend: site.baseurl }})
 1. Applications for Red Pitaya STEMlab 125-14:
    1. [SDR receiver]({{ "/sdr-receiver/" | prepend: site.baseurl }})
