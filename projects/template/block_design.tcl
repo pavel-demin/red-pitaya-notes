@@ -32,6 +32,30 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
   Slave Disable
 } [get_bd_cells ps_0]
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant const_0
+
+# Create proc_sys_reset
+cell xilinx.com:ip:proc_sys_reset rst_0 {} {
+  ext_reset_in const_0/dout
+  dcm_locked pll_0/locked
+  slowest_sync_clk pll_0/clk_out1
+}
+
+# HUB
+
+# Create axi_hub
+cell pavel-demin:user:axi_hub hub_0 {
+  CFG_DATA_WIDTH 32
+  STS_DATA_WIDTH 32
+} {
+  S_AXI ps_0/M_AXI_GP0
+  aclk pll_0/clk_out1
+  aresetn rst_0/peripheral_aresetn
+}
+
+# ADC
+
 # Create axis_red_pitaya_adc
 cell pavel-demin:user:axis_red_pitaya_adc adc_0 {
   ADC_DATA_WIDTH 14
@@ -41,6 +65,8 @@ cell pavel-demin:user:axis_red_pitaya_adc adc_0 {
   adc_dat_b adc_dat_b_i
   adc_csn adc_csn_o
 }
+
+# DAC
 
 # Create axis_red_pitaya_dac
 cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
