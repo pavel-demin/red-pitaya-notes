@@ -1,2 +1,3 @@
-tcpserver -H -l 0 0 80 /media/mmcblk0p1/apps/server/server &
+freq=`fw_printenv -n hw_rev | awk -F _ '{print $2}' | awk -F - '{print $1}'`
+tcpserver -H -l 0 0 80 /media/mmcblk0p1/apps/server/server $freq &
 /media/mmcblk0p1/start.sh &

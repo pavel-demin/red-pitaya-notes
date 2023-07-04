@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -22,7 +23,7 @@ void detach(char *path)
   exit(0);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
   FILE *fp;
   int fd, id, i, j, top;
@@ -30,6 +31,8 @@ int main()
   size_t size;
   char buffer[256];
   char path[291];
+  char *end;
+  long freq;
   volatile int *slcr;
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
@@ -40,6 +43,12 @@ int main()
 
   slcr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0xF8000000);
   id = (slcr[332] >> 12) & 0x1f;
+
+  freq = (argc == 2) ? strtol(argv[1], &end, 10) : -1;
+  if(errno != 0 || end == argv[1] || freq < 0)
+  {
+    freq = 125;
+  }
 
   if(fgets(buffer, 256, stdin) == NULL)
   {
@@ -92,7 +101,7 @@ int main()
   {
     memcpy(path + 21 + i - 4, "/start.sh", 10);
     detach(path);
-    if(top && id == 7)
+    if(top && id == 7 && freq == 122)
     {
       memcpy(path + 21 + i - 4, "/index_122_88.html", 19);
     }
