@@ -42,8 +42,8 @@ Getting started with MS Windows
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
- - Download and unpack the [control program](https://github.com/pavel-demin/red-pitaya-notes/releases/download/20220322/vna-win32-20220322.zip).
- - Run the `vna.exe` program.
+ - Download and unpack the [release zip file]({{ site.release-file }}).
+ - Run the `vna.exe` program in the `control` directory.
  - Type in the IP address of the Red Pitaya board and press Connect button.
  - Perform calibration and measurements.
 
