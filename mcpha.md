@@ -55,7 +55,7 @@ Software
 
 The [projects/mcpha/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha/server) directory contains the source code of the TCP server ([mcpha-server.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/server/mcpha-server.c)) that receives control commands and transmits the data to the control program running on a remote PC.
 
-The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha/client) directory contains the source code of the control program ([mcpha.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/client/mcpha.tcl)).
+The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha/client) directory contains the source code of the control program ([mcpha.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/client/mcpha.py)).
 
 ![MCPHA client]({{ "/img/mcpha-client.png" | prepend: site.baseurl }})
 
