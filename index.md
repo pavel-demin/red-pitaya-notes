@@ -12,6 +12,7 @@ layout: default
 1. [AXI4 hub]({{ "/axi-hub/" | prepend: site.baseurl }})
 1. [Alpine with pre-built applications]({{ "/alpine/" | prepend: site.baseurl }})
 1. Applications for Red Pitaya STEMlab 125-14:
+   1. [Playground]({{ "/playground/" | prepend: site.baseurl }})
    1. [SDR receiver]({{ "/sdr-receiver/" | prepend: site.baseurl }})
    1. [SDR transceiver]({{ "/sdr-transceiver/" | prepend: site.baseurl }})
    1. [SDR transceiver compatible with HPSDR]({{ "/sdr-transceiver-hpsdr/" | prepend: site.baseurl }})
