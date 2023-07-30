@@ -7,6 +7,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
+#define DIR "/sys/bus/iio/devices/iio:device0/"
+
 const char *directory = "/media/mmcblk0p1/apps";
 const char *forbidden = "HTTP/1.0 403 Forbidden\n\n";
 const char *redirect = "HTTP/1.0 302 Found\nLocation: /\n\n";
@@ -23,10 +25,28 @@ void detach(char *path)
   exit(0);
 }
 
+float read_value(char *name)
+{
+  FILE *fp;
+  char buffer[64];
+
+  if((fp = fopen(name, "r")) == NULL)
+  {
+    printf("Cannot open %s.\n", name);
+    exit(1);
+  }
+
+  fgets(buffer, sizeof(buffer), fp);
+  fclose(fp);
+
+  return atof(buffer);
+}
+
 int main(int argc, char *argv[])
 {
   FILE *fp;
   int fd, id, i, j, top;
+  float off, raw, scl;
   struct stat sb;
   size_t size;
   char buffer[256];
@@ -88,6 +108,16 @@ int main(int argc, char *argv[])
     }
   }
 
+  if(i == 10 && strncmp(buffer + 5, "temp0", 5) == 0)
+  {
+    fwrite(okheader, 17, 1, stdout);
+    off = read_value(DIR "in_temp0_offset");
+    raw = read_value(DIR "in_temp0_raw");
+    scl = read_value(DIR "in_temp0_scale");
+    printf("%.1f\n", (off + raw) * scl / 1000);
+    return 0;
+  }
+
   memcpy(path, directory, 21);
   memcpy(path + 21, buffer + 4, i - 3);
 
@@ -125,8 +155,6 @@ int main(int argc, char *argv[])
   {
     if(!fwrite(buffer, size, 1, stdout)) break;
   }
-
-  fflush(stdout);
 
   return 0;
 }
