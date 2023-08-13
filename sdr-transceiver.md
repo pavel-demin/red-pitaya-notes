@@ -74,7 +74,7 @@ Getting started with SDR# and HDSDR
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](http://www.hdsdr.de/).
- - Download and install [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019).
+ - Download and install [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist).
  - Download [pre-built ExtIO plug-in](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAABy8xWrv4wFFbkYfmVU6DGa/sdr/ExtIO_RedPitaya_TRX.dll?dl=1) for SDR# and HDSDR.
  - Copy `ExtIO_RedPitaya_TRX.dll` into the SDR# or HDSDR installation directory.
  - Start SDR# or HDSDR.
