@@ -3,7 +3,7 @@ set core_name [lindex $argv 0]
 
 set part_name [lindex $argv 1]
 
-file delete -force tmp/cores/$core_name tmp/cores/$core_name.cache tmp/cores/$core_name.hw tmp/cores/$core_name.xpr tmp/cores/$core_name.ip_user_files
+file delete -force tmp/cores/$core_name tmp/cores/$core_name.cache tmp/cores/$core_name.hw tmp/cores/$core_name.ip_user_files tmp/cores/$core_name.sim tmp/cores/$core_name.xpr
 
 create_project -part $part_name $core_name tmp/cores
 
