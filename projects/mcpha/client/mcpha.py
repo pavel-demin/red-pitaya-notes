@@ -668,7 +668,7 @@ class GenDisplay(QWidget, Ui_GenDisplay):
         self.mcpha.set_gen_rise(self.riseValue.value())
         self.mcpha.set_gen_rate(self.rateValue.value() * 1000)
         self.mcpha.set_gen_dist(self.poissonButton.isChecked())
-        for value in np.arange(self.bins) << 32 | self.buffer:
+        for value in np.arange(self.bins, dtype=np.uint64) << 32 | self.buffer:
             self.mcpha.set_gen_bin(value)
         self.mcpha.start_gen()
         self.startButton.setText("Stop")
