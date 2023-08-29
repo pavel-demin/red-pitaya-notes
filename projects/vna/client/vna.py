@@ -223,8 +223,8 @@ class FigureTab:
     def update(self, mode):
         start = self.vna.dut.freq[0]
         stop = self.vna.dut.freq[-1]
-        min = np.minimum(start, stop)
-        max = np.maximum(start, stop)
+        min = int(np.minimum(start, stop))
+        max = int(np.maximum(start, stop))
         for i in range(len(self.cursors)):
             value = self.cursors[i]
             self.cursorValues[i].setRange(min, max)
