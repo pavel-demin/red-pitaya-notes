@@ -10,11 +10,11 @@ import numpy as np
 
 import matplotlib
 
-matplotlib.use("Qt5Agg")
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 from matplotlib.ticker import Formatter, FuncFormatter
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 if "PyQt5" in sys.modules:
     from PyQt5.uic import loadUiType
@@ -917,6 +917,8 @@ class VNA(QMainWindow, Ui_VNA):
 
 warnings.filterwarnings("ignore")
 app = QApplication(sys.argv)
+dpi = app.primaryScreen().logicalDotsPerInch()
+matplotlib.rcParams["figure.dpi"] = dpi
 window = VNA()
 window.update_tab()
 window.show()

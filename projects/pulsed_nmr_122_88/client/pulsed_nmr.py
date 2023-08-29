@@ -7,10 +7,10 @@ import numpy as np
 
 import matplotlib
 
-matplotlib.use("Qt5Agg")
+from matplotlib.figure import Figure
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
 
 if "PyQt5" in sys.modules:
     from PyQt5.uic import loadUiType
@@ -192,6 +192,8 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
 
 
 app = QApplication(sys.argv)
+dpi = app.primaryScreen().logicalDotsPerInch()
+matplotlib.rcParams["figure.dpi"] = dpi
 window = PulsedNMR()
 window.show()
 sys.exit(app.exec_())

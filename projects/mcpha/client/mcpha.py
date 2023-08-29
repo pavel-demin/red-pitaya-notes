@@ -8,6 +8,8 @@ from functools import partial
 
 import numpy as np
 
+import matplotlib
+
 from matplotlib.figure import Figure
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -723,6 +725,8 @@ class GenDisplay(QWidget, Ui_GenDisplay):
 
 
 app = QApplication(sys.argv)
+dpi = app.primaryScreen().logicalDotsPerInch()
+matplotlib.rcParams["figure.dpi"] = dpi
 window = MCPHA()
 window.show()
 sys.exit(app.exec_())

@@ -6,12 +6,12 @@ import struct
 import numpy as np
 
 import matplotlib
+import matplotlib.cm as cm
 
-matplotlib.use("Qt5Agg")
+from matplotlib.figure import Figure
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
-import matplotlib.cm as cm
 
 if "PyQt5" in sys.modules:
     from PyQt5.uic import loadUiType
@@ -235,6 +235,8 @@ class Scanner(QMainWindow, Ui_Scanner):
 
 
 app = QApplication(sys.argv)
+dpi = app.primaryScreen().logicalDotsPerInch()
+matplotlib.rcParams["figure.dpi"] = dpi
 window = Scanner()
 window.show()
 sys.exit(app.exec_())
