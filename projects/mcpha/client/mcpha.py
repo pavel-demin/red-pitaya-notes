@@ -134,7 +134,7 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         if self.socket.bytesAvailable() < size:
             return False
         else:
-            view[:] = memoryview(self.socket.read(size))
+            view[:] = np.frombuffer(self.socket.read(size), np.uint8)
             return True
 
     def read_timeout(self):
