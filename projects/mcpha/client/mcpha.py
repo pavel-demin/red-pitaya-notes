@@ -92,6 +92,7 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.hst1.stop()
         self.hst2.stop()
         self.osc.stop()
+        self.gen.stop()
         self.readTimer.stop()
         self.startTimer.stop()
         self.loop.quit()
