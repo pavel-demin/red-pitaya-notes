@@ -6,6 +6,4 @@ source $apps_dir/stop.sh
 
 cat $apps_dir/playground/playground.bit > /dev/xdevcfg
 
-$apps_dir/common_tools/setup
-
 $apps_dir/playground/playground &
