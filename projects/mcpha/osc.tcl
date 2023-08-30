@@ -127,6 +127,12 @@ cell pavel-demin:user:axis_oscilloscope scope_0 {
   aresetn slice_0/dout
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant const_1 {
+  CONST_WIDTH 18
+  CONST_VAL 262143
+}
+
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 18
@@ -134,7 +140,8 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
   AXIS_TDATA_WIDTH 32
 } {
   S_AXIS scope_0/M_AXIS
-  cfg_data slice_6/dout
+  min_addr slice_6/dout
+  cfg_data const_1/dout
   aclk /pll_0/clk_out1
   aresetn slice_1/dout
 }

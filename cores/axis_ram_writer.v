@@ -15,7 +15,8 @@ module axis_ram_writer #
   input  wire                        aclk,
   input  wire                        aresetn,
 
-  input  wire [AXI_ADDR_WIDTH-1:0]   cfg_data,
+  input  wire [AXI_ADDR_WIDTH-1:0]   min_addr,
+  input  wire [ADDR_WIDTH-1:0]       cfg_data,
   output wire [ADDR_WIDTH-1:0]       sts_data,
 
   // Master side
@@ -54,7 +55,7 @@ module axis_ram_writer #
   reg [3:0] int_cntr_reg;
   reg [ADDR_WIDTH-1:0] int_addr_reg;
 
-  wire int_full_wire, int_empty_wire, int_valid_wire;
+  wire int_empty_wire, int_full_wire, int_valid_wire;
   wire int_awvalid_wire, int_awready_wire;
   wire int_wlast_wire, int_wvalid_wire, int_wready_wire, int_rden_wire;
   wire [AXI_DATA_WIDTH-1:0] int_wdata_wire;
@@ -76,8 +77,8 @@ module axis_ram_writer #
     .USE_ADV_FEATURES("0200"),
     .PROG_EMPTY_THRESH(15)
   ) fifo_0 (
-    .full(int_full_wire),
     .prog_empty(int_empty_wire),
+    .full(int_full_wire),
     .rst(~aresetn),
     .wr_clk(aclk),
     .wr_en(s_axis_tvalid),
@@ -106,7 +107,7 @@ module axis_ram_writer #
       if(int_awvalid_wire & int_awready_wire)
       begin
         int_awvalid_reg <= 1'b0;
-        int_addr_reg <= int_addr_reg + 1'b1;
+        int_addr_reg <= int_addr_reg < cfg_data ? int_addr_reg + 1'b1 : {(ADDR_WIDTH){1'b0}};
       end
 
       if(int_rden_wire)
@@ -125,7 +126,7 @@ module axis_ram_writer #
     .DATA_WIDTH(AXI_ADDR_WIDTH)
   ) buf_0 (
     .aclk(aclk), .aresetn(aresetn),
-    .in_data(cfg_data + {int_addr_reg, 4'd0, {(ADDR_SIZE){1'b0}}}),
+    .in_data(min_addr + {int_addr_reg, 4'd0, {(ADDR_SIZE){1'b0}}}),
     .in_valid(int_awvalid_wire), .in_ready(int_awready_wire),
     .out_data(m_axi_awaddr),
     .out_valid(m_axi_awvalid), .out_ready(m_axi_awready)

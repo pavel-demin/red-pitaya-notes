@@ -164,6 +164,12 @@ cell xilinx.com:ip:cic_compiler cic_0 {
 
 # DMA
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant const_1 {
+  CONST_WIDTH 12
+  CONST_VAL 4095
+}
+
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 12
@@ -173,7 +179,8 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
 } {
   S_AXIS cic_0/M_AXIS_DATA
   M_AXI ps_0/S_AXI_ACP
-  cfg_data slice_3/dout
+  min_addr slice_3/dout
+  cfg_data const_1/dout
   sts_data hub_0/sts_data
   aclk pll_0/clk_out1
   aresetn slice_1/dout

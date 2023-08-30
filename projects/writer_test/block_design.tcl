@@ -84,6 +84,12 @@ cell pavel-demin:user:axis_counter cntr_1 {} {
   aresetn slice_0/dout
 }
 
+# Create xlconstant
+cell xilinx.com:ip:xlconstant const_1 {
+  CONST_WIDTH 16
+  CONST_VAL 65535
+}
+
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
   ADDR_WIDTH 16
@@ -93,7 +99,8 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
 } {
   S_AXIS cntr_1/M_AXIS
   M_AXI ps_0/S_AXI_ACP
-  cfg_data slice_2/dout
+  min_addr slice_2/dout
+  cfg_data const_1/dout
   sts_data hub_0/sts_data
   aclk pll_0/clk_out1
   aresetn slice_1/dout
