@@ -55,5 +55,3 @@ module rx_0 {
 } {
   hub_0/S_AXI ps_0/M_AXI_GP0
 }
-
-assign_bd_address [get_bd_addr_segs [get_bd_intf_pins rx_0/hub_0/S_AXI]]

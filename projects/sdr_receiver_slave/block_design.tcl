@@ -426,5 +426,3 @@ cell xilinx.com:ip:xlconcat concat_0 {
   In1 mult_5/P
   dout dac_0/s_axis_tdata
 }
-
-assign_bd_address [get_bd_addr_segs ps_0/S_AXI_ACP/ACP_DDR_LOWOCM]

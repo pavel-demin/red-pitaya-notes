@@ -105,5 +105,3 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
   aclk pll_0/clk_out1
   aresetn slice_1/dout
 }
-
-assign_bd_address [get_bd_addr_segs ps_0/S_AXI_ACP/ACP_DDR_LOWOCM]
