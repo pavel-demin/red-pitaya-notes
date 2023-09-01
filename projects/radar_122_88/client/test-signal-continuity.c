@@ -50,8 +50,8 @@ int main()
 
   for(i = 0; i < size; ++i)
   {
-    data[i * 4 + 0] = (int32_t)floor(2.1e9 * cos(2.0 * M_PI * i / size) + 0.5);
-    data[i * 4 + 1] = (int32_t)floor(2.1e9 * sin(2.0 * M_PI * i / size) + 0.5);
+    data[i * 4 + 0] = (int32_t)floor(1.48e9 * cos(2.0 * M_PI * i / size) + 0.5);
+    data[i * 4 + 1] = (int32_t)floor(1.48e9 * sin(2.0 * M_PI * i / size) + 0.5);
     data[i * 4 + 2] = 0;
     data[i * 4 + 3] = 0;
   }
