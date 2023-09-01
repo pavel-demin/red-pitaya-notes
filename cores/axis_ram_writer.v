@@ -49,18 +49,20 @@ module axis_ram_writer #
     for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
   endfunction
 
-  localparam integer ADDR_SIZE = clogb2(AXI_DATA_WIDTH/8 - 1);
+  localparam integer ADDR_SIZE = clogb2(AXI_DATA_WIDTH / 8 - 1);
+  localparam integer COUNT_WIDTH = clogb2(FIFO_WRITE_DEPTH * AXIS_TDATA_WIDTH / AXI_DATA_WIDTH - 1) + 1;
 
   reg int_awvalid_reg, int_wvalid_reg;
   reg [3:0] int_cntr_reg;
   reg [ADDR_WIDTH-1:0] int_addr_reg;
 
-  wire int_empty_wire, int_full_wire, int_valid_wire;
+  wire int_full_wire, int_valid_wire;
   wire int_awvalid_wire, int_awready_wire;
   wire int_wlast_wire, int_wvalid_wire, int_wready_wire, int_rden_wire;
+  wire [COUNT_WIDTH-1:0] int_count_wire;
   wire [AXI_DATA_WIDTH-1:0] int_wdata_wire;
 
-  assign int_valid_wire = ~int_empty_wire & ~int_wvalid_reg;
+  assign int_valid_wire = (int_count_wire > 15) & ~int_wvalid_reg;
   assign int_awvalid_wire = int_valid_wire | int_awvalid_reg;
   assign int_wvalid_wire = int_valid_wire | int_wvalid_reg;
 
@@ -74,11 +76,11 @@ module axis_ram_writer #
     .READ_MODE("fwft"),
     .FIFO_READ_LATENCY(0),
     .FIFO_MEMORY_TYPE("block"),
-    .USE_ADV_FEATURES("0200"),
-    .PROG_EMPTY_THRESH(15)
+    .USE_ADV_FEATURES("0400"),
+    .RD_DATA_COUNT_WIDTH(COUNT_WIDTH)
   ) fifo_0 (
-    .prog_empty(int_empty_wire),
     .full(int_full_wire),
+    .rd_data_count(int_count_wire),
     .rst(~aresetn),
     .wr_clk(aclk),
     .wr_en(s_axis_tvalid),
