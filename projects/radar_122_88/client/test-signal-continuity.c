@@ -56,7 +56,7 @@ int main()
     data[i * 4 + 3] = 0;
   }
 
-  command[0] = 20;
+  command[0] = 15;
   command[1] = (1 << 28) + 10000000;
   command[2] = (2 << 28) + (16 * size);
   send(sock, command, 12, MSG_NOSIGNAL);
