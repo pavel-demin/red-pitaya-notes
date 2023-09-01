@@ -65,7 +65,7 @@ int main ()
     return EXIT_FAILURE;
   }
 
-  size = 1024*sysconf(_SC_PAGESIZE);
+  size = 4096*sysconf(_SC_PAGESIZE);
 
   if(ioctl(fd, CMA_ALLOC, &size) < 0)
   {
@@ -73,7 +73,7 @@ int main ()
     return EXIT_FAILURE;
   }
 
-  ram = mmap(NULL, 1024*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+  ram = mmap(NULL, 4096*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
   rx_rst = (uint8_t *)(cfg + 0);
   rx_rate = (uint16_t *)(cfg + 2);
@@ -86,11 +86,11 @@ int main ()
   rx_cntr = (uint16_t *)(sts + 2);
 
   *tx_addr = size;
-  *tx_size = 16383;
-  *rx_addr = size + 512*sysconf(_SC_PAGESIZE);
+  *tx_size = 65535;
+  *rx_addr = size + 2048*sysconf(_SC_PAGESIZE);
 
   tx_ram = ram;
-  rx_ram = ram + 512*sysconf(_SC_PAGESIZE);
+  rx_ram = ram + 2048*sysconf(_SC_PAGESIZE);
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -155,7 +155,7 @@ int main ()
             break;
           case 2:
             /* set tx samples */
-            if(value < 0 || value > 2097152) continue;
+            if(value < 0 || value > 8388608) continue;
             *tx_size = (value >> 7) - 1;
             recv(sock_client, tx_ram, value, MSG_WAITALL);
           case 3:

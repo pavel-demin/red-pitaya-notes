@@ -308,7 +308,7 @@ cell xilinx.com:ip:axis_subset_converter subset_0 {
 
 # Create axis_ram_reader
 cell pavel-demin:user:axis_ram_reader reader_0 {
-  ADDR_WIDTH 14
+  ADDR_WIDTH 16
   AXI_ID_WIDTH 3
   AXIS_TDATA_WIDTH 128
   FIFO_WRITE_DEPTH 512
