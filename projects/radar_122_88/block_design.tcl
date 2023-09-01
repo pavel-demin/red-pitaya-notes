@@ -211,7 +211,7 @@ for {set i 0} {$i <= 3} {incr i} {
   cell pavel-demin:user:dsp48 mult_$i {
     A_WIDTH 24
     B_WIDTH 16
-    P_WIDTH 24
+    P_WIDTH 32
   } {
     A dds_slice_$i/dout
     B adc_slice_$i/dout
@@ -238,7 +238,7 @@ for {set i 0} {$i <= 3} {incr i} {
     FIXED_OR_INITIAL_RATE 15
     INPUT_SAMPLE_FREQUENCY 122.88
     CLOCK_FREQUENCY 122.88
-    INPUT_DATA_WIDTH 24
+    INPUT_DATA_WIDTH 32
     QUANTIZATION Truncation
     OUTPUT_DATA_WIDTH 32
     USE_XTREME_DSP_SLICE false
