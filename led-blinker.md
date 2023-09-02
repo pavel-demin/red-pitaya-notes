@@ -11,8 +11,8 @@ For my experiments with the [Red Pitaya](http://redpitaya.readthedocs.io), I'd l
 
  - recent version of the [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html)
  - recent version of the [Linux kernel](https://www.kernel.org)
- - recent version of the [Debian distribution](https://www.debian.org/releases/bullseye) on the development machine
- - recent version of the [Debian distribution](https://www.debian.org/releases/bullseye) on the the Red Pitaya board
+ - recent version of the [Debian distribution](https://www.debian.org/releases/bookworm) on the development machine
+ - recent version of the [Debian distribution](https://www.debian.org/releases/bookworm) on the the Red Pitaya board
  - basic project with all the [Red Pitaya](http://redpitaya.readthedocs.io) peripherals connected
  - mostly command-line tools
  - shallow directory structure
@@ -24,7 +24,7 @@ Pre-requirements
 
 My development machine has the following installed:
 
- - [Debian](https://www.debian.org/releases/bullseye) 11.7 (amd64)
+ - [Debian](https://www.debian.org/releases/bookworm) 12 (amd64)
 
  - [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2023.1
 
@@ -112,7 +112,7 @@ SD card image
 
 Building a bootable SD card image:
 {% highlight bash %}
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-11.7-armhf.img 1024
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-12-armhf.img 1024
 {% endhighlight %}
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.

@@ -9,7 +9,7 @@ d-i netcfg/get_domain string unassigned-domain
 
 d-i netcfg/wireless_wep string
 
-d-i mirror/suite string bullseye
+d-i mirror/suite string bookworm
 d-i mirror/country string manual
 d-i mirror/http/hostname string deb.debian.org
 d-i mirror/http/directory string /debian
@@ -61,7 +61,7 @@ d-i pkgsel/include/install-recommends boolean false
 
 d-i pkgsel/update-policy select none
 
-d-i apt-setup/non-free boolean true
+d-i apt-setup/non-free-firmware boolean true
 d-i apt-setup/contrib boolean true
 
 d-i grub-installer/bootdev string default
