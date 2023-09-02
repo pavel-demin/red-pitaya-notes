@@ -9,7 +9,7 @@ linux_ver=6.1.32-xilinx
 # Choose mirror automatically, depending the geographic and network location
 mirror=http://deb.debian.org/debian
 
-distro=bullseye
+distro=bookworm
 arch=armhf
 
 passwd=changeme
@@ -69,12 +69,12 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 /debootstrap/debootstrap --second-stage
 
 cat <<- EOF_CAT > /etc/apt/sources.list
-deb $mirror $distro main contrib non-free
-deb-src $mirror $distro main contrib non-free
-deb $mirror $distro-updates main contrib non-free
-deb-src $mirror $distro-updates main contrib non-free
-deb http://security.debian.org/debian-security $distro-security main contrib non-free
-deb-src http://security.debian.org/debian-security $distro-security main contrib non-free
+deb $mirror $distro main contrib non-free-firmware
+deb-src $mirror $distro main contrib non-free-firmware
+deb $mirror $distro-updates main contrib non-free-firmware
+deb-src $mirror $distro-updates main contrib non-free-firmware
+deb http://security.debian.org/debian-security $distro-security main contrib non-free-firmware
+deb-src http://security.debian.org/debian-security $distro-security main contrib non-free-firmware
 EOF_CAT
 
 cat <<- EOF_CAT > etc/apt/apt.conf.d/99norecommends
@@ -106,7 +106,7 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
   firmware-misc-nonfree firmware-realtek firmware-atheros firmware-brcm80211 \
-  iw iptables ifplugd ntfs-3g net-tools less
+  iw iptables ifplugd ntfs-3g net-tools
 
 systemctl disable isc-dhcp-server
 systemctl disable nftables
