@@ -24,7 +24,6 @@ module axis_counter #
   reg [CNTR_WIDTH-1:0] int_data_reg;
   reg int_enbl_reg, int_enbl_next;
 
-  wire [CNTR_WIDTH-1:0] int_incr_wire;
   wire int_comp_wire, int_last_wire;
 
   always @(posedge aclk)
@@ -43,7 +42,6 @@ module axis_counter #
     end
   end
 
-  assign int_incr_wire = int_cntr_reg + 1'b1;
   assign int_comp_wire = int_cntr_reg < int_data_reg;
   assign int_last_wire = ~int_comp_wire;
 
@@ -62,7 +60,7 @@ module axis_counter #
 
         if(m_axis_tready & int_enbl_reg & int_comp_wire)
         begin
-          int_cntr_next = int_incr_wire;
+          int_cntr_next = int_cntr_reg + 1'b1;
         end
 
         if(m_axis_tready & int_enbl_reg & int_last_wire)
@@ -85,7 +83,7 @@ module axis_counter #
 
         if(m_axis_tready & int_enbl_reg & int_comp_wire)
         begin
-          int_cntr_next = int_incr_wire;
+          int_cntr_next = int_cntr_reg + 1'b1;
         end
 
         if(m_axis_tready & int_enbl_reg & int_last_wire)
