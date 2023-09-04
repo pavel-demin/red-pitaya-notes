@@ -94,7 +94,7 @@ module axis_counter #
     end
   endgenerate
 
-  assign m_axis_tdata = {{(AXIS_TDATA_WIDTH-CNTR_WIDTH){1'b0}}, int_cntr_reg};
+  assign m_axis_tdata = int_cntr_reg;
   assign m_axis_tvalid = int_enbl_reg;
 
 endmodule
