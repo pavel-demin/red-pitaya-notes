@@ -77,11 +77,19 @@ cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
   s_axis_tvalid const_0/dout
 }
 
+# GPIO
+
+# Delete input/output port
+delete_bd_objs [get_bd_ports exp_n_tri_io]
+
+# Create input port
+create_bd_port -dir I -from 7 -to 0 exp_n_tri_io
+
 # HUB
 
 # Create axi_hub
 cell pavel-demin:user:axi_hub hub_0 {
-  CFG_DATA_WIDTH 224
+  CFG_DATA_WIDTH 192
   STS_DATA_WIDTH 32
 } {
   S_AXI ps_0/M_AXI_GP0
@@ -91,49 +99,56 @@ cell pavel-demin:user:axi_hub hub_0 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_0 {
-  DIN_WIDTH 224 DIN_FROM 0 DIN_TO 0
+  DIN_WIDTH 192 DIN_FROM 0 DIN_TO 0
 } {
   din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
-  DIN_WIDTH 224 DIN_FROM 1 DIN_TO 1
+  DIN_WIDTH 192 DIN_FROM 1 DIN_TO 1
 } {
   din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
-  DIN_WIDTH 224 DIN_FROM 31 DIN_TO 16
+  DIN_WIDTH 192 DIN_FROM 31 DIN_TO 16
 } {
   din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_3 {
-  DIN_WIDTH 224 DIN_FROM 63 DIN_TO 32
+  DIN_WIDTH 192 DIN_FROM 63 DIN_TO 32
 } {
   din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_4 {
-  DIN_WIDTH 224 DIN_FROM 95 DIN_TO 64
+  DIN_WIDTH 192 DIN_FROM 95 DIN_TO 64
 } {
   din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_5 {
-  DIN_WIDTH 224 DIN_FROM 127 DIN_TO 96
+  DIN_WIDTH 192 DIN_FROM 127 DIN_TO 96
 } {
   din hub_0/cfg_data
 }
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_6 {
-  DIN_WIDTH 224 DIN_FROM 159 DIN_TO 128
+  DIN_WIDTH 192 DIN_FROM 159 DIN_TO 128
+} {
+  din hub_0/cfg_data
+}
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer slice_7 {
+  DIN_WIDTH 192 DIN_FROM 191 DIN_TO 160
 } {
   din hub_0/cfg_data
 }
@@ -282,7 +297,7 @@ cell xilinx.com:ip:fir_compiler fir_0 {
   SAMPLE_FREQUENCY 8.192
   CLOCK_FREQUENCY 122.88
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
-  OUTPUT_WIDTH 34
+  OUTPUT_WIDTH 26
   M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
@@ -295,11 +310,25 @@ cell xilinx.com:ip:fir_compiler fir_0 {
 cell xilinx.com:ip:axis_subset_converter subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 20
-  M_TDATA_NUM_BYTES 16
-  TDATA_REMAP {tdata[151:120],tdata[111:80],tdata[71:40],tdata[31:0]}
+  S_TDATA_NUM_BYTES 16
+  M_TDATA_NUM_BYTES 12
+  TDATA_REMAP {tdata[119:96],tdata[87:64],tdata[55:32],tdata[23:0]}
 } {
   S_AXIS fir_0/M_AXIS_DATA
+  aclk pll_0/clk_out1
+  aresetn slice_0/dout
+}
+
+# Create axis_counter
+cell pavel-demin:user:axis_stamper stamper_0 {
+  S_AXIS_TDATA_WIDTH 96
+  M_AXIS_TDATA_WIDTH 128
+  CNTR_WIDTH 24
+  MISC_WIDTH 8
+} {
+  S_AXIS subset_0/M_AXIS
+  cfg_data slice_7/dout
+  misc_data exp_n_tri_io
   aclk pll_0/clk_out1
   aresetn slice_0/dout
 }
@@ -333,7 +362,7 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
   AXIS_TDATA_WIDTH 128
   FIFO_WRITE_DEPTH 512
 } {
-  S_AXIS subset_0/M_AXIS
+  S_AXIS stamper_0/M_AXIS
   M_AXI ps_0/S_AXI_ACP
   min_addr slice_6/dout
   cfg_data const_1/dout

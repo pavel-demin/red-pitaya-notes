@@ -20,11 +20,19 @@ gcc -O3 test-signal-continuity.c -lm -o test-signal-continuity
 
 #define N 524288
 
+static inline void to32(uint8_t *in, int32_t *out)
+{
+  int32_t v;
+  v = in[2] << 16 | in[1] << 8 | in[0];
+  if(v & 0x00800000) v |= 0xff000000;
+  *out = v;
+}
+
 int main()
 {
   int i, sock, size;
   struct sockaddr_in addr;
-  int32_t *data, d, dmax;
+  int32_t *data, d, dmax, v[2];
   uint32_t command[3];
 
   data = malloc(16 * N);
@@ -71,10 +79,12 @@ int main()
     dmax = 0;
     for(i = 1; i < N; ++i)
     {
-      d = abs(data[i * 4] - data[(i - 1) * 4]);
-      if(dmax < d) dmax = d;
+      to32(data + 3 + (i - 1) * 4, v);
+      to32(data + 3 + i * 4, v + 1);
+      d = abs(v[1] - v[0]);
+      if(dmax < d && d != size - 1) dmax = d;
     }
-    if(dmax > 1000000) printf("%d\n", dmax);
+    if(dmax > 1) printf("%d\n", dmax);
   }
 
   return 0;

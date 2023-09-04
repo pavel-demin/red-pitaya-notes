@@ -29,7 +29,7 @@ int main ()
 {
   int fd, sock_server, sock_client;
   int position, limit, offset;
-  volatile uint32_t *rx_freq, *rx_addr, *tx_addr, *tx_size;
+  volatile uint32_t *rx_freq, *rx_addr, *rx_size, *tx_addr, *tx_size;
   volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr;
   volatile uint8_t *rx_rst;
   volatile void *cfg, *sts, *ram, *rx_ram, *tx_ram;
@@ -81,6 +81,7 @@ int main ()
   tx_addr = (uint32_t *)(cfg + 8);
   tx_size = (uint32_t *)(cfg + 12);
   rx_addr = (uint32_t *)(cfg + 16);
+  rx_size = (uint32_t *)(cfg + 20);
 
   tx_cntr = (uint16_t *)(sts + 0);
   rx_cntr = (uint16_t *)(sts + 2);
@@ -88,6 +89,7 @@ int main ()
   *tx_addr = size;
   *tx_size = 65535;
   *rx_addr = size + 2048*sysconf(_SC_PAGESIZE);
+  *rx_size = 524287;
 
   tx_ram = ram;
   rx_ram = ram + 2048*sysconf(_SC_PAGESIZE);
@@ -157,6 +159,7 @@ int main ()
             /* set tx samples */
             if(value < 0 || value > 8388608) continue;
             *tx_size = (value >> 7) - 1;
+            *rx_size = (value >> 4) - 1;
             recv(sock_client, tx_ram, value, MSG_WAITALL);
           case 3:
             /* start */
