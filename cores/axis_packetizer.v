@@ -28,6 +28,7 @@ module axis_packetizer #
 );
 
   reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
+  reg [CNTR_WIDTH-1:0] int_data_reg;
   reg int_enbl_reg, int_enbl_next;
 
   wire int_comp_wire, int_tvalid_wire, int_tlast_wire;
@@ -37,16 +38,18 @@ module axis_packetizer #
     if(~aresetn)
     begin
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
+      int_data_reg <= {(CNTR_WIDTH){1'b0}};
       int_enbl_reg <= 1'b0;
     end
     else
     begin
       int_cntr_reg <= int_cntr_next;
+      int_data_reg <= cfg_data;
       int_enbl_reg <= int_enbl_next;
     end
   end
 
-  assign int_comp_wire = int_cntr_reg < cfg_data;
+  assign int_comp_wire = int_cntr_reg < int_data_reg;
   assign int_tvalid_wire = int_enbl_reg & s_axis_tvalid;
   assign int_tlast_wire = ~int_comp_wire;
 
