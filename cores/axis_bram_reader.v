@@ -39,7 +39,6 @@ module axis_bram_reader #
   reg [BRAM_ADDR_WIDTH-1:0] int_data_reg;
   reg int_enbl_reg, int_enbl_next;
 
-  wire [BRAM_ADDR_WIDTH-1:0] int_incr_wire;
   wire [AXIS_TDATA_WIDTH-1:0] int_data_wire;
   wire [2:0] int_last_wire, int_valid_wire, int_ready_wire;
   wire int_comp_wire;
@@ -60,7 +59,6 @@ module axis_bram_reader #
     end
   end
 
-  assign int_incr_wire = int_addr_reg + 1'b1;
   assign int_comp_wire = int_addr_reg < int_data_reg;
 
   assign int_last_wire[0] = ~int_comp_wire;
@@ -81,7 +79,7 @@ module axis_bram_reader #
 
         if(int_ready_wire[0] & int_enbl_reg & int_comp_wire)
         begin
-          int_addr_next = int_incr_wire;
+          int_addr_next = int_addr_reg + 1'b1;
         end
 
         if(int_ready_wire[0] & int_enbl_reg & int_last_wire[0])
@@ -104,7 +102,7 @@ module axis_bram_reader #
 
         if(int_ready_wire[0] & int_enbl_reg & int_comp_wire)
         begin
-          int_addr_next = int_incr_wire;
+          int_addr_next = int_addr_reg + 1'b1;
         end
 
         if(int_ready_wire[0] & int_enbl_reg & int_last_wire[0])
