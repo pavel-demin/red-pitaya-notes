@@ -21,7 +21,7 @@ RM = rm -rf
 
 UBOOT_TAG = 2021.04
 LINUX_TAG = 6.1
-DTREE_TAG = xilinx-v2020.2
+DTREE_TAG = xilinx_v2023.1
 
 UBOOT_DIR = tmp/u-boot-$(UBOOT_TAG)
 LINUX_DIR = tmp/linux-$(LINUX_TAG)
