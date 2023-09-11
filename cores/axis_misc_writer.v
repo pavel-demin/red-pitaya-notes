@@ -1,7 +1,7 @@
 
 `timescale 1 ns / 1 ps
 
-module axis_stamper #
+module axis_misc_writer #
 (
   parameter integer S_AXIS_TDATA_WIDTH = 32,
   parameter integer M_AXIS_TDATA_WIDTH = 64,
@@ -14,7 +14,7 @@ module axis_stamper #
   input  wire                          aresetn,
 
   input  wire [CNTR_WIDTH-1:0]         cfg_data,
-  inout  wire [MISC_WIDTH-1:0]         misc_data,
+  input  wire [MISC_WIDTH-1:0]         misc_data,
 
   // Slave side
   output wire                          s_axis_tready,

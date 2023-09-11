@@ -319,8 +319,8 @@ cell xilinx.com:ip:axis_subset_converter subset_0 {
   aresetn slice_0/dout
 }
 
-# Create axis_counter
-cell pavel-demin:user:axis_stamper stamper_0 {
+# Create axis_misc_writer
+cell pavel-demin:user:axis_misc_writer misc_0 {
   S_AXIS_TDATA_WIDTH 96
   M_AXIS_TDATA_WIDTH 128
   CNTR_WIDTH 24
@@ -362,7 +362,7 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
   AXIS_TDATA_WIDTH 128
   FIFO_WRITE_DEPTH 512
 } {
-  S_AXIS stamper_0/M_AXIS
+  S_AXIS misc_0/M_AXIS
   M_AXI ps_0/S_AXI_ACP
   min_addr slice_6/dout
   cfg_data const_1/dout
