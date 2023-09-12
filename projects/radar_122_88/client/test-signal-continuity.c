@@ -20,6 +20,14 @@ gcc -O3 test-signal-continuity.c -lm -o test-signal-continuity
 
 #define N 524288
 
+static inline void to24(int32_t *in, uint8_t *out)
+{
+  int32_t v = *in;
+  out[2] = v >> 16;
+  out[1] = v >> 8;
+  out[0] = v;
+}
+
 static inline void to32(uint8_t *in, int32_t *out)
 {
   int32_t v;
@@ -32,7 +40,8 @@ int main()
 {
   int i, sock, size;
   struct sockaddr_in addr;
-  int32_t *data, d, dmax, v[2];
+  uint8_t *data;
+  int32_t d, dmax, v[4];
   uint32_t command[3];
 
   data = malloc(16 * N);
@@ -58,10 +67,15 @@ int main()
 
   for(i = 0; i < size; ++i)
   {
-    data[i * 4 + 0] = (int32_t)floor(1.48e9 * cos(2.0 * M_PI * i / size) + 0.5);
-    data[i * 4 + 1] = (int32_t)floor(1.48e9 * sin(2.0 * M_PI * i / size) + 0.5);
-    data[i * 4 + 2] = 0;
-    data[i * 4 + 3] = 0;
+    v[0] = floor(5.79e6 * cos(2.0 * M_PI * i / size) + 0.5);
+    v[1] = floor(5.79e6 * sin(2.0 * M_PI * i / size) + 0.5);
+    v[2] = 0;
+    v[3] = 0;
+    to24(v + 0, data + i * 16 + 0);
+    to24(v + 1, data + i * 16 + 3);
+    to24(v + 2, data + i * 16 + 6);
+    to24(v + 3, data + i * 16 + 9);
+    data[i * 16 + 15] = (i >= 0 && i < 8) ? 1 : 0;
   }
 
   command[0] = 15;
@@ -79,8 +93,8 @@ int main()
     dmax = 0;
     for(i = 1; i < N; ++i)
     {
-      to32(data + 3 + (i - 1) * 4, v);
-      to32(data + 3 + i * 4, v + 1);
+      to32(data + 12 + (i - 1) * 16, v);
+      to32(data + 12 + i * 16, v + 1);
       d = abs(v[1] - v[0]);
       if(dmax < d && d != size - 1) dmax = d;
     }
