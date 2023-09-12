@@ -119,41 +119,34 @@ cell pavel-demin:user:port_slicer slice_1 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_2 {
-  DIN_WIDTH 192 DIN_FROM 31 DIN_TO 16
-} {
-  din hub_0/cfg_data
-}
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 192 DIN_FROM 63 DIN_TO 32
 } {
   din hub_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_4 {
+cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 192 DIN_FROM 95 DIN_TO 64
 } {
   din hub_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_5 {
+cell pavel-demin:user:port_slicer slice_4 {
   DIN_WIDTH 192 DIN_FROM 127 DIN_TO 96
 } {
   din hub_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_6 {
+cell pavel-demin:user:port_slicer slice_5 {
   DIN_WIDTH 192 DIN_FROM 159 DIN_TO 128
 } {
   din hub_0/cfg_data
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_7 {
+cell pavel-demin:user:port_slicer slice_6 {
   DIN_WIDTH 192 DIN_FROM 191 DIN_TO 160
 } {
   din hub_0/cfg_data
@@ -165,7 +158,7 @@ cell pavel-demin:user:port_slicer slice_7 {
 cell pavel-demin:user:axis_constant phase_0 {
   AXIS_TDATA_WIDTH 32
 } {
-  cfg_data slice_3/dout
+  cfg_data slice_2/dout
   aclk pll_0/clk_out1
 }
 
@@ -190,7 +183,7 @@ cell xilinx.com:ip:dds_compiler dds_0 {
 cell pavel-demin:user:axis_constant phase_1 {
   AXIS_TDATA_WIDTH 32
 } {
-  cfg_data slice_3/dout
+  cfg_data slice_2/dout
   aclk pll_0/clk_out1
 }
 
@@ -239,23 +232,12 @@ for {set i 0} {$i <= 3} {incr i} {
     CLK pll_0/clk_out1
   }
 
-  # Create axis_variable
-  cell pavel-demin:user:axis_variable rate_$i {
-    AXIS_TDATA_WIDTH 16
-  } {
-    cfg_data slice_2/dout
-    aclk pll_0/clk_out1
-    aresetn slice_0/dout
-  }
-
   # Create cic_compiler
   cell xilinx.com:ip:cic_compiler cic_$i {
     INPUT_DATA_WIDTH.VALUE_SRC USER
     FILTER_TYPE Decimation
     NUMBER_OF_STAGES 6
-    SAMPLE_RATE_CHANGES Programmable
-    MINIMUM_RATE 15
-    MAXIMUM_RATE 128
+    SAMPLE_RATE_CHANGES Fixed
     FIXED_OR_INITIAL_RATE 15
     INPUT_SAMPLE_FREQUENCY 122.88
     CLOCK_FREQUENCY 122.88
@@ -267,7 +249,6 @@ for {set i 0} {$i <= 3} {incr i} {
   } {
     s_axis_data_tdata mult_$i/P
     s_axis_data_tvalid const_0/dout
-    S_AXIS_CONFIG rate_$i/M_AXIS
     aclk pll_0/clk_out1
     aresetn slice_0/dout
   }
@@ -304,7 +285,7 @@ cell xilinx.com:ip:fir_compiler fir_0 {
   CLOCK_FREQUENCY 122.88
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 26
-  M_DATA_HAS_TREADY true
+  S_DATA_HAS_FIFO false
   HAS_ARESETN true
 } {
   S_AXIS_DATA comb_0/M_AXIS
@@ -333,7 +314,7 @@ cell pavel-demin:user:axis_misc_writer misc_0 {
   MISC_WIDTH 8
 } {
   S_AXIS subset_0/M_AXIS
-  cfg_data slice_7/dout
+  cfg_data slice_6/dout
   misc_data exp_n_tri_io
   aclk pll_0/clk_out1
   aresetn slice_0/dout
@@ -349,8 +330,8 @@ cell pavel-demin:user:axis_ram_reader reader_0 {
   FIFO_WRITE_DEPTH 512
 } {
   M_AXI ps_0/S_AXI_HP0
-  min_addr slice_4/dout
-  cfg_data slice_5/dout
+  min_addr slice_3/dout
+  cfg_data slice_4/dout
   aclk pll_0/clk_out1
   aresetn slice_1/dout
 }
@@ -370,7 +351,7 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
 } {
   S_AXIS misc_0/M_AXIS
   M_AXI ps_0/S_AXI_ACP
-  min_addr slice_6/dout
+  min_addr slice_5/dout
   cfg_data const_1/dout
   aclk pll_0/clk_out1
   aresetn slice_1/dout
@@ -417,7 +398,7 @@ cell xilinx.com:ip:fir_compiler fir_1 {
   CLOCK_FREQUENCY 122.88
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 34
-  M_DATA_HAS_TREADY true
+  S_DATA_HAS_FIFO false
   HAS_ARESETN true
 } {
   S_AXIS_DATA misc_1/M_AXIS
@@ -444,23 +425,12 @@ cell xilinx.com:ip:axis_broadcaster bcast_0 {
 
 for {set i 0} {$i <= 3} {incr i} {
 
-  # Create axis_variable
-  cell pavel-demin:user:axis_variable rate_[expr $i + 4] {
-    AXIS_TDATA_WIDTH 16
-  } {
-    cfg_data slice_2/dout
-    aclk pll_0/clk_out1
-    aresetn slice_0/dout
-  }
-
   # Create cic_compiler
   cell xilinx.com:ip:cic_compiler cic_[expr $i + 4] {
     INPUT_DATA_WIDTH.VALUE_SRC USER
     FILTER_TYPE Interpolation
     NUMBER_OF_STAGES 6
-    SAMPLE_RATE_CHANGES Programmable
-    MINIMUM_RATE 15
-    MAXIMUM_RATE 128
+    SAMPLE_RATE_CHANGES Fixed
     FIXED_OR_INITIAL_RATE 15
     INPUT_SAMPLE_FREQUENCY 8.192
     CLOCK_FREQUENCY 122.88
@@ -471,7 +441,6 @@ for {set i 0} {$i <= 3} {incr i} {
     HAS_ARESETN true
   } {
     S_AXIS_DATA bcast_0/M0${i}_AXIS
-    S_AXIS_CONFIG rate_[expr $i + 4]/M_AXIS
     aclk pll_0/clk_out1
     aresetn slice_0/dout
   }

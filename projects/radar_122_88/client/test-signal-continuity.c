@@ -42,7 +42,7 @@ int main()
   struct sockaddr_in addr;
   uint8_t *data;
   int32_t d, dmax, v[4];
-  uint32_t command[3];
+  uint32_t command[2];
 
   data = malloc(16 * N);
 
@@ -78,13 +78,12 @@ int main()
     data[i * 16 + 15] = (i >= 0 && i < 8) ? 1 : 0;
   }
 
-  command[0] = 15;
-  command[1] = (1 << 28) + 10000000;
-  command[2] = (2 << 28) + (16 * size);
-  send(sock, command, 12, MSG_NOSIGNAL);
+  command[0] = 10000000;
+  command[1] = (1 << 28) + (16 * size);
+  send(sock, command, 8, MSG_NOSIGNAL);
   send(sock, data, 16 * size, MSG_NOSIGNAL);
 
-  command[0] = (3 << 28);
+  command[0] = (2 << 28);
   send(sock, command, 4, MSG_NOSIGNAL);
 
   while(1)

@@ -30,7 +30,7 @@ int main ()
   int fd, sock_server, sock_client;
   int position, limit, offset;
   volatile uint32_t *rx_freq, *rx_addr, *rx_size, *tx_addr, *tx_size;
-  volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr;
+  volatile uint16_t *rx_cntr, *tx_cntr;
   volatile uint8_t *rx_rst;
   volatile void *cfg, *sts, *ram, *rx_ram, *tx_ram;
   cpu_set_t mask;
@@ -76,7 +76,6 @@ int main ()
   ram = mmap(NULL, 4096*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
   rx_rst = (uint8_t *)(cfg + 0);
-  rx_rate = (uint16_t *)(cfg + 2);
   rx_freq = (uint32_t *)(cfg + 4);
   tx_addr = (uint32_t *)(cfg + 8);
   tx_size = (uint32_t *)(cfg + 12);
@@ -122,8 +121,6 @@ int main ()
     *rx_rst &= ~1;
     usleep(100);
     *rx_rst &= ~2;
-    /* set default sample rate */
-    *rx_rate = 15;
     /* set default phase increments */
     *rx_freq = (uint32_t)floor(10000000 / 122.88e6 * (1<<30) + 0.5);
 
@@ -146,29 +143,24 @@ int main ()
         switch(command >> 28)
         {
           case 0:
-            /* set sample rate */
-            if(value < 15 || value > 128) continue;
-            *rx_rate = value;
-            break;
-          case 1:
             /* set phase increment */
             if(value < 0 || value > 61440000) continue;
             *rx_freq = (uint32_t)floor(value / 122.88e6 * (1<<30) + 0.5);
             break;
-          case 2:
+          case 1:
             /* set tx samples */
             if(value < 0 || value > 8388608) continue;
             *tx_size = (value >> 7) - 1;
             *rx_size = (value >> 4) - 1;
             recv(sock_client, tx_ram, value, MSG_WAITALL);
-          case 3:
+          case 2:
             /* start */
             *rx_rst |= 2;
             usleep(100);
             *rx_rst |= 1;
             limit = 2*1024;
             break;
-          case 4:
+          case 3:
             /* stop */
             *rx_rst &= ~1;
             usleep(100);
