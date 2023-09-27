@@ -13,9 +13,9 @@ Some interesting links on network analyzers:
 
  - [Three-Bead-Balun Reflection Bridge](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAFReIzG5tnpxZKTaOrhn4wa/vna/3BeadBalunBridge.pdf?dl=1)
 
- - [Ham VNA](http://dxatlas.com/HamVNA)
+ - [Ham VNA](https://dxatlas.com/HamVNA)
 
- - [Introduction to Network Analyzer Measurements](http://download.ni.com/evaluation/rf/Introduction_to_Network_Analyzer_Measurements.pdf)
+ - [Introduction to Network Analyzer Measurements](https://download.ni.com/evaluation/rf/Introduction_to_Network_Analyzer_Measurements.pdf)
 
 Hardware
 -----

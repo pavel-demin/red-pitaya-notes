@@ -38,7 +38,7 @@ The [projects/sdr_transceiver_122_88/server](https://github.com/pavel-demin/red-
 
 The [projects/sdr_transceiver_122_88/ExtIO_RedPitaya_122_88](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_122_88/ExtIO_RedPitaya_122_88) directory contains the source code of the ExtIO plug-in.
 
-The [projects/sdr_transceiver_122_88/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_122_88/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
+The [projects/sdr_transceiver_122_88/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_122_88/gnuradio) directory contains [GNU Radio](https://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
 
 Getting started with GNU Radio
 -----
@@ -48,7 +48,7 @@ Getting started with GNU Radio
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_122_88` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
- - Install [GNU Radio](http://gnuradio.org):
+ - Install [GNU Radio](https://gnuradio.org):
 {% highlight bash %}
 sudo apt-get install gnuradio python-numpy python-gtk2
 {% endhighlight %}
@@ -71,7 +71,7 @@ Getting started with SDR# and HDSDR
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_122_88` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
- - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](http://www.hdsdr.de/).
+ - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](https://www.hdsdr.de).
  - Download and install [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist).
  - Download [pre-built ExtIO plug-in](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAA6mFLQaCF-wT2fhACJHotra/sdr/ExtIO_RedPitaya_122_88.dll?dl=1) for SDR# and HDSDR.
  - Copy `ExtIO_RedPitaya_122_88.dll` into the SDR# or HDSDR installation directory.

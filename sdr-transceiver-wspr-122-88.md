@@ -9,12 +9,9 @@ Interesting links
 
 Some interesting links on the Weak Signal Propagation Reporter (WSPR) protocol:
 
- - [WSPR home page](http://physics.princeton.edu/pulsar/k1jt/wspr.html)
- - [WSPR 3.0 User's Guide](http://physics.princeton.edu/pulsar/k1jt/WSPR_3.0_User.pdf)
- - [WSPRnet](http://wsprnet.org)
- - [WSPRnet map](http://wsprnet.org/drupal/wsprnet/map)
- - [WSPRnet protocol](http://wsprnet.org/automate.txt)
- - [WSPRlive](https://wsprlive.net)
+ - [WSPRnet](https://wsprnet.org)
+ - [WSPRnet map](https://wsprnet.org/drupal/wsprnet/map)
+ - [WSPRnet protocol](https://wsprnet.org/automate.txt)
 
 Short description
 -----
@@ -24,7 +21,7 @@ This project implements a standalone multiband WSPR transceiver with all the WSP
  - simultaneously record WPSR signals from sixteen bands
  - use FPGA for all the conversions needed to produce .c2 files (complex 32-bit floating-point data at 375 samples per second)
  - use on-board CPU to process the .c2 files with the [WSPR decoder](https://github.com/pavel-demin/wsprd)
- - upload decoded data to [wsprnet.org](http://wsprnet.org)
+ - upload decoded data to [wsprnet.org](https://wsprnet.org)
 
 With this configuration, it is enough to connect STEMlab SDR to an antenna and to a network. After switching STEMlab SDR on, it will automatically start operating as a WSPR receiver.
 
@@ -48,7 +45,7 @@ The [write-c2-files.c](https://github.com/pavel-demin/red-pitaya-notes/tree/mast
 
 The recorded .c2 files are processed with the [WSPR decoder](https://github.com/pavel-demin/wsprd).
 
-The decoded data are uploaded to [wsprnet.org](http://wsprnet.org) using [curl](https://curl.haxx.se).
+The decoded data are uploaded to [wsprnet.org](https://wsprnet.org) using [curl](https://curl.haxx.se).
 
 The [decode-wspr.sh](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr_122_88/app/decode-wspr.sh) script launches `write-c2-files`, `wsprd` and `curl` one after another. This script is run every two minutes by the following cron entry in [wspr.cron](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr_122_88/app/wspr.cron):
 {% highlight bash %}
@@ -62,7 +59,7 @@ GPS interface
 
 A GPS module can be used for the time synchronization and for the automatic measurement and correction of the frequency deviation.
 
-The PPS signal should be connected to the pin DIO3_N of the [extension connector E1](http://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1). The UART interface should be connected to the UART pins of the [extension connector E2](http://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2).
+The PPS signal should be connected to the pin DIO3_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1). The UART interface should be connected to the UART pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2).
 
 The measurement and correction of the frequency deviation is disabled by default and should be enabled by uncommenting the following line in [wspr.cron](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wspr_122_88/app/wspr.cron):
 {% highlight bash %}
@@ -80,7 +77,7 @@ Getting started
 Configuring WSPR receiver
 -----
 
-By default, the uploads to [wsprnet.org](http://wsprnet.org) are disabled and all the decoded data are accumulated in `/dev/shm/ALL_WSPR.TXT`.
+By default, the uploads to [wsprnet.org](https://wsprnet.org) are disabled and all the decoded data are accumulated in `/dev/shm/ALL_WSPR.TXT`.
 
 All the configuration files and scripts can be found in the `apps/sdr_transceiver_wspr_122_88` directory on the SD card.
 

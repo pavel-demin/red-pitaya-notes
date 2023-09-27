@@ -11,7 +11,7 @@ Creating virtual machine with Debian 12 (amd64)
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](http://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/mini.iso) for Debian 12
+- Download [mini.iso](https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/mini.iso) for Debian 12
 
 - Start VirtualBox
 
@@ -80,7 +80,7 @@ linux initrd=initrd.gz url=bit.ly/2GH2YHy auto=true priority=critical interface=
 Accessing the virtual machine
 -----
 
-The virtual machine can be accessed via SSH. To display applications with graphical user interfaces, a X11 server ([Xming](http://sourceforge.net/projects/xming) for MS Windows or [XQuartz](https://www.xquartz.org) for Mac OS X) should be installed on the host computer. X11 forwarding should be enabled in the SSH client.
+The virtual machine can be accessed via SSH. To display applications with graphical user interfaces, a X11 server ([Xming](https://sourceforge.net/projects/xming) for MS Windows or [XQuartz](https://www.xquartz.org) for Mac OS X) should be installed on the host computer. X11 forwarding should be enabled in the SSH client.
 
 Installing Vitis Core Development Kit
 -----

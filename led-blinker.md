@@ -7,13 +7,13 @@ permalink: /led-blinker/
 Introduction
 -----
 
-For my experiments with the [Red Pitaya](http://redpitaya.readthedocs.io), I'd like to have the following development environment:
+For my experiments with the [Red Pitaya](https://redpitaya.readthedocs.io), I'd like to have the following development environment:
 
  - recent version of the [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html)
  - recent version of the [Linux kernel](https://www.kernel.org)
  - recent version of the [Debian distribution](https://www.debian.org/releases/bookworm) on the development machine
  - recent version of the [Debian distribution](https://www.debian.org/releases/bookworm) on the the Red Pitaya board
- - basic project with all the [Red Pitaya](http://redpitaya.readthedocs.io) peripherals connected
+ - basic project with all the [Red Pitaya](https://redpitaya.readthedocs.io) peripherals connected
  - mostly command-line tools
  - shallow directory structure
 
@@ -117,7 +117,7 @@ sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-12-armhf.img 1024
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
-To write the image to a SD card, the `dd` command-line utility can be used on GNU/Linux and Mac OS X or [Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/) can be used on MS Windows.
+To write the image to a SD card, the `dd` command-line utility can be used on GNU/Linux and Mac OS X or [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager) can be used on MS Windows.
 
 The default password for the `root` account is `changeme`.
 

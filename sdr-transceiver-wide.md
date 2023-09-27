@@ -28,9 +28,9 @@ Software
 
 The [projects/sdr_transceiver_wide/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wide/server) directory contains the source code of the TCP server ([sdr-transceiver-wide.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_wide/server/sdr-transceiver-wide.c)) that receives control commands and transmits/receives the I/Q data streams (up to 2 x 32 bit x 2500 kSPS = 152 Mbit/s) to/from the SDR programs.
 
-The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wide/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
+The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wide/gnuradio) directory contains [GNU Radio](https://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
 
-The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wide/gnuradio) directory contains [GNU Radio](http://gnuradio.org) blocks and an example flow graph configuration for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
+The [projects/sdr_transceiver_wide/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_wide/gnuradio) directory contains [GNU Radio](https://gnuradio.org) blocks and an example flow graph configuration for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
 
 Transmitting and receiving complex baseband signals
 -----
@@ -51,7 +51,7 @@ Getting started
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_wide` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
- - Install [GNU Radio](http://gnuradio.org):
+ - Install [GNU Radio](https://gnuradio.org):
 {% highlight bash %}
 sudo apt-get install gnuradio python-numpy python-gtk2
 {% endhighlight %}

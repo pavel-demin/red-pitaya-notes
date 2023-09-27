@@ -7,7 +7,7 @@ permalink: /sdr-receiver-hpsdr/
 Introduction
 -----
 
-This version of the Red Pitaya SDR receiver emulates a [Hermes](http://openhpsdr.org/hermes.php) module with eight receivers. It may be useful for projects that require eight receivers compatible with the programs that support the HPSDR/Metis communication protocol.
+This version of the Red Pitaya SDR receiver emulates a [Hermes](https://openhpsdr.org/hermes.php) module with eight receivers. It may be useful for projects that require eight receivers compatible with the programs that support the HPSDR/Metis communication protocol.
 
 The HPSDR/Metis communication protocol is described in the following documents:
 
@@ -32,7 +32,7 @@ The tunable frequency range covers from 0 Hz to 61.44 MHz.
 
 The [projects/sdr_receiver_hpsdr](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_hpsdr) directory contains two Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_hpsdr/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_hpsdr/rx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
-The [projects/sdr_receiver_hpsdr/filters](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_hpsdr/filters) directory contains the source code of the [R](http://www.r-project.org) scripts used to calculate the coefficients of the FIR filters.
+The [projects/sdr_receiver_hpsdr/filters](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_hpsdr/filters) directory contains the source code of the [R](https://www.r-project.org) scripts used to calculate the coefficients of the FIR filters.
 
 The [projects/sdr_receiver_hpsdr/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_hpsdr/server) directory contains the source code of the UDP server ([sdr-receiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_hpsdr/server/sdr-receiver-hpsdr.c)) that receives control commands and transmits the I/Q data streams to the SDR programs.
 
@@ -41,17 +41,17 @@ Software
 
 This SDR receiver should work with most of the programs that support the HPSDR/Metis communication protocol:
 
- - [PowerSDR mRX PS](http://openhpsdr.org/wiki/index.php?title=PowerSDR) that can be downloaded from [this link](https://github.com/TAPR/OpenHPSDR-PowerSDR/releases)
+ - [PowerSDR mRX PS](https://openhpsdr.org/wiki/index.php?title=PowerSDR) that can be downloaded from [this link](https://github.com/TAPR/OpenHPSDR-PowerSDR/releases)
 
- - [QUISK](http://james.ahlstrom.name/quisk) with the `hermes/quisk_conf.py` configuration file
+ - [QUISK](https://james.ahlstrom.name/quisk) with the `hermes/quisk_conf.py` configuration file
 
- - [CW Skimmer Server](http://dxatlas.com/skimserver) and [RTTY Skimmer Server](http://dxatlas.com/RttySkimServ)
+ - [CW Skimmer Server](https://dxatlas.com/skimserver) and [RTTY Skimmer Server](https://dxatlas.com/RttySkimServ)
 
- - [ghpsdr3-alex](http://napan.ca/ghpsdr3) client-server distributed system
+ - [ghpsdr3-alex](https://napan.ca/ghpsdr3) client-server distributed system
 
- - [openHPSDR Android Application](https://play.google.com/store/apps/details?id=org.g0orx.openhpsdr) that is described in more details at [this link](http://g0orx.blogspot.be/2015/01/openhpsdr-android-application.html)
+ - [openHPSDR Android Application](https://play.google.com/store/apps/details?id=org.g0orx.openhpsdr) that is described in more details at [this link](https://g0orx.blogspot.be/2015/01/openhpsdr-android-application.html)
 
- - [Java desktop application](http://g0orx.blogspot.co.uk/2015/04/java-desktop-application-based-on.html) based on openHPSDR Android Application
+ - [Java desktop application](https://g0orx.blogspot.co.uk/2015/04/java-desktop-application-based-on.html) based on openHPSDR Android Application
 
 Getting started
 -----
@@ -65,9 +65,9 @@ Getting started
 Running CW Skimmer Server and Reverse Beacon Network Aggregator
 -----
 
- - Install [CW Skimmer Server](http://dxatlas.com/skimserver).
+ - Install [CW Skimmer Server](https://dxatlas.com/skimserver).
  - Copy [HermesIntf.dll](https://github.com/k3it/HermesIntf/releases) to the CW Skimmer Server program directory (C:\Program Files (x86)\Afreet\SkimSrv).
- - Install [Reverse Beacon Network Aggregator](http://www.reversebeacon.net/pages/Aggregator+34).
+ - Install [Reverse Beacon Network Aggregator](https://www.reversebeacon.net/pages/Aggregator+34).
  - Start CW Skimmer Server, configure frequencies and your call sign.
  - Start Reverse Beacon Network Aggregator.
 

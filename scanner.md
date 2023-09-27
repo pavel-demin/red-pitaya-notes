@@ -14,9 +14,9 @@ Interesting links
 
 Some interesting links on scanning and imaging techniques:
 
- - [Scanning and Image Reconstruction Techniques in Confocal Laser Scanning Microscopy](http://www.intechopen.com/books/laser-scanning-theory-and-applications/scanning-and-image-reconstruction-techniques-in-confocal-laser-scanning-microscopy)
+ - [Scanning and Image Reconstruction Techniques in Confocal Laser Scanning Microscopy](https://www.intechopen.com/chapters/15823)
 
- - [Spectral Imaging: Active hyperspectral sensing and imaging for remote spectroscopy applications](http://www.laserfocusworld.com/articles/print/volume-49/issue-11/features/spectral-imaging-active-hyperspectral-sensing-and-imaging-for-remote-spectroscopy-applications.html)
+ - [Spectral Imaging: Active hyperspectral sensing and imaging for remote spectroscopy applications](https://www.laserfocusworld.com/test-measurement/spectroscopy/article/16556842/spectral-imaging-active-hyperspectral-sensing-and-imaging-for-remote-spectroscopy-applications)
 
 Hardware
 -----

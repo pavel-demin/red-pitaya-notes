@@ -11,7 +11,7 @@ Interesting links
 
 Some interesting links on pulsed nuclear magnetic resonance:
 
- - [Pulsed NMR at UW](http://courses.washington.edu/phys431/PNMR/pulsed_nmr.html)
+ - [Pulsed NMR at UW](https://courses.washington.edu/phys431/PNMR/pulsed_nmr.php)
 
  - [Pulsed NMR at MSU](https://web.pa.msu.edu/courses/2016spring/PHY451/Experiments/pulsed_nmr.html)
 

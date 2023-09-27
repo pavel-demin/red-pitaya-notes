@@ -36,7 +36,7 @@ In the local networks with enabled local DNS, Red Pitaya can also be accessed as
 Useful commands
 -----
 
-The [Alpine Wiki](http://wiki.alpinelinux.org) contains a lot of information about administrating [Alpine Linux](https://alpinelinux.org). The following is a list of some useful commands.
+The [Alpine Wiki](https://wiki.alpinelinux.org) contains a lot of information about administrating [Alpine Linux](https://alpinelinux.org). The following is a list of some useful commands.
 
 Switching to client Wi-Fi mode:
 {% highlight bash %}

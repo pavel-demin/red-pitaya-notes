@@ -20,7 +20,7 @@ Some interesting links on radiation spectroscopy:
  - [CAEN Digital Pulse Height Analyser - a digital approach to
 Radiation Spectroscopy](https://www.caen.it/documents/News/32/AN2508_Digital_Pulse_Height_Analyser.pdf)
 
- - [Spectrum Analysis Introduction](http://www.canberra.com/literature/fundamental-principles/pdf/Spectrum-Analysis.pdf)
+ - [Spectrum Analysis Introduction](https://www.canberra.com/literature/fundamental-principles/pdf/Spectrum-Analysis.pdf)
 
 Hardware
 -----
@@ -48,7 +48,7 @@ The exponential pulse generator can be used to generate signals with specified t
 
 The [projects/mcpha](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha) directory contains five Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/block_design.tcl), [pha.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/pha.tcl), [hst.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/hst.tcl), [osc.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/osc.tcl), [gen.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/gen.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
-The source code of the [R](http://www.r-project.org) script used to calculate the coefficients of the FIR filter can be found in [projects/mcpha/filters/fir_0.r](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/filters/fir_0.r).
+The source code of the [R](https://www.r-project.org) script used to calculate the coefficients of the FIR filter can be found in [projects/mcpha/filters/fir_0.r](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/filters/fir_0.r).
 
 Software
 -----
