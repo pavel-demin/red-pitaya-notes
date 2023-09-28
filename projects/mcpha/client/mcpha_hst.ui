@@ -243,6 +243,120 @@
        </spacer>
       </item>
       <item>
+       <widget class="QWidget" name="roiWidget" native="true">
+        <layout class="QGridLayout" name="roiLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="roistartLabel">
+           <property name="text">
+            <string>roi start</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="roistartValue">
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="roiendLabel">
+           <property name="text">
+            <string>roi end</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="roiendValue">
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>16383</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="roitotLable">
+           <property name="text">
+            <string>roi total entries</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="roitotValue">
+           <property name="text">
+            <string>0.00e+00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="roibkgLabel">
+           <property name="text">
+            <string>roi bkg entries</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="roibkgValue">
+           <property name="text">
+            <string>0.00e+00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="spacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QWidget" name="baseWidget" native="true">
         <layout class="QHBoxLayout" name="baseLayout">
          <property name="leftMargin">
@@ -306,7 +420,7 @@
           </widget>
          </item>
          <item>
-          <spacer name="spacer_4">
+          <spacer name="spacer_5">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -342,7 +456,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="spacer_5">
+       <spacer name="spacer_6">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -428,7 +542,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="spacer_6">
+       <spacer name="spacer_7">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -448,7 +562,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="spacer_7">
+       <spacer name="spacer_8">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -475,7 +589,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="spacer_8">
+       <spacer name="spacer_9">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>

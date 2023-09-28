@@ -302,6 +302,12 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.ax.grid()
         x = np.arange(self.bins)
         (self.curve,) = self.ax.plot(x, self.buffer, drawstyle="steps-mid", color=self.color)
+        self.roi = [0, 16383]
+        self.line = [None, None]
+        self.active = [False, False]
+        self.releaser = [None, None]
+        self.line[0] = self.ax.axvline(0, picker=True, pickradius=5)
+        self.line[1] = self.ax.axvline(16383, picker=True, pickradius=5)
         # create navigation toolbar
         self.toolbar = NavigationToolbar(self.canvas, None, False)
         self.toolbar.layout().setSpacing(6)
@@ -335,6 +341,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.saveButton.clicked.connect(self.save)
         self.loadButton.clicked.connect(self.load)
         self.canvas.mpl_connect("motion_notify_event", self.on_motion)
+        self.canvas.mpl_connect("pick_event", self.on_pick)
         # update controls
         self.set_thresholds(self.thrsCheck.isChecked())
         self.set_time(self.time[0])
@@ -409,6 +416,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.curve.set_xdata(x)
         self.curve.set_ydata(y)
         self.set_scale(self.logCheck.isChecked())
+        self.update_roi()
 
     def set_thresholds(self, checked):
         self.minValue.setEnabled(checked)
@@ -433,6 +441,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.update_rate(value)
         self.update_time(value)
         self.update_plot()
+        self.update_roi()
 
     def update_rate(self, value):
         sum = self.buffer.sum()
@@ -459,15 +468,59 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.ax.autoscale_view(scalex=False, scaley=True)
         self.canvas.draw()
 
+    def update_roi(self):
+        y = self.buffer.reshape(-1, self.factor).sum(-1)
+        x0 = self.roi[0] // self.factor
+        x1 = self.roi[1] // self.factor
+        roi = y[x0 : x1 + 1]
+        y0 = roi[0]
+        y1 = roi[-1]
+        tot = roi.sum()
+        bkg = (x1 + 1 - x0) * (y0 + y1) / 2.0
+        self.roistartValue.setText("%d" % x0)
+        self.roiendValue.setText("%d" % x1)
+        self.roitotValue.setText("%.2e" % tot)
+        self.roibkgValue.setText("%.2e" % bkg)
+        self.line[0].set_xdata([x0, x0])
+        self.line[1].set_xdata([x1, x1])
+        self.canvas.draw_idle()
+
     def on_motion(self, event):
         if event.inaxes != self.ax:
             return
         x = int(event.xdata + 0.5)
-        if x < 0 or x >= self.bins // self.factor:
-            return
+        if x < 0:
+            x = 0
+        if x >= self.bins // self.factor:
+            x = self.bins // self.factor - 1
         y = self.curve.get_ydata(True)[x]
         self.numberValue.setText("%d" % x)
         self.entriesValue.setText("%d" % y)
+        delta = 160
+        if self.active[0]:
+            x0 = x * self.factor
+            if x0 > self.roi[1] - delta:
+                self.roi[0] = self.roi[1] - delta
+            else:
+                self.roi[0] = x0
+            self.update_roi()
+        if self.active[1]:
+            x1 = x * self.factor
+            if x1 < self.roi[0] + delta:
+                self.roi[1] = self.roi[0] + delta
+            else:
+                self.roi[1] = x1
+            self.update_roi()
+
+    def on_pick(self, event):
+        for i in range(2):
+            if event.artist == self.line[i]:
+                self.active[i] = True
+                self.releaser[i] = self.canvas.mpl_connect("button_release_event", partial(self.on_release, i))
+
+    def on_release(self, i, event):
+        self.active[i] = False
+        self.canvas.mpl_disconnect(self.releaser[i])
 
     def save(self):
         try:
@@ -584,8 +637,10 @@ class OscDisplay(QWidget, Ui_OscDisplay):
         if event.inaxes != self.ax:
             return
         x = int(event.xdata + 0.5)
-        if x < 0 or x >= self.tot:
-            return
+        if x < 0:
+            x = 0
+        if x >= self.tot:
+            x = self.tot - 1
         y1 = self.curve1.get_ydata(True)[x]
         y2 = self.curve2.get_ydata(True)[x]
         self.timeValue.setText("%d" % x)
@@ -703,8 +758,10 @@ class GenDisplay(QWidget, Ui_GenDisplay):
         if event.inaxes != self.ax:
             return
         x = int(event.xdata + 0.5)
-        if x < 0 or x >= self.bins:
-            return
+        if x < 0:
+            x = 0
+        if x >= self.bins:
+            x = self.bins - 1
         y = self.curve.get_ydata(True)[x]
         self.numberValue.setText("%d" % x)
         self.entriesValue.setText("%d" % y)
