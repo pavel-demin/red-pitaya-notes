@@ -103,8 +103,8 @@ update-locale LANG=en_US.UTF-8
 ln -sf /usr/share/zoneinfo/$timezone etc/localtime
 dpkg-reconfigure --frontend=noninteractive tzdata
 
-apt-get -y install openssh-server ca-certificates ntp ntpdate fake-hwclock \
-  usbutils psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
+apt-get -y install openssh-server ca-certificates fake-hwclock usbutils \
+  psmisc lsof parted curl vim wpasupplicant hostapd isc-dhcp-server \
   firmware-misc-nonfree firmware-realtek firmware-atheros firmware-brcm80211 \
   iw iptables ifplugd ntfs-3g net-tools
 
@@ -251,7 +251,6 @@ apt-get clean
 
 echo root:$passwd | chpasswd
 
-service ntp stop
 service ssh stop
 
 history -c
