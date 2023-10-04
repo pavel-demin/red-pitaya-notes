@@ -601,7 +601,7 @@ class VNA(QMainWindow, Ui_VNA):
                 self.socket.readAll()
                 return
             size = self.socket.bytesAvailable()
-            self.progressBar.setValue((self.offset + size) / 16)
+            self.progressBar.setValue((self.offset + size) // 16)
             limit = 16 * self.sweep_size
             if self.offset + size < limit:
                 self.buffer[self.offset : self.offset + size] = self.socket.read(size)
