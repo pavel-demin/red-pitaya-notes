@@ -180,9 +180,9 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     def start_sequence(self):
         if self.idle:
             return
-        awidth = 125 * self.awidthValue.value()
-        bwidth = 125 * self.bwidthValue.value()
-        delay = 125 * self.delayValue.value()
+        awidth = np.floor(125 * self.awidthValue.value() + 0.5)
+        bwidth = np.floor(125 * self.bwidthValue.value() + 0.5)
+        delay = np.floor(125 * self.delayValue.value() + 0.5)
         size = self.size
         self.clear_pulses()
         self.add_pulse(32766, 0, awidth)
