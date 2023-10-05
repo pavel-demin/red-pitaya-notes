@@ -121,7 +121,7 @@ To write the image to a SD card, the `dd` command-line utility can be used on GN
 
 The default password for the `root` account is `changeme`.
 
-A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAB1xH748EwOday_5ZN24nsva/red-pitaya-debian-9.13-armhf-20210423.zip?dl=1).
+A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/scl/fi/fcwo3403nsagdbowcq6t8/red-pitaya-debian-12.1-armhf-20231004.zip?rlkey=2d3wpvkv39ih6693yqt3p8h62&dl=1).
 
 Resizing SD card partitions on running Red Pitaya:
 {% highlight bash %}
