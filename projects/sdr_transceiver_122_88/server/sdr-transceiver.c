@@ -18,9 +18,6 @@ volatile uint32_t *rx_freq, *tx_freq;
 volatile uint16_t *rx_rate, *rx_cntr, *tx_rate, *tx_cntr;
 volatile uint8_t *gpio, *rx_rst, *rx_sync, *tx_rst, *tx_sync;
 
-const uint32_t freq_min = 0;
-const uint32_t freq_max = 61440000;
-
 int sock_thread[4] = {-1, -1, -1, -1};
 
 void *rx_ctrl_handler(void *arg);
@@ -179,7 +176,6 @@ void *rx_ctrl_handler(void *arg)
       case 0:
         /* set rx phase increment */
         freq = command & 0xfffffff;
-        if(freq < freq_min || freq > freq_max) continue;
         *rx_freq = (uint32_t)floor(freq/122.88e6*(1<<30)+0.5);
         *rx_sync = freq > 0 ? 0 : 1;
         break;
@@ -227,7 +223,7 @@ void *rx_ctrl_handler(void *arg)
 
 void *rx_data_handler(void *arg)
 {
-  int i, sock_client = sock_thread[1];
+  int sock_client = sock_thread[1];
   uint8_t buffer[16384];
 
   *rx_rst &= ~1;
@@ -274,7 +270,6 @@ void *tx_ctrl_handler(void *arg)
       case 0:
         /* set tx phase increment */
         freq = command & 0xfffffff;
-        if(freq < freq_min || freq > freq_max) continue;
         *tx_freq = (uint32_t)floor(freq/122.88e6*(1<<30)+0.5);
         *tx_sync = freq > 0 ? 0 : 1;
         break;
