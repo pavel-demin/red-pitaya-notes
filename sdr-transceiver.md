@@ -38,7 +38,7 @@ Software
 
 The [projects/sdr_transceiver/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/server) directory contains the source code of the TCP server ([sdr-transceiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/server/sdr-transceiver.c)) that receives control commands and transmits/receives the I/Q data streams (up to 2 x 32 bit x 1250 kSPS = 76.3 Mbit/s) to/from the SDR programs.
 
-The [projects/sdr_transceiver/ExtIO_RedPitaya_TRX](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/ExtIO_RedPitaya_TRX) directory contains the source code of the ExtIO plug-in.
+The [projects/sdr_transceiver/extio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/extio) directory contains the source code of the ExtIO plug-in.
 
 The [projects/sdr_transceiver/gnuradio](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver/gnuradio) directory contains [GNU Radio](https://gnuradio.org) blocks and a few flow graph configurations for [GNU Radio Companion](https://wiki.gnuradio.org/index.php/GNURadioCompanion).
 
@@ -74,12 +74,11 @@ Getting started with SDR# and HDSDR
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](https://www.hdsdr.de).
- - Download and install [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist).
- - Download [pre-built ExtIO plug-in](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAABy8xWrv4wFFbkYfmVU6DGa/sdr/ExtIO_RedPitaya_TRX.dll?dl=1) for SDR# and HDSDR.
- - Copy `ExtIO_RedPitaya_TRX.dll` into the SDR# or HDSDR installation directory.
+ - Download [pre-built ExtIO plug-in]({{ site.extio-file }}) for SDR# and HDSDR.
+ - Copy `extio_red_pitaya.dll` into the SDR# or HDSDR installation directory.
  - Start SDR# or HDSDR.
- - Select Red Pitaya SDR TRX from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
- - Press Configure icon in SDR# or press ExtIO button in HDSDR, then type in the IP address of the Red Pitaya board and close the configuration window.
+ - Select Red Pitaya from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
+ - Press Configure icon in SDR# or press ExtIO button in HDSDR, then enter the IP address of the Red Pitaya board and set ADC sample rate to 125 MSPS.
  - Press Play icon in SDR# or press Start [F2] button in HDSDR.
 
 Building from source
