@@ -299,7 +299,7 @@
             </size>
            </property>
            <property name="text">
-            <string>16383</string>
+            <string>4095</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -409,13 +409,13 @@
          <item>
           <widget class="QSpinBox" name="minValue">
            <property name="maximum">
-            <number>16380</number>
+            <number>4090</number>
            </property>
            <property name="singleStep">
-            <number>100</number>
+            <number>10</number>
            </property>
            <property name="value">
-            <number>100</number>
+            <number>20</number>
            </property>
           </widget>
          </item>
@@ -442,13 +442,13 @@
          <item>
           <widget class="QSpinBox" name="maxValue">
            <property name="maximum">
-            <number>16300</number>
+            <number>4090</number>
            </property>
            <property name="singleStep">
-            <number>100</number>
+            <number>10</number>
            </property>
            <property name="value">
-            <number>16300</number>
+            <number>4090</number>
            </property>
           </widget>
          </item>

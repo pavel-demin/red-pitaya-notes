@@ -303,7 +303,7 @@ for {set i 0} {$i <= 1} {incr i} {
     SAMPLE_FREQUENCY 31.25
     CLOCK_FREQUENCY 125
     OUTPUT_ROUNDING_MODE Non_Symmetric_Rounding_Up
-    OUTPUT_WIDTH 15
+    OUTPUT_WIDTH 13
     HAS_ARESETN true
   } {
     S_AXIS_DATA comb_${i}/M_AXIS

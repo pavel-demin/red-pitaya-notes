@@ -186,13 +186,13 @@ int main(int argc, char *argv[])
         {
           *rst[0] &= ~1;
           *rst[0] |= 1;
-          for(i = 0; i < 16384; ++i) hst[0][i] = 0;
+          for(i = 0; i < 4096; ++i) hst[0][i] = 0;
         }
         else if(chan == 1)
         {
           *rst[1] &= ~1;
           *rst[1] |= 1;
-          for(i = 0; i < 16384; ++i) hst[1][i] = 0;
+          for(i = 0; i < 4096; ++i) hst[1][i] = 0;
         }
       }
       else if(code == 1)
@@ -337,13 +337,13 @@ int main(int argc, char *argv[])
         /* read histogram */
         if(chan == 0)
         {
-          memcpy(buf, hst[0], 65536);
-          if(send(sock_client, buf, 65536, MSG_NOSIGNAL) < 0) break;
+          memcpy(buf, hst[0], 16384);
+          if(send(sock_client, buf, 16384, MSG_NOSIGNAL) < 0) break;
         }
         else if(chan == 1)
         {
-          memcpy(buf, hst[1], 65536);
-          if(send(sock_client, buf, 65536, MSG_NOSIGNAL) < 0) break;
+          memcpy(buf, hst[1], 16384);
+          if(send(sock_client, buf, 16384, MSG_NOSIGNAL) < 0) break;
         }
       }
       else if(code == 13)

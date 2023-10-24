@@ -12,7 +12,7 @@ cell xilinx.com:ip:blk_mem_gen bram_0 {
   USE_BYTE_WRITE_ENABLE true
   BYTE_SIZE 8
   WRITE_WIDTH_A 32
-  WRITE_DEPTH_A 16384
+  WRITE_DEPTH_A 4096
   REGISTER_PORTA_OUTPUT_OF_MEMORY_PRIMITIVES false
   REGISTER_PORTB_OUTPUT_OF_MEMORY_PRIMITIVES false
 }
@@ -21,7 +21,7 @@ cell xilinx.com:ip:blk_mem_gen bram_0 {
 cell pavel-demin:user:axis_histogram hst_0 {
   AXIS_TDATA_WIDTH 16
   BRAM_DATA_WIDTH 32
-  BRAM_ADDR_WIDTH 14
+  BRAM_ADDR_WIDTH 12
 } {
   B_BRAM bram_0/BRAM_PORTB
   aclk /pll_0/clk_out1

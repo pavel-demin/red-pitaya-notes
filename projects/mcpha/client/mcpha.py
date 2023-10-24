@@ -281,11 +281,11 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.log = log
         self.number = number
         self.min = 0
-        self.max = 16383
+        self.max = 4095
         self.sum = 0
         self.time = np.uint64([75e8, 0])
         self.factor = 1
-        self.bins = 16384
+        self.bins = 4096
         self.buffer = np.zeros(self.bins, np.uint32)
         if number == 0:
             self.color = "#FFAA00"
@@ -302,12 +302,12 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.ax.grid()
         x = np.arange(self.bins)
         (self.curve,) = self.ax.plot(x, self.buffer, drawstyle="steps-mid", color=self.color)
-        self.roi = [0, 16383]
+        self.roi = [0, 4095]
         self.line = [None, None]
         self.active = [False, False]
         self.releaser = [None, None]
         self.line[0] = self.ax.axvline(0, picker=True, pickradius=5)
-        self.line[1] = self.ax.axvline(16383, picker=True, pickradius=5)
+        self.line[1] = self.ax.axvline(4095, picker=True, pickradius=5)
         # create navigation toolbar
         self.toolbar = NavigationToolbar(self.canvas, None, False)
         self.toolbar.layout().setSpacing(6)
@@ -319,7 +319,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.logCheck.setChecked(True)
         self.binsLabel = QLabel("rebin factor")
         self.binsValue = QComboBox()
-        self.binsValue.addItems(["1", "2", "4", "8", "16"])
+        self.binsValue.addItems(["1", "2", "4", "8"])
         self.binsValue.setEditable(True)
         self.binsValue.lineEdit().setReadOnly(True)
         self.binsValue.lineEdit().setAlignment(Qt.AlignRight)
@@ -426,7 +426,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
             self.max = self.maxValue.value()
         else:
             self.min = 0
-            self.max = 16383
+            self.max = 4095
 
     def set_time(self, value):
         value = value // 125000
@@ -496,7 +496,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         y = self.curve.get_ydata(True)[x]
         self.numberValue.setText("%d" % x)
         self.entriesValue.setText("%d" % y)
-        delta = 160
+        delta = 40
         if self.active[0]:
             x0 = x * self.factor
             if x0 > self.roi[1] - delta:
@@ -568,7 +568,7 @@ class OscDisplay(QWidget, Ui_OscDisplay):
         self.plotLayout.addWidget(self.canvas)
         self.ax = self.figure.add_subplot(111)
         self.ax.grid()
-        self.ax.set_ylim(-16500, 16500)
+        self.ax.set_ylim(-4500, 4500)
         x = np.arange(self.tot)
         (self.curve2,) = self.ax.plot(x, self.buffer[1::2], color="#00CCCC")
         (self.curve1,) = self.ax.plot(x, self.buffer[0::2], color="#FFAA00")
