@@ -53,7 +53,7 @@ Getting started
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Install [GNU Radio](https://gnuradio.org):
 {% highlight bash %}
-sudo apt-get install gnuradio python-numpy python-gtk2
+sudo apt-get install gnuradio
 {% endhighlight %}
  - Clone the source code repository:
 {% highlight bash %}
