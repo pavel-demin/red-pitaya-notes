@@ -89,7 +89,7 @@ module axis_oscilloscope #
 
     if(int_valid_wire)
     begin
-      int_cntr_next = int_last_wire ? {(CNTR_WIDTH){1'b0}} : int_cntr_reg + 1'b1;
+      int_cntr_next = int_cntr_reg + 1'b1;
 
       if(int_cntr_reg == pre_data)
       begin
