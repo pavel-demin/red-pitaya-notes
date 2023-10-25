@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 import time
 import struct
@@ -531,7 +532,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
             dialog.setAcceptMode(QFileDialog.AcceptSave)
             if dialog.exec() == QDialog.Accepted:
                 name = dialog.selectedFiles()
-                self.buffer.tofile(name[0])
+                np.savetxt(name[0], self.buffer, fmt="%u", newline=os.linesep)
                 self.log.print("histogram %d saved to file %s" % ((self.number + 1), name[0]))
         except:
             self.log.print("error: %s" % sys.exc_info()[1])
@@ -543,7 +544,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
             dialog.setAcceptMode(QFileDialog.AcceptOpen)
             if dialog.exec() == QDialog.Accepted:
                 name = dialog.selectedFiles()
-                self.buffer[:] = np.fromfile(name[0], np.uint32)
+                self.buffer[:] = np.loadtxt(name[0], np.uint32)
                 self.update_plot()
         except:
             self.log.print("error: %s" % sys.exc_info()[1])
