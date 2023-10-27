@@ -1,6 +1,6 @@
 alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.18
 
-uboot_tar=alpine-uboot-3.18.3-armv7.tar.gz
+uboot_tar=alpine-uboot-3.18.4-armv7.tar.gz
 uboot_url=$alpine_url/releases/armv7/$uboot_tar
 
 tools_tar=apk-tools-static-2.14.0-r2.apk
