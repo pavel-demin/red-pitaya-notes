@@ -339,6 +339,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.binsValue.currentIndexChanged.connect(self.set_bins)
         self.thrsCheck.toggled.connect(self.set_thresholds)
         self.startButton.clicked.connect(self.start)
+        self.resetButton.clicked.connect(self.reset)
         self.saveButton.clicked.connect(self.save)
         self.loadButton.clicked.connect(self.load)
         self.canvas.mpl_connect("motion_notify_event", self.on_motion)
@@ -359,15 +360,24 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         value = (h * 3600000 + m * 60000 + s * 1000) * 125000
         self.sum = 0
         self.time[:] = [value, 0]
-        self.mcpha.reset_hst(self.number)
         self.mcpha.reset_timer(self.number)
         self.mcpha.set_pha_delay(self.number, 100)
         self.mcpha.set_pha_thresholds(self.number, self.min, self.max)
         self.mcpha.set_timer(self.number, value)
-        self.mcpha.set_timer_mode(self.number, 1)
-        self.startButton.setText("Stop")
+        self.resume()
+
+    def pause(self):
+        self.mcpha.set_timer_mode(self.number, 0)
+        self.startButton.setText("Resume")
         self.startButton.clicked.disconnect()
-        self.startButton.clicked.connect(self.stop)
+        self.startButton.clicked.connect(self.resume)
+        self.log.print("timer %d stopped" % (self.number + 1))
+
+    def resume(self):
+        self.mcpha.set_timer_mode(self.number, 1)
+        self.startButton.setText("Pause")
+        self.startButton.clicked.disconnect()
+        self.startButton.clicked.connect(self.pause)
         self.log.print("timer %d started" % (self.number + 1))
 
     def stop(self):
@@ -378,6 +388,19 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.startButton.clicked.disconnect()
         self.startButton.clicked.connect(self.start)
         self.log.print("timer %d stopped" % (self.number + 1))
+
+    def reset(self):
+        if self.mcpha.idle:
+            return
+        self.stop()
+        self.mcpha.reset_hst(self.number)
+        self.mcpha.reset_timer(self.number)
+        self.totalValue.setText("%.2e" % 0)
+        self.instValue.setText("%.2e" % 0)
+        self.avgValue.setText("%.2e" % 0)
+        self.buffer[:] = np.zeros(self.bins, np.uint32)
+        self.update_plot()
+        self.update_roi()
 
     def set_enable(self, value):
         if value:

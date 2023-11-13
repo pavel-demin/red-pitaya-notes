@@ -562,6 +562,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="resetButton">
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="spacer_8">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
