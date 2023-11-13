@@ -37,6 +37,11 @@ Ui_HstDisplay, QWidget = loadUiType("mcpha_hst.ui")
 Ui_OscDisplay, QWidget = loadUiType("mcpha_osc.ui")
 Ui_GenDisplay, QWidget = loadUiType("mcpha_gen.ui")
 
+if sys.platform != "win32":
+    path = "."
+else:
+    path = os.path.expanduser("~")
+
 
 class MCPHA(QMainWindow, Ui_MCPHA):
     def __init__(self):
@@ -548,7 +553,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
 
     def save(self):
         try:
-            dialog = QFileDialog(self, "Save hst file", ".", "*.hst")
+            dialog = QFileDialog(self, "Save hst file", path, "*.hst")
             dialog.setDefaultSuffix("hst")
             name = "histogram-%s.hst" % time.strftime("%Y%m%d-%H%M%S")
             dialog.selectFile(name)
@@ -562,7 +567,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
 
     def load(self):
         try:
-            dialog = QFileDialog(self, "Load hst file", ".", "*.hst")
+            dialog = QFileDialog(self, "Load hst file", path, "*.hst")
             dialog.setDefaultSuffix("hst")
             dialog.setAcceptMode(QFileDialog.AcceptOpen)
             if dialog.exec() == QDialog.Accepted:
@@ -673,7 +678,7 @@ class OscDisplay(QWidget, Ui_OscDisplay):
 
     def save(self):
         try:
-            dialog = QFileDialog(self, "Save osc file", ".", "*.osc")
+            dialog = QFileDialog(self, "Save osc file", path, "*.osc")
             dialog.setDefaultSuffix("osc")
             name = "oscillogram-%s.osc" % time.strftime("%Y%m%d-%H%M%S")
             dialog.selectFile(name)
@@ -687,7 +692,7 @@ class OscDisplay(QWidget, Ui_OscDisplay):
 
     def load(self):
         try:
-            dialog = QFileDialog(self, "Load osc file", ".", "*.osc")
+            dialog = QFileDialog(self, "Load osc file", path, "*.osc")
             dialog.setDefaultSuffix("osc")
             dialog.setAcceptMode(QFileDialog.AcceptOpen)
             if dialog.exec() == QDialog.Accepted:
@@ -792,7 +797,7 @@ class GenDisplay(QWidget, Ui_GenDisplay):
 
     def load(self):
         try:
-            dialog = QFileDialog(self, "Load gen file", ".", "*.gen")
+            dialog = QFileDialog(self, "Load gen file", path, "*.gen")
             dialog.setDefaultSuffix("gen")
             dialog.setAcceptMode(QFileDialog.AcceptOpen)
             if dialog.exec() == QDialog.Accepted:
