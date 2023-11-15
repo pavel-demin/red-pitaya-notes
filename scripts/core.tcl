@@ -9,7 +9,14 @@ create_project -part $part_name $core_name tmp/cores
 
 add_files -norecurse cores/$core_name.v
 
-ipx::package_project -import_files -root_dir tmp/cores/$core_name
+set_property TOP $core_name [current_fileset]
+
+set files [glob -nocomplain modules/*.v]
+if {[llength $files] > 0} {
+  add_files -norecurse $files
+}
+
+ipx::package_project -root_dir tmp/cores/$core_name
 
 set core [ipx::current_core]
 

@@ -83,15 +83,6 @@ add_files -norecurse $bd_path/hdl/system_wrapper.v
 
 set_property TOP system_wrapper [current_fileset]
 
-set files [glob -nocomplain modules/*.v]
-if {[llength $files] > 0} {
-  add_files -norecurse $files
-}
-
-foreach f $files {
-  set_property IS_GLOBAL_INCLUDE TRUE [get_files $f]
-}
-
 set files [glob -nocomplain projects/$project_name/*.v projects/$project_name/*.sv]
 if {[llength $files] > 0} {
   add_files -norecurse $files
