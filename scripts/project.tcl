@@ -1,4 +1,6 @@
 
+package require fileutil
+
 set project_name [lindex $argv 0]
 
 set part_name [lindex $argv 1]
@@ -10,12 +12,6 @@ create_project -part $part_name $project_name tmp
 set_property IP_REPO_PATHS tmp/cores [current_project]
 
 update_ip_catalog
-
-set bd_path tmp/$project_name.srcs/sources_1/bd/system
-
-create_bd_design system
-
-source cfg/ports.tcl
 
 proc wire {name1 name2} {
   set port1 [get_bd_pins $name1]
@@ -90,6 +86,9 @@ proc addr {offset range port master} {
   assign_bd_address -offset $offset -range $range $segment
 }
 
+create_bd_design system
+
+source cfg/ports.tcl
 source projects/$project_name/block_design.tcl
 
 rename wire {}
@@ -99,14 +98,16 @@ rename design {}
 rename container {}
 rename addr {}
 
-if {[version -short] >= 2016.3} {
-  set_property SYNTH_CHECKPOINT_MODE None [get_files $bd_path/system.bd]
-}
+set system [get_files system.bd]
 
-generate_target all [get_files $bd_path/system.bd]
-make_wrapper -files [get_files $bd_path/system.bd] -top
+set_property SYNTH_CHECKPOINT_MODE None $system
 
-add_files -norecurse $bd_path/hdl/system_wrapper.v
+generate_target all $system
+make_wrapper -files $system -top
+
+set wrapper [fileutil::findByPattern tmp/$project_name.gen system_wrapper.v]
+
+add_files -norecurse $wrapper
 
 set_property TOP system_wrapper [current_fileset]
 
