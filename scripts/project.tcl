@@ -48,13 +48,38 @@ proc cell {cell_vlnv cell_name {cell_props {}} {cell_ports {}}} {
 }
 
 proc module {module_name module_body {module_ports {}}} {
-  set bd [current_bd_instance .]
+  set instance [current_bd_instance .]
   current_bd_instance [create_bd_cell -type hier $module_name]
   eval $module_body
-  current_bd_instance $bd
+  current_bd_instance $instance
   foreach {local_name remote_name} [uplevel 1 [list subst $module_ports]] {
     wire $module_name/$local_name $remote_name
   }
+}
+
+proc design {design_name design_body} {
+  set design [current_bd_design]
+  create_bd_design $design_name
+  eval $design_body
+  validate_bd_design
+  save_bd_design
+  current_bd_design $design
+}
+
+proc container {container_name container_designs {container_ports {}}} {
+  set reference [lindex $container_designs 0]
+  set container [create_bd_cell -type container -reference $reference $container_name]
+  foreach {local_name remote_name} [uplevel 1 [list subst $container_ports]] {
+    wire $container_name/$local_name $remote_name
+  }
+  set list {}
+  foreach item $container_designs {
+    lappend list $item.bd
+  }
+  set list [join $list :]
+  set_property CONFIG.ENABLE_DFX true $container
+  set_property CONFIG.LIST_SYNTH_BD $list $container
+  set_property CONFIG.LIST_SIM_BD $list $container
 }
 
 proc addr {offset range port master} {
@@ -70,6 +95,8 @@ source projects/$project_name/block_design.tcl
 rename wire {}
 rename cell {}
 rename module {}
+rename design {}
+rename container {}
 rename addr {}
 
 if {[version -short] >= 2016.3} {
