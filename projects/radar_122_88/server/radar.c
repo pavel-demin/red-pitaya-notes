@@ -158,7 +158,7 @@ int main ()
             *rx_rst |= 2;
             usleep(100);
             *rx_rst |= 1;
-            limit = 2*1024;
+            limit = 32*1024;
             break;
           case 3:
             /* stop */
@@ -172,16 +172,16 @@ int main ()
       /* read ram writer position */
       position = *rx_cntr;
 
-      /* send 256 kB if ready, otherwise sleep 0.1 ms */
-      if((limit > 0 && position > limit) || (limit == 0 && position < 2*1024))
+      /* send 4 MB if ready, otherwise sleep 1 ms */
+      if((limit > 0 && position > limit) || (limit == 0 && position < 32*1024))
       {
-        offset = limit > 0 ? 0 : 256*1024;
-        limit = limit > 0 ? 0 : 2*1024;
-        if(send(sock_client, rx_ram + offset, 256*1024, MSG_NOSIGNAL) < 0) break;
+        offset = limit > 0 ? 0 : 4096*1024;
+        limit = limit > 0 ? 0 : 32*1024;
+        if(send(sock_client, rx_ram + offset, 4096*1024, MSG_NOSIGNAL) < 0) break;
       }
       else
       {
-        usleep(100);
+        usleep(1000);
       }
     }
 
