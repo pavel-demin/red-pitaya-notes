@@ -109,6 +109,9 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.log.print("IO stopped")
         self.idle = True
 
+    def closeEvent(self, event):
+        self.stop()
+
     def start_timeout(self):
         self.log.print("error: connection timeout")
         self.stop()
