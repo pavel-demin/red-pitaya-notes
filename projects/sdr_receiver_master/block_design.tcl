@@ -358,13 +358,13 @@ cell xilinx.com:ip:floating_point fp_0 {
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant const_1 {
-  CONST_WIDTH 12
-  CONST_VAL 4095
+  CONST_WIDTH 16
+  CONST_VAL 65535
 }
 
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
-  ADDR_WIDTH 12
+  ADDR_WIDTH 16
   AXI_ID_WIDTH 3
   AXIS_TDATA_WIDTH 32
   FIFO_WRITE_DEPTH 1024

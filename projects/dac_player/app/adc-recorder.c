@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  size = 128*sysconf(_SC_PAGESIZE);
+  size = 2048*sysconf(_SC_PAGESIZE);
 
   if(ioctl(fd, CMA_ALLOC, &size) < 0)
   {
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  adc = mmap(NULL, 128*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+  adc = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
   /* set writer address */
   *(uint32_t *)(cfg + 4) = size;
@@ -138,16 +138,16 @@ int main(int argc, char *argv[])
     /* read writer position */
     position = *(uint32_t *)(sts + 0);
 
-    /* write 256 kB if ready, otherwise sleep 0.1 ms */
-    if((limit > 0 && position > limit) || (limit == 0 && position < 2*1024))
+    /* write 4 MB if ready, otherwise sleep 1 ms */
+    if((limit > 0 && position > limit) || (limit == 0 && position < 32*1024))
     {
-      offset = limit > 0 ? 0 : 256*1024;
-      limit = limit > 0 ? 0 : 2*1024;
-      if(fwrite(adc + offset, 1, 256*1024, fileOut) < 0) break;
+      offset = limit > 0 ? 0 : 4096*1024;
+      limit = limit > 0 ? 0 : 32*1024;
+      if(fwrite(adc + offset, 1, 4096*1024, fileOut) < 0) break;
     }
     else
     {
-      usleep(100);
+      usleep(1000);
     }
   }
 
@@ -159,10 +159,10 @@ int main(int argc, char *argv[])
   position = *(uint32_t *)(sts + 0);
 
   /* write remaining data */
-  if((limit > 0 && position < limit) || (limit == 0 && position > 2*1024))
+  if((limit > 0 && position < limit) || (limit == 0 && position > 32*1024))
   {
-    offset = limit > 0 ? 0 : 256*1024;
-    fwrite(adc + offset, 1, position * 8 - offset, fileOut);
+    offset = limit > 0 ? 0 : 4096*1024;
+    fwrite(adc + offset, 1, position * 128 - offset, fileOut);
   }
 
   *(uint8_t *)(cfg + 0) &= ~2;

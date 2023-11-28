@@ -65,7 +65,7 @@ int main ()
     return EXIT_FAILURE;
   }
 
-  size = 128*sysconf(_SC_PAGESIZE);
+  size = 2048*sysconf(_SC_PAGESIZE);
 
   if(ioctl(fd, CMA_ALLOC, &size) < 0)
   {
@@ -73,7 +73,7 @@ int main ()
     return EXIT_FAILURE;
   }
 
-  ram = mmap(NULL, 128*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+  ram = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
   rx_rst = (uint8_t *)(cfg + 0);
   rx_rate = (uint16_t *)(cfg + 2);
@@ -131,7 +131,7 @@ int main ()
     usleep(100);
     *rx_rst |= 1;
 
-    limit = 2*1024;
+    limit = 32*1024;
 
     while(!interrupted)
     {
@@ -164,16 +164,16 @@ int main ()
       /* read ram writer position */
       position = *rx_cntr;
 
-      /* send 256 kB if ready, otherwise sleep 0.1 ms */
-      if((limit > 0 && position > limit) || (limit == 0 && position < 2*1024))
+      /* send 4 MB if ready, otherwise sleep 1 ms */
+      if((limit > 0 && position > limit) || (limit == 0 && position < 32*1024))
       {
-        offset = limit > 0 ? 0 : 256*1024;
-        limit = limit > 0 ? 0 : 2*1024;
-        if(send(sock_client, ram + offset, 256*1024, MSG_NOSIGNAL) < 0) break;
+        offset = limit > 0 ? 0 : 4096*1024;
+        limit = limit > 0 ? 0 : 32*1024;
+        if(send(sock_client, ram + offset, 4096*1024, MSG_NOSIGNAL) < 0) break;
       }
       else
       {
-        usleep(100);
+        usleep(1000);
       }
     }
 
