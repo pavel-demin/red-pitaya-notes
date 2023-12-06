@@ -1,0 +1,10 @@
+/dts-v1/;
+
+/include/ "system-top.dts"
+/include/ "common.dts"
+
+/ {
+  chosen {
+    bootargs = "console=ttyPS0,115200 earlycon earlyprintk root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait cma=36M";
+  };
+};

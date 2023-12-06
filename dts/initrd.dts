@@ -1,0 +1,10 @@
+/dts-v1/;
+
+/include/ "system-top.dts"
+/include/ "common.dts"
+
+/ {
+  chosen {
+    bootargs = "console=ttyPS0,115200 earlycon earlyprintk initrd=0x3000000,4M modloop=modloop cma=36M";
+  };
+};
