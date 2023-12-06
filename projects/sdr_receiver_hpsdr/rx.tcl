@@ -62,6 +62,7 @@ for {set i 0} {$i <= 7} {incr i} {
     HAS_PHASE_OUT false
     PHASE_WIDTH 30
     OUTPUT_WIDTH 21
+    DSP48_USE Minimal
     NEGATIVE_SINE true
   } {
     S_AXIS_PHASE phase_$i/M_AXIS
