@@ -1,0 +1,16 @@
+--- init.old
++++ init
+@@ -610,10 +610,9 @@ fi
+ 
+ # locate boot media and mount it
+ ebegin "Mounting boot media"
+-$MOCK nlplug-findfs $cryptopts -p /sbin/mdev ${KOPT_debug_init:+-d} \
+-	${KOPT_usbdelay:+-t $(( $KOPT_usbdelay * 1000 ))} \
+-	${KOPT_uevent_buf_size:+-U $KOPT_uevent_buf_size} \
+-	$repoopts -a "$ROOT"/tmp/apkovls
++mkdir -p /media/mmcblk0p1
++mount -o ro /dev/mmcblk0p1 /media/mmcblk0p1
++ls /media/mmcblk0p1/*.apkovl.tar.gz > /tmp/apkovls
+ eend $?
+ 
+ # Setup network interfaces

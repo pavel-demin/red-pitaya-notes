@@ -64,6 +64,7 @@ $(RTL8188_TAR):
 $(INITRAMFS_DIR):
 	mkdir -p $@
 	curl -L $(INITRAMFS_URL) | gunzip | cpio -id --directory=$@
+	patch -d $@ -p 0 < patches/initramfs.patch
 	rm -rf $@/etc/modprobe.d $@/lib/firmware $@/lib/modules $@/var
 
 $(LINUX_DIR): $(LINUX_TAR) $(RTL8188_TAR)
