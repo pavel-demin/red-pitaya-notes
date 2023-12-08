@@ -81,8 +81,6 @@ apk update
 apk add openssh u-boot-tools iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dbus dcron chrony musl-dev curl wget less nano bc
 
 rc-update add bootmisc boot
-rc-update add hwdrivers boot
-rc-update add modloop boot
 rc-update add swclock boot
 rc-update add sysctl boot
 rc-update add syslog boot
@@ -95,6 +93,8 @@ rc-update add savecache shutdown
 rc-update add devfs sysinit
 rc-update add dmesg sysinit
 rc-update add mdev sysinit
+rc-update add hwdrivers sysinit
+rc-update add modloop sysinit
 
 rc-update add avahi-daemon default
 rc-update add chronyd default
