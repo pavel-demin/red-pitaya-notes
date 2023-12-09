@@ -33,7 +33,6 @@
 &usb0 {
   dr_mode = "host";
   usb-phy = <&usb_phy0>;
-  status = "okay";
   xlnx,phy-reset-gpio = <&gpio0 48 0>;
 };
 
