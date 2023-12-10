@@ -82,6 +82,7 @@ $(DTREE_DIR): $(DTREE_TAR)
 	tar -zxf $< --strip-components=1 --directory=$@
 
 tmp/ssbl.elf:
+	mkdir -p $(@D)
 	curl -L $(SSBL_URL) -o $@
 
 zImage.bin: $(LINUX_DIR)
