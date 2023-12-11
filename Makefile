@@ -129,6 +129,9 @@ tmp/%.bit: tmp/%.xpr
 tmp/%.fsbl/executable.elf: tmp/%.xsa
 	mkdir -p $(@D)
 	$(XSCT) scripts/fsbl.tcl $* $(PROC)
+	cp patches/red_pitaya_fsbl_hooks.c $(@D)
+	patch $(@D)/fsbl_hooks.c patches/fsbl.patch
+	make -C $(@D)
 
 tmp/%.tree/system-top.dts: tmp/%.xsa $(DTREE_DIR)
 	mkdir -p $(@D)

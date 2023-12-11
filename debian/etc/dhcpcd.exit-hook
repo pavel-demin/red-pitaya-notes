@@ -17,12 +17,6 @@ if [ "$interface" = wlan0 ]; then
   esac
 fi
 
-if [ "$interface" = eth0 ] && [ "$reason" = PREINIT ]; then
-  ip link set dev eth0 down
-  ip link set dev eth0 address `fw_printenv -n ethaddr`
-  ip link set dev eth0 up
-fi
-
 if $if_up; then
   (sleep 3; chronyc online > /dev/null 2>&1) &
 fi

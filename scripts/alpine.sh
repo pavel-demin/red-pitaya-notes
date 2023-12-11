@@ -85,6 +85,7 @@ apk update
 apk add openssh u-boot-tools ucspi-tcp6 iw wpa_supplicant dhcpcd dnsmasq hostapd iptables avahi dbus dcron chrony gpsd libgfortran musl-dev fftw-dev libconfig-dev alsa-lib-dev alsa-utils curl wget less nano bc dos2unix
 
 rc-update add bootmisc boot
+rc-update add hostname boot
 rc-update add swclock boot
 rc-update add sysctl boot
 rc-update add syslog boot

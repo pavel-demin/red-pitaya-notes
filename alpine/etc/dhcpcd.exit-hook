@@ -5,15 +5,6 @@ if [ "$interface" = wlan0 ]; then
   esac
 fi
 
-if [ "$interface" = eth0 ] && [ "$reason" = PREINIT ]; then
-  addr=`fw_printenv -n ethaddr`
-  name=`echo $addr | awk -F : '{print "rp-"tolower($4$5$6)}'`
-  ip link set dev eth0 down
-  ip link set dev eth0 address $addr
-  ip link set dev eth0 up
-  hostname $name
-fi
-
 if $if_up; then
   (sleep 3; chronyc online > /dev/null 2>&1) &
 fi
