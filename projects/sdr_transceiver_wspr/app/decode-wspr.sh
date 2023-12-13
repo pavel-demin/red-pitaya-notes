@@ -4,6 +4,9 @@
 CALL=
 GRID=
 
+# optional version information
+VERSION=
+
 JOBS=4
 NICE=10
 
@@ -62,6 +65,6 @@ echo "Uploading ..."
 # and then sort them by date/time/frequency
 sort -nr -k 3,3 $ALLMEPT | awk '!seen[$1"_"$2"_"int($5)"_"$7] {print} {++seen[$1"_"$2"_"int($5)"_"$7]}' | sort -n -k 1,1 -k 2,2 -k 5,5 -o $ALLMEPT
 
-curl -sS -m 30 -F allmept=@$ALLMEPT -F call=$CALL -F grid=$GRID http://wsprnet.org/post > /dev/null
+curl -sS -m 30 -F allmept=@$ALLMEPT -F call=$CALL -F grid=$GRID -F version=$VERSION http://wsprnet.org/post > /dev/null
 
 rm -f $ALLMEPT
