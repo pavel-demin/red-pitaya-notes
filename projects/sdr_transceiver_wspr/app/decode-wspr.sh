@@ -4,8 +4,8 @@
 CALL=
 GRID=
 
-# optional version information
-VERSION=
+# version information
+VERSION=RP125-14
 
 JOBS=4
 NICE=10
