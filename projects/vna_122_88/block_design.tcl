@@ -203,7 +203,7 @@ for {set i 0} {$i <= 1} {incr i} {
     IN1_WIDTH 32
   } {
     In0 inter_0/m_axis_tdata
-    In1 slice_[expr $i + 5]/dout
+    In1 slice_[expr $i + 4]/dout
   }
 
   # Create dds_compiler
