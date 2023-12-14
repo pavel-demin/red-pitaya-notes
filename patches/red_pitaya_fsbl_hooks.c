@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -34,19 +36,10 @@ u32 SetMacAddress()
   Status = XIicPs_MasterRecvPolled(&Iic, Buffer, 1024, 0x50);
   if(Status != XST_SUCCESS) return XST_FAILURE;
 
-  Pointer = NULL;
-
-  for(i = 0; i < 998; ++i)
-  {
-    if(Buffer[i] == 0 && strncmp(Buffer + i + 1, "ethaddr=", 8) == 0)
-    {
-      Pointer = Buffer + i + 8;
-      break;
-    }
-  }
-
+  Pointer = memmem(Buffer, 1024, "ethaddr=", 8);
   if(Pointer == NULL) return XST_FAILURE;
 
+  Pointer += 7;
   for(i = 0; i < 6; ++i)
   {
     Buffer[i] = strtol(Pointer + 1, &Pointer, 16);
