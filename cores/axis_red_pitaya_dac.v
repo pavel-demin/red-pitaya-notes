@@ -28,7 +28,7 @@ module axis_red_pitaya_dac #
 
   reg [DAC_DATA_WIDTH-1:0] int_dat_a_reg;
   reg [DAC_DATA_WIDTH-1:0] int_dat_b_reg;
-  reg int_rst_reg;
+  reg [1:0] int_rst_reg;
 
   wire [DAC_DATA_WIDTH-1:0] int_dat_a_wire;
   wire [DAC_DATA_WIDTH-1:0] int_dat_b_wire;
@@ -50,7 +50,7 @@ module axis_red_pitaya_dac #
       int_dat_a_reg <= {int_dat_a_wire[DAC_DATA_WIDTH-1], ~int_dat_a_wire[DAC_DATA_WIDTH-2:0]};
       int_dat_b_reg <= {int_dat_b_wire[DAC_DATA_WIDTH-1], ~int_dat_b_wire[DAC_DATA_WIDTH-2:0]};
     end
-    int_rst_reg <= ~locked | ~s_axis_tvalid;
+    int_rst_reg <= {int_rst_reg[0], ~locked | ~s_axis_tvalid};
   end
 
   ODDR #(
@@ -58,8 +58,8 @@ module axis_red_pitaya_dac #
     .INIT(1'b0)
   ) ODDR_rst (
     .Q(dac_rst),
-    .D1(int_rst_reg),
-    .D2(int_rst_reg),
+    .D1(int_rst_reg[1]),
+    .D2(int_rst_reg[1]),
     .C(aclk),
     .CE(1'b1),
     .R(1'b0),
