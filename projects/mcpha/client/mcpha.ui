@@ -67,6 +67,26 @@
         </spacer>
        </item>
        <item>
+        <widget class="QCheckBox" name="syncCheck">
+         <property name="text">
+          <string>synchronous histograms</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="spacer_1">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
         <widget class="QCheckBox" name="neg1Check">
          <property name="text">
           <string>negative CH1</string>
@@ -81,7 +101,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="spacer_1">
+        <spacer name="spacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>

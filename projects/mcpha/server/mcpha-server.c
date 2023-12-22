@@ -49,8 +49,7 @@ int main(int argc, char *argv[])
   pthread_t thread;
   volatile void *cfg;
   void *ram, *buf;
-  volatile uint8_t *rst[4];
-  volatile uint16_t *iir_params;
+  volatile uint16_t *iir_params, *rst;
   volatile int16_t *iir_limits;
   volatile uint32_t *hst[2];
   struct sockaddr_in addr;
@@ -97,30 +96,25 @@ int main(int argc, char *argv[])
 
   buf = malloc(65536);
 
-  rst[0] = cfg + 0;
-  rst[1] = cfg + 1;
-  rst[2] = cfg + 2;
-  rst[3] = cfg + 3;
+  rst = cfg + 0;
 
   /* set sample rate */
   *(uint16_t *)(cfg + 4) = 125;
 
   /* reset timers and histograms */
-  *rst[0] &= ~3;
-  *rst[0] |= 3;
-  *rst[1] &= ~3;
-  *rst[1] |= 3;
+  rst[0] &= ~0x0303;
+  rst[0] |= 0x0303;
 
   /* reset oscilloscope */
-  *rst[2] &= ~3;
-  *rst[2] |= 3;
+  rst[1] &= ~0x0003;
+  rst[1] |= 0x0003;
 
   /* set trigger channel */
-  *rst[2] &= ~4;
+  rst[1] &= ~0x0004;
 
   /* reset generator */
-  *rst[3] &= ~128;
-  *rst[3] |= 128;
+  rst[1] &= ~0x8000;
+  rst[1] |= 0x8000;
 
   fall = 50;
   rise = 50;
@@ -184,14 +178,14 @@ int main(int argc, char *argv[])
         /* reset histogram*/
         if(chan == 0)
         {
-          *rst[0] &= ~1;
-          *rst[0] |= 1;
+          rst[0] &= ~0x0001;
+          rst[0] |= 0x0001;
           for(i = 0; i < 4096; ++i) hst[0][i] = 0;
         }
         else if(chan == 1)
         {
-          *rst[1] &= ~1;
-          *rst[1] |= 1;
+          rst[0] &= ~0x0100;
+          rst[0] |= 0x0100;
           for(i = 0; i < 4096; ++i) hst[1][i] = 0;
         }
       }
@@ -200,26 +194,26 @@ int main(int argc, char *argv[])
         /* reset timer */
         if(chan == 0)
         {
-          *rst[0] &= ~2;
-          *rst[0] |= 2;
+          rst[0] &= ~0x0002;
+          rst[0] |= 0x0002;
         }
         else if(chan == 1)
         {
-          *rst[1] &= ~2;
-          *rst[1] |= 2;
+          rst[0] &= ~0x0200;
+          rst[0] |= 0x0200;
         }
       }
       else if(code == 2)
       {
         /* reset oscilloscope */
-        *rst[2] &= ~3;
-        *rst[2] |= 3;
+        rst[1] &= ~0x0003;
+        rst[1] |= 0x0003;
       }
       else if(code == 3)
       {
         /* reset generator */
-        *rst[3] &= ~128;
-        *rst[3] |= 128;
+        rst[1] &= ~0x8000;
+        rst[1] |= 0x8000;
       }
       else if(code == 4)
       {
@@ -233,22 +227,22 @@ int main(int argc, char *argv[])
         {
           if(data == 0)
           {
-            *rst[0] &= ~16;
+            rst[0] &= ~0x0010;
           }
           else if(data == 1)
           {
-            *rst[0] |= 16;
+            rst[0] |= 0x0010;
           }
         }
         else if(chan == 1)
         {
           if(data == 0)
           {
-            *rst[1] &= ~16;
+            rst[0] &= ~0x1000;
           }
           else if(data == 1)
           {
-            *rst[1] |= 16;
+            rst[0] |= 0x1000;
           }
         }
       }
@@ -307,22 +301,33 @@ int main(int argc, char *argv[])
         {
           if(data == 0)
           {
-            *rst[0] &= ~4;
+            rst[0] &= ~0x0004;
           }
           else if(data == 1)
           {
-            *rst[0] |= 4;
+            rst[0] |= 0x0004;
           }
         }
         else if(chan == 1)
         {
           if(data == 0)
           {
-            *rst[1] &= ~4;
+            rst[0] &= ~0x0400;
           }
           else if(data == 1)
           {
-            *rst[1] |= 4;
+            rst[0] |= 0x0400;
+          }
+        }
+        else if(chan == 2)
+        {
+          if(data == 0)
+          {
+            rst[0] &= ~0x0404;
+          }
+          else if(data == 1)
+          {
+            rst[0] |= 0x0404;
           }
         }
       }
@@ -351,11 +356,11 @@ int main(int argc, char *argv[])
         /* set trigger source (0 for channel 1, 1 for channel 2) */
         if(chan == 0)
         {
-          *rst[2] &= ~4;
+          rst[1] &= ~0x0004;
         }
         else if(chan == 1)
         {
-          *rst[2] |= 4;
+          rst[1] |= 0x0004;
         }
       }
       else if(code == 14)
@@ -363,11 +368,11 @@ int main(int argc, char *argv[])
         /* set trigger slope (0 for rising, 1 for falling) */
         if(data == 0)
         {
-          *rst[2] &= ~8;
+          rst[1] &= ~0x0008;
         }
         else if(data == 1)
         {
-          *rst[2] |= 8;
+          rst[1] |= 0x0008;
         }
       }
       else if(code == 15)
@@ -375,11 +380,11 @@ int main(int argc, char *argv[])
         /* set trigger mode (0 for normal, 1 for auto) */
         if(data == 0)
         {
-          *rst[2] &= ~16;
+          rst[1] &= ~0x0010;
         }
         else if(data == 1)
         {
-          *rst[2] |= 16;
+          rst[1] |= 0x0010;
         }
       }
       else if(code == 16)
@@ -400,8 +405,8 @@ int main(int argc, char *argv[])
       else if(code == 19)
       {
         /* start oscilloscope */
-        *rst[2] |= 32;
-        *rst[2] &= ~32;
+        rst[1] |= 0x0020;
+        rst[1] &= ~0x0020;
       }
       else if(code == 20)
       {
@@ -469,8 +474,8 @@ int main(int argc, char *argv[])
         enable_thread = 0;
         while(active_thread) usleep(1000);
         /* reset generator */
-        *rst[3] &= ~128;
-        *rst[3] |= 128;
+        rst[1] &= ~0x8000;
+        rst[1] |= 0x8000;
         /* start pulser */
         total = 0;
         for(i = 0; i < 4096; ++i)
@@ -520,8 +525,8 @@ int main(int argc, char *argv[])
         enable_thread = 0;
         while(active_thread) usleep(1000);
         /* reset generator */
-        *rst[3] &= ~128;
-        *rst[3] |= 128;
+        rst[1] &= ~0x8000;
+        rst[1] |= 0x8000;
       }
     }
 
@@ -533,8 +538,8 @@ int main(int argc, char *argv[])
     enable_thread = 0;
     while(active_thread) usleep(1000);
     /* reset generator */
-    *rst[3] &= ~128;
-    *rst[3] |= 128;
+    rst[1] &= ~0x8000;
+    rst[1] |= 0x8000;
   }
 
   close(sock_server);

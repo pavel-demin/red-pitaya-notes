@@ -67,6 +67,7 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.tabWidget.addTab(self.gen, "Pulse generator")
         # configure controls
         self.connectButton.clicked.connect(self.start)
+        self.syncCheck.toggled.connect(self.set_sync)
         self.neg1Check.toggled.connect(partial(self.set_negator, 0))
         self.neg2Check.toggled.connect(partial(self.set_negator, 1))
         self.rateValue.valueChanged.connect(self.set_rate)
@@ -168,13 +169,13 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         if self.waiting[0]:
             self.command(12, 0, 0)
             if self.read_data(self.hst1.buffer):
-                self.hst1.update(self.timers[0])
+                self.hst1.update(self.timers[0], False)
             else:
                 return
         if self.waiting[1]:
             self.command(12, 1, 0)
             if self.read_data(self.hst2.buffer):
-                self.hst2.update(self.timers[1])
+                self.hst2.update(self.timers[1], self.syncCheck.isChecked())
             else:
                 return
         if self.waiting[2] and not self.status[8] & 1:
@@ -187,16 +188,16 @@ class MCPHA(QMainWindow, Ui_MCPHA):
                 return
 
     def reset_hst(self, number):
-        if number == 0:
-            self.reset |= 1
+        if self.syncCheck.isChecked():
+            self.reset |= 3
         else:
-            self.reset |= 2
+            self.reset |= 1 << number
 
     def reset_timer(self, number):
-        if number == 0:
-            self.reset |= 4
+        if self.syncCheck.isChecked():
+            self.reset |= 12
         else:
-            self.reset |= 8
+            self.reset |= 4 << number
 
     def reset_osc(self):
         self.reset |= 16
@@ -209,6 +210,12 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.reset &= ~32
         self.waiting[2] = False
 
+    def set_sync(self, value):
+        enabled = not value
+        self.hst2.set_enabled(enabled)
+        self.hst2.startButton.setEnabled(enabled)
+        self.hst2.resetButton.setEnabled(enabled)
+
     def set_rate(self, value):
         self.command(4, 0, value)
 
@@ -216,18 +223,37 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.command(5, number, value)
 
     def set_pha_delay(self, number, value):
-        self.command(6, number, value)
+        if self.syncCheck.isChecked():
+            self.command(6, 0, value)
+            self.command(6, 1, value)
+        else:
+            self.command(6, number, value)
 
     def set_pha_thresholds(self, number, min, max):
-        self.command(7, number, min)
-        self.command(8, number, max)
+        if self.syncCheck.isChecked():
+            self.command(7, 0, min)
+            self.command(8, 0, max)
+            self.command(7, 1, min)
+            self.command(8, 1, max)
+        else:
+            self.command(7, number, min)
+            self.command(8, number, max)
 
     def set_timer(self, number, value):
-        self.command(9, number, value)
+        if self.syncCheck.isChecked():
+            self.command(9, 0, value)
+            self.command(9, 1, value)
+        else:
+            self.command(9, number, value)
 
     def set_timer_mode(self, number, value):
-        self.command(10, number, value)
-        self.waiting[number] = value
+        if self.syncCheck.isChecked():
+            self.command(10, 2, value)
+            self.waiting[0] = value
+            self.waiting[1] = value
+        else:
+            self.command(10, number, value)
+            self.waiting[number] = value
 
     def set_trg_source(self, number):
         self.command(13, number, 0)
@@ -361,7 +387,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         if self.mcpha.idle:
             return
         self.set_thresholds(self.thrsCheck.isChecked())
-        self.set_enable(False)
+        self.set_enabled(False)
         h = self.hoursValue.value()
         m = self.minutesValue.value()
         s = self.secondsValue.value()
@@ -390,7 +416,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
 
     def stop(self):
         self.mcpha.set_timer_mode(self.number, 0)
-        self.set_enable(True)
+        self.set_enabled(True)
         self.set_time(self.time[0])
         self.startButton.setText("Start")
         self.startButton.clicked.disconnect()
@@ -410,7 +436,7 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.update_plot()
         self.update_roi()
 
-    def set_enable(self, value):
+    def set_enabled(self, value):
         if value:
             self.set_thresholds(self.thrsCheck.isChecked())
         else:
@@ -469,9 +495,10 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.minutesValue.setValue(int(m))
         self.secondsValue.setValue(s)
 
-    def update(self, value):
+    def update(self, value, sync):
         self.update_rate(value)
-        self.update_time(value)
+        if not sync:
+            self.update_time(value)
         self.update_plot()
         self.update_roi()
 
