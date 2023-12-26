@@ -17,15 +17,15 @@ module axis_gate_controller
 );
 
   reg [63:0] int_cntr_reg;
-  reg [47:0] int_data_reg;
+  reg [48:0] int_data_reg;
   reg [31:0] int_poff_reg;
   reg [15:0] int_level_reg;
   reg int_dout_reg;
 
-  wire [47:0] int_data_wire;
+  wire [48:0] int_data_wire;
   wire int_enbl_wire;
 
-  assign int_data_wire = int_enbl_wire ? int_data_reg : s_axis_tdata[111:64];
+  assign int_data_wire = int_enbl_wire ? int_data_reg : s_axis_tdata[112:64];
   assign int_enbl_wire = |int_cntr_reg;
 
   always @(posedge aclk)
@@ -33,7 +33,7 @@ module axis_gate_controller
     if(~aresetn)
     begin
       int_cntr_reg <= 64'd0;
-      int_data_reg <= 48'd0;
+      int_data_reg <= 49'd0;
       int_poff_reg <= 32'd0;
       int_level_reg <= 16'd0;
       int_dout_reg <= 1'b0;
@@ -47,11 +47,11 @@ module axis_gate_controller
       else if(s_axis_tvalid)
       begin
         int_cntr_reg <= s_axis_tdata[63:0];
-        int_data_reg <= s_axis_tdata[111:64];
+        int_data_reg <= s_axis_tdata[112:64];
       end
       int_poff_reg <= int_data_wire[31:0];
       int_level_reg <= int_data_wire[47:32];
-      int_dout_reg <= |int_data_wire[47:32] & (int_enbl_wire | s_axis_tvalid);
+      int_dout_reg <= int_data_wire[48] & (int_enbl_wire | s_axis_tvalid);
     end
   end
 

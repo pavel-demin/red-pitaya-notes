@@ -110,15 +110,16 @@ namespace PulsedNMR
       SendCommand(7, 0);
     }
 
-    public void AddDelay(double width)
+    public void AddDelay(int gate, double width)
     {
       SendCommand(8, width - 1);
+      SendCommand(9, (long)gate << 48);
     }
 
     public void AddPulse(int level, int phase, double width)
     {
       SendCommand(8, width - 1);
-      SendCommand(9, (phase << 16) + level);
+      SendCommand(9, (long)1 << 48 | (long)level << 32 | (long)Math.Floor(phase / 360.0 * (1 << 30) + 0.5));
     }
 
     public int[] RecieveData(int size)

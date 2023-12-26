@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
   volatile int16_t *tx_level;
   volatile uint8_t *rx_rst, *tx_rst;
   struct sockaddr_in addr;
-  uint64_t command, code, data, phase, level, counter;
+  uint64_t command, code, data, counter;
   uint32_t *buffer, *pulses;
   int i, n, position, size, yes = 1;
 
@@ -182,10 +182,7 @@ int main(int argc, char *argv[])
           break;
         case 9:
           /* set pulse phase and level */
-          phase = data >> 16;
-          level = data & 0xffff;
-          if(phase < 360) pulses[(size - 1) * 4 + 2] = (uint32_t)floor(phase / 360.0 * (1<<30) + 0.5);
-          if(level < 32767) pulses[(size - 1) * 4 + 3] = level;
+          memcpy(pulses + (size - 1) * 4 + 2, &data, 8);
           break;
         case 10:
           /* start sequence */
