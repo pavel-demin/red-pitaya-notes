@@ -20,7 +20,7 @@ Hardware
 
 The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown on the following diagram:
 
-![HPSDR receiver]({{ "/img/sdr-receiver-hpsdr.png" | prepend: site.baseurl }})
+![HPSDR receiver]({{ "/img/sdr-receiver-hpsdr-ddc.png" | prepend: site.baseurl }})
 
 The main problem in emulating the HPSDR hardware with Red Pitaya is that the Red Pitaya ADC sample rate is 125 MSPS and the HPSDR ADC sample rate is 122.88 MSPS.
 
