@@ -36,8 +36,8 @@ DTREE_URL = https://github.com/Xilinx/device-tree-xlnx/archive/$(DTREE_TAG).tar.
 
 SSBL_URL = https://github.com/pavel-demin/ssbl/releases/download/20231206/ssbl.elf
 
-RTL8188_TAR = tmp/rtl8188eu-v5.2.2.4.tar.gz
-RTL8188_URL = https://github.com/lwfinger/rtl8188eu/archive/v5.2.2.4.tar.gz
+RTL8188_TAR = tmp/rtl8188eu-main.tar.gz
+RTL8188_URL = https://github.com/pavel-demin/rtl8188eu/archive/main.tar.gz
 
 .PRECIOUS: tmp/cores/% tmp/%.xpr tmp/%.xsa tmp/%.bit tmp/%.fsbl/executable.elf tmp/%.tree/system-top.dts
 
