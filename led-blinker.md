@@ -99,7 +99,7 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 {% endhighlight %}
 
-Building `boot.bin`, `devicetree.dtb` and `uImage`:
+Building `boot.bin`:
 {% highlight bash %}
 make NAME=led_blinker all
 {% endhighlight %}
