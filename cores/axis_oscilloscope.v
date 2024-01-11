@@ -36,10 +36,9 @@ module axis_oscilloscope #
   reg int_trg_reg, int_trg_next;
   reg int_tot_reg, int_tot_next;
 
-  wire int_valid_wire, int_last_wire;
+  wire int_valid_wire;
 
   assign int_valid_wire = int_run_reg & s_axis_tvalid;
-  assign int_last_wire = int_cntr_reg == tot_data;
 
   always @(posedge aclk)
   begin
@@ -103,7 +102,7 @@ module axis_oscilloscope #
         int_tot_next = 1'b1;
       end
 
-      if(int_tot_reg & int_last_wire)
+      if(int_tot_reg & (int_cntr_reg == tot_data))
       begin
         int_run_next = 1'b0;
       end
