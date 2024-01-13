@@ -34,13 +34,13 @@
 <h2>Getting started with GNU/Linux</h2>
 <ul>
 <li>Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.</li>
-<li>Install Tcl 8.6 and all the required libraries:</li>
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo apt-get install tk8.6 tk8.6-blt2.5</code></pre></div>
+<li>Install Python 3 and all the required libraries:</li>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5</code></pre></div>
 <li>Clone the source code repository:</li>
 <div class="highlight"><pre><code class="language-bash" data-lang="bash">git clone https://github.com/pavel-demin/red-pitaya-notes</code></pre></div>
 <li>Run the control program:</li>
 <div class="highlight"><pre><code class="language-bash" data-lang="bash">cd red-pitaya-notes/projects/mcpha/client
-wish8.6 mcpha.tcl</code></pre></div>
+python3 mcpha.py</code></pre></div>
 <li>Type in the IP address of the Red Pitaya board and press Connect button.</li>
 <li>Select Spectrum histogram 1 or Spectrum histogram 2 tab.</li>
 <li>Adjust amplitude threshold and time of exposure.</li>
