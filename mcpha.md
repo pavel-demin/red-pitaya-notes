@@ -82,9 +82,9 @@ Getting started with GNU/Linux
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
- - Install Tcl 8.6 and all the required libraries:
+ - Install Python 3 and all the required libraries::
 {% highlight bash %}
-sudo apt-get install tk8.6 tk8.6-blt2.5
+sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5
 {% endhighlight %}
  - Clone the source code repository:
 {% highlight bash %}
@@ -93,7 +93,7 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
  - Run the control program:
 {% highlight bash %}
 cd red-pitaya-notes/projects/mcpha/client
-wish8.6 mcpha.tcl
+python3 mcpha.py
 {% endhighlight %}
  - Type in the IP address of the Red Pitaya board and press Connect button.
  - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
