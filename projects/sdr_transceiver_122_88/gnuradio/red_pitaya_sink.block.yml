@@ -3,39 +3,39 @@ label: Red Pitaya Sink
 category: Red Pitaya
 
 parameters:
--   id: addr
+  - id: addr
     label: Address
     dtype: string
     default: 192.168.1.100
--   id: port
+  - id: port
     label: Port
     dtype: int
-    default: '1001'
--   id: freq
+    default: 1001
+  - id: freq
     label: Center Frequency
     dtype: real
-    default: '600000'
--   id: rate
+    default: 600000
+  - id: rate
     label: Sample Rate
     dtype: int
-    default: '100000'
--   id: corr
+    default: 100000
+  - id: corr
     label: Freq. Correction ppm
     dtype: real
-    default: '0'
--   id: ptt
+    default: 0
+  - id: ptt
     label: Push to Talk
     dtype: int
-    default: '0'
+    default: 0
 
 inputs:
--   domain: stream
+  - domain: stream
     dtype: complex
 
 templates:
-    imports: import red_pitaya
-    make: red_pitaya.sink(${addr}, ${port}, ${freq}, ${rate}, ${corr}, ${ptt})
-    callbacks:
+  imports: import red_pitaya
+  make: red_pitaya.sink(${addr}, ${port}, ${freq}, ${rate}, ${corr}, ${ptt})
+  callbacks:
     - set_freq(${freq}, ${corr})
     - set_rate(${rate})
     - set_ptt(${ptt})
