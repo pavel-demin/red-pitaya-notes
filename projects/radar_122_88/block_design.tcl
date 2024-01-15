@@ -306,24 +306,34 @@ cell xilinx.com:ip:axis_subset_converter subset_0 {
   aresetn slice_0/dout
 }
 
+# Concat GPIO and feedback
+cell xilinx.com:ip:xlconcat concat_0 {
+  NUM_PORTS 2
+  IN0_WIDTH 8
+  IN1_WIDTH 8
+} {
+  In0 exp_n_tri_io
+  In1 misc_1/misc_data
+}
+
 # Create axis_misc_writer
 cell pavel-demin:user:axis_misc_writer misc_0 {
   S_AXIS_TDATA_WIDTH 96
   M_AXIS_TDATA_WIDTH 128
-  CNTR_WIDTH 24
-  MISC_WIDTH 8
+  CNTR_WIDTH 16
+  MISC_WIDTH 16
 } {
   S_AXIS subset_0/M_AXIS
   cfg_data slice_6/dout
-  misc_data exp_n_tri_io
+  misc_data concat_0/dout
   aclk pll_0/clk_out1
   aresetn slice_0/dout
 }
 
 # DMA
 
-# Create axis_ram_reader
-cell pavel-demin:user:axis_ram_reader reader_0 {
+# Create axis_ram_reader_radar
+cell pavel-demin:user:axis_ram_reader_radar reader_0 {
   ADDR_WIDTH 16
   AXI_ID_WIDTH 3
   AXIS_TDATA_WIDTH 128
@@ -358,7 +368,7 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat concat_0 {
+cell xilinx.com:ip:xlconcat concat_1 {
   NUM_PORTS 2
   IN0_WIDTH 16
   IN1_WIDTH 16
@@ -498,7 +508,7 @@ for {set i 0} {$i <= 1} {incr i} {
 }
 
 # Create xlconcat
-cell xilinx.com:ip:xlconcat concat_1 {
+cell xilinx.com:ip:xlconcat concat_2 {
   NUM_PORTS 2
   IN0_WIDTH 16
   IN1_WIDTH 16

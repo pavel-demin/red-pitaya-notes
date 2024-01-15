@@ -5,8 +5,8 @@ module axis_misc_writer #
 (
   parameter integer S_AXIS_TDATA_WIDTH = 32,
   parameter integer M_AXIS_TDATA_WIDTH = 64,
-  parameter integer CNTR_WIDTH = 24,
-  parameter integer MISC_WIDTH = 8
+  parameter integer CNTR_WIDTH = 16,
+  parameter integer MISC_WIDTH = 16
 )
 (
   // System signals
