@@ -20,6 +20,14 @@ void signal_handler(int sig)
   interrupted = 1;
 }
 
+void usage()
+{
+  fprintf(stderr, "Usage: dac-player rate offset file\n");
+  fprintf(stderr, " rate - interpolation rate (16 - 16384),\n");
+  fprintf(stderr, " offset - number of samples to skip,\n");
+  fprintf(stderr, " file - input file.\n");
+}
+
 int main(int argc, char *argv[])
 {
   FILE *fileIn;
@@ -28,7 +36,7 @@ int main(int argc, char *argv[])
   volatile uint64_t *dac;
   char *end;
   uint64_t buffer[8192];
-  long number;
+  long value, rate, offset;
   size_t size;
 
   if((mmapfd = open("/dev/mem", O_RDWR)) < 0)
@@ -41,24 +49,44 @@ int main(int argc, char *argv[])
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x41000000);
   dac = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, mmapfd, 0x42000000);
 
-  errno = 0;
-  number = (argc == 3) ? strtol(argv[1], &end, 10) : -1;
-  if(errno != 0 || end == argv[1] || number < 16 || number > 16384)
+  if(argc != 4)
   {
-    fprintf(stderr, "Usage: dac-player rate file\n");
-    fprintf(stderr, " rate - interpolation rate (16 - 16384),\n");
-    fprintf(stderr, " file - input file.\n");
+    usage();
     return EXIT_FAILURE;
   }
 
-  if((fileIn = fopen(argv[2], "rb")) < 0)
+  errno = 0;
+  value = strtol(argv[1], &end, 10);
+  if(errno != 0 || end == argv[1] || value < 16 || value > 16384)
+  {
+    usage();
+    return EXIT_FAILURE;
+  }
+  rate = value;
+
+  errno = 0;
+  value = strtol(argv[2], &end, 10);
+  if(errno != 0 || end == argv[2] || value < 0)
+  {
+    usage();
+    return EXIT_FAILURE;
+  }
+  offset = value;
+
+  if((fileIn = fopen(argv[3], "rb")) < 0)
   {
     perror("fopen");
     return EXIT_FAILURE;
   }
 
+  if(fseek(fileIn, offset * 4, SEEK_SET) != 0)
+  {
+    perror("fseek");
+    return EXIT_FAILURE;
+  }
+
   /* set interpolation rate */
-  *((uint16_t *)(cfg + 10)) = (uint16_t)(number >> 1);
+  *((uint16_t *)(cfg + 10)) = (uint16_t)(rate >> 1);
 
   signal(SIGINT, signal_handler);
 
