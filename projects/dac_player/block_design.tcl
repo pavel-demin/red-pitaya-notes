@@ -289,6 +289,7 @@ cell xilinx.com:ip:fir_compiler fir_1 {
   CLOCK_FREQUENCY 125
   OUTPUT_ROUNDING_MODE Convergent_Rounding_to_Even
   OUTPUT_WIDTH 16
+  M_DATA_HAS_TREADY true
   HAS_ARESETN true
 } {
   S_AXIS_DATA conv_2/M_AXIS
