@@ -644,6 +644,9 @@ class OscDisplay(QWidget, Ui_OscDisplay):
         x = np.arange(self.tot)
         (self.curve2,) = self.ax.plot(x, self.buffer[1::2], color="#00CCCC")
         (self.curve1,) = self.ax.plot(x, self.buffer[0::2], color="#FFAA00")
+        self.line = [None, None]
+        self.line[0] = self.ax.axvline(self.pre, linestyle="dotted")
+        self.line[1] = self.ax.axhline(self.levelValue.value(), linestyle="dotted")
         self.canvas.draw()
         # create navigation toolbar
         self.toolbar = NavigationToolbar(self.canvas, None, False)
@@ -671,7 +674,7 @@ class OscDisplay(QWidget, Ui_OscDisplay):
         self.autoButton.toggled.connect(self.mcpha.set_trg_mode)
         self.ch2Button.toggled.connect(self.mcpha.set_trg_source)
         self.fallingButton.toggled.connect(self.mcpha.set_trg_slope)
-        self.levelValue.valueChanged.connect(self.mcpha.set_trg_level)
+        self.levelValue.valueChanged.connect(self.set_trg_level)
         self.startButton.clicked.connect(self.start)
         self.saveButton.clicked.connect(self.save)
         self.loadButton.clicked.connect(self.load)
@@ -704,6 +707,11 @@ class OscDisplay(QWidget, Ui_OscDisplay):
         self.curve1.set_ydata(self.buffer[0::2])
         self.curve2.set_ydata(self.buffer[1::2])
         self.canvas.draw()
+
+    def set_trg_level(self, value):
+        self.line[1].set_ydata([value, value])
+        self.canvas.draw()
+        self.mcpha.set_trg_level(value)
 
     def on_motion(self, event):
         if event.inaxes != self.ax:
