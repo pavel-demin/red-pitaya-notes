@@ -344,6 +344,8 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.plotLayout.addWidget(self.canvas)
         self.ax = self.figure.add_subplot(111)
         self.ax.grid()
+        self.ax.set_ylabel("counts")
+        self.ax.set_xlabel("channel number")
         x = np.arange(self.bins)
         (self.curve,) = self.ax.plot(x, self.buffer, drawstyle="steps-mid", color=self.color)
         self.roi = [0, 4095]
@@ -637,6 +639,8 @@ class OscDisplay(QWidget, Ui_OscDisplay):
         self.ax = self.figure.add_subplot(111)
         self.ax.grid()
         self.ax.set_ylim(-4500, 4500)
+        self.ax.set_xlabel("time bin")
+        self.ax.set_ylabel("ADC counts")
         x = np.arange(self.tot)
         (self.curve2,) = self.ax.plot(x, self.buffer[1::2], color="#00CCCC")
         (self.curve1,) = self.ax.plot(x, self.buffer[0::2], color="#FFAA00")
@@ -760,6 +764,8 @@ class GenDisplay(QWidget, Ui_GenDisplay):
         self.plotLayout.addWidget(self.canvas)
         self.ax = self.figure.add_subplot(111)
         self.ax.grid()
+        self.ax.set_ylabel("counts")
+        self.ax.set_xlabel("channel number")
         x = np.arange(self.bins)
         (self.curve,) = self.ax.plot(x, self.buffer, drawstyle="steps-mid", color="#FFAA00")
         # create navigation toolbar
