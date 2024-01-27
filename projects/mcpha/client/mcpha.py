@@ -763,6 +763,7 @@ class GenDisplay(QWidget, Ui_GenDisplay):
         self.log = log
         self.bins = 4096
         self.buffer = np.zeros(self.bins, np.uint32)
+        self.buffer[2047] = 1
         # create figure
         self.figure = Figure()
         if sys.platform != "win32":
