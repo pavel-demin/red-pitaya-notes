@@ -121,17 +121,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="rateValue">
-         <property name="minimum">
-          <number>4</number>
-         </property>
-         <property name="maximum">
-          <number>8192</number>
-         </property>
-         <property name="singleStep">
-          <number>4</number>
-         </property>
-        </widget>
+        <widget class="QComboBox" name="rateValue"/>
        </item>
       </layout>
      </widget>

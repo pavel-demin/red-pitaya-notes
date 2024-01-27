@@ -44,6 +44,8 @@ else:
 
 
 class MCPHA(QMainWindow, Ui_MCPHA):
+    rates = {0: 4, 1: 8, 2: 16, 3: 32, 4: 64}
+
     def __init__(self):
         super(MCPHA, self).__init__()
         self.setupUi(self)
@@ -70,7 +72,14 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.syncCheck.toggled.connect(self.set_sync)
         self.neg1Check.toggled.connect(partial(self.set_negator, 0))
         self.neg2Check.toggled.connect(partial(self.set_negator, 1))
-        self.rateValue.valueChanged.connect(self.set_rate)
+        self.rateValue.addItems(map(str, MCPHA.rates.values()))
+        self.rateValue.setEditable(True)
+        self.rateValue.lineEdit().setReadOnly(True)
+        self.rateValue.lineEdit().setAlignment(Qt.AlignRight)
+        for i in range(self.rateValue.count()):
+            self.rateValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
+        self.rateValue.setCurrentIndex(0)
+        self.rateValue.currentIndexChanged.connect(self.set_rate)
         # address validator
         rx = QRegExp("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$")
         self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
@@ -129,7 +138,7 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.waiting = [False for i in range(3)]
         self.reset = 0
         self.state = 0
-        self.set_rate(self.rateValue.value())
+        self.set_rate(self.rateValue.currentIndex())
         self.set_negator(0, self.neg1Check.isChecked())
         self.set_negator(1, self.neg2Check.isChecked())
 
@@ -216,8 +225,8 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.hst2.startButton.setEnabled(enabled)
         self.hst2.resetButton.setEnabled(enabled)
 
-    def set_rate(self, value):
-        self.command(4, 0, value)
+    def set_rate(self, index):
+        self.command(4, 0, MCPHA.rates[index])
 
     def set_negator(self, number, value):
         self.command(5, number, value)
