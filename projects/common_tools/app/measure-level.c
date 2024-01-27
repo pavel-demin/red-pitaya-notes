@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   volatile uint32_t *fifo;
   volatile uint8_t *rst, *led;
   volatile uint16_t *cntr;
-  double freq;
+  double freq, dbfs[2];
   long time;
   uint32_t buffer, scale;
   uint16_t level[2];
@@ -99,6 +99,11 @@ int main(int argc, char *argv[])
     bits[1] = 15 >> (uint8_t)floor(-5.0 * log10(1.0 * level[1] / scale));
 
     *led = bits[1] << 4 | bits[0];
+
+    dbfs[0] = 20.0 * log10(1.0 * level[0] / scale);
+    dbfs[1] = 20.0 * log10(1.0 * level[1] / scale);
+
+    printf("IN1: %5.1f dBFS, IN2: %5.1f dBFS\n", dbfs[0], dbfs[1]);
   }
 
   *led = 0;
