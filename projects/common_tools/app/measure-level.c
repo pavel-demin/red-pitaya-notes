@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   volatile void *cfg, *sts;
   volatile uint32_t *fifo;
   volatile uint8_t *rst, *led;
-  volatile uint32_t *cntr;
+  volatile uint16_t *cntr;
   double freq;
   long time;
   uint32_t buffer, scale;
@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  errno = 0;
   time = strtol(argv[2], &end, 10);
   if(errno != 0 || end == argv[2] || time < 1 || time > 30)
   {
@@ -70,7 +71,7 @@ int main(int argc, char *argv[])
 
   rst = (uint8_t *)(cfg + 1);
   led = (uint8_t *)(cfg + 2);
-  cntr = (uint32_t *)(sts + 4);
+  cntr = (uint16_t *)(sts + 2);
 
   *(uint32_t *)(cfg + 4) = (uint32_t)floor(freq * 1.0e6 * time + 0.5) - 1;
 

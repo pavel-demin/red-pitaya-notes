@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   volatile void *cfg, *sts;
   volatile uint32_t *fifo;
   volatile uint8_t *rst;
-  volatile uint32_t *cntr;
+  volatile uint16_t *cntr;
   double freq;
   long time;
   uint32_t buffer;
@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  errno = 0;
   time = strtol(argv[2], &end, 10);
   if(errno != 0 || end == argv[2] || time < 1 || time > 30)
   {
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
   fifo = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x82000000);
 
   rst = (uint8_t *)(cfg + 0);
-  cntr = (uint32_t *)(sts + 0);
+  cntr = (uint16_t *)(sts + 0);
 
   *rst &= ~1;
   *rst |= 1;
