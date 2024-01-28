@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   rst = cfg + 3;
 
   /* set sample rate */
-  *(uint16_t *)(cfg + 6) = 125;
+  *(uint16_t *)(cfg + 6) = 4;
 
   /* reset timers and phas */
   *rst &= ~3;
@@ -111,7 +111,16 @@ int main(int argc, char *argv[])
       else if(code == 2)
       {
         /* set sample rate */
-        *(uint16_t *)(cfg + 6) = data;
+        if(data < 4)
+        {
+          *rst &= ~8;
+          *(uint16_t *)(cfg + 6) = 4;
+        }
+        else
+        {
+          *rst |= 8;
+          *(uint16_t *)(cfg + 6) = data;
+        }
       }
       else if(code == 3)
       {
@@ -201,12 +210,12 @@ int main(int argc, char *argv[])
         *rst &= ~64;
         *rst |= 64;
         /* start timer */
-        *rst |= 8;
+        *rst |= 4;
       }
 
     }
     /* stop timer */
-    *rst &= ~8;
+    *rst &= ~4;
 
     sock_thread = -1;
 

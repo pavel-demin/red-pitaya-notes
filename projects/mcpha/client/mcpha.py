@@ -44,7 +44,7 @@ else:
 
 
 class MCPHA(QMainWindow, Ui_MCPHA):
-    rates = {0: 4, 1: 8, 2: 16, 3: 32, 4: 64}
+    rates = {0: 1, 1: 4, 2: 8, 3: 16, 4: 32, 5: 64}
 
     def __init__(self):
         super(MCPHA, self).__init__()
@@ -78,7 +78,7 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.rateValue.lineEdit().setAlignment(Qt.AlignRight)
         for i in range(self.rateValue.count()):
             self.rateValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
-        self.rateValue.setCurrentIndex(0)
+        self.rateValue.setCurrentIndex(1)
         self.rateValue.currentIndexChanged.connect(self.set_rate)
         # address validator
         rx = QRegExp("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$")

@@ -49,7 +49,7 @@ void usage()
   #endif
   fprintf(stderr, " addr - IP address of the Red Pitaya board,\n");
   fprintf(stderr, " time - duration of the acquisition in seconds (from 1 to 99999999),\n");
-  fprintf(stderr, " rate - decimation rate (from 4 to 8192),\n");
+  fprintf(stderr, " rate - decimation rate (from 1 to 8192),\n");
   fprintf(stderr, " pol1 - IN1 pulse polarity (0 for positive, 1 for negative),\n");
   fprintf(stderr, " pol2 - IN2 pulse polarity (0 for positive, 1 for negative),\n");
   fprintf(stderr, " min1 - IN1 min threshold (from 0 to 16380),\n");
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
   errno = 0;
   value = strtol(argv[3], &end, 10);
-  if(errno != 0 || end == argv[3] || value < 4 || value > 8192)
+  if(errno != 0 || end == argv[3] || value < 1 || value > 8192)
   {
     usage();
     return EXIT_FAILURE;

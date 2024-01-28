@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
   rst = cfg + 0;
 
   /* set sample rate */
-  *(uint16_t *)(cfg + 4) = 125;
+  *(uint16_t *)(cfg + 4) = 4;
 
   /* reset timers and histograms */
   rst[0] &= ~0x0303;
@@ -218,7 +218,16 @@ int main(int argc, char *argv[])
       else if(code == 4)
       {
         /* set sample rate */
-        *(uint16_t *)(cfg + 4) = data;
+        if(data < 4)
+        {
+          rst[0] &= ~0x0008;
+          *(uint16_t *)(cfg + 4) = 4;
+        }
+        else
+        {
+          rst[0] |= 0x0008;
+          *(uint16_t *)(cfg + 4) = data;
+        }
       }
       else if(code == 5)
       {
