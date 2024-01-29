@@ -37,10 +37,7 @@ The basic blocks of the system are shown on the following diagrams:
 
 The width of the pulse at the input of the pulse height analyzer module can be adjusted by varying the decimation factor of the CIC filter.
 
-Two baseline subtraction modes are implemented:
-
- - In the manual mode, a constant value is subtracted from the measured peak height value.
- - In the auto mode, the base line level is defined as the minimum value just before the rising edge of the analyzed pulse.
+The baseline is automatically subtracted. The baseline level is defined as the minimum value just before the rising edge of the analyzed pulse.
 
 The embedded oscilloscope can be used to check the shape of the pulse at the input of the pulse height analyzer module.
 
