@@ -4,11 +4,13 @@ description: Notes on the Red Pitaya Open Source Instrument
 baseurl: /red-pitaya-notes
 url: https://pavel-demin.github.io
 
-release-image: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20231004/red-pitaya-alpine-3.18-armv7-20231004.zip
-scanner-image: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20231004/red-pitaya-alpine-3.18-armv7-20231004-scanner.zip
-release-file: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20231004/red-pitaya-notes-20231004.zip
+release-image: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20240204/red-pitaya-alpine-3.18-armv7-20240204.zip
+scanner-image: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20240204/red-pitaya-alpine-3.18-armv7-20240204-scanner.zip
+release-file: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20240204/red-pitaya-notes-20240204.zip
 
 extio-file: https://www.dropbox.com/scl/fi/pl8gfjn2ay267or1zkohu/extio_red_pitaya.dll?rlkey=zhmv6qktymfeno8bdap94noq9&dl=1
+
+sdr-smem-file: https://github.com/pavel-demin/sdr-smem/releases/download/20240204/sdr-smem-20240204.zip
 
 # Build settings
 markdown: kramdown
