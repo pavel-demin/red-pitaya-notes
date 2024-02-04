@@ -87,7 +87,7 @@ cd red-pitaya-notes
 
 Building `sdr_receiver.bit`:
 {% highlight bash %}
-make NAME=sdr_receiver bit
+make NAME=sdr_receiver_122_88 PART=xc7z020clg400-1 bit
 {% endhighlight %}
 
 Building SD card image zip file:
