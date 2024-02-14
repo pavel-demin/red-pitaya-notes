@@ -68,16 +68,12 @@ module axi_hub #
 {% endfor -%}
 );
 
-  function integer clogb2 (input integer value);
-    for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
-  endfunction
-
   localparam integer HUB_SIZE = {{hub_size}};
   localparam integer MUX_SIZE = HUB_SIZE + 2;
   localparam integer CFG_SIZE = CFG_DATA_WIDTH / 32;
-  localparam integer CFG_WIDTH = CFG_SIZE > 1 ? clogb2(CFG_SIZE - 1) : 1;
+  localparam integer CFG_WIDTH = CFG_SIZE > 1 ? $clog2(CFG_SIZE) : 1;
   localparam integer STS_SIZE = STS_DATA_WIDTH / 32;
-  localparam integer STS_WIDTH = STS_SIZE > 1 ? clogb2(STS_SIZE - 1) : 1;
+  localparam integer STS_WIDTH = STS_SIZE > 1 ? $clog2(STS_SIZE) : 1;
 
   reg [3:0] int_awcntr_reg, int_awcntr_next;
   reg [3:0] int_arcntr_reg, int_arcntr_next;

@@ -29,12 +29,8 @@ module axis_fifo #
   input  wire                          m_axis_tready
 );
 
-  function integer clogb2 (input integer value);
-    for(clogb2 = 0; value > 0; clogb2 = clogb2 + 1) value = value >> 1;
-  endfunction
-
-  localparam integer WRITE_COUNT_WIDTH = clogb2(WRITE_DEPTH - 1) + 1;
-  localparam integer READ_COUNT_WIDTH = clogb2(WRITE_DEPTH * S_AXIS_TDATA_WIDTH / M_AXIS_TDATA_WIDTH - 1) + 1;
+  localparam integer WRITE_COUNT_WIDTH = $clog2(WRITE_DEPTH) + 1;
+  localparam integer READ_COUNT_WIDTH = $clog2(WRITE_DEPTH * S_AXIS_TDATA_WIDTH / M_AXIS_TDATA_WIDTH) + 1;
 
   wire [READ_COUNT_WIDTH-1:0] int_rcount_wire;
   wire [M_AXIS_TDATA_WIDTH-1:0] int_data_wire [2:0];
