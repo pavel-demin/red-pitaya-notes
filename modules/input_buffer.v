@@ -19,7 +19,7 @@ module input_buffer #
 );
 
   reg [DATA_WIDTH-1:0] int_data_reg;
-  reg int_ready_reg;
+  reg int_ready_reg = 1'b1;
 
   wire int_valid_wire = ~int_ready_reg | in_valid;
 
