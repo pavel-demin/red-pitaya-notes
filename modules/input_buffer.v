@@ -31,14 +31,14 @@ module input_buffer #
     end
     else
     begin
-      if(int_ready_reg)
-      begin
-        int_data_reg <= in_data;
-      end
       if(int_valid_wire)
       begin
         int_ready_reg <= out_ready;
       end
+    end
+    if(int_ready_reg)
+    begin
+      int_data_reg <= in_data;
     end
   end
 
