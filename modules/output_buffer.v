@@ -29,13 +29,11 @@ module output_buffer #
     begin
       int_valid_reg <= 1'b0;
     end
-    else
+    else if(int_ready_wire)
     begin
-      if(int_ready_wire)
-      begin
-        int_valid_reg <= in_valid;
-      end
+      int_valid_reg <= in_valid;
     end
+
     if(int_ready_wire)
     begin
       int_data_reg <= in_data;
