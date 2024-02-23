@@ -24,11 +24,8 @@ module axis_iir_filter
 
   wire [15:0] int_data_wire;
   wire [5:0] int_valid_wire, int_ready_wire;
-  wire int_rst_wire;
 
   genvar j;
-
-  assign int_rst_wire = ~aresetn;
 
   assign int_valid_wire[0] = s_axis_tvalid;
   assign s_axis_tready = int_ready_wire[0];
@@ -61,8 +58,8 @@ module axis_iir_filter
     .CREG(0), .CARRYINREG(0), .MREG(1), .PREG(1)
   ) dsp_0 (
     .CLK(aclk),
-    .RSTA(int_rst_wire), .RSTB(int_rst_wire),
-    .RSTM(int_rst_wire), .RSTP(int_rst_wire),
+    .RSTA(1'b0), .RSTB(1'b0),
+    .RSTM(1'b0), .RSTP(1'b0),
     .CEA2(int_ready_wire[0]), .CEB2(int_ready_wire[0]),
     .CED(1'b0), .CEAD(1'b0),
     .CEM(int_ready_wire[1]), .CEP(int_ready_wire[2]),
@@ -78,7 +75,7 @@ module axis_iir_filter
     .CREG(0), .CARRYINREG(0), .MREG(0), .PREG(1)
   ) dsp_1 (
     .CLK(aclk),
-    .RSTP(int_rst_wire),
+    .RSTP(1'b0),
     .CED(1'b0), .CEAD(1'b0),
     .CEP(int_ready_wire[3]),
     .OPMODE(7'b0110101),
@@ -94,7 +91,7 @@ module axis_iir_filter
     .CREG(0), .CARRYINREG(0), .MREG(0), .PREG(1)
   ) dsp_2 (
     .CLK(aclk),
-    .RSTP(int_rst_wire),
+    .RSTP(1'b0),
     .CED(1'b0), .CEAD(1'b0),
     .CEP(int_ready_wire[4]),
     .OPMODE(7'b0110101),
