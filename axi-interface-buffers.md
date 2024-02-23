@@ -75,4 +75,4 @@ The Verilog code of the modules that use these input and output buffers can be f
 
  - [AXI4 Hub](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_hub.v)
 
- - [AXI4-Stream FIFO](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axis_fifo.v)
+ - [AXI4-Stream IIR Filter](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axis_iir_filter.v)
