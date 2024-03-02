@@ -30,7 +30,7 @@ The transmitter part is disabled by default and should be enabled manually.
 Hardware
 -----
 
-The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown on the following diagram:
+The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown in the following diagram:
 
 ![WSPR receiver]({{ "/img/sdr-receiver-wspr.png" | prepend: site.baseurl }})
 

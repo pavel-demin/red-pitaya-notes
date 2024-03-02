@@ -18,7 +18,7 @@ The HPSDR/Metis communication protocol is described in the following documents:
 Hardware
 -----
 
-The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown on the following diagram:
+The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown in the following diagram:
 
 ![HPSDR receiver]({{ "/img/sdr-receiver-hpsdr-ddc.png" | prepend: site.baseurl }})
 

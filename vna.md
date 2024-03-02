@@ -20,7 +20,7 @@ Some interesting links on network analyzers:
 Hardware
 -----
 
-The basic blocks of the system are shown on the following diagram:
+The basic blocks of the system are shown in the following diagram:
 
 ![Multichannel Pulse Height Analyzer]({{ "/img/vna.png" | prepend: site.baseurl }})
 

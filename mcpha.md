@@ -29,7 +29,7 @@ This system is designed to analyze the height of Gaussian-shaped pulses and it e
 
 The position of the HV/LV jumpers of the [fast analog inputs](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/fastIO.html) should be chosen depending on the amplitude range of the input signal. Ideally, the amplitude range of the input signal should closely match the chosen hardware input range.
 
-The basic blocks of the system are shown on the following diagrams:
+The basic blocks of the system are shown in the following diagrams:
 
 ![Multichannel Pulse Height Analyzer]({{ "/img/mcpha.png" | prepend: site.baseurl }})
 

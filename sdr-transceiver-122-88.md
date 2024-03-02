@@ -25,7 +25,7 @@ The tunable frequency range covers from 0 Hz to 60 MHz.
 
 The I/Q data rate is configurable and five settings are available: 24, 48, 96, 192, 384, 768 and 1536 kSPS.
 
-The basic blocks of the digital down-converters (DDC) and of the digital up-converters (DUC) are shown on the following diagram:
+The basic blocks of the digital down-converters (DDC) and of the digital up-converters (DUC) are shown in the following diagram:
 
 ![SDR transceiver]({{ "/img/sdr-transceiver-122-88.png" | prepend: site.baseurl }})
 

@@ -28,7 +28,7 @@ The tunable frequency range covers from 0 Hz to 61.44 MHz.
 
 The I/Q data rate is configurable and four settings are available: 48, 96, 192, 384 kSPS.
 
-The basic blocks of the digital down-converters are shown on the following diagram:
+The basic blocks of the digital down-converters are shown in the following diagram:
 
 ![DDC]({{ "/img/sdr-transceiver-hpsdr-ddc-122-88.png" | prepend: site.baseurl }})
 
@@ -62,14 +62,14 @@ I2S connections
 
 The I2S interface is sharing pins with the ALEX interface. So, the two can't be used simultaneously. The supported I2S audio codecs are [TLV320AIC23B](https://www.ti.com/product/TLV320AIC23B) and [WM8731](https://www.cirrus.com/products/wm8731). The I2S audio codecs should be clocked with a 12.288 MHz oscillator crystal.
 
-The I2S interface should be connected to the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1) as shown on the above diagram. The I2C interface should be connected to the I2C pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2).
+The I2S interface should be connected to the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1) as shown in the above diagram. The I2C interface should be connected to the I2C pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2).
 
 ALEX connections
 -----
 The [ALEX module](https://openhpsdr.org/alex.php) can be connected to the pins DIO4_N (Serial Data), DIO5_N (Clock), DIO6_N (RX Strobe) and DIO7_N (TX Strobe) of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1).
 The board and the protocol are described in the [ALEX manual](https://github.com/TAPR/OpenHPSDR-SVN/raw/master/Alexiares/Documentation/ALEX%20Manual%20V1.0.pdf).
 
-The HPSDR signals sent to the [TPIC6B595](https://www.ti.com/product/TPIC6B595) chips are shown on the following diagram:
+The HPSDR signals sent to the [TPIC6B595](https://www.ti.com/product/TPIC6B595) chips are shown in the following diagram:
 
 ![ALEX connections]({{ "/img/sdr-transceiver-hpsdr-alex-interface.png" | prepend: site.baseurl }})
 

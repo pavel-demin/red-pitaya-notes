@@ -18,7 +18,7 @@ Some interesting links on digital signal processing and software defined radio:
 Hardware
 -----
 
-The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown on the following diagram:
+The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown in the following diagram:
 
 ![SDR receiver]({{ "/img/sdr-receiver-hpsdr-ddc.png" | prepend: site.baseurl }})
 
@@ -44,7 +44,7 @@ The `tcp_smem` program runs on a computer. It receives the I/Q data streams over
 Antenna
 -----
 
-I use simple indoor antennas made from a single loop of non-coaxial wire. Their approximate scheme is shown on the following diagrams:
+I use simple indoor antennas made from a single loop of non-coaxial wire. Their approximate scheme is shown in the following diagrams:
 
 ![Antenna]({{ "/img/antenna.png" | prepend: site.baseurl }})
 

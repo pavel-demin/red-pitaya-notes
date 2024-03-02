@@ -23,7 +23,7 @@ Hardware
 
 The system outputs the line scan signal to OUT1 and the raster scan signal to OUT2. The trigger and S&H pulses are available from the pins DIO0_N and DIO1_N on the E1 connector. The analog signals corresponding to each pixel are input to IN1 and IN2.
 
-The basic blocks of the system are shown on the following diagram:
+The basic blocks of the system are shown in the following diagram:
 
 ![Scanner]({{ "/img/scanner.png" | prepend: site.baseurl }})
 

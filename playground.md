@@ -16,7 +16,7 @@ The [notebooks](https://github.com/pavel-demin/red-pitaya-notes/tree/master/note
 Hardware
 -----
 
-The basic blocks of the playground project are shown on the following diagram:
+The basic blocks of the playground project are shown in the following diagram:
 
 ![Playground]({{ "/img/playground.png" | prepend: site.baseurl }})
 

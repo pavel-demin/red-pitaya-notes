@@ -18,7 +18,7 @@ With this configuration, it is enough to connect Red Pitaya to an antenna and to
 Hardware
 -----
 
-The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown on the following diagram:
+The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown in the following diagram:
 
 ![FT8 receiver]({{ "/img/sdr-receiver-ft8.png" | prepend: site.baseurl }})
 

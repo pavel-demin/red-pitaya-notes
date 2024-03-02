@@ -29,7 +29,7 @@ The I/Q data rate is configurable and seven settings are available: 20, 40, 80, 
 Hardware
 -----
 
-The basic blocks of the system are shown on the following diagram:
+The basic blocks of the system are shown in the following diagram:
 
 ![Pulsed NMR]({{ "/img/pulsed-nmr-122-88.png" | prepend: site.baseurl }})
 

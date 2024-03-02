@@ -17,7 +17,7 @@ The structure of this version is very similar to the SDR transceiver described a
  - only one RX and one TX channel,
  - higher sample rates (up to 2500 kSPS).
 
-The basic blocks of the digital down-converter (DDC) and of the digital up-converter (DUC) are shown on the following diagram:
+The basic blocks of the digital down-converter (DDC) and of the digital up-converter (DUC) are shown in the following diagram:
 
 ![Wideband SDR transceiver]({{ "/img/sdr-transceiver-wide.png" | prepend: site.baseurl }})
 
