@@ -320,7 +320,7 @@ cell xilinx.com:ip:xlconcat concat_0 {
 cell pavel-demin:user:axis_misc_writer misc_0 {
   S_AXIS_TDATA_WIDTH 96
   M_AXIS_TDATA_WIDTH 128
-  CNTR_WIDTH 16
+  CNTR_WIDTH 19
   MISC_WIDTH 16
 } {
   S_AXIS subset_0/M_AXIS
@@ -334,7 +334,7 @@ cell pavel-demin:user:axis_misc_writer misc_0 {
 
 # Create axis_ram_reader_radar
 cell pavel-demin:user:axis_ram_reader_radar reader_0 {
-  ADDR_WIDTH 16
+  ADDR_WIDTH 19
   AXI_ID_WIDTH 3
   AXIS_TDATA_WIDTH 128
   FIFO_WRITE_DEPTH 512
@@ -348,13 +348,13 @@ cell pavel-demin:user:axis_ram_reader_radar reader_0 {
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant const_1 {
-  CONST_WIDTH 16
-  CONST_VAL 65535
+  CONST_WIDTH 19
+  CONST_VAL 524287
 }
 
 # Create axis_ram_writer
 cell pavel-demin:user:axis_ram_writer writer_0 {
-  ADDR_WIDTH 16
+  ADDR_WIDTH 19
   AXI_ID_WIDTH 3
   AXIS_TDATA_WIDTH 128
   FIFO_WRITE_DEPTH 512

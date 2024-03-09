@@ -63,7 +63,7 @@ int main()
     return 1;
   }
 
-  size = 524288;
+  size = 4194304;
 
   for(i = 0; i < size; ++i)
   {

@@ -65,7 +65,7 @@ int main ()
     return EXIT_FAILURE;
   }
 
-  size = 4096*sysconf(_SC_PAGESIZE);
+  size = 32768*sysconf(_SC_PAGESIZE);
 
   if(ioctl(fd, CMA_ALLOC, &size) < 0)
   {
@@ -73,7 +73,7 @@ int main ()
     return EXIT_FAILURE;
   }
 
-  ram = mmap(NULL, 4096*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+  ram = mmap(NULL, 32768*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
   rx_rst = (uint8_t *)(cfg + 0);
   rx_freq = (uint32_t *)(cfg + 4);
@@ -86,12 +86,12 @@ int main ()
   rx_cntr = (uint16_t *)(sts + 2);
 
   *tx_addr = size;
-  *tx_size = 65535;
-  *rx_addr = size + 2048*sysconf(_SC_PAGESIZE);
-  *rx_size = 524287;
+  *tx_size = 524287;
+  *rx_addr = size + 16384*sysconf(_SC_PAGESIZE);
+  *rx_size = 4194303;
 
   tx_ram = ram;
-  rx_ram = ram + 2048*sysconf(_SC_PAGESIZE);
+  rx_ram = ram + 16384*sysconf(_SC_PAGESIZE);
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -149,7 +149,7 @@ int main ()
             break;
           case 1:
             /* set tx samples */
-            if(value < 0 || value > 8388608) continue;
+            if(value < 0 || value > 67108864) continue;
             *tx_size = (value >> 7) - 1;
             *rx_size = (value >> 4) - 1;
             recv(sock_client, tx_ram, value, MSG_WAITALL);
@@ -158,7 +158,7 @@ int main ()
             *rx_rst |= 2;
             usleep(100);
             *rx_rst |= 1;
-            limit = 32*1024;
+            limit = 256*1024;
             break;
           case 3:
             /* stop */
@@ -172,12 +172,12 @@ int main ()
       /* read ram writer position */
       position = *rx_cntr;
 
-      /* send 4 MB if ready, otherwise sleep 1 ms */
-      if((limit > 0 && position > limit) || (limit == 0 && position < 32*1024))
+      /* send 32 MB if ready, otherwise sleep 1 ms */
+      if((limit > 0 && position > limit) || (limit == 0 && position < 256*1024))
       {
-        offset = limit > 0 ? 0 : 4096*1024;
-        limit = limit > 0 ? 0 : 32*1024;
-        if(send(sock_client, rx_ram + offset, 4096*1024, MSG_NOSIGNAL) < 0) break;
+        offset = limit > 0 ? 0 : 32768*1024;
+        limit = limit > 0 ? 0 : 256*1024;
+        if(send(sock_client, rx_ram + offset, 32768*1024, MSG_NOSIGNAL) < 0) break;
       }
       else
       {
