@@ -111,7 +111,7 @@ add_files -norecurse $wrapper
 
 set_property TOP system_wrapper [current_fileset]
 
-set files [glob -nocomplain projects/$project_name/*.v projects/$project_name/*.sv]
+set files [glob -nocomplain cfg/*.mem projects/$project_name/*.v projects/$project_name/*.sv]
 if {[llength $files] > 0} {
   add_files -norecurse $files
 }
