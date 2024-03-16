@@ -30,7 +30,7 @@ module dsp48 #
     .CLK(CLK),
     .RSTA(1'b0), .RSTB(1'b0), .RSTM(1'b0), .RSTP(1'b0),
     .CEA2(1'b1), .CEB2(1'b1), .CED(1'b0), .CEAD(1'b0), .CEM(1'b1), .CEP(1'b1),
-    .OPMODE(7'b0110101),
+    .ALUMODE(4'b0000), .CARRYINSEL(3'b000), .INMODE(5'b00000), .OPMODE(7'b0110101),
     .A({{(30-A_WIDTH){A[A_WIDTH-1]}}, A}),
     .B({{(18-B_WIDTH){B[B_WIDTH-1]}}, B}),
     .C({{(48-ONES){1'b0}}, {(ONES){1'b1}}}),

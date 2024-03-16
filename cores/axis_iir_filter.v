@@ -63,9 +63,10 @@ module axis_iir_filter
     .CEA2(int_ready_wire[0]), .CEB2(int_ready_wire[0]),
     .CED(1'b0), .CEAD(1'b0),
     .CEM(int_ready_wire[1]), .CEP(int_ready_wire[2]),
-    .OPMODE(7'b0000101),
+    .ALUMODE(4'b0000), .CARRYINSEL(3'b000), .INMODE(5'b00000), .OPMODE(7'b0000101),
     .A({{(5){s_axis_tdata[15]}}, s_axis_tdata, 9'd0}),
     .B(cfg_data[15:0]),
+    .CARRYIN(1'b0),
     .P(int_p_wire[0])
   );
 
@@ -78,10 +79,11 @@ module axis_iir_filter
     .RSTP(1'b0),
     .CED(1'b0), .CEAD(1'b0),
     .CEP(int_ready_wire[3]),
-    .OPMODE(7'b0110101),
+    .ALUMODE(4'b0000), .CARRYINSEL(3'b000), .INMODE(5'b00000), .OPMODE(7'b0110101),
     .A(int_p_wire[1][45:16]),
     .B(cfg_data[31:16]),
     .C(int_p_wire[0]),
+    .CARRYIN(1'b0),
     .P(int_p_wire[1])
   );
 
@@ -94,10 +96,11 @@ module axis_iir_filter
     .RSTP(1'b0),
     .CED(1'b0), .CEAD(1'b0),
     .CEP(int_ready_wire[4]),
-    .OPMODE(7'b0110101),
+    .ALUMODE(4'b0000), .CARRYINSEL(3'b000), .INMODE(5'b00000), .OPMODE(7'b0110101),
     .A(int_p_wire[2][45:16]),
     .B(cfg_data[47:32]),
     .C(int_p_wire[1]),
+    .CARRYIN(1'b0),
     .P(int_p_wire[2])
   );
 
