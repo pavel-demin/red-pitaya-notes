@@ -565,7 +565,7 @@ void *pulser_handler(void *arg)
   int32_t amplitude, interval;
 
   *gen = 0;
-  *gen = 100000;
+  *gen = 125000;
 
   while(enable_thread)
   {
