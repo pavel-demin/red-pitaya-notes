@@ -116,7 +116,7 @@ module axis_ram_reader #
   assign m_axi_arlen = 4'd15;
   assign m_axi_arsize = ADDR_SIZE;
   assign m_axi_arburst = 2'b01;
-  assign m_axi_arcache = 4'b0110;
+  assign m_axi_arcache = 4'b1111;
 
   assign m_axi_rready = 1'b1;
 
