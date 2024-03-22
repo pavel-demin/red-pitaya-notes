@@ -146,7 +146,7 @@ module axis_ram_writer #
   assign m_axi_awlen = 4'd15;
   assign m_axi_awsize = ADDR_SIZE;
   assign m_axi_awburst = 2'b01;
-  assign m_axi_awcache = 4'b1010;
+  assign m_axi_awcache = 4'b1111;
 
   assign m_axi_wid = {(AXI_ID_WIDTH){1'b0}};
   assign m_axi_wstrb = {(AXI_DATA_WIDTH/8){1'b1}};
