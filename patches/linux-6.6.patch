@@ -1,0 +1,287 @@
+diff -rupN old/linux-6.6/drivers/char/Kconfig linux-6.6/drivers/char/Kconfig
+--- old/linux-6.6/drivers/char/Kconfig
++++ linux-6.6/drivers/char/Kconfig
+@@ -422,4 +422,12 @@ config ADI
+ 	  and SSM (Silicon Secured Memory).  Intended consumers of this
+ 	  driver include crash and makedumpfile.
+ 
++config DEVCMA
++	bool "/dev/cma virtual device support"
++	default y
++
++config XILINX_DEVCFG
++	tristate "Xilinx Device Configuration"
++	depends on ARCH_ZYNQ
++
+ endmenu
+diff -rupN old/linux-6.6/drivers/char/Makefile linux-6.6/drivers/char/Makefile
+--- old/linux-6.6/drivers/char/Makefile
++++ linux-6.6/drivers/char/Makefile
+@@ -44,3 +44,5 @@ obj-$(CONFIG_PS3_FLASH)		+= ps3flash.o
+ obj-$(CONFIG_XILLYBUS_CLASS)	+= xillybus/
+ obj-$(CONFIG_POWERNV_OP_PANEL)	+= powernv-op-panel.o
+ obj-$(CONFIG_ADI)		+= adi.o
++obj-$(CONFIG_DEVCMA)		+= cma.o
++obj-$(CONFIG_XILINX_DEVCFG)	+= xilinx_devcfg.o
+diff -rupN old/linux-6.6/drivers/net/phy/intel-xway.c linux-6.6/drivers/net/phy/intel-xway.c
+--- old/linux-6.6/drivers/net/phy/intel-xway.c
++++ linux-6.6/drivers/net/phy/intel-xway.c
+@@ -252,6 +252,12 @@ static int xway_gphy_config_init(struct
+ 	if (err)
+ 		return err;
+ 
++	/* Set SGMII RX & TX timing skew to 2 ns & 2.5 ns respectively. */
++	/* Set MII power supply to 2V5. */
++	err = phy_write(phydev, 0x17, 0x4D00);
++	if (err)
++		return err;
++
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LEDCH,
+ 		      XWAY_MMD_LEDCH_NACS_NONE |
+ 		      XWAY_MMD_LEDCH_SBF_F02HZ |
+@@ -261,20 +267,16 @@ static int xway_gphy_config_init(struct
+ 		      XWAY_MMD_LEDCH_SCAN_NONE);
+ 
+ 	/**
+-	 * In most cases only one LED is connected to this phy, so
+-	 * configure them all to constant on and pulse mode. LED3 is
+-	 * only available in some packages, leave it in its reset
+-	 * configuration.
++	 * Set LED0 blinking on RX/TX.
++	 * Set LED1 blinking on link speed: slow=10M, fast=100M, on=1G.
+ 	 */
+-	ledxh = XWAY_MMD_LEDxH_BLINKF_NONE | XWAY_MMD_LEDxH_CON_LINK10XX;
+-	ledxl = XWAY_MMD_LEDxL_PULSE_TXACT | XWAY_MMD_LEDxL_PULSE_RXACT |
+-		XWAY_MMD_LEDxL_BLINKS_NONE;
+-	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0H, ledxh);
++	ledxl = XWAY_MMD_LEDxL_PULSE_TXACT | XWAY_MMD_LEDxL_PULSE_RXACT;
++	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0H, 0);
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0L, ledxl);
++	ledxh = XWAY_MMD_LEDxH_CON_LINK1000 | XWAY_MMD_LEDxH_BLINKF_LINK100;
++	ledxl = XWAY_MMD_LEDxH_CON_LINK10;
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED1H, ledxh);
+ 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED1L, ledxl);
+-	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED2H, ledxh);
+-	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED2L, ledxl);
+ 
+ 	err = xway_gphy_rgmii_init(phydev);
+ 	if (err)
+diff -rupN old/linux-6.6/drivers/net/wireless/realtek/Kconfig linux-6.6/drivers/net/wireless/realtek/Kconfig
+--- old/linux-6.6/drivers/net/wireless/realtek/Kconfig
++++ linux-6.6/drivers/net/wireless/realtek/Kconfig
+@@ -13,9 +13,9 @@ config WLAN_VENDOR_REALTEK
+ if WLAN_VENDOR_REALTEK
+ 
+ source "drivers/net/wireless/realtek/rtl818x/Kconfig"
+-source "drivers/net/wireless/realtek/rtlwifi/Kconfig"
+ source "drivers/net/wireless/realtek/rtl8xxxu/Kconfig"
+ source "drivers/net/wireless/realtek/rtw88/Kconfig"
+ source "drivers/net/wireless/realtek/rtw89/Kconfig"
++source "drivers/net/wireless/realtek/rtl8188eu/Kconfig"
+ 
+ endif # WLAN_VENDOR_REALTEK
+diff -rupN old/linux-6.6/drivers/net/wireless/realtek/Makefile linux-6.6/drivers/net/wireless/realtek/Makefile
+--- old/linux-6.6/drivers/net/wireless/realtek/Makefile
++++ linux-6.6/drivers/net/wireless/realtek/Makefile
+@@ -5,8 +5,8 @@
+ 
+ obj-$(CONFIG_RTL8180)		+= rtl818x/
+ obj-$(CONFIG_RTL8187)		+= rtl818x/
+-obj-$(CONFIG_RTLWIFI)		+= rtlwifi/
+ obj-$(CONFIG_RTL8XXXU)		+= rtl8xxxu/
+ obj-$(CONFIG_RTW88)		+= rtw88/
+ obj-$(CONFIG_RTW89)		+= rtw89/
++obj-$(CONFIG_RTL8188EU)		+= rtl8188eu/
+ 
+diff -rupN old/linux-6.6/drivers/pps/clients/pps-gpio.c linux-6.6/drivers/pps/clients/pps-gpio.c
+--- old/linux-6.6/drivers/pps/clients/pps-gpio.c
++++ linux-6.6/drivers/pps/clients/pps-gpio.c
+@@ -113,6 +113,9 @@ static int pps_gpio_setup(struct device
+ 	data->assert_falling_edge =
+ 		device_property_read_bool(dev, "assert-falling-edge");
+ 
++	data->capture_clear =
++		device_property_read_bool(dev, "capture-clear");
++
+ 	data->echo_pin = devm_gpiod_get_optional(dev, "echo", GPIOD_OUT_LOW);
+ 	if (IS_ERR(data->echo_pin))
+ 		return dev_err_probe(dev, PTR_ERR(data->echo_pin),
+diff -rupN old/linux-6.6/drivers/usb/chipidea/ci_hdrc_usb2.c linux-6.6/drivers/usb/chipidea/ci_hdrc_usb2.c
+--- old/linux-6.6/drivers/usb/chipidea/ci_hdrc_usb2.c
++++ linux-6.6/drivers/usb/chipidea/ci_hdrc_usb2.c
+@@ -65,6 +65,14 @@ static int ci_hdrc_usb2_probe(struct pla
+ 	if (match && match->data) {
+ 		/* struct copy */
+ 		*ci_pdata = *(struct ci_hdrc_platform_data *)match->data;
++		if (of_device_is_compatible(pdev->dev.of_node,
++					    "xlnx,zynq-usb-2.20a")) {
++			ci_pdata->usb_phy = devm_usb_get_phy_by_phandle(dev,
++									"usb-phy",
++									0);
++			if (IS_ERR(ci_pdata->usb_phy))
++				return PTR_ERR(ci_pdata->usb_phy);
++		}
+ 	}
+ 
+ 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+diff -rupN old/linux-6.6/drivers/usb/chipidea/udc.c linux-6.6/drivers/usb/chipidea/udc.c
+--- old/linux-6.6/drivers/usb/chipidea/udc.c
++++ linux-6.6/drivers/usb/chipidea/udc.c
+@@ -688,7 +688,8 @@ static int _hardware_dequeue(struct ci_h
+ 		if ((TD_STATUS_ACTIVE & tmptoken) != 0) {
+ 			int n = hw_ep_bit(hwep->num, hwep->dir);
+ 
+-			if (ci->rev == CI_REVISION_24)
++			if (ci->rev == CI_REVISION_24 ||
++			    ci->rev == CI_REVISION_22)
+ 				if (!hw_read(ci, OP_ENDPTSTAT, BIT(n)))
+ 					reprime_dtd(ci, hwep, node);
+ 			hwreq->req.status = -EALREADY;
+diff -rupN old/linux-6.6/drivers/usb/phy/Kconfig linux-6.6/drivers/usb/phy/Kconfig
+--- old/linux-6.6/drivers/usb/phy/Kconfig
++++ linux-6.6/drivers/usb/phy/Kconfig
+@@ -160,7 +160,7 @@ config USB_TEGRA_PHY
+ 
+ config USB_ULPI
+ 	bool "Generic ULPI Transceiver Driver"
+-	depends on ARM || ARM64 || COMPILE_TEST
++	depends on ARM || ARM64 || COMPILE_TEST || USB_PHY
+ 	select USB_ULPI_VIEWPORT
+ 	help
+ 	  Enable this to support ULPI connected USB OTG transceivers which
+diff -rupN old/linux-6.6/drivers/usb/phy/phy-ulpi.c linux-6.6/drivers/usb/phy/phy-ulpi.c
+--- old/linux-6.6/drivers/usb/phy/phy-ulpi.c
++++ linux-6.6/drivers/usb/phy/phy-ulpi.c
+@@ -13,9 +13,16 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/export.h>
++#include <linux/module.h>
++#include <linux/io.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
+ #include <linux/usb.h>
+ #include <linux/usb/otg.h>
+ #include <linux/usb/ulpi.h>
++#include <linux/usb/phy.h>
+ 
+ 
+ struct ulpi_info {
+@@ -39,6 +46,13 @@ static struct ulpi_info ulpi_ids[] = {
+ 	ULPI_INFO(ULPI_ID(0x0451, 0x1507), "TI TUSB1210"),
+ };
+ 
++struct ulpi_phy {
++	struct usb_phy	*usb_phy;
++	void __iomem *regs;
++	unsigned int vp_offset;
++	unsigned int flags;
++};
++
+ static int ulpi_set_otg_flags(struct usb_phy *phy)
+ {
+ 	unsigned int flags = ULPI_OTG_CTRL_DP_PULLDOWN |
+@@ -240,6 +254,23 @@ static int ulpi_set_vbus(struct usb_otg
+ 	return usb_phy_io_write(phy, flags, ULPI_OTG_CTRL);
+ }
+ 
++static int usbphy_set_vbus(struct usb_phy *phy, int on)
++{
++	unsigned int flags = usb_phy_io_read(phy, ULPI_OTG_CTRL);
++
++	flags &= ~(ULPI_OTG_CTRL_DRVVBUS | ULPI_OTG_CTRL_DRVVBUS_EXT);
++
++	if (on) {
++		if (phy->flags & ULPI_OTG_DRVVBUS)
++			flags |= ULPI_OTG_CTRL_DRVVBUS;
++
++		if (phy->flags & ULPI_OTG_DRVVBUS_EXT)
++			flags |= ULPI_OTG_CTRL_DRVVBUS_EXT;
++	}
++
++	return usb_phy_io_write(phy, flags, ULPI_OTG_CTRL);
++}
++
+ static void otg_ulpi_init(struct usb_phy *phy, struct usb_otg *otg,
+ 			  struct usb_phy_io_ops *ops,
+ 			  unsigned int flags)
+@@ -249,6 +280,7 @@ static void otg_ulpi_init(struct usb_phy
+ 	phy->io_ops	= ops;
+ 	phy->otg	= otg;
+ 	phy->init	= ulpi_init;
++	phy->set_vbus	= usbphy_set_vbus;
+ 
+ 	otg->usb_phy	= phy;
+ 	otg->set_host	= ulpi_set_host;
+@@ -301,3 +333,69 @@ devm_otg_ulpi_create(struct device *dev,
+ 	return phy;
+ }
+ EXPORT_SYMBOL_GPL(devm_otg_ulpi_create);
++
++static int ulpi_phy_probe(struct platform_device *pdev)
++{
++	struct device_node *np = pdev->dev.of_node;
++	struct resource *res;
++	struct ulpi_phy *uphy;
++	int ret;
++
++	uphy = devm_kzalloc(&pdev->dev, sizeof(*uphy), GFP_KERNEL);
++	if (!uphy)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res) {
++		dev_err(&pdev->dev, "no phy I/O memory resource defined\n");
++		return -ENODEV;
++	}
++
++	uphy->regs = devm_ioremap(&pdev->dev, res->start, resource_size(res));
++	if (IS_ERR(uphy->regs))
++		return PTR_ERR(uphy->regs);
++
++	if (of_property_read_bool(np, "external-drv-vbus") ||
++	    of_property_read_bool(np, "drv-vbus"))
++		uphy->flags |= ULPI_OTG_DRVVBUS | ULPI_OTG_DRVVBUS_EXT;
++
++	ret = of_property_read_u32(np, "view-port", &uphy->vp_offset);
++	if (ret)
++		return ret;
++
++	uphy->usb_phy = otg_ulpi_create(&ulpi_viewport_access_ops, uphy->flags);
++	if (!uphy->usb_phy) {
++		dev_err(&pdev->dev, "Failed to create ULPI OTG\n");
++		return -ENOMEM;
++	}
++
++	uphy->usb_phy->dev = &pdev->dev;
++	uphy->usb_phy->io_priv = uphy->regs + uphy->vp_offset;
++	return usb_add_phy_dev(uphy->usb_phy);
++}
++
++static void ulpi_phy_remove(struct platform_device *pdev)
++{
++	struct ulpi_phy *uphy = platform_get_drvdata(pdev);
++
++	usb_remove_phy(uphy->usb_phy);
++}
++
++static const struct of_device_id ulpi_phy_table[] = {
++	{ .compatible = "ulpi-phy" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ulpi_phy_table);
++
++static struct platform_driver ulpi_phy_driver = {
++	.probe		= ulpi_phy_probe,
++	.remove_new	= ulpi_phy_remove,
++	.driver		= {
++		.name	= "ulpi-phy",
++		.of_match_table = ulpi_phy_table,
++	},
++};
++module_platform_driver(ulpi_phy_driver);
++
++MODULE_DESCRIPTION("ULPI PHY driver");
++MODULE_LICENSE("GPL");

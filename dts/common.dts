@@ -13,6 +13,13 @@
   };
 };
 
+&gem0 {
+  phy-handle = <&ethernet_phy>;
+  ethernet_phy: ethernet-phy@1 {
+    reg = <1>;
+  };
+};
+
 &i2c0 {
   eeprom@50 {
     compatible = "24c64";

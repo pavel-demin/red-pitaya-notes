@@ -1905,7 +1905,7 @@ static void xdevcfg_fclk_init(struct device *dev)
 		}
 	}
 
-	drvdata->fclk_class = class_create(THIS_MODULE, "fclk");
+	drvdata->fclk_class = class_create("fclk");
 	if (IS_ERR(drvdata->fclk_class)) {
 		dev_warn(dev, "failed to create fclk class\n");
 		return;
@@ -2063,7 +2063,7 @@ static int xdevcfg_drv_probe(struct platform_device *pdev)
 		goto failed6;
 	}
 
-	drvdata->class = class_create(THIS_MODULE, DRIVER_NAME);
+	drvdata->class = class_create(DRIVER_NAME);
 	if (IS_ERR(drvdata->class)) {
 		dev_err(&pdev->dev, "failed to create class\n");
 		goto failed6;
