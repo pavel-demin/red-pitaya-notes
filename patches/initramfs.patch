@@ -1,6 +1,6 @@
 --- init.old
 +++ init
-@@ -610,10 +610,9 @@ fi
+@@ -715,10 +715,9 @@ fi
  
  # locate boot media and mount it
  ebegin "Mounting boot media"
