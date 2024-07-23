@@ -1,4 +1,5 @@
-alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.20
+#alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.20
+alpine_url=${alpine_url:-http://mirrors.tuna.tsinghua.edu.cn/alpine/v3.20}
 
 tools_tar=apk-tools-static-2.14.4-r0.apk
 tools_url=$alpine_url/main/armv7/$tools_tar
@@ -62,7 +63,7 @@ cp -r alpine/apps $root_dir/media/mmcblk0p1/
 
 projects="common_tools led_blinker mcpha playground pulsed_nmr sdr_receiver sdr_receiver_hpsdr sdr_receiver_wide sdr_transceiver sdr_transceiver_ft8 sdr_transceiver_hpsdr sdr_transceiver_wide sdr_transceiver_wspr vna"
 
-projects_122_88="led_blinker_122_88 pulsed_nmr_122_88 sdr_receiver_122_88 sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 vna_122_88"
+#projects_122_88="led_blinker_122_88 pulsed_nmr_122_88 sdr_receiver_122_88 sdr_receiver_hpsdr_122_88 sdr_receiver_wide_122_88 sdr_transceiver_122_88 sdr_transceiver_ft8_122_88 sdr_transceiver_hpsdr_122_88 sdr_transceiver_wspr_122_88 vna_122_88"
 
 for p in $projects $projects_122_88
 do
