@@ -38,6 +38,21 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant const_0
 
+cell xilinx.com:ip:xlconstant const_adc_dummy_b {
+  CONST_WIDTH 16
+  CONST_VAL 0
+}
+
+cell xilinx.com:ip:xlconstant const_adc_ditch {
+  CONST_WIDTH 1
+  CONST_VAL 0
+}
+
+cell xilinx.com:ip:xlconstant const_adc_pga {
+  CONST_WIDTH 1
+  CONST_VAL 0
+}
+
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
@@ -53,27 +68,9 @@ cell pavel-demin:user:axis_red_pitaya_adc adc_0 {
 } {
   aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
-  adc_dat_b adc_dat_b_i
-  adc_csn adc_csn_o
+  adc_dat_b const_adc_dummy_b/dout
 }
 
-# DAC
-
-# Create axis_red_pitaya_dac
-cell pavel-demin:user:axis_red_pitaya_dac dac_0 {
-  DAC_DATA_WIDTH 14
-} {
-  aclk pll_0/clk_out1
-  ddr_clk pll_0/clk_out2
-  wrt_clk pll_0/clk_out3
-  locked pll_0/locked
-  dac_clk dac_clk_o
-  dac_rst dac_rst_o
-  dac_sel dac_sel_o
-  dac_wrt dac_wrt_o
-  dac_dat dac_dat_o
-  s_axis_tvalid const_0/dout
-}
 
 # HUB
 
@@ -319,37 +316,6 @@ cell pavel-demin:user:axis_ram_writer writer_0 {
   aresetn slice_1/dout
 }
 
-# GEN
+wire adc_dith_o const_adc_ditch/dout
+wire adc_pga_o const_adc_pga/dout
 
-for {set i 0} {$i <= 1} {incr i} {
-
-  # Create port_slicer
-  cell pavel-demin:user:port_slicer slice_[expr $i + 8] {
-    DIN_WIDTH 224 DIN_FROM [expr 16 * $i + 207] DIN_TO [expr 16 * $i + 192]
-  } {
-    din hub_0/cfg_data
-  }
-
-  # Create dsp48
-  cell pavel-demin:user:dsp48 mult_[expr $i + 4] {
-    A_WIDTH 24
-    B_WIDTH 16
-    P_WIDTH 14
-  } {
-    A dds_[expr $i + 2]/m_axis_data_tdata
-    B slice_[expr $i + 8]/dout
-    CLK pll_0/clk_out1
-  }
-
-}
-
-# Create xlconcat
-cell xilinx.com:ip:xlconcat concat_0 {
-  NUM_PORTS 2
-  IN0_WIDTH 16
-  IN1_WIDTH 16
-} {
-  In0 mult_4/P
-  In1 mult_5/P
-  dout dac_0/s_axis_tdata
-}

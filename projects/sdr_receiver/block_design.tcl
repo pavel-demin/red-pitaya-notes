@@ -39,6 +39,11 @@ cell xilinx.com:ip:xlconstant const_adc_ditch {
   CONST_VAL 0
 }
 
+cell xilinx.com:ip:xlconstant const_adc_pga {
+  CONST_WIDTH 1
+  CONST_VAL 0
+}
+
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
@@ -66,4 +71,5 @@ module rx_0 {
 }
 
 wire adc_dith_o const_adc_ditch/dout
+wire adc_pga_o const_adc_pga/dout
 
