@@ -64,7 +64,7 @@ create_bd_port -dir I -from 2 -to 0 exp_n_tri_io
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer pps_slice_0 {
-  DIN_WIDTH 1 DIN_FROM 1 DIN_TO 1
+  DIN_WIDTH 1 DIN_FROM 0 DIN_TO 0
 } {
   din /pps_i
   dout /ps_0/GPIO_I
