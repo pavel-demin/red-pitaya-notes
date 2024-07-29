@@ -34,7 +34,7 @@ cell pavel-demin:user:port_slicer cfg_slice_0 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer led_slice_0 {
-  DIN_WIDTH 64 DIN_FROM 23 DIN_TO 16
+  DIN_WIDTH 64 DIN_FROM 16 DIN_TO 16
 } {
   din hub_0/cfg_data
   dout /led_o
@@ -46,11 +46,11 @@ cell pavel-demin:user:port_slicer led_slice_0 {
 delete_bd_objs [get_bd_ports /exp_p_tri_io]
 
 # Create output port
-create_bd_port -dir O -from 7 -to 0 exp_p_tri_io
+create_bd_port -dir O -from 2 -to 0 exp_p_tri_io
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer out_slice_0 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 24
+  DIN_WIDTH 64 DIN_FROM 26 DIN_TO 24
 } {
   din hub_0/cfg_data
   dout /exp_p_tri_io
@@ -60,13 +60,13 @@ cell pavel-demin:user:port_slicer out_slice_0 {
 delete_bd_objs [get_bd_ports /exp_n_tri_io]
 
 # Create input port
-create_bd_port -dir I -from 3 -to 0 exp_n_tri_io
+create_bd_port -dir I -from 2 -to 0 exp_n_tri_io
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer pps_slice_0 {
-  DIN_WIDTH 4 DIN_FROM 3 DIN_TO 3
+  DIN_WIDTH 1 DIN_FROM 1 DIN_TO 1
 } {
-  din /exp_n_tri_io
+  din /pps_i
   dout /ps_0/GPIO_I
 }
 

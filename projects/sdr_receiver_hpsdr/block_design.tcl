@@ -29,6 +29,21 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant const_0
 
+cell xilinx.com:ip:xlconstant const_adc_dummy_b {
+  CONST_WIDTH 16
+  CONST_VAL 0
+}
+
+cell xilinx.com:ip:xlconstant const_adc_ditch {
+  CONST_WIDTH 1
+  CONST_VAL 0
+}
+
+cell xilinx.com:ip:xlconstant const_adc_pga {
+  CONST_WIDTH 1
+  CONST_VAL 0
+}
+
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
   ext_reset_in const_0/dout
@@ -44,8 +59,7 @@ cell pavel-demin:user:axis_red_pitaya_adc adc_0 {
 } {
   aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
-  adc_dat_b adc_dat_b_i
-  adc_csn adc_csn_o
+  adc_dat_b const_adc_dummy_b/dout
 }
 
 # RX 0
@@ -55,3 +69,7 @@ module rx_0 {
 } {
   hub_0/S_AXI ps_0/M_AXI_GP0
 }
+
+wire adc_dith_o const_adc_ditch/dout
+wire adc_pga_o const_adc_pga/dout
+
