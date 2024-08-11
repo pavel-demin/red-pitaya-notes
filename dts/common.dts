@@ -29,14 +29,6 @@
   };
 };
 
-&spi1 {
-  spidev@0 {
-    compatible = "ltc2488";
-    reg = <0x0>;
-    spi-max-frequency = <10000000>;
-  };
-};
-
 &usb0 {
   dr_mode = "host";
   usb-phy = <&usb_phy0>;

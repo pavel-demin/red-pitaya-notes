@@ -24,8 +24,6 @@
   <set param="PCW::SD0::GRP_CD::IO" value="MIO 46" />
   <set param="PCW::SD0::GRP_WP::IO" value="MIO 47" />
   <set param="PCW::SPI0::PERIPHERAL::ENABLE" value="1" />
-  <set param="PCW::SPI1::PERIPHERAL::ENABLE" value="1" />
-  <set param="PCW::SPI1::SPI1::IO" value="MIO 10 .. 15" />
   <set param="PCW::PRESET::BANK0::VOLTAGE" value="LVCMOS 3.3V" />
   <set param="PCW::PRESET::BANK1::VOLTAGE" value="LVCMOS 2.5V" />
   <set param="PCW::UIPARAM::DDR::PARTNO" value="MT41J256M16 RE-125" />
