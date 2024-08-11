@@ -19,20 +19,122 @@ volatile uint32_t *rx_freq;
 volatile uint16_t *rx_rate, *rx_cntr;
 volatile uint8_t *rx_rst;
 volatile uint8_t *rx_data;
+volatile uint8_t *rx_adc_set;
 
 const uint32_t freq_min = 0;
 const uint32_t freq_max = 61440000;
 
 int receivers = 1;
-
 int sock_ep2;
 struct sockaddr_in addr_ep6;
 
 int enable_thread = 0;
 int active_thread = 0;
 
+uint8_t att_cal;
+uint8_t att_tmp = 0;
+
+uint8_t adc_reg;
+uint8_t adc_reg_tmp = 0;
+
 void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
+
+
+//************ADC Att Driver***********
+#define GPIO_BASE_ADDR  512
+#define ATTN_DATA_ADDR  11
+#define ATTN_CLK_ADDR   13
+#define ATTN_LE_ADDR    12
+
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+#define OUTPUT "out"
+#define LOW "0"
+#define HIGH "1"
+
+void pinMode(uint32_t pin_num, char mode[]) {
+	FILE *sysfs_export;
+	FILE *sysfs_direction;
+	char path[40] = "";
+  char pin[10];
+  sprintf(pin,"%d",pin_num);
+	sysfs_export = fopen("/sys/class/gpio/export", "w");
+	fwrite(pin, 1, sizeof(pin), sysfs_export);
+	fclose(sysfs_export);
+	
+	strcpy(path, "/sys/class/gpio/gpio");
+	strcat(path, pin);
+	strcat(path, "/direction");
+
+	sysfs_direction = fopen(path, "w");
+	fwrite(mode, 1, sizeof(mode), sysfs_direction);
+	fclose(sysfs_direction);
+}
+
+void digitalWrite(uint32_t pin_num, char value[]) {
+	char path[40];
+	FILE *sysfs_value;
+  char pin[10];
+  sprintf(pin,"%d",pin_num);
+	strcpy(path, "/sys/class/gpio/gpio");
+	strcat(path, pin);
+	strcat(path, "/value");
+
+	sysfs_value = fopen(path, "w");
+	fwrite(value, 1, sizeof(value), sysfs_value);
+	fclose(sysfs_value);	
+}
+
+void cleanUp(char pin[]) {
+	FILE *sysfs_unexport;
+	sysfs_unexport = fopen("/sys/class/gpio/unexport", "w");
+	fwrite(pin, 1, sizeof(pin), sysfs_unexport);
+	fclose(sysfs_unexport);
+}
+
+int att_initial()
+{
+    pinMode((GPIO_BASE_ADDR + ATTN_DATA_ADDR),OUTPUT);
+    pinMode((GPIO_BASE_ADDR + ATTN_CLK_ADDR),OUTPUT);
+    pinMode((GPIO_BASE_ADDR + ATTN_LE_ADDR),OUTPUT);
+    pinMode((GPIO_BASE_ADDR + 7),OUTPUT);
+    printf("ATT init success\n");
+}     
+
+int set_att_value(uint8_t att_val)
+{
+    uint8_t loop_cnt;
+    digitalWrite((GPIO_BASE_ADDR + ATTN_CLK_ADDR),LOW);
+    digitalWrite((GPIO_BASE_ADDR + ATTN_LE_ADDR),LOW);
+    printf("PE4312 data is \n");
+    for(loop_cnt = 0;loop_cnt < 6; loop_cnt ++ )
+    {
+        if((att_val>> (5 - loop_cnt)) & 0x01 == 0x01)
+        {
+            digitalWrite((GPIO_BASE_ADDR + ATTN_DATA_ADDR),HIGH);
+            printf("1");
+        }
+        else
+        {
+            digitalWrite((GPIO_BASE_ADDR + ATTN_DATA_ADDR),LOW);
+            printf("0");
+        }
+        usleep(5);
+        digitalWrite((GPIO_BASE_ADDR + ATTN_CLK_ADDR),HIGH);
+        usleep(5);
+	      digitalWrite((GPIO_BASE_ADDR + ATTN_CLK_ADDR),LOW);
+    }
+    printf("\n");
+    usleep(50);
+    digitalWrite((GPIO_BASE_ADDR + ATTN_LE_ADDR),HIGH);
+    usleep(50);
+    //digitalWrite((GPIO_BASE_ADDR + ATTN_LE_ADDR),LOW);
+    printf("ATT set to %d success",att_val);
+    return 0; 
+}
 
 int main(int argc, char *argv[])
 {
@@ -43,7 +145,7 @@ int main(int argc, char *argv[])
   volatile uint8_t *rx_sel;
   char *end;
   uint8_t buffer[1032];
-  uint8_t reply[20] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1, 'R', '_', 'P', 'I', 'T', 'A', 'Y', 'A', 8};
+  uint8_t reply[20] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 25, 1, 'W', 'E', 'B', '-', '8', '8', '8', ' ', 8};
   uint32_t code;
   struct ifreq hwaddr;
   struct sockaddr_in addr_ep2, addr_from;
@@ -52,17 +154,7 @@ int main(int argc, char *argv[])
   uint8_t chan = 0;
   long number;
 
-  for(i = 0; i < 8; ++i)
-  {
-    errno = 0;
-    number = (argc == 10) ? strtol(argv[i + 2], &end, 10) : -1;
-    if(errno != 0 || end == argv[i + 2] || number < 1 || number > 2)
-    {
-      fprintf(stderr, "Usage: sdr-receiver-hpsdr interface 1|2 1|2 1|2 1|2 1|2 1|2 1|2 1|2\n");
-      return EXIT_FAILURE;
-    }
-    chan |= (number - 1) << i;
-  }
+  att_initial();
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
@@ -70,21 +162,14 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  if(strcmp(argv[1], "eth0") == 0)
-  {
+
     cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
     sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x41000000);
-    rx_data = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
-  }
-  else
-  {
-    cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x80000000);
-    sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x81000000);
-    rx_data = mmap(NULL, 32*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x82000000);
-  }
+    rx_data = mmap(NULL, 12*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
+
 
   rx_rst = (uint8_t *)(cfg + 0);
-  rx_sel = (uint8_t *)(cfg + 1);
+  rx_adc_set = (uint8_t *)(cfg + 1);
   rx_rate = (uint16_t *)(cfg + 2);
   rx_freq = (uint32_t *)(cfg + 4);
 
@@ -99,7 +184,7 @@ int main(int argc, char *argv[])
   /* set default rx sample rate */
   *rx_rate = 1280;
 
-  *rx_sel = chan;
+  *rx_adc_set = 0;
 
   if((sock_ep2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
   {
@@ -108,17 +193,11 @@ int main(int argc, char *argv[])
   }
 
   memset(&hwaddr, 0, sizeof(hwaddr));
-  strncpy(hwaddr.ifr_name, argv[1], IFNAMSIZ - 1);
+  
   ioctl(sock_ep2, SIOCGIFHWADDR, &hwaddr);
   for(i = 0; i < 6; ++i) reply[i + 3] = hwaddr.ifr_addr.sa_data[i];
 
   setsockopt(sock_ep2, SOL_SOCKET, SO_REUSEADDR, (void *)&yes , sizeof(yes));
-
-  if(setsockopt(sock_ep2, SOL_SOCKET, SO_BINDTODEVICE, argv[1], strlen(argv[1]) + 1) < 0)
-  {
-    perror("SO_BINDTODEVICE");
-    return EXIT_FAILURE;
-  }
 
   memset(&addr_ep2, 0, sizeof(addr_ep2));
   addr_ep2.sin_family = AF_INET;
@@ -187,13 +266,21 @@ int main(int argc, char *argv[])
 void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
-
+  
   switch(frame[0])
   {
     case 0:
     case 1:
       receivers = ((frame[4] >> 3) & 7) + 1;
-
+      
+      adc_reg = (frame[3] >> 2) & 0x03;
+      if(adc_reg != adc_reg_tmp)
+      {
+        adc_reg_tmp = adc_reg;
+        *rx_adc_set = adc_reg;
+        printf("Set adc reg to %d\n",adc_reg);
+      }
+       
       /* set rx sample rate */
       switch(frame[1] & 3)
       {
@@ -260,6 +347,16 @@ void process_ep2(uint8_t *frame)
       if(freq < freq_min || freq > freq_max) break;
       rx_freq[6] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
       break;
+    case 20:
+    case 21:
+      att_cal = frame[4] & 0x1f;
+      if(att_cal != att_tmp)
+      {
+        att_tmp = att_cal;
+        set_att_value(att_cal * 2);
+	      printf("set att to %d !\n",att_cal);
+      }
+      break;
     case 36:
     case 37:
       /* set rx phase increment */
@@ -315,7 +412,7 @@ void *handler_ep6(void *arg)
 
     size = receivers * 6 + 2;
     n = 504 / size;
-    m = 256 / n;
+    m = 128 / n;
 
     if(*rx_cntr >= 2048)
     {
@@ -325,7 +422,7 @@ void *handler_ep6(void *arg)
 
     while(*rx_cntr < m * n * 2) usleep(1000);
 
-    memcpy(data, rx_data, m * n * 96);
+    memcpy(data, rx_data, m * n * 72);
 
     data_offset = 0;
     for(i = 0; i < m; ++i)
@@ -345,7 +442,7 @@ void *handler_ep6(void *arg)
       for(j = 0; j < n; ++j)
       {
         memcpy(pointer, data + data_offset, size - 2);
-        data_offset += 48;
+        data_offset += 36;
         pointer += size;
       }
     }

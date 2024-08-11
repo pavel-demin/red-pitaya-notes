@@ -21,22 +21,27 @@ cell pavel-demin:user:port_slicer slice_1 {
   din hub_0/cfg_data
 }
 
-for {set i 0} {$i <= 7} {incr i} {
-
-  # Create port_slicer
-  cell pavel-demin:user:port_slicer slice_[expr $i + 2] {
-    DIN_WIDTH 288 DIN_FROM [expr $i + 8] DIN_TO [expr $i + 8]
+  # Create adc port_slicer
+  cell pavel-demin:user:port_slicer slice_adc {
+    DIN_WIDTH 32 DIN_FROM 15 DIN_TO 0
+  } {
+    din /adc_0/m_axis_tdata
+  }
+  
+  # Create adc config port_slicer
+  cell pavel-demin:user:port_slicer slice_adc_pga {
+    DIN_WIDTH 288 DIN_FROM 8 DIN_TO 8
   } {
     din hub_0/cfg_data
   }
 
-  # Create port_selector
-  cell pavel-demin:user:port_selector selector_$i {
-    DOUT_WIDTH 16
+  cell pavel-demin:user:port_slicer slice_adc_dith {
+    DIN_WIDTH 288 DIN_FROM 9 DIN_TO 9
   } {
-    cfg slice_[expr $i + 2]/dout
-    din /adc_0/m_axis_tdata
+    din hub_0/cfg_data
   }
+
+for {set i 0} {$i <= 5} {incr i} {
 
   # Create port_slicer
   cell pavel-demin:user:port_slicer slice_[expr $i + 10] {
@@ -74,7 +79,7 @@ for {set i 0} {$i <= 7} {incr i} {
 # Create xlconstant
 cell xilinx.com:ip:xlconstant const_0
 
-for {set i 0} {$i <= 15} {incr i} {
+for {set i 0} {$i <= 11} {incr i} {
 
   # Create port_slicer
   cell pavel-demin:user:port_slicer dds_slice_$i {
@@ -90,7 +95,7 @@ for {set i 0} {$i <= 15} {incr i} {
     P_WIDTH 24
   } {
     A dds_slice_$i/dout
-    B selector_[expr $i / 2]/dout
+    B slice_adc/dout
     CLK /pll_0/clk_out1
   }
 
@@ -133,7 +138,7 @@ for {set i 0} {$i <= 15} {incr i} {
 cell  xilinx.com:ip:axis_combiner comb_0 {
   TDATA_NUM_BYTES.VALUE_SRC USER
   TDATA_NUM_BYTES 4
-  NUM_SI 16
+  NUM_SI 12
 } {
   S00_AXIS cic_0/M_AXIS_DATA
   S01_AXIS cic_1/M_AXIS_DATA
@@ -147,10 +152,6 @@ cell  xilinx.com:ip:axis_combiner comb_0 {
   S09_AXIS cic_9/M_AXIS_DATA
   S10_AXIS cic_10/M_AXIS_DATA
   S11_AXIS cic_11/M_AXIS_DATA
-  S12_AXIS cic_12/M_AXIS_DATA
-  S13_AXIS cic_13/M_AXIS_DATA
-  S14_AXIS cic_14/M_AXIS_DATA
-  S15_AXIS cic_15/M_AXIS_DATA
   aclk /pll_0/clk_out1
   aresetn /rst_0/peripheral_aresetn
 }
@@ -158,7 +159,7 @@ cell  xilinx.com:ip:axis_combiner comb_0 {
 # Create axis_dwidth_converter
 cell xilinx.com:ip:axis_dwidth_converter conv_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 64
+  S_TDATA_NUM_BYTES 48
   M_TDATA_NUM_BYTES 4
 } {
   S_AXIS comb_0/M_AXIS
@@ -176,7 +177,7 @@ cell xilinx.com:ip:fir_compiler fir_0 {
   BESTPRECISION true
   FILTER_TYPE Decimation
   DECIMATION_RATE 2
-  NUMBER_CHANNELS 16
+  NUMBER_CHANNELS 12
   NUMBER_PATHS 1
   SAMPLE_FREQUENCY 0.768
   CLOCK_FREQUENCY 122.88
@@ -193,7 +194,7 @@ cell xilinx.com:ip:fir_compiler fir_0 {
 cell xilinx.com:ip:axis_dwidth_converter conv_1 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   S_TDATA_NUM_BYTES 4
-  M_TDATA_NUM_BYTES 64
+  M_TDATA_NUM_BYTES 48
 } {
   S_AXIS fir_0/M_AXIS_DATA
   aclk /pll_0/clk_out1
@@ -204,9 +205,9 @@ cell xilinx.com:ip:axis_dwidth_converter conv_1 {
 cell xilinx.com:ip:axis_subset_converter subset_0 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
   M_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 64
-  M_TDATA_NUM_BYTES 48
-  TDATA_REMAP {tdata[455:448],tdata[463:456],tdata[471:464],tdata[487:480],tdata[495:488],tdata[503:496],tdata[391:384],tdata[399:392],tdata[407:400],tdata[423:416],tdata[431:424],tdata[439:432],tdata[327:320],tdata[335:328],tdata[343:336],tdata[359:352],tdata[367:360],tdata[375:368],tdata[263:256],tdata[271:264],tdata[279:272],tdata[295:288],tdata[303:296],tdata[311:304],tdata[199:192],tdata[207:200],tdata[215:208],tdata[231:224],tdata[239:232],tdata[247:240],tdata[135:128],tdata[143:136],tdata[151:144],tdata[167:160],tdata[175:168],tdata[183:176],tdata[71:64],tdata[79:72],tdata[87:80],tdata[103:96],tdata[111:104],tdata[119:112],tdata[7:0],tdata[15:8],tdata[23:16],tdata[39:32],tdata[47:40],tdata[55:48]}
+  S_TDATA_NUM_BYTES 48
+  M_TDATA_NUM_BYTES 36
+  TDATA_REMAP {tdata[327:320],tdata[335:328],tdata[343:336],tdata[359:352],tdata[367:360],tdata[375:368],tdata[263:256],tdata[271:264],tdata[279:272],tdata[295:288],tdata[303:296],tdata[311:304],tdata[199:192],tdata[207:200],tdata[215:208],tdata[231:224],tdata[239:232],tdata[247:240],tdata[135:128],tdata[143:136],tdata[151:144],tdata[167:160],tdata[175:168],tdata[183:176],tdata[71:64],tdata[79:72],tdata[87:80],tdata[103:96],tdata[111:104],tdata[119:112],tdata[7:0],tdata[15:8],tdata[23:16],tdata[39:32],tdata[47:40],tdata[55:48]}
 } {
   S_AXIS conv_1/M_AXIS
   aclk /pll_0/clk_out1
@@ -215,8 +216,8 @@ cell xilinx.com:ip:axis_subset_converter subset_0 {
 
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo fifo_0 {
-  S_AXIS_TDATA_WIDTH 384
-  M_AXIS_TDATA_WIDTH 384
+  S_AXIS_TDATA_WIDTH 288
+  M_AXIS_TDATA_WIDTH 288
   WRITE_DEPTH 2048
   ALWAYS_READY TRUE
 } {
@@ -229,7 +230,7 @@ cell pavel-demin:user:axis_fifo fifo_0 {
 # Create axis_dwidth_converter
 cell xilinx.com:ip:axis_dwidth_converter conv_2 {
   S_TDATA_NUM_BYTES.VALUE_SRC USER
-  S_TDATA_NUM_BYTES 48
+  S_TDATA_NUM_BYTES 36
   M_TDATA_NUM_BYTES 4
 } {
   S_AXIS fifo_0/M_AXIS
