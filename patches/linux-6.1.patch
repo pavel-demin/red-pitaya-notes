@@ -107,6 +107,7 @@ diff -rupN old/linux-6.1/drivers/char/Makefile linux-6.1/drivers/char/Makefile
  obj-$(CONFIG_POWERNV_OP_PANEL)	+= powernv-op-panel.o
  obj-$(CONFIG_ADI)		+= adi.o
 +obj-$(CONFIG_DEVCMA)		+= cma.o
++obj-$(CONFIG_WEB888)		+= web888_kernel.o
 +obj-$(CONFIG_XILINX_DEVCFG)	+= xilinx_devcfg.o
 diff -rupN old/linux-6.1/drivers/net/phy/intel-xway.c linux-6.1/drivers/net/phy/intel-xway.c
 --- old/linux-6.1/drivers/net/phy/intel-xway.c
