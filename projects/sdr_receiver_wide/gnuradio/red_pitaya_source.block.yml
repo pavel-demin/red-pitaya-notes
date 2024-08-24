@@ -1,5 +1,5 @@
 id: red_pitaya_source
-label: Red Pitaya Source
+label: Web888 Source
 category: Red Pitaya
 
 parameters:
@@ -15,17 +15,21 @@ parameters:
     label: Sample Rate
     dtype: int
     default: 500000
-  - id: freq1
-    label: Center Frequency 1
-    dtype: real
-    default: 10000000
-  - id: freq2
-    label: Center Frequency 2
+  - id: freq
+    label: Center Frequency
     dtype: real
     default: 10000000
   - id: corr
     label: Freq. Correction ppm
     dtype: real
+    default: 0
+  - id: attu
+    label: Set RF gain （+10db -21db）
+    dtype: int
+    default: 0
+  - id: pga
+    label: ADC PGA Switch (3db)
+    dtype: int
     default: 0
 
 outputs:
@@ -34,10 +38,11 @@ outputs:
 
 templates:
   imports: import red_pitaya
-  make: red_pitaya.source(${addr}, ${port}, ${rate}, ${freq1}, ${freq2}, ${corr})
+  make: red_pitaya.source(${addr}, ${port}, ${rate}, ${freq}, ${corr} ,${attu},${pga})
   callbacks:
     - set_rate(${rate})
-    - set_freq1(${freq1}, ${corr})
-    - set_freq2(${freq2}, ${corr})
+    - set_freq(${freq}, ${corr})
+    - set_attu(${attu})
+    - set_pga(${pga})
 
 file_format: 1
