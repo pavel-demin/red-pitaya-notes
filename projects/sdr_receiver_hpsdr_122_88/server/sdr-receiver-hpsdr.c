@@ -14,6 +14,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <net/if.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 volatile uint32_t *rx_freq;
 volatile uint16_t *rx_rate, *rx_cntr;
@@ -40,100 +42,22 @@ uint8_t adc_reg_tmp = 0;
 void process_ep2(uint8_t *frame);
 void *handler_ep6(void *arg);
 
-
-//************ADC Att Driver***********
-#define GPIO_BASE_ADDR  512
-#define ATTN_DATA_ADDR  11
-#define ATTN_CLK_ADDR   13
-#define ATTN_LE_ADDR    12
-
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-
 #define OUTPUT "out"
 #define LOW "0"
 #define HIGH "1"
 
-void pinMode(uint32_t pin_num, char mode[]) {
-	FILE *sysfs_export;
-	FILE *sysfs_direction;
-	char path[40] = "";
-  char pin[10];
-  sprintf(pin,"%d",pin_num);
-	sysfs_export = fopen("/sys/class/gpio/export", "w");
-	fwrite(pin, 1, sizeof(pin), sysfs_export);
-	fclose(sysfs_export);
-	
-	strcpy(path, "/sys/class/gpio/gpio");
-	strcat(path, pin);
-	strcat(path, "/direction");
-
-	sysfs_direction = fopen(path, "w");
-	fwrite(mode, 1, sizeof(mode), sysfs_direction);
-	fclose(sysfs_direction);
-}
-
-void digitalWrite(uint32_t pin_num, char value[]) {
-	char path[40];
-	FILE *sysfs_value;
-  char pin[10];
-  sprintf(pin,"%d",pin_num);
-	strcpy(path, "/sys/class/gpio/gpio");
-	strcat(path, pin);
-	strcat(path, "/value");
-
-	sysfs_value = fopen(path, "w");
-	fwrite(value, 1, sizeof(value), sysfs_value);
-	fclose(sysfs_value);	
-}
-
-void cleanUp(char pin[]) {
-	FILE *sysfs_unexport;
-	sysfs_unexport = fopen("/sys/class/gpio/unexport", "w");
-	fwrite(pin, 1, sizeof(pin), sysfs_unexport);
-	fclose(sysfs_unexport);
-}
-
-int att_initial()
+void web888_driver_att(uint_8 att_data)
 {
-    pinMode((GPIO_BASE_ADDR + ATTN_DATA_ADDR),OUTPUT);
-    pinMode((GPIO_BASE_ADDR + ATTN_CLK_ADDR),OUTPUT);
-    pinMode((GPIO_BASE_ADDR + ATTN_LE_ADDR),OUTPUT);
-    pinMode((GPIO_BASE_ADDR + 7),OUTPUT);
-    printf("ATT init success\n");
-}     
-
-int set_att_value(uint8_t att_val)
-{
-    uint8_t loop_cnt;
-    digitalWrite((GPIO_BASE_ADDR + ATTN_CLK_ADDR),LOW);
-    digitalWrite((GPIO_BASE_ADDR + ATTN_LE_ADDR),LOW);
-    printf("PE4312 data is \n");
-    for(loop_cnt = 0;loop_cnt < 6; loop_cnt ++ )
-    {
-        if((att_val>> (5 - loop_cnt)) & 0x01 == 0x01)
-        {
-            digitalWrite((GPIO_BASE_ADDR + ATTN_DATA_ADDR),HIGH);
-            printf("1");
-        }
-        else
-        {
-            digitalWrite((GPIO_BASE_ADDR + ATTN_DATA_ADDR),LOW);
-            printf("0");
-        }
-        usleep(5);
-        digitalWrite((GPIO_BASE_ADDR + ATTN_CLK_ADDR),HIGH);
-        usleep(5);
-	      digitalWrite((GPIO_BASE_ADDR + ATTN_CLK_ADDR),LOW);
-    }
-    printf("\n");
-    usleep(50);
-    digitalWrite((GPIO_BASE_ADDR + ATTN_LE_ADDR),HIGH);
-    usleep(50);
-    //digitalWrite((GPIO_BASE_ADDR + ATTN_LE_ADDR),LOW);
-    printf("ATT set to %d success",att_val);
-    return 0; 
+    int drv;
+    char set_data[4];
+    drv = open("/dev/web888_sdr",O_RDWR);
+    read(drv,set_data,3);
+    set_data[3] = '\0';
+    printf("web888_driver read data is %s \n",set_data);
+    set_data[0] = att_data + '0';
+    write(drv,set_data,3);
+    printf("web888_driver set data %s \n",set_data);
+    close(drv);
 }
 
 int main(int argc, char *argv[])
@@ -154,7 +78,7 @@ int main(int argc, char *argv[])
   uint8_t chan = 0;
   long number;
 
-  att_initial();
+  //att_initial();
 
   if((fd = open("/dev/mem", O_RDWR)) < 0)
   {
@@ -353,7 +277,7 @@ void process_ep2(uint8_t *frame)
       if(att_cal != att_tmp)
       {
         att_tmp = att_cal;
-        set_att_value(att_cal * 2);
+        web888_driver_att(att_cal * 2);
 	      printf("set att to %d !\n",att_cal);
       }
       break;
