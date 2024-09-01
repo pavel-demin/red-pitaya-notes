@@ -11,6 +11,10 @@
     gpios = <&gpio0 54 0>;
     capture-clear;
   };
+  web888_sdr {
+    compatible = "web888,redpitaya";
+    web888-gpio = <&gpio0 10 1>,<&gpio0 49 1>,<&gpio0 13 1>,<&gpio0 11 1>,<&gpio0 12 1> ;
+  };
 };
 
 &gem0 {
