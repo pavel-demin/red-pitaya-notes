@@ -15,10 +15,8 @@ cell xilinx.com:ip:clk_wiz pll_0 {
 # Create processing_system7
 cell xilinx.com:ip:processing_system7 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
-  PCW_USE_M_AXI_GP1 1
 } {
   M_AXI_GP0_ACLK pll_0/clk_out1
-  M_AXI_GP1_ACLK pll_0/clk_out1
 }
 
 # Create all required interconnections
@@ -30,6 +28,12 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {
 
 # Create xlconstant
 cell xilinx.com:ip:xlconstant const_0
+
+cell xilinx.com:ip:xlconstant const_adc_dummy_b {
+  CONST_WIDTH 16
+  CONST_VAL 0
+}
+
 
 # Create proc_sys_reset
 cell xilinx.com:ip:proc_sys_reset rst_0 {} {
@@ -46,8 +50,7 @@ cell pavel-demin:user:axis_red_pitaya_adc adc_0 {
 } {
   aclk pll_0/clk_out1
   adc_dat_a adc_dat_a_i
-  adc_dat_b adc_dat_b_i
-  adc_csn adc_csn_o
+  adc_dat_b const_adc_dummy_b/dout
 }
 
 # RX 0
@@ -56,12 +59,8 @@ module rx_0 {
   source projects/sdr_receiver_hpsdr_122_88/rx.tcl
 } {
   hub_0/S_AXI ps_0/M_AXI_GP0
+  slice_adc_pga/dout adc_pga_o
+  slice_adc_dith/dout adc_dith_o
 }
 
-# RX 1
 
-module rx_1 {
-  source projects/sdr_receiver_hpsdr_122_88/rx.tcl
-} {
-  hub_0/S_AXI ps_0/M_AXI_GP1
-}

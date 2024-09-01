@@ -4,15 +4,20 @@ apps_dir=/media/mmcblk0p1/apps
 
 source $apps_dir/stop.sh
 
+#Check clock freq whether equal to 122.88Mhz
+
+freq=$(fw_printenv clk_freq | sed 's/[^0-9]//g')
+if [ "$freq" == "122880000" ]
+then
+  echo "Freq is 122.88Mhz, HPSDR init"
+else
+  echo "System will set to 122880000 Hz after auto reboot."
+  echo "System will reboot."
+  fw_setenv clk_freq 122880000
+  reboot
+fi
+
 cat $apps_dir/sdr_receiver_hpsdr_122_88/sdr_receiver_hpsdr_122_88.bit > /dev/xdevcfg
 
-address=`awk -F : '$5="FF"' OFS=: /sys/class/net/eth0/address`
 
-echo 2 > /proc/sys/net/ipv4/conf/all/arp_announce
-echo 1 > /proc/sys/net/ipv4/conf/all/arp_ignore
-echo 2 > /proc/sys/net/ipv4/conf/all/rp_filter
-
-ip link add mvl0 link eth0 address $address type macvlan mode passthru
-
-$apps_dir/sdr_receiver_hpsdr_122_88/sdr-receiver-hpsdr eth0 1 1 1 1 1 1 1 1 &
-$apps_dir/sdr_receiver_hpsdr_122_88/sdr-receiver-hpsdr mvl0 1 1 1 1 1 1 1 1 &
+$apps_dir/sdr_receiver_hpsdr_122_88/sdr-receiver-hpsdr
