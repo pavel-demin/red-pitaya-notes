@@ -25,13 +25,27 @@ void signal_handler(int sig)
   interrupted = 1;
 }
 
+void web888_driver_att(char att_data)
+{
+  int drv;
+  char set_data[4];
+  drv = open("/dev/web888_sdr",O_RDWR);
+  read(drv,set_data,3);
+  set_data[3] = '\0';
+  printf("read data is %s \n",set_data);
+  set_data[0] = att_data + '0';
+  write(drv,set_data,3);
+  printf("set data %s \n",set_data);
+  close(drv);
+}
+
 int main ()
 {
   int fd, sock_server, sock_client;
   int position, limit, offset;
   volatile uint32_t *rx_addr, *rx_freq, *rx_cntr;
   volatile uint16_t *rx_rate;
-  volatile uint8_t *rx_rst;
+  volatile uint8_t *rx_rst,*rx_pga;
   volatile void *cfg, *sts, *ram;
   cpu_set_t mask;
   struct sched_param param;
@@ -76,6 +90,7 @@ int main ()
   ram = mmap(NULL, 2048*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
   rx_rst = (uint8_t *)(cfg + 0);
+  rx_pga =  (uint8_t *)(cfg + 1);
   rx_rate = (uint16_t *)(cfg + 2);
   rx_addr = (uint32_t *)(cfg + 4);
   rx_freq = (uint32_t *)(cfg + 8);
@@ -116,7 +131,6 @@ int main ()
     *rx_rate = 16;
     /* set default phase increments */
     rx_freq[0] = (uint32_t)floor(10000000 / 125.0e6 * (1<<30) + 0.5);
-    rx_freq[1] = (uint32_t)floor(10000000 / 125.0e6 * (1<<30) + 0.5);
 
     if((sock_client = accept(sock_server, NULL, NULL)) < 0)
     {
@@ -145,7 +159,7 @@ int main ()
         {
           case 0:
             /* set sample rate */
-            if(value < 16 || value > 8192) continue;
+            if(value < 8 || value > 8192) continue;
             *rx_rate = value;
             break;
           case 1:
@@ -153,10 +167,15 @@ int main ()
             if(value < 0 || value > 62500000) continue;
             rx_freq[0] = (uint32_t)floor(value / 125.0e6 * (1<<30) + 0.5);
             break;
-          case 2:
-            /* set second phase increment */
-            if(value < 0 || value > 62500000) continue;
-            rx_freq[1] = (uint32_t)floor(value / 125.0e6 * (1<<30) + 0.5);
+          case 3:
+          	/* set signal attu */
+          	if(value < 0 || value > 31) continue;
+            web888_driver_att((value & 0x3f) * 2);
+            break;
+          case 4:
+          	/* set adc pga */
+          	if(value < 0 || value > 1) continue;
+            *rx_pga = value & 0x01;
             break;
         }
       }
