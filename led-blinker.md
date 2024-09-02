@@ -99,18 +99,28 @@ git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 {% endhighlight %}
 
-Building `boot.bin`:
+Building Vivado project:
 {% highlight bash %}
-make NAME=led_blinker all
+make NAME=led_blinker xpr
 {% endhighlight %}
 
-Building a bootable SD card:
+Opening Vivado project:
 {% highlight bash %}
-sudo sh scripts/debian.sh /dev/mmcblk0
+vivado tmp/led_blinker.xpr
+{% endhighlight %}
+
+Building bitstream file:
+{% highlight bash %}
+make NAME=led_blinker bit
 {% endhighlight %}
 
 SD card image
 -----
+
+Building `boot.bin`:
+{% highlight bash %}
+make NAME=led_blinker all
+{% endhighlight %}
 
 Building a bootable SD card image:
 {% highlight bash %}
