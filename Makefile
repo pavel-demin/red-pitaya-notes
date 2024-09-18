@@ -74,6 +74,7 @@ $(LINUX_DIR): $(LINUX_TAR) $(RTL8188_TAR)
 	tar -zxf $(RTL8188_TAR) --strip-components=1 --directory=$@/drivers/net/wireless/realtek/rtl8188eu
 	patch -d tmp -p 0 < patches/linux-$(LINUX_TAG).patch
 	cp patches/cma.c $@/drivers/char
+	cp patches/web888.c $@/drivers/char
 	cp patches/xilinx_devcfg.c $@/drivers/char
 	cp patches/xilinx_zynq_defconfig $@/arch/arm/configs
 
