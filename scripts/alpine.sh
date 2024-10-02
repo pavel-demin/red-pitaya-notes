@@ -1,9 +1,9 @@
 alpine_url=http://dl-cdn.alpinelinux.org/alpine/v3.20
 
-tools_tar=apk-tools-static-2.14.4-r0.apk
+tools_tar=apk-tools-static-2.14.4-r1.apk
 tools_url=$alpine_url/main/armv7/$tools_tar
 
-firmware_tar=linux-firmware-other-20240513-r0.apk
+firmware_tar=linux-firmware-other-20240811-r0.apk
 firmware_url=$alpine_url/main/armv7/$firmware_tar
 
 linux_dir=tmp/linux-6.6
@@ -17,7 +17,7 @@ test -f $tools_tar || curl -L $tools_url -o $tools_tar
 
 test -f $firmware_tar || curl -L $firmware_url -o $firmware_tar
 
-for tar in linux-firmware-ath9k_htc-20240513-r0.apk linux-firmware-brcm-20240513-r0.apk linux-firmware-cypress-20240513-r0.apk linux-firmware-rtlwifi-20240513-r0.apk
+for tar in linux-firmware-ath9k_htc-20240811-r0.apk linux-firmware-brcm-20240811-r0.apk linux-firmware-cypress-20240811-r0.apk linux-firmware-rtlwifi-20240811-r0.apk
 do
   url=$alpine_url/main/armv7/$tar
   test -f $tar || curl -L $url -o $tar
@@ -36,7 +36,7 @@ depmod -a -b alpine-modloop $linux_ver
 
 tar -zxf $firmware_tar --directory=alpine-modloop/lib/modules --warning=no-unknown-keyword --strip-components=1 --wildcards lib/firmware/ar* lib/firmware/rt*
 
-for tar in linux-firmware-ath9k_htc-20240513-r0.apk linux-firmware-brcm-20240513-r0.apk linux-firmware-cypress-20240513-r0.apk linux-firmware-rtlwifi-20240513-r0.apk
+for tar in linux-firmware-ath9k_htc-20240811-r0.apk linux-firmware-brcm-20240811-r0.apk linux-firmware-cypress-20240811-r0.apk linux-firmware-rtlwifi-20240811-r0.apk
 do
   tar -zxf $tar --directory=alpine-modloop/lib/modules --warning=no-unknown-keyword --strip-components=1
 done
