@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-
 #include "xiicps.h"
 #include "xemacps.h"
 #include "xil_printf.h"
@@ -10,10 +9,9 @@
 const u8 ADDR_EEPROM = 0x50;
 const u8 ADDR_SI5351 = 0x60;
 
-const u32 XREF_FREQ = 27000000;
+const u32 XREF_FREQ = 24576000;
 
 const u32 correction = 0;
-
 
 /* Si5351 driver*/
 
@@ -451,8 +449,6 @@ u32 si5351_EnableOutputs(XIicPs* pIic,u8 enabled) {
         return XST_FAILURE;
     return XST_SUCCESS;
 }
-
-
 u32 SetMacAddress()
 {
     XIicPs Iic;
@@ -468,6 +464,7 @@ u32 SetMacAddress()
     Buffer[0] = 0x18;
     Buffer[1] = 0;
     xil_printf("User RedPitaya Bootloader start\r\n");
+
     IicConfig = XIicPs_LookupConfig(XPAR_PS7_I2C_0_DEVICE_ID);
     if(IicConfig == NULL) return XST_FAILURE;
     Status = XIicPs_CfgInitialize(&Iic, IicConfig, IicConfig->BaseAddress);
@@ -490,7 +487,7 @@ u32 SetMacAddress()
         if(i < 5)
             xil_printf(":");
     }
-    
+
     xil_printf("\r\n");
 
     EmacConfig = XEmacPs_LookupConfig(XPAR_PS7_ETHERNET_0_DEVICE_ID);
@@ -510,7 +507,7 @@ u32 SetMacAddress()
     	xil_printf("EEPROM read adc clk freq failed.Set to default 125Mhz\r\n");
         freq_set = 125000000;
     }
-    
+
     Pointer = memmem(Buffer, 1024, "clk_out_freq=", 13);
     if(Pointer != NULL) {
         Pointer += 12;
@@ -534,3 +531,5 @@ u32 SetMacAddress()
     xil_printf("Bootloader config success,boot to Linux\r\n");
     return XST_SUCCESS;
 }
+
+

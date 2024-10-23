@@ -64,6 +64,8 @@ static int web888_init(struct device_node *nd)
         gpio_direction_output(web888_sdr.gpio[i],0);
     }
 
+	gpio_set_value(web888_sdr.gpio[GPIO_EXT_CLOCK], 0x01);//Basic usage,internal clock
+
     for(i = 0;i< BUFF_SIZE;i++)
     {
         vbuf[i] = '0';
@@ -120,11 +122,11 @@ static ssize_t sdr_write(struct file *filp, const char __user *buf, size_t count
     }
 
     att_data = (vbuf[0] - '0') < 0 ? 0 : vbuf[0] - '0';
-    clk_sel  = (vbuf[1] - '0') < 0 ? 0 : vbuf[1] - '0';
+    //clk_sel  = (vbuf[1] - '0') < 0 ? 0 : vbuf[1] - '0'; Easy to use. advanced feature.
     mode_sel = (vbuf[2] - '0') < 0 ? 0 : vbuf[2] - '0';
 
     gpio_set_value(web888_sdr.gpio[GPIO_SWITCH_MODE], (mode_sel & 0x01));
-    gpio_set_value(web888_sdr.gpio[GPIO_EXT_CLOCK], (clk_sel & 0x01));
+    //gpio_set_value(web888_sdr.gpio[GPIO_EXT_CLOCK], (clk_sel & 0x01));
     PE4312_driver(att_data & 0x3f);
     
     *offt += tmp;
