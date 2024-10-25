@@ -1,24 +1,23 @@
 ---
 layout: page
 title: Playground
-permalink: /playground/
 ---
 
 Introduction
 -----
 
-The combination of Jupyter notebooks, the [pyhubio](https://github.com/pavel-demin/pyhubio) library and the [AXI4 hub]({{ "/axi-hub/" | prepend: site.baseurl }}) allows interactive communication with all parts of the FPGA configuration and visualization of input and output data, making testing and prototyping more dynamic.
+The combination of Jupyter notebooks, the [pyhubio](https://github.com/pavel-demin/pyhubio) library and the [AXI4 hub]({% link axi-hub.md %}) allows interactive communication with all parts of the FPGA configuration and visualization of input and output data, making testing and prototyping more dynamic.
 
 The [notebooks](https://github.com/pavel-demin/red-pitaya-notes/tree/master/notebooks) directory contains a few examples of Jupyter notebooks.
 
-![Jupyter notebooks]({{ "/img/jupyter-notebooks.png" | prepend: site.baseurl }})
+![Jupyter notebooks]({% link img/jupyter-notebooks.png %})
 
 Hardware
 -----
 
 The basic blocks of the playground project are shown in the following diagram:
 
-![Playground]({{ "/img/playground.png" | prepend: site.baseurl }})
+![Playground]({% link img/playground.png %})
 
 The [projects/playground](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/playground) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/playground/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
@@ -27,7 +26,7 @@ A pre-built Vivado project can be found in the `playground` directory in the [re
 Getting started
 -----
 
-- Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }}))
+- Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %}))
 - Copy the contents of the SD card image zip file to a micro SD card
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/playground` to the topmost directory on the SD card
 - Install the micro SD card in the Red Pitaya board and connect the power

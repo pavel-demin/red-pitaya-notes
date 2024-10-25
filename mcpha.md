@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Multichannel Pulse Height Analyzer
-permalink: /mcpha/
 ---
 
 Interesting links
@@ -31,9 +30,9 @@ The position of the HV/LV jumpers of the [fast analog inputs](https://redpitaya.
 
 The basic blocks of the system are shown in the following diagrams:
 
-![Multichannel Pulse Height Analyzer]({{ "/img/mcpha.png" | prepend: site.baseurl }})
+![Multichannel Pulse Height Analyzer]({% link img/mcpha.png %})
 
-![Exponential Pulse Generator]({{ "/img/mcpha-gen.png" | prepend: site.baseurl }})
+![Exponential Pulse Generator]({% link img/mcpha-gen.png %})
 
 The width of the pulse at the input of the pulse height analyzer module can be adjusted by varying the decimation factor of the CIC filter.
 
@@ -54,13 +53,13 @@ The [projects/mcpha/server](https://github.com/pavel-demin/red-pitaya-notes/tree
 
 The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha/client) directory contains the source code of the control program ([mcpha.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/client/mcpha.py)).
 
-![MCPHA client]({{ "/img/mcpha-client.png" | prepend: site.baseurl }})
+![MCPHA client]({% link img/mcpha-client.png %})
 
 Getting started with MS Windows
 -----
 
  - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -75,7 +74,7 @@ Getting started with GNU/Linux
 -----
 
  - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -100,9 +99,9 @@ python3 mcpha.py
 Building from source
 -----
 
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+The installation of the development machine is described at [this link]({% link development-machine.md %}).
 
-The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
+The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}

@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Alpine with pre-built applications
-permalink: /alpine/
 ---
 
 Introduction

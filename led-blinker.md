@@ -1,7 +1,6 @@
 ---
 layout: page
 title: LED blinker
-permalink: /led-blinker/
 ---
 
 Introduction
@@ -58,7 +57,7 @@ This repository contains the following components:
 
 All steps of the development chain and the corresponding scripts are shown in the following diagram:
 
-![Scripts]({{ "/img/scripts.png" | prepend: site.baseurl }})
+![Scripts]({% link img/scripts.png %})
 
 Syntactic sugar for IP cores
 -----

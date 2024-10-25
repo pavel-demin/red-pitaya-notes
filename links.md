@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Links
-permalink: /links/
 ---
  - [Red Pitaya Documentation](https://redpitaya.readthedocs.io)
 

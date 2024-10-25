@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Multiband WSPR transceiver
-permalink: /sdr-transceiver-wspr/
 ---
 
 Interesting links
@@ -32,7 +31,7 @@ Hardware
 
 The FPGA configuration consists of eight identical digital down-converters (DDC). Their structure is shown in the following diagram:
 
-![WSPR receiver]({{ "/img/sdr-receiver-wspr.png" | prepend: site.baseurl }})
+![WSPR receiver]({% link img/sdr-receiver-wspr.png %})
 
 The DDC output contains complex 32-bit floating-point data at 375 samples per second and is directly compatible with the [WSPR decoder](https://github.com/pavel-demin/wsprd).
 
@@ -69,7 +68,7 @@ The measurement and correction of the frequency deviation is disabled by default
 Getting started
 -----
 
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_wspr` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -96,9 +95,9 @@ The WSPR message, transmit frequency and frequency ppm value can be adjusted by 
 Building from source
 -----
 
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+The installation of the development machine is described at [this link]({% link development-machine.md %}).
 
-The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
+The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}
@@ -128,6 +127,6 @@ I would like to thank PA7T and DK5HH for their interest in this project, for the
 
 The following plots show the number of WSPR spots per hour decoded by the multiband WSPR receiver:
 
-![WSPR spots by PA7T]({{ "/img/wspr-spots-PA7T.png" | prepend: site.baseurl }})
-![WSPR spots by DK5HH]({{ "/img/wspr-spots-DK5HH.png" | prepend: site.baseurl }})
-![WSPR spots by SWLJO20]({{ "/img/wspr-spots-SWLJO20.png" | prepend: site.baseurl }})
+![WSPR spots by PA7T]({% link img/wspr-spots-PA7T.png %})
+![WSPR spots by DK5HH]({% link img/wspr-spots-DK5HH.png %})
+![WSPR spots by SWLJO20]({% link img/wspr-spots-SWLJO20.png %})

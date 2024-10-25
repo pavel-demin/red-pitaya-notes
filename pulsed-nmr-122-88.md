@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Pulsed NMR system
-permalink: /pulsed-nmr-122-88/
 ---
 
 This is a work in progress...
@@ -31,7 +30,7 @@ Hardware
 
 The basic blocks of the system are shown in the following diagram:
 
-![Pulsed NMR]({{ "/img/pulsed-nmr-122-88.png" | prepend: site.baseurl }})
+![Pulsed NMR]({% link img/pulsed-nmr-122-88.png %})
 
 The [projects/pulsed_nmr_122_88](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/pulsed_nmr_122_88) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr_122_88/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr_122_88/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr_122_88/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
@@ -42,12 +41,12 @@ The [projects/pulsed_nmr_122_88/server](https://github.com/pavel-demin/red-pitay
 
 The [projects/pulsed_nmr_122_88/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/pulsed_nmr_122_88/client) directory contains the source code of the control program ([pulsed_nmr.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/pulsed_nmr_122_88/client/pulsed_nmr.py)).
 
-![Pulsed NMR client]({{ "/img/pulsed-nmr-client.png" | prepend: site.baseurl }})
+![Pulsed NMR client]({% link img/pulsed-nmr-client.png %})
 
 Getting started with GNU/Linux
 -----
 
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/pulsed_nmr_122_88` to the topmost directory on the SD card.
  - Install required Python libraries:
@@ -67,9 +66,9 @@ python3 pulsed_nmr.py
 Building from source
 -----
 
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+The installation of the development machine is described at [this link]({% link development-machine.md %}).
 
-The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
+The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}

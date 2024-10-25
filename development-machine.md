@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Development machine
-permalink: /development-machine/
 ---
 
 The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/bookworm) 12 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2023.1.

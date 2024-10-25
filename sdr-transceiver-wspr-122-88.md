@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Multiband WSPR transceiver
-permalink: /sdr-transceiver-wspr-122-88/
 ---
 
 Interesting links
@@ -32,7 +31,7 @@ Hardware
 
 The FPGA configuration consists of sixteen identical digital down-converters (DDC). Their structure is shown in the following diagram:
 
-![WSPR receiver]({{ "/img/sdr-receiver-wspr-122-88.png" | prepend: site.baseurl }})
+![WSPR receiver]({% link img/sdr-receiver-wspr-122-88.png %})
 
 The DDC output contains complex 32-bit floating-point data at 375 samples per second and is directly compatible with the [WSPR decoder](https://github.com/pavel-demin/wsprd).
 
@@ -69,7 +68,7 @@ The measurement and correction of the frequency deviation is disabled by default
 Getting started
 -----
 
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_wspr_122_88` to the topmost directory on the SD card.
  - Install the micro SD card in the STEMlab SDR board and connect the power.
@@ -96,9 +95,9 @@ The WSPR message, transmit frequency and frequency ppm value can be adjusted by 
 Building from source
 -----
 
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+The installation of the development machine is described at [this link]({% link development-machine.md %}).
 
-The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
+The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}

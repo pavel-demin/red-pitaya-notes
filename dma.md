@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Direct memory access
-permalink: /dma/
 ---
 
 Introduction

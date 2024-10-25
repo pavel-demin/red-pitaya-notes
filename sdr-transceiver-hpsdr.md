@@ -1,7 +1,6 @@
 ---
 layout: page
 title: SDR transceiver compatible with HPSDR
-permalink: /sdr-transceiver-hpsdr/
 ---
 
 Introduction
@@ -22,7 +21,7 @@ The HPSDR/Metis communication protocol is described in the following documents:
 Hardware
 -----
 
-The implementation of this SDR transceiver is similar to the previous version of the SDR transceiver that is described in more details at [this link]({{ "/sdr-transceiver/" | prepend: site.baseurl }}).
+The implementation of this SDR transceiver is similar to the previous version of the SDR transceiver that is described in more details at [this link]({% link sdr-transceiver.md %}).
 
 The main problem in emulating the HPSDR hardware with Red Pitaya is that the Red Pitaya ADC sample rate is 125 MSPS and the HPSDR ADC sample rate is 122.88 MSPS.
 
@@ -36,11 +35,11 @@ This SDR transceiver consists of five digital down-converters (DDC) and one digi
 
 The basic blocks of the digital down-converters are shown in the following diagram:
 
-![DDC]({{ "/img/sdr-transceiver-hpsdr-ddc.png" | prepend: site.baseurl }})
+![DDC]({% link img/sdr-transceiver-hpsdr-ddc.png %})
 
 The digital up-converter consists of similar blocks but arranged in an opposite order:
 
-![DUC]({{ "/img/sdr-transceiver-hpsdr-duc.png" | prepend: site.baseurl }})
+![DUC]({% link img/sdr-transceiver-hpsdr-duc.png %})
 
 The [projects/sdr_transceiver_hpsdr](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
@@ -61,7 +60,7 @@ RF, GPIO and XADC connections
  - inputs for PTT, DASH and DOT are connected to the pins DIO0_N, DIO1_N and DIO2_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1)
  - slow analog inputs can be used for the forward ([Analog input 0](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2)) and reverse ([Analog input 1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2)) power measurement
 
-![GPIO connections]({{ "/img/sdr-transceiver-hpsdr-e1-pins.png" | prepend: site.baseurl }})
+![GPIO connections]({% link img/sdr-transceiver-hpsdr-e1-pins.png %})
 
 I2S connections
 -----
@@ -77,7 +76,7 @@ The board and the protocol are described in the [ALEX manual](https://github.com
 
 The HPSDR signals sent to the [TPIC6B595](https://www.ti.com/product/TPIC6B595) chips are shown in the following diagram:
 
-![ALEX connections]({{ "/img/sdr-transceiver-hpsdr-alex-interface.png" | prepend: site.baseurl }})
+![ALEX connections]({% link img/sdr-transceiver-hpsdr-alex-interface.png %})
 
 I2C connections
 -----
@@ -145,7 +144,7 @@ This SDR transceiver should work with most of the programs that support the HPSD
 Getting started
 -----
 
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_hpsdr` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -173,14 +172,14 @@ Amplifier linearization
 
 [PowerSDR mRX PS](https://openhpsdr.org/wiki/index.php?title=PowerSDR) includes an amplifier linearization system called [PureSignal](https://github.com/TAPR/OpenHPSDR-PowerSDR/raw/master/Documentation/Pure Signal/PureSignal.pdf). The following screenshots show what settings should be adjusted when using it with Red Pitaya. To access the "Calibration Information" panel press Ctrl+Alt+i. The attenuated feedback signal from the amplifier should be connected to IN2.
 
-![PowerSDR Hardware Config]({{ "/img/powersdr-hardware.png" | prepend: site.baseurl }})
+![PowerSDR Hardware Config]({% link img/powersdr-hardware.png %})
 
-![PowerSDR Linearity]({{ "/img/powersdr-linearity.png" | prepend: site.baseurl }})
+![PowerSDR Linearity]({% link img/powersdr-linearity.png %})
 
 The following spectra illustrate how the amplifier linearization works with the Red Pitaya output (OUT1) connected to the Red Pitaya input (IN2) with a 50 Ohm termination.
 
-![PureSignal off]({{ "/img/puresignal-off.png" | prepend: site.baseurl }})
-![PureSignal on]({{ "/img/puresignal-on.png" | prepend: site.baseurl }})
+![PureSignal off]({% link img/puresignal-off.png %})
+![PureSignal on]({% link img/puresignal-on.png %})
 
 CW functionality
 -----
@@ -191,18 +190,18 @@ The ramp generator is programmable. The default ramp's shape is the step respons
 
 The measured delay between the key press and the start of the RF signal is about 2 ms. The 10%-90% rise time of the signal is about 3.5 ms.
 
-![CW signal]({{ "/img/cw-signal.png" | prepend: site.baseurl }})
+![CW signal]({% link img/cw-signal.png %})
 
 The following figure shows the spectrum of the CW signal keyed at 50 WPM.
 
-![CW spectrum]({{ "/img/cw-spectrum.png" | prepend: site.baseurl }})
+![CW spectrum]({% link img/cw-spectrum.png %})
 
 Building from source
 -----
 
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+The installation of the development machine is described at [this link]({% link development-machine.md %}).
 
-The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
+The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}

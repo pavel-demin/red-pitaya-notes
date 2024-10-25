@@ -1,7 +1,6 @@
 ---
 layout: page
 title: SDR receiver
-permalink: /sdr-receiver-122-88/
 ---
 
 Hardware
@@ -9,7 +8,7 @@ Hardware
 
 The FPGA configuration consists of sixteen identical digital down-converters (DDC). Their structure is shown in the following diagram:
 
-![SDR receiver]({{ "/img/sdr-transceiver-hpsdr-ddc-122-88.png" | prepend: site.baseurl }})
+![SDR receiver]({% link img/sdr-transceiver-hpsdr-ddc-122-88.png %})
 
 The I/Q data rate is configurable and four settings are available: 48, 96, 192, 384 kSPS.
 
@@ -26,7 +25,7 @@ The [projects/sdr_receiver_122_88/server](https://github.com/pavel-demin/red-pit
 
 The [SDR SMEM](https://github.com/pavel-demin/sdr-smem) repository contains the source code of the TCP client ([tcp_smem.lpr](https://github.com/pavel-demin/sdr-smem/blob/main/tcp_smem.lpr)), ExtIO plug-in ([extio_smem.lpr](https://github.com/pavel-demin/sdr-smem/blob/main/extio_smem.lpr)) and other programs and plug-ins. The following diagram shows an example of how these programs and plug-ins can be used:
 
-![SDR SMEM]({{ "/img/sdr-smem.png" | prepend: site.baseurl }})
+![SDR SMEM]({% link img/sdr-smem.png %})
 
 The `tcp_smem` program runs on a computer. It receives the I/Q data streams over the network and transfers them to other programs and plugins via shared memory.
 
@@ -35,13 +34,13 @@ Antenna
 
 I use simple indoor antennas made from a single loop of non-coaxial wire. Their approximate scheme is shown in the following diagrams:
 
-![Antenna]({{ "/img/antenna.png" | prepend: site.baseurl }})
+![Antenna]({% link img/antenna.png %})
 
 Getting started
 -----
 
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_receiver_122_88` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -70,9 +69,9 @@ Running CW Skimmer Server and Reverse Beacon Network Aggregator
 Building from source
 -----
 
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+The installation of the development machine is described at [this link]({% link development-machine.md %}).
 
-The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
+The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}

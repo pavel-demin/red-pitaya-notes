@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Vector Network Analyzer
-permalink: /vna/
 ---
 
 Interesting links
@@ -22,7 +21,7 @@ Hardware
 
 The basic blocks of the system are shown in the following diagram:
 
-![Multichannel Pulse Height Analyzer]({{ "/img/vna.png" | prepend: site.baseurl }})
+![Multichannel Pulse Height Analyzer]({% link img/vna.png %})
 
 The [projects/vna](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/vna) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
@@ -33,12 +32,12 @@ The [projects/vna/server](https://github.com/pavel-demin/red-pitaya-notes/tree/m
 
 The [projects/vna/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/vna/client) directory contains the source code of the control program ([vna.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/client/vna.py)).
 
-![vna client]({{ "/img/vna-client.png" | prepend: site.baseurl }})
+![vna client]({% link img/vna-client.png %})
 
 Getting started with MS Windows
 -----
 
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -50,7 +49,7 @@ Getting started with MS Windows
 Getting started with GNU/Linux
 -----
 
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -73,9 +72,9 @@ python3 vna.py
 Building from source
 -----
 
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+The installation of the development machine is described at [this link]({% link development-machine.md %}).
 
-The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
+The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}

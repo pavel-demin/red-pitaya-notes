@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Scanning system
-permalink: /scanner/
 ---
 
 Introduction
@@ -25,7 +24,7 @@ The system outputs the line scan signal to OUT1 and the raster scan signal to OU
 
 The basic blocks of the system are shown in the following diagram:
 
-![Scanner]({{ "/img/scanner.png" | prepend: site.baseurl }})
+![Scanner]({% link img/scanner.png %})
 
 The [projects/scanner](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/scanner) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/scanner/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
@@ -36,7 +35,7 @@ The [projects/scanner/server](https://github.com/pavel-demin/red-pitaya-notes/tr
 
 The [projects/scanner/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/scanner/client) directory contains the source code of the control program ([scanner.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/scanner/client/scanner.py)).
 
-![Scanner client]({{ "/img/scanner-client.png" | prepend: site.baseurl }})
+![Scanner client]({% link img/scanner-client.png %})
 
 Getting started with GNU/Linux
 -----
@@ -64,9 +63,9 @@ python3 scanner.py
 Building from source
 -----
 
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+The installation of the development machine is described at [this link]({% link development-machine.md %}).
 
-The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
+The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}

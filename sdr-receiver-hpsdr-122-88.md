@@ -1,7 +1,6 @@
 ---
 layout: page
 title: SDR receiver compatible with HPSDR
-permalink: /sdr-receiver-hpsdr-122-88/
 ---
 
 Introduction
@@ -20,7 +19,7 @@ Hardware
 
 The FPGA configuration consists of sixteen identical digital down-converters (DDC). Their structure is shown in the following diagram:
 
-![HPSDR receiver]({{ "/img/sdr-transceiver-hpsdr-ddc-122-88.png" | prepend: site.baseurl }})
+![HPSDR receiver]({% link img/sdr-transceiver-hpsdr-ddc-122-88.png %})
 
 The I/Q data rate is configurable and four settings are available: 48, 96, 192, 384 kSPS.
 
@@ -52,7 +51,7 @@ This SDR receiver should work with most of the programs that support the HPSDR/M
 Getting started
 -----
 
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_receiver_hpsdr_122_88` to the topmost directory on the SD card.
  - Install the micro SD card in the STEMlab SDR board and connect the power.
@@ -73,9 +72,9 @@ Running CW Skimmer Server and Reverse Beacon Network Aggregator
 Building from source
 -----
 
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+The installation of the development machine is described at [this link]({% link development-machine.md %}).
 
-The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
+The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}

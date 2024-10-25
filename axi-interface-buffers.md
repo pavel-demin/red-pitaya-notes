@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Buffers for AXI4, AXI4-Lite and AXI4-Stream interfaces
-permalink: /axi-interface-buffers/
 ---
 
 Interesting links
@@ -35,7 +34,7 @@ input  wire                  s_axi_rready   // AXI4-Lite slave: Read data ready
 
 In the read address part of the interface, the `arready` signal should have a register. In the read data part of the interface, the `rdata` and `rvalid` signals should have registers. So, two types of buffers are needed, one with one register on the data input side and one with two registers on the data output side as shown in the diagrams below:
 
-![Two types of interface buffers]({{ "/img/interface-buffers.png" | prepend: site.baseurl }})
+![Two types of interface buffers]({% link img/interface-buffers.png %})
 
 If an interface buffer with registers on both sides is required, then these two types of buffers can be chained together to create such a buffer.
 
@@ -49,7 +48,7 @@ The `in_ready` signal of the input buffer should have a register and this buffer
 
 A circuit implementing this behavior is shown in the following diagram:
 
-![Input buffer]({{ "/img/input-buffer.png" | prepend: site.baseurl }})
+![Input buffer]({% link img/input-buffer.png %})
 
 The corresponding Verilog code can be found in [modules/input_buffer.v](https://github.com/pavel-demin/red-pitaya-notes/tree/master/modules/input_buffer.v).
 
@@ -60,13 +59,13 @@ The `out_valid` and `out_data` signals of the output buffer should have register
 
 A circuit implementing this behavior is shown in the following diagram:
 
-![Output buffer]({{ "/img/output-buffer.png" | prepend: site.baseurl }})
+![Output buffer]({% link img/output-buffer.png %})
 
 The corresponding Verilog code can be found in [modules/output_buffer.v](https://github.com/pavel-demin/red-pitaya-notes/tree/master/modules/output_buffer.v).
 
 Since the `in_ready` signal is used to enable the data register, it can also be used to enable data registers outside the output buffer module. This feature can be useful when controlling a pipeline that provides enable inputs for its internal registers, like for example the internal registers in [DSP48E1](https://docs.xilinx.com/v/u/en-US/ug479_7Series_DSP48E1) as shown in the diagram below:
 
-![Output buffers and DSP48]({{ "/img/output-buffers-dsp48.png" | prepend: site.baseurl }})
+![Output buffers and DSP48]({% link img/output-buffers-dsp48.png %})
 
 Usage examples
 -----

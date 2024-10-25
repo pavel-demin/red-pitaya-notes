@@ -1,7 +1,6 @@
 ---
 layout: page
 title: SDR transceiver
-permalink: /sdr-transceiver/
 ---
 
 Hardware
@@ -15,7 +14,7 @@ The implementation of the SDR receivers is quite straightforward:
  - The on-board ADC (125 MS/s sampling frequency, 14-bit resolution) digitizes the RF signal from the antenna.
  - The data coming from the ADC is processed by a in-phase/quadrature (I/Q) digital down-converter (DDC) running on the Red Pitaya's FPGA.
 
-The SDR receiver is described in more details at [this link]({{ "/sdr-receiver/" | prepend: site.baseurl }}).
+The SDR receiver is described in more details at [this link]({% link sdr-receiver.md %}).
 
 The SDR transmitters consist of the similar blocks but arranged in an opposite order:
 
@@ -29,7 +28,7 @@ The I/Q data rate is configurable and five settings are available: 20, 50, 100, 
 
 The basic blocks of the digital down-converters (DDC) and of the digital up-converters (DUC) are shown in the following diagram:
 
-![SDR transceiver]({{ "/img/sdr-transceiver.png" | prepend: site.baseurl }})
+![SDR transceiver]({% link img/sdr-transceiver.png %})
 
 The [projects/sdr_transceiver](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver) directory contains four Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/block_design.tcl), [trx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/trx.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
@@ -46,7 +45,7 @@ Getting started with GNU Radio
 -----
 
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -69,7 +68,7 @@ Getting started with SDR# and HDSDR
 -----
 
  - Connect an antenna to the IN1 connector on the Red Pitaya board.
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({{ "/alpine/" | prepend: site.baseurl }})).
+ - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -84,9 +83,9 @@ Getting started with SDR# and HDSDR
 Building from source
 -----
 
-The installation of the development machine is described at [this link]({{ "/development-machine/" | prepend: site.baseurl }}).
+The installation of the development machine is described at [this link]({% link development-machine.md %}).
 
-The structure of the source code and of the development chain is described at [this link]({{ "/led-blinker/" | prepend: site.baseurl }}).
+The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
 
 Setting up the Vitis and Vivado environment:
 {% highlight bash %}
