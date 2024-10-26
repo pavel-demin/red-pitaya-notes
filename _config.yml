@@ -5,6 +5,9 @@ baseurl: /red-pitaya-notes
 url: https://pavel-demin.github.io
 permalink: /:slug/
 
+source-link: https://github.com/pavel-demin/red-pitaya-notes
+issues-link: https://github.com/pavel-demin/red-pitaya-notes/issues
+
 release-image: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20240204/red-pitaya-alpine-3.18-armv7-20240204.zip
 scanner-image: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20240204/red-pitaya-alpine-3.18-armv7-20240204-scanner.zip
 release-file: https://github.com/pavel-demin/red-pitaya-notes/releases/download/20240204/red-pitaya-notes-20240204.zip
