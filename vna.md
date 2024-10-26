@@ -21,7 +21,7 @@ Hardware
 
 The basic blocks of the system are shown in the following diagram:
 
-![Multichannel Pulse Height Analyzer]({% link img/vna.png %})
+![Vector Network Analyzer]({% link img/vna.png %})
 
 The [projects/vna](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/vna) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
@@ -32,7 +32,7 @@ The [projects/vna/server](https://github.com/pavel-demin/red-pitaya-notes/tree/m
 
 The [projects/vna/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/vna/client) directory contains the source code of the control program ([vna.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/client/vna.py)).
 
-![vna client]({% link img/vna-client.png %})
+![VNA client]({% link img/vna-client.png %})
 
 Getting started with MS Windows
 -----
