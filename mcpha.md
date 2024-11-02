@@ -1,10 +1,8 @@
 ---
-layout: page
 title: Multichannel Pulse Height Analyzer
 ---
 
-Interesting links
------
+## Interesting links
 
 Some interesting links on radiation spectroscopy:
 
@@ -21,8 +19,7 @@ Radiation Spectroscopy](https://www.caen.it/documents/News/32/AN2508_Digital_Pul
 
  - [Spectrum Analysis Introduction](https://www.canberra.com/literature/fundamental-principles/pdf/Spectrum-Analysis.pdf)
 
-Hardware
------
+## Hardware
 
 This system is designed to analyze the height of Gaussian-shaped pulses and it expects a signal from a pulse-shaping amplifier. It is also known to work with non-overlapping exponentially rising and exponentially decaying pulses.
 
@@ -30,9 +27,9 @@ The position of the HV/LV jumpers of the [fast analog inputs](https://redpitaya.
 
 The basic blocks of the system are shown in the following diagrams:
 
-![Multichannel Pulse Height Analyzer]({% link img/mcpha.png %})
+![Multichannel Pulse Height Analyzer](/img/mcpha.png)
 
-![Exponential Pulse Generator]({% link img/mcpha-gen.png %})
+![Exponential Pulse Generator](/img/mcpha-gen.png)
 
 The width of the pulse at the input of the pulse height analyzer module can be adjusted by varying the decimation factor of the CIC filter.
 
@@ -46,80 +43,76 @@ The [projects/mcpha](https://github.com/pavel-demin/red-pitaya-notes/tree/master
 
 The source code of the [R](https://www.r-project.org) script used to calculate the coefficients of the FIR filter can be found in [projects/mcpha/filters/fir_0.r](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/filters/fir_0.r).
 
-Software
------
+## Software
 
 The [projects/mcpha/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha/server) directory contains the source code of the TCP server ([mcpha-server.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/server/mcpha-server.c)) that receives control commands and transmits the data to the control program running on a remote PC.
 
 The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha/client) directory contains the source code of the control program ([mcpha.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/client/mcpha.py)).
 
-![MCPHA client]({% link img/mcpha-client.png %})
+![MCPHA client](/img/mcpha-client.png)
 
-Getting started with MS Windows
------
+## Getting started with MS Windows
 
  - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
+ - Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
- - Download and unpack the [release zip file]({{ site.release-file }}).
+ - Download and unpack the [release zip file]({{ site.release_file }}).
  - Run the `mcpha.exe` program in the `control` directory.
  - Type in the IP address of the Red Pitaya board and press Connect button.
  - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
  - Adjust amplitude threshold and time of exposure.
  - Press Start button.
 
-Getting started with GNU/Linux
------
+## Getting started with GNU/Linux
 
  - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
+ - Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Install Python 3 and all the required libraries::
-{% highlight bash %}
+```bash
 sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5
-{% endhighlight %}
+```
  - Clone the source code repository:
-{% highlight bash %}
+```bash
 git clone https://github.com/pavel-demin/red-pitaya-notes
-{% endhighlight %}
+```
  - Run the control program:
-{% highlight bash %}
+```bash
 cd red-pitaya-notes/projects/mcpha/client
 python3 mcpha.py
-{% endhighlight %}
+```
  - Type in the IP address of the Red Pitaya board and press Connect button.
  - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
  - Adjust amplitude threshold and time of exposure.
  - Press Start button.
 
-Building from source
------
+## Building from source
 
-The installation of the development machine is described at [this link]({% link development-machine.md %}).
+The installation of the development machine is described at [this link](/development-machine.md).
 
-The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
+The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
 
 Setting up the Vitis and Vivado environment:
-{% highlight bash %}
+```bash
 source /opt/Xilinx/Vitis/2023.1/settings64.sh
-{% endhighlight %}
+```
 
 Cloning the source code repository:
-{% highlight bash %}
+```bash
 git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
-{% endhighlight %}
+```
 
 Building `mcpha.bit`:
-{% highlight bash %}
+```bash
 make NAME=mcpha bit
-{% endhighlight %}
+```
 
 Building SD card image zip file:
-{% highlight bash %}
+```bash
 source helpers/build-all.sh
-{% endhighlight %}
+```

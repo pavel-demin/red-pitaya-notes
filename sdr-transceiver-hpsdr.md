@@ -1,10 +1,8 @@
 ---
-layout: page
 title: SDR transceiver compatible with HPSDR
 ---
 
-Introduction
------
+## Introduction
 
 The [High Performance Software Defined Radio](https://openhpsdr.org) (HPSDR) project is an open source hardware and software project that develops a modular Software Defined Radio (SDR) for use by radio amateurs and short wave listeners.
 
@@ -14,14 +12,13 @@ This SDR transceiver emulates a HPSDR transceiver similar to [Hermes](https://op
 
 The HPSDR/Metis communication protocol is described in the following documents:
 
- - [Metis - How it works](https://github.com/TAPR/OpenHPSDR-SVN/raw/master/Metis/Documentation/Metis- How it works_V1.33.pdf)
+ - [Metis - How it works](https://github.com/TAPR/OpenHPSDR-SVN/raw/master/Metis/Documentation/Metis-%20How%20it%20works_V1.33.pdf)
 
  - [HPSDR - USB Data Protocol](https://github.com/TAPR/OpenHPSDR-SVN/raw/master/Documentation/USB_protocol_V1.58.doc)
 
-Hardware
------
+## Hardware
 
-The implementation of this SDR transceiver is similar to the previous version of the SDR transceiver that is described in more details at [this link]({% link sdr-transceiver.md %}).
+The implementation of this SDR transceiver is similar to the previous version of the SDR transceiver that is described in more details at [this link](/sdr-transceiver.md).
 
 The main problem in emulating the HPSDR hardware with Red Pitaya is that the Red Pitaya ADC sample rate is 125 MSPS and the HPSDR ADC sample rate is 122.88 MSPS.
 
@@ -35,11 +32,11 @@ This SDR transceiver consists of five digital down-converters (DDC) and one digi
 
 The basic blocks of the digital down-converters are shown in the following diagram:
 
-![DDC]({% link img/sdr-transceiver-hpsdr-ddc.png %})
+![DDC](/img/sdr-transceiver-hpsdr-ddc.png)
 
 The digital up-converter consists of similar blocks but arranged in an opposite order:
 
-![DUC]({% link img/sdr-transceiver-hpsdr-duc.png %})
+![DUC](/img/sdr-transceiver-hpsdr-duc.png)
 
 The [projects/sdr_transceiver_hpsdr](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
@@ -47,8 +44,7 @@ The [projects/sdr_transceiver_hpsdr/filters](https://github.com/pavel-demin/red-
 
 The [projects/sdr_transceiver_hpsdr/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr/server) directory contains the source code of the UDP server ([sdr-transceiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c)) that receives control commands and transmits/receives the I/Q data streams to/from the SDR programs.
 
-RF, GPIO and XADC connections
------
+## RF, GPIO and XADC connections
 
  - input for RX1 is connected to IN1
  - inputs for RX2 and RX3 are connected to IN2
@@ -60,26 +56,23 @@ RF, GPIO and XADC connections
  - inputs for PTT, DASH and DOT are connected to the pins DIO0_N, DIO1_N and DIO2_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1)
  - slow analog inputs can be used for the forward ([Analog input 0](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2)) and reverse ([Analog input 1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2)) power measurement
 
-![GPIO connections]({% link img/sdr-transceiver-hpsdr-e1-pins.png %})
+![GPIO connections](/img/sdr-transceiver-hpsdr-e1-pins.png)
 
-I2S connections
------
+## I2S connections
 
 The I2S interface is sharing pins with the ALEX interface. So, the two can't be used simultaneously. The supported I2S audio codecs are [TLV320AIC23B](https://www.ti.com/product/TLV320AIC23B) and [WM8731](https://www.cirrus.com/products/wm8731). The I2S audio codecs should be clocked with a 12.288 MHz oscillator crystal.
 
 The I2S interface should be connected to the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1) as shown in the above diagram. The I2C interface should be connected to the I2C pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2).
 
-ALEX connections
------
+## ALEX connections
 The [ALEX module](https://openhpsdr.org/alex.php) can be connected to the pins DIO4_N (Serial Data), DIO5_N (Clock), DIO6_N (RX Strobe) and DIO7_N (TX Strobe) of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1).
 The board and the protocol are described in the [ALEX manual](https://github.com/TAPR/OpenHPSDR-SVN/raw/master/Alexiares/Documentation/ALEX%20Manual%20V1.0.pdf).
 
 The HPSDR signals sent to the [TPIC6B595](https://www.ti.com/product/TPIC6B595) chips are shown in the following diagram:
 
-![ALEX connections]({% link img/sdr-transceiver-hpsdr-alex-interface.png %})
+![ALEX connections](/img/sdr-transceiver-hpsdr-alex-interface.png)
 
-I2C connections
------
+## I2C connections
 
 This interface is designed by Peter DC2PD. The [sdr-transceiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c) server communicates with one or two [PCA9555](https://www.ti.com/product/PCA9555) chips connected to the I2C pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2).
 
@@ -126,8 +119,7 @@ P16          | bypass all HPFs (0 = disable, 1 = enable)
 
 More information about the I2C interface can be found at [this link](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABuxJW6dpV50d6QPvUQNCUza/sdr/Hermes_and_Alex_outputs.pdf?dl=1).
 
-Software
------
+## Software
 
 This SDR transceiver should work with most of the programs that support the HPSDR/Metis communication protocol:
 
@@ -141,17 +133,15 @@ This SDR transceiver should work with most of the programs that support the HPSD
 
  - [Java desktop application](https://g0orx.blogspot.co.uk/2015/04/java-desktop-application-based-on.html) based on openHPSDR Android Application
 
-Getting started
------
+## Getting started
 
- - Download [SD card image zip file]({{ site.release-image }}) (more details about the SD card image can be found at [this link]({% link alpine.md %})).
+ - Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
  - Copy the contents of the SD card image zip file to a micro SD card.
  - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_hpsdr` to the topmost directory on the SD card.
  - Install the micro SD card in the Red Pitaya board and connect the power.
  - Install and run one of the HPSDR programs.
 
-Configuring inputs and outputs
------
+## Configuring inputs and outputs
 
 The `sdr-transceiver-hpsdr` program running on the Red Pitaya board expects six command line arguments:
 ```
@@ -167,22 +157,20 @@ For example, to send the TX signal to OUT2, the corresponding line in [start.sh]
 sdr-transceiver-hpsdr 1 2 2 2 1 1
 ```
 
-Amplifier linearization
------
+## Amplifier linearization
 
 [PowerSDR mRX PS](https://openhpsdr.org/wiki/index.php?title=PowerSDR) includes an amplifier linearization system called [PureSignal](https://github.com/TAPR/OpenHPSDR-PowerSDR/raw/master/Documentation/Pure Signal/PureSignal.pdf). The following screenshots show what settings should be adjusted when using it with Red Pitaya. To access the "Calibration Information" panel press Ctrl+Alt+i. The attenuated feedback signal from the amplifier should be connected to IN2.
 
-![PowerSDR Hardware Config]({% link img/powersdr-hardware.png %})
+![PowerSDR Hardware Config](/img/powersdr-hardware.png)
 
-![PowerSDR Linearity]({% link img/powersdr-linearity.png %})
+![PowerSDR Linearity](/img/powersdr-linearity.png)
 
 The following spectra illustrate how the amplifier linearization works with the Red Pitaya output (OUT1) connected to the Red Pitaya input (IN2) with a 50 Ohm termination.
 
-![PureSignal off]({% link img/puresignal-off.png %})
-![PureSignal on]({% link img/puresignal-on.png %})
+![PureSignal off](/img/puresignal-off.png)
+![PureSignal on](/img/puresignal-on.png)
 
-CW functionality
------
+## CW functionality
 
 The CW keyer can be used with a straight or iambic key connected to the pins DIO1_N and DIO2_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1). The CW signal is generated when one of the CW modes is selected in [PowerSDR mRX PS](https://openhpsdr.org/wiki/index.php?title=PowerSDR) and the pins DIO1_N and DIO2_N are connected to GND.
 
@@ -190,36 +178,35 @@ The ramp generator is programmable. The default ramp's shape is the step respons
 
 The measured delay between the key press and the start of the RF signal is about 2 ms. The 10%-90% rise time of the signal is about 3.5 ms.
 
-![CW signal]({% link img/cw-signal.png %})
+![CW signal](/img/cw-signal.png)
 
 The following figure shows the spectrum of the CW signal keyed at 50 WPM.
 
-![CW spectrum]({% link img/cw-spectrum.png %})
+![CW spectrum](/img/cw-spectrum.png)
 
-Building from source
------
+## Building from source
 
-The installation of the development machine is described at [this link]({% link development-machine.md %}).
+The installation of the development machine is described at [this link](/development-machine.md).
 
-The structure of the source code and of the development chain is described at [this link]({% link led-blinker.md %}).
+The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
 
 Setting up the Vitis and Vivado environment:
-{% highlight bash %}
+```bash
 source /opt/Xilinx/Vitis/2023.1/settings64.sh
-{% endhighlight %}
+```
 
 Cloning the source code repository:
-{% highlight bash %}
+```bash
 git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
-{% endhighlight %}
+```
 
 Building `sdr_transceiver_hpsdr.bit`:
-{% highlight bash %}
+```bash
 make NAME=sdr_transceiver_hpsdr bit
-{% endhighlight %}
+```
 
 Building SD card image zip file:
-{% highlight bash %}
+```bash
 source helpers/build-all.sh
-{% endhighlight %}
+```

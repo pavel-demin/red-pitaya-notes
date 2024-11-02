@@ -1,21 +1,178 @@
-body { font-family: Calibri, Verdana, Liberation Sans, DejaVu Sans, sans-serif; background-color: #f5f5f5; max-width: 800px; line-height: 1.4; margin-left: auto; margin-right: auto; padding-bottom: 3em; }
-h1, h2, h3, h4 { font-weight: normal; }
-a { color: #bf2334; text-decoration: none; }
-a:hover { text-decoration: underline; }
-pre, code { font-family: Consolas, Menlo, Liberation Mono, DejaVu Sans Mono, monospace; background: #f5f5f5; border-radius: 0.3em }
-code { padding: 0 0.3em; white-space: nowrap; }
-pre { padding: 0.1em 0.3em; overflow-x: auto; }
-pre > code { padding: 0; background: 0; white-space: pre }
-td, th { border: 1px solid #d3d3d3; padding: 0.1em 0.3em; }
-th { text-align: left; background-color: #f5f5f5; }
-tr.even td { background-color: #f5f5f5; }
-img { max-width: 100%; }
+*,
+:after,
+:before {
+  box-sizing: border-box;
+}
 
-#header { color: #bf2334; padding: 0 1em; }
-#header a { color: #bf2334; text-decoration: none; }
-#logo { margin-bottom: -1.4em; }
-#menu { padding-bottom: 0.3em; text-align: right; }
-#menu a { padding-left: 1em; }
-#content { background-color: #fff; padding: 1em 1em; border-radius: 0.6em; }
+* {
+  margin: 0;
+}
 
-@media print { #header { display: none; } }
+html {
+  font-family:
+    Calibri,
+    Liberation Sans,
+    DejaVu Sans,
+    sans-serif;
+  text-size-adjust: none;
+}
+
+code,
+pre {
+  font-family:
+    Consolas,
+    Liberation Mono,
+    DejaVu Sans Mono,
+    monospace;
+}
+
+body {
+  line-height: 1.5;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100ch;
+  padding-bottom: 2em;
+}
+
+h1,
+h2 {
+  font-weight: normal;
+}
+
+h1 {
+  font-size: 200%;
+  line-height: 1;
+  margin-top: 2em;
+}
+
+h2 {
+  font-size: 150%;
+  line-height: 1;
+  margin-top: 1.5em;
+}
+
+ol,
+p,
+pre,
+table,
+ul {
+  margin-top: 1em;
+}
+
+ol ol,
+ol ul,
+ul ol,
+ul ul {
+  margin-top: 0;
+}
+
+ol,
+ul {
+  list-style-position: outside;
+  padding: 0;
+  padding-inline-start: 2em;
+}
+
+ol {
+  list-style-type: decimal;
+}
+
+ul {
+  list-style-type: disc;
+}
+
+ol > li,
+ul > li {
+  padding: 0;
+  padding-inline-start: 0.25em;
+}
+
+ol > li::marker {
+  color: #808080;
+}
+
+ul > li::marker {
+  color: #a9a9a9;
+}
+
+a {
+  color: #bf2334;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+body,
+code,
+pre,
+tbody tr:nth-child(2n),
+thead tr {
+  background-color: #f5f5f5;
+}
+
+code,
+pre {
+  border-radius: 0.25em;
+}
+
+code {
+  padding: 0.25em 0.25em;
+  white-space: nowrap;
+}
+
+pre {
+  overflow-x: auto;
+  padding: 0.5em 1em;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+  white-space: pre;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+tbody td,
+thead th {
+  border: 1px solid #d3d3d3;
+  padding: 0.25em 0.5em;
+  text-align: start;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.content {
+  background-color: #fff;
+  border-radius: 0.5em;
+  padding: 2em 1em;
+}
+
+.content > :first-child {
+  margin-top: 0;
+}
+
+.header {
+  justify-content: space-between;
+  padding: 0.5em 1em;
+}
+
+.header,
+.menu {
+  column-gap: 1em;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+@media print {
+  .header {
+    display: none;
+  }
+}

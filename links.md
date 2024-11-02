@@ -1,5 +1,4 @@
 ---
-layout: page
 title: Links
 ---
  - [Red Pitaya Documentation](https://redpitaya.readthedocs.io)

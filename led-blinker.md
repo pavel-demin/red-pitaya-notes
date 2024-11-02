@@ -1,10 +1,8 @@
 ---
-layout: page
 title: LED blinker
 ---
 
-Introduction
------
+## Introduction
 
 For my experiments with the [Red Pitaya](https://redpitaya.readthedocs.io), I'd like to have the following development environment:
 
@@ -18,8 +16,7 @@ For my experiments with the [Red Pitaya](https://redpitaya.readthedocs.io), I'd 
 
 Here is how I set it all up.
 
-Pre-requirements
------
+## Pre-requirements
 
 My development machine has the following installed:
 
@@ -28,7 +25,7 @@ My development machine has the following installed:
  - [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2023.1
 
 Here are the commands to install all the other required packages:
-{% highlight bash %}
+```bash
 apt-get update
 
 apt-get --no-install-recommends install \
@@ -36,10 +33,9 @@ apt-get --no-install-recommends install \
   debootstrap device-tree-compiler dosfstools flex fontconfig git \
   libgtk-3-0 libncurses-dev libssl-dev libtinfo5 parted qemu-user-static \
   squashfs-tools sudo u-boot-tools x11-utils xvfb zerofree zip
-{% endhighlight %}
+```
 
-Source code
------
+## Source code
 
 The source code is available at
 
@@ -57,74 +53,71 @@ This repository contains the following components:
 
 All steps of the development chain and the corresponding scripts are shown in the following diagram:
 
-![Scripts]({% link img/scripts.png %})
+![Scripts](/img/scripts.png)
 
-Syntactic sugar for IP cores
------
+## Syntactic sugar for IP cores
 
 The [projects/led_blinker](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/led_blinker) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/led_blinker/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
 By default, the IP core instantiation and configuration commands are quite verbose:
-{% highlight Tcl %}
+```Tcl
 create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 ps_0
 
 set_property CONFIG.PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml [get_bd_cells ps_0]
 
 connect_bd_net [get_bd_pins ps_0/FCLK_CLK0] [get_bd_pins ps_0/M_AXI_GP0_ACLK]
-{% endhighlight %}
+```
 
 With the Tcl's flexibility, it's easy to define a less verbose command that looks similar to the module instantiation in Verilog:
-{% highlight Tcl %}
+```Tcl
 cell xilinx.com:ip:processing_system7:5.5 ps_0 {
   PCW_IMPORT_BOARD_PRESET cfg/red_pitaya.xml
 } {
   M_AXI_GP0_ACLK ps_0/FCLK_CLK0
 }
-{% endhighlight %}
+```
 
 The `cell` command and other helper commands are defined in the [scripts/project.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/scripts/project.tcl) script.
 
-Getting started
------
+## Getting started
 
 Setting up the Vitis and Vivado environment:
-{% highlight bash %}
+```bash
 source /opt/Xilinx/Vitis/2023.1/settings64.sh
-{% endhighlight %}
+```
 
 Cloning the source code repository:
-{% highlight bash %}
+```bash
 git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
-{% endhighlight %}
+```
 
 Building Vivado project:
-{% highlight bash %}
+```bash
 make NAME=led_blinker xpr
-{% endhighlight %}
+```
 
 Opening Vivado project:
-{% highlight bash %}
+```bash
 vivado tmp/led_blinker.xpr
-{% endhighlight %}
+```
 
 Building bitstream file:
-{% highlight bash %}
+```bash
 make NAME=led_blinker bit
-{% endhighlight %}
+```
 
-SD card image
------
+## SD card image
 
 Building `boot.bin`:
-{% highlight bash %}
+```bash
 make NAME=led_blinker all
-{% endhighlight %}
+```
 
 Building a bootable SD card image:
-{% highlight bash %}
+```bash
 sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-12-armhf.img 1024
-{% endhighlight %}
+```
 
 The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
 
@@ -135,19 +128,18 @@ The default password for the `root` account is `changeme`.
 A pre-built SD card image can be downloaded from [this link](https://www.dropbox.com/scl/fi/y9fyu3xe2nrxcb4qcrslz/red-pitaya-debian-12.4-armhf-20240204.zip?rlkey=e90izxqcoj821vslt5fo82wel&dl=1).
 
 Resizing SD card partitions on running Red Pitaya:
-{% highlight bash %}
+```bash
 # delete second partition
 echo -e "d\n2\nw" | fdisk /dev/mmcblk0
 # recreate partition
 parted -s /dev/mmcblk0 mkpart primary ext4 16MiB 100%
 # resize partition
 resize2fs /dev/mmcblk0p2
-{% endhighlight %}
+```
 
-Reprogramming FPGA
------
+## Reprogramming FPGA
 
 It's possible to reprogram the FPGA by loading the bitstream file into `/dev/xdevcfg`:
-{% highlight bash %}
+```bash
 cat led_blinker.bit > /dev/xdevcfg
-{% endhighlight %}
+```

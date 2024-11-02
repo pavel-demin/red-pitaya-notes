@@ -1,4 +1,4 @@
-name: Deploy Jekyll site to Pages
+name: Deploy 11ty site to Pages
 
 on:
   push:
@@ -21,18 +21,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          ruby-version: '3.3'
-          bundler-cache: true
+          node-version: 20
+      - name: Install 11ty
+        run: npm install
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
-      - name: Build with Jekyll
-        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
-        env:
-          JEKYLL_ENV: production
+      - name: Build with 11ty
+        run: npm run build -- --pathprefix ${{ steps.pages.outputs.base_path }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 

@@ -1,10 +1,8 @@
 ---
-layout: page
 title: Direct memory access
 ---
 
-Introduction
------
+## Introduction
 
 Two possible approaches to sending data from the FPGA to the CPU:
 - use the GP bus to read data from block RAM (BRAM)
@@ -40,8 +38,7 @@ The applications in this repository use the following combination:
 - `/dev/mem` driver for controlling IP cores
 - custom Linux driver for allocating DDR3 RAM buffers
 
-Custom IP cores
------
+## Custom IP cores
 
 The `axis_ram_writer` module implements the following logic:
 - wait until there are 16 entries in the FIFO buffer
@@ -61,15 +58,13 @@ The `sts_data` port outputs the current value of the address counter. It can be 
 
 The Verilog code of these IP cores can be found in [cores/axis_ram_writer.v](https://github.com/pavel-demin/red-pitaya-notes/tree/master/cores/axis_ram_writer.v) and [cores/axis_ram_reader.v](https://github.com/pavel-demin/red-pitaya-notes/tree/master/cores/axis_ram_reader.v).
 
-Custom Linux driver
------
+## Custom Linux driver
 
 The custom Linux driver is used to allocate a memory buffer using contiguous memory allocator (CMA). The `ioctl` function is used to allocate a memory buffer and obtain its physical address. The `mmap` function is used to obtain the virtual address of the memory buffer.
 
 The source code of the custom Linux driver can be found in [patches/cma.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/patches/cma.c).
 
-Usage examples
------
+## Usage examples
 
 The source code of projects using direct memory access can be found at the following links:
 - [projects/adc_recorder](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/adc_recorder)
