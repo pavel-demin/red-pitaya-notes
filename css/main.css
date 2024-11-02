@@ -69,8 +69,7 @@ ul ul {
 ol,
 ul {
   list-style-position: outside;
-  padding: 0;
-  padding-inline-start: 2em;
+  padding-left: 2em;
 }
 
 ol {
@@ -83,8 +82,7 @@ ul {
 
 ol > li,
 ul > li {
-  padding: 0;
-  padding-inline-start: 0.25em;
+  padding-left: 0.25em;
 }
 
 ol > li::marker {
