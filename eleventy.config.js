@@ -16,6 +16,7 @@ const plugins = [
 
 export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("img");
+  eleventyConfig.addPassthroughCopy("etc");
 
   eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
   eleventyConfig.addPlugin(InputPathToUrlTransformPlugin);
