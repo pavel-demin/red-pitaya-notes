@@ -7,7 +7,7 @@ import cssnano from "cssnano";
 
 import site from "./_data/site.js";
 
-const plugins = [
+const postcssPlugins = [
   autoprefixer(),
   cssnano({
     preset: "default",
@@ -25,13 +25,10 @@ export default function (eleventyConfig) {
 
   eleventyConfig.addExtension("css", {
     outputFileExtension: "css",
-    compile: async (content, path) => {
-      return async () => {
-        return await postcss(plugins)
-          .process(content, { from: path })
-          .then((result) => result.css);
-      };
-    },
+    compile: async (inputContent, inputPath) => async () =>
+      await postcss(postcssPlugins)
+        .process(inputContent, { from: inputPath })
+        .then((result) => result.css),
   });
 
   eleventyConfig.addShortcode("canonical", (url) => site.baseurl + url);
