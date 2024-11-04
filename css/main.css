@@ -28,8 +28,7 @@ pre {
 
 body {
   line-height: 1.5;
-  margin-left: auto;
-  margin-right: auto;
+  margin: auto;
   max-width: 100ch;
   padding-bottom: 2em;
 }
@@ -37,20 +36,19 @@ body {
 h1,
 h2 {
   font-weight: normal;
+  line-height: 1.2;
 }
 
 h1 {
   font-size: 200%;
-  line-height: 1;
-  margin-top: 2em;
 }
 
 h2 {
   font-size: 150%;
-  line-height: 1;
-  margin-top: 1.5em;
 }
 
+h1,
+h2,
 ol,
 p,
 pre,
