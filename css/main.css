@@ -103,8 +103,7 @@ a:hover {
 body,
 code,
 pre,
-tbody tr:nth-child(2n),
-thead tr {
+tbody tr:nth-child(odd) {
   background-color: #f5f5f5;
 }
 
@@ -133,8 +132,8 @@ table {
   border-collapse: collapse;
 }
 
-tbody td,
-thead th {
+td,
+th {
   border: 1px solid #d3d3d3;
   padding: 0.25em 0.5em;
   text-align: start;
