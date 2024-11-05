@@ -145,10 +145,10 @@ class FigureTab:
         freq = value
         gamma = self.vna.gamma(freq)
         if self.mode == "smith":
-            marker.set_xdata(gamma.real)
-            marker.set_ydata(gamma.imag)
+            marker.set_xdata([gamma.real])
+            marker.set_ydata([gamma.imag])
         else:
-            marker.set_xdata(freq)
+            marker.set_xdata([freq])
         row[0].set_text("%d" % freq)
         if self.mode == "gain_short":
             gain = self.vna.gain_short(freq)
