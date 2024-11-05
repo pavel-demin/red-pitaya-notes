@@ -902,10 +902,7 @@ class VNA(QMainWindow, Ui_VNA):
             gamma = self.gamma(freq)
             fh.write("# GHz S MA R 50\n")
             for i in range(freq.size):
-                fh.write(
-                    "0.0%.8d   %8.6f %7.2f   %8.6f %7.2f   0.000000    0.00   0.000000    0.00\n"
-                    % (freq[i] * 1000, np.absolute(gamma[i]), np.angle(gamma[i], deg=True), np.absolute(gain[i]), np.angle(gain[i], deg=True))
-                )
+                fh.write("0.0%.8d   %8.6f %7.2f   %8.6f %7.2f   0.000000    0.00   0.000000    0.00\n" % (freq[i] * 1000, np.absolute(gamma[i]), np.angle(gamma[i], deg=True), np.absolute(gain[i]), np.angle(gain[i], deg=True)))
             fh.close()
 
     def write_s2p_short(self):
