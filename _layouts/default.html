@@ -10,17 +10,17 @@
 <title>{% if title %}{{ title }}{% else %}{{ site.title }}{% endif %}</title>
 </head>
 <body>
-<div class="header">
-<div class="menu">
+<header>
+<div>
 <a href="/">{{ site.title }}</a>
 </div>
-<div class="menu">
+<div>
 <a href="{{ site.source }}">Source</a>
 <a href="{{ site.issues }}">Issues</a>
 </div>
-</div>
-<div class="content">
+</header>
+<article>
 {{ content -}}
-</div>
+</article>
 </body>
 </html>

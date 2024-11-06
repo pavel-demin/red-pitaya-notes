@@ -33,6 +33,16 @@ body {
   padding-bottom: 2em;
 }
 
+article {
+  background-color: #fff;
+  border-radius: 0.5em;
+  padding: 2em 1em;
+}
+
+article > * + * {
+  margin-top: 1em;
+}
+
 h1,
 h2 {
   font-weight: normal;
@@ -40,47 +50,32 @@ h2 {
 }
 
 h1 {
-  font-size: 200%;
+  font-size: 225%;
 }
 
 h2 {
   font-size: 150%;
 }
 
-h1,
-h2,
-ol,
-p,
-pre,
-table,
-ul {
-  margin-top: 1em;
-}
-
-ol ol,
-ol ul,
-ul ol,
-ul ul {
-  margin-top: 0;
-}
-
 ol,
 ul {
-  list-style-position: outside;
   padding-left: 2em;
 }
 
 ol {
-  list-style-type: decimal;
+  list-style: decimal outside;
 }
 
 ul {
-  list-style-type: disc;
+  list-style: disc outside;
 }
 
-ol > li,
-ul > li {
+li {
   padding-left: 0.25em;
+}
+
+li > p {
+  margin-top: 1em;
 }
 
 ol > li::marker {
@@ -123,7 +118,6 @@ pre {
 }
 
 pre code {
-  background-color: transparent;
   padding: 0;
   white-space: pre;
 }
@@ -144,30 +138,20 @@ img {
   max-width: 100%;
 }
 
-.content {
-  background-color: #fff;
-  border-radius: 0.5em;
-  padding: 2em 1em;
-}
-
-.content > :first-child {
-  margin-top: 0;
-}
-
-.header {
+header {
   justify-content: space-between;
   padding: 0.5em 1em;
 }
 
-.header,
-.menu {
+header,
+header div {
   column-gap: 1em;
   display: flex;
   flex-wrap: wrap;
 }
 
 @media print {
-  .header {
+  header {
     display: none;
   }
 }
