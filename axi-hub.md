@@ -9,6 +9,7 @@ All applications in this repository have a structure similar to the one shown in
 ![Application structure](/img/application-structure.png)
 
 To control, monitor and communicate with all parts of the applications, the following items are required:
+
 - configuration registers
 - status registers
 - AXI4-Stream interfaces
@@ -24,16 +25,16 @@ The corresponding Verilog code can be found in [cores/axi_hub.v](https://github.
 
 Bits 24-26 of the address are used to select one of the hub ports:
 
-hub port        | hub address
---------------- | -----------
-config register | 0
-status register | 1
-interface 0     | 2
-interface 1     | 3
-interface 2     | 4
-interface 3     | 5
-interface 4     | 6
-interface 5     | 7
+| hub port        | hub address |
+| --------------- | ----------- |
+| config register | 0           |
+| status register | 1           |
+| interface 0     | 2           |
+| interface 1     | 3           |
+| interface 2     | 4           |
+| interface 3     | 5           |
+| interface 4     | 6           |
+| interface 5     | 7           |
 
 ## Usage examples
 

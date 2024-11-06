@@ -8,11 +8,11 @@ To simplify maintenance and distribution of the pre-built applications described
 
 ## Getting started
 
- - Download [SD card image zip file]({{ site.release_image }}).
- - Copy the contents of the SD card image zip file to a micro SD card.
- - Optionally, to start one of the applications automatically at boot time, copy its `start.sh` file from `apps/<application>` to the topmost directory on the SD card.
- - Install the micro SD card in the Red Pitaya board and connect the power.
- - Applications can be started from the web interface.
+- Download [SD card image zip file]({{ site.release_image }}).
+- Copy the contents of the SD card image zip file to a micro SD card.
+- Optionally, to start one of the applications automatically at boot time, copy its `start.sh` file from `apps/<application>` to the topmost directory on the SD card.
+- Install the micro SD card in the Red Pitaya board and connect the power.
+- Applications can be started from the web interface.
 
 The default password for the `root` account is `changeme`.
 
@@ -33,6 +33,7 @@ In the local networks with enabled local DNS, Red Pitaya can also be accessed as
 The [Alpine Wiki](https://wiki.alpinelinux.org) contains a lot of information about administrating [Alpine Linux](https://alpinelinux.org). The following is a list of some useful commands.
 
 Switching to client Wi-Fi mode:
+
 ```bash
 # configure WPA supplicant
 wpa_passphrase SSID PASSPHRASE > /etc/wpa_supplicant/wpa_supplicant.conf
@@ -45,6 +46,7 @@ lbu commit -d
 ```
 
 Switching to hotspot Wi-Fi mode:
+
 ```bash
 # configure services for hotspot Wi-Fi mode
 ./wifi/hotspot.sh
@@ -54,6 +56,7 @@ lbu commit -d
 ```
 
 Changing password:
+
 ```bash
 passwd
 
@@ -61,6 +64,7 @@ lbu commit -d
 ```
 
 Installing packages:
+
 ```bash
 apk add gcc make
 
@@ -68,6 +72,7 @@ lbu commit -d
 ```
 
 Editing WSPR configuration:
+
 ```bash
 # make SD card writable
 rw
@@ -88,11 +93,13 @@ The boot process can be checked using the USB/serial console as explained at [th
 The getting started instructions are known to work with a freshly unpacked factory formatted (single partition, FAT32 file system) micro SD card.
 
 If the micro SD card was previously partitioned and formatted for other purposes, then the following commands can be used to format it:
+
 ```bash
 parted -s /dev/mmcblk0 mklabel msdos
 parted -s /dev/mmcblk0 mkpart primary fat32 4MiB 100%
 mkfs.vfat -v /dev/mmcblk0p1
 ```
+
 where `/dev/mmcblk0` is the name of the device corresponding to the micro SD card.
 
 It is also possible to write an empty SD card image with a single FAT32 partition instead of using partitioning and formatting commands. For example, a repository with several empty SD card images can be found at [this link](https://github.com/procount/fat32images).

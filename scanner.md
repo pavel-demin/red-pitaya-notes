@@ -10,9 +10,9 @@ This configuration may be useful for building a galvanometer controller for an o
 
 Some interesting links on scanning and imaging techniques:
 
- - [Scanning and Image Reconstruction Techniques in Confocal Laser Scanning Microscopy](https://www.intechopen.com/chapters/15823)
+- [Scanning and Image Reconstruction Techniques in Confocal Laser Scanning Microscopy](https://www.intechopen.com/chapters/15823)
 
- - [Spectral Imaging: Active hyperspectral sensing and imaging for remote spectroscopy applications](https://www.laserfocusworld.com/test-measurement/spectroscopy/article/16556842/spectral-imaging-active-hyperspectral-sensing-and-imaging-for-remote-spectroscopy-applications)
+- [Spectral Imaging: Active hyperspectral sensing and imaging for remote spectroscopy applications](https://www.laserfocusworld.com/test-measurement/spectroscopy/article/16556842/spectral-imaging-active-hyperspectral-sensing-and-imaging-for-remote-spectroscopy-applications)
 
 ## Hardware
 
@@ -34,25 +34,31 @@ The [projects/scanner/client](https://github.com/pavel-demin/red-pitaya-notes/tr
 
 ## Getting started with GNU/Linux
 
- - Download customized [SD card image zip file]({{ site.scanner_image }}).
- - Copy the contents of the SD card image zip file to a micro SD card.
- - Install the micro SD card in the Red Pitaya board and connect the power.
- - Install required Python libraries:
+- Download customized [SD card image zip file]({{ site.scanner_image }}).
+- Copy the contents of the SD card image zip file to a micro SD card.
+- Install the micro SD card in the Red Pitaya board and connect the power.
+- Install required Python libraries:
+
 ```bash
 sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5
 ```
- - Clone the source code repository:
+
+- Clone the source code repository:
+
 ```bash
 git clone https://github.com/pavel-demin/red-pitaya-notes
 ```
- - Run the control program:
+
+- Run the control program:
+
 ```bash
 cd red-pitaya-notes/projects/scanner/client
 python3 scanner.py
 ```
- - Type in the IP address of the Red Pitaya board and press Connect button.
- - Adjust trigger and S&H pulses and number of samples per pixel.
- - Press Scan button.
+
+- Type in the IP address of the Red Pitaya board and press Connect button.
+- Adjust trigger and S&H pulses and number of samples per pixel.
+- Press Scan button.
 
 ## Building from source
 
@@ -61,22 +67,26 @@ The installation of the development machine is described at [this link](/develop
 The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
 
 Setting up the Vitis and Vivado environment:
+
 ```bash
 source /opt/Xilinx/Vitis/2023.1/settings64.sh
 ```
 
 Cloning the source code repository:
+
 ```bash
 git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 ```
 
 Building `scanner.bit`:
+
 ```bash
 make NAME=scanner bit
 ```
 
 Building SD card image zip file:
+
 ```bash
 source helpers/build-project.sh scanner
 ```

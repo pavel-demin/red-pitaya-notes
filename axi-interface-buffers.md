@@ -6,11 +6,11 @@ title: Buffers for AXI4, AXI4-Lite and AXI4-Stream interfaces
 
 Some interesting links on implementation of buffers and AXI4 interfaces:
 
- - [Building a custom yet functional AXI-lite slave](https://zipcpu.com/blog/2019/01/12/demoaxilite.html)
+- [Building a custom yet functional AXI-lite slave](https://zipcpu.com/blog/2019/01/12/demoaxilite.html)
 
- - [Building a Skid Buffer for AXI processing](https://zipcpu.com/blog/2019/05/22/skidbuffer.html)
+- [Building a Skid Buffer for AXI processing](https://zipcpu.com/blog/2019/05/22/skidbuffer.html)
 
- - [Pipeline Skid Buffer](https://fpgacpu.ca/fpga/Pipeline_Skid_Buffer.html)
+- [Pipeline Skid Buffer](https://fpgacpu.ca/fpga/Pipeline_Skid_Buffer.html)
 
 ## Requirements
 
@@ -19,6 +19,7 @@ Since the AXI4 protocol specification requires that there are no combinational p
 To achieve good performance, these modules should have low resource usage and minimal latency.
 
 Here are the main signals of the read address and read data parts of the AXI4 slave interface:
+
 ```Verilog
 input  wire [ADDR_WIDTH-1:0] s_axi_araddr,  // AXI4-Lite slave: Read address
 input  wire                  s_axi_arvalid, // AXI4-Lite slave: Read address valid
@@ -38,9 +39,10 @@ If an interface buffer with registers on both sides is required, then these two 
 ## Input buffer
 
 The `in_ready` signal of the input buffer should have a register and this buffer should have the following behavior:
- - `in_ready` register is set to high during reset
- - when `in_ready` is high, `in_valid` and `in_data` are directly connected to `out_valid` and `out_data`
- - when `out_valid` is high and `out_ready` is low, `in_ready` becomes low, `out_valid` and `out_data` should output the last valid data until `out_ready` goes high
+
+- `in_ready` register is set to high during reset
+- when `in_ready` is high, `in_valid` and `in_data` are directly connected to `out_valid` and `out_data`
+- when `out_valid` is high and `out_ready` is low, `in_ready` becomes low, `out_valid` and `out_data` should output the last valid data until `out_ready` goes high
 
 A circuit implementing this behavior is shown in the following diagram:
 
@@ -66,6 +68,6 @@ Since the `in_ready` signal is used to enable the data register, it can also be 
 
 The Verilog code of the modules that use these input and output buffers can be found at the following links:
 
- - [AXI4 Hub](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_hub.v)
+- [AXI4 Hub](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_hub.v)
 
- - [AXI4-Stream IIR Filter](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axis_iir_filter.v)
+- [AXI4-Stream IIR Filter](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axis_iir_filter.v)

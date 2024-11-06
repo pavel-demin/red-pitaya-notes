@@ -8,11 +8,11 @@ This is a work in progress...
 
 Some interesting links on pulsed nuclear magnetic resonance:
 
- - [Pulsed NMR at UW](https://courses.washington.edu/phys431/PNMR/pulsed_nmr.php)
+- [Pulsed NMR at UW](https://courses.washington.edu/phys431/PNMR/pulsed_nmr.php)
 
- - [Pulsed NMR at MSU](https://web.pa.msu.edu/courses/2016spring/PHY451/Experiments/pulsed_nmr.html)
+- [Pulsed NMR at MSU](https://web.pa.msu.edu/courses/2016spring/PHY451/Experiments/pulsed_nmr.html)
 
- - [The Basics of NMR](https://www.cis.rit.edu/htbooks/nmr) by Joseph P. Hornak
+- [The Basics of NMR](https://www.cis.rit.edu/htbooks/nmr) by Joseph P. Hornak
 
 ## Short description
 
@@ -40,18 +40,23 @@ The [projects/pulsed_nmr_122_88/client](https://github.com/pavel-demin/red-pitay
 
 ## Getting started with GNU/Linux
 
- - Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
- - Copy the contents of the SD card image zip file to a micro SD card.
- - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/pulsed_nmr_122_88` to the topmost directory on the SD card.
- - Install required Python libraries:
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
+- Copy the contents of the SD card image zip file to a micro SD card.
+- Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/pulsed_nmr_122_88` to the topmost directory on the SD card.
+- Install required Python libraries:
+
 ```bash
 sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5
 ```
- - Clone the source code repository:
+
+- Clone the source code repository:
+
 ```bash
 git clone https://github.com/pavel-demin/red-pitaya-notes
 ```
- - Run the control program:
+
+- Run the control program:
+
 ```bash
 cd red-pitaya-notes/projects/pulsed_nmr_122_88/client
 python3 pulsed_nmr.py
@@ -64,22 +69,26 @@ The installation of the development machine is described at [this link](/develop
 The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
 
 Setting up the Vitis and Vivado environment:
+
 ```bash
 source /opt/Xilinx/Vitis/2023.1/settings64.sh
 ```
 
 Cloning the source code repository:
+
 ```bash
 git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 ```
 
 Building `pulsed_nmr_122_88.bit`:
+
 ```bash
 make NAME=pulsed_nmr_122_88 PART=xc7z020clg400-1 bit
 ```
 
 Building SD card image zip file:
+
 ```bash
 source helpers/build-all.sh
 ```

@@ -6,18 +6,18 @@ title: Multichannel Pulse Height Analyzer
 
 Some interesting links on radiation spectroscopy:
 
- - [Digital signal processing for BGO detectors](https://doi.org/10.1016/0168-9002(93)91105-V)
+- [Digital signal processing for BGO detectors](<https://doi.org/10.1016/0168-9002(93)91105-V>)
 
- - [Digital gamma-ray spectroscopy based on FPGA technology](https://doi.org/10.1016/S0168-9002(01)01925-8)
+- [Digital gamma-ray spectroscopy based on FPGA technology](<https://doi.org/10.1016/S0168-9002(01)01925-8>)
 
- - [Digital signal processing for segmented HPGe detectors](https://archiv.ub.uni-heidelberg.de/volltextserver/4991)
+- [Digital signal processing for segmented HPGe detectors](https://archiv.ub.uni-heidelberg.de/volltextserver/4991)
 
- - [FPGA-based algorithms for the stability improvement of high-flux X-ray spectrometric imaging detectors](https://tel.archives-ouvertes.fr/tel-02096235)
+- [FPGA-based algorithms for the stability improvement of high-flux X-ray spectrometric imaging detectors](https://tel.archives-ouvertes.fr/tel-02096235)
 
- - [CAEN Digital Pulse Height Analyser - a digital approach to
-Radiation Spectroscopy](https://www.caen.it/documents/News/32/AN2508_Digital_Pulse_Height_Analyser.pdf)
+- [CAEN Digital Pulse Height Analyser - a digital approach to
+  Radiation Spectroscopy](https://www.caen.it/documents/News/32/AN2508_Digital_Pulse_Height_Analyser.pdf)
 
- - [Spectrum Analysis Introduction](https://www.canberra.com/literature/fundamental-principles/pdf/Spectrum-Analysis.pdf)
+- [Spectrum Analysis Introduction](https://www.canberra.com/literature/fundamental-principles/pdf/Spectrum-Analysis.pdf)
 
 ## Hardware
 
@@ -53,42 +53,48 @@ The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree
 
 ## Getting started with MS Windows
 
- - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
- - Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
- - Copy the contents of the SD card image zip file to a micro SD card.
- - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
- - Install the micro SD card in the Red Pitaya board and connect the power.
- - Download and unpack the [release zip file]({{ site.release_file }}).
- - Run the `mcpha.exe` program in the `control` directory.
- - Type in the IP address of the Red Pitaya board and press Connect button.
- - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
- - Adjust amplitude threshold and time of exposure.
- - Press Start button.
+- Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
+- Copy the contents of the SD card image zip file to a micro SD card.
+- Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
+- Install the micro SD card in the Red Pitaya board and connect the power.
+- Download and unpack the [release zip file]({{ site.release_file }}).
+- Run the `mcpha.exe` program in the `control` directory.
+- Type in the IP address of the Red Pitaya board and press Connect button.
+- Select Spectrum histogram 1 or Spectrum histogram 2 tab.
+- Adjust amplitude threshold and time of exposure.
+- Press Start button.
 
 ## Getting started with GNU/Linux
 
- - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
- - Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
- - Copy the contents of the SD card image zip file to a micro SD card.
- - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
- - Install the micro SD card in the Red Pitaya board and connect the power.
- - Install Python 3 and all the required libraries::
+- Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
+- Copy the contents of the SD card image zip file to a micro SD card.
+- Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
+- Install the micro SD card in the Red Pitaya board and connect the power.
+- Install Python 3 and all the required libraries::
+
 ```bash
 sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5
 ```
- - Clone the source code repository:
+
+- Clone the source code repository:
+
 ```bash
 git clone https://github.com/pavel-demin/red-pitaya-notes
 ```
- - Run the control program:
+
+- Run the control program:
+
 ```bash
 cd red-pitaya-notes/projects/mcpha/client
 python3 mcpha.py
 ```
- - Type in the IP address of the Red Pitaya board and press Connect button.
- - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
- - Adjust amplitude threshold and time of exposure.
- - Press Start button.
+
+- Type in the IP address of the Red Pitaya board and press Connect button.
+- Select Spectrum histogram 1 or Spectrum histogram 2 tab.
+- Adjust amplitude threshold and time of exposure.
+- Press Start button.
 
 ## Building from source
 
@@ -97,22 +103,26 @@ The installation of the development machine is described at [this link](/develop
 The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
 
 Setting up the Vitis and Vivado environment:
+
 ```bash
 source /opt/Xilinx/Vitis/2023.1/settings64.sh
 ```
 
 Cloning the source code repository:
+
 ```bash
 git clone https://github.com/pavel-demin/red-pitaya-notes
 cd red-pitaya-notes
 ```
 
 Building `mcpha.bit`:
+
 ```bash
 make NAME=mcpha bit
 ```
 
 Building SD card image zip file:
+
 ```bash
 source helpers/build-all.sh
 ```

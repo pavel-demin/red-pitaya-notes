@@ -83,6 +83,7 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 - Download "AMD Unified Installer for FPGAs & Adaptive SoCs 2023.1 SFD" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2023-1.html) (the file name is Xilinx_Unified_2023.1_0507_1903.tar.gz)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
+
 ```bash
 mkdir /opt/Xilinx
 tar -zxf Xilinx_Unified_2023.1_0507_1903.tar.gz
