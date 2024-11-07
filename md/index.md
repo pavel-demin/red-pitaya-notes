@@ -1,5 +1,6 @@
 ---
 layout: default.html
+permalink: /
 ---
 
 ![My Red Pitaya](/img/my-red-pitaya.jpg)
