@@ -4,7 +4,7 @@ title: Playground
 
 ## Introduction
 
-The combination of Jupyter notebooks, the [pyhubio](https://github.com/pavel-demin/pyhubio) library and the [AXI4 hub](/axi-hub.md) allows interactive communication with all parts of the FPGA configuration and visualization of input and output data, making testing and prototyping more dynamic.
+The combination of Jupyter notebooks, the [pyhubio](https://github.com/pavel-demin/pyhubio) library and the [AXI4 hub](/axi-hub/) allows interactive communication with all parts of the FPGA configuration and visualization of input and output data, making testing and prototyping more dynamic.
 
 The [notebooks](https://github.com/pavel-demin/red-pitaya-notes/tree/master/notebooks) directory contains a few examples of Jupyter notebooks.
 
@@ -22,7 +22,7 @@ A pre-built Vivado project can be found in the `playground` directory in the [re
 
 ## Getting started
 
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md))
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/))
 - Copy the contents of the SD card image zip file to a micro SD card
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/playground` to the topmost directory on the SD card
 - Install the micro SD card in the Red Pitaya board and connect the power

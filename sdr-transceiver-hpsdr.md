@@ -18,7 +18,7 @@ The HPSDR/Metis communication protocol is described in the following documents:
 
 ## Hardware
 
-The implementation of this SDR transceiver is similar to the previous version of the SDR transceiver that is described in more details at [this link](/sdr-transceiver.md).
+The implementation of this SDR transceiver is similar to the previous version of the SDR transceiver that is described in more details at [this link](/sdr-transceiver/).
 
 The main problem in emulating the HPSDR hardware with Red Pitaya is that the Red Pitaya ADC sample rate is 125 MSPS and the HPSDR ADC sample rate is 122.88 MSPS.
 
@@ -136,7 +136,7 @@ This SDR transceiver should work with most of the programs that support the HPSD
 
 ## Getting started
 
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_hpsdr` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -189,9 +189,9 @@ The following figure shows the spectrum of the CW signal keyed at 50 WPM.
 
 ## Building from source
 
-The installation of the development machine is described at [this link](/development-machine.md).
+The installation of the development machine is described at [this link](/development-machine/).
 
-The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
+The structure of the source code and of the development chain is described at [this link](/led-blinker/).
 
 Setting up the Vitis and Vivado environment:
 

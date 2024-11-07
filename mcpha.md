@@ -54,7 +54,7 @@ The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree
 ## Getting started with MS Windows
 
 - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -68,7 +68,7 @@ The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree
 ## Getting started with GNU/Linux
 
 - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -98,9 +98,9 @@ python3 mcpha.py
 
 ## Building from source
 
-The installation of the development machine is described at [this link](/development-machine.md).
+The installation of the development machine is described at [this link](/development-machine/).
 
-The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
+The structure of the source code and of the development chain is described at [this link](/led-blinker/).
 
 Setting up the Vitis and Vivado environment:
 

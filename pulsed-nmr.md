@@ -40,7 +40,7 @@ The [projects/pulsed_nmr/client](https://github.com/pavel-demin/red-pitaya-notes
 
 ## Getting started with GNU/Linux
 
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/pulsed_nmr` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -65,9 +65,9 @@ python3 pulsed_nmr.py
 
 ## Building from source
 
-The installation of the development machine is described at [this link](/development-machine.md).
+The installation of the development machine is described at [this link](/development-machine/).
 
-The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
+The structure of the source code and of the development chain is described at [this link](/led-blinker/).
 
 Setting up the Vitis and Vivado environment:
 

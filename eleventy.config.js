@@ -19,7 +19,6 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("etc");
 
   eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
-  eleventyConfig.addPlugin(InputPathToUrlTransformPlugin);
 
   eleventyConfig.setTemplateFormats(["md", "css"]);
 

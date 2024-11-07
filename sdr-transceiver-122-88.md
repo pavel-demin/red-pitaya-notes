@@ -39,7 +39,7 @@ The [projects/sdr_transceiver_122_88/gnuradio](https://github.com/pavel-demin/re
 ## Getting started with GNU Radio
 
 - Connect an antenna to the IN1 connector on the Red Pitaya board.
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_122_88` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -66,7 +66,7 @@ gnuradio-companion trx_am.grc
 ## Getting started with SDR# and HDSDR
 
 - Connect an antenna to the IN1 connector on the Red Pitaya board.
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_122_88` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -80,9 +80,9 @@ gnuradio-companion trx_am.grc
 
 ## Building from source
 
-The installation of the development machine is described at [this link](/development-machine.md).
+The installation of the development machine is described at [this link](/development-machine/).
 
-The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
+The structure of the source code and of the development chain is described at [this link](/led-blinker/).
 
 Setting up the Vitis and Vivado environment:
 

@@ -62,9 +62,9 @@ python3 scanner.py
 
 ## Building from source
 
-The installation of the development machine is described at [this link](/development-machine.md).
+The installation of the development machine is described at [this link](/development-machine/).
 
-The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
+The structure of the source code and of the development chain is described at [this link](/led-blinker/).
 
 Setting up the Vitis and Vivado environment:
 

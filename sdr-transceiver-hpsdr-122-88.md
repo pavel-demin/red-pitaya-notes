@@ -130,7 +130,7 @@ This SDR transceiver should work with most of the programs that support the HPSD
 
 ## Getting started
 
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine.md)).
+- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_hpsdr_122_88` to the topmost directory on the SD card.
 - Install the micro SD card in the STEMlab SDR board and connect the power.
@@ -183,9 +183,9 @@ The following figure shows the spectrum of the CW signal keyed at 50 WPM.
 
 ## Building from source
 
-The installation of the development machine is described at [this link](/development-machine.md).
+The installation of the development machine is described at [this link](/development-machine/).
 
-The structure of the source code and of the development chain is described at [this link](/led-blinker.md).
+The structure of the source code and of the development chain is described at [this link](/led-blinker/).
 
 Setting up the Vitis and Vivado environment:
 
