@@ -1,5 +1,5 @@
 import { EleventyHtmlBasePlugin } from "@11ty/eleventy";
-import { InputPathToUrlTransformPlugin } from "@11ty/eleventy";
+import { IdAttributePlugin } from "@11ty/eleventy";
 
 import postcss from "postcss";
 import autoprefixer from "autoprefixer";
@@ -19,6 +19,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("etc");
 
   eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
+  eleventyConfig.addPlugin(IdAttributePlugin);
 
   eleventyConfig.setTemplateFormats(["md", "css"]);
 
