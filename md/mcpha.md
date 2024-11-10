@@ -1,6 +1,4 @@
----
-title: Multichannel Pulse Height Analyzer
----
+# Multichannel Pulse Height Analyzer
 
 ## Interesting links
 
@@ -54,11 +52,11 @@ The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree
 ## Getting started with MS Windows
 
 - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
-- Download and unpack the [release zip file]({{ site.release_file }}).
+- Download and unpack the [release zip file](release_file).
 - Run the `mcpha.exe` program in the `control` directory.
 - Type in the IP address of the Red Pitaya board and press Connect button.
 - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
@@ -68,7 +66,7 @@ The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree
 ## Getting started with GNU/Linux
 
 - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.

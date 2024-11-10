@@ -1,6 +1,4 @@
----
-title: Multiband FT8 transceiver
----
+# Multiband FT8 transceiver
 
 ## Short description
 
@@ -48,7 +46,7 @@ The measurement and correction of the frequency deviation is disabled by default
 
 ## Getting started
 
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_ft8` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.

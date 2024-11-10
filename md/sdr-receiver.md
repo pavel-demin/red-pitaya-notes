@@ -1,6 +1,4 @@
----
-title: SDR receiver
----
+# SDR receiver
 
 ## Interesting links
 
@@ -45,12 +43,12 @@ I use simple indoor antennas made from a single loop of non-coaxial wire. Their 
 ## Getting started
 
 - Connect an antenna to the IN1 connector on the Red Pitaya board.
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_receiver` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
 - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](https://www.hdsdr.de).
-- Download and unpack the [SDR SMEM zip file]({{ site.sdr_smem_file }}).
+- Download and unpack the [SDR SMEM zip file](sdr_smem_file).
 - Copy `extio_smem.dll` into the SDR# or HDSDR installation directory.
 - Start SDR# or HDSDR.
 - Select SMEM from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
@@ -60,7 +58,7 @@ I use simple indoor antennas made from a single loop of non-coaxial wire. Their 
 ## Running CW Skimmer Server and Reverse Beacon Network Aggregator
 
 - Install [CW Skimmer Server](https://dxatlas.com/skimserver).
-- Download and unpack the [SDR SMEM zip file]({{ site.sdr_smem_file }}).
+- Download and unpack the [SDR SMEM zip file](sdr_smem_file).
 - Start `tcp_smem.exe`, enter the IP address of the Red Pitaya board and press the Connect button.
 - Copy `intf_smem.dll` to the CW Skimmer Server program directory (`C:\Program Files (x86)\Afreet\SkimSrv`).
 - Install [Reverse Beacon Network Aggregator](https://www.reversebeacon.net/pages/Aggregator+34).

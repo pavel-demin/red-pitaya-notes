@@ -1,6 +1,4 @@
----
-title: SDR receiver compatible with HPSDR
----
+# SDR receiver compatible with HPSDR
 
 ## Introduction
 
@@ -50,7 +48,7 @@ This SDR receiver should work with most of the programs that support the HPSDR/M
 
 ## Getting started
 
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_receiver_hpsdr` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.

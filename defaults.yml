@@ -1,0 +1,11 @@
+standalone: true
+template: page.html
+
+reader: markdown-implicit_figures
+writer: html
+
+highlight-style: null
+wrap: none
+
+metadata-file: metadata.yml
+filters: [filters.lua]

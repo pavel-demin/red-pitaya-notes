@@ -1,6 +1,4 @@
----
-title: LED blinker
----
+# LED blinker
 
 ## Introduction
 

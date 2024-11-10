@@ -1,6 +1,4 @@
----
-title: Scanning system
----
+# Scanning system
 
 ## Introduction
 
@@ -34,7 +32,7 @@ The [projects/scanner/client](https://github.com/pavel-demin/red-pitaya-notes/tr
 
 ## Getting started with GNU/Linux
 
-- Download customized [SD card image zip file]({{ site.scanner_image }}).
+- Download customized [SD card image zip file](scanner_image).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
 - Install required Python libraries:

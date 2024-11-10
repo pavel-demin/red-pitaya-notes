@@ -1,6 +1,4 @@
----
-title: Pulsed NMR system
----
+# Pulsed NMR system
 
 This is a work in progress...
 
@@ -40,7 +38,7 @@ The [projects/pulsed_nmr_122_88/client](https://github.com/pavel-demin/red-pitay
 
 ## Getting started with GNU/Linux
 
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/pulsed_nmr_122_88` to the topmost directory on the SD card.
 - Install required Python libraries:

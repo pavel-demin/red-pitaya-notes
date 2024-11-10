@@ -1,6 +1,4 @@
----
-title: Buffers for AXI4, AXI4-Lite and AXI4-Stream interfaces
----
+# Buffers for AXI4, AXI4-Lite and AXI4-Stream interfaces
 
 ## Interesting links
 

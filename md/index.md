@@ -1,7 +1,3 @@
----
-permalink: /
----
-
 ![My Red Pitaya](/img/my-red-pitaya.jpg)
 
 1. [List of components](/components/)

@@ -1,6 +1,4 @@
----
-title: AXI4 hub
----
+# AXI4 hub
 
 ## Requirements
 

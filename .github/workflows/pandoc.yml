@@ -1,4 +1,4 @@
-name: Deploy 11ty site to Pages
+name: Deploy Pandoc site to Pages
 
 on:
   push:
@@ -21,17 +21,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Install 11ty
-        run: npm install
+      - name: Install Pandoc
+        run: sudo apt install make pandoc
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
-      - name: Build with 11ty
-        run: npm run build -- --pathprefix ${{ steps.pages.outputs.base_path }}
+      - name: Build with Pandoc
+        run: make BASE=${{ steps.pages.outputs.base_path }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 

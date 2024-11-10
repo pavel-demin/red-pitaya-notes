@@ -1,6 +1,4 @@
----
-title: Wideband SDR transceiver
----
+# Wideband SDR transceiver
 
 ## Introduction
 
@@ -40,7 +38,7 @@ Here is a picture of a complex 1 kHz cosine waveform as seen by an oscilloscope 
 ## Getting started
 
 - Connect an antenna to the IN1 connector on the Red Pitaya board.
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_wide` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.

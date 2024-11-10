@@ -1,6 +1,4 @@
----
-title: Direct memory access
----
+# Direct memory access
 
 ## Introduction
 

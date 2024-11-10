@@ -1,6 +1,4 @@
----
-title: List of components
----
+# List of components
 
 The following is a list of components that can be used with Red Pitaya.
 

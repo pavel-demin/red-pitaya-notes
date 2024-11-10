@@ -1,6 +1,4 @@
----
-title: SDR transceiver
----
+# SDR transceiver
 
 ## Hardware
 
@@ -41,7 +39,7 @@ The [projects/sdr_transceiver/gnuradio](https://github.com/pavel-demin/red-pitay
 ## Getting started with GNU Radio
 
 - Connect an antenna to the IN1 connector on the Red Pitaya board.
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -68,12 +66,12 @@ gnuradio-companion trx_am.grc
 ## Getting started with SDR# and HDSDR
 
 - Connect an antenna to the IN1 connector on the Red Pitaya board.
-- Download [SD card image zip file]({{ site.release_image }}) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
 - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](https://www.hdsdr.de).
-- Download [pre-built ExtIO plug-in]({{ site.extio_file }}) for SDR# and HDSDR.
+- Download [pre-built ExtIO plug-in](extio_file) for SDR# and HDSDR.
 - Copy `extio_red_pitaya.dll` into the SDR# or HDSDR installation directory.
 - Start SDR# or HDSDR.
 - Select Red Pitaya from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
