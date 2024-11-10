@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Pandoc
-        run: sudo apt install make pandoc
+        run: sudo apt-get update && sudo apt-get -yq install pandoc
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
