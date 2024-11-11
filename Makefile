@@ -1,10 +1,12 @@
-BASE =
+BASE_URL =
+BASE_PATH =
+
 SITE = _site
 
 PAGES = $(filter-out index, $(basename $(notdir $(wildcard md/*.md))))
 CONTENT = $(addprefix $(SITE)/, etc css img index.html $(addsuffix /index.html, $(PAGES)))
 
-PANDOC = pandoc --defaults defaults.yml --metadata base=$(abspath $(BASE))
+PANDOC = pandoc -d defaults.yml -M base_url=$(BASE_URL) -M base_path=$(BASE_PATH)
 
 MKDIR = mkdir -p
 CP = cp -r
@@ -20,7 +22,7 @@ $(SITE)/%: %
 $(SITE)/%.html $(SITE)/%/index.html: md/%.md
 	@echo ">> Converting $^"
 	@$(MKDIR) $(@D)
-	@$(PANDOC) --metadata page=$* --output $@ $^
+	@$(PANDOC) -M page=$* -o $@ $^
 
 serve:
 	@python3 -m http.server --bind 127.0.0.1 --directory $(SITE)
