@@ -1,4 +1,3 @@
-
 local meta = {}
 local title = nil
 local stringify = pandoc.utils.stringify
@@ -37,4 +36,13 @@ function change_image_src(i)
   return i
 end
 
-return {{Header = get_title, Meta = change_meta}, {Link = change_link_target, Image = change_image_src}}
+return {
+  {
+    Header = get_title,
+    Meta = change_meta
+  },
+  {
+    Link = change_link_target,
+    Image = change_image_src
+  }
+}
