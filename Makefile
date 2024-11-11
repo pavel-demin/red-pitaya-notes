@@ -10,10 +10,7 @@ MKDIR = mkdir -p
 CP = cp -r
 RM = rm -rf
 
-all: $(SITE) $(CONTENT)
-
-$(SITE):
-	@$(MKDIR) $@
+all: $(CONTENT)
 
 $(SITE)/%: %
 	@echo ">> Copying $^"
