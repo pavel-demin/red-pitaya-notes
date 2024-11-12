@@ -18,30 +18,30 @@ The basic blocks of the system are shown in the following diagram:
 
 ![Vector Network Analyzer](/img/vna.png)
 
-The [projects/vna](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/vna) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
+The [projects/vna]($source$/projects/vna) directory contains one Tcl file [block_design.tcl]($source$/projects/vna/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
 ## Software
 
-The [projects/vna/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/vna/server) directory contains the source code of the TCP server ([vna.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/server/vna.c)) that receives control commands and transmits the data to the control program running on a remote PC.
+The [projects/vna/server]($source$/projects/vna/server) directory contains the source code of the TCP server ([vna.c]($source$/projects/vna/server/vna.c)) that receives control commands and transmits the data to the control program running on a remote PC.
 
-The [projects/vna/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/vna/client) directory contains the source code of the control program ([vna.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/vna/client/vna.py)).
+The [projects/vna/client]($source$/projects/vna/client) directory contains the source code of the control program ([vna.py]($source$/projects/vna/client/vna.py)).
 
 ![VNA client](/img/vna-client.png)
 
 ## Getting started with MS Windows
 
-- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file]($release_image$) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
-- Download and unpack the [release zip file](release_file).
+- Download and unpack the [release zip file]($release_file$).
 - Run the `vna.exe` program in the `control` directory.
 - Type in the IP address of the Red Pitaya board and press Connect button.
 - Perform calibration and measurements.
 
 ## Getting started with GNU/Linux
 
-- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file]($release_image$) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/vna` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.

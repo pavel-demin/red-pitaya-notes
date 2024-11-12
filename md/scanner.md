@@ -20,19 +20,19 @@ The basic blocks of the system are shown in the following diagram:
 
 ![Scanner](/img/scanner.png)
 
-The [projects/scanner](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/scanner) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/scanner/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
+The [projects/scanner]($source$/projects/scanner) directory contains one Tcl file [block_design.tcl]($source$/projects/scanner/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
 ## Software
 
-The [projects/scanner/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/scanner/server) directory contains the source code of the TCP server ([scanner.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/scanner/server/scanner.c)) that receives control commands and transmits the data to the control program running on a remote PC.
+The [projects/scanner/server]($source$/projects/scanner/server) directory contains the source code of the TCP server ([scanner.c]($source$/projects/scanner/server/scanner.c)) that receives control commands and transmits the data to the control program running on a remote PC.
 
-The [projects/scanner/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/scanner/client) directory contains the source code of the control program ([scanner.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/scanner/client/scanner.py)).
+The [projects/scanner/client]($source$/projects/scanner/client) directory contains the source code of the control program ([scanner.py]($source$/projects/scanner/client/scanner.py)).
 
 ![Scanner client](/img/scanner-client.png)
 
 ## Getting started with GNU/Linux
 
-- Download customized [SD card image zip file](scanner_image).
+- Download customized [SD card image zip file]($scanner_image$).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
 - Install required Python libraries:

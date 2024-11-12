@@ -42,11 +42,11 @@ The source code is available at
 
 This repository contains the following components:
 
-- [Makefile](https://github.com/pavel-demin/red-pitaya-notes/blob/master/Makefile) that builds everything (almost)
-- [cfg](https://github.com/pavel-demin/red-pitaya-notes/tree/master/cfg) directory with constraints and board definition files
-- [cores](https://github.com/pavel-demin/red-pitaya-notes/tree/master/cores) directory with IP cores written in Verilog
-- [projects](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects) directory with Vivado projects written in Tcl
-- [scripts](https://github.com/pavel-demin/red-pitaya-notes/tree/master/scripts) directory with
+- [Makefile]($source$/Makefile) that builds everything (almost)
+- [cfg]($source$/cfg) directory with constraints and board definition files
+- [cores]($source$/cores) directory with IP cores written in Verilog
+- [projects]($source$/projects) directory with Vivado projects written in Tcl
+- [scripts]($source$/scripts) directory with
   - Tcl scripts for Vivado and SDK
   - shell scripts that build a bootable SD card and SD card image
 
@@ -56,7 +56,7 @@ All steps of the development chain and the corresponding scripts are shown in th
 
 ## Syntactic sugar for IP cores
 
-The [projects/led_blinker](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/led_blinker) directory contains one Tcl file [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/led_blinker/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
+The [projects/led_blinker]($source$/projects/led_blinker) directory contains one Tcl file [block_design.tcl]($source$/projects/led_blinker/block_design.tcl) that instantiates, configures and interconnects all the needed IP cores.
 
 By default, the IP core instantiation and configuration commands are quite verbose:
 
@@ -78,7 +78,7 @@ cell xilinx.com:ip:processing_system7:5.5 ps_0 {
 }
 ```
 
-The `cell` command and other helper commands are defined in the [scripts/project.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/scripts/project.tcl) script.
+The `cell` command and other helper commands are defined in the [scripts/project.tcl]($source$/scripts/project.tcl) script.
 
 ## Getting started
 

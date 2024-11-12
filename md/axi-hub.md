@@ -17,7 +17,7 @@ To control, monitor and communicate with all parts of the applications, the foll
 
 The hub interface consists of all required registers and interfaces connected to the different parts of the applications and an AXI4 slave interface used to communicate with the CPU.
 
-The corresponding Verilog code can be found in [cores/axi_hub.v](https://github.com/pavel-demin/red-pitaya-notes/blob/master/cores/axi_hub.v).
+The corresponding Verilog code can be found in [cores/axi_hub.v]($source$/cores/axi_hub.v).
 
 ## Addresses
 
@@ -40,4 +40,4 @@ A basic project with the hub interface, ADC interface, and DAC interface is show
 
 ![Template project](/img/template-project.png)
 
-This template project can be used as a starting point for projects requiring ADC, DAC and hub interface. The Tcl code of this project can be found in [projects/template](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/template).
+This template project can be used as a starting point for projects requiring ADC, DAC and hub interface. The Tcl code of this project can be found in [projects/template]($source$/projects/template).

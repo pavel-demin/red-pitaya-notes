@@ -20,10 +20,16 @@ function change_meta(m)
   return m
 end
 
+function expand(s)
+  v = meta[s:sub(2, -2)]
+  if v then
+    return stringify(v)
+  end
+end
+
 function change_link_target(l)
-  if meta[l.target] then
-    l.target = stringify(meta[l.target])
-  elseif l.target:sub(1, 1) == "/" then
+  l.target = l.target:gsub("(%b$$)", expand)
+  if l.target:sub(1, 1) == "/" then
     l.target = meta.base_path .. l.target
   end
   return l

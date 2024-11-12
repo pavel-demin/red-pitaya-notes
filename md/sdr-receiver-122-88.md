@@ -10,13 +10,13 @@ The I/Q data rate is configurable and four settings are available: 48, 96, 192, 
 
 The tunable frequency range covers from 0 Hz to 490 MHz.
 
-The [projects/sdr_receiver_122_88](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_122_88) directory contains two Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_122_88/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_122_88/rx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/sdr_receiver_122_88]($source$/projects/sdr_receiver_122_88) directory contains two Tcl files: [block_design.tcl]($source$/projects/sdr_receiver_122_88/block_design.tcl), [rx.tcl]($source$/projects/sdr_receiver_122_88/rx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
-The [projects/sdr_receiver_122_88/filters](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_122_88/filters) directory contains the source code of the [R](https://www.r-project.org) scripts used to calculate the coefficients of the FIR filters.
+The [projects/sdr_receiver_122_88/filters]($source$/projects/sdr_receiver_122_88/filters) directory contains the source code of the [R](https://www.r-project.org) scripts used to calculate the coefficients of the FIR filters.
 
 ## Software
 
-The [projects/sdr_receiver_122_88/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_122_88/server) directory contains the source code of the TCP server ([sdr-receiver.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_122_88/server/sdr-receiver.c)) that receives control commands and transmits the I/Q data streams to the SDR programs.
+The [projects/sdr_receiver_122_88/server]($source$/projects/sdr_receiver_122_88/server) directory contains the source code of the TCP server ([sdr-receiver.c]($source$/projects/sdr_receiver_122_88/server/sdr-receiver.c)) that receives control commands and transmits the I/Q data streams to the SDR programs.
 
 The [SDR SMEM](https://github.com/pavel-demin/sdr-smem) repository contains the source code of the TCP client ([tcp_smem.lpr](https://github.com/pavel-demin/sdr-smem/blob/main/tcp_smem.lpr)), ExtIO plug-in ([extio_smem.lpr](https://github.com/pavel-demin/sdr-smem/blob/main/extio_smem.lpr)) and other programs and plug-ins. The following diagram shows an example of how these programs and plug-ins can be used:
 
@@ -33,12 +33,12 @@ I use simple indoor antennas made from a single loop of non-coaxial wire. Their 
 ## Getting started
 
 - Connect an antenna to the IN1 connector on the Red Pitaya board.
-- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file]($release_image$) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_receiver_122_88` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
 - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](https://www.hdsdr.de).
-- Download and unpack the [SDR SMEM zip file](sdr_smem_file).
+- Download and unpack the [SDR SMEM zip file]($sdr_smem_file$).
 - Copy `extio_smem.dll` into the SDR# or HDSDR installation directory.
 - Start SDR# or HDSDR.
 - Select SMEM from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
@@ -48,7 +48,7 @@ I use simple indoor antennas made from a single loop of non-coaxial wire. Their 
 ## Running CW Skimmer Server and Reverse Beacon Network Aggregator
 
 - Install [CW Skimmer Server](https://dxatlas.com/skimserver).
-- Download and unpack the [SDR SMEM zip file](sdr_smem_file).
+- Download and unpack the [SDR SMEM zip file]($sdr_smem_file$).
 - Make a copy of the `tcp_smem.exe` program and rename the copy to `tcp_smem_1.exe`.
 - Start `tcp_smem.exe` and `tcp_smem_1.exe`, enter the IP addresses of the Red Pitaya board and press the Connect button.
 - Copy `intf_smem.dll` to the CW Skimmer Server program directory (`C:\Program Files (x86)\Afreet\SkimSrv`).

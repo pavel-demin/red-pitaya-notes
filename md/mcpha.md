@@ -37,26 +37,26 @@ The embedded oscilloscope can be used to check the shape of the pulse at the inp
 
 The exponential pulse generator can be used to generate signals with specified time and amplitude distributions. It consists of an impulse generator module and two IIR filters. The impulse generator module outputs a 8 ns (1 clock cycle at 125 MHz) impulse of a required amplitude and after a required time interval. The two IIR filters are used to emulate the exponentially rising and exponentially decaying edges of the generated pulses.
 
-The [projects/mcpha](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha) directory contains five Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/block_design.tcl), [pha.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/pha.tcl), [hst.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/hst.tcl), [osc.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/osc.tcl), [gen.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/gen.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/mcpha]($source$/projects/mcpha) directory contains five Tcl files: [block_design.tcl]($source$/projects/mcpha/block_design.tcl), [pha.tcl]($source$/projects/mcpha/pha.tcl), [hst.tcl]($source$/projects/mcpha/hst.tcl), [osc.tcl]($source$/projects/mcpha/osc.tcl), [gen.tcl]($source$/projects/mcpha/gen.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
-The source code of the [R](https://www.r-project.org) script used to calculate the coefficients of the FIR filter can be found in [projects/mcpha/filters/fir_0.r](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/filters/fir_0.r).
+The source code of the [R](https://www.r-project.org) script used to calculate the coefficients of the FIR filter can be found in [projects/mcpha/filters/fir_0.r]($source$/projects/mcpha/filters/fir_0.r).
 
 ## Software
 
-The [projects/mcpha/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha/server) directory contains the source code of the TCP server ([mcpha-server.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/server/mcpha-server.c)) that receives control commands and transmits the data to the control program running on a remote PC.
+The [projects/mcpha/server]($source$/projects/mcpha/server) directory contains the source code of the TCP server ([mcpha-server.c]($source$/projects/mcpha/server/mcpha-server.c)) that receives control commands and transmits the data to the control program running on a remote PC.
 
-The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/mcpha/client) directory contains the source code of the control program ([mcpha.py](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/mcpha/client/mcpha.py)).
+The [projects/mcpha/client]($source$/projects/mcpha/client) directory contains the source code of the control program ([mcpha.py]($source$/projects/mcpha/client/mcpha.py)).
 
 ![MCPHA client](/img/mcpha-client.png)
 
 ## Getting started with MS Windows
 
 - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
-- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file]($release_image$) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
-- Download and unpack the [release zip file](release_file).
+- Download and unpack the [release zip file]($release_file$).
 - Run the `mcpha.exe` program in the `control` directory.
 - Type in the IP address of the Red Pitaya board and press Connect button.
 - Select Spectrum histogram 1 or Spectrum histogram 2 tab.
@@ -66,7 +66,7 @@ The [projects/mcpha/client](https://github.com/pavel-demin/red-pitaya-notes/tree
 ## Getting started with GNU/Linux
 
 - Connect a signal source to the IN1 or IN2 connector on the Red Pitaya board.
-- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file]($release_image$) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/mcpha` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.

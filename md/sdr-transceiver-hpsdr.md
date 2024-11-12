@@ -36,11 +36,11 @@ The digital up-converter consists of similar blocks but arranged in an opposite 
 
 ![DUC](/img/sdr-transceiver-hpsdr-duc.png)
 
-The [projects/sdr_transceiver_hpsdr](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr) directory contains three Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/rx.tcl), [tx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/sdr_transceiver_hpsdr]($source$/projects/sdr_transceiver_hpsdr) directory contains three Tcl files: [block_design.tcl]($source$/projects/sdr_transceiver_hpsdr/block_design.tcl), [rx.tcl]($source$/projects/sdr_transceiver_hpsdr/rx.tcl), [tx.tcl]($source$/projects/sdr_transceiver_hpsdr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
-The [projects/sdr_transceiver_hpsdr/filters](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr/filters) directory contains the source code of the [R](https://www.r-project.org) scripts used to calculate the coefficients of the FIR filters.
+The [projects/sdr_transceiver_hpsdr/filters]($source$/projects/sdr_transceiver_hpsdr/filters) directory contains the source code of the [R](https://www.r-project.org) scripts used to calculate the coefficients of the FIR filters.
 
-The [projects/sdr_transceiver_hpsdr/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_transceiver_hpsdr/server) directory contains the source code of the UDP server ([sdr-transceiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c)) that receives control commands and transmits/receives the I/Q data streams to/from the SDR programs.
+The [projects/sdr_transceiver_hpsdr/server]($source$/projects/sdr_transceiver_hpsdr/server) directory contains the source code of the UDP server ([sdr-transceiver-hpsdr.c]($source$/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c)) that receives control commands and transmits/receives the I/Q data streams to/from the SDR programs.
 
 ## RF, GPIO and XADC connections
 
@@ -73,7 +73,7 @@ The HPSDR signals sent to the [TPIC6B595](https://www.ti.com/product/TPIC6B595) 
 
 ## I2C connections
 
-This interface is designed by Peter DC2PD. The [sdr-transceiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c) server communicates with one or two [PCA9555](https://www.ti.com/product/PCA9555) chips connected to the I2C pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2).
+This interface is designed by Peter DC2PD. The [sdr-transceiver-hpsdr.c]($source$/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c) server communicates with one or two [PCA9555](https://www.ti.com/product/PCA9555) chips connected to the I2C pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2).
 
 HPSDR signals sent to the [PCA9555](https://www.ti.com/product/PCA9555) chip at address 0 (0x20):
 
@@ -134,7 +134,7 @@ This SDR transceiver should work with most of the programs that support the HPSD
 
 ## Getting started
 
-- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file]($release_image$) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_transceiver_hpsdr` to the topmost directory on the SD card.
 - Install the micro SD card in the Red Pitaya board and connect the power.
@@ -152,7 +152,7 @@ The first four arguments are for the receivers (RX1, RX2, RX3, RX4), where 1 cor
 
 The last two arguments are for the outputs (OUT1, OUT2), where 1 corresponds to the TX signal and 2 corresponds to the envelope signal.
 
-For example, to send the TX signal to OUT2, the corresponding line in [start.sh](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_transceiver_hpsdr/app/start.sh#L9) should be edited and the last argument should be set to 1:
+For example, to send the TX signal to OUT2, the corresponding line in [start.sh]($source$/projects/sdr_transceiver_hpsdr/app/start.sh#L9) should be edited and the last argument should be set to 1:
 
 ```
 sdr-transceiver-hpsdr 1 2 2 2 1 1

@@ -20,11 +20,11 @@ The I/Q data rate is configurable and four settings are available: 48, 96, 192, 
 
 The tunable frequency range covers from 0 Hz to 61.44 MHz.
 
-The [projects/sdr_receiver_hpsdr_122_88](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_hpsdr_122_88) directory contains two Tcl files: [block_design.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_hpsdr_122_88/block_design.tcl), [rx.tcl](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_hpsdr_122_88/rx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
+The [projects/sdr_receiver_hpsdr_122_88]($source$/projects/sdr_receiver_hpsdr_122_88) directory contains two Tcl files: [block_design.tcl]($source$/projects/sdr_receiver_hpsdr_122_88/block_design.tcl), [rx.tcl]($source$/projects/sdr_receiver_hpsdr_122_88/rx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
-The [projects/sdr_receiver_hpsdr_122_88/filters](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_hpsdr_122_88/filters) directory contains the source code of the [R](https://www.r-project.org) scripts used to calculate the coefficients of the FIR filters.
+The [projects/sdr_receiver_hpsdr_122_88/filters]($source$/projects/sdr_receiver_hpsdr_122_88/filters) directory contains the source code of the [R](https://www.r-project.org) scripts used to calculate the coefficients of the FIR filters.
 
-The [projects/sdr_receiver_hpsdr_122_88/server](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_hpsdr_122_88/server) directory contains the source code of the UDP server ([sdr-receiver-hpsdr.c](https://github.com/pavel-demin/red-pitaya-notes/blob/master/projects/sdr_receiver_hpsdr_122_88/server/sdr-receiver-hpsdr.c)) that receives control commands and transmits the I/Q data streams to the SDR programs.
+The [projects/sdr_receiver_hpsdr_122_88/server]($source$/projects/sdr_receiver_hpsdr_122_88/server) directory contains the source code of the UDP server ([sdr-receiver-hpsdr.c]($source$/projects/sdr_receiver_hpsdr_122_88/server/sdr-receiver-hpsdr.c)) that receives control commands and transmits the I/Q data streams to the SDR programs.
 
 ## Software
 
@@ -44,7 +44,7 @@ This SDR receiver should work with most of the programs that support the HPSDR/M
 
 ## Getting started
 
-- Download [SD card image zip file](release_image) (more details about the SD card image can be found at [this link](/alpine/)).
+- Download [SD card image zip file]($release_image$) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/sdr_receiver_hpsdr_122_88` to the topmost directory on the SD card.
 - Install the micro SD card in the STEMlab SDR board and connect the power.

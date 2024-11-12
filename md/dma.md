@@ -64,21 +64,21 @@ The modules have two input ports for dynamically configurable parameters:
 
 The `sts_data` port outputs the current value of the address counter. It can be used to check what memory addresses the modules have already accessed.
 
-The Verilog code of these IP cores can be found in [cores/axis_ram_writer.v](https://github.com/pavel-demin/red-pitaya-notes/tree/master/cores/axis_ram_writer.v) and [cores/axis_ram_reader.v](https://github.com/pavel-demin/red-pitaya-notes/tree/master/cores/axis_ram_reader.v).
+The Verilog code of these IP cores can be found in [cores/axis_ram_writer.v]($source$/cores/axis_ram_writer.v) and [cores/axis_ram_reader.v]($source$/cores/axis_ram_reader.v).
 
 ## Custom Linux driver
 
 The custom Linux driver is used to allocate a memory buffer using contiguous memory allocator (CMA). The `ioctl` function is used to allocate a memory buffer and obtain its physical address. The `mmap` function is used to obtain the virtual address of the memory buffer.
 
-The source code of the custom Linux driver can be found in [patches/cma.c](https://github.com/pavel-demin/red-pitaya-notes/tree/master/patches/cma.c).
+The source code of the custom Linux driver can be found in [patches/cma.c]($source$/patches/cma.c).
 
 ## Usage examples
 
 The source code of projects using direct memory access can be found at the following links:
 
-- [projects/adc_recorder](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/adc_recorder)
-- [projects/adc_recorder_trigger](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/adc_recorder_trigger)
-- [projects/adc_test](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/adc_test)
-- [projects/dac_player](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/dac_player)
-- [projects/sdr_receiver_wide](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wide)
-- [projects/sdr_receiver_wide_122_88](https://github.com/pavel-demin/red-pitaya-notes/tree/master/projects/sdr_receiver_wide_122_88)
+- [projects/adc_recorder]($source$/projects/adc_recorder)
+- [projects/adc_recorder_trigger]($source$/projects/adc_recorder_trigger)
+- [projects/adc_test]($source$/projects/adc_test)
+- [projects/dac_player]($source$/projects/dac_player)
+- [projects/sdr_receiver_wide]($source$/projects/sdr_receiver_wide)
+- [projects/sdr_receiver_wide_122_88]($source$/projects/sdr_receiver_wide_122_88)
