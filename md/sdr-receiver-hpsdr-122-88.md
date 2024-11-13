@@ -53,7 +53,7 @@ This SDR receiver should work with most of the programs that support the HPSDR/M
 ## Running CW Skimmer Server and Reverse Beacon Network Aggregator
 
 - Install [CW Skimmer Server](https://dxatlas.com/skimserver).
-- Copy [HermesIntf.dll](https://github.com/k3it/HermesIntf/releases) to the CW Skimmer Server program directory (C:\Program Files (x86)\Afreet\SkimSrv).
+- Copy [HermesIntf.dll](https://github.com/k3it/HermesIntf/releases) to the CW Skimmer Server program directory (`C:\Program Files (x86)\Afreet\SkimSrv`).
 - In the `SkimSrv` directory, rename `HermesIntf.dll` to `HermestIntf_XXXX.dll` where `XXXX` are the last four digits of the MAC address of the STEMlab SDR.
 - Make a copy of the `SkimSrv` directory and rename the copy to `SkimSrv2`.
 - In the `SkimSrv2` directory, rename `SkimSrv.exe` to `SkimSrv2.exe` and rename `HermestIntf_XXXX.dll` to `HermestIntf_FFXX.dll`.

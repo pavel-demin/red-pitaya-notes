@@ -57,7 +57,7 @@ This SDR receiver should work with most of the programs that support the HPSDR/M
 ## Running CW Skimmer Server and Reverse Beacon Network Aggregator
 
 - Install [CW Skimmer Server](https://dxatlas.com/skimserver).
-- Copy [HermesIntf.dll](https://github.com/k3it/HermesIntf/releases) to the CW Skimmer Server program directory (C:\Program Files (x86)\Afreet\SkimSrv).
+- Copy [HermesIntf.dll](https://github.com/k3it/HermesIntf/releases) to the CW Skimmer Server program directory (`C:\Program Files (x86)\Afreet\SkimSrv`).
 - Install [Reverse Beacon Network Aggregator](https://www.reversebeacon.net/pages/Aggregator+34).
 - Start CW Skimmer Server, configure frequencies and your call sign.
 - Start Reverse Beacon Network Aggregator.
