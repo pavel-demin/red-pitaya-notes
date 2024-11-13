@@ -49,10 +49,10 @@ I use simple indoor antennas made from a single loop of non-coaxial wire. Their 
 - Install the micro SD card in the Red Pitaya board and connect the power.
 - Download and install [SDR#](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AAAdAcU238cppWziK4xPRIADa/sdr/sdrsharp_v1.0.0.1361_with_plugins.zip?dl=1) or [HDSDR](https://www.hdsdr.de).
 - Download and unpack the [SDR SMEM zip file]($sdr_smem_file$).
+- Start `tcp_smem.exe`, enter the IP address of the QMTECH XC7Z020 board and press the Connect button.
 - Copy `extio_smem.dll` into the SDR# or HDSDR installation directory.
 - Start SDR# or HDSDR.
 - Select SMEM from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
-- Press Configure icon in SDR# or press SDR-Device [F8] button in HDSDR, then enter the IP address of the Red Pitaya board.
 - Press Play icon in SDR# or press Start [F2] button in HDSDR.
 
 ## Running CW Skimmer Server and Reverse Beacon Network Aggregator
