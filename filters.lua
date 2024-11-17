@@ -11,24 +11,24 @@ end
 
 function change_meta(m)
   meta = m
-  if m.page == "index" then
-    m.canonical = stringify(m.base_url) .. "/"
-  else
-    m.canonical = stringify(m.base_url) .. "/" .. m.page .. "/"
+  p = m.page:gsub("/?index$", "")
+  if p ~= "" then
+    p = p .. "/"
   end
+  m.canonical = stringify(m.base_url) .. "/" .. p
   m.title = title or m.site_title
   return m
 end
 
 function expand(s)
-  v = meta[s:sub(2, -2)]
+  v = meta[s]
   if v then
     return stringify(v)
   end
 end
 
 function change_link_target(l)
-  l.target = l.target:gsub("(%b$$)", expand)
+  l.target = l.target:gsub("%$(.-)%$", expand)
   if l.target:sub(1, 1) == "/" then
     l.target = meta.base_path .. l.target
   end

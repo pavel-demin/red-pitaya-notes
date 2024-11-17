@@ -1,7 +1,7 @@
 standalone: true
 template: page.html
 
-reader: markdown-implicit_figures
+reader: commonmark+gfm_auto_identifiers+pipe_tables
 writer: html
 
 highlight-style: null

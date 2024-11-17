@@ -3,8 +3,9 @@ BASE_PATH =
 
 SITE = _site
 
-PAGES = $(filter-out index, $(basename $(notdir $(wildcard md/*.md))))
-CONTENT = $(addprefix $(SITE)/, etc css img index.html $(addsuffix /index.html, $(PAGES)))
+FILES = $(shell find md -type f -name \*.md)
+PAGES = $(patsubst %.md, %/index.html, $(patsubst %/index.md, %/index.html, $(FILES)))
+CONTENT = $(addprefix $(SITE)/, css etc img) $(patsubst md/%, $(SITE)/%, $(PAGES))
 
 PANDOC = pandoc -d defaults.yml -M base_url=$(BASE_URL) -M base_path=$(BASE_PATH)
 
@@ -15,14 +16,14 @@ RM = rm -rf
 all: $(CONTENT)
 
 $(SITE)/%: %
-	@echo ">> Copying $^"
+	@echo ">> Copying $<"
 	@$(MKDIR) $(@D)
-	@$(CP) $^ $@
+	@$(CP) $< $(@D)
 
 $(SITE)/%.html $(SITE)/%/index.html: md/%.md
-	@echo ">> Converting $^"
+	@echo ">> Converting $<"
 	@$(MKDIR) $(@D)
-	@$(PANDOC) -M page=$* -o $@ $^
+	@$(PANDOC) -M page=$* -o $@ $<
 
 serve:
 	@python3 -m http.server --bind 127.0.0.1 --directory $(SITE)
