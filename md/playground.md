@@ -21,9 +21,13 @@ A pre-built Vivado project can be found in the `playground` directory in the [re
 ## Getting started
 
 - Download [SD card image zip file]($release_image$) (more details about the SD card image can be found at [this link](/alpine/))
+
 - Copy the contents of the SD card image zip file to a micro SD card
+
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/playground` to the topmost directory on the SD card
+
 - Install the micro SD card in the Red Pitaya board and connect the power
+
 - Download and unpack the [release zip file]($release_file$)
 
 - Install Visual Studio Code following the platform-specific instructions below:
@@ -44,6 +48,7 @@ A pre-built Vivado project can be found in the `playground` directory in the [re
   - In the "Open Folder" dialog find and select [notebooks]($source$/notebooks) directory and click "Open"
 
 - Create micromamba environment:
+
   - From the "View" menu select "Command Palette"
   - Type "micromamba create environment"
 

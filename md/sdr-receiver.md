@@ -52,8 +52,8 @@ I use simple indoor antennas made from a single loop of non-coaxial wire. Their 
 - Start `tcp_smem.exe`, enter the IP address of the QMTECH XC7Z020 board and press the Connect button.
 - Copy `extio_smem.dll` into the SDR# or HDSDR installation directory.
 - Start SDR# or HDSDR.
-- Select SMEM from the Source list in SDR# or from the Options [F7] &rarr; Select Input menu in HDSDR.
-- Press Play icon in SDR# or press Start [F2] button in HDSDR.
+- Select SMEM from the Source list in SDR# or from the Options \[F7\] → Select Input menu in HDSDR.
+- Press Play icon in SDR# or press Start \[F2\] button in HDSDR.
 
 ## Running CW Skimmer Server and Reverse Beacon Network Aggregator
 
