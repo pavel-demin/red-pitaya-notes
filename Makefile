@@ -16,7 +16,9 @@ MKDIR = mkdir -p
 CP = cp -r
 RM = rm -rf
 
-all: $(IMAGES) $(CONTENT)
+all: $(CONTENT)
+
+img: $(IMAGES)
 
 $(SITE)/%: %
 	@echo ">> Copying $<"
@@ -30,6 +32,7 @@ $(SITE)/%.html $(SITE)/%/index.html: md/%.md
 
 img/%.png: svg/%.svg
 	@echo ">> Converting $<"
+	@$(MKDIR) $(@D)
 	@$(INKSCAPE) $< | pngquant - > $@
 
 serve:
