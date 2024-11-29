@@ -17,12 +17,12 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get -yq install inkscape pandoc pngquant
+        run: sudo apt-get update && sudo apt-get -yq install fonts-crosextra-carlito inkscape pandoc pngquant
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5

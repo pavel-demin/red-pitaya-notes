@@ -5,41 +5,41 @@
    <path transform="scale(-.5)" d="m0 0 5-5-17.5 5 17.5 5z" fill="context-stroke" fill-rule="evenodd"/>
   </marker>
  </defs>
- <text x="400" y="155" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CPU</tspan></text>
+ <text x="400" y="155" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CPU</tspan></text>
  <path d="m30 60h60" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="60" y="55" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">from IN1</tspan></text>
+ <text x="60" y="55" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">from IN1</tspan></text>
  <path d="m30 80h60" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="60" y="75" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">from IN2</tspan></text>
- <text x="140" y="65" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">ADC</tspan> <tspan sodipodi:role="line">interface</tspan></text>
+ <text x="60" y="75" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">from IN2</tspan></text>
+ <text x="140" y="65" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">ADC</tspan> <tspan sodipodi:role="line">interface</tspan></text>
  <rect x="230" y="50" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <rect x="100" y="50" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
- <text x="205" y="20" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">125 MSPS</tspan> <tspan sodipodi:role="line">14 bits</tspan></text>
- <text x="270" y="75" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">accumulator</tspan></text>
+ <text x="205" y="20" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">125 MSPS</tspan> <tspan sodipodi:role="line">14 bits</tspan></text>
+ <text x="270" y="75" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">accumulator</tspan></text>
  <path d="m190 70h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="270" y="155" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIFO</tspan></text>
+ <text x="270" y="155" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIFO</tspan></text>
  <rect x="230" y="130" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m270 100v20" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="530" y="155" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIFO</tspan></text>
+ <text x="530" y="155" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIFO</tspan></text>
  <rect x="490" y="130" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m530 120v-20" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <rect x="490" y="50" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
- <text x="530" y="75" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">stepper</tspan></text>
+ <text x="530" y="75" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">stepper</tspan></text>
  <rect x="360" y="50" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
- <text x="400" y="65" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">pulse</tspan> <tspan sodipodi:role="line">generator</tspan></text>
+ <text x="400" y="65" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">pulse</tspan> <tspan sodipodi:role="line">generator</tspan></text>
  <path d="m350 70h-30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m450 70h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m320 150h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m450 150h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m400 120v-20" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="660" y="65" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">DAC</tspan> <tspan sodipodi:role="line">interface</tspan></text>
+ <text x="660" y="65" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">DAC</tspan> <tspan sodipodi:role="line">interface</tspan></text>
  <rect x="620" y="50" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m710 60h60" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="740" y="55" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">to OUT1</tspan></text>
- <text x="595" y="25" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">125 MSPS</tspan> <tspan sodipodi:role="line">14 bits</tspan></text>
+ <text x="740" y="55" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">to OUT1</tspan></text>
+ <text x="595" y="25" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">125 MSPS</tspan> <tspan sodipodi:role="line">14 bits</tspan></text>
  <path d="m580 70h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="425" y="30" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">to E1</tspan></text>
+ <text x="425" y="30" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">to E1</tspan></text>
  <path d="m400 40v-30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m710 80h60" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="740" y="75" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">to OUT2</tspan></text>
+ <text x="740" y="75" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">to OUT2</tspan></text>
  <rect x="360" y="130" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
 </svg>

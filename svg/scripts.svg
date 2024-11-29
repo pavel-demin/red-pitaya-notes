@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="800" height="420" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd">
  <path d="m220 45h570" fill="none" stroke="#000000" stroke-width="1px"/>
- <text x="180" y="125" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"/>
+ <text x="180" y="125" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"/>
  <rect x="10" y="50" width="200" height="30" fill="none" stroke="#000000"/>
- <text x="110" y="70" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">package IP cores</tspan></text>
+ <text x="110" y="70" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">package IP cores</tspan></text>
  <rect x="10" y="90" width="200" height="30" fill="none" stroke="#000000"/>
  <rect x="10" y="130" width="200" height="30" fill="none" stroke="#000000"/>
  <rect x="10" y="170" width="200" height="30" fill="none" stroke="#000000"/>
  <rect x="10" y="330" width="200" height="30" fill="none" stroke="#000000"/>
  <rect x="10" y="370" width="200" height="30" fill="none" stroke="#000000"/>
- <text x="110" y="110" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">instantiate IP cores</tspan></text>
- <text x="110" y="150" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">connect IP cores</tspan></text>
- <text x="110" y="190" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">generate bitstream</tspan></text>
- <text x="110" y="350" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">patch and build Linux</tspan></text>
- <text x="110" y="390" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">build OS image</tspan></text>
- <text x="230" y="30" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">scripts</tspan></text>
- <text x="230" y="70" fill="#000000" font-family="Cambria" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">core.tcl</tspan></text>
- <text x="230" y="130" fill="#000000" font-family="Cambria" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">project.tcl</tspan></text>
- <text x="230" y="190" fill="#000000" font-family="Cambria" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">bitstream.tcl</tspan></text>
- <text x="230" y="350" fill="#000000" font-family="Cambria" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">Makefile</tspan></text>
- <text x="230" y="390" fill="#000000" font-family="Cambria" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">image.sh</tspan></text>
- <text x="330" y="30" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">arguments</tspan></text>
- <text x="330" y="70" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">axi_hub</tspan></text>
- <text x="330" y="130" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led_blinker</tspan></text>
- <text x="330" y="190" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led_blinker</tspan></text>
- <text x="330" y="350" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">NAME=led_blinker</tspan></text>
- <text x="460" y="70" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">xc7z010clg400-1</tspan></text>
- <text x="460" y="130" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">xc7z010clg400-1</tspan></text>
- <text x="460" y="270" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">ps7_cortexa9_0</tspan></text>
- <text x="460" y="310" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">ps7_cortexa9_0</tspan></text>
- <text x="460" y="350" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">all</tspan></text>
- <text x="570" y="390" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">1024</tspan></text>
- <text x="330" y="390" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">scripts/debian.sh</tspan></text>
- <text x="460" y="390" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led-blinker.img</tspan></text>
+ <text x="110" y="110" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">instantiate IP cores</tspan></text>
+ <text x="110" y="150" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">connect IP cores</tspan></text>
+ <text x="110" y="190" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">generate bitstream</tspan></text>
+ <text x="110" y="350" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">patch and build Linux</tspan></text>
+ <text x="110" y="390" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">build OS image</tspan></text>
+ <text x="230" y="30" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">scripts</tspan></text>
+ <text x="230" y="70" fill="#000000" font-family="Carlito" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">core.tcl</tspan></text>
+ <text x="230" y="130" fill="#000000" font-family="Carlito" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">project.tcl</tspan></text>
+ <text x="230" y="190" fill="#000000" font-family="Carlito" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">bitstream.tcl</tspan></text>
+ <text x="230" y="350" fill="#000000" font-family="Carlito" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">Makefile</tspan></text>
+ <text x="230" y="390" fill="#000000" font-family="Carlito" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">image.sh</tspan></text>
+ <text x="330" y="30" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">arguments</tspan></text>
+ <text x="330" y="70" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">axi_hub</tspan></text>
+ <text x="330" y="130" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led_blinker</tspan></text>
+ <text x="330" y="190" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led_blinker</tspan></text>
+ <text x="330" y="350" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">NAME=led_blinker</tspan></text>
+ <text x="460" y="70" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">xc7z010clg400-1</tspan></text>
+ <text x="460" y="130" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">xc7z010clg400-1</tspan></text>
+ <text x="460" y="270" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">ps7_cortexa9_0</tspan></text>
+ <text x="460" y="310" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">ps7_cortexa9_0</tspan></text>
+ <text x="460" y="350" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">all</tspan></text>
+ <text x="570" y="390" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">1024</tspan></text>
+ <text x="330" y="390" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">scripts/debian.sh</tspan></text>
+ <text x="460" y="390" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led-blinker.img</tspan></text>
  <path d="m210 85a5 5 0 0 1 5 5" fill="none" stroke="#000000"/>
  <path d="m220 125a5 5 0 0 0-5 5" fill="none" stroke="#000000"/>
  <path d="m220 125a5 5 0 0 1-5-5" fill="none" stroke="#000000"/>
@@ -42,23 +42,23 @@
  <path d="m220 85h570" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m220 165h570" fill="none" stroke="#000000" stroke-width="1px"/>
  <rect x="10" y="210" width="200" height="30" fill="none" stroke="#000000"/>
- <text x="110" y="230" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">generate hardware definition</tspan></text>
- <text x="230" y="230" fill="#000000" font-family="Cambria" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">hwdef.tcl</tspan></text>
- <text x="330" y="230" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led_blinker</tspan></text>
+ <text x="110" y="230" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">generate hardware definition</tspan></text>
+ <text x="230" y="230" fill="#000000" font-family="Carlito" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">hwdef.tcl</tspan></text>
+ <text x="330" y="230" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led_blinker</tspan></text>
  <path d="m220 205h570" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m220 325h570" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m220 365h570" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m220 405h570" fill="none" stroke="#000000" stroke-width="1px"/>
  <rect x="10" y="250" width="200" height="30" fill="none" stroke="#000000"/>
- <text x="110" y="270" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">generate first stage boot loader</tspan></text>
- <text x="230" y="270" fill="#000000" font-family="Cambria" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">fsbl.tcl</tspan></text>
- <text x="330" y="270" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led_blinker</tspan></text>
+ <text x="110" y="270" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">generate first stage boot loader</tspan></text>
+ <text x="230" y="270" fill="#000000" font-family="Carlito" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">fsbl.tcl</tspan></text>
+ <text x="330" y="270" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led_blinker</tspan></text>
  <path d="m220 245h570" fill="none" stroke="#000000" stroke-width="1px"/>
  <rect x="10" y="290" width="200" height="30" fill="none" stroke="#000000"/>
- <text x="110" y="310" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">generate device tree</tspan></text>
- <text x="230" y="310" fill="#000000" font-family="Cambria" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">devicetree.tcl</tspan></text>
- <text x="330" y="310" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led_blinker</tspan></text>
+ <text x="110" y="310" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">generate device tree</tspan></text>
+ <text x="230" y="310" fill="#000000" font-family="Carlito" font-size="14px" font-weight="bold" style="line-height:1.25"><tspan font-weight="bold" sodipodi:role="line">devicetree.tcl</tspan></text>
+ <text x="330" y="310" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">led_blinker</tspan></text>
  <path d="m220 285h570" fill="none" stroke="#000000" stroke-width="1px"/>
- <text x="570" y="310" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">tmp/device-tree-xlnx-xilinx_v2023.1</tspan> <tspan sodipodi:role="line"/></text>
+ <text x="570" y="310" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">tmp/device-tree-xlnx-xilinx_v2023.1</tspan> <tspan sodipodi:role="line"/></text>
  <path d="m320 10v395" fill="none" stroke="#000000" stroke-width="1px"/>
 </svg>

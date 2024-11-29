@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="800" height="240" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd">
  <rect x="385" y="25" width="35" height="210" fill="#000000" stroke="#000000"/>
- <text x="375" y="45" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">GND</tspan></text>
- <text x="430" y="45" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">GND</tspan></text>
- <text x="430" y="60" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
- <text x="430" y="75" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
- <text x="430" y="90" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
- <text x="375" y="60" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
- <text x="375" y="75" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
- <text x="375" y="90" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
- <text x="375" y="105" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO7_N</tspan></text>
- <text x="375" y="120" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO6_N</tspan></text>
- <text x="375" y="135" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO5_N</tspan></text>
- <text x="375" y="150" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO4_N</tspan></text>
- <text x="375" y="165" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO3_N</tspan></text>
- <text x="375" y="180" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO2_N</tspan></text>
- <text x="375" y="195" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO1_N</tspan></text>
- <text x="375" y="210" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO0_N</tspan></text>
- <text x="430" y="105" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO7_P</tspan></text>
- <text x="430" y="120" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO6_P</tspan></text>
- <text x="430" y="135" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO5_P</tspan></text>
- <text x="430" y="150" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO4_P</tspan></text>
- <text x="430" y="165" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO3_P</tspan></text>
- <text x="430" y="180" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO2_P</tspan></text>
- <text x="430" y="195" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO1_P</tspan></text>
- <text x="430" y="210" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO0_P</tspan></text>
- <text x="430" y="225" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">+3V3</tspan></text>
- <text x="375" y="225" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">+3V3</tspan></text>
- <text x="495" y="210" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">PTT, Out</tspan></text>
- <text x="495" y="195" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">Preamp, Out</tspan></text>
- <text x="495" y="180" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">10 dB Attenuator, Out</tspan></text>
- <text x="310" y="105" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">TX Strobe, Out / ADCLRC, In</tspan></text>
- <text x="310" y="120" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">RX Strobe, Out / DACDAT, Out</tspan></text>
- <text x="310" y="135" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">Clock, Out / ADCDAT, In</tspan></text>
- <text x="310" y="150" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">Serial Data, Out / BCLK, In</tspan></text>
- <text transform="rotate(-90)" x="-125" y="60" fill="#000000" font-family="Cambria" font-size="14px" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">4 × 8-bit</tspan> <tspan sodipodi:role="line">shift regs</tspan> <tspan sodipodi:role="line">or</tspan> <tspan sodipodi:role="line">I2S codec</tspan></text>
- <text x="310" y="210" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">PTT, In</tspan></text>
- <text x="310" y="195" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">Dash, In</tspan></text>
- <text x="310" y="180" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">Dot, In</tspan></text>
- <text x="310" y="165" fill="#000000" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">GPS PPS, In</tspan></text>
- <text x="405" y="15" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">Connector E1</tspan></text>
- <text x="495" y="150" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">Hermes Ctrl 1, Out</tspan></text>
- <text x="495" y="135" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">Hermes Ctrl 2, Out</tspan></text>
- <text x="495" y="120" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">Hermes Ctrl 3, Out</tspan></text>
- <text x="495" y="105" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">Hermes Ctrl 4, Out</tspan></text>
- <text x="495" y="165" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">20 dB Attenuator, Out</tspan></text>
+ <text x="375" y="45" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">GND</tspan></text>
+ <text x="430" y="45" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">GND</tspan></text>
+ <text x="430" y="60" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
+ <text x="430" y="75" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
+ <text x="430" y="90" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
+ <text x="375" y="60" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
+ <text x="375" y="75" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
+ <text x="375" y="90" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">NC</tspan></text>
+ <text x="375" y="105" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO7_N</tspan></text>
+ <text x="375" y="120" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO6_N</tspan></text>
+ <text x="375" y="135" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO5_N</tspan></text>
+ <text x="375" y="150" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO4_N</tspan></text>
+ <text x="375" y="165" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO3_N</tspan></text>
+ <text x="375" y="180" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO2_N</tspan></text>
+ <text x="375" y="195" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO1_N</tspan></text>
+ <text x="375" y="210" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">DIO0_N</tspan></text>
+ <text x="430" y="105" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO7_P</tspan></text>
+ <text x="430" y="120" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO6_P</tspan></text>
+ <text x="430" y="135" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO5_P</tspan></text>
+ <text x="430" y="150" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO4_P</tspan></text>
+ <text x="430" y="165" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO3_P</tspan></text>
+ <text x="430" y="180" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO2_P</tspan></text>
+ <text x="430" y="195" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO1_P</tspan></text>
+ <text x="430" y="210" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">DIO0_P</tspan></text>
+ <text x="430" y="225" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">+3V3</tspan></text>
+ <text x="375" y="225" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">+3V3</tspan></text>
+ <text x="495" y="210" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">PTT, Out</tspan></text>
+ <text x="495" y="195" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">Preamp, Out</tspan></text>
+ <text x="495" y="180" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">10 dB Attenuator, Out</tspan></text>
+ <text x="310" y="105" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">TX Strobe, Out / ADCLRC, In</tspan></text>
+ <text x="310" y="120" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">RX Strobe, Out / DACDAT, Out</tspan></text>
+ <text x="310" y="135" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">Clock, Out / ADCDAT, In</tspan></text>
+ <text x="310" y="150" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">Serial Data, Out / BCLK, In</tspan></text>
+ <text transform="rotate(-90)" x="-125" y="60" fill="#000000" font-family="Carlito" font-size="14px" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">4 × 8-bit</tspan> <tspan sodipodi:role="line">shift regs</tspan> <tspan sodipodi:role="line">or</tspan> <tspan sodipodi:role="line">I2S codec</tspan></text>
+ <text x="310" y="210" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">PTT, In</tspan></text>
+ <text x="310" y="195" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">Dash, In</tspan></text>
+ <text x="310" y="180" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">Dot, In</tspan></text>
+ <text x="310" y="165" fill="#000000" font-family="Carlito" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25"><tspan sodipodi:role="line">GPS PPS, In</tspan></text>
+ <text x="405" y="15" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">Connector E1</tspan></text>
+ <text x="495" y="150" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">Hermes Ctrl 1, Out</tspan></text>
+ <text x="495" y="135" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">Hermes Ctrl 2, Out</tspan></text>
+ <text x="495" y="120" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">Hermes Ctrl 3, Out</tspan></text>
+ <text x="495" y="105" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">Hermes Ctrl 4, Out</tspan></text>
+ <text x="495" y="165" fill="#000000" font-family="Carlito" font-size="14px" style="line-height:1.25"><tspan sodipodi:role="line">20 dB Attenuator, Out</tspan></text>
  <rect x="393" y="38" width="4" height="4" fill="#fad246" stroke="#fad246" stroke-linecap="round" stroke-linejoin="round"/>
  <rect x="408" y="38" width="4" height="4" fill="#fad246" stroke="#fad246" stroke-linecap="round" stroke-linejoin="round"/>
  <rect x="393" y="53" width="4" height="4" fill="#fad246" stroke="#fad246" stroke-linecap="round" stroke-linejoin="round"/>

@@ -5,19 +5,19 @@
    <path transform="scale(-.5)" d="m0 0 5-5-17.5 5 17.5 5z" fill="context-stroke" fill-rule="evenodd"/>
   </marker>
  </defs>
- <text x="200" y="115" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">sdr_receiver</tspan></text>
- <text x="330" y="115" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">tcp_smem</tspan></text>
- <text x="460" y="195" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">wave_smem</tspan></text>
- <text x="590" y="195" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">skimmer</tspan></text>
- <text x="460" y="115" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">intf_smem</tspan></text>
- <text x="590" y="115" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">skimsrv</tspan></text>
+ <text x="200" y="115" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">sdr_receiver</tspan></text>
+ <text x="330" y="115" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">tcp_smem</tspan></text>
+ <text x="460" y="195" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">wave_smem</tspan></text>
+ <text x="590" y="195" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">skimmer</tspan></text>
+ <text x="460" y="115" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">intf_smem</tspan></text>
+ <text x="590" y="115" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">skimsrv</tspan></text>
  <path d="m250 110h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m380 110h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m510 110h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m510 30h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m510 190h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="460" y="35" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">extio_smem</tspan></text>
- <text x="590" y="35" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">hdsdr</tspan></text>
+ <text x="460" y="35" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">extio_smem</tspan></text>
+ <text x="590" y="35" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">hdsdr</tspan></text>
  <rect x="420" y="10" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <rect x="550" y="10" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <rect x="160" y="90" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>

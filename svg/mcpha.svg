@@ -6,42 +6,42 @@
   </marker>
  </defs>
  <rect x="620" y="10" width="40" height="440" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
- <text x="640" y="235" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CPU</tspan></text>
+ <text x="640" y="235" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CPU</tspan></text>
  <path d="m20 190h70" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="55" y="185" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">from IN1</tspan></text>
- <text x="140" y="185" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">ADC</tspan> <tspan sodipodi:role="line">interface</tspan></text>
- <text x="400" y="195" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIR</tspan></text>
+ <text x="55" y="185" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">from IN1</tspan></text>
+ <text x="140" y="185" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">ADC</tspan> <tspan sodipodi:role="line">interface</tspan></text>
+ <text x="400" y="195" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIR</tspan></text>
  <rect x="230" y="170" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <rect x="360" y="170" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <rect x="100" y="170" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m20 270h70" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="55" y="265" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">from IN2</tspan></text>
- <text x="205" y="145" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">125 MSPS</tspan> <tspan sodipodi:role="line">14 bits</tspan></text>
- <text x="270" y="185" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CIC</tspan> <tspan sodipodi:role="line">↓ 4–8192</tspan></text>
+ <text x="55" y="265" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">from IN2</tspan></text>
+ <text x="205" y="145" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">125 MSPS</tspan> <tspan sodipodi:role="line">14 bits</tspan></text>
+ <text x="270" y="185" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CIC</tspan> <tspan sodipodi:role="line">↓ 4–8192</tspan></text>
  <path d="m190 190h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m320 190h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="140" y="265" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">ADC</tspan> <tspan sodipodi:role="line">interface</tspan></text>
- <text x="400" y="275" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIR</tspan></text>
+ <text x="140" y="265" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">ADC</tspan> <tspan sodipodi:role="line">interface</tspan></text>
+ <text x="400" y="275" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIR</tspan></text>
  <rect x="230" y="250" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <rect x="360" y="250" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <rect x="100" y="250" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
- <text x="205" y="310" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">125 MSPS</tspan> <tspan sodipodi:role="line">14 bits</tspan></text>
- <text x="270" y="265" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CIC</tspan> <tspan sodipodi:role="line">↓ 4–8192</tspan></text>
+ <text x="205" y="310" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">125 MSPS</tspan> <tspan sodipodi:role="line">14 bits</tspan></text>
+ <text x="270" y="265" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CIC</tspan> <tspan sodipodi:role="line">↓ 4–8192</tspan></text>
  <path d="m190 270h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m320 270h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="400" y="105" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">pulse height</tspan> <tspan sodipodi:role="line">analyzer</tspan></text>
+ <text x="400" y="105" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">pulse height</tspan> <tspan sodipodi:role="line">analyzer</tspan></text>
  <rect x="360" y="90" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m450 110h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="400" y="345" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">pulse height</tspan> <tspan sodipodi:role="line">analyzer</tspan></text>
+ <text x="400" y="345" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">pulse height</tspan> <tspan sodipodi:role="line">analyzer</tspan></text>
  <rect x="360" y="330" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m450 350h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="530" y="215" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">trigger</tspan> <tspan sodipodi:role="line">and</tspan> <tspan sodipodi:role="line">oscilloscope</tspan></text>
+ <text x="530" y="215" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">trigger</tspan> <tspan sodipodi:role="line">and</tspan> <tspan sodipodi:role="line">oscilloscope</tspan></text>
  <rect x="490" y="170" width="80" height="120" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m400 160v-20" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m400 300v20" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="530" y="115" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">histogram</tspan></text>
+ <text x="530" y="115" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">histogram</tspan></text>
  <rect x="490" y="90" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
- <text x="530" y="355" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">histogram</tspan></text>
+ <text x="530" y="355" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">histogram</tspan></text>
  <rect x="490" y="330" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m580 110h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m580 190h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
@@ -49,28 +49,28 @@
  <path d="m450 270h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m450 190h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m580 350h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="270" y="35" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIR</tspan></text>
+ <text x="270" y="35" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIR</tspan></text>
  <rect x="100" y="10" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <rect x="230" y="10" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
- <text x="140" y="25" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CIC</tspan> <tspan sodipodi:role="line">↓ 4–8192</tspan></text>
+ <text x="140" y="25" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CIC</tspan> <tspan sodipodi:role="line">↓ 4–8192</tspan></text>
  <path d="m190 30h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="400" y="25" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">pulse height</tspan> <tspan sodipodi:role="line">analyzer</tspan></text>
+ <text x="400" y="25" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">pulse height</tspan> <tspan sodipodi:role="line">analyzer</tspan></text>
  <rect x="360" y="10" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m140 160v-100" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m320 30h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="530" y="35" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIFO</tspan></text>
+ <text x="530" y="35" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIFO</tspan></text>
  <rect x="490" y="10" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m450 30h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m580 30h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="270" y="435" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIR</tspan></text>
+ <text x="270" y="435" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIR</tspan></text>
  <rect x="100" y="410" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <rect x="230" y="410" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
- <text x="140" y="425" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CIC</tspan> <tspan sodipodi:role="line">↓ 4–8192</tspan></text>
+ <text x="140" y="425" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">CIC</tspan> <tspan sodipodi:role="line">↓ 4–8192</tspan></text>
  <path d="m190 430h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="400" y="425" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">pulse height</tspan> <tspan sodipodi:role="line">analyzer</tspan></text>
+ <text x="400" y="425" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">pulse height</tspan> <tspan sodipodi:role="line">analyzer</tspan></text>
  <rect x="360" y="410" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m320 430h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
- <text x="530" y="435" fill="#000000" font-family="Cambria" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIFO</tspan></text>
+ <text x="530" y="435" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">FIFO</tspan></text>
  <rect x="490" y="410" width="80" height="40" fill="none" stroke="#000000" stroke-dasharray="3, 3"/>
  <path d="m450 430h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
  <path d="m580 430h30" fill="none" marker-end="url(#Arrow1L)" stroke="#000000"/>
