@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="240" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:s="https://github.com/nturley/netlistsvg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd">
+ <text x="-500" y="475" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"/>
+ <path d="m470 190v20h-15l-15-10 15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="440" y="105" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">in_valid</tspan></text>
+ <path d="m440 110v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <path d="m440 30v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="440" y="185" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">in_ready</tspan></text>
+ <text x="440" y="25" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">in_data</tspan></text>
+ <path d="m620 60h-26" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m620 140h-21" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m720 120h-60" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m720 40h-60" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m750 190v20h-15l-15-10 15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="750" y="105" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">out_valid</tspan></text>
+ <path d="m720 110v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <path d="m720 30v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="750" y="185" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">out_ready</tspan></text>
+ <text x="750" y="25" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">out_data</tspan></text>
+ <rect x="620" y="30" width="40" height="40" fill="none" stroke="#000000" stroke-linejoin="round"/>
+ <path d="m645 70-5-5-5 5" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="622" y="45" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">D</tspan></text>
+ <text x="658" y="45" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">Q</tspan></text>
+ <text x="622" y="64" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">en</tspan></text>
+ <rect x="620" y="110" width="40" height="40" fill="none" stroke="#000000" stroke-linejoin="round"/>
+ <path d="m645 150-5-5-5 5" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="622" y="125" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">D</tspan></text>
+ <text x="658" y="125" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">Q</tspan></text>
+ <text x="622" y="144" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">en</tspan></text>
+ <path d="m541 200h-71" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m530 120h-60" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m541 40h-71" fill="none" stroke="#000000" stroke-width="1px"/>
+ <ellipse cx="565" cy="120" rx="35" ry="110" fill="none" stroke="#000000"/>
+ <text transform="rotate(-90)" x="-120" y="560" font-family="Cambria" font-size="14px" text-anchor="middle" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">combinational</tspan> <tspan sodipodi:role="line">logic</tspan></text>
+ <path d="m720 200h-131" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m620 120h-20" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m620 40h-31" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m80 190v20h-15l-15-10 15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="50" y="105" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">in_valid</tspan></text>
+ <path d="m50 110v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <path d="m50 30v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="50" y="185" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">in_ready</tspan></text>
+ <text x="50" y="25" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">in_data</tspan></text>
+ <path d="m200 120h-120" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m140 200h-60" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m330 40h-71" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m360 190v20h-15l-15-10 15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="360" y="105" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">out_valid</tspan></text>
+ <path d="m330 110v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <path d="m330 30v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="360" y="185" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">out_ready</tspan></text>
+ <text x="360" y="25" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">out_data</tspan></text>
+ <path d="m330 120h-60" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m80 40h131" fill="none" stroke="#000000" stroke-width="1px"/>
+ <rect x="140" y="190" width="40" height="40" fill="none" stroke="#000000" stroke-linejoin="round"/>
+ <path d="m155 230 5-5 5 5" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="178" y="205" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">D</tspan></text>
+ <text x="178" y="224" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">en</tspan></text>
+ <text x="142" y="205" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">Q</tspan></text>
+ <ellipse cx="235" cy="120" rx="35" ry="110" fill="none" stroke="#000000"/>
+ <text transform="rotate(-90)" x="-120" y="230" font-family="Cambria" font-size="14px" text-anchor="middle" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">combinational</tspan> <tspan sodipodi:role="line">logic</tspan></text>
+ <path d="m330 200h-71" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m180 200h31" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m180 220h40" fill="none" stroke="#000000" stroke-width="1px"/>
+</svg>

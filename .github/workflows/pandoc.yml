@@ -21,8 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install Pandoc
-        run: sudo apt-get update && sudo apt-get -yq install pandoc
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get -yq install inkscape pandoc pngquant
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="240" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:s="https://github.com/nturley/netlistsvg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd">
+ <text x="-270" y="460" fill="#000000" font-family="Cambria" font-size="14px" style="line-height:1.25"/>
+ <path d="m310 190v20h-15l-15-10 15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <circle cx="360" cy="140" r="2" fill="#000000" stroke="#000000"/>
+ <text x="280" y="105" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">in_valid</tspan></text>
+ <path d="m280 110v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <path d="m280 30v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="280" y="185" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">in_ready</tspan></text>
+ <text x="280" y="25" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">in_data</tspan></text>
+ <path d="m380 40h-70" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m380 140h-20" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m380 120h-70" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m415 215c-12 1-29-6-35-15 6-9 23-16 35-15-5 8-5 22 0 30z" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"/>
+ <circle cx="417" cy="190" r="3" fill="none" stroke="#000000" stroke-linejoin="round"/>
+ <path d="m440 120v70h-20" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m380 200h-70" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m360 200v-140h20" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m490 120h-70" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m490 40h-70" fill="none" stroke="#000000" stroke-width="1px"/>
+ <path d="m520 190v20h-15l-15-10 15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="520" y="105" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">out_valid</tspan></text>
+ <path d="m490 110v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <path d="m490 30v20h15l15-10-15-10z" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="520" y="185" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">out_ready</tspan></text>
+ <text x="520" y="25" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">out_data</tspan></text>
+ <circle cx="360" cy="200" r="2" fill="#000000" stroke="#000000"/>
+ <circle cx="440" cy="120" r="2" fill="#000000" stroke="#000000"/>
+ <path d="m490 200h-30v10h-47" fill="none" stroke="#000000" stroke-width="1px"/>
+ <rect x="380" y="30" width="40" height="40" fill="none" stroke="#000000" stroke-linejoin="round"/>
+ <path d="m405 70-5-5-5 5" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="382" y="45" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">D</tspan></text>
+ <text x="418" y="45" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">Q</tspan></text>
+ <text x="382" y="64" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">en</tspan></text>
+ <rect x="380" y="110" width="40" height="40" fill="none" stroke="#000000" stroke-linejoin="round"/>
+ <path d="m405 150-5-5-5 5" fill="none" stroke="#000000" stroke-linejoin="round" stroke-width="1px"/>
+ <text x="382" y="125" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">D</tspan></text>
+ <text x="418" y="125" font-family="Cambria" font-size="14px" text-align="end" text-anchor="end" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">Q</tspan></text>
+ <text x="382" y="144" font-family="Cambria" font-size="14px" style="line-height:1.25" s:attribute="ref"><tspan sodipodi:role="line">en</tspan></text>
+</svg>
