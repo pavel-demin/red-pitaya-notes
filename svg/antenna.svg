@@ -5,9 +5,9 @@
    <path transform="scale(-.5)" d="m0 0 5-5-17.5 5 17.5 5z" fill="context-stroke" fill-rule="evenodd"/>
   </marker>
  </defs>
- <text x="465" y="160" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">T1-1-X65+</tspan><tspan sodipodi:role="line">transformer</tspan></text>
- <text x="635" y="160" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">2×J310</tspan><tspan sodipodi:role="line">amplifier</tspan></text>
- <text x="570" y="160" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">PLP-30+</tspan><tspan sodipodi:role="line">filter</tspan></text>
+ <text x="465" y="160" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">T1-1-X65+</tspan><tspan sodipodi:role="line">transformer</tspan></text>
+ <text x="635" y="160" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">2×J310</tspan><tspan sodipodi:role="line">amplifier</tspan></text>
+ <text x="570" y="160" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">PLP-30+</tspan><tspan sodipodi:role="line">filter</tspan></text>
  <path d="m530 160v-30h90v-100h-200v100h90v30" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m510 170v40" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m530 170v20h30" fill="none" stroke="#000000" stroke-width="1px"/>
@@ -21,20 +21,20 @@
  <rect x="560" y="185" width="20" height="20" fill="none" stroke="#000000"/>
  <path d="m580 190h50" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m650 195h30" fill="none" stroke="#000000" stroke-width="1px"/>
- <text x="520" y="15" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">5 m</tspan></text>
- <text transform="rotate(90)" x="80" y="-635" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">2.5 m</tspan></text>
+ <text x="520" y="15" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">5 m</tspan></text>
+ <text transform="rotate(90)" x="80" y="-635" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">2.5 m</tspan></text>
  <path d="m423 20h194" fill="none" marker-end="url(#Arrow1L)" marker-start="url(#Arrow1L)" stroke="#000000" stroke-width="1px"/>
  <path d="m630 33v94" fill="none" marker-end="url(#Arrow1L)" marker-start="url(#Arrow1L)" stroke="#000000" stroke-width="1px"/>
- <text x="165" y="160" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">T1-1-X65+</tspan><tspan sodipodi:role="line">transformer</tspan></text>
- <text x="335" y="160" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">2×J310</tspan><tspan sodipodi:role="line">amplifier</tspan></text>
- <text x="270" y="160" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">PLP-30+</tspan><tspan sodipodi:role="line">filter</tspan></text>
- <text x="220" y="75" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">1.4 m</tspan></text>
+ <text x="165" y="160" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">T1-1-X65+</tspan><tspan sodipodi:role="line">transformer</tspan></text>
+ <text x="335" y="160" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">2×J310</tspan><tspan sodipodi:role="line">amplifier</tspan></text>
+ <text x="270" y="160" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">PLP-30+</tspan><tspan sodipodi:role="line">filter</tspan></text>
+ <text x="220" y="75" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">1.4 m</tspan></text>
  <path d="m210 160v-30l-50-50 60-60 60 60-50 50v30" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m210 170v40" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m230 170v20h30" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m206 210h8" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m164 80h112" fill="none" marker-end="url(#Arrow1L)" marker-start="url(#Arrow1L)" stroke="#000000" stroke-width="1px"/>
- <text transform="rotate(45)" x="212.13" y="-155.56" fill="#000000" font-family="Carlito" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">1 m</tspan></text>
+ <text transform="rotate(45)" x="212.13" y="-155.56" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">1 m</tspan></text>
  <path d="m227 17 56 56" fill="none" marker-end="url(#Arrow1L)" marker-start="url(#Arrow1L)" stroke="#000000" stroke-width="1px"/>
  <path d="m209 165h22" fill="none" stroke="#000000" stroke-width="1px"/>
  <path d="m316 210h8" fill="none" stroke="#000000" stroke-width="1px"/>

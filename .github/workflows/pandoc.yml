@@ -24,7 +24,7 @@ jobs:
       - name: Install packages
         run: |
           sudo apt-get update
-          sudo apt-get -yq --no-install-recommends install fonts-crosextra-carlito inkscape pandoc pngquant
+          sudo apt-get -yq --no-install-recommends install fonts-roboto inkscape pandoc pngquant
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
