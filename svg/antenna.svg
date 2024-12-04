@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="800" height="220" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd">
  <defs>
-  <marker id="Arrow1L" overflow="visible" markerHeight="5" markerWidth="8.75" orient="auto-start-reverse" preserveAspectRatio="xMidYMid" refX="4.25" viewBox="0 0 8.75 5">
-   <path transform="scale(-.5)" d="m0 0 5-5-17.5 5 17.5 5z" fill="context-stroke" fill-rule="evenodd"/>
+  <marker id="Arrow1L" overflow="visible" markerHeight="5" markerWidth="8.75" orient="auto-start-reverse" refX="4.25">
+   <path transform="scale(.5)" d="m0 0-5 5 17.5-5-17.5-5z" fill="context-stroke" fill-rule="evenodd"/>
   </marker>
  </defs>
  <text x="465" y="160" fill="#000000" font-family="Roboto Condensed" font-size="14px" text-align="center" text-anchor="middle" style="line-height:1.25"><tspan sodipodi:role="line">T1-1-X65+</tspan><tspan sodipodi:role="line">transformer</tspan></text>
