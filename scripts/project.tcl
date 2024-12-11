@@ -105,9 +105,13 @@ set_property SYNTH_CHECKPOINT_MODE None $system
 generate_target all $system
 make_wrapper -files $system -top
 
-set wrapper [fileutil::findByPattern tmp/$project_name.gen system_wrapper.v]
-
-add_files -norecurse $wrapper
+foreach ext {srcs gen} {
+  set files [fileutil::findByPattern tmp/$project_name.$ext system_wrapper.v]
+  if {[llength $files] > 0} {
+    add_files -norecurse $files
+    break
+  }
+}
 
 set_property TOP system_wrapper [current_fileset]
 
