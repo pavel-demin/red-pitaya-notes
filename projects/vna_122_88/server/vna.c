@@ -225,10 +225,9 @@ void *read_handler(void *arg)
       continue;
     }
 
-    if(i < 10)
+    if(i < 11)
     {
       memcpy(buffer, rx_data, 16);
-      memset(buffer, 0, 16);
     }
     else
     {
