@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
   struct sockaddr_in addr;
   struct control ctrl;
   uint32_t size, n;
+  double integral;
   void *buffer;
   int yes = 1;
 
@@ -116,7 +117,7 @@ int main(int argc, char *argv[])
     *rx_rate = 1280;
     for(i = 0; i < 8; ++i)
     {
-      rx_freq[i] = (uint32_t)floor(600000 / 122.88e6 * (1 << 30) + 0.5);
+      rx_freq[i] = (uint32_t)floor(600000 / 122.88e6 * 0xffffffff + 0.5);
     }
 
     if((sock_client = accept(sock_server, NULL, NULL)) < 0)
@@ -146,7 +147,7 @@ int main(int argc, char *argv[])
         /* set rx phase increments */
         for(i = 0; i < 8; ++i)
         {
-          rx_freq[i] = (uint32_t)floor(ctrl.freq[i] / 122.88e6 * (1 << 30) + 0.5);
+          rx_freq[i] = (uint32_t)floor(modf(ctrl.freq[i] / 122.88e6, &integral) * 0xffffffff + 0.5);
         }
       }
 

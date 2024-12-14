@@ -20,9 +20,6 @@ volatile uint16_t *rx_rate, *rx_cntr;
 volatile uint8_t *rx_rst;
 volatile uint8_t *rx_data;
 
-const uint32_t freq_min = 0;
-const uint32_t freq_max = 61440000;
-
 int receivers = 1;
 
 int sock_ep2;
@@ -93,7 +90,7 @@ int main(int argc, char *argv[])
   /* set default rx phase increment */
   for(i = 0; i < 8; ++i)
   {
-    rx_freq[i] = (uint32_t)floor(600000 / 122.88e6 * (1 << 30) + 0.5);
+    rx_freq[i] = (uint32_t)floor(600000 / 122.88e6 * 0xffffffff + 0.5);
   }
 
   /* set default rx sample rate */
@@ -187,6 +184,7 @@ int main(int argc, char *argv[])
 void process_ep2(uint8_t *frame)
 {
   uint32_t freq;
+  double integral;
 
   switch(frame[0])
   {
@@ -215,57 +213,49 @@ void process_ep2(uint8_t *frame)
     case 5:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(freq < freq_min || freq > freq_max) break;
-      rx_freq[0] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
+      rx_freq[0] = (uint32_t)floor(modf(freq / 122.88e6, &integral) * 0xffffffff + 0.5);
       break;
     case 6:
     case 7:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(freq < freq_min || freq > freq_max) break;
-      rx_freq[1] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
+      rx_freq[1] = (uint32_t)floor(modf(freq / 122.88e6, &integral) * 0xffffffff + 0.5);
       break;
     case 8:
     case 9:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(freq < freq_min || freq > freq_max) break;
-      rx_freq[2] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
+      rx_freq[2] = (uint32_t)floor(modf(freq / 122.88e6, &integral) * 0xffffffff + 0.5);
       break;
     case 10:
     case 11:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(freq < freq_min || freq > freq_max) break;
-      rx_freq[3] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
+      rx_freq[3] = (uint32_t)floor(modf(freq / 122.88e6, &integral) * 0xffffffff + 0.5);
       break;
     case 12:
     case 13:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(freq < freq_min || freq > freq_max) break;
-      rx_freq[4] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
+      rx_freq[4] = (uint32_t)floor(modf(freq / 122.88e6, &integral) * 0xffffffff + 0.5);
       break;
     case 14:
     case 15:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(freq < freq_min || freq > freq_max) break;
-      rx_freq[5] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
+      rx_freq[5] = (uint32_t)floor(modf(freq / 122.88e6, &integral) * 0xffffffff + 0.5);
       break;
     case 16:
     case 17:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(freq < freq_min || freq > freq_max) break;
-      rx_freq[6] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
+      rx_freq[6] = (uint32_t)floor(modf(freq / 122.88e6, &integral) * 0xffffffff + 0.5);
       break;
     case 36:
     case 37:
       /* set rx phase increment */
       freq = ntohl(*(uint32_t *)(frame + 1));
-      if(freq < freq_min || freq > freq_max) break;
-      rx_freq[7] = (uint32_t)floor(freq / 122.88e6 * (1 << 30) + 0.5);
+      rx_freq[7] = (uint32_t)floor(modf(freq / 122.88e6, &integral) * 0xffffffff + 0.5);
       break;
   }
 }
