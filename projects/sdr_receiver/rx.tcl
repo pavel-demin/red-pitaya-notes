@@ -45,28 +45,13 @@ for {set i 0} {$i <= 7} {incr i} {
     din hub_0/cfg_data
   }
 
-  # Create axis_constant
-  cell pavel-demin:user:axis_constant phase_$i {
-    AXIS_TDATA_WIDTH 32
+  # Create dds
+  cell pavel-demin:user:dds dds_$i {
+    NEGATIVE_SINE TRUE
   } {
-    cfg_data slice_[expr $i + 10]/dout
+    pinc slice_[expr $i + 10]/dout
     aclk /pll_0/clk_out1
-  }
-
-  # Create dds_compiler
-  cell xilinx.com:ip:dds_compiler dds_$i {
-    DDS_CLOCK_RATE 125
-    SPURIOUS_FREE_DYNAMIC_RANGE 120
-    FREQUENCY_RESOLUTION 0.2
-    PHASE_INCREMENT Streaming
-    HAS_PHASE_OUT false
-    PHASE_WIDTH 30
-    OUTPUT_WIDTH 21
-    DSP48_USE Minimal
-    NEGATIVE_SINE true
-  } {
-    S_AXIS_PHASE phase_$i/M_AXIS
-    aclk /pll_0/clk_out1
+    aresetn /rst_0/peripheral_aresetn
   }
 
 }
@@ -78,14 +63,14 @@ for {set i 0} {$i <= 15} {incr i} {
 
   # Create port_slicer
   cell pavel-demin:user:port_slicer dds_slice_$i {
-    DIN_WIDTH 48 DIN_FROM [expr 24 * ($i % 2) + 20] DIN_TO [expr 24 * ($i % 2)]
+    DIN_WIDTH 48 DIN_FROM [expr 24 * ($i % 2) + 23] DIN_TO [expr 24 * ($i % 2)]
   } {
-    din dds_[expr $i / 2]/m_axis_data_tdata
+    din dds_[expr $i / 2]/dout
   }
 
   # Create dsp48
   cell pavel-demin:user:dsp48 mult_$i {
-    A_WIDTH 21
+    A_WIDTH 24
     B_WIDTH 14
     P_WIDTH 24
   } {
