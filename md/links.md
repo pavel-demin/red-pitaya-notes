@@ -14,7 +14,7 @@
 
 - [Xilinx Wiki](https://xilinx-wiki.atlassian.net/wiki/spaces/A/overview)
 
-- [Xilinx University Program - Vivado-Based Workshops](https://www.xilinx.com/support/university/vivado/vivado-workshops.html)
+- [AMD University Program - Vivado-Based Workshops](https://www.amd.com/en/corporate/university-program/vivado/vivado-workshops.html)
 
 - [Digilent Embedded Linux Development Guide](https://digilent.com/reference/_media/digilent_embedded_linux_guide.pdf)
 

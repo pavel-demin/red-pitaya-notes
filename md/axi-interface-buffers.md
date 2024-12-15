@@ -58,7 +58,7 @@ A circuit implementing this behavior is shown in the following diagram:
 
 The corresponding Verilog code can be found in [modules/output_buffer.v]($source$/modules/output_buffer.v).
 
-Since the `in_ready` signal is used to enable the data register, it can also be used to enable data registers outside the output buffer module. This feature can be useful when controlling a pipeline that provides enable inputs for its internal registers, like for example the internal registers in [DSP48E1](https://docs.xilinx.com/v/u/en-US/ug479_7Series_DSP48E1) as shown in the diagram below:
+Since the `in_ready` signal is used to enable the data register, it can also be used to enable data registers outside the output buffer module. This feature can be useful when controlling a pipeline that provides enable inputs for its internal registers, like for example the internal registers in [DSP48E1](https://docs.amd.com/v/u/en-US/ug479_7Series_DSP48E1) as shown in the diagram below:
 
 ![Output buffers and DSP48](/img/output-buffers-dsp48.png)
 

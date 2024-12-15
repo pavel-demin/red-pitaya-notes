@@ -1,6 +1,6 @@
 # Development machine
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/bookworm) 12 (amd64) and [Vitis Core Development Kit](https://www.xilinx.com/products/design-tools/vitis.html) 2023.1.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/bookworm) 12 (amd64) and [Vitis Core Development Kit](https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vitis.html) 2023.1.
 
 ## Creating virtual machine with Debian 12 (amd64)
 
