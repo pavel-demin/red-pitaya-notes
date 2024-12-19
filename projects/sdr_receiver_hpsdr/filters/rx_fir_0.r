@@ -1,7 +1,7 @@
 library(signal)
 
-Fc <- 0.019                    # cutoff frequency
-htbw <- 0.0065                 # half transition bandwidth
+Fc <- 0.0187                   # cutoff frequency
+htbw <- 0.0067                 # half transition bandwidth
 
 # fir2 parameters
 k <- kaiserord(c(Fc-htbw, Fc+htbw), c(1, 0), 1/(2^16), 1)
