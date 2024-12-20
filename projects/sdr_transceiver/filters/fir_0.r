@@ -5,8 +5,8 @@ R <- 50                        # Decimation factor
 M <- 1                         # Differential delay
 N <- 6                         # Number of stages
 
-Fc <- 0.247                    # cutoff frequency
-htbw <- 0.007                  # half transition bandwidth
+Fc <- 0.23                     # cutoff frequency
+htbw <- 0.01                   # half transition bandwidth
 
 # fir2 parameters
 k <- kaiserord(c(Fc-htbw, Fc+htbw), c(1, 0), 1/(2^16), 1)
@@ -34,11 +34,11 @@ fh <- freqz(h)
 
 op <- par(mfrow = c(2, 1))
 
-plot(f, 20*log10(Mf), type = "b", ylab = "dB", xlab = "Frequency", xlim = c(0.51, 0.54), ylim = c(-125, 5))
+plot(f, 20*log10(Mf), type = "b", ylab = "dB", xlab = "Frequency", xlim = c(0.45, 0.50), ylim = c(-125, 5))
 lines(fh$f / pi, 20*log10(abs(fh$h)), col = "blue")
 grid()
 
-plot(f, 20*log10(Mf), type = "b", ylab = "dB", xlab = "Frequency", xlim = c(0.46, 0.49), ylim = c(-5, 5))
+plot(f, 20*log10(Mf), type = "b", ylab = "dB", xlab = "Frequency", xlim = c(0.40, 0.45), ylim = c(-5, 5))
 lines(fh$f / pi, 20*log10(abs(fh$h)), col = "blue")
 grid()
 
