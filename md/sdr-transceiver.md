@@ -87,7 +87,7 @@ The structure of the source code and of the development chain is described at [t
 Setting up the Vitis and Vivado environment:
 
 ```bash
-source /opt/Xilinx/Vitis/2023.1/settings64.sh
+source /opt/Xilinx/Vitis/2024.2/settings64.sh
 ```
 
 Cloning the source code repository:
