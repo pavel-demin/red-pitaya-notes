@@ -52,10 +52,10 @@ void usage()
   fprintf(stderr, " rate - decimation rate (from 1 to 8192),\n");
   fprintf(stderr, " pol1 - IN1 pulse polarity (0 for positive, 1 for negative),\n");
   fprintf(stderr, " pol2 - IN2 pulse polarity (0 for positive, 1 for negative),\n");
-  fprintf(stderr, " min1 - IN1 min threshold (from 0 to 16380),\n");
-  fprintf(stderr, " max1 - IN1 max threshold (from 0 to 16380),\n");
-  fprintf(stderr, " min2 - IN2 min threshold (from 0 to 16380),\n");
-  fprintf(stderr, " max2 - IN2 max threshold (from 0 to 16380),\n");
+  fprintf(stderr, " min1 - IN1 min threshold (from 0 to 4090),\n");
+  fprintf(stderr, " max1 - IN1 max threshold (from 0 to 4090),\n");
+  fprintf(stderr, " min2 - IN2 min threshold (from 0 to 4090),\n");
+  fprintf(stderr, " max2 - IN2 max threshold (from 0 to 4090),\n");
   fprintf(stderr, " file - output file.\n");
 }
 
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
   pol2 = value;
 
   value = strtol(argv[6], &end, 10);
-  if(errno != 0 || end == argv[6] || value < 0 || value > 16380)
+  if(errno != 0 || end == argv[6] || value < 0 || value > 4090)
   {
     usage();
     return EXIT_FAILURE;
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
   min1 = value;
 
   value = strtol(argv[7], &end, 10);
-  if(errno != 0 || end == argv[7] || value < 0 || value > 16380)
+  if(errno != 0 || end == argv[7] || value < 0 || value > 4090)
   {
     usage();
     return EXIT_FAILURE;
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
   max1 = value;
 
   value = strtol(argv[8], &end, 10);
-  if(errno != 0 || end == argv[8] || value < 0 || value > 16380)
+  if(errno != 0 || end == argv[8] || value < 0 || value > 4090)
   {
     usage();
     return EXIT_FAILURE;
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
   min2 = value;
 
   value = strtol(argv[9], &end, 10);
-  if(errno != 0 || end == argv[9] || value < 0 || value > 16380)
+  if(errno != 0 || end == argv[9] || value < 0 || value > 4090)
   {
     usage();
     return EXIT_FAILURE;
