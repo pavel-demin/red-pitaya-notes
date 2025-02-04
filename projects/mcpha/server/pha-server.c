@@ -153,11 +153,11 @@ int main(int argc, char *argv[])
         /* set pha delay */
         if(chan == 0)
         {
-          *(uint16_t *)(cfg + 50) = data;
+          *(uint16_t *)(cfg + 48) = data;
         }
         else if(chan == 1)
         {
-          *(uint16_t *)(cfg + 66) = data;
+          *(uint16_t *)(cfg + 64) = data;
         }
       }
       else if(code == 5)
@@ -165,11 +165,11 @@ int main(int argc, char *argv[])
         /* set pha min threshold */
         if(chan == 0)
         {
-          *(uint16_t *)(cfg + 52) = data;
+          *(uint16_t *)(cfg + 50) = data;
         }
         else if(chan == 1)
         {
-          *(uint16_t *)(cfg + 68) = data;
+          *(uint16_t *)(cfg + 66) = data;
         }
       }
       else if(code == 6)
@@ -177,11 +177,11 @@ int main(int argc, char *argv[])
         /* set pha max threshold */
         if(chan == 0)
         {
-          *(uint16_t *)(cfg + 54) = data;
+          *(uint16_t *)(cfg + 52) = data;
         }
         else if(chan == 1)
         {
-          *(uint16_t *)(cfg + 70) = data;
+          *(uint16_t *)(cfg + 68) = data;
         }
       }
       else if(code == 7)
