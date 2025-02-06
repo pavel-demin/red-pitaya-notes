@@ -10,29 +10,33 @@ The following are the instructions for installing a virtual machine with [Debian
 
 - Start VirtualBox
 
+- Set the experience level to "Expert":
+
+  - From the "File" menu, select "Preferences"
+
+  - Click "Expert"
+
+  - Click "OK"
+
 - Create at least one host-only interface:
 
-  - From the "File" menu select "Host Network Manager"
+  - From the "File" menu, select "Tools" and then "Network Manager"
 
   - Click the green "Create" icon
 
-  - Click "Close"
-
 - Create a new virtual machine:
 
-  - Click the blue "New" icon
+  - From the "Machine" menu, select "New"
 
-  - Pick a name for the machine, then select "Linux" and "Debian (64 bit)"
+  - In the "Name and Operating System" section, pick a name for the machine, then set type to "Linux" and subtype to "Debian"
 
-  - Set the memory size to at least 4096 MB
+  - In the "Hardware" section, set the memory size to at least 4096 MB
 
-  - Select "Create a virtual hard disk now"
+  - In the "Hard Disk" section, set the disk size to at least 256 GB
 
-  - Select "VDI (VirtualBox Disk Image)"
+  - Click "Finish"
 
-  - Select "Dynamically allocated"
-
-  - Set the image size to at least 256 GB
+- Configure the newly created virtual machine:
 
   - Select the newly created virtual machine and click the yellow "Settings" icon
 
@@ -42,15 +46,15 @@ The following are the instructions for installing a virtual machine with [Debian
 
   - Select "System" and select only "Optical" in the "Boot Order" list
 
-  - Select "Storage" and select "Empty" below the "IDE Controller"
+  - Select "Storage" and select "Empty" under "Controller: IDE"
 
-  - Click the small CD/DVD icon next to the "Optical Drive" drop-down list and select the location of the `mini.iso` image
+  - Click the small CD/DVD icon next to the "Optical Drive" drop-down list, select "Choose a Disk File", navigate to the location of the `mini.iso` image, select it, and click "Open"
 
   - Click "OK"
 
 - Select the newly created virtual machine and click the green "Start" icon
 
-- Press TAB when the "Installer boot menu" appears
+- Press TAB when the installer menu appears
 
 - Edit the boot parameters at the bottom of the boot screen to make them look like the following:
 
