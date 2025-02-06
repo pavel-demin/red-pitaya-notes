@@ -471,32 +471,16 @@ module pha_3 {
   vldtr_0/m_axis_tready const_0/dout
 }
 
-# Create port_slicer
-cell pavel-demin:user:port_slicer slice_2 {
-  DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0
-} {
-  din pha_2/timer_0/sts_data
-}
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer slice_3 {
-  DIN_WIDTH 64 DIN_FROM 63 DIN_TO 32
-} {
-  din pha_2/timer_0/sts_data
-}
-
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_0 {
-  NUM_PORTS 4
-  IN0_WIDTH 32
+  NUM_PORTS 3
+  IN0_WIDTH 64
   IN1_WIDTH 32
   IN2_WIDTH 32
-  IN3_WIDTH 32
 } {
-  In0 pha_3/vldtr_0/m_axis_tdata
+  In0 pha_2/timer_0/sts_data
   In1 pha_2/vldtr_0/m_axis_tdata
-  In2 slice_3/dout
-  In3 slice_2/dout
+  In2 pha_3/vldtr_0/m_axis_tdata
 }
 
 # Create util_vector_logic
