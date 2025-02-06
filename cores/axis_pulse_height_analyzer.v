@@ -115,7 +115,7 @@ module axis_pulse_height_analyzer #
     // maximum after minimum
     if(s_axis_tvalid & int_enbl_reg & int_rising_reg & ~int_rising_wire & int_mincut_wire)
     begin
-      int_tdata_next = int_tdata_wire;
+      int_tdata_next = int_maxcut_wire ? int_tdata_wire : {(AXIS_TDATA_WIDTH){1'b0}};
       int_tvalid_next = int_maxcut_wire;
       int_cntr_next = {(CNTR_WIDTH){1'b0}};
       int_enbl_next = 1'b0;
@@ -123,6 +123,7 @@ module axis_pulse_height_analyzer #
 
     if(m_axis_tready & int_tvalid_reg)
     begin
+      int_tdata_next = {(AXIS_TDATA_WIDTH){1'b0}};
       int_tvalid_next = 1'b0;
     end
   end
