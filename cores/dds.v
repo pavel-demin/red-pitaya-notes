@@ -95,7 +95,7 @@ module dds #
   DSP48E1 #(
     .ALUMODEREG(0), .CARRYINSELREG(0), .INMODEREG(0), .OPMODEREG(0),
     .BREG(0), .BCASCREG(0), .CREG(0), .CARRYINREG(0),
-    .USE_PATTERN_DETECT("PATDET"), .PATTERN(48'hfffffffe0000), .MASK(48'hfffffffe0000)
+    .USE_PATTERN_DETECT("PATDET"), .MASK(48'hfffffffe0000)
   ) dsp_0 (
     .CLK(aclk),
     .RSTA(1'b0), .RSTM(1'b0), .RSTP(1'b0),
@@ -112,7 +112,7 @@ module dds #
   DSP48E1 #(
     .ALUMODEREG(0), .CARRYINSELREG(0), .INMODEREG(0), .OPMODEREG(0),
     .CARRYINREG(0),
-    .USE_PATTERN_DETECT("PATDET"), .PATTERN(48'hffffff000000), .MASK(48'hffffff000000)
+    .USE_PATTERN_DETECT("PATDET"), .MASK(48'hffffff000000)
   ) dsp_1 (
     .CLK(aclk),
     .RSTA(1'b0), .RSTB(1'b0), .RSTC(1'b0), .RSTM(1'b0), .RSTP(1'b0),
@@ -129,7 +129,7 @@ module dds #
   DSP48E1 #(
     .ALUMODEREG(0), .CARRYINSELREG(0), .INMODEREG(0), .OPMODEREG(0),
     .CARRYINREG(0),
-    .USE_PATTERN_DETECT("PATDET"), .PATTERN(48'hffffff000000), .MASK(48'hffffff000000)
+    .USE_PATTERN_DETECT("PATDET"), .MASK(48'hffffff000000)
   ) dsp_2 (
     .CLK(aclk),
     .RSTA(1'b0), .RSTB(1'b0), .RSTC(1'b0), .RSTM(1'b0), .RSTP(1'b0),
