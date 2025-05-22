@@ -6,8 +6,8 @@ tools_url=$alpine_url/main/armv7/$tools_tar
 firmware_tar=linux-firmware-other-20240811-r0.apk
 firmware_url=$alpine_url/main/armv7/$firmware_tar
 
-linux_dir=tmp/linux-6.6
-linux_ver=6.6.32-xilinx
+linux_dir=tmp/linux-6.12
+linux_ver=6.12.29-xilinx
 
 modules_dir=alpine-modloop/lib/modules/$linux_ver
 

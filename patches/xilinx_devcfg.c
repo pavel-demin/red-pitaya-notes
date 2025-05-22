@@ -2110,18 +2110,16 @@ failed5:
  *
  * @pdev:	handle to the platform device structure.
  *
- * Returns: 0 or error status.
- *
  * Unregister the device after releasing the resources.
  */
-static int xdevcfg_drv_remove(struct platform_device *pdev)
+static void xdevcfg_drv_remove(struct platform_device *pdev)
 {
 	struct xdevcfg_drvdata *drvdata;
 
 	drvdata = platform_get_drvdata(pdev);
 
 	if (!drvdata)
-		return -ENODEV;
+		return;
 
 	unregister_chrdev_region(drvdata->devt, XDEVCFG_DEVICES);
 
@@ -2132,8 +2130,6 @@ static int xdevcfg_drv_remove(struct platform_device *pdev)
 	class_destroy(drvdata->class);
 	cdev_del(&drvdata->cdev);
 	clk_unprepare(drvdata->clk);
-
-	return 0;		/* Success */
 }
 
 static const struct of_device_id xdevcfg_of_match[] = {
