@@ -143,7 +143,7 @@ lbu delete root/.ash_history
 
 lbu commit -d
 
-apk add make gcc gfortran
+apk add make gcc gfortran linux-headers
 
 ft8d_dir=/media/mmcblk0p1/apps/ft8d
 ft8d_tar=/media/mmcblk0p1/apps/ft8d.tar.gz
