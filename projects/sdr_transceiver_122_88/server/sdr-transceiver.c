@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   number = (argc == 2) ? strtol(argv[1], &end, 10) : -1;
   if(errno != 0 || end == argv[1] || number < 1 || number > 2)
   {
-    printf("Usage: sdr-transceiver 1|2\n");
+    fprintf(stderr, "Usage: sdr-transceiver 1|2\n");
     return EXIT_FAILURE;
   }
 

@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   number = (argc == 2) ? strtol(argv[1], &end, 10) : -1;
   if(errno != 0 || end == argv[1] || number < 0 || number > 4095)
   {
-    printf("Usage: i2c-write [0-4095]\n");
+    fprintf(stderr, "Usage: i2c-write [0-4095]\n");
     return EXIT_FAILURE;
   }
 
