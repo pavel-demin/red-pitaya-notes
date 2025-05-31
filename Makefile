@@ -19,7 +19,7 @@ VIVADO = vivado -nolog -nojournal -mode batch
 XSCT = xsct
 RM = rm -rf
 
-INITRAMFS_TAG = 3.20
+INITRAMFS_TAG = 3.22
 LINUX_TAG = 6.12
 DTREE_TAG = xilinx_v2024.2
 
