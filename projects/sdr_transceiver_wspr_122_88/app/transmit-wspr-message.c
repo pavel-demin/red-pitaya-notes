@@ -20,7 +20,8 @@ int main(int argc, char *argv[])
   volatile uint16_t *coef[2];
   volatile uint32_t *fifo;
   unsigned char symbols[162];
-  char *message, *hashtab, *loctab;
+  char *hashtab, *loctab;
+  const char *message;
   config_t config;
   double freq, corr, dphi, level;
   int chan;
