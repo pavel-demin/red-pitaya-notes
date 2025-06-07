@@ -1,6 +1,6 @@
 # Development machine
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/bookworm) 12 (amd64) and [Vitis Core Development Kit](https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vitis.html) 2024.2.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/bookworm) 12 (amd64) and [Vitis Core Development Kit](https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vitis.html) 2025.1.
 
 ## Creating virtual machine with Debian 12 (amd64)
 
@@ -82,14 +82,14 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 
 ## Installing Vitis Core Development Kit
 
-- Download "AMD Unified Installer for FPGAs & Adaptive SoCs 2024.2 SFD " from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2024-2.html) (the file name is FPGAs_AdaptiveSoCs_Unified_2024.2_1113_1001.tar)
+- Download "AMD Unified Installer for FPGAs & Adaptive SoCs 2025.1 SFD" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2025-1.html) (the file name is `FPGAs_AdaptiveSoCs_Unified_SDI_2025.1_0530_0145.tar`)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 
 ```bash
 mkdir /opt/Xilinx
-tar -xf FPGAs_AdaptiveSoCs_Unified_2024.2_1113_1001.tar
-cd FPGAs_AdaptiveSoCs_Unified_2024.2_1113_1001
+tar -xf FPGAs_AdaptiveSoCs_Unified_SDI_2025.1_0530_0145.tar
+cd FPGAs_AdaptiveSoCs_Unified_SDI_2025.1_0530_0145
 ./xsetup
 ```
 
