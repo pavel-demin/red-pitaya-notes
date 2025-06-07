@@ -1,4 +1,4 @@
-source /opt/Xilinx/Vitis/2024.2/settings64.sh
+source /opt/Xilinx/2025.1/Vitis/settings64.sh
 
 DATE=`date +%Y%m%d`
 
