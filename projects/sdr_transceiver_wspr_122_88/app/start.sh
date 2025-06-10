@@ -2,7 +2,7 @@
 
 apps_dir=/media/mmcblk0p1/apps
 
-source $apps_dir/stop.sh
+. $apps_dir/stop.sh
 
 if grep -q '' $apps_dir/sdr_transceiver_wspr_122_88/decode-wspr.sh
 then

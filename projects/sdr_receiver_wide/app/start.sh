@@ -2,7 +2,7 @@
 
 apps_dir=/media/mmcblk0p1/apps
 
-source $apps_dir/stop.sh
+. $apps_dir/stop.sh
 
 cat $apps_dir/sdr_receiver_wide/sdr_receiver_wide.bit > /dev/xdevcfg
 
