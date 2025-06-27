@@ -81,7 +81,7 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.rateValue.setCurrentIndex(1)
         self.rateValue.currentIndexChanged.connect(self.set_rate)
         # address validator
-        rx = QRegExp("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$")
+        rx = QRegExp(r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$")
         self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
         # create TCP socket
         self.socket = QTcpSocket(self)
