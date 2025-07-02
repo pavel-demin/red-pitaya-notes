@@ -75,8 +75,8 @@ module axi_hub #
   localparam integer STS_SIZE = STS_DATA_WIDTH / 32;
   localparam integer STS_WIDTH = STS_SIZE > 1 ? $clog2(STS_SIZE) : 1;
 
-  reg [3:0] int_awcntr_reg, int_awcntr_next;
-  reg [3:0] int_arcntr_reg, int_arcntr_next;
+  reg [3:0] int_awcntr_reg = 4'd0;
+  reg [3:0] int_arcntr_reg = 4'd0;
 
   wire int_awvalid_wire, int_awready_wire;
   wire int_wvalid_wire, int_wready_wire;
@@ -189,41 +189,22 @@ module axi_hub #
 
   always @(posedge aclk)
   begin
-    if(~aresetn)
+    if(~aresetn | (int_awvalid_wire & int_awready_wire))
     begin
       int_awcntr_reg <= 4'd0;
+    end
+    else if(~int_wlast_wire & int_we_wire)
+    begin
+      int_awcntr_reg <= int_awcntr_reg + 1'b1;
+    end
+
+    if(~aresetn | (int_arvalid_wire & int_arready_wire))
+    begin
       int_arcntr_reg <= 4'd0;
     end
-    else
+    else if(~int_rlast_wire & int_re_wire)
     begin
-      int_awcntr_reg <= int_awcntr_next;
-      int_arcntr_reg <= int_arcntr_next;
-    end
-  end
-
-  always @*
-  begin
-    int_awcntr_next = int_awcntr_reg;
-    int_arcntr_next = int_arcntr_reg;
-
-    if(int_awvalid_wire & int_awready_wire)
-    begin
-      int_awcntr_next = 4'd0;
-    end
-
-    if(int_arvalid_wire & int_arready_wire)
-    begin
-      int_arcntr_next = 4'd0;
-    end
-
-    if(~int_wlast_wire & int_we_wire)
-    begin
-      int_awcntr_next = int_awcntr_reg + 1'b1;
-    end
-
-    if(~int_rlast_wire & int_re_wire)
-    begin
-      int_arcntr_next = int_arcntr_reg + 1'b1;
+      int_arcntr_reg <= int_arcntr_reg + 1'b1;
     end
   end
 
