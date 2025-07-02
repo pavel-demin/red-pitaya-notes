@@ -93,7 +93,7 @@ module axis_ram_reader #
         int_addr_reg <= int_addr_reg < cfg_data ? int_addr_reg + 1'b1 : {(ADDR_WIDTH){1'b0}};
       end
 
-      if(m_axi_rlast)
+      if(m_axi_rvalid & m_axi_rlast)
       begin
         int_rvalid_reg <= 1'b0;
       end
