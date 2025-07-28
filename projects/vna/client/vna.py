@@ -11,20 +11,19 @@ import numpy as np
 import matplotlib
 
 from matplotlib.figure import Figure
-from matplotlib.ticker import Formatter, FuncFormatter
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 if "PyQt5" in sys.modules:
     from PyQt5.uic import loadUiType
-    from PyQt5.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
+    from PyQt5.QtCore import QRegExp, QTimer, QSettings, Qt
     from PyQt5.QtGui import QRegExpValidator
     from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
     from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 else:
     from PySide2.QtUiTools import loadUiType
-    from PySide2.QtCore import QRegExp, QTimer, QSettings, QDir, Qt
+    from PySide2.QtCore import QRegExp, QTimer, QSettings, Qt
     from PySide2.QtGui import QRegExpValidator
     from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
     from PySide2.QtNetwork import QAbstractSocket, QTcpSocket
