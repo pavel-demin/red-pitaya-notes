@@ -7,29 +7,21 @@ import struct
 
 from functools import partial
 
+from PySide6.QtUiTools import loadUiType
+from PySide6.QtCore import Qt, QTimer, QEventLoop, QRegularExpression
+from PySide6.QtGui import QPalette, QColor, QRegularExpressionValidator
+from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog
+from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QComboBox
+from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
+
 import numpy as np
 
 import matplotlib
 
 from matplotlib.figure import Figure
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-
-if "PyQt5" in sys.modules:
-    from PyQt5.uic import loadUiType
-    from PyQt5.QtCore import Qt, QTimer, QEventLoop, QRegExp
-    from PyQt5.QtGui import QPalette, QColor, QRegExpValidator
-    from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog
-    from PyQt5.QtWidgets import QWidget, QLabel, QCheckBox, QComboBox
-    from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
-else:
-    from PySide2.QtUiTools import loadUiType
-    from PySide2.QtCore import Qt, QTimer, QEventLoop, QRegExp
-    from PySide2.QtGui import QPalette, QColor, QRegExpValidator
-    from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog
-    from PySide2.QtWidgets import QWidget, QLabel, QCheckBox, QComboBox
-    from PySide2.QtNetwork import QAbstractSocket, QTcpSocket
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 
 Ui_MCPHA, QMainWindow = loadUiType("mcpha.ui")
 Ui_LogDisplay, QWidget = loadUiType("mcpha_log.ui")
@@ -81,16 +73,16 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.rateValue.setCurrentIndex(1)
         self.rateValue.currentIndexChanged.connect(self.set_rate)
         # address validator
-        rx = QRegExp(r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$")
-        self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
+        rx = QRegularExpression(r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$")
+        self.addrValue.setValidator(QRegularExpressionValidator(rx, self.addrValue))
         # create TCP socket
         self.socket = QTcpSocket(self)
         self.socket.connected.connect(self.connected)
-        self.socket.error.connect(self.display_error)
+        self.socket.errorOccurred.connect(self.display_error)
         # create event loop
         self.loop = QEventLoop()
         self.socket.readyRead.connect(self.loop.quit)
-        self.socket.error.connect(self.loop.quit)
+        self.socket.errorOccurred.connect(self.loop.quit)
         # create timers
         self.startTimer = QTimer(self)
         self.startTimer.timeout.connect(self.start_timeout)
@@ -870,4 +862,4 @@ dpi = app.primaryScreen().logicalDotsPerInch()
 matplotlib.rcParams["figure.dpi"] = dpi
 window = MCPHA()
 window.show()
-sys.exit(app.exec_())
+sys.exit(app.exec())
