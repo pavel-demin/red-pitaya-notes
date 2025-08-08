@@ -6,27 +6,20 @@ import warnings
 
 from functools import partial
 
+from PySide6.QtUiTools import loadUiType
+from PySide6.QtCore import QRegularExpression, QTimer, QSettings, Qt
+from PySide6.QtGui import QRegularExpressionValidator
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
+from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
+
 import numpy as np
 
 import matplotlib
 
 from matplotlib.figure import Figure
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-
-if "PyQt5" in sys.modules:
-    from PyQt5.uic import loadUiType
-    from PyQt5.QtCore import QRegExp, QTimer, QSettings, Qt
-    from PyQt5.QtGui import QRegExpValidator
-    from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
-    from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
-else:
-    from PySide2.QtUiTools import loadUiType
-    from PySide2.QtCore import QRegExp, QTimer, QSettings, Qt
-    from PySide2.QtGui import QRegExpValidator
-    from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
-    from PySide2.QtNetwork import QAbstractSocket, QTcpSocket
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 
 Ui_VNA, QMainWindow = loadUiType("vna.ui")
 
@@ -468,8 +461,8 @@ class VNA(QMainWindow, Ui_VNA):
         super(VNA, self).__init__()
         self.setupUi(self)
         # address validator
-        rx = QRegExp(r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$")
-        self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
+        rx = QRegularExpression(r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$")
+        self.addrValue.setValidator(QRegularExpressionValidator(rx, self.addrValue))
         # state variables
         self.idle = True
         self.reading = False
@@ -508,7 +501,7 @@ class VNA(QMainWindow, Ui_VNA):
         self.socket = QTcpSocket(self)
         self.socket.connected.connect(self.connected)
         self.socket.readyRead.connect(self.read_data)
-        self.socket.error.connect(self.display_error)
+        self.socket.errorOccurred.connect(self.display_error)
         # connect signals from widgets
         self.connectButton.clicked.connect(self.start)
         self.writeButton.clicked.connect(self.write_cfg)
@@ -918,4 +911,4 @@ matplotlib.rcParams["figure.dpi"] = dpi
 window = VNA()
 window.update_tab()
 window.show()
-sys.exit(app.exec_())
+sys.exit(app.exec())
