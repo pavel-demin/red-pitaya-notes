@@ -9,7 +9,7 @@ linux_ver=6.12.29-xilinx
 # Choose mirror automatically, depending the geographic and network location
 mirror=http://deb.debian.org/debian
 
-distro=bookworm
+distro=trixie
 arch=armhf
 
 passwd=changeme
@@ -84,7 +84,7 @@ dpkg-reconfigure tzdata
 
 apt-get -y install openssh-server ca-certificates chrony fake-hwclock \
   usbutils psmisc lsof parted curl vim wpasupplicant hostapd dnsmasq \
-  firmware-misc-nonfree firmware-realtek firmware-atheros firmware-brcm80211 \
+  firmware-atheros firmware-brcm80211 firmware-mediatek firmware-realtek \
   iw iptables dhcpcd-base ntfs-3g libubootenv-tool
 
 systemctl enable dhcpcd
@@ -95,8 +95,6 @@ systemctl disable nftables
 systemctl disable wpa_supplicant
 
 sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' etc/ssh/sshd_config
-
-sed -i '/^#net.ipv4.ip_forward=1$/s/^#//' etc/sysctl.conf
 
 echo root:$passwd | chpasswd
 
