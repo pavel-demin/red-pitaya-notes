@@ -1,12 +1,12 @@
 # Development machine
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/bookworm) 12 (amd64) and [Vitis Core Development Kit](https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vitis.html) 2025.1.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/trixie) 13 (amd64) and [Vitis Core Development Kit](https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vitis.html) 2025.1.
 
-## Creating virtual machine with Debian 12 (amd64)
+## Creating virtual machine with Debian 13 (amd64)
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-- Download [mini.iso](https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/mini.iso) for Debian 12
+- Download [mini.iso](https://deb.debian.org/debian/dists/trixie/main/installer-amd64/current/images/netboot/mini.iso) for Debian 13
 
 - Start VirtualBox
 

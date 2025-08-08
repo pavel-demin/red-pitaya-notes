@@ -6,8 +6,8 @@ For my experiments with the [Red Pitaya](https://redpitaya.readthedocs.io), I'd 
 
 - recent version of the [Vitis Core Development Kit](https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vitis.html)
 - recent version of the [Linux kernel](https://www.kernel.org)
-- recent version of the [Debian distribution](https://www.debian.org/releases/bookworm) on the development machine
-- recent version of the [Debian distribution](https://www.debian.org/releases/bookworm) on the the Red Pitaya board
+- recent version of the [Debian distribution](https://www.debian.org/releases/trixie) on the development machine
+- recent version of the [Debian distribution](https://www.debian.org/releases/trixie) on the the Red Pitaya board
 - basic project with all the [Red Pitaya](https://redpitaya.readthedocs.io) peripherals connected
 - mostly command-line tools
 - shallow directory structure
@@ -18,7 +18,7 @@ Here is how I set it all up.
 
 My development machine has the following installed:
 
-- [Debian](https://www.debian.org/releases/bookworm) 12 (amd64)
+- [Debian](https://www.debian.org/releases/trixie) 13 (amd64)
 
 - [Vitis Core Development Kit](https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vitis.html) 2025.1
 
