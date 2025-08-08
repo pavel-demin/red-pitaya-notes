@@ -30,7 +30,7 @@ apt-get update
 apt-get --no-install-recommends install \
   bc binfmt-support bison build-essential ca-certificates curl \
   debootstrap device-tree-compiler dosfstools flex fontconfig git \
-  libgtk-3-0 libncurses-dev libssl-dev libtinfo5 parted qemu-user-static \
+  libgtk-3-0 libncurses-dev libssl-dev libtinfo6 parted qemu-user-static \
   squashfs-tools sudo u-boot-tools x11-utils xvfb zerofree zip
 ```
 
