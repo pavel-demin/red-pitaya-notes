@@ -3,27 +3,20 @@
 import sys
 import struct
 
+from PySide6.QtUiTools import loadUiType
+from PySide6.QtCore import QRegularExpression, QTimer
+from PySide6.QtGui import QRegularExpressionValidator
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
+
 import numpy as np
 
 import matplotlib
 
 from matplotlib.figure import Figure
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-
-if "PyQt5" in sys.modules:
-    from PyQt5.uic import loadUiType
-    from PyQt5.QtCore import QRegExp, QTimer
-    from PyQt5.QtGui import QRegExpValidator
-    from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget
-    from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
-else:
-    from PySide2.QtUiTools import loadUiType
-    from PySide2.QtCore import QRegExp, QTimer
-    from PySide2.QtGui import QRegExpValidator
-    from PySide2.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget
-    from PySide2.QtNetwork import QAbstractSocket, QTcpSocket
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 
 Ui_PulsedNMR, QMainWindow = loadUiType("pulsed_nmr.ui")
 
@@ -36,8 +29,8 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
         self.setupUi(self)
         self.rateValue.addItems(["25", "50", "125", "250", "500", "1250"])
         # IP address validator
-        rx = QRegExp("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$")
-        self.addrValue.setValidator(QRegExpValidator(rx, self.addrValue))
+        rx = QRegularExpression(r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|rp-[0-9A-Fa-f]{6}\.local$")
+        self.addrValue.setValidator(QRegularExpressionValidator(rx, self.addrValue))
         # state variable
         self.idle = True
         # number of samples to show on the plot
@@ -65,7 +58,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
         self.socket = QTcpSocket(self)
         self.socket.connected.connect(self.connected)
         self.socket.readyRead.connect(self.read_data)
-        self.socket.error.connect(self.display_error)
+        self.socket.errorOccurred.connect(self.display_error)
         # connect signals from buttons and boxes
         self.startButton.clicked.connect(self.start)
         self.freqValue.valueChanged.connect(self.set_freq)
@@ -198,4 +191,4 @@ dpi = app.primaryScreen().logicalDotsPerInch()
 matplotlib.rcParams["figure.dpi"] = dpi
 window = PulsedNMR()
 window.show()
-sys.exit(app.exec_())
+sys.exit(app.exec())
