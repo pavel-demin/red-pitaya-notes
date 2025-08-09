@@ -7,13 +7,6 @@ import struct
 
 from functools import partial
 
-from PySide6.QtUiTools import loadUiType
-from PySide6.QtCore import Qt, QTimer, QEventLoop, QRegularExpression
-from PySide6.QtGui import QPalette, QColor, QRegularExpressionValidator
-from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog
-from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QComboBox
-from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
-
 import numpy as np
 
 import matplotlib
@@ -22,6 +15,21 @@ from matplotlib.figure import Figure
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+
+if "PyQt6" in sys.modules:
+    from PyQt6.uic import loadUiType
+    from PyQt6.QtCore import Qt, QTimer, QEventLoop, QRegularExpression
+    from PyQt6.QtGui import QPalette, QColor, QRegularExpressionValidator
+    from PyQt6.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog
+    from PyQt6.QtWidgets import QWidget, QLabel, QCheckBox, QComboBox
+    from PyQt6.QtNetwork import QAbstractSocket, QTcpSocket
+else:
+    from PySide6.QtUiTools import loadUiType
+    from PySide6.QtCore import Qt, QTimer, QEventLoop, QRegularExpression
+    from PySide6.QtGui import QPalette, QColor, QRegularExpressionValidator
+    from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog
+    from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QComboBox
+    from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_MCPHA, QMainWindow = loadUiType("mcpha.ui")
 Ui_LogDisplay, QWidget = loadUiType("mcpha_log.ui")
@@ -67,9 +75,9 @@ class MCPHA(QMainWindow, Ui_MCPHA):
         self.rateValue.addItems(map(str, MCPHA.rates.values()))
         self.rateValue.setEditable(True)
         self.rateValue.lineEdit().setReadOnly(True)
-        self.rateValue.lineEdit().setAlignment(Qt.AlignRight)
+        self.rateValue.lineEdit().setAlignment(Qt.AlignmentFlag.AlignRight)
         for i in range(self.rateValue.count()):
-            self.rateValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
+            self.rateValue.setItemData(i, Qt.AlignmentFlag.AlignRight, Qt.ItemDataRole.TextAlignmentRole)
         self.rateValue.setCurrentIndex(1)
         self.rateValue.currentIndexChanged.connect(self.set_rate)
         # address validator
@@ -360,9 +368,9 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         self.binsValue.addItems(["1", "2", "4", "8"])
         self.binsValue.setEditable(True)
         self.binsValue.lineEdit().setReadOnly(True)
-        self.binsValue.lineEdit().setAlignment(Qt.AlignRight)
+        self.binsValue.lineEdit().setAlignment(Qt.AlignmentFlag.AlignRight)
         for i in range(self.binsValue.count()):
-            self.binsValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
+            self.binsValue.setItemData(i, Qt.AlignmentFlag.AlignRight, Qt.ItemDataRole.TextAlignmentRole)
         self.toolbar.addSeparator()
         self.toolbar.addWidget(self.logCheck)
         self.toolbar.addSeparator()
@@ -590,8 +598,8 @@ class HstDisplay(QWidget, Ui_HstDisplay):
             dialog.setDefaultSuffix("hst")
             name = "histogram-%s.hst" % time.strftime("%Y%m%d-%H%M%S")
             dialog.selectFile(name)
-            dialog.setAcceptMode(QFileDialog.AcceptSave)
-            if dialog.exec() == QDialog.Accepted:
+            dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
                 name = dialog.selectedFiles()
                 np.savetxt(name[0], self.buffer, fmt="%u", newline=os.linesep)
                 self.log.print("histogram %d saved to file %s" % ((self.number + 1), name[0]))
@@ -602,8 +610,8 @@ class HstDisplay(QWidget, Ui_HstDisplay):
         try:
             dialog = QFileDialog(self, "Load hst file", path, "*.hst")
             dialog.setDefaultSuffix("hst")
-            dialog.setAcceptMode(QFileDialog.AcceptOpen)
-            if dialog.exec() == QDialog.Accepted:
+            dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
                 name = dialog.selectedFiles()
                 self.buffer[:] = np.loadtxt(name[0], np.uint32)
                 self.update_plot()
@@ -650,14 +658,14 @@ class OscDisplay(QWidget, Ui_OscDisplay):
         # configure colors
         self.plotLayout.addWidget(self.toolbar)
         palette = QPalette(self.ch1Label.palette())
-        palette.setColor(QPalette.Window, QColor("#FFAA00"))
-        palette.setColor(QPalette.WindowText, QColor("black"))
+        palette.setColor(QPalette.ColorRole.Window, QColor("#FFAA00"))
+        palette.setColor(QPalette.ColorRole.WindowText, QColor("black"))
         self.ch1Label.setAutoFillBackground(True)
         self.ch1Label.setPalette(palette)
         self.ch1Value.setAutoFillBackground(True)
         self.ch1Value.setPalette(palette)
-        palette.setColor(QPalette.Window, QColor("#00CCCC"))
-        palette.setColor(QPalette.WindowText, QColor("black"))
+        palette.setColor(QPalette.ColorRole.Window, QColor("#00CCCC"))
+        palette.setColor(QPalette.ColorRole.WindowText, QColor("black"))
         self.ch2Label.setAutoFillBackground(True)
         self.ch2Label.setPalette(palette)
         self.ch2Value.setAutoFillBackground(True)
@@ -725,11 +733,11 @@ class OscDisplay(QWidget, Ui_OscDisplay):
             dialog.setDefaultSuffix("osc")
             name = "oscillogram-%s.osc" % time.strftime("%Y%m%d-%H%M%S")
             dialog.selectFile(name)
-            dialog.setAcceptMode(QFileDialog.AcceptSave)
-            if dialog.exec() == QDialog.Accepted:
+            dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
                 name = dialog.selectedFiles()
                 self.buffer.tofile(name[0])
-                self.log.print("histogram %d saved to file %s" % ((self.number + 1), name[0]))
+                self.log.print("oscillogram saved to file %s" % name[0])
         except:
             self.log.print("error: %s" % sys.exc_info()[1])
 
@@ -737,8 +745,8 @@ class OscDisplay(QWidget, Ui_OscDisplay):
         try:
             dialog = QFileDialog(self, "Load osc file", path, "*.osc")
             dialog.setDefaultSuffix("osc")
-            dialog.setAcceptMode(QFileDialog.AcceptOpen)
-            if dialog.exec() == QDialog.Accepted:
+            dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
                 name = dialog.selectedFiles()
                 self.buffer[:] = np.fromfile(name[0], np.int16)
                 self.update()
@@ -845,8 +853,8 @@ class GenDisplay(QWidget, Ui_GenDisplay):
         try:
             dialog = QFileDialog(self, "Load gen file", path, "*.gen")
             dialog.setDefaultSuffix("gen")
-            dialog.setAcceptMode(QFileDialog.AcceptOpen)
-            if dialog.exec() == QDialog.Accepted:
+            dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
                 name = dialog.selectedFiles()
                 self.buffer[:] = np.loadtxt(name[0], np.uint32)
                 self.curve.set_ydata(self.buffer)
