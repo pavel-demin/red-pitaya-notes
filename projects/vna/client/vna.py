@@ -6,12 +6,6 @@ import warnings
 
 from functools import partial
 
-from PySide6.QtUiTools import loadUiType
-from PySide6.QtCore import QRegularExpression, QTimer, QSettings, Qt
-from PySide6.QtGui import QRegularExpressionValidator
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
-from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
-
 import numpy as np
 
 import matplotlib
@@ -20,6 +14,19 @@ from matplotlib.figure import Figure
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+
+if "PyQt6" in sys.modules:
+    from PyQt6.uic import loadUiType
+    from PyQt6.QtCore import QRegularExpression, QTimer, QSettings, Qt
+    from PyQt6.QtGui import QRegularExpressionValidator
+    from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
+    from PyQt6.QtNetwork import QAbstractSocket, QTcpSocket
+else:
+    from PySide6.QtUiTools import loadUiType
+    from PySide6.QtCore import QRegularExpression, QTimer, QSettings, Qt
+    from PySide6.QtGui import QRegularExpressionValidator
+    from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
+    from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_VNA, QMainWindow = loadUiType("vna.ui")
 
@@ -92,7 +99,7 @@ class FigureTab:
             self.cursorValues[i] = QSpinBox()
             self.cursorValues[i].setMinimumSize(90, 0)
             self.cursorValues[i].setSingleStep(10)
-            self.cursorValues[i].setAlignment(Qt.AlignRight | Qt.AlignTrailing | Qt.AlignVCenter)
+            self.cursorValues[i].setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTrailing | Qt.AlignmentFlag.AlignVCenter)
             self.toolbar.addWidget(self.cursorLabels[i])
             self.toolbar.addWidget(self.cursorValues[i])
             self.cursorValues[i].valueChanged.connect(partial(self.set_cursor, i))
@@ -489,13 +496,13 @@ class VNA(QMainWindow, Ui_VNA):
         # configure widgets
         self.rateValue.addItems(["5000", "1000", "500", "100", "50", "10", "5", "1"])
         self.rateValue.lineEdit().setReadOnly(True)
-        self.rateValue.lineEdit().setAlignment(Qt.AlignRight)
+        self.rateValue.lineEdit().setAlignment(Qt.AlignmentFlag.AlignRight)
         for i in range(self.rateValue.count()):
-            self.rateValue.setItemData(i, Qt.AlignRight, Qt.TextAlignmentRole)
+            self.rateValue.setItemData(i, Qt.AlignmentFlag.AlignRight, Qt.ItemDataRole.TextAlignmentRole)
         self.set_enabled(False)
         self.stopSweep.setEnabled(False)
         # read settings
-        settings = QSettings("vna.ini", QSettings.IniFormat)
+        settings = QSettings("vna.ini", QSettings.Format.IniFormat)
         self.read_cfg_settings(settings)
         # create TCP socket
         self.socket = QTcpSocket(self)
@@ -742,21 +749,21 @@ class VNA(QMainWindow, Ui_VNA):
         dialog = QFileDialog(self, "Write configuration settings", ".", "*.ini")
         dialog.setDefaultSuffix("ini")
         dialog.selectFile("vna.ini")
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
-        dialog.setOptions(QFileDialog.DontConfirmOverwrite)
-        if dialog.exec() == QDialog.Accepted:
+        dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
+        dialog.setOptions(QFileDialog.Option.DontConfirmOverwrite)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             name = dialog.selectedFiles()
-            settings = QSettings(name[0], QSettings.IniFormat)
+            settings = QSettings(name[0], QSettings.Format.IniFormat)
             self.write_cfg_settings(settings)
 
     def read_cfg(self):
         dialog = QFileDialog(self, "Read configuration settings", ".", "*.ini")
         dialog.setDefaultSuffix("ini")
         dialog.selectFile("vna.ini")
-        dialog.setAcceptMode(QFileDialog.AcceptOpen)
-        if dialog.exec() == QDialog.Accepted:
+        dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             name = dialog.selectedFiles()
-            settings = QSettings(name[0], QSettings.IniFormat)
+            settings = QSettings(name[0], QSettings.Format.IniFormat)
             self.read_cfg_settings(settings)
             window.update_tab()
 
@@ -852,9 +859,9 @@ class VNA(QMainWindow, Ui_VNA):
     def write_csv(self):
         dialog = QFileDialog(self, "Write csv file", ".", "*.csv")
         dialog.setDefaultSuffix("csv")
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
-        dialog.setOptions(QFileDialog.DontConfirmOverwrite)
-        if dialog.exec() == QDialog.Accepted:
+        dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
+        dialog.setOptions(QFileDialog.Option.DontConfirmOverwrite)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             name = dialog.selectedFiles()
             fh = open(name[0], "w")
             f = self.dut.freq
@@ -870,9 +877,9 @@ class VNA(QMainWindow, Ui_VNA):
     def write_s1p(self):
         dialog = QFileDialog(self, "Write s1p file", ".", "*.s1p")
         dialog.setDefaultSuffix("s1p")
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
-        dialog.setOptions(QFileDialog.DontConfirmOverwrite)
-        if dialog.exec() == QDialog.Accepted:
+        dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
+        dialog.setOptions(QFileDialog.Option.DontConfirmOverwrite)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             name = dialog.selectedFiles()
             fh = open(name[0], "w")
             freq = self.dut.freq
@@ -885,9 +892,9 @@ class VNA(QMainWindow, Ui_VNA):
     def write_s2p(self, gain):
         dialog = QFileDialog(self, "Write s2p file", ".", "*.s2p")
         dialog.setDefaultSuffix("s2p")
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
-        dialog.setOptions(QFileDialog.DontConfirmOverwrite)
-        if dialog.exec() == QDialog.Accepted:
+        dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
+        dialog.setOptions(QFileDialog.Option.DontConfirmOverwrite)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             name = dialog.selectedFiles()
             fh = open(name[0], "w")
             freq = self.dut.freq
