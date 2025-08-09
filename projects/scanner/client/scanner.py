@@ -3,12 +3,6 @@
 import sys
 import struct
 
-from PySide6.QtUiTools import loadUiType
-from PySide6.QtCore import QRegularExpression, QTimer, Qt
-from PySide6.QtGui import QRegularExpressionValidator
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
-from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
-
 import numpy as np
 
 import matplotlib
@@ -18,6 +12,19 @@ from matplotlib.figure import Figure
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+
+if "PyQt6" in sys.modules:
+    from PyQt6.uic import loadUiType
+    from PyQt6.QtCore import QRegularExpression, QTimer, Qt
+    from PyQt6.QtGui import QRegularExpressionValidator
+    from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox
+    from PyQt6.QtNetwork import QAbstractSocket, QTcpSocket
+else:
+    from PySide6.QtUiTools import loadUiType
+    from PySide6.QtCore import QRegularExpression, QTimer, Qt
+    from PySide6.QtGui import QRegularExpressionValidator
+    from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+    from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
 
 Ui_Scanner, QMainWindow = loadUiType("scanner.ui")
 
