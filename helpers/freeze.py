@@ -20,13 +20,11 @@ freeze(
         (
             "",
             [
-                "c:\\Python313\\Lib\\site-packages\\shiboken6\\msvcp140.dll",
                 "c:\\Python313\\Lib\\site-packages\\PySide6\\Qt6OpenGL.dll",
                 "c:\\Python313\\Lib\\site-packages\\PySide6\\Qt6Designer.dll",
                 "c:\\Python313\\Lib\\site-packages\\PySide6\\Qt6DesignerComponents.dll",
                 "c:\\Python313\\Lib\\site-packages\\PySide6\\designer.exe",
                 "c:\\Python313\\Lib\\site-packages\\PySide6\\uic.exe",
-                "c:\\Python313\\Scripts\\pyside6-uic.exe",
             ],
         ),
         (
