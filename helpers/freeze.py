@@ -1,17 +1,17 @@
 from py2exe import freeze
 
 includes = [
+    "matplotlib.backends.backend_qtagg",
+    "numpy",
     "PySide6.QtCore",
     "PySide6.QtGui",
-    "PySide6.QtNetwork",
     "PySide6.QtMultimedia",
+    "PySide6.QtNetwork",
     "PySide6.QtPrintSupport",
     "PySide6.QtUiTools",
     "PySide6.QtWebSockets",
     "PySide6.QtWidgets",
     "PySide6.QtXml",
-    "numpy",
-    "matplotlib.backends.backend_qtagg",
 ]
 
 freeze(
