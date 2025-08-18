@@ -31,11 +31,12 @@ else:
     from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QComboBox
     from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
 
-Ui_MCPHA, QMainWindow = loadUiType("mcpha.ui")
-Ui_LogDisplay, QWidget = loadUiType("mcpha_log.ui")
-Ui_HstDisplay, QWidget = loadUiType("mcpha_hst.ui")
-Ui_OscDisplay, QWidget = loadUiType("mcpha_osc.ui")
-Ui_GenDisplay, QWidget = loadUiType("mcpha_gen.ui")
+path = os.path.dirname(__file__)
+Ui_MCPHA, QMainWindow = loadUiType(os.path.join(path, "mcpha.ui"))
+Ui_LogDisplay, QWidget = loadUiType(os.path.join(path, "mcpha_log.ui"))
+Ui_HstDisplay, QWidget = loadUiType(os.path.join(path, "mcpha_hst.ui"))
+Ui_OscDisplay, QWidget = loadUiType(os.path.join(path, "mcpha_osc.ui"))
+Ui_GenDisplay, QWidget = loadUiType(os.path.join(path, "mcpha_gen.ui"))
 
 if sys.platform != "win32":
     path = "."
@@ -865,9 +866,14 @@ class GenDisplay(QWidget, Ui_GenDisplay):
             self.log.print("error: %s" % sys.exc_info()[1])
 
 
-app = QApplication(sys.argv)
-dpi = app.primaryScreen().logicalDotsPerInch()
-matplotlib.rcParams["figure.dpi"] = dpi
-window = MCPHA()
-window.show()
-sys.exit(app.exec())
+def main():
+    app = QApplication(sys.argv)
+    dpi = app.primaryScreen().logicalDotsPerInch()
+    matplotlib.rcParams["figure.dpi"] = dpi
+    window = MCPHA()
+    window.show()
+    app.exec()
+
+
+if __name__ == "__main__":
+    main()
