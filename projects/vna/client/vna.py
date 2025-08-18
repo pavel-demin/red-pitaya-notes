@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 import struct
 import warnings
@@ -28,7 +29,8 @@ else:
     from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QFileDialog, QPushButton, QLabel, QSpinBox
     from PySide6.QtNetwork import QAbstractSocket, QTcpSocket
 
-Ui_VNA, QMainWindow = loadUiType("vna.ui")
+path = os.path.dirname(__file__)
+Ui_VNA, QMainWindow = loadUiType(os.path.join(path, "vna.ui"))
 
 
 def unicode_minus(s):
@@ -911,11 +913,16 @@ class VNA(QMainWindow, Ui_VNA):
         self.write_s2p(self.gain_open(self.dut.freq))
 
 
-warnings.filterwarnings("ignore")
-app = QApplication(sys.argv)
-dpi = app.primaryScreen().logicalDotsPerInch()
-matplotlib.rcParams["figure.dpi"] = dpi
-window = VNA()
-window.update_tab()
-window.show()
-sys.exit(app.exec())
+def main():
+    warnings.filterwarnings("ignore")
+    app = QApplication(sys.argv)
+    dpi = app.primaryScreen().logicalDotsPerInch()
+    matplotlib.rcParams["figure.dpi"] = dpi
+    window = VNA()
+    window.update_tab()
+    window.show()
+    app.exec()
+
+
+if __name__ == "__main__":
+    main()
