@@ -767,7 +767,7 @@ class VNA(QMainWindow, Ui_VNA):
             name = dialog.selectedFiles()
             settings = QSettings(name[0], QSettings.Format.IniFormat)
             self.read_cfg_settings(settings)
-            window.update_tab()
+            self.update_tab()
 
     def write_cfg_settings(self, settings):
         settings.setValue("addr", self.addrValue.text())
