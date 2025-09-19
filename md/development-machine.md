@@ -96,3 +96,15 @@ cd FPGAs_AdaptiveSoCs_Unified_SDI_2025.1_0530_0145
 - Follow the installation wizard
 
 - Set the installation directory to `/opt/Xilinx`
+
+## Troubleshooting
+
+In recent releases of Linux distributions, the `libtinfo5` package required by `vivado` and `xsct` may be missing, resulting in the following error message when running these programs:
+```
+libtinfo.so.5: cannot open shared object file: No such file or directory
+```
+A possible workaround could be to run the following commands, creating symbolic links to the `libtinfo.so.5` library in the appropriate directories:
+```
+ln -s Ubuntu/24/libtinfo.so.5 /opt/Xilinx/2025.1/Vitis/lib/lnx64.o/libtinfo.so.5
+ln -s Ubuntu/24/libtinfo.so.5 /opt/Xilinx/2025.1/Vivado/lib/lnx64.o/libtinfo.so.5
+```
