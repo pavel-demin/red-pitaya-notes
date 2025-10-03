@@ -47,12 +47,12 @@ The [projects/sdr_transceiver_hpsdr/server]($source$/projects/sdr_transceiver_hp
 - input for RX1 is connected to IN1
 - inputs for RX2 and RX3 are connected to IN2
 - output for TX is connected to OUT1
-- output for a RX/TX switch control (PTT-out) is connected to pin DIO0_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1)
-- output for a pre-amplifier/attenuator control is connected to pin DIO1_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1) (this pin is controlled by the first ATT combo-box in [PowerSDR mRX PS](https://openhpsdr.org/wiki/index.php?title=PowerSDR))
-- outputs for 10 dB and 20 dB attenuators control are connected to the pins DIO2_P - DIO3_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1)
-- outputs for Hermes Ctrl pins are connected to the pins DIO4_P - DIO7_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1)
-- inputs for PTT, DASH and DOT are connected to the pins DIO0_N, DIO1_N and DIO2_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1)
-- slow analog inputs can be used for the forward ([Analog input 0](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2)) and reverse ([Analog input 1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2)) power measurement
+- output for a RX/TX switch control (PTT-out) is connected to pin DIO0_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1)
+- output for a pre-amplifier/attenuator control is connected to pin DIO1_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1) (this pin is controlled by the first ATT combo-box in [PowerSDR mRX PS](https://openhpsdr.org/wiki/index.php?title=PowerSDR))
+- outputs for 10 dB and 20 dB attenuators control are connected to the pins DIO2_P - DIO3_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1)
+- outputs for Hermes Ctrl pins are connected to the pins DIO4_P - DIO7_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1)
+- inputs for PTT, DASH and DOT are connected to the pins DIO0_N, DIO1_N and DIO2_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1)
+- slow analog inputs can be used for the forward ([Analog input 0](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e2)) and reverse ([Analog input 1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e2)) power measurement
 
 ![GPIO connections](/img/sdr-transceiver-hpsdr-e1-pins.png)
 
@@ -60,11 +60,11 @@ The [projects/sdr_transceiver_hpsdr/server]($source$/projects/sdr_transceiver_hp
 
 The I2S interface is sharing pins with the ALEX interface. So, the two can't be used simultaneously. The supported I2S audio codecs are [TLV320AIC23B](https://www.ti.com/product/TLV320AIC23B) and [WM8731](https://www.cirrus.com/products/wm8731). The I2S audio codecs should be clocked with a 12.288 MHz oscillator crystal.
 
-The I2S interface should be connected to the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1) as shown in the above diagram. The I2C interface should be connected to the I2C pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2).
+The I2S interface should be connected to the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1) as shown in the above diagram. The I2C interface should be connected to the I2C pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e2).
 
 ## ALEX connections
 
-The [ALEX module](https://openhpsdr.org/alex.php) can be connected to the pins DIO4_N (Serial Data), DIO5_N (Clock), DIO6_N (RX Strobe) and DIO7_N (TX Strobe) of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1).
+The [ALEX module](https://openhpsdr.org/alex.php) can be connected to the pins DIO4_N (Serial Data), DIO5_N (Clock), DIO6_N (RX Strobe) and DIO7_N (TX Strobe) of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1).
 The board and the protocol are described in the [ALEX manual](https://github.com/TAPR/OpenHPSDR-SVN/raw/master/Alexiares/Documentation/ALEX%20Manual%20V1.0.pdf).
 
 The HPSDR signals sent to the [TPIC6B595](https://www.ti.com/product/TPIC6B595) chips are shown in the following diagram:
@@ -73,7 +73,7 @@ The HPSDR signals sent to the [TPIC6B595](https://www.ti.com/product/TPIC6B595) 
 
 ## I2C connections
 
-This interface is designed by Peter DC2PD. The [sdr-transceiver-hpsdr.c]($source$/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c) server communicates with one or two [PCA9555](https://www.ti.com/product/PCA9555) chips connected to the I2C pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e2).
+This interface is designed by Peter DC2PD. The [sdr-transceiver-hpsdr.c]($source$/projects/sdr_transceiver_hpsdr/server/sdr-transceiver-hpsdr.c) server communicates with one or two [PCA9555](https://www.ti.com/product/PCA9555) chips connected to the I2C pins of the [extension connector E2](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e2).
 
 HPSDR signals sent to the [PCA9555](https://www.ti.com/product/PCA9555) chip at address 0 (0x20):
 
@@ -173,7 +173,7 @@ The following spectra illustrate how the amplifier linearization works with the 
 
 ## CW functionality
 
-The CW keyer can be used with a straight or iambic key connected to the pins DIO1_N and DIO2_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/extent.html#extension-connector-e1). The CW signal is generated when one of the CW modes is selected in [PowerSDR mRX PS](https://openhpsdr.org/wiki/index.php?title=PowerSDR) and the pins DIO1_N and DIO2_N are connected to GND.
+The CW keyer can be used with a straight or iambic key connected to the pins DIO1_N and DIO2_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1). The CW signal is generated when one of the CW modes is selected in [PowerSDR mRX PS](https://openhpsdr.org/wiki/index.php?title=PowerSDR) and the pins DIO1_N and DIO2_N are connected to GND.
 
 The ramp generator is programmable. The default ramp's shape is the step response of the 4-term Blackman-Harris window. It's inspired by the ["CW Shaping in DSP Software"](https://www.dropbox.com/sh/5fy49wae6xwxa8a/AABRo_bjj9eUUQxSbS8tCjCza/sdr/cw-shaping-in-dsp.pdf?dl=1) article appeared in the May/June, 2006 issue of QEX.
 
