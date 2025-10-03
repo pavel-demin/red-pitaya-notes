@@ -44,6 +44,40 @@ The [projects/pulsed_nmr/client]($source$/projects/pulsed_nmr/client) directory 
 
 ![Pulsed NMR client](/img/pulsed-nmr-client.png)
 
+## .NET library
+
+The .NET library provides a minimalist set of commands for controlling all parameters of the signal processing modules and programming the pulse generator. The commands can be classified into five groups:
+
+Commands to manage the connection with the TCP server:
+
+- Connect(address)
+- Disconnect()
+
+Commands to set the frequencies and decimation rate:
+
+- SetFreqRX(frequency)
+- SetFreqTX(frequency)
+- SetRateRX(rate)
+
+Commands to program a pulse sequence:
+
+- ClearPulses()
+- AddDelay(gate, duration)
+- AddPulse(level, phase, duration)
+
+Command to start pulse sequence and receive data:
+
+- RecieveData(size)
+
+Various commands to control output RF signal level, GPIO pins and an external DAC:
+
+- SetLevelTX(level)
+- SetPin(pin)
+- ClearPin(pin)
+- SetDAC(data)
+
+The source code of the .NET library can be found in [projects/pulsed_nmr/client/PulsedNMR.cs]($source$/projects/pulsed_nmr/client/PulsedNMR.cs).
+
 ## Getting started with GNU/Linux
 
 - Download [SD card image zip file]($release_image$) (more details about the SD card image can be found at [this link](/alpine/)).
