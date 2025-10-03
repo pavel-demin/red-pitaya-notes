@@ -28,6 +28,8 @@ The basic blocks of the system are shown in the following diagram:
 
 The [projects/pulsed_nmr]($source$/projects/pulsed_nmr) directory contains three Tcl files: [block_design.tcl]($source$/projects/pulsed_nmr/block_design.tcl), [rx.tcl]($source$/projects/pulsed_nmr/rx.tcl), [tx.tcl]($source$/projects/pulsed_nmr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
+The source code of the [R](https://www.r-project.org) script used to calculate the coefficients of the FIR filter can be found in [projects/pulsed_nmr/filters/fir_0.r]($source$/projects/pulsed_nmr/filters/fir_0.r).
+
 ## RF and GPIO connections
 
 - two digital down-converters (DDC) are connected to IN1 and IN2
