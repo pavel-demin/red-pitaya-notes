@@ -28,6 +28,14 @@ The basic blocks of the system are shown in the following diagram:
 
 The [projects/pulsed_nmr]($source$/projects/pulsed_nmr) directory contains three Tcl files: [block_design.tcl]($source$/projects/pulsed_nmr/block_design.tcl), [rx.tcl]($source$/projects/pulsed_nmr/rx.tcl), [tx.tcl]($source$/projects/pulsed_nmr/tx.tcl). The code in these files instantiates, configures and interconnects all the needed IP cores.
 
+## RF and GPIO connections
+
+- two digital down-converters (DDC) are connected to IN1 and IN2
+- pulse generator is connected to OUT1
+- continuous cosine signal of the receiver's DDS is connected to OUT2
+- digital output for RX/TX switch control is connected to pin DIO0_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1)
+- general purpose digital outputs are connected to the pins DIO0_P - DIO7_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1)
+
 ## Software
 
 The [projects/pulsed_nmr/server]($source$/projects/pulsed_nmr/server) directory contains the source code of the TCP server ([pulsed-nmr.c]($source$/projects/pulsed_nmr/server/pulsed-nmr.c)) that receives control commands and transmits the I/Q data streams (up to 4 x 32 bit x 1250 kSPS = 152 Mbit/s) to the control program running on a remote PC.
