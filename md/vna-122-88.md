@@ -48,7 +48,7 @@ The [projects/vna/client]($source$/projects/vna/client) directory contains the s
 - Install required Python libraries:
 
 ```bash
-sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5
+sudo apt-get install python3-numpy python3-matplotlib python3-pyqt6
 ```
 
 - Clone the source code repository:

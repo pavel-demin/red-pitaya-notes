@@ -38,7 +38,7 @@ The [projects/scanner/client]($source$/projects/scanner/client) directory contai
 - Install required Python libraries:
 
 ```bash
-sudo apt-get install python3-numpy python3-matplotlib python3-pyqt5
+sudo apt-get install python3-numpy python3-matplotlib python3-pyqt6
 ```
 
 - Clone the source code repository:
