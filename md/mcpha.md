@@ -12,8 +12,7 @@ Some interesting links on radiation spectroscopy:
 
 - [FPGA-based algorithms for the stability improvement of high-flux X-ray spectrometric imaging detectors](https://tel.archives-ouvertes.fr/tel-02096235)
 
-- [CAEN Digital Pulse Height Analyser - a digital approach to
-  Radiation Spectroscopy](https://www.caen.it/documents/News/32/AN2508_Digital_Pulse_Height_Analyser.pdf)
+- [CAEN Digital Pulse Height Analyser - a digital approach to Radiation Spectroscopy](https://www.caen.it/?downloadfile=4239)
 
 - [Spectrum Analysis Introduction](https://www.canberra.com/literature/fundamental-principles/pdf/Spectrum-Analysis.pdf)
 
