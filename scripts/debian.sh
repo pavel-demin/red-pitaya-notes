@@ -59,6 +59,8 @@ depmod -a -b $root_dir $linux_ver
 cp /etc/resolv.conf $root_dir/etc/
 cp /usr/bin/qemu-arm-static $root_dir/usr/bin/
 
+rm $root_dir/etc/apt/sources.list
+
 cp -r debian/etc/apt $root_dir/etc/
 cp -r debian/etc/systemd $root_dir/etc/
 
