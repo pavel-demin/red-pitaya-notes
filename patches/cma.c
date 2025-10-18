@@ -1,6 +1,7 @@
 #include <linux/miscdevice.h>
 #include <linux/module.h>
 #include <linux/uaccess.h>
+#include <linux/dma-direct.h>
 #include <linux/dma-mapping.h>
 #include <linux/dma-map-ops.h>
 
@@ -10,17 +11,30 @@ static struct device *dma_device = NULL;
 static size_t dma_size = 0;
 static void *cpu_addr = NULL;
 static dma_addr_t dma_addr;
+static int dma_pages_size = 0;
+static struct page **dma_pages = 0;
 
 static void cma_free(void)
 {
-  if(!cpu_addr) return;
-  dma_free_coherent(dma_device, dma_size, cpu_addr, dma_addr);
-  cpu_addr = NULL;
+  if(dma_pages)
+  {
+    kfree(dma_pages);
+    dma_pages = NULL;
+    dma_pages_size = 0;
+  }
+
+  if(cpu_addr)
+  {
+    dma_free_coherent(dma_device, dma_size, cpu_addr, dma_addr);
+    cpu_addr = NULL;
+  }
 }
 
 static long cma_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
+  int i;
   long rc;
+  unsigned long pfn;
   u32 buffer;
 
   if(cmd != CMA_ALLOC) return -ENOTTY;
@@ -30,24 +44,48 @@ static long cma_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
   cma_free();
 
+  dma_pages_size = DIV_ROUND_UP(buffer, PAGE_SIZE);
+  dma_pages = kmalloc_array(dma_pages_size, sizeof(struct page *), GFP_KERNEL);
+
+  if(!dma_pages) return -ENOMEM;
+
   dma_size = buffer;
   cpu_addr = dma_alloc_coherent(dma_device, dma_size, &dma_addr, GFP_KERNEL);
 
-  if(IS_ERR_OR_NULL(cpu_addr))
+  if(!cpu_addr)
   {
-    rc = PTR_ERR(cpu_addr);
-    if(rc == 0) rc = -ENOMEM;
-    cpu_addr = NULL;
-    return rc;
+    cma_free();
+    return -ENOMEM;
+  }
+
+  pfn = PHYS_PFN(dma_to_phys(dma_device, dma_addr));
+
+  for(i = 0; i < dma_pages_size; ++i)
+  {
+    dma_pages[i] = pfn_to_page(pfn + i);
+    page_kasan_tag_reset(dma_pages[i]);
   }
 
   buffer = dma_addr;
   return copy_to_user((void __user *)arg, &buffer, sizeof(buffer));
 }
 
+static vm_fault_t cma_vm_fault(struct vm_fault *vmf)
+{
+  if(!dma_pages || vmf->pgoff >= dma_pages_size) return VM_FAULT_SIGBUS;
+  return vmf_insert_page(vmf->vma, vmf->address, dma_pages[vmf->pgoff]);
+}
+
+static const struct vm_operations_struct cma_vm_ops =
+{
+  .fault = cma_vm_fault
+};
+
 static int cma_mmap(struct file *file, struct vm_area_struct *vma)
 {
-  return dma_mmap_coherent(dma_device, vma, cpu_addr, dma_addr, dma_size);
+  vm_flags_set(vma, VM_MIXEDMAP);
+  vma->vm_ops = &cma_vm_ops;
+  return 0;
 }
 
 static int cma_release(struct inode *inode, struct file *file)
