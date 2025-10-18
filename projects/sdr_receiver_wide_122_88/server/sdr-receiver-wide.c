@@ -92,6 +92,7 @@ int main ()
   }
 
   setsockopt(sock_server, SOL_SOCKET, SO_REUSEADDR, (void *)&yes, sizeof(yes));
+  setsockopt(sock_server, SOL_SOCKET, SO_ZEROCOPY, (void *)&yes, sizeof(yes));
 
   /* setup listening address */
   memset(&addr, 0, sizeof(addr));
@@ -114,7 +115,7 @@ int main ()
     usleep(100);
     *rx_rst &= ~2;
     /* set default sample rate */
-    *rx_rate = 6;
+    *rx_rate = 5;
     /* set default phase increments */
     rx_freq[0] = (uint32_t)floor(10000000 / 122.88e6 * 0xffffffff + 0.5);
     rx_freq[1] = (uint32_t)floor(10000000 / 122.88e6 * 0xffffffff + 0.5);
@@ -146,7 +147,7 @@ int main ()
         {
           case 0:
             /* set sample rate */
-            if(value < 6 || value > 64) continue;
+            if(value < 4 || value > 64) continue;
             *rx_rate = value;
             break;
           case 1:
@@ -168,7 +169,7 @@ int main ()
       {
         offset = limit > 0 ? 0 : 4096*1024;
         limit = limit > 0 ? 0 : 32*1024;
-        if(send(sock_client, ram + offset, 4096*1024, MSG_NOSIGNAL) < 0) break;
+        if(send(sock_client, ram + offset, 4096*1024, MSG_NOSIGNAL | MSG_ZEROCOPY) < 0) break;
       }
       else
       {
