@@ -124,10 +124,10 @@ make NAME=led_blinker all
 Building a bootable SD card image:
 
 ```bash
-sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-12-armhf.img 2048
+sudo sh scripts/image.sh scripts/debian.sh red-pitaya-debian-13-armhf.img 2048
 ```
 
-The SD card image size is 1 GB, so it should fit on any SD card starting from 2 GB.
+The SD card image size is 2 GB, so it should fit on any SD card starting from 4 GB.
 
 To write the image to a SD card, the `dd` command-line utility can be used on GNU/Linux and Mac OS X or [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager) can be used on MS Windows.
 
