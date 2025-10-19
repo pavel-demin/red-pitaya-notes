@@ -1,12 +1,12 @@
 library(signal)
 
 # CIC filter parameters
-R <- 6                         # Decimation factor
+R <- 4                         # Decimation factor
 M <- 1                         # Differential delay
 N <- 6                         # Number of stages
 
-Fc <- 0.247                    # cutoff frequency
-htbw <- 0.007                  # half transition bandwidth
+Fc <- 0.244                    # cutoff frequency
+htbw <- 0.011                  # half transition bandwidth
 
 # fir2 parameters
 k <- kaiserord(c(Fc-htbw, Fc+htbw), c(1, 0), 1/(2^16), 1)

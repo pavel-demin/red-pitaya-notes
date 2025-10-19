@@ -45,7 +45,7 @@ int main()
     return 1;
   }
 
-  command[0] = 6;
+  command[0] = 5;
   command[1] = (1 << 28) + 10000000;
   command[2] = (2 << 28) + 10000000;
   send(sock, command, sizeof(command), MSG_NOSIGNAL);
