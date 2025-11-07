@@ -58,9 +58,10 @@ create_bd_port -dir O -from 7 -to 0 exp_n_tri_io
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_0 {
-  NUM_PORTS 2
+  NUM_PORTS 3
   IN0_WIDTH 1
-  IN1_WIDTH 7
+  IN1_WIDTH 1
+  IN2_WIDTH 6
 } {
   dout exp_n_tri_io
 }
@@ -156,6 +157,7 @@ module tx_0 {
   slice_1/din rst_slice_0/dout
   slice_2/din cfg_slice_1/dout
   delay_1/Q concat_0/In0
+  not_0/Res concat_0/In1
 }
 
 # Create axis_combiner

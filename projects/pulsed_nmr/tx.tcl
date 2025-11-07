@@ -98,6 +98,14 @@ cell xilinx.com:ip:c_shift_ram delay_1 {
   CLK /pll_0/clk_out1
 }
 
+# Create util_vector_logic
+cell xilinx.com:ip:util_vector_logic not_0 {
+  C_SIZE 1
+  C_OPERATION not
+} {
+  Op1 delay_1/Q
+}
+
 # Create axis_zeroer
 cell pavel-demin:user:axis_zeroer zeroer_0 {
   AXIS_TDATA_WIDTH 16
