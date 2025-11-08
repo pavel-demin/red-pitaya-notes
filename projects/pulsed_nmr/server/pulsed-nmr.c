@@ -36,14 +36,14 @@ int main(int argc, char *argv[])
   volatile uint8_t *rx_rst, *tx_rst;
   struct sockaddr_in addr;
   uint64_t command, code, data, counter;
-  uint32_t *buffer, *pulses;
+  uint32_t *buffer, *events;
   int i, n, position, size, yes = 1;
 
   size = 0;
-  pulses = malloc(16777216);
+  events = malloc(16777216);
   buffer = malloc(32768);
 
-  if(pulses == NULL || buffer == NULL)
+  if(events == NULL || buffer == NULL)
   {
     perror("malloc");
     return EXIT_FAILURE;
@@ -169,20 +169,20 @@ int main(int argc, char *argv[])
           i2c_write_data16(i2c_fd, data);
           break;
         case 7:
-          /* clear pulses */
+          /* clear events */
           size = 0;
           break;
         case 8:
           /* add pulse */
           if(size >= 1048576) continue;
           ++size;
-          memset(pulses + (size - 1) * 4, 0, 16);
-          /* set pulse width */
-          memcpy(pulses + (size - 1) * 4, &data, 8);
+          memset(events + (size - 1) * 4, 0, 16);
+          /* set duration */
+          memcpy(events + (size - 1) * 4, &data, 8);
           break;
         case 9:
-          /* set pulse phase and level */
-          memcpy(pulses + (size - 1) * 4 + 2, &data, 8);
+          /* set phase, level, gate and sync */
+          memcpy(events + (size - 1) * 4 + 2, &data, 8);
           break;
         case 10:
           /* start sequence */
@@ -211,10 +211,10 @@ int main(int argc, char *argv[])
               counter += n;
             }
 
-            /* write pulses to TX FIFO */
+            /* write events to TX FIFO */
             while(*tx_cntr < 16384 && position < size * 4)
             {
-              *fifo = pulses[position];
+              *fifo = events[position];
               ++position;
             }
 
