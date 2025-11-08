@@ -13,17 +13,18 @@ module axis_gate_controller
 
   output wire [31:0]  poff,
   output wire [15:0]  level,
-  output wire         dout
+  output wire         gate,
+  output wire         sync
 );
 
   reg [63:0] int_cntr_reg;
-  reg [48:0] int_data_reg;
-  reg int_dout_reg;
+  reg [49:0] int_data_reg;
+  reg int_gate_reg, int_sync_reg;
 
-  wire int_data_wire;
+  wire [1:0] int_data_wire;
   wire int_enbl_wire;
 
-  assign int_data_wire = int_enbl_wire ? int_data_reg[48] : s_axis_tdata[112];
+  assign int_data_wire = int_enbl_wire ? int_data_reg[49:48] : s_axis_tdata[113:112];
   assign int_enbl_wire = |int_cntr_reg;
 
   always @(posedge aclk)
@@ -31,8 +32,9 @@ module axis_gate_controller
     if(~aresetn)
     begin
       int_cntr_reg <= 64'd0;
-      int_data_reg <= 49'd0;
-      int_dout_reg <= 1'b0;
+      int_data_reg <= 50'd0;
+      int_gate_reg <= 1'b0;
+      int_sync_reg <= 1'b0;
     end
     else
     begin
@@ -43,9 +45,10 @@ module axis_gate_controller
       else if(s_axis_tvalid)
       begin
         int_cntr_reg <= s_axis_tdata[63:0];
-        int_data_reg <= s_axis_tdata[112:64];
+        int_data_reg <= s_axis_tdata[113:64];
       end
-      int_dout_reg <= int_data_wire & (int_enbl_wire | s_axis_tvalid);
+      int_gate_reg <= int_data_wire[0] & (int_enbl_wire | s_axis_tvalid);
+      int_sync_reg <= int_data_wire[1] & (int_enbl_wire | s_axis_tvalid);
     end
   end
 
@@ -53,6 +56,7 @@ module axis_gate_controller
 
   assign poff = int_data_reg[31:0];
   assign level = int_data_reg[47:32];
-  assign dout = int_dout_reg;
+  assign gate = int_gate_reg;
+  assign sync = int_sync_reg;
 
 endmodule

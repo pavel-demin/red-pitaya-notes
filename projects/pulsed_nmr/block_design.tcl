@@ -156,6 +156,7 @@ module tx_0 {
   slice_0/din rst_slice_1/dout
   slice_1/din rst_slice_0/dout
   slice_2/din cfg_slice_1/dout
+  gate_0/sync rx_0/concat_0/In1
   delay_1/Q concat_0/In0
   not_0/Res concat_0/In1
 }
