@@ -5,7 +5,7 @@ cell pavel-demin:user:port_slicer slice_0 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_1 {
-  DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1
+  DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2
 }
 
 # Create port_slicer
@@ -20,14 +20,25 @@ cell pavel-demin:user:axis_fifo fifo_0 {
   WRITE_DEPTH 16384
 } {
   aclk /pll_0/clk_out1
-  aresetn slice_0/dout
+  aresetn slice_1/dout
+}
+
+# Create axis_fifo
+cell pavel-demin:user:axis_fifo fifo_1 {
+  S_AXIS_TDATA_WIDTH 32
+  M_AXIS_TDATA_WIDTH 64
+  WRITE_DEPTH 8192
+} {
+  aclk /pll_0/clk_out1
+  aresetn slice_1/dout
 }
 
 # Create axis_gate_controller
 cell pavel-demin:user:axis_gate_controller gate_0 {} {
-  S_AXIS fifo_0/M_AXIS
+  S_AXIS_TX_EVTS fifo_0/M_AXIS
+  S_AXIS_RX_EVTS fifo_1/M_AXIS
   aclk /pll_0/clk_out1
-  aresetn slice_1/dout
+  aresetn slice_0/dout
 }
 
 # Create xlconcat
@@ -38,7 +49,7 @@ cell xilinx.com:ip:xlconcat concat_0 {
   IN2_WIDTH 1
 } {
   In0 slice_2/dout
-  In1 gate_0/poff
+  In1 gate_0/tx_phase
   In2 gate_0/sync
 }
 

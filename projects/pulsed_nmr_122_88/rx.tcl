@@ -1,40 +1,36 @@
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_0 {
-  DIN_WIDTH 8 DIN_FROM 0 DIN_TO 0
-}
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_2 {
+cell pavel-demin:user:port_slicer slice_1 {
   DIN_WIDTH 64 DIN_FROM 31 DIN_TO 0
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_3 {
+cell pavel-demin:user:port_slicer slice_2 {
   DIN_WIDTH 64 DIN_FROM 47 DIN_TO 32
 }
 
 # Create port_slicer
-cell pavel-demin:user:port_slicer slice_4 {
+cell pavel-demin:user:port_slicer slice_3 {
   DIN_WIDTH 64 DIN_FROM 63 DIN_TO 48
 }
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_0 {
-  NUM_PORTS 2
+  NUM_PORTS 3
   IN0_WIDTH 32
-  IN1_WIDTH 1
+  IN1_WIDTH 32
+  IN2_WIDTH 1
 } {
-  In0 slice_2/dout
+  In0 slice_1/dout
 }
 
 # Create axis_constant
 cell pavel-demin:user:axis_constant phase_0 {
-  AXIS_TDATA_WIDTH 33
+  AXIS_TDATA_WIDTH 65
 } {
   cfg_data concat_0/dout
   aclk /pll_0/clk_out1
@@ -46,6 +42,7 @@ cell xilinx.com:ip:dds_compiler dds_0 {
   SPURIOUS_FREE_DYNAMIC_RANGE 138
   FREQUENCY_RESOLUTION 0.2
   PHASE_INCREMENT Streaming
+  PHASE_OFFSET Streaming
   HAS_PHASE_OUT false
   PHASE_WIDTH 30
   OUTPUT_WIDTH 24
@@ -95,7 +92,7 @@ for {set i 0} {$i <= 3} {incr i} {
   cell pavel-demin:user:axis_variable rate_$i {
     AXIS_TDATA_WIDTH 16
   } {
-    cfg_data slice_3/dout
+    cfg_data slice_2/dout
     aclk /pll_0/clk_out1
     aresetn /rst_0/peripheral_aresetn
   }
@@ -108,7 +105,7 @@ for {set i 0} {$i <= 3} {incr i} {
     SAMPLE_RATE_CHANGES Programmable
     MINIMUM_RATE 48
     MAXIMUM_RATE 6144
-    FIXED_OR_INITIAL_RATE 384
+    FIXED_OR_INITIAL_RATE 48
     INPUT_SAMPLE_FREQUENCY 122.88
     CLOCK_FREQUENCY 122.88
     INPUT_DATA_WIDTH 24
@@ -199,15 +196,6 @@ cell xilinx.com:ip:axis_dwidth_converter conv_1 {
   aresetn /rst_0/peripheral_aresetn
 }
 
-# Create axis_validator
-cell pavel-demin:user:axis_validator vldtr_0 {
-  AXIS_TDATA_WIDTH 128
-} {
-  S_AXIS conv_1/M_AXIS
-  trg_flag slice_1/dout
-  aclk /pll_0/clk_out1
-}
-
 # Create axis_fifo
 cell pavel-demin:user:axis_fifo fifo_0 {
   S_AXIS_TDATA_WIDTH 128
@@ -215,7 +203,6 @@ cell pavel-demin:user:axis_fifo fifo_0 {
   WRITE_DEPTH 4096
   ALWAYS_READY TRUE
 } {
-  S_AXIS vldtr_0/M_AXIS
   aclk /pll_0/clk_out1
   aresetn slice_0/dout
 }
@@ -227,7 +214,7 @@ cell pavel-demin:user:dsp48 mult_4 {
   P_WIDTH 14
 } {
   A dds_slice_0/dout
-  B slice_4/dout
+  B slice_3/dout
   CLK /pll_0/clk_out1
 }
 

@@ -6,57 +6,119 @@ module axis_gate_controller
   input  wire         aclk,
   input  wire         aresetn,
 
-  // Slave side
-  output wire         s_axis_tready,
+  input  wire [127:0] s_axis_tx_evts_tdata,
+  input  wire         s_axis_tx_evts_tvalid,
+  output wire         s_axis_tx_evts_tready,
+
+  input  wire [63:0]  s_axis_rx_evts_tdata,
+  input  wire         s_axis_rx_evts_tvalid,
+  output wire         s_axis_rx_evts_tready,
+
   input  wire [127:0] s_axis_tdata,
   input  wire         s_axis_tvalid,
+  output wire         s_axis_tready,
 
-  output wire [31:0]  poff,
+  output wire [127:0] m_axis_tdata,
+  output wire         m_axis_tvalid,
+
+  output wire [29:0]  tx_phase,
+  output wire [29:0]  rx_phase,
+
   output wire [15:0]  level,
-  output wire         gate,
-  output wire         sync
+
+  output wire         sync,
+  output wire         gate
 );
 
-  reg [63:0] int_cntr_reg;
-  reg [49:0] int_data_reg;
-  reg int_gate_reg, int_sync_reg;
+  reg [39:0] tx_cntr_reg;
+  reg [79:0] tx_data_reg;
+  reg tx_sync_reg, tx_gate_reg;
 
-  wire [1:0] int_data_wire;
-  wire int_enbl_wire;
+  wire [1:0] tx_data_wire;
+  wire tx_enbl_wire;
 
-  assign int_data_wire = int_enbl_wire ? int_data_reg[49:48] : s_axis_tdata[113:112];
-  assign int_enbl_wire = |int_cntr_reg;
+  assign tx_data_wire = tx_enbl_wire ? tx_data_reg[1:0] : s_axis_tx_evts_tdata[41:40];
+  assign tx_enbl_wire = |tx_cntr_reg;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
-      int_cntr_reg <= 64'd0;
-      int_data_reg <= 50'd0;
-      int_gate_reg <= 1'b0;
-      int_sync_reg <= 1'b0;
+      tx_cntr_reg <= 40'd0;
+      tx_data_reg <= 80'd0;
+      tx_sync_reg <= 1'b0;
+      tx_gate_reg <= 1'b0;
     end
     else
     begin
-      if(int_enbl_wire)
+      if(tx_enbl_wire)
       begin
-        int_cntr_reg <= int_cntr_reg - 1'b1;
+        tx_cntr_reg <= tx_cntr_reg - 1'b1;
       end
-      else if(s_axis_tvalid)
+      else if(s_axis_tx_evts_tvalid)
       begin
-        int_cntr_reg <= s_axis_tdata[63:0];
-        int_data_reg <= s_axis_tdata[113:64];
+        tx_cntr_reg <= s_axis_tx_evts_tdata[39:0];
+        tx_data_reg <= s_axis_tx_evts_tdata[119:40];
       end
-      int_gate_reg <= int_data_wire[0] & (int_enbl_wire | s_axis_tvalid);
-      int_sync_reg <= int_data_wire[1] & (int_enbl_wire | s_axis_tvalid);
+      tx_sync_reg <= tx_data_wire[0] & (tx_enbl_wire | s_axis_tx_evts_tvalid);
+      tx_gate_reg <= tx_data_wire[1] & (tx_enbl_wire | s_axis_tx_evts_tvalid);
     end
   end
 
-  assign s_axis_tready = ~int_enbl_wire & aresetn;
+  reg [39:0] rx_cntr_reg;
+  reg rx_data_reg;
 
-  assign poff = int_data_reg[31:0];
-  assign level = int_data_reg[47:32];
-  assign gate = int_gate_reg;
-  assign sync = int_sync_reg;
+  reg [127:0] rx_tdata_reg;
+  reg rx_tvalid_reg;
+
+  wire rx_data_wire;
+  wire rx_enbl_wire;
+
+  assign rx_data_wire = rx_enbl_wire ? rx_data_reg : s_axis_rx_evts_tdata[40];
+  assign rx_enbl_wire = |rx_cntr_reg;
+
+  always @(posedge aclk)
+  begin
+    if(~aresetn)
+    begin
+      rx_cntr_reg <= 40'd0;
+      rx_data_reg <= 1'b0;
+      rx_tvalid_reg <= 1'b0;
+    end
+    else
+    begin
+      if(s_axis_tvalid)
+      begin
+        if(rx_enbl_wire)
+        begin
+          rx_cntr_reg <= rx_cntr_reg - 1'b1;
+        end
+        else if(s_axis_rx_evts_tvalid)
+        begin
+          rx_cntr_reg <= s_axis_rx_evts_tdata[39:0];
+          rx_data_reg <= s_axis_rx_evts_tdata[40];
+        end
+      end
+      rx_tvalid_reg <= s_axis_tvalid & rx_data_wire & (rx_enbl_wire | s_axis_rx_evts_tvalid);
+    end
+    rx_tdata_reg <= s_axis_tdata;
+  end
+
+  assign s_axis_tx_evts_tready = ~tx_enbl_wire & aresetn;
+
+  assign s_axis_rx_evts_tready = ~rx_enbl_wire & aresetn & s_axis_tvalid;
+
+  assign s_axis_tready = 1'b1;
+
+  assign m_axis_tdata = rx_tdata_reg;
+  assign m_axis_tvalid = rx_tvalid_reg;
+
+  assign tx_phase = tx_data_reg[49:20];
+  assign rx_phase = tx_data_reg[79:50];
+
+  assign level = tx_data_reg[19:4];
+
+  assign sync = tx_sync_reg;
+  assign gate = tx_gate_reg;
 
 endmodule

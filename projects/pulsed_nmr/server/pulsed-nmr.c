@@ -29,21 +29,24 @@ int main(int argc, char *argv[])
 {
   int fd, sock_server, sock_client;
   int i2c_fd, i2c_dac;
-  void *cfg, *sts;
-  volatile uint32_t *fifo, *rx_freq, *tx_freq;
-  volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr;
+  volatile void *cfg, *sts, *rx_data_fifo, *tx_evts_fifo, *rx_evts_fifo;
+  volatile uint32_t *rx_freq, *tx_freq;
+  volatile uint16_t *rx_rate, *rx_data_cntr, *tx_evts_cntr, *rx_evts_cntr;
   volatile int16_t *tx_level;
-  volatile uint8_t *rx_rst, *tx_rst;
+  volatile uint8_t *rst, *pins;
   struct sockaddr_in addr;
-  uint64_t command, code, data, counter;
-  uint32_t *buffer, *events;
-  int i, n, position, size, yes = 1;
+  uint64_t code, command, counter, data, *tx_evts, *rx_evts;
+  uint32_t tx_evts_pos, tx_evts_len, rx_evts_pos, rx_evts_len, *buffer;
+  int n, yes = 1;
 
-  size = 0;
-  events = malloc(16777216);
+  tx_evts_len = 0;
+  tx_evts = malloc(16777216);
+  rx_evts_len = 0;
+  rx_evts = malloc(8388608);
+
   buffer = malloc(32768);
 
-  if(events == NULL || buffer == NULL)
+  if(tx_evts == NULL || buffer == NULL)
   {
     perror("malloc");
     return EXIT_FAILURE;
@@ -69,26 +72,29 @@ int main(int argc, char *argv[])
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x41000000);
-  fifo = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
+  rx_data_fifo = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
+  tx_evts_fifo = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x43000000);
+  rx_evts_fifo = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x44000000);
 
-  rx_rst = (uint8_t *)(cfg + 0);
+  rst = (uint8_t *)(cfg + 0);
+  pins = (uint8_t *)(cfg + 1);
+
   rx_freq = (uint32_t *)(cfg + 4);
   rx_rate = (uint16_t *)(cfg + 8);
   tx_level = (int16_t *)(cfg + 10);
-  rx_cntr = (uint16_t *)(sts + 0);
 
-  tx_rst = (uint8_t *)(cfg + 1);
   tx_freq = (uint32_t *)(cfg + 12);
-  tx_cntr = (uint16_t *)(sts + 2);
 
-  *rx_rst &= ~1;
-  *rx_rst &= ~2;
-  *tx_rst &= ~1;
+  rx_data_cntr = (uint16_t *)(sts + 0);
+  tx_evts_cntr = (uint16_t *)(sts + 2);
+  rx_evts_cntr = (uint16_t *)(sts + 4);
+
+  *rst &= ~7;
 
   /* set default RX phase increment */
   *rx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
   /* set default RX sample rate */
-  *rx_rate = 250;
+  *rx_rate = 50;
 
   /* set default TX level */
   *tx_level = 0;
@@ -154,13 +160,13 @@ int main(int argc, char *argv[])
           break;
         case 4:
           /* set pin */
-          if(data < 1 || data > 7) continue;
-          *tx_rst |= (1 << data);
+          if(data < 0 || data > 6) continue;
+          *pins |= (1 << data);
           break;
         case 5:
           /* clear pin */
-          if(data < 1 || data > 7) continue;
-          *tx_rst &= ~(1 << data);
+          if(data < 0 || data > 6) continue;
+          *pins &= ~(1 << data);
           break;
         case 6:
           /* set DAC */
@@ -169,62 +175,75 @@ int main(int argc, char *argv[])
           i2c_write_data16(i2c_fd, data);
           break;
         case 7:
-          /* clear events */
-          size = 0;
+          /* clear TX and RX events */
+          tx_evts_len = 0;
+          rx_evts_len = 0;
           break;
         case 8:
-          /* add pulse */
-          if(size >= 1048576) continue;
-          ++size;
-          memset(events + (size - 1) * 4, 0, 16);
-          /* set duration */
-          memcpy(events + (size - 1) * 4, &data, 8);
+          /* add TX event */
+          if(tx_evts_len >= 1048576) continue;
+          ++tx_evts_len;
+          /* set delay, sync, gate and level */
+          memcpy(tx_evts + (tx_evts_len - 1) * 2, &data, 8);
+          memset(tx_evts + (tx_evts_len - 1) * 2 + 1, 0, 8);
           break;
         case 9:
-          /* set phase, level, gate and sync */
-          memcpy(events + (size - 1) * 4 + 2, &data, 8);
+          /* set TX and RX phases */
+          memcpy(tx_evts + (tx_evts_len - 1) * 2 + 1, &data, 8);
           break;
         case 10:
+          /* add RX event */
+          if(rx_evts_len >= 1048576) continue;
+          ++rx_evts_len;
+          memcpy(rx_evts + (rx_evts_len - 1), &data, 8);
+          break;
+        case 11:
           /* start sequence */
           counter = 0;
-          position = 0;
+          tx_evts_pos = 0;
+          rx_evts_pos = 0;
           n = 2048;
 
           /* stop RX and TX */
-          *rx_rst &= ~2;
+          *rst &= ~1;
 
           /* clear RX FIFO */
-          *rx_rst &= ~1; *rx_rst |= 1;
+          *rst &= ~2; *rst |= 2;
 
           /* clear TX FIFO */
-          *tx_rst &= ~1; *tx_rst |= 1;
+          *rst &= ~4; *rst |= 4;
 
           while(counter < data)
           {
-            /* read I/Q samples from RX FIFO */
+            /* read I/Q samples from FIFO */
             if(n > data - counter) n = data - counter;
-            if(*rx_cntr < n * 4) usleep(500);
-            if(*rx_cntr >= n * 4)
+            if(*rx_data_cntr < n * 4) usleep(500);
+            if(*rx_data_cntr >= n * 4)
             {
-              memcpy(buffer, fifo, n * 16);
+              memcpy(buffer, rx_data_fifo, n * 16);
               if(send(sock_client, buffer, n * 16, MSG_NOSIGNAL) < 0) break;
               counter += n;
             }
 
-            /* write events to TX FIFO */
-            while(*tx_cntr < 16384 && position < size * 4)
+            /* write TX events to FIFO */
+            while(*tx_evts_cntr < 16380 && tx_evts_pos < tx_evts_len)
             {
-              *fifo = events[position];
-              ++position;
+              memcpy(tx_evts_fifo, tx_evts + tx_evts_pos * 2, 16);
+              ++tx_evts_pos;
+            }
+
+            /* write RX events to FIFO */
+            while(*rx_evts_cntr < 8190 && rx_evts_pos < rx_evts_len)
+            {
+              memcpy(rx_evts_fifo, rx_evts + rx_evts_pos, 8);
+              ++rx_evts_pos;
             }
 
             /* start RX and TX */
-            *rx_rst |= 2;
+            *rst |= 1;
           }
 
-          *rx_rst &= ~1;
-          *rx_rst &= ~2;
-          *tx_rst &= ~1;
+          *rst &= ~7;
           break;
       }
     }

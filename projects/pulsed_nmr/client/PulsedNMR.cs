@@ -105,21 +105,23 @@ namespace PulsedNMR
       SendCommand(6, data);
     }
 
-    public void ClearPulses()
+    public void ClearEvents()
     {
       SendCommand(7, 0);
     }
 
-    public void AddDelay(int gate, double width)
+    public void AddEventTX(double delay, int sync, int gate, double level, double tx_phase, double rx_phase)
     {
-      SendCommand(8, width - 1);
-      SendCommand(9, (long)gate << 48);
+      double lvl = Math.Floor(level / 100.0 * 32766 + 0.5);
+      double txp = Math.Floor(tx_phase / 360.0 * 0x3FFFFFFF + 0.5);
+      double rxp = Math.Floor(rx_phase / 360.0 * 0x3FFFFFFF + 0.5);
+      SendCommand(8, (long)lvl << 44 | (long)gate << 41 | (long)sync << 40 | (long)(delay - 1));
+      SendCommand(9, (long)rxp << 30 | (long)txp);
     }
 
-    public void AddPulse(int level, int phase, double width)
+    public void AddEventRX(double size, int read)
     {
-      SendCommand(8, width - 1);
-      SendCommand(9, (long)1 << 48 | (long)level << 32 | (long)Math.Floor(phase / 360.0 * (1 << 30) + 0.5));
+      SendCommand(10, (long)read << 40 | (long)(size - 1));
     }
 
     public int[] RecieveData(int size)
@@ -138,7 +140,7 @@ namespace PulsedNMR
         return new int[0];
       }
       if(s == null) return result;
-      SendCommand(10, size);
+      SendCommand(11, size);
       while(offset < limit)
       {
         try
