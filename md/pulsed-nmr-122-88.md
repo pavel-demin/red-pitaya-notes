@@ -63,9 +63,9 @@ Commands to set the frequencies and decimation rate:
 
 Commands to program a pulse sequence:
 
-- ClearPulses()
-- AddDelay(gate, duration)
-- AddPulse(level, phase, duration)
+- ClearEvents()
+- AddEventTX(delay, sync, gate, level, tx_phase, rx_phase)
+- AddEventRX(size, read)
 
 Command to start pulse sequence and receive data:
 
