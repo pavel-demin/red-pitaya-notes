@@ -154,25 +154,26 @@ int main(int argc, char *argv[])
           *rx_rate = data;
           break;
         case 3:
-          /* set TX level */
-          if(data > 32766) continue;
-          *tx_level = data;
-          break;
-        case 4:
-          /* set pin */
-          if(data < 0 || data > 6) continue;
-          *pins |= (1 << data);
-          break;
-        case 5:
-          /* clear pin */
-          if(data < 0 || data > 6) continue;
-          *pins &= ~(1 << data);
-          break;
-        case 6:
           /* set DAC */
+          if(data > 4095) continue;
           if(i2c_dac == 0) continue;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_DAC);
           i2c_write_data16(i2c_fd, data);
+          break;
+        case 4:
+          /* set level */
+          if(data > 32766) continue;
+          *tx_level = data;
+          break;
+        case 5:
+          /* set pin */
+          if(data > 6) continue;
+          *pins |= (1 << data);
+          break;
+        case 6:
+          /* clear pin */
+          if(data > 6) continue;
+          *pins &= ~(1 << data);
           break;
         case 7:
           /* clear TX and RX events */
