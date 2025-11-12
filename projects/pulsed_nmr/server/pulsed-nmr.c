@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
           break;
         case 2:
           /* set RX sample rate */
-          if(data < 50 || data > 2500) continue;
+          if(data < 50 || data > 3125) continue;
           *rx_rate = data;
           break;
         case 3:
