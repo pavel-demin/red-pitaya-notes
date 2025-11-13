@@ -14,11 +14,13 @@ Some interesting links on pulsed nuclear magnetic resonance:
 
 ## Short description
 
-The system consists of one in-phase/quadrature (I/Q) digital down-converter (DDC) and of one pulse generator.
+The system consists of two in-phase/quadrature (I/Q) digital down-converters (DDC), a pulse generator and a gate controller.
+
+The gate controller includes pulse generation and data acquisition sequencers. The pulse generation sequencer manages all aspects of the generated pulses, such as their duration, level and phase. The data acquisition sequencer allows the selection of the I/Q samples required for data analysis.
 
 The tunable frequency range covers from 0 Hz to 60 MHz.
 
-The I/Q data rate is configurable and seven settings are available: 20, 40, 80, 160, 320, 640, 1280 kSPS.
+The I/Q data rate is configurable from 20 to 1280 kSPS.
 
 ## Hardware
 
@@ -35,8 +37,41 @@ The source code of the [R](https://www.r-project.org) script used to calculate t
 - two digital down-converters (DDC) are connected to IN1 and IN2
 - pulse generator is connected to OUT1
 - continuous cosine signal of the receiver's DDS is connected to OUT2
-- digital output for RX/TX switch control is connected to pin DIO0_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/122-16/top.html#extension-connector-e1)
-- general purpose digital outputs are connected to the pins DIO0_P - DIO7_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/122-16/top.html#extension-connector-e1)
+- non-inverted (active-high) gating/blanking output is connected to pin DIO0_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1)
+- inverted (active-low) gating/blanking output is connected to pin DIO1_N of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/125-14/top.html#extension-connector-e1)
+- general purpose digital outputs are connected to the pins DIO1_P - DIO7_P of the [extension connector E1](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/122-16/top.html#extension-connector-e1)
+
+## Application programming interface
+
+The [pulsed-nmr-notebooks](https://github.com/pavel-demin/pulsed-nmr-notebooks) repository contains libraries for Python, Julia and C#, as well as example Jupyter notebooks using these libraries to control all parameters of the signal processing modules and programming the pulse generator.
+
+The commands implemented in these libraries can be classified into five groups.
+
+Commands to manage the connection with the TCP server:
+
+- Connect(host)
+- Disconnect()
+
+Commands to set frequencies, ADC sample rate and CIC decimation rate:
+
+- SetFreqs(tx, rx)
+- SetRates(adc, cic)
+
+Commands to program a pulse sequence:
+
+- ClearEvents(readDelay)
+- AddEvent(delay, sync, gate, read, level, txPhase, rxPhase)
+
+Command to start pulse sequence and receive data:
+
+- ReadData()
+
+Commands to control external DAC, OUT2 signal level and GPIO pins:
+
+- SetDAC(level)
+- SetLevel(level)
+- SetPin(pin)
+- ClearPin(pin)
 
 ## Software
 
@@ -46,45 +81,12 @@ The [projects/pulsed_nmr_122_88/client]($source$/projects/pulsed_nmr_122_88/clie
 
 ![Pulsed NMR client](/img/pulsed-nmr-client.png)
 
-## .NET library
-
-The .NET library provides a minimalist set of commands for controlling all parameters of the signal processing modules and programming the pulse generator. The commands can be classified into five groups:
-
-Commands to manage the connection with the TCP server:
-
-- Connect(address)
-- Disconnect()
-
-Commands to set the frequencies and decimation rate:
-
-- SetFreqRX(frequency)
-- SetFreqTX(frequency)
-- SetRateRX(rate)
-
-Commands to program a pulse sequence:
-
-- ClearEvents()
-- AddEventTX(delay, sync, gate, level, tx_phase, rx_phase)
-- AddEventRX(size, read)
-
-Command to start pulse sequence and receive data:
-
-- RecieveData(size)
-
-Various commands to control output RF signal level, GPIO pins and an external DAC:
-
-- SetLevelTX(level)
-- SetPin(pin)
-- ClearPin(pin)
-- SetDAC(data)
-
-The source code of the .NET library can be found in [projects/pulsed_nmr/client/PulsedNMR.cs]($source$/projects/pulsed_nmr/client/PulsedNMR.cs).
-
 ## Getting started with GNU/Linux
 
 - Download [SD card image zip file]($release_image$) (more details about the SD card image can be found at [this link](/alpine/)).
 - Copy the contents of the SD card image zip file to a micro SD card.
 - Optionally, to start the application automatically at boot time, copy its `start.sh` file from `apps/pulsed_nmr_122_88` to the topmost directory on the SD card.
+- Install the micro SD card in the Red Pitaya board and connect the power.
 - Install required Python libraries:
 
 ```bash
