@@ -31,7 +31,7 @@ module axis_gate_controller
 );
 
   reg [39:0] tx_cntr_reg;
-  reg [79:0] tx_data_reg;
+  reg [83:0] tx_data_reg;
   reg tx_sync_reg, tx_gate_reg;
 
   wire [1:0] tx_data_wire;
@@ -45,7 +45,7 @@ module axis_gate_controller
     if(~aresetn)
     begin
       tx_cntr_reg <= 40'd0;
-      tx_data_reg <= 80'd0;
+      tx_data_reg <= 84'd0;
       tx_sync_reg <= 1'b0;
       tx_gate_reg <= 1'b0;
     end
@@ -58,7 +58,7 @@ module axis_gate_controller
       else if(s_axis_tx_evts_tvalid)
       begin
         tx_cntr_reg <= s_axis_tx_evts_tdata[39:0];
-        tx_data_reg <= s_axis_tx_evts_tdata[119:40];
+        tx_data_reg <= s_axis_tx_evts_tdata[123:40];
       end
       tx_sync_reg <= tx_data_wire[0] & (tx_enbl_wire | s_axis_tx_evts_tvalid);
       tx_gate_reg <= tx_data_wire[1] & (tx_enbl_wire | s_axis_tx_evts_tvalid);
@@ -113,8 +113,8 @@ module axis_gate_controller
   assign m_axis_tdata = rx_tdata_reg;
   assign m_axis_tvalid = rx_tvalid_reg;
 
-  assign tx_phase = tx_data_reg[49:20];
-  assign rx_phase = tx_data_reg[79:50];
+  assign tx_phase = tx_data_reg[53:24];
+  assign rx_phase = tx_data_reg[83:54];
 
   assign level = tx_data_reg[19:4];
 
