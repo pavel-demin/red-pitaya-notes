@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
   *rst &= ~7;
 
   /* set default RX phase increment */
-  *rx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
+  *rx_freq = (uint32_t)floor(10000000 / 125.0e6 * 0x3fffffff + 0.5);
   /* set default RX sample rate */
   *rx_rate = 50;
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   *tx_level = 0;
 
   /* set default TX phase increment */
-  *tx_freq = (uint32_t)floor(19000000 / 125.0e6 * (1<<30) + 0.5);
+  *tx_freq = (uint32_t)floor(10000000 / 125.0e6 * 0x3fffffff + 0.5);
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -139,48 +139,43 @@ int main(int argc, char *argv[])
       switch(code)
       {
         case 0:
-          /* set RX phase increment */
-          if(data > 62500000) continue;
-          *rx_freq = (uint32_t)floor(data / 125.0e6 * (1<<30) + 0.5);
+          /* set TX and RX phase increments */
+          *tx_freq = (uint32_t)floor((data & 0x3fffffff) / 125.0e6 * 0x3fffffff + 0.5);
+          *rx_freq = (uint32_t)floor((data >> 30) / 125.0e6 * 0x3fffffff + 0.5);
           break;
         case 1:
-          /* set TX phase increment */
-          if(data > 62500000) continue;
-          *tx_freq = (uint32_t)floor(data / 125.0e6 * (1<<30) + 0.5);
-          break;
-        case 2:
           /* set RX sample rate */
           if(data < 50 || data > 3125) continue;
           *rx_rate = data;
           break;
-        case 3:
+        case 2:
           /* set DAC */
           if(data > 4095) continue;
           if(i2c_dac == 0) continue;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_DAC);
           i2c_write_data16(i2c_fd, data);
           break;
-        case 4:
+        case 3:
           /* set level */
           if(data > 32766) continue;
           *tx_level = data;
           break;
-        case 5:
+        case 4:
           /* set pin */
           if(data > 6) continue;
           *pins |= (1 << data);
           break;
-        case 6:
+        case 5:
           /* clear pin */
           if(data > 6) continue;
           *pins &= ~(1 << data);
           break;
-        case 7:
+        case 6:
           /* clear TX and RX events */
           tx_evts_len = 0;
           rx_evts_len = 0;
           break;
-        case 8:
+        case 7:
           /* add TX event */
           if(tx_evts_len >= 1048576) continue;
           ++tx_evts_len;
@@ -188,17 +183,17 @@ int main(int argc, char *argv[])
           memcpy(tx_evts + (tx_evts_len - 1) * 2, &data, 8);
           memset(tx_evts + (tx_evts_len - 1) * 2 + 1, 0, 8);
           break;
-        case 9:
+        case 8:
           /* set TX and RX phases */
           memcpy(tx_evts + (tx_evts_len - 1) * 2 + 1, &data, 8);
           break;
-        case 10:
+        case 9:
           /* add RX event */
           if(rx_evts_len >= 1048576) continue;
           ++rx_evts_len;
           memcpy(rx_evts + (rx_evts_len - 1), &data, 8);
           break;
-        case 11:
+        case 10:
           /* start sequence */
           counter = 0;
           tx_evts_pos = 0;

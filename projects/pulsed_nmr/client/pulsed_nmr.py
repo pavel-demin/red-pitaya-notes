@@ -128,11 +128,14 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
             QMessageBox.information(self, "PulsedNMR", "Error: %s." % self.socket.errorString())
         self.stop()
 
+    def send_command(self, code, data):
+        self.socket.write(struct.pack("<Q", int(code) << 60 | int(data)))
+
     def set_freq(self, value):
         if self.idle:
             return
-        self.socket.write(struct.pack("<Q", 0 << 60 | int(1.0e6 * value)))
-        self.socket.write(struct.pack("<Q", 1 << 60 | int(1.0e6 * value)))
+        freq = int(1.0e6 * value + 0.5)
+        self.send_command(0, freq << 30 | freq)
 
     def set_rate(self, index):
         # time axis
@@ -153,7 +156,7 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
         self.canvas.draw()
         if self.idle:
             return
-        self.socket.write(struct.pack("<Q", 2 << 60 | int(125.0e6 / rate / 2)))
+        self.send_command(1, 125.0e6 / rate / 2)
 
     def set_delta(self, value):
         if self.idle:
@@ -164,32 +167,29 @@ class PulsedNMR(QMainWindow, Ui_PulsedNMR):
     def clear_events(self):
         if self.idle:
             return
-        self.socket.write(struct.pack("<Q", 7 << 60))
-
-    def send_command(self, code, data):
-        self.socket.write(struct.pack("<Q", int(code) << 60 | int(data)))
+        self.send_command(6, 0)
 
     def add_event(self, delay, sync=0, gate=0, level=0, tx_phase=0, rx_phase=0):
         lvl = int(level / 100.0 * 32766 + 0.5)
         txp = int(tx_phase / 360.0 * 0x3FFFFFFF + 0.5)
         rxp = int(rx_phase / 360.0 * 0x3FFFFFFF + 0.5)
-        self.send_command(8, lvl << 44 | gate << 41 | sync << 40 | int(delay - 1))
-        self.send_command(9, rxp << 30 | txp)
+        self.send_command(7, lvl << 44 | gate << 41 | sync << 40 | int(delay - 1))
+        self.send_command(8, rxp << 30 | txp)
 
     def start_sequence(self):
         if self.idle:
             return
-        awidth = np.floor(125 * self.awidthValue.value() + 0.5)
-        bwidth = np.floor(125 * self.bwidthValue.value() + 0.5)
-        delay = np.floor(125 * self.delayValue.value() + 0.5)
+        awidth = np.floor(125.0 * self.awidthValue.value() + 0.5)
+        bwidth = np.floor(125.0 * self.bwidthValue.value() + 0.5)
+        delay = np.floor(125.0 * self.delayValue.value() + 0.5)
         size = self.size
         self.clear_events()
         self.add_event(delay=1, sync=1)
         self.add_event(delay=awidth, gate=1, level=100)
         self.add_event(delay=delay)
         self.add_event(delay=bwidth, gate=1, level=100)
-        self.send_command(10, 1 << 40 | int(size - 1))
-        self.send_command(11, size)
+        self.send_command(9, 1 << 40 | int(size - 1))
+        self.send_command(10, size)
 
 
 app = QApplication(sys.argv)
