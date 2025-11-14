@@ -83,7 +83,7 @@ cell pavel-demin:user:axi_hub hub_0 {
   aresetn rst_0/peripheral_aresetn
 }
 
-# RX
+# TX
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer rst_slice_0 {
@@ -94,25 +94,7 @@ cell pavel-demin:user:port_slicer rst_slice_0 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer cfg_slice_0 {
-  DIN_WIDTH 128 DIN_FROM 95 DIN_TO 32
-} {
-  din hub_0/cfg_data
-}
-
-module rx_0 {
-  source projects/pulsed_nmr/rx.tcl
-} {
-  slice_0/din rst_slice_0/dout
-  slice_1/din cfg_slice_0/dout
-  slice_2/din cfg_slice_0/dout
-  slice_3/din cfg_slice_0/dout
-}
-
-# TX
-
-# Create port_slicer
-cell pavel-demin:user:port_slicer cfg_slice_1 {
-  DIN_WIDTH 128 DIN_FROM 127 DIN_TO 96
+  DIN_WIDTH 128 DIN_FROM 63 DIN_TO 32
 } {
   din hub_0/cfg_data
 }
@@ -122,11 +104,29 @@ module tx_0 {
 } {
   slice_0/din rst_slice_0/dout
   slice_1/din rst_slice_0/dout
+  slice_2/din cfg_slice_0/dout
+}
+
+# RX
+
+# Create port_slicer
+cell pavel-demin:user:port_slicer cfg_slice_1 {
+  DIN_WIDTH 128 DIN_FROM 127 DIN_TO 64
+} {
+  din hub_0/cfg_data
+}
+
+module rx_0 {
+  source projects/pulsed_nmr/rx.tcl
+} {
+  slice_0/din rst_slice_0/dout
+  slice_1/din cfg_slice_1/dout
   slice_2/din cfg_slice_1/dout
-  gate_0/S_AXIS rx_0/conv_1/M_AXIS
-  gate_0/M_AXIS rx_0/fifo_0/S_AXIS
-  gate_0/rx_phase rx_0/concat_0/In1
-  gate_0/sync rx_0/concat_0/In2
+  slice_3/din cfg_slice_1/dout
+  concat_0/In1 tx_0/gate_0/rx_phase
+  concat_0/In2 tx_0/gate_0/sync
+  conv_1/M_AXIS tx_0/gate_0/S_AXIS
+  fifo_0/S_AXIS tx_0/gate_0/M_AXIS
 }
 
 # Create axis_combiner
@@ -170,7 +170,7 @@ cell xilinx.com:ip:xlconcat concat_0 {
 
 # Create port_slicer
 cell pavel-demin:user:port_slicer exp_slice_0 {
-  DIN_WIDTH 128 DIN_FROM 2 DIN_TO 2
+  DIN_WIDTH 128 DIN_FROM 1 DIN_TO 1
 } {
   din hub_0/cfg_data
 }
@@ -202,12 +202,12 @@ cell xilinx.com:ip:xlconcat concat_2 {
   IN1_WIDTH 16
   IN2_WIDTH 16
 } {
-  In0 rx_0/fifo_0/read_count
-  In1 tx_0/fifo_0/write_count
-  In2 tx_0/fifo_1/write_count
+  In0 tx_0/fifo_0/write_count
+  In1 tx_0/fifo_1/write_count
+  In2 rx_0/fifo_0/read_count
   dout hub_0/sts_data
 }
 
-wire rx_0/fifo_0/M_AXIS hub_0/S00_AXIS
-wire tx_0/fifo_0/S_AXIS hub_0/M01_AXIS
-wire tx_0/fifo_1/S_AXIS hub_0/M02_AXIS
+wire tx_0/fifo_0/S_AXIS hub_0/M00_AXIS
+wire tx_0/fifo_1/S_AXIS hub_0/M01_AXIS
+wire rx_0/fifo_0/M_AXIS hub_0/S02_AXIS

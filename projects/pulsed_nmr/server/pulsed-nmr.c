@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   volatile void *cfg, *sts, *rx_data_fifo, *tx_evts_fifo, *rx_evts_fifo;
   volatile uint32_t *rx_freq, *tx_freq;
   volatile uint16_t *rx_rate, *rx_data_cntr, *tx_evts_cntr, *rx_evts_cntr;
-  volatile int16_t *tx_level;
+  volatile int16_t *out2_level;
   volatile uint8_t *rst, *pins;
   struct sockaddr_in addr;
   uint64_t code, command, counter, data, *tx_evts, *rx_evts;
@@ -72,35 +72,36 @@ int main(int argc, char *argv[])
 
   cfg = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x40000000);
   sts = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x41000000);
-  rx_data_fifo = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
-  tx_evts_fifo = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x43000000);
-  rx_evts_fifo = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x44000000);
+  tx_evts_fifo = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x42000000);
+  rx_evts_fifo = mmap(NULL, 8*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x43000000);
+  rx_data_fifo = mmap(NULL, 16*sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x44000000);
 
   rst = (uint8_t *)(cfg + 0);
   pins = (uint8_t *)(cfg + 1);
 
-  rx_freq = (uint32_t *)(cfg + 4);
-  rx_rate = (uint16_t *)(cfg + 8);
-  tx_level = (int16_t *)(cfg + 10);
+  tx_freq = (uint32_t *)(cfg + 4);
 
-  tx_freq = (uint32_t *)(cfg + 12);
+  rx_freq = (uint32_t *)(cfg + 8);
+  rx_rate = (uint16_t *)(cfg + 12);
 
-  rx_data_cntr = (uint16_t *)(sts + 0);
-  tx_evts_cntr = (uint16_t *)(sts + 2);
-  rx_evts_cntr = (uint16_t *)(sts + 4);
+  out2_level = (int16_t *)(cfg + 14);
+
+  tx_evts_cntr = (uint16_t *)(sts + 0);
+  rx_evts_cntr = (uint16_t *)(sts + 2);
+  rx_data_cntr = (uint16_t *)(sts + 4);
 
   *rst &= ~7;
+
+  /* set default TX phase increment */
+  *tx_freq = (uint32_t)floor(10000000 / 125.0e6 * 0x3fffffff + 0.5);
 
   /* set default RX phase increment */
   *rx_freq = (uint32_t)floor(10000000 / 125.0e6 * 0x3fffffff + 0.5);
   /* set default RX sample rate */
   *rx_rate = 50;
 
-  /* set default TX level */
-  *tx_level = 0;
-
-  /* set default TX phase increment */
-  *tx_freq = (uint32_t)floor(10000000 / 125.0e6 * 0x3fffffff + 0.5);
+  /* set default OUT2 level */
+  *out2_level = 0;
 
   if((sock_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -149,16 +150,16 @@ int main(int argc, char *argv[])
           *rx_rate = data;
           break;
         case 2:
-          /* set DAC */
+          /* set DAC level */
           if(data > 4095) continue;
           if(i2c_dac == 0) continue;
           ioctl(i2c_fd, I2C_SLAVE, ADDR_DAC);
           i2c_write_data16(i2c_fd, data);
           break;
         case 3:
-          /* set level */
+          /* set OUT2 level */
           if(data > 32766) continue;
-          *tx_level = data;
+          *out2_level = data;
           break;
         case 4:
           /* set pin */
@@ -200,14 +201,11 @@ int main(int argc, char *argv[])
           rx_evts_pos = 0;
           n = 2048;
 
-          /* stop RX and TX */
+          /* stop TX and RX */
           *rst &= ~1;
 
-          /* clear RX FIFO */
-          *rst &= ~2; *rst |= 2;
-
-          /* clear TX FIFO */
-          *rst &= ~4; *rst |= 4;
+          /* clear TX and RX FIFO */
+          *rst &= ~6; *rst |= 6;
 
           while(counter < data)
           {

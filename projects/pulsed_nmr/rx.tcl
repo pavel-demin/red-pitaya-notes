@@ -1,6 +1,6 @@
 # Create port_slicer
 cell pavel-demin:user:port_slicer slice_0 {
-  DIN_WIDTH 8 DIN_FROM 1 DIN_TO 1
+  DIN_WIDTH 8 DIN_FROM 2 DIN_TO 2
 }
 
 # Create port_slicer
