@@ -9,6 +9,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 
 #define I2C_SLAVE       0x0703 /* Use this slave address */
@@ -37,7 +38,8 @@ int main(int argc, char *argv[])
   struct sockaddr_in addr;
   uint64_t code, command, counter, data, *tx_evts, *rx_evts;
   uint32_t tx_evts_pos, tx_evts_len, rx_evts_pos, rx_evts_len, *buffer;
-  int n, yes = 1;
+  uint32_t timeout = 1000, yes = 1;
+  size_t n;
 
   tx_evts_len = 0;
   tx_evts = malloc(16777216);
@@ -109,7 +111,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  setsockopt(sock_server, SOL_SOCKET, SO_REUSEADDR, (void *)&yes , sizeof(yes));
+  setsockopt(sock_server, SOL_SOCKET, SO_REUSEADDR, &yes , sizeof(yes));
 
   /* setup listening address */
   memset(&addr, 0, sizeof(addr));
@@ -132,6 +134,9 @@ int main(int argc, char *argv[])
       perror("accept");
       return EXIT_FAILURE;
     }
+
+    setsockopt(sock_client, SOL_TCP, TCP_USER_TIMEOUT, &timeout, sizeof(timeout));
+
     while(1)
     {
       if(recv(sock_client, (char *)&command, 8, MSG_WAITALL) <= 0) break;
