@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
   volatile int16_t *iir_limits;
   volatile uint32_t *hst[2];
   struct sockaddr_in addr;
-  uint32_t timeout = 1000, yes = 1;
+  uint32_t timeout = 3000, one = 1, cnt = 5;
   uint32_t start, pre, tot, size;
   uint64_t command, data;
   uint8_t code, chan;
@@ -140,7 +140,15 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  setsockopt(sock_server, SOL_SOCKET, SO_REUSEADDR, &yes , sizeof(yes));
+  setsockopt(sock_server, SOL_SOCKET, SO_REUSEADDR, &one , sizeof(one));
+
+  setsockopt(sock_server, SOL_SOCKET, SO_KEEPALIVE, &one, sizeof(one));
+
+  setsockopt(sock_server, SOL_TCP, TCP_KEEPCNT, &cnt, sizeof(cnt));
+  setsockopt(sock_server, SOL_TCP, TCP_KEEPIDLE, &one, sizeof(one));
+  setsockopt(sock_server, SOL_TCP, TCP_KEEPINTVL, &one, sizeof(one));
+
+  setsockopt(sock_server, SOL_TCP, TCP_USER_TIMEOUT, &timeout, sizeof(timeout));
 
   /* setup listening address */
   memset(&addr, 0, sizeof(addr));
@@ -169,8 +177,6 @@ int main(int argc, char *argv[])
       perror("accept");
       return EXIT_FAILURE;
     }
-
-    setsockopt(sock_client, SOL_TCP, TCP_USER_TIMEOUT, &timeout, sizeof(timeout));
 
     while(1)
     {
