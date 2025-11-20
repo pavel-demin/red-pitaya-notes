@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   int i2c_fd, i2c_dac;
   volatile void *cfg, *sts, *rx_data_fifo, *tx_evts_fifo, *rx_evts_fifo;
   volatile uint32_t *rx_freq, *tx_freq;
-  volatile uint16_t *rx_rate, *rx_data_cntr, *tx_evts_cntr, *rx_evts_cntr;
+  volatile uint16_t *rx_rate, *tx_evts_cntr, *rx_evts_cntr, *rx_data_cntr, *rx_data_enbl;
   volatile int16_t *out2_level;
   volatile uint8_t *rst, *pins;
   struct sockaddr_in addr;
@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
   tx_evts_cntr = (uint16_t *)(sts + 0);
   rx_evts_cntr = (uint16_t *)(sts + 2);
   rx_data_cntr = (uint16_t *)(sts + 4);
+  rx_data_enbl = (uint16_t *)(sts + 6);
 
   *rst &= ~7;
 
@@ -223,6 +224,7 @@ int main(int argc, char *argv[])
             /* read I/Q samples from FIFO */
             if(n > data - counter) n = data - counter;
             if(*rx_data_cntr < n * 4) usleep(500);
+            if(*rst & 1 && *rx_data_enbl == 0 && *rx_data_cntr < n * 4) break;
             if(*rx_data_cntr >= n * 4)
             {
               memcpy(buffer, rx_data_fifo, n * 16);

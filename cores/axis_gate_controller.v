@@ -27,7 +27,8 @@ module axis_gate_controller
   output wire [15:0]  level,
 
   output wire         sync,
-  output wire         gate
+  output wire         gate,
+  output wire         enbl
 );
 
   reg [39:0] tx_cntr_reg;
@@ -69,7 +70,7 @@ module axis_gate_controller
   reg rx_data_reg;
 
   reg [127:0] rx_tdata_reg;
-  reg rx_tvalid_reg;
+  reg rx_enbl_reg, rx_tvalid_reg;
 
   wire rx_data_wire;
   wire rx_enbl_wire;
@@ -83,6 +84,7 @@ module axis_gate_controller
     begin
       rx_cntr_reg <= 40'd0;
       rx_data_reg <= 1'b0;
+      rx_enbl_reg <= 1'b0;
       rx_tvalid_reg <= 1'b0;
     end
     else
@@ -99,6 +101,7 @@ module axis_gate_controller
           rx_data_reg <= s_axis_rx_evts_tdata[40];
         end
       end
+      rx_enbl_reg <= rx_enbl_wire | s_axis_rx_evts_tvalid;
       rx_tvalid_reg <= s_axis_tvalid & rx_data_wire & (rx_enbl_wire | s_axis_rx_evts_tvalid);
     end
     rx_tdata_reg <= s_axis_tdata;
@@ -120,5 +123,6 @@ module axis_gate_controller
 
   assign sync = tx_sync_reg;
   assign gate = tx_gate_reg;
+  assign enbl = rx_enbl_reg;
 
 endmodule

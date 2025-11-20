@@ -197,14 +197,16 @@ cell xilinx.com:ip:xlconcat concat_1 {
 
 # Create xlconcat
 cell xilinx.com:ip:xlconcat concat_2 {
-  NUM_PORTS 3
+  NUM_PORTS 4
   IN0_WIDTH 16
   IN1_WIDTH 16
   IN2_WIDTH 16
+  IN3_WIDTH 1
 } {
   In0 tx_0/fifo_0/write_count
   In1 tx_0/fifo_1/write_count
   In2 rx_0/fifo_0/read_count
+  In3 tx_0/gate_0/enbl
   dout hub_0/sts_data
 }
 
