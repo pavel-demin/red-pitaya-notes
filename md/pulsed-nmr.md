@@ -59,7 +59,7 @@ Commands to set frequencies, ADC sample rate and CIC decimation rate:
 
 Commands to program a pulse sequence:
 
-- ClearEvents(readDelay)
+- ClearEvents()
 - AddEvent(delay, sync, gate, read, level, txPhase, rxPhase)
 
 Command to start pulse sequence and receive data:
