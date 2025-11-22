@@ -20,7 +20,7 @@ The SDR transmitters consist of the similar blocks but arranged in an opposite o
 
 The tunable frequency range covers from 0 Hz to 60 MHz.
 
-The I/Q data rate is configurable and five settings are available: 20, 50, 100, 250, 500 and 1250 kSPS.
+The I/Q data rate is configurable and six settings are available: 20, 50, 100, 250, 500 and 1250 kSPS.
 
 The basic blocks of the digital down-converters (DDC) and of the digital up-converters (DUC) are shown in the following diagram:
 

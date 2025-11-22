@@ -16,7 +16,7 @@ The FPGA configuration consists of eight identical digital down-converters (DDC)
 
 ![SDR receiver](/img/sdr-receiver-hpsdr-ddc.png)
 
-The I/Q data rate is configurable and four settings are available: 48, 96, 192 kSPS.
+The I/Q data rate is configurable and three settings are available: 48, 96, 192 kSPS.
 
 The tunable frequency range covers from 0 Hz to 490 MHz.
 
