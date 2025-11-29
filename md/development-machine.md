@@ -1,6 +1,6 @@
 # Development machine
 
-The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/trixie) 13 (amd64) and [Vitis Core Development Kit](https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vitis.html) 2025.1.
+The following are the instructions for installing a virtual machine with [Debian](https://www.debian.org/releases/trixie) 13 (amd64) and [Vitis Core Development Kit](https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vitis.html) 2025.2.
 
 ## Creating virtual machine with Debian 13 (amd64)
 
@@ -82,14 +82,14 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 
 ## Installing Vitis Core Development Kit
 
-- Download "AMD Unified Installer for FPGAs & Adaptive SoCs 2025.1 SFD" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2025-1.html) (the file name is `FPGAs_AdaptiveSoCs_Unified_SDI_2025.1_0530_0145.tar`)
+- Download "AMD Unified Installer for FPGAs & Adaptive SoCs 2025.2 SFD" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2025-2.html) (the file name is `FPGAs_AdaptiveSoCs_Unified_SDI_2025.2_1114_2157.tar`)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 
 ```bash
 mkdir /opt/Xilinx
-tar -xf FPGAs_AdaptiveSoCs_Unified_SDI_2025.1_0530_0145.tar
-cd FPGAs_AdaptiveSoCs_Unified_SDI_2025.1_0530_0145
+tar -xf FPGAs_AdaptiveSoCs_Unified_SDI_2025.2_1114_2157.tar
+cd FPGAs_AdaptiveSoCs_Unified_SDI_2025.2_1114_2157
 ./xsetup
 ```
 
@@ -99,12 +99,14 @@ cd FPGAs_AdaptiveSoCs_Unified_SDI_2025.1_0530_0145
 
 ## Troubleshooting
 
-In recent releases of Linux distributions, the `libtinfo5` package required by `vivado` and `xsct` may be missing, resulting in the following error message when running these programs:
+In recent releases of Linux distributions, the packages `libncurses5` and `libtinfo5` required by `vivado` and `xsct` may be missing, resulting in the following error messages when running these programs:
 ```
+libncurses.so.5: cannot open shared object file: No such file or directory
 libtinfo.so.5: cannot open shared object file: No such file or directory
 ```
-A possible workaround could be to run the following commands, creating symbolic links to the `libtinfo.so.5` library in the appropriate directories:
+A possible workaround would be to run the following commands, that download and install these packages from an older Debian release:
 ```
-ln -s Ubuntu/24/libtinfo.so.5 /opt/Xilinx/2025.1/Vitis/lib/lnx64.o/libtinfo.so.5
-ln -s Ubuntu/24/libtinfo.so.5 /opt/Xilinx/2025.1/Vivado/lib/lnx64.o/libtinfo.so.5
+wget http://deb.debian.org/debian/pool/main/n/ncurses/libncurses5_6.4-4_amd64.deb
+wget http://deb.debian.org/debian/pool/main/n/ncurses/libtinfo5_6.4-4_amd64.deb
+apt-get install ./libncurses5_6.4-4_amd64.deb ./libtinfo5_6.4-4_amd64.deb
 ```
