@@ -20,7 +20,7 @@ Some interesting links on radiation spectroscopy:
 
 This system is designed to analyze the height of Gaussian-shaped pulses and it expects a signal from a pulse-shaping amplifier. It is also known to work with non-overlapping exponentially rising and exponentially decaying pulses.
 
-The position of the HV/LV jumpers of the [fast analog inputs](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/hw_specs/fastIO.html) should be chosen depending on the amplitude range of the input signal. Ideally, the amplitude range of the input signal should closely match the chosen hardware input range.
+The position of the HV/LV jumpers of the [fast analog inputs](https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/hw_specs/hw_specs.html#fast-analog-inputs-and-outputs-all-original-gen-boards) should be chosen depending on the amplitude range of the input signal. Ideally, the amplitude range of the input signal should closely match the chosen hardware input range.
 
 The basic blocks of the system are shown in the following diagrams:
 
