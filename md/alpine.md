@@ -86,7 +86,7 @@ ro
 
 It is normal that there are no blinking LEDs after booting the Red Pitaya board with this SD card image.
 
-The boot process can be checked using the USB/serial console as explained at [this link](https://redpitaya.readthedocs.io/en/latest/developerGuide/software/console/console/console.html).
+The boot process can be checked using the USB/serial console as explained at [this link](https://redpitaya.readthedocs.io/en/latest/developerGuide/software/getting_started/console/console.html).
 
 The getting started instructions are known to work with a freshly unpacked factory formatted (single partition, FAT32 file system) micro SD card.
 
