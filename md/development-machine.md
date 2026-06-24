@@ -82,7 +82,7 @@ The virtual machine can be accessed via SSH. To display applications with graphi
 
 ## Installing Vitis Core Development Kit
 
-- Download "AMD Unified Installer for FPGAs & Adaptive SoCs 2025.2 SFD" from the [Xilinx download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis/2025-2.html) (the file name is `FPGAs_AdaptiveSoCs_Unified_SDI_2025.2_1114_2157.tar`)
+- Download "AMD Unified Installer for FPGAs & Adaptive SoCs 2025.2 SFD" from the [AMD download page](https://www.amd.com/en/support/downloads/adaptive-socs-and-fpgas/development-tools/2025-2.html) (the file name is `FPGAs_AdaptiveSoCs_Unified_SDI_2025.2_1114_2157.tar`)
 
 - Create the `/opt/Xilinx` directory, unpack the installer and run it:
 
