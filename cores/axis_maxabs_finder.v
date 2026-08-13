@@ -31,6 +31,7 @@ module axis_maxabs_finder #
 
   wire [AXIS_TDATA_WIDTH-1:0] int_abs_wire;
   wire int_comp_wire;
+  wire input_transfer;
 
   always @(posedge aclk)
   begin
@@ -60,13 +61,18 @@ module axis_maxabs_finder #
     int_cntr_next = int_cntr_reg;
     int_tvalid_next = int_tvalid_reg;
 
-    if(s_axis_tvalid & int_comp_wire)
+    if(m_axis_tready & int_tvalid_reg)
+    begin
+      int_tvalid_next = 1'b0;
+    end
+
+    if(input_transfer & int_comp_wire)
     begin
       int_max_next = int_abs_wire > int_max_reg ? int_abs_wire : int_max_reg;
       int_cntr_next = int_cntr_reg + 1'b1;
     end
 
-    if(s_axis_tvalid & ~int_comp_wire)
+    if(input_transfer & ~int_comp_wire)
     begin
       int_max_next = {(AXIS_TDATA_WIDTH){1'b0}};
       int_tdata_next = int_max_reg;
@@ -74,13 +80,10 @@ module axis_maxabs_finder #
       int_tvalid_next = 1'b1;
     end
 
-    if(m_axis_tready & int_tvalid_reg)
-    begin
-      int_tvalid_next = 1'b0;
-    end
   end
 
-  assign s_axis_tready = 1'b1;
+  assign s_axis_tready = ~int_tvalid_reg | m_axis_tready;
+  assign input_transfer = s_axis_tvalid & s_axis_tready;
   assign m_axis_tdata = int_tdata_reg;
   assign m_axis_tvalid = int_tvalid_reg;
 
