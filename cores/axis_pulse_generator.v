@@ -3,6 +3,7 @@
 
 module axis_pulse_generator
 (
+  // System signals
   input  wire        aclk,
   input  wire        aresetn,
 
@@ -19,10 +20,10 @@ module axis_pulse_generator
 
   reg [31:0] int_cntr_reg;
 
-  wire int_enbl_wire, int_tready_wire;
+  wire int_enbl_wire, int_idle_wire;
 
   assign int_enbl_wire = |int_cntr_reg;
-  assign int_tready_wire = ~int_enbl_wire;
+  assign int_idle_wire = ~int_enbl_wire;
 
   always @(posedge aclk)
   begin
@@ -34,15 +35,15 @@ module axis_pulse_generator
     begin
       int_cntr_reg <= int_cntr_reg - 1'b1;
     end
-    else if(s_axis_tvalid & s_axis_tready)
+    else if(s_axis_tvalid & m_axis_tready)
     begin
       int_cntr_reg <= s_axis_tdata[63:32];
     end
   end
 
-  assign s_axis_tready = int_tready_wire & m_axis_tready;
+  assign s_axis_tready = m_axis_tready & int_idle_wire;
 
   assign m_axis_tdata = s_axis_tdata[15:0];
-  assign m_axis_tvalid = int_tready_wire & s_axis_tvalid;
+  assign m_axis_tvalid = s_axis_tvalid & int_idle_wire;
 
 endmodule
