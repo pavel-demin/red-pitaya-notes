@@ -57,7 +57,7 @@ module axis_accumulator #
   end
 
   assign int_comp_wire = int_cntr_reg < cfg_data;
-  assign int_tvalid_wire = int_tready_reg & s_axis_tvalid;
+  assign int_tvalid_wire = s_axis_tready & s_axis_tvalid;
 
   generate
     if(AXIS_TDATA_SIGNED == "TRUE")
@@ -86,6 +86,11 @@ module axis_accumulator #
           int_tready_next = 1'b1;
         end
 
+        if(m_axis_tready & int_tvalid_reg)
+        begin
+          int_tvalid_next = 1'b0;
+        end
+
         if(int_tvalid_wire & int_comp_wire)
         begin
           int_cntr_next = int_cntr_reg + 1'b1;
@@ -100,10 +105,6 @@ module axis_accumulator #
           int_tvalid_next = 1'b1;
         end
 
-        if(m_axis_tready & int_tvalid_reg)
-        begin
-          int_tvalid_next = 1'b0;
-        end
       end
     end
     else
@@ -121,6 +122,11 @@ module axis_accumulator #
           int_tready_next = 1'b1;
         end
 
+        if(m_axis_tready & int_tvalid_reg)
+        begin
+          int_tvalid_next = 1'b0;
+        end
+
         if(int_tvalid_wire & int_comp_wire)
         begin
           int_cntr_next = int_cntr_reg + 1'b1;
@@ -134,15 +140,11 @@ module axis_accumulator #
           int_tvalid_next = 1'b1;
         end
 
-        if(m_axis_tready & int_tvalid_reg)
-        begin
-          int_tvalid_next = 1'b0;
-        end
       end
     end
   endgenerate
 
-  assign s_axis_tready = int_tready_reg;
+  assign s_axis_tready = int_tready_reg & (~int_tvalid_reg | m_axis_tready);
   assign m_axis_tdata = int_tdata_reg;
   assign m_axis_tvalid = int_tvalid_reg;
 

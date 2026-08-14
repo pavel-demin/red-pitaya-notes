@@ -35,9 +35,10 @@ module axis_pulse_height_analyzer #
   reg int_tvalid_reg, int_tvalid_next;
 
   wire [AXIS_TDATA_WIDTH-1:0] int_tdata_wire;
-  wire int_mincut_wire, int_maxcut_wire, int_rising_wire, int_delay_wire;
+  wire int_mincut_wire, int_maxcut_wire, int_rising_wire, int_delay_wire, int_tvalid_wire;
 
   assign int_delay_wire = int_cntr_reg < cfg_data;
+  assign int_tvalid_wire = s_axis_tvalid & s_axis_tready;
 
   generate
     if(AXIS_TDATA_SIGNED == "TRUE")
@@ -93,27 +94,33 @@ module axis_pulse_height_analyzer #
     int_rising_next = int_rising_reg;
     int_tvalid_next = int_tvalid_reg;
 
-    if(s_axis_tvalid)
+    if(m_axis_tready & int_tvalid_reg)
+    begin
+      int_tdata_next = {(AXIS_TDATA_WIDTH){1'b0}};
+      int_tvalid_next = 1'b0;
+    end
+
+    if(int_tvalid_wire)
     begin
       int_data_next[0] = s_axis_tdata;
       int_data_next[1] = int_data_reg[0];
       int_rising_next = int_rising_wire;
     end
 
-    if(s_axis_tvalid & int_delay_wire)
+    if(int_tvalid_wire & int_delay_wire)
     begin
       int_cntr_next = int_cntr_reg + 1'b1;
     end
 
     // minimum after delay
-    if(s_axis_tvalid & ~int_delay_wire & ~int_rising_reg & int_rising_wire)
+    if(int_tvalid_wire & ~int_delay_wire & ~int_rising_reg & int_rising_wire)
     begin
       int_min_next = int_data_reg[1];
       int_enbl_next = 1'b1;
     end
 
     // maximum after minimum
-    if(s_axis_tvalid & int_enbl_reg & int_rising_reg & ~int_rising_wire & int_mincut_wire)
+    if(int_tvalid_wire & int_enbl_reg & int_rising_reg & ~int_rising_wire & int_mincut_wire)
     begin
       int_tdata_next = int_maxcut_wire ? int_tdata_wire : {(AXIS_TDATA_WIDTH){1'b0}};
       int_tvalid_next = int_maxcut_wire;
@@ -121,14 +128,9 @@ module axis_pulse_height_analyzer #
       int_enbl_next = 1'b0;
     end
 
-    if(m_axis_tready & int_tvalid_reg)
-    begin
-      int_tdata_next = {(AXIS_TDATA_WIDTH){1'b0}};
-      int_tvalid_next = 1'b0;
-    end
   end
 
-  assign s_axis_tready = 1'b1;
+  assign s_axis_tready = ~int_tvalid_reg | m_axis_tready;
   assign m_axis_tdata = int_tdata_reg;
   assign m_axis_tvalid = int_tvalid_reg;
 

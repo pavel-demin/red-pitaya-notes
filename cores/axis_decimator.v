@@ -50,7 +50,7 @@ module axis_decimator #
   end
 
   assign int_comp_wire = int_cntr_reg < cfg_data;
-  assign int_tvalid_wire = int_tready_reg & s_axis_tvalid;
+  assign int_tvalid_wire = s_axis_tready & s_axis_tvalid;
 
   always @*
   begin
@@ -62,6 +62,11 @@ module axis_decimator #
     if(~int_tready_reg & int_comp_wire)
     begin
       int_tready_next = 1'b1;
+    end
+
+    if(m_axis_tready & int_tvalid_reg)
+    begin
+      int_tvalid_next = 1'b0;
     end
 
     if(int_tvalid_wire & int_comp_wire)
@@ -76,13 +81,9 @@ module axis_decimator #
       int_tvalid_next = 1'b1;
     end
 
-    if(m_axis_tready & int_tvalid_reg)
-    begin
-      int_tvalid_next = 1'b0;
-    end
   end
 
-  assign s_axis_tready = int_tready_reg;
+  assign s_axis_tready = int_tready_reg & (~int_tvalid_reg | m_axis_tready);
   assign m_axis_tdata = int_tdata_reg;
   assign m_axis_tvalid = int_tvalid_reg;
 
