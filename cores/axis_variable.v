@@ -28,10 +28,10 @@ module axis_variable #
       int_tdata_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
       int_tvalid_reg <= 1'b0;
     end
-    else
+    else if(~int_tvalid_reg | m_axis_tready)
     begin
       int_tdata_reg <= cfg_data;
-      int_tvalid_reg <= (int_tdata_reg != cfg_data) | (int_tvalid_reg & ~m_axis_tready);
+      int_tvalid_reg <= int_tdata_reg != cfg_data;
     end
   end
 

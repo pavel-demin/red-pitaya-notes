@@ -34,13 +34,13 @@ module axis_pulse_generator
     begin
       int_cntr_reg <= int_cntr_reg - 1'b1;
     end
-    else if(s_axis_tvalid)
+    else if(s_axis_tvalid & s_axis_tready)
     begin
       int_cntr_reg <= s_axis_tdata[63:32];
     end
   end
 
-  assign s_axis_tready = int_tready_wire;
+  assign s_axis_tready = int_tready_wire & m_axis_tready;
 
   assign m_axis_tdata = s_axis_tdata[15:0];
   assign m_axis_tvalid = int_tready_wire & s_axis_tvalid;

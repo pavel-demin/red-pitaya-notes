@@ -22,7 +22,7 @@ module axis_variant #
 );
 
   reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg;
-  reg int_tvalid_reg, int_tvalid_next;
+  reg int_tvalid_reg;
   wire [AXIS_TDATA_WIDTH-1:0] int_tdata_wire;
 
   assign int_tdata_wire = cfg_flag ? cfg_data1 : cfg_data0;
@@ -34,25 +34,10 @@ module axis_variant #
       int_tdata_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
       int_tvalid_reg <= 1'b0;
     end
-    else
+    else if(~int_tvalid_reg | m_axis_tready)
     begin
       int_tdata_reg <= int_tdata_wire;
-      int_tvalid_reg <= int_tvalid_next;
-    end
-  end
-
-  always @*
-  begin
-    int_tvalid_next = int_tvalid_reg;
-
-    if(int_tdata_reg != int_tdata_wire)
-    begin
-      int_tvalid_next = 1'b1;
-    end
-
-    if(m_axis_tready & int_tvalid_reg)
-    begin
-      int_tvalid_next = 1'b0;
+      int_tvalid_reg <= int_tdata_reg != int_tdata_wire;
     end
   end
 
