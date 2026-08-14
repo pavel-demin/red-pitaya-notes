@@ -18,24 +18,12 @@ module axis_variable #
   output wire                        m_axis_tvalid
 );
 
-  reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg;
-  reg int_tvalid_reg;
-
-  always @(posedge aclk)
-  begin
-    if(~aresetn)
-    begin
-      int_tdata_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
-      int_tvalid_reg <= 1'b0;
-    end
-    else if(~int_tvalid_reg | m_axis_tready)
-    begin
-      int_tdata_reg <= cfg_data;
-      int_tvalid_reg <= int_tdata_reg != cfg_data;
-    end
-  end
-
-  assign m_axis_tdata = int_tdata_reg;
-  assign m_axis_tvalid = int_tvalid_reg;
+  output_buffer #(
+    .DATA_WIDTH(AXIS_TDATA_WIDTH)
+  ) buf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(cfg_data), .in_valid(m_axis_tdata != cfg_data), .in_ready(),
+    .out_data(m_axis_tdata), .out_valid(m_axis_tvalid), .out_ready(m_axis_tready)
+  );
 
 endmodule
