@@ -24,67 +24,35 @@ module axis_maxabs_finder #
   output wire                        m_axis_tvalid
 );
 
-  reg [AXIS_TDATA_WIDTH-1:0] int_max_reg, int_max_next;
-  reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg, int_tdata_next;
-  reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
-  reg int_tvalid_reg, int_tvalid_next;
+  reg [AXIS_TDATA_WIDTH-1:0] int_max_reg;
+  reg [CNTR_WIDTH-1:0] int_cntr_reg;
 
   wire [AXIS_TDATA_WIDTH-1:0] int_abs_wire;
-  wire int_comp_wire;
-  wire input_transfer;
+  wire int_last_wire;
+
+  assign int_last_wire = int_cntr_reg == cfg_data;
+  assign int_abs_wire = s_axis_tdata[AXIS_TDATA_WIDTH-1] ? ~s_axis_tdata : s_axis_tdata;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
       int_max_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
-      int_tdata_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
-      int_tvalid_reg <= 1'b0;
     end
-    else
+    else if(s_axis_tvalid & s_axis_tready)
     begin
-      int_max_reg <= int_max_next;
-      int_tdata_reg <= int_tdata_next;
-      int_cntr_reg <= int_cntr_next;
-      int_tvalid_reg <= int_tvalid_next;
+      int_max_reg <= int_last_wire ? {(AXIS_TDATA_WIDTH){1'b0}} : int_abs_wire > int_max_reg ? int_abs_wire : int_max_reg;
+      int_cntr_reg <= int_last_wire ? {(CNTR_WIDTH){1'b0}} : int_cntr_reg + 1'b1;
     end
   end
 
-  assign int_comp_wire = int_cntr_reg < cfg_data;
-  assign int_abs_wire = s_axis_tdata[AXIS_TDATA_WIDTH-1] ? ~s_axis_tdata : s_axis_tdata;
-
-  always @*
-  begin
-    int_max_next = int_max_reg;
-    int_tdata_next = int_tdata_reg;
-    int_cntr_next = int_cntr_reg;
-    int_tvalid_next = int_tvalid_reg;
-
-    if(m_axis_tready & int_tvalid_reg)
-    begin
-      int_tvalid_next = 1'b0;
-    end
-
-    if(input_transfer & int_comp_wire)
-    begin
-      int_max_next = int_abs_wire > int_max_reg ? int_abs_wire : int_max_reg;
-      int_cntr_next = int_cntr_reg + 1'b1;
-    end
-
-    if(input_transfer & ~int_comp_wire)
-    begin
-      int_max_next = {(AXIS_TDATA_WIDTH){1'b0}};
-      int_tdata_next = int_max_reg;
-      int_cntr_next = {(CNTR_WIDTH){1'b0}};
-      int_tvalid_next = 1'b1;
-    end
-
-  end
-
-  assign s_axis_tready = ~int_tvalid_reg | m_axis_tready;
-  assign input_transfer = s_axis_tvalid & s_axis_tready;
-  assign m_axis_tdata = int_tdata_reg;
-  assign m_axis_tvalid = int_tvalid_reg;
+  output_buffer #(
+    .DATA_WIDTH(AXIS_TDATA_WIDTH)
+  ) buf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_max_reg), .in_valid(s_axis_tvalid & int_last_wire), .in_ready(s_axis_tready),
+    .out_data(m_axis_tdata), .out_valid(m_axis_tvalid), .out_ready(m_axis_tready)
+  );
 
 endmodule
