@@ -24,6 +24,6 @@ module axis_stepper #
 
   assign s_axis_tready = trg_flag & m_axis_tready;
   assign m_axis_tdata = s_axis_tdata;
-  assign m_axis_tvalid = s_axis_tvalid;
+  assign m_axis_tvalid = s_axis_tvalid & trg_flag;
 
 endmodule
