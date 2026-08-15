@@ -30,7 +30,7 @@ module axis_maxabs_finder #
   wire [AXIS_TDATA_WIDTH-1:0] int_abs_wire;
   wire int_last_wire;
 
-  assign int_last_wire = int_cntr_reg == cfg_data;
+  assign int_last_wire = int_cntr_reg >= cfg_data;
   assign int_abs_wire = s_axis_tdata[AXIS_TDATA_WIDTH-1] ? ~s_axis_tdata : s_axis_tdata;
 
   always @(posedge aclk)
