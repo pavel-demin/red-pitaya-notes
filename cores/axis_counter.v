@@ -20,81 +20,62 @@ module axis_counter #
   input  wire                        m_axis_tready
 );
 
-  reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
-  reg [CNTR_WIDTH-1:0] int_data_reg;
-  reg int_enbl_reg, int_enbl_next;
+  reg [CNTR_WIDTH-1:0] int_cntr_reg;
 
-  wire int_comp_wire, int_last_wire;
+  wire int_last_wire, int_valid_wire, int_ready_wire;
+
+  assign int_last_wire = int_cntr_reg >= cfg_data;
+
+  generate
+    if(CONTINUOUS == "TRUE")
+    begin : CONTINUE
+      assign int_valid_wire = 1'b1;
+    end
+    else
+    begin : STOP
+      reg int_valid_reg;
+
+      always @(posedge aclk)
+      begin
+        if(~aresetn)
+        begin
+          int_valid_reg <= 1'b1;
+        end
+        else if(int_ready_wire & int_last_wire)
+        begin
+          int_valid_reg <= 1'b0;
+        end
+      end
+
+      assign int_valid_wire = int_valid_reg;
+    end
+  endgenerate
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
-      int_data_reg <= {(CNTR_WIDTH){1'b0}};
-      int_enbl_reg <= 1'b0;
     end
-    else
+    else if(int_valid_wire & int_ready_wire)
     begin
-      int_cntr_reg <= int_cntr_next;
-      int_data_reg <= cfg_data;
-      int_enbl_reg <= int_enbl_next;
+      if(int_last_wire)
+      begin
+        int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
+      end
+      else
+      begin
+        int_cntr_reg <= int_cntr_reg + 1'b1;
+      end
     end
   end
 
-  assign int_comp_wire = int_cntr_reg < int_data_reg;
-  assign int_last_wire = ~int_comp_wire;
-
-  generate
-    if(CONTINUOUS == "TRUE")
-    begin : CONTINUE
-      always @*
-      begin
-        int_cntr_next = int_cntr_reg;
-        int_enbl_next = int_enbl_reg;
-
-        if(~int_enbl_reg & int_comp_wire)
-        begin
-          int_enbl_next = 1'b1;
-        end
-
-        if(m_axis_tready & int_enbl_reg & int_comp_wire)
-        begin
-          int_cntr_next = int_cntr_reg + 1'b1;
-        end
-
-        if(m_axis_tready & int_enbl_reg & int_last_wire)
-        begin
-          int_cntr_next = {(CNTR_WIDTH){1'b0}};
-        end
-      end
-    end
-    else
-    begin : STOP
-      always @*
-      begin
-        int_cntr_next = int_cntr_reg;
-        int_enbl_next = int_enbl_reg;
-
-        if(~int_enbl_reg & int_comp_wire)
-        begin
-          int_enbl_next = 1'b1;
-        end
-
-        if(m_axis_tready & int_enbl_reg & int_comp_wire)
-        begin
-          int_cntr_next = int_cntr_reg + 1'b1;
-        end
-
-        if(m_axis_tready & int_enbl_reg & int_last_wire)
-        begin
-          int_enbl_next = 1'b0;
-        end
-      end
-    end
-  endgenerate
-
-  assign m_axis_tdata = int_cntr_reg;
-  assign m_axis_tvalid = int_enbl_reg;
+  output_buffer #(
+    .DATA_WIDTH(AXIS_TDATA_WIDTH)
+  ) buf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_cntr_reg), .in_valid(int_valid_wire), .in_ready(int_ready_wire),
+    .out_data(m_axis_tdata), .out_valid(m_axis_tvalid), .out_ready(m_axis_tready)
+  );
 
 endmodule
