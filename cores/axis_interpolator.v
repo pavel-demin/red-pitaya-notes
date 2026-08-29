@@ -24,66 +24,39 @@ module axis_interpolator #
   output wire                        m_axis_tvalid
 );
 
-  reg [AXIS_TDATA_WIDTH-1:0] int_tdata_reg, int_tdata_next;
-  reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
-  reg int_tvalid_reg, int_tvalid_next;
-  reg int_tready_reg, int_tready_next;
+  reg [CNTR_WIDTH-1:0] int_cntr_reg;
+
+  wire int_last_wire, int_ready_wire;
+
+  assign int_last_wire = int_cntr_reg >= cfg_data;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
-      int_tdata_reg <= {(AXIS_TDATA_WIDTH){1'b0}};
-      int_tvalid_reg <= 1'b0;
-      int_tready_reg <= 1'b0;
       int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
     end
-    else
+    else if(s_axis_tvalid & int_ready_wire)
     begin
-      int_tdata_reg <= int_tdata_next;
-      int_tvalid_reg <= int_tvalid_next;
-      int_tready_reg <= int_tready_next;
-      int_cntr_reg <= int_cntr_next;
-    end
-  end
-
-  always @*
-  begin
-    int_tdata_next = int_tdata_reg;
-    int_tvalid_next = int_tvalid_reg;
-    int_tready_next = int_tready_reg;
-    int_cntr_next = int_cntr_reg;
-
-    if(s_axis_tvalid & ~int_tvalid_reg)
-    begin
-      int_tdata_next = s_axis_tdata;
-      int_tvalid_next = 1'b1;
-      int_tready_next = 1'b1;
-    end
-
-    if(m_axis_tready & int_tvalid_reg)
-    begin
-      if(int_cntr_reg < cfg_data)
+      if(int_last_wire)
       begin
-        int_cntr_next = int_cntr_reg + 1'b1;
+        int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
       end
       else
       begin
-        int_cntr_next = {(CNTR_WIDTH){1'b0}};
-        int_tdata_next = s_axis_tdata;
-        int_tvalid_next = s_axis_tvalid;
-        int_tready_next = s_axis_tvalid;
+        int_cntr_reg <= int_cntr_reg + 1'b1;
       end
-    end
-
-    if(s_axis_tvalid & int_tready_reg)
-    begin
-      int_tready_next = 1'b0;
     end
   end
 
-  assign s_axis_tready = int_tready_reg;
-  assign m_axis_tdata = int_tdata_reg;
-  assign m_axis_tvalid = int_tvalid_reg;
+  output_buffer #(
+    .DATA_WIDTH(AXIS_TDATA_WIDTH)
+  ) buf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(s_axis_tdata), .in_valid(s_axis_tvalid), .in_ready(int_ready_wire),
+    .out_data(m_axis_tdata), .out_valid(m_axis_tvalid), .out_ready(m_axis_tready)
+  );
+
+  assign s_axis_tready = int_ready_wire & int_last_wire;
 
 endmodule
