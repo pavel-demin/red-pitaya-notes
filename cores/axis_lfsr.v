@@ -17,63 +17,28 @@ module axis_lfsr #
   output wire                        m_axis_tvalid
 );
 
-  reg [AXIS_TDATA_WIDTH-1:0] int_lfsr_reg, int_lfsr_next;
-  reg int_enbl_reg, int_enbl_next;
+  reg [AXIS_TDATA_WIDTH-1:0] int_lfsr_reg;
+
+  wire int_ready_wire;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
       int_lfsr_reg <= 64'h85fac8a1658d6f0d;
-      int_enbl_reg <= 1'b0;
     end
-    else
+    else if(HAS_TREADY != "TRUE" || int_ready_wire)
     begin
-      int_lfsr_reg <= int_lfsr_next;
-      int_enbl_reg <= int_enbl_next;
+      int_lfsr_reg <= {int_lfsr_reg[62:0], int_lfsr_reg[62] ~^ int_lfsr_reg[61]};
     end
   end
 
-  generate
-    if(HAS_TREADY == "TRUE")
-    begin : HAS_TREADY
-      always @*
-      begin
-        int_lfsr_next = int_lfsr_reg;
-        int_enbl_next = int_enbl_reg;
-
-        if(~int_enbl_reg)
-        begin
-          int_enbl_next = 1'b1;
-        end
-
-        if(int_enbl_reg & m_axis_tready)
-        begin
-          int_lfsr_next = {int_lfsr_reg[62:0], int_lfsr_reg[62] ~^ int_lfsr_reg[61]};
-        end
-      end
-    end
-    else
-    begin : NO_TREADY
-      always @*
-      begin
-        int_lfsr_next = int_lfsr_reg;
-        int_enbl_next = int_enbl_reg;
-
-        if(~int_enbl_reg)
-        begin
-          int_enbl_next = 1'b1;
-        end
-
-        if(int_enbl_reg)
-        begin
-          int_lfsr_next = {int_lfsr_reg[62:0], int_lfsr_reg[62] ~^ int_lfsr_reg[61]};
-        end
-      end
-    end
-  endgenerate
-
-  assign m_axis_tdata = int_lfsr_reg;
-  assign m_axis_tvalid = int_enbl_reg;
+  output_buffer #(
+    .DATA_WIDTH(AXIS_TDATA_WIDTH)
+  ) buf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(int_lfsr_reg), .in_valid(1'b1), .in_ready(int_ready_wire),
+    .out_data(m_axis_tdata), .out_valid(m_axis_tvalid), .out_ready(m_axis_tready)
+  );
 
 endmodule
