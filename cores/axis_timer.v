@@ -21,10 +21,12 @@ module axis_timer #
   input  wire                  s_axis_tvalid
 );
 
-  reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
-  reg int_enbl_reg, int_enbl_next;
+  reg [CNTR_WIDTH-1:0] int_cntr_reg;
+  reg int_enbl_reg;
 
   wire int_comp_wire;
+
+  assign int_comp_wire = run_flag & (int_cntr_reg < cfg_data);
 
   always @(posedge aclk)
   begin
@@ -35,31 +37,20 @@ module axis_timer #
     end
     else
     begin
-      int_cntr_reg <= int_cntr_next;
-      int_enbl_reg <= int_enbl_next;
-    end
-  end
+      if(~int_enbl_reg & int_comp_wire & s_axis_tvalid)
+      begin
+        int_enbl_reg <= 1'b1;
+      end
 
-  assign int_comp_wire = run_flag & (int_cntr_reg < cfg_data);
+      if(int_enbl_reg & int_comp_wire & s_axis_tvalid)
+      begin
+        int_cntr_reg <= int_cntr_reg + 1'b1;
+      end
 
-  always @*
-  begin
-    int_cntr_next = int_cntr_reg;
-    int_enbl_next = int_enbl_reg;
-
-    if(~int_enbl_reg & int_comp_wire & s_axis_tvalid)
-    begin
-      int_enbl_next = 1'b1;
-    end
-
-    if(int_enbl_reg & int_comp_wire & s_axis_tvalid)
-    begin
-      int_cntr_next = int_cntr_reg + 1'b1;
-    end
-
-    if(int_enbl_reg & ~int_comp_wire & s_axis_tvalid)
-    begin
-      int_enbl_next = 1'b0;
+      if(int_enbl_reg & ~int_comp_wire & s_axis_tvalid)
+      begin
+        int_enbl_reg <= 1'b0;
+      end
     end
   end
 
