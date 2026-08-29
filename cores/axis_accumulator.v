@@ -27,37 +27,13 @@ module axis_accumulator #
   output wire                          m_axis_tvalid
 );
 
-  reg [M_AXIS_TDATA_WIDTH-1:0] int_tdata_reg, int_tdata_next;
-  reg [M_AXIS_TDATA_WIDTH-1:0] int_accu_reg, int_accu_next;
-  reg [CNTR_WIDTH-1:0] int_cntr_reg, int_cntr_next;
-  reg int_tvalid_reg, int_tvalid_next;
-  reg int_tready_reg, int_tready_next;
+  reg [M_AXIS_TDATA_WIDTH-1:0] int_accu_reg;
+  reg [CNTR_WIDTH-1:0] int_cntr_reg;
 
   wire [M_AXIS_TDATA_WIDTH-1:0] sum_accu_wire;
-  wire int_comp_wire, int_tvalid_wire;
+  wire int_last_wire, int_ready_wire;
 
-  always @(posedge aclk)
-  begin
-    if(~aresetn)
-    begin
-      int_tdata_reg <= {(M_AXIS_TDATA_WIDTH){1'b0}};
-      int_tvalid_reg <= 1'b0;
-      int_tready_reg <= 1'b0;
-      int_accu_reg <= {(M_AXIS_TDATA_WIDTH){1'b0}};
-      int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
-    end
-    else
-    begin
-      int_tdata_reg <= int_tdata_next;
-      int_tvalid_reg <= int_tvalid_next;
-      int_tready_reg <= int_tready_next;
-      int_accu_reg <= int_accu_next;
-      int_cntr_reg <= int_cntr_next;
-    end
-  end
-
-  assign int_comp_wire = int_cntr_reg < cfg_data;
-  assign int_tvalid_wire = int_tready_reg & s_axis_tvalid;
+  assign int_last_wire = int_cntr_reg >= cfg_data;
 
   generate
     if(AXIS_TDATA_SIGNED == "TRUE")
@@ -73,77 +49,56 @@ module axis_accumulator #
   generate
     if(CONTINUOUS == "TRUE")
     begin : CONTINUE
-      always @*
-      begin
-        int_tdata_next = int_tdata_reg;
-        int_tvalid_next = int_tvalid_reg;
-        int_tready_next = int_tready_reg;
-        int_accu_next = int_accu_reg;
-        int_cntr_next = int_cntr_reg;
-
-        if(~int_tready_reg & int_comp_wire)
-        begin
-          int_tready_next = 1'b1;
-        end
-
-        if(int_tvalid_wire & int_comp_wire)
-        begin
-          int_cntr_next = int_cntr_reg + 1'b1;
-          int_accu_next = sum_accu_wire;
-        end
-
-        if(int_tvalid_wire & ~int_comp_wire)
-        begin
-          int_cntr_next = {(CNTR_WIDTH){1'b0}};
-          int_accu_next = {(M_AXIS_TDATA_WIDTH){1'b0}};
-          int_tdata_next = sum_accu_wire;
-          int_tvalid_next = 1'b1;
-        end
-
-        if(m_axis_tready & int_tvalid_reg)
-        begin
-          int_tvalid_next = 1'b0;
-        end
-      end
+      assign s_axis_tready = int_ready_wire;
     end
     else
     begin : STOP
-      always @*
+      reg int_ready_reg;
+
+      always @(posedge aclk)
       begin
-        int_tdata_next = int_tdata_reg;
-        int_tvalid_next = int_tvalid_reg;
-        int_tready_next = int_tready_reg;
-        int_accu_next = int_accu_reg;
-        int_cntr_next = int_cntr_reg;
-
-        if(~int_tready_reg & int_comp_wire)
+        if(~aresetn)
         begin
-          int_tready_next = 1'b1;
+          int_ready_reg <= 1'b1;
         end
-
-        if(int_tvalid_wire & int_comp_wire)
+        else if(s_axis_tvalid & s_axis_tready & int_last_wire)
         begin
-          int_cntr_next = int_cntr_reg + 1'b1;
-          int_accu_next = sum_accu_wire;
-        end
-
-        if(int_tvalid_wire & ~int_comp_wire)
-        begin
-          int_tready_next = 1'b0;
-          int_tdata_next = sum_accu_wire;
-          int_tvalid_next = 1'b1;
-        end
-
-        if(m_axis_tready & int_tvalid_reg)
-        begin
-          int_tvalid_next = 1'b0;
+          int_ready_reg <= 1'b0;
         end
       end
+
+      assign s_axis_tready = int_ready_wire & int_ready_reg;
     end
   endgenerate
 
-  assign s_axis_tready = int_tready_reg;
-  assign m_axis_tdata = int_tdata_reg;
-  assign m_axis_tvalid = int_tvalid_reg;
+  always @(posedge aclk)
+  begin
+    if(~aresetn)
+    begin
+      int_accu_reg <= {(M_AXIS_TDATA_WIDTH){1'b0}};
+      int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
+    end
+    else if(s_axis_tvalid & s_axis_tready)
+    begin
+      if(int_last_wire)
+      begin
+        int_accu_reg <= {(M_AXIS_TDATA_WIDTH){1'b0}};
+        int_cntr_reg <= {(CNTR_WIDTH){1'b0}};
+      end
+      else
+      begin
+        int_accu_reg <= sum_accu_wire;
+        int_cntr_reg <= int_cntr_reg + 1'b1;
+      end
+    end
+  end
+
+  output_buffer #(
+    .DATA_WIDTH(M_AXIS_TDATA_WIDTH)
+  ) buf_0 (
+    .aclk(aclk), .aresetn(aresetn),
+    .in_data(sum_accu_wire), .in_valid(s_axis_tvalid & int_last_wire), .in_ready(int_ready_wire),
+    .out_data(m_axis_tdata), .out_valid(m_axis_tvalid), .out_ready(m_axis_tready)
+  );
 
 endmodule
