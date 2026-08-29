@@ -35,83 +35,56 @@ module axis_bram_reader #
   input  wire [BRAM_DATA_WIDTH-1:0]  b_bram_rdata
 );
 
-  reg [BRAM_ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
-  reg [BRAM_ADDR_WIDTH-1:0] int_data_reg;
-  reg int_enbl_reg, int_enbl_next;
+  reg [BRAM_ADDR_WIDTH-1:0] int_addr_reg;
 
   wire [AXIS_TDATA_WIDTH-1:0] int_data_wire;
   wire [2:0] int_last_wire, int_valid_wire, int_ready_wire;
-  wire int_comp_wire;
+
+  assign int_last_wire[0] = int_addr_reg >= cfg_data;
+
+  generate
+    if(CONTINUOUS == "TRUE")
+    begin : CONTINUE
+      assign int_valid_wire[0] = 1'b1;
+    end
+    else
+    begin : STOP
+      reg int_valid_reg;
+
+      always @(posedge aclk)
+      begin
+        if(~aresetn)
+        begin
+          int_valid_reg <= 1'b1;
+        end
+        else if(int_ready_wire[0] & int_last_wire[0])
+        begin
+          int_valid_reg <= 1'b0;
+        end
+      end
+
+      assign int_valid_wire[0] = int_valid_reg;
+    end
+  endgenerate
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
       int_addr_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
-      int_data_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
-      int_enbl_reg <= 1'b0;
     end
-    else
+    else if(int_valid_wire[0] & int_ready_wire[0])
     begin
-      int_addr_reg <= int_addr_next;
-      int_data_reg <= cfg_data;
-      int_enbl_reg <= int_enbl_next;
+      if(int_last_wire[0])
+      begin
+        int_addr_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
+      end
+      else
+      begin
+        int_addr_reg <= int_addr_reg + 1'b1;
+      end
     end
   end
-
-  assign int_comp_wire = int_addr_reg < int_data_reg;
-
-  assign int_last_wire[0] = ~int_comp_wire;
-  assign int_valid_wire[0] = int_enbl_reg;
-
-  generate
-    if(CONTINUOUS == "TRUE")
-    begin : CONTINUE
-      always @*
-      begin
-        int_addr_next = int_addr_reg;
-        int_enbl_next = int_enbl_reg;
-
-        if(~int_enbl_reg & int_comp_wire)
-        begin
-          int_enbl_next = 1'b1;
-        end
-
-        if(int_ready_wire[0] & int_enbl_reg & int_comp_wire)
-        begin
-          int_addr_next = int_addr_reg + 1'b1;
-        end
-
-        if(int_ready_wire[0] & int_enbl_reg & int_last_wire[0])
-        begin
-          int_addr_next = {(BRAM_ADDR_WIDTH){1'b0}};
-        end
-      end
-    end
-    else
-    begin : STOP
-      always @*
-      begin
-        int_addr_next = int_addr_reg;
-        int_enbl_next = int_enbl_reg;
-
-        if(~int_enbl_reg & int_comp_wire)
-        begin
-          int_enbl_next = 1'b1;
-        end
-
-        if(int_ready_wire[0] & int_enbl_reg & int_comp_wire)
-        begin
-          int_addr_next = int_addr_reg + 1'b1;
-        end
-
-        if(int_ready_wire[0] & int_enbl_reg & int_last_wire[0])
-        begin
-          int_enbl_next = 1'b0;
-        end
-      end
-    end
-  endgenerate
 
   output_buffer #(
     .DATA_WIDTH(1)
