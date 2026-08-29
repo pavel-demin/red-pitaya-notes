@@ -33,57 +33,44 @@ module axis_keyer #
   input  wire [BRAM_DATA_WIDTH-1:0]  b_bram_rdata
 );
 
-  reg [BRAM_ADDR_WIDTH-1:0] int_addr_reg, int_addr_next;
-  reg [BRAM_ADDR_WIDTH-1:0] int_data_reg;
-  reg int_enbl_reg, int_enbl_next;
+  reg [BRAM_ADDR_WIDTH-1:0] int_addr_reg;
+  reg int_enbl_reg;
 
   wire [1:0] int_valid_wire, int_ready_wire;
   wire [1:0] int_comp_wire;
+
+  assign int_comp_wire = {|int_addr_reg, int_addr_reg < cfg_data};
+
+  assign int_valid_wire[0] = 1'b1;
 
   always @(posedge aclk)
   begin
     if(~aresetn)
     begin
       int_addr_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
-      int_data_reg <= {(BRAM_ADDR_WIDTH){1'b0}};
       int_enbl_reg <= 1'b0;
     end
     else
     begin
-      int_addr_reg <= int_addr_next;
-      int_data_reg <= cfg_data;
-      int_enbl_reg <= int_enbl_next;
-    end
-  end
+      if(~int_enbl_reg & ~int_comp_wire[1] & key_flag)
+      begin
+        int_enbl_reg <= 1'b1;
+      end
 
+      if(int_ready_wire[0] & int_enbl_reg & int_comp_wire[0])
+      begin
+        int_addr_reg <= int_addr_reg + 1'b1;
+      end
 
-  assign int_comp_wire = {|int_addr_reg, int_addr_reg < int_data_reg};
+      if(int_ready_wire[0] & int_enbl_reg & ~int_comp_wire[0] & ~key_flag)
+      begin
+        int_enbl_reg <= 1'b0;
+      end
 
-  assign int_valid_wire[0] = 1'b1;
-
-  always @*
-  begin
-    int_addr_next = int_addr_reg;
-    int_enbl_next = int_enbl_reg;
-
-    if(~int_enbl_reg & ~int_comp_wire[1] & key_flag)
-    begin
-      int_enbl_next = 1'b1;
-    end
-
-    if(int_ready_wire[0] & int_enbl_reg & int_comp_wire[0])
-    begin
-      int_addr_next = int_addr_reg + 1'b1;
-    end
-
-    if(int_ready_wire[0] & int_enbl_reg & ~int_comp_wire[0] & ~key_flag)
-    begin
-      int_enbl_next = 1'b0;
-    end
-
-    if(int_ready_wire[0] & ~int_enbl_reg & int_comp_wire[1])
-    begin
-      int_addr_next = int_addr_reg - 1'b1;
+      if(int_ready_wire[0] & ~int_enbl_reg & int_comp_wire[1])
+      begin
+        int_addr_reg <= int_addr_reg - 1'b1;
+      end
     end
   end
 
