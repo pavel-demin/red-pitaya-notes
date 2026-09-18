@@ -375,7 +375,7 @@ module axi_hub #
   assign b00_bram_rst = ~aresetn;
   assign b00_bram_en = int_rsel_wire[2] | int_wsel_wire[2];
   assign b00_bram_we = int_wsel_wire[2] ? int_wstrb_wire : 4'd0;
-  assign b00_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
+  assign b00_bram_addr = int_wsel_wire[2] ? int_waddr_wire : int_raddr_wire;
   assign b00_bram_wdata = int_wdata_wire;
 
   assign int_sdata_wire[0] = s00_axis_tdata;
@@ -395,7 +395,7 @@ module axi_hub #
   assign b01_bram_rst = ~aresetn;
   assign b01_bram_en = int_rsel_wire[3] | int_wsel_wire[3];
   assign b01_bram_we = int_wsel_wire[3] ? int_wstrb_wire : 4'd0;
-  assign b01_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
+  assign b01_bram_addr = int_wsel_wire[3] ? int_waddr_wire : int_raddr_wire;
   assign b01_bram_wdata = int_wdata_wire;
 
   assign int_sdata_wire[1] = s01_axis_tdata;
@@ -415,7 +415,7 @@ module axi_hub #
   assign b02_bram_rst = ~aresetn;
   assign b02_bram_en = int_rsel_wire[4] | int_wsel_wire[4];
   assign b02_bram_we = int_wsel_wire[4] ? int_wstrb_wire : 4'd0;
-  assign b02_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
+  assign b02_bram_addr = int_wsel_wire[4] ? int_waddr_wire : int_raddr_wire;
   assign b02_bram_wdata = int_wdata_wire;
 
   assign int_sdata_wire[2] = s02_axis_tdata;
@@ -435,7 +435,7 @@ module axi_hub #
   assign b03_bram_rst = ~aresetn;
   assign b03_bram_en = int_rsel_wire[5] | int_wsel_wire[5];
   assign b03_bram_we = int_wsel_wire[5] ? int_wstrb_wire : 4'd0;
-  assign b03_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
+  assign b03_bram_addr = int_wsel_wire[5] ? int_waddr_wire : int_raddr_wire;
   assign b03_bram_wdata = int_wdata_wire;
 
   assign int_sdata_wire[3] = s03_axis_tdata;
@@ -455,7 +455,7 @@ module axi_hub #
   assign b04_bram_rst = ~aresetn;
   assign b04_bram_en = int_rsel_wire[6] | int_wsel_wire[6];
   assign b04_bram_we = int_wsel_wire[6] ? int_wstrb_wire : 4'd0;
-  assign b04_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
+  assign b04_bram_addr = int_wsel_wire[6] ? int_waddr_wire : int_raddr_wire;
   assign b04_bram_wdata = int_wdata_wire;
 
   assign int_sdata_wire[4] = s04_axis_tdata;
@@ -475,7 +475,7 @@ module axi_hub #
   assign b05_bram_rst = ~aresetn;
   assign b05_bram_en = int_rsel_wire[7] | int_wsel_wire[7];
   assign b05_bram_we = int_wsel_wire[7] ? int_wstrb_wire : 4'd0;
-  assign b05_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
+  assign b05_bram_addr = int_wsel_wire[7] ? int_waddr_wire : int_raddr_wire;
   assign b05_bram_wdata = int_wdata_wire;
 
   assign int_sdata_wire[5] = s05_axis_tdata;

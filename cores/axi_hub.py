@@ -264,7 +264,7 @@ module axi_hub #
   assign b{{index}}_bram_rst = ~aresetn;
   assign b{{index}}_bram_en = int_rsel_wire[{{i+2}}] | int_wsel_wire[{{i+2}}];
   assign b{{index}}_bram_we = int_wsel_wire[{{i+2}}] ? int_wstrb_wire : 4'd0;
-  assign b{{index}}_bram_addr = int_we_wire ? int_waddr_wire : int_raddr_wire;
+  assign b{{index}}_bram_addr = int_wsel_wire[{{i+2}}] ? int_waddr_wire : int_raddr_wire;
   assign b{{index}}_bram_wdata = int_wdata_wire;
 
   assign int_sdata_wire[{{i}}] = s{{index}}_axis_tdata;
