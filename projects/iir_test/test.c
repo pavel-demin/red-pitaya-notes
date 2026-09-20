@@ -68,19 +68,20 @@ int main(int argc, char *argv[])
 
   sleep(1);
 
-  y[0] = 4095 << 9;
+  y[0] = 0;
   y[1] = 0;
   y[2] = 0;
-  y[0] *= scale;
   for(i = 0; i < cntr + 10; ++i)
   {
     value = *fifo;
+    if(i >= 4)
+    {
+      y[0] = (i == 4) ? (int64_t)(4095 << 9) * scale : 0;
+      y[1] = y[0] + y[1] / 65536 * rise;
+      y[2] = y[1] + y[2] / 65536 * fall;
+    }
     model = y[2] >> 25;
     printf("%d\t%d\t%d\n", value, model, value - model);
-    if(i < 2) continue;
-    y[2] = y[1];
-    y[1] = y[0] + y[1] * rise / 65536;
-    y[0] = y[0] * fall / 65536;
   }
 
   return EXIT_SUCCESS;
