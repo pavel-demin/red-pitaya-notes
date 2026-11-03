@@ -7,6 +7,7 @@
 02.10.2016 DL9LJ: add code for controlling ICOM IC-735 (UART).
 03.12.2016 KA6S: add CW keyer code.
 16.08.2017 G8NJJ: add code for controlling G8NJJ Arduino sketch (I2C).
+02.10.2026 DH1KLM: add code for dynamic ADC switching from within Thetis. 
 */
 
 #include <stdio.h>
@@ -47,6 +48,7 @@ volatile uint32_t *rx_freq, *tx_freq, *alex, *dac_freq;
 volatile uint16_t *rx_rate, *rx_cntr, *tx_cntr, *dac_cntr, *adc_cntr;
 volatile int16_t *tx_level, *dac_level;
 volatile uint8_t *gpio_in, *gpio_out, *rx_rst, *tx_rst, *lo_rst;
+volatile uint8_t *rx_sel; /* DH1KLM */
 volatile uint32_t *fifo, *codec, *xadc;
 
 const uint32_t freq_min = 0;
@@ -119,6 +121,30 @@ int cw_memory[2] = {0, 0};
 int cw_ptt_delay = 0;
 
 uint16_t rx_sync_data = 0;
+
+#ifdef THETIS /* DH1KLM */
+/* Protocol 1 C0=0x1c/0x1d, C1: two bits per DDC, IN1=0, IN2=1
+ * (labelled ADC0 and ADC1 in Thetis).
+ * The Thetis build sends FPGA receivers 0..3 as DDC0..3 (RX1,
+ * diversity, RX2, PureSignal feedback). DDC4 is the internal TX
+ * reference, not an ADC input. Keep each startup selection until a
+ * valid assignment arrives; unsupported ADC2/reserved codes must not
+ * silently select a different physical input. No FIFO/LO reset is needed.
+ */
+static void set_rx_adc_assignments(uint8_t assignments)
+{
+  uint8_t selection = *rx_sel;
+  unsigned int i, adc;
+
+  for(i = 0; i < 4; ++i)
+  {
+    adc = (assignments >> (2 * i)) & 3;
+    if(adc < 2)
+      selection = (selection & ~(1u << i)) | (adc << i);
+  }
+  if(*rx_sel != selection) *rx_sel = selection;
+}
+#endif
 
 ssize_t i2c_write_addr_data8(int fd, uint8_t addr, uint8_t data)
 {
@@ -409,7 +435,7 @@ int main(int argc, char *argv[])
   volatile int32_t *tx_ramp;
   volatile uint16_t *tx_size, *dac_size;
   volatile int16_t *ps_level, *dac_ramp;
-  volatile uint8_t *rx_sel, *tx_sel;
+  volatile uint8_t *tx_sel; /* DH1KLM */
   float scale, ramp[1024], a[4] = {0.35875, 0.48829, 0.14128, 0.01168};
   uint8_t reply[11] = {0xef, 0xfe, 2, 0, 0, 0, 0, 0, 0, 32, 1};
   uint8_t id[4] = {0xef, 0xfe, 1, 6};
@@ -1299,6 +1325,12 @@ void process_ep2(uint8_t *frame)
       break;
     case 28:
     case 29:
+#ifdef THETIS /* DH1KLM */
+      /* C2 describes DDC4..6; these have no selectable ADC here.
+       * C3 is TX attenuation and must still reach the Arduino below.
+       */
+      set_rx_adc_assignments(frame[1]);
+#endif
       if(i2c_arduino)
       {
         /*
